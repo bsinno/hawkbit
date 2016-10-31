@@ -310,6 +310,19 @@ public interface SoftwareManagement {
     Slice<SoftwareModule> findSoftwareModulesAll(@NotNull Pageable pageable);
 
     /**
+     * Retrieves all {@link SoftwareModule}s which are assigned to the given
+     * {@link DistributionSet}.
+     *
+     * @param distributionSetId
+     *            the distributionSetId set which should be assigned to the
+     *            returned {@link SoftwareModule}s
+     * @return a list of {@link SoftwareModule}s assigned to given
+     *         {@code distributionSet}
+     */
+    @PreAuthorize(SpringEvalExpressions.HAS_AUTH_READ_REPOSITORY)
+    List<SoftwareModule> findSoftwareModulesByDistributionSetId(@NotNull Long distributionSetId);
+
+    /**
      * Retrieves all software modules with a given list of ids
      * {@link SoftwareModule#getId()}.
      *

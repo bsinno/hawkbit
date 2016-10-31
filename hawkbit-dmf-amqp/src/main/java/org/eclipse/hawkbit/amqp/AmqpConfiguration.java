@@ -369,19 +369,17 @@ public class AmqpConfiguration {
      * Create the dispatcher bean.
      * 
      * @param rabbitTemplate
-     *            the rabbitTemplate.
+     *            the rabbitTemplate
      * @param amqpSenderService
-     *            to send messages
+     *            to send AMQP message
      * @param artifactUrlHandler
-     *            the artifactUrlHandler
+     *            for generating download URLs
      * @param systemSecurityContext
-     *            the systemSecurityContext
+     *            for execution with system permissions
      * @param systemManagement
      *            the systemManagement
      * @param targetManagement
-     *            the targetManagement
-     * @param controllerManagement
-     *            the controllerManagement
+     *            to access target information
      * @return the bean
      */
     @Bean
@@ -389,12 +387,9 @@ public class AmqpConfiguration {
     public AmqpMessageDispatcherService amqpMessageDispatcherService(final RabbitTemplate rabbitTemplate,
             final AmqpSenderService amqpSenderService, final ArtifactUrlHandler artifactUrlHandler,
             final SystemSecurityContext systemSecurityContext, final SystemManagement systemManagement,
-            final TargetManagement targetManagement, final ControllerManagement controllerManagement) {
-        final AmqpMessageDispatcherService amqpMessageDispatcherService = new AmqpMessageDispatcherService(
-                rabbitTemplate, amqpSenderService, artifactUrlHandler, systemSecurityContext, systemManagement,
-                targetManagement, controllerManagement);
-        amqpMessageDispatcherService.setServiceMatcher(serviceMatcher);
-        return amqpMessageDispatcherService;
+            final TargetManagement targetManagement) {
+        return new AmqpMessageDispatcherService(rabbitTemplate, amqpSenderService, artifactUrlHandler,
+                systemSecurityContext, systemManagement, targetManagement, serviceMatcher);
     }
 
     private static Map<String, Object> getTTLMaxArgsAuthenticationQueue() {

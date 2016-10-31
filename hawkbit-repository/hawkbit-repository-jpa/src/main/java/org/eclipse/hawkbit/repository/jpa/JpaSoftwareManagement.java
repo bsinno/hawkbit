@@ -289,6 +289,11 @@ public class JpaSoftwareManagement implements SoftwareManagement {
     }
 
     @Override
+    public List<SoftwareModule> findSoftwareModulesByDistributionSetId(final Long distributionSetId) {
+        return Collections.unmodifiableList(softwareModuleRepository.findByAssignedToId(distributionSetId));
+    }
+
+    @Override
     public Long countSoftwareModulesAll() {
         final Specification<JpaSoftwareModule> spec = SoftwareModuleSpecification.isDeletedFalse();
 
@@ -598,12 +603,10 @@ public class JpaSoftwareManagement implements SoftwareManagement {
 
     @Override
     public List<SoftwareModuleMetadata> findSoftwareModuleMetadataBySoftwareModuleId(final Long softwareModuleId) {
-        return Collections
-                .unmodifiableList(softwareModuleMetadataRepository
-                        .findAll((Specification<JpaSoftwareModuleMetadata>) (root, query,
-                                cb) -> cb.and(cb.equal(
-                                        root.get(JpaSoftwareModuleMetadata_.softwareModule).get(JpaSoftwareModule_.id),
-                                        softwareModuleId))));
+        return Collections.unmodifiableList(softwareModuleMetadataRepository
+                .findAll((Specification<JpaSoftwareModuleMetadata>) (root, query, cb) -> cb
+                        .and(cb.equal(root.get(JpaSoftwareModuleMetadata_.softwareModule).get(JpaSoftwareModule_.id),
+                                softwareModuleId))));
     }
 
     @Override

@@ -25,8 +25,6 @@ import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
 import org.eclipse.hawkbit.repository.ControllerManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.RepositoryConstants;
-import org.eclipse.hawkbit.repository.event.remote.TargetAssignDistributionSetEvent;
-import org.eclipse.hawkbit.repository.event.remote.entity.CancelTargetAssignmentEvent;
 import org.eclipse.hawkbit.repository.exception.TenantNotExistException;
 import org.eclipse.hawkbit.repository.exception.TooManyStatusEntriesException;
 import org.eclipse.hawkbit.repository.model.Action;
@@ -196,14 +194,13 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
 
         final Action action = actionOptional.get();
         if (action.isCancelingOrCanceled()) {
-            amqpMessageDispatcherService.targetCancelAssignmentToDistributionSet(
-                    new CancelTargetAssignmentEvent(target, action.getId(), applicationContext.getId()));
+            amqpMessageDispatcherService.sendCancelMessageToTarget(target.getTenant(), target.getControllerId(),
+                    action.getId(), target.getTargetInfo().getAddress());
             return;
         }
 
-        amqpMessageDispatcherService
-                .targetAssignDistributionSet(new TargetAssignDistributionSetEvent(action, applicationContext.getId()));
-
+        amqpMessageDispatcherService.sendUpdateMessageToTarget(action.getTenant(), action.getTarget(), action.getId(),
+                action.getDistributionSet().getModules());
     }
 
     /**

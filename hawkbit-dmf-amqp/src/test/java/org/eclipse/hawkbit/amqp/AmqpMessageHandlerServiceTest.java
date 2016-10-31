@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.api.HostnameResolver;
@@ -39,7 +40,6 @@ import org.eclipse.hawkbit.dmf.json.model.TenantSecurityToken.FileResource;
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.ControllerManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.event.remote.TargetAssignDistributionSetEvent;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.jpa.model.JpaAction;
 import org.eclipse.hawkbit.repository.jpa.model.JpaActionStatus;
@@ -47,8 +47,9 @@ import org.eclipse.hawkbit.repository.jpa.model.JpaTarget;
 import org.eclipse.hawkbit.repository.jpa.model.helper.SecurityTokenGeneratorHolder;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.Status;
-import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Artifact;
+import org.eclipse.hawkbit.repository.model.DistributionSet;
+import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetInfo;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
@@ -379,18 +380,19 @@ public class AmqpMessageHandlerServiceTest {
         verify(controllerManagementMock).updateTargetStatus(Matchers.any(TargetInfo.class),
                 Matchers.isNull(TargetUpdateStatus.class), Matchers.isNotNull(Long.class), Matchers.isNull(URI.class));
 
-        final ArgumentCaptor<TargetAssignDistributionSetEvent> captorTargetAssignDistributionSetEvent = ArgumentCaptor
-                .forClass(TargetAssignDistributionSetEvent.class);
-        verify(amqpMessageDispatcherServiceMock, times(1))
-                .targetAssignDistributionSet(captorTargetAssignDistributionSetEvent.capture());
-        final TargetAssignDistributionSetEvent targetAssignDistributionSetEvent = captorTargetAssignDistributionSetEvent
-                .getValue();
+        final ArgumentCaptor<String> tenantCaptor = ArgumentCaptor.forClass(String.class);
+        final ArgumentCaptor<Target> targetCaptor = ArgumentCaptor.forClass(Target.class);
+        final ArgumentCaptor<Long> actionIdCaptor = ArgumentCaptor.forClass(Long.class);
 
-        assertThat(targetAssignDistributionSetEvent.getControllerId()).as("event has wrong controller id")
-                .isEqualTo("target1");
-        assertThat(targetAssignDistributionSetEvent.getDistributionSetId())
-                .isEqualTo(action.getDistributionSet().getId());
-        assertThat(targetAssignDistributionSetEvent.getActionId()).as("event has wrong action id").isEqualTo(22L);
+        verify(amqpMessageDispatcherServiceMock, times(1)).sendUpdateMessageToTarget(tenantCaptor.capture(),
+                targetCaptor.capture(), actionIdCaptor.capture(), Matchers.any(Collection.class));
+        final String tenant = tenantCaptor.getValue();
+        final String controllerId = targetCaptor.getValue().getControllerId();
+        final Long actionId = actionIdCaptor.getValue();
+
+        assertThat(tenant).as("event has tenant").isEqualTo("DEFAULT");
+        assertThat(controllerId).as("event has wrong controller id").isEqualTo("target1");
+        assertThat(actionId).as("event has wrong action id").isEqualTo(22L);
 
     }
 

@@ -8,7 +8,13 @@
  */
 package org.eclipse.hawkbit.repository.event.remote;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.model.SoftwareModule;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * TenantAwareEvent that gets sent when a distribution set gets assigned to a
@@ -19,11 +25,20 @@ public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private final Long actionId;
+    private Long actionId;
 
-    private final Long distributionSetId;
+    private Long distributionSetId;
 
-    private final String controllerId;
+    private String controllerId;
+
+    private transient Collection<SoftwareModule> modules;
+
+    /**
+     * Default constructor.
+     */
+    public TargetAssignDistributionSetEvent() {
+        // for serialization libs like jackson
+    }
 
     /**
      * Constructor.
@@ -39,7 +54,7 @@ public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
      * @param applicationId
      *            the application id.
      */
-    protected TargetAssignDistributionSetEvent(final String tenant, final Long actionId, final Long distributionSetId,
+    private TargetAssignDistributionSetEvent(final String tenant, final Long actionId, final Long distributionSetId,
             final String controllerId, final String applicationId) {
         super(actionId, tenant, applicationId);
         this.actionId = actionId;
@@ -58,6 +73,8 @@ public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
     public TargetAssignDistributionSetEvent(final Action action, final String applicationId) {
         this(action.getTenant(), action.getId(), action.getDistributionSet().getId(),
                 action.getTarget().getControllerId(), applicationId);
+        this.modules = action.getDistributionSet().getModules();
+
     }
 
     public Long getActionId() {
@@ -72,4 +89,15 @@ public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
         return distributionSetId;
     }
 
+    /**
+     * @return modules if Event has been published by same node otherwise empty.
+     */
+    @JsonIgnore
+    public Collection<SoftwareModule> getModules() {
+        if (modules == null) {
+            return Collections.emptyList();
+        }
+
+        return modules;
+    }
 }
