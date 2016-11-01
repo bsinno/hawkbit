@@ -55,7 +55,7 @@ public class RemoteIdEventTest extends AbstractRemoteEventTest {
 
         final Long entityId = 1L;
 
-        final Constructor<?> constructor = eventType.getDeclaredConstructors()[0];
+        final Constructor<?> constructor = eventType.getDeclaredConstructors()[1];
 
         try {
             final RemoteIdEvent event = (RemoteIdEvent) constructor.newInstance("tenant", entityId, "Node");
