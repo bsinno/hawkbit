@@ -46,13 +46,6 @@
    <dependencyManagement>
       <dependencies>
          <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-netflix-dependencies</artifactId>
-            <version>1.2.0.RELEASE</version>
-            <type>pom</type>
-            <scope>import</scope>
-         </dependency>
-         <dependency>
             <groupId>io.github.openfeign</groupId>
             <artifactId>feign-jackson</artifactId>
             <version>9.3.1</version>

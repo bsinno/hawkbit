@@ -66,7 +66,6 @@ import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 
 import ru.yandex.qatools.allure.annotations.Description;
@@ -115,18 +114,15 @@ public class AmqpMessageHandlerServiceTest {
     @Mock
     private RabbitTemplate rabbitTemplate;
 
-    @Mock
-    private ApplicationContext applicationContext;
-
     @Before
     public void before() throws Exception {
         messageConverter = new Jackson2JsonMessageConverter();
         when(rabbitTemplate.getMessageConverter()).thenReturn(messageConverter);
         amqpMessageHandlerService = new AmqpMessageHandlerService(rabbitTemplate, amqpMessageDispatcherServiceMock,
-                controllerManagementMock, entityFactoryMock, applicationContext);
+                controllerManagementMock, entityFactoryMock);
 
         amqpMessageHandlerService = new AmqpMessageHandlerService(rabbitTemplate, amqpMessageDispatcherServiceMock,
-                controllerManagementMock, entityFactoryMock, applicationContext);
+                controllerManagementMock, entityFactoryMock);
         amqpAuthenticationMessageHandlerService = new AmqpAuthenticationMessageHandler(rabbitTemplate,
                 authenticationManagerMock, artifactManagementMock, downloadIdCache, hostnameResolverMock,
                 controllerManagementMock);

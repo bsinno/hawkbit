@@ -47,7 +47,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.bus.ServiceMatcher;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
@@ -273,18 +272,15 @@ public class AmqpConfiguration {
      *            for target repo access
      * @param entityFactory
      *            to create entities
-     * @param applicationContext
-     *            the applicationContext
      *
      * @return handler service bean
      */
     @Bean
     public AmqpMessageHandlerService amqpMessageHandlerService(final RabbitTemplate rabbitTemplate,
             final AmqpMessageDispatcherService amqpMessageDispatcherService,
-            final ControllerManagement controllerManagement, final EntityFactory entityFactory,
-            final ApplicationContext applicationContext) {
+            final ControllerManagement controllerManagement, final EntityFactory entityFactory) {
         return new AmqpMessageHandlerService(rabbitTemplate, amqpMessageDispatcherService, controllerManagement,
-                entityFactory, applicationContext);
+                entityFactory);
     }
 
     /**
