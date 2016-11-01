@@ -106,7 +106,7 @@
       <!-- Newer versions needed than defined in Boot -->
       <spring-amqp.version>1.6.3.RELEASE</spring-amqp.version>
       <spring-security.version>4.1.2.RELEASE</spring-security.version>
-      <spring.version>4.3.2.RELEASE</spring.version>
+      <spring.version>4.3.3.RELEASE</spring.version>
       <spring-integration.version>4.3.2.RELEASE</spring-integration.version>
       <spring-data-releasetrain.version>Hopper-SR4</spring-data-releasetrain.version>
       <!-- Support for MongoDB 3 -->

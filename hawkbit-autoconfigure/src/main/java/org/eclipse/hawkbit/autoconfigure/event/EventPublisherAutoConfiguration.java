@@ -12,7 +12,7 @@ import java.util.concurrent.Executor;
 
 import org.eclipse.hawkbit.event.BusProtoStuffMessageConverter;
 import org.eclipse.hawkbit.repository.event.remote.RemoteTenantAwareEvent;
-import org.eclipse.hawkbit.repository.jpa.model.helper.EventPublisherHolder;
+import org.eclipse.hawkbit.repository.model.helper.EventPublisherHolder;
 import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
