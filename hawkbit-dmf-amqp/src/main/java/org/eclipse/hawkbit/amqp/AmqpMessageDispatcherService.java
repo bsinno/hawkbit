@@ -36,12 +36,13 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.cloud.bus.ServiceMatcher;
+import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.context.event.EventListener;
 
 /**
  * {@link AmqpMessageDispatcherService} create all outgoing AMQP messages and
  * delegate the messages to a {@link AmqpSenderService}.
- * 
+ *
  * Additionally the dispatcher listener/subscribe for some target events e.g.
  * assignment.
  *
@@ -57,7 +58,7 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
 
     /**
      * Constructor.
-     * 
+     *
      * @param rabbitTemplate
      *            the rabbitTemplate
      * @param amqpSenderService
@@ -91,18 +92,18 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
      * Method to send a message to a RabbitMQ Exchange after the Distribution
      * set has been assign to a Target.
      *
-     * @param targetAssignDistributionSetEvent
+     * @param assignedEvent
      *            the object to be send.
      */
     @EventListener(classes = TargetAssignDistributionSetEvent.class)
-    public void targetAssignDistributionSet(final TargetAssignDistributionSetEvent targetAssignDistributionSetEvent) {
-        if (serviceMatcher != null && !serviceMatcher.isFromSelf(targetAssignDistributionSetEvent)) {
+    public void targetAssignDistributionSet(final TargetAssignDistributionSetEvent assignedEvent) {
+        if (isFromSelf(assignedEvent)) {
             return;
         }
 
-        sendUpdateMessageToTarget(targetAssignDistributionSetEvent.getTenant(),
-                targetManagement.findTargetByControllerID(targetAssignDistributionSetEvent.getControllerId()),
-                targetAssignDistributionSetEvent.getActionId(), targetAssignDistributionSetEvent.getModules());
+        sendUpdateMessageToTarget(assignedEvent.getTenant(),
+                targetManagement.findTargetByControllerID(assignedEvent.getControllerId()), assignedEvent.getActionId(),
+                assignedEvent.getModules());
     }
 
     void sendUpdateMessageToTarget(final String tenant, final Target target, final Long actionId,
@@ -136,20 +137,21 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
      * Method to send a message to a RabbitMQ Exchange after the assignment of
      * the Distribution set to a Target has been canceled.
      *
-     * @param cancelTargetAssignmentDistributionSetEvent
+     * @param cancelEvent
      *            the object to be send.
      */
     @EventListener(classes = CancelTargetAssignmentEvent.class)
-    public void targetCancelAssignmentToDistributionSet(
-            final CancelTargetAssignmentEvent cancelTargetAssignmentDistributionSetEvent) {
-        if (serviceMatcher != null && !serviceMatcher.isFromSelf(cancelTargetAssignmentDistributionSetEvent)) {
+    public void targetCancelAssignmentToDistributionSet(final CancelTargetAssignmentEvent cancelEvent) {
+        if (isFromSelf(cancelEvent)) {
             return;
         }
 
-        sendCancelMessageToTarget(cancelTargetAssignmentDistributionSetEvent.getTenant(),
-                cancelTargetAssignmentDistributionSetEvent.getEntity().getControllerId(),
-                cancelTargetAssignmentDistributionSetEvent.getActionId(),
-                cancelTargetAssignmentDistributionSetEvent.getEntity().getTargetInfo().getAddress());
+        sendCancelMessageToTarget(cancelEvent.getTenant(), cancelEvent.getEntity().getControllerId(),
+                cancelEvent.getActionId(), cancelEvent.getEntity().getTargetInfo().getAddress());
+    }
+
+    private boolean isFromSelf(final RemoteApplicationEvent event) {
+        return serviceMatcher != null && !serviceMatcher.isFromSelf(event);
     }
 
     void sendCancelMessageToTarget(final String tenant, final String controllerId, final Long actionId,

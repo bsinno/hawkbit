@@ -28,7 +28,7 @@ import ru.yandex.qatools.allure.annotations.Stories;
 @Stories("Entity Id Events")
 public class RemoteIdEventTest extends AbstractRemoteEventTest {
 
-    private static final Long ENTITY_ID = 1L;
+    private static final long ENTITY_ID = 1L;
 
     @Test
     @Description("Verifies that the is ds id correct reloaded")
@@ -68,7 +68,7 @@ public class RemoteIdEventTest extends AbstractRemoteEventTest {
         }
     }
 
-    protected RemoteIdEvent assertEntity(final Long id, final RemoteIdEvent event) {
+    protected RemoteIdEvent assertEntity(final long id, final RemoteIdEvent event) {
         assertThat(event.getEntityId()).isSameAs(id);
 
         final Message<?> message = createMessage(event);

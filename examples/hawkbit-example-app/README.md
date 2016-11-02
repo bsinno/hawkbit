@@ -36,7 +36,7 @@ The Management API can be accessed via http://localhost:8080/rest/v1
 
 # Enable Clustering (experimental)
 
-Clustering in hawkBit is based _Spring Cloud Bus_. It is not enabled on the example app by default.
+Clustering in hawkBit is based on _Spring Cloud Bus_. It is not enabled in the example app by default.
 
 Add to your `application.properties` :
 
@@ -53,7 +53,7 @@ Add to your `pom.xml` :
 </dependency>
 ```
 
-Optional as well is the addition to add a _protostuff_ based message payload serialization for improved performance.
+Optional as well is the addition of [Protostuff](https://github.com/protostuff/protostuff) based message payload serialization for improved performance.
 
 
 Add to your `application.properties` :
