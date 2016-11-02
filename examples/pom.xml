@@ -42,15 +42,4 @@
       <module>hawkbit-example-mgmt-feign-client</module>
       <module>hawkbit-example-mgmt-simulator</module>
    </modules>
-
-   <dependencyManagement>
-      <dependencies>
-         <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-jackson</artifactId>
-            <version>9.3.1</version>
-         </dependency>
-      </dependencies>
-   </dependencyManagement>
-
 </project>
