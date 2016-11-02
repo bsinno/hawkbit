@@ -43,7 +43,7 @@ public class RemoteEntityEvent<E extends TenantAwareBaseEntity> extends RemoteId
 
     /**
      * Constructor.
-     * 
+     *
      * @param baseEntity
      *            the base entity
      * @param applicationId

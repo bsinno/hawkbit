@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * TenantAwareEvent that gets sent when a distribution set gets assigned to a
  * target.
- *
  */
 public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
 
@@ -42,29 +41,7 @@ public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
 
     /**
      * Constructor.
-     * 
-     * @param tenant
-     *            the tenant
-     * @param actionId
-     *            the actionId
-     * @param distributionSetId
-     *            the distributionSetId
-     * @param controllerId
-     *            the controllerId
-     * @param applicationId
-     *            the application id.
-     */
-    private TargetAssignDistributionSetEvent(final String tenant, final Long actionId, final Long distributionSetId,
-            final String controllerId, final String applicationId) {
-        super(actionId, tenant, applicationId);
-        this.actionId = actionId;
-        this.distributionSetId = distributionSetId;
-        this.controllerId = controllerId;
-    }
-
-    /**
-     * Constructor.
-     * 
+     *
      * @param action
      *            the action
      * @param applicationId
@@ -75,6 +52,14 @@ public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
                 action.getTarget().getControllerId(), applicationId);
         this.modules = action.getDistributionSet().getModules();
 
+    }
+
+    private TargetAssignDistributionSetEvent(final String tenant, final Long actionId, final Long distributionSetId,
+            final String controllerId, final String applicationId) {
+        super(actionId, tenant, applicationId);
+        this.actionId = actionId;
+        this.distributionSetId = distributionSetId;
+        this.controllerId = controllerId;
     }
 
     public Long getActionId() {
