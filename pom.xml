@@ -463,13 +463,14 @@
 
    <dependencyManagement>
       <dependencies>
-         <!-- Logging -->
-         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-         </dependency>
          <!-- Vaadin -->
+         <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-bom</artifactId>
+            <version>${vaadin.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+         </dependency>         
          <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot</artifactId>
@@ -484,26 +485,6 @@
             <groupId>org.vaadin.spring.extensions</groupId>
             <artifactId>vaadin-spring-ext-security</artifactId>
             <version>${vaadin.spring.addon.version}</version>
-         </dependency>
-         <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-server</artifactId>
-            <version>${vaadin.version}</version>
-         </dependency>
-         <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-push</artifactId>
-            <version>${vaadin.version}</version>
-         </dependency>
-         <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-client</artifactId>
-            <version>${vaadin.version}</version>
-         </dependency>
-         <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-themes</artifactId>
-            <version>${vaadin.version}</version>
          </dependency>
          <dependency>
             <groupId>org.vaadin.addons.lazyquerycontainer</groupId>
