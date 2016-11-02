@@ -55,6 +55,13 @@ public class RemoteEntityEvent<E extends TenantAwareBaseEntity> extends RemoteId
         this.entity = baseEntity;
     }
 
+    /**
+     * @return the entityClass
+     */
+    public String getEntityClass() {
+        return entityClass;
+    }
+
     @JsonIgnore
     public E getEntity() {
         if (entity == null) {

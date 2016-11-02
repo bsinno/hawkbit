@@ -15,7 +15,6 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.springframework.messaging.Message;
 
 import ru.yandex.qatools.allure.annotations.Description;
 import ru.yandex.qatools.allure.annotations.Features;
@@ -71,10 +70,12 @@ public class RemoteIdEventTest extends AbstractRemoteEventTest {
     protected RemoteIdEvent assertEntity(final long id, final RemoteIdEvent event) {
         assertThat(event.getEntityId()).isSameAs(id);
 
-        final Message<?> message = createMessage(event);
-        final RemoteIdEvent underTestCreatedEvent = (RemoteIdEvent) getAbstractMessageConverter().fromMessage(message,
-                event.getClass());
+        RemoteIdEvent underTestCreatedEvent = (RemoteIdEvent) createProtoStuffEvent(event);
         assertThat(underTestCreatedEvent.getEntityId()).isEqualTo(id);
+
+        underTestCreatedEvent = (RemoteIdEvent) createJacksonEvent(event);
+        assertThat(underTestCreatedEvent.getEntityId()).isEqualTo(id);
+
         return underTestCreatedEvent;
     }
 
