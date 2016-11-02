@@ -149,7 +149,7 @@
       <json.version>20141113</json.version>
       <rsql-parser.version>2.1.0</rsql-parser.version>
       <spring.cloud.version>Camden.SR1</spring.cloud.version>
-      <feign.jackson.version>9.3.1</feign.jackson.version>
+      <feign.extension.version>9.3.1</feign.extension.version>
       <jayway.awaitility.version>1.7.0</jayway.awaitility.version>
       <io-protostuff.version>1.3.5</io-protostuff.version>
      
@@ -601,7 +601,17 @@
          <dependency>
             <groupId>io.github.openfeign</groupId>
             <artifactId>feign-jackson</artifactId>
-            <version>${feign.jackson.version}</version>
+            <version>${feign.extension.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-gson</artifactId>
+            <version>${feign.extension.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-jaxrs</artifactId>
+            <version>${feign.extension.version}</version>
          </dependency>
         
         <!-- Protostuff Io -->
