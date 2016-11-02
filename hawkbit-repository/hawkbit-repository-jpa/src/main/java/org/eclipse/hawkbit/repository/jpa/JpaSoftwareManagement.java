@@ -289,11 +289,6 @@ public class JpaSoftwareManagement implements SoftwareManagement {
     }
 
     @Override
-    public List<SoftwareModule> findSoftwareModulesByDistributionSetId(final Long distributionSetId) {
-        return Collections.unmodifiableList(softwareModuleRepository.findByAssignedToId(distributionSetId));
-    }
-
-    @Override
     public Long countSoftwareModulesAll() {
         final Specification<JpaSoftwareModule> spec = SoftwareModuleSpecification.isDeletedFalse();
 

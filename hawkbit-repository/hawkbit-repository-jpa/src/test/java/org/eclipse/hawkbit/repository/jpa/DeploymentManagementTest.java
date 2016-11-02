@@ -953,14 +953,9 @@ public class DeploymentManagementTest extends AbstractJpaIntegrationTest {
                     assertThat(event.getActionId()).as("Action id in database and event do not match")
                             .isEqualTo(activeActionsByTarget.get(0).getId());
 
-                    final List<SoftwareModule> modules = softwareManagement
-                            .findSoftwareModulesByDistributionSetId(event.getDistributionSetId());
                     assertThat(distributionSetManagement.findDistributionSetById(event.getDistributionSetId())
                             .getModules()).as("softwaremodule size is not correct")
                                     .containsOnly(ds.getModules().toArray(new SoftwareModule[ds.getModules().size()]));
-
-                    assertThat(modules).as("softwaremodule size is not correct")
-                            .containsOnly(ds.getModules().toArray(new SoftwareModule[ds.getModules().size()]));
                 }
             }
             assertThat(found).as("No event found for controller " + myt.getControllerId()).isTrue();
