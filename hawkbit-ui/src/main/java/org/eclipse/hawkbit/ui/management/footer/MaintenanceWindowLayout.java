@@ -208,8 +208,8 @@ public class MaintenanceWindowLayout extends VerticalLayout {
      * Get time zone of the browser client to be used as default.
      */
     private static String getClientTimeZone() {
-        return ZonedDateTime.now(ZoneId.of(SPDateTimeUtil.getBrowserTimeZone().getID())).getOffset().getId()
-                .replaceAll("Z", "+00:00");
+        return ZonedDateTime.now(SPDateTimeUtil.getTimeZoneId(SPDateTimeUtil.getBrowserTimeZone())).getOffset()
+                .getId().replaceAll("Z", "+00:00");
     }
 
     /**
