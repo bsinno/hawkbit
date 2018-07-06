@@ -28,7 +28,8 @@ public interface Rollout extends NamedEntity {
     /**
      * Maximum length of author name.
      */
-    int APPROVED_BY_MAX_SIZE = 64;
+    int APPROVED_BY_MAX_SIZE = 40;
+
 
     /**
      * Maximum length on comment regarding approval decision.
