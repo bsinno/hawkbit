@@ -138,13 +138,16 @@
       <!-- Spring boot version overrides - END -->
 
       <!-- Vaadin versions - START -->
-      <vaadin.spring.version>1.1.1</vaadin.spring.version>
-      <vaadin.spring.addon.version>0.0.6.RELEASE</vaadin.spring.addon.version>
-      <vaadin.version>7.7.13</vaadin.version>
+      <vaadin.spring.version>3.0.1</vaadin.spring.version>
+      <vaadin.spring.addon.version>2.0.0.RELEASE</vaadin.spring.addon.version>
+      <vaadin.version>8.4.5</vaadin.version>
       <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
       <vaadin.addon.vaadin-lazyquerycontainer.version>7.6.1.3</vaadin.addon.vaadin-lazyquerycontainer.version>
-      <vaadin.addon.flexibleoptiongroup.version>2.2.0</vaadin.addon.flexibleoptiongroup.version>
+<!--       Not supported with Vaadin 8 -->
+      <vaadin.addon.flexibleoptiongroup.version>2.2.0</vaadin.addon.flexibleoptiongroup.version> 
+      <!--       Not supported with Vaadin 8, but there are other addons: AdvancedTokenField Add-on and Extended Token Field. Check if we can use on of them, or if we need an add-on at all. Maybe we can use standard Vaadin 8 components. -->
       <vaadin.addon.tokenfield.version>7.0.1</vaadin.addon.tokenfield.version>
+      <!--       Not supported with Vaadin 8 -->
       <vaadin.addon.dbar-addon.version>2.0.0</vaadin.addon.dbar-addon.version>
       <!-- Vaadin versions - END -->
 
@@ -360,7 +363,7 @@
                            <pluginExecutionFilter>
                               <groupId>com.vaadin</groupId>
                               <artifactId>vaadin-maven-plugin</artifactId>
-                              <versionRange>[7.3.0,)</versionRange>
+                              <versionRange>${vaadin.plugin.version}</versionRange>
                               <goals>
                                  <goal>resources</goal>
                                  <goal>update-widgetset</goal>
@@ -543,7 +546,7 @@
          <dependency>
             <groupId>org.vaadin.spring.addons</groupId>
             <artifactId>vaadin-spring-addon-eventbus</artifactId>
-            <version>${vaadin.spring.addon.version}</version>
+           <version>${vaadin.spring.addon.version}</version>
             <exclusions>
                <exclusion>
                   <groupId>com.vaadin</groupId>
@@ -573,11 +576,11 @@
                </exclusion>
                <exclusion>
                   <groupId>com.vaadin</groupId>
-                  <artifactId>vaadin-client-compiled</artifactId>
+                  <artifactId>vaadin-compatibility-client-compiled</artifactId>
                </exclusion>
                <exclusion>
                   <groupId>com.vaadin</groupId>
-                  <artifactId>vaadin-themes</artifactId>
+                  <artifactId>vaadin-compatibility-themes</artifactId>
                </exclusion>
             </exclusions>
          </dependency>

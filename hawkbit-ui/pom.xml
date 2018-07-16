@@ -187,11 +187,11 @@
       </dependency>
       <dependency>
          <groupId>com.vaadin</groupId>
-         <artifactId>vaadin-server</artifactId>
+         <artifactId>vaadin-compatibility-server</artifactId>
       </dependency>
       <dependency>
          <groupId>com.vaadin</groupId>
-         <artifactId>vaadin-client</artifactId>
+         <artifactId>vaadin-compatibility-client</artifactId>
       </dependency>
       <dependency>
          <groupId>com.vaadin</groupId>
@@ -204,7 +204,7 @@
 
       <dependency>
          <groupId>com.vaadin</groupId>
-         <artifactId>vaadin-themes</artifactId>
+         <artifactId>vaadin-compatibility-themes</artifactId>
       </dependency>
       <dependency>
          <groupId>org.vaadin.addons.lazyquerycontainer</groupId>
