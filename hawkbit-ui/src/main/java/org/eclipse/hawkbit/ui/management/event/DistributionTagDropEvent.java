@@ -32,8 +32,8 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.Table.TableTransferable;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.Table.TableTransferable;
 
 /**
  *

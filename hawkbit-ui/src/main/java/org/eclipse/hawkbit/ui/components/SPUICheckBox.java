@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.components;
 
-import com.vaadin.ui.CheckBox;
+import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

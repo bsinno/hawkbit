@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.customrenderers.renderers;
 
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
 
-import com.vaadin.ui.renderers.ClickableRenderer;
+import com.vaadin.v7.ui.renderers.ClickableRenderer;
 
 import elemental.json.JsonValue;
 

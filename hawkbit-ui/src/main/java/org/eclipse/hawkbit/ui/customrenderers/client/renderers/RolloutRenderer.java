@@ -9,9 +9,9 @@
 package org.eclipse.hawkbit.ui.customrenderers.client.renderers;
 
 import com.google.gwt.core.shared.GWT;
-import com.vaadin.client.renderers.ClickableRenderer;
+import com.vaadin.v7.client.renderers.ClickableRenderer;
 import com.vaadin.client.ui.VButton;
-import com.vaadin.client.widget.grid.RendererCellReference;
+import com.vaadin.v7.client.widget.grid.RendererCellReference;
 
 /**
  * Renders button with provided CustomObject.

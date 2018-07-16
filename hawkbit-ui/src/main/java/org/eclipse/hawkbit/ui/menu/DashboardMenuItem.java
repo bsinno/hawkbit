@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.vaadin.server.Resource;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.Label;
 
 /**
  * Describe a menu entry for the Dashboard.

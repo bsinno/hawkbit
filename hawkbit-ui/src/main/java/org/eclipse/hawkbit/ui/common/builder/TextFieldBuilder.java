@@ -8,10 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
-import com.vaadin.event.FieldEvents.TextChangeListener;
+import com.vaadin.v7.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.ui.AbstractTextField.TextChangeEventMode;
+import com.vaadin.v7.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

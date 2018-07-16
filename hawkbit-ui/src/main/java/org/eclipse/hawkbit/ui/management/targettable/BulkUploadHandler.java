@@ -52,21 +52,21 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.TextArea;
+import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.ProgressBar;
+import com.vaadin.v7.ui.TextArea;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.Upload.FailedEvent;
-import com.vaadin.ui.Upload.FailedListener;
-import com.vaadin.ui.Upload.Receiver;
-import com.vaadin.ui.Upload.StartedEvent;
-import com.vaadin.ui.Upload.StartedListener;
-import com.vaadin.ui.Upload.SucceededEvent;
-import com.vaadin.ui.Upload.SucceededListener;
+import com.vaadin.v7.ui.Upload;
+import com.vaadin.v7.ui.Upload.FailedEvent;
+import com.vaadin.v7.ui.Upload.FailedListener;
+import com.vaadin.v7.ui.Upload.Receiver;
+import com.vaadin.v7.ui.Upload.StartedEvent;
+import com.vaadin.v7.ui.Upload.StartedListener;
+import com.vaadin.v7.ui.Upload.SucceededEvent;
+import com.vaadin.v7.ui.Upload.SucceededListener;
 
 /**
  * Bulk target upload handler.

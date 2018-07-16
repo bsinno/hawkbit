@@ -14,7 +14,7 @@ import java.util.Locale;
 import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.util.converter.Converter;
+import com.vaadin.v7.data.util.converter.Converter;
 
 /**
  * Converter that adapts to a model and converts to a label presentation.

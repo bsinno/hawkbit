@@ -21,11 +21,11 @@ import java.util.TimeZone;
 
 import javax.validation.constraints.NotNull;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.Validator.InvalidValueException;
-import com.vaadin.data.util.converter.Converter.ConversionException;
-import com.vaadin.shared.ui.datefield.Resolution;
-import com.vaadin.ui.DateField;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Validator.InvalidValueException;
+import com.vaadin.v7.data.util.converter.Converter.ConversionException;
+import com.vaadin.v7.shared.ui.datefield.Resolution;
+import com.vaadin.v7.ui.DateField;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

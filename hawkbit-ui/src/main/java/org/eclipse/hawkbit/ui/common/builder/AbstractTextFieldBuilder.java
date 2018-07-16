@@ -15,8 +15,8 @@ import org.eclipse.hawkbit.ui.common.EmptyStringValidator;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.Validator;
-import com.vaadin.ui.AbstractTextField;
+import com.vaadin.v7.data.Validator;
+import com.vaadin.v7.ui.AbstractTextField;
 
 /**
  * Abstract Text field builder.

@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.customrenderers.client;
 
 import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlButtonRenderer;
 
-import com.vaadin.client.connectors.ButtonRendererConnector;
+import com.vaadin.v7.client.connectors.ButtonRendererConnector;
 import com.vaadin.shared.ui.Connect;
 
 /**

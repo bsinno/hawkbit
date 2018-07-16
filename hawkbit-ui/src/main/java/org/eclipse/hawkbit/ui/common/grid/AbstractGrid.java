@@ -26,10 +26,10 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.Container.Indexed;
-import com.vaadin.data.util.GeneratedPropertyContainer;
-import com.vaadin.data.util.converter.Converter;
-import com.vaadin.ui.Grid;
+import com.vaadin.v7.data.Container.Indexed;
+import com.vaadin.v7.data.util.GeneratedPropertyContainer;
+import com.vaadin.v7.data.util.converter.Converter;
+import com.vaadin.v7.ui.Grid;
 
 /**
  * Abstract grid that offers various capabilities (aka support) to offer

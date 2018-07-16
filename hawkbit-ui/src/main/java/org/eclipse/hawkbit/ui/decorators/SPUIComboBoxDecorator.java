@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.decorators;
 
 import org.springframework.util.StringUtils;
 
-import com.vaadin.ui.ComboBox;
+import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
