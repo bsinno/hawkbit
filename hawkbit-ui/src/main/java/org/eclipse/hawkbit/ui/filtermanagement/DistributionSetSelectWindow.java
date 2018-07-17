@@ -28,24 +28,24 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Property;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 /**
  * Creates a dialog window to select the distribution set for a target filter
  * query.
  */
-public class DistributionSetSelectWindow
-        implements CommonDialogWindow.SaveDialogCloseListener, Property.ValueChangeListener {
+public class DistributionSetSelectWindow implements CommonDialogWindow.SaveDialogCloseListener, ValueChangeListener {
 
     private static final long serialVersionUID = 4752345414134989396L;
 
@@ -60,6 +60,7 @@ public class DistributionSetSelectWindow
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
 
     private CheckBox checkBox;
+
     private Long tfqId;
 
     DistributionSetSelectWindow(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -77,7 +78,6 @@ public class DistributionSetSelectWindow
 
         checkBox = new CheckBox(i18n.getMessage("label.auto.assign.enable"));
         checkBox.setId(UIComponentIdProvider.DIST_SET_SELECT_ENABLE_ID);
-        checkBox.setImmediate(true);
         checkBox.addValueChangeListener(this);
 
         setTableEnabled(false);
@@ -135,7 +135,7 @@ public class DistributionSetSelectWindow
      *            change event
      */
     @Override
-    public void valueChange(final Property.ValueChangeEvent event) {
+    public void valueChange(final ValueChangeEvent event) {
         if (checkBox.getValue()) {
             setTableEnabled(true);
         } else {

@@ -21,12 +21,13 @@ import java.util.TimeZone;
 
 import javax.validation.constraints.NotNull;
 
+import com.vaadin.shared.ui.datefield.DateTimeResolution;
+import com.vaadin.ui.DateField;
+import com.vaadin.ui.DateTimeField;
+import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.data.Property;
 import com.vaadin.v7.data.Validator.InvalidValueException;
 import com.vaadin.v7.data.util.converter.Converter.ConversionException;
-import com.vaadin.v7.shared.ui.datefield.Resolution;
-import com.vaadin.v7.ui.DateField;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * This class represents a Field which is optimized to enter a time duration in
@@ -36,7 +37,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * css-class "v-datefield-calendarpanel-header" and
  * "v-datefield-calendarpanel-body" (see systemconfig.scss}
  */
-public class DurationField extends DateField {
+public class DurationField extends DateTimeField {
 
     private static final long serialVersionUID = 1L;
 
@@ -59,13 +60,13 @@ public class DurationField extends DateField {
      * Creates a DurationField
      */
     protected DurationField() {
-        this.setTimeZone(TimeZone.getTimeZone(ZONEID_UTC));
+        this.setZoneId(ZONEID_UTC);
         durationFormat.setTimeZone(TimeZone.getTimeZone(ZONEID_UTC));
         additionalFormat.setTimeZone(TimeZone.getTimeZone(ZONEID_UTC));
         durationFormat.setLenient(false);
         additionalFormat.setLenient(false);
 
-        this.setResolution(Resolution.SECOND);
+        this.setResolution(DateTimeResolution.SECOND);
         this.setDateFormat(DURATION_FORMAT_STIRNG);
         this.addStyleName(CSS_STYLE_NAME);
         this.addStyleName(ValoTheme.TEXTFIELD_TINY);

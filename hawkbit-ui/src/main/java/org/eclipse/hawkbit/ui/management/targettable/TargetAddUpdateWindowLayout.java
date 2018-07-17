@@ -29,12 +29,13 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.google.common.collect.Sets;
-import com.vaadin.v7.data.validator.RegexpValidator;
+import com.vaadin.data.Binder;
+import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.TextArea;
 
 /**
  * Add and Update Target.
@@ -101,8 +102,8 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
         controllerIDTextField = new TextFieldBuilder(Target.CONTROLLER_ID_MAX_SIZE)
                 .caption(i18n.getMessage("prompt.target.id")).required(true, i18n)
                 .id(UIComponentIdProvider.TARGET_ADD_CONTROLLER_ID).buildTextComponent();
-        controllerIDTextField
-                .addValidator(new RegexpValidator("[.\\S]*", i18n.getMessage("message.target.whitespace.check")));
+        new Binder<>().forField(controllerIDTextField)
+                .withValidator(new RegexpValidator("[.\\S]*", i18n.getMessage("message.target.whitespace.check")));
         nameTextField = new TextFieldBuilder(Target.NAME_MAX_SIZE).caption(i18n.getMessage("textfield.name"))
                 .id(UIComponentIdProvider.TARGET_ADD_NAME).buildTextComponent();
         nameTextField.setRequired(false);
@@ -210,7 +211,8 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
         controllerIDTextField.setValue(target.getControllerId());
         controllerIDTextField.setEnabled(Boolean.FALSE);
         nameTextField.setValue(target.getName());
-        nameTextField.setRequired(true);
+        new Binder<>().forField(nameTextField).asRequired();
+        // nameTextField.setRequired(true);
         descTextArea.setValue(target.getDescription());
     }
 

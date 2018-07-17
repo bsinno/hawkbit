@@ -10,8 +10,8 @@ package org.eclipse.hawkbit.ui.customrenderers.client.renderers;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.ui.Button;
-import com.vaadin.v7.client.renderers.ClickableRenderer;
 import com.vaadin.client.ui.VButton;
+import com.vaadin.v7.client.renderers.ClickableRenderer;
 import com.vaadin.v7.client.widget.grid.RendererCellReference;
 
 /**
@@ -21,7 +21,7 @@ public class GridButtonRenderer extends ClickableRenderer<FontIconData, Button> 
 
     @Override
     public Button createWidget() {
-        Button b = GWT.create(Button.class);
+        final Button b = GWT.create(Button.class);
         b.addClickHandler(this);
         b.setStylePrimaryName("v-nativebutton");
         return b;

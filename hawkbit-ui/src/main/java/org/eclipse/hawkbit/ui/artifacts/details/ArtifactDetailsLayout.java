@@ -47,19 +47,19 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.google.common.collect.Maps;
-import com.vaadin.v7.data.Container;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Container;
 import com.vaadin.v7.ui.Table;
 import com.vaadin.v7.ui.Table.ColumnGenerator;
 import com.vaadin.v7.ui.Table.TableDragMode;
-import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Display the details of the artifacts for a selected software module.
@@ -167,7 +167,6 @@ public class ArtifactDetailsLayout extends VerticalLayout {
                 .name(HawkbitCommonUtil.getArtifactoryDetailsLabelId(labelSoftwareModule)).buildCaptionLabel();
         titleOfArtifactDetails.setContentMode(ContentMode.HTML);
         titleOfArtifactDetails.setSizeFull();
-        titleOfArtifactDetails.setImmediate(true);
         maxMinButton = createMaxMinButton();
 
         artifactDetailsTable = createArtifactDetailsTable();
@@ -198,14 +197,12 @@ public class ArtifactDetailsLayout extends VerticalLayout {
         header.setMargin(false);
         header.setSizeFull();
         header.setHeightUndefined();
-        header.setImmediate(true);
         header.addComponents(titleOfArtifactDetails, maxMinButton);
         header.setComponentAlignment(titleOfArtifactDetails, Alignment.TOP_LEFT);
         header.setComponentAlignment(maxMinButton, Alignment.TOP_RIGHT);
         header.setExpandRatio(titleOfArtifactDetails, 1.0F);
 
         setSizeFull();
-        setImmediate(true);
         addStyleName("artifact-table");
         addStyleName("table-layout");
         addComponent(header);

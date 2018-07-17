@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.common.builder;
 
 import org.springframework.util.StringUtils;
 
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -85,7 +85,6 @@ public class LabelBuilder {
      */
     public Label buildLabel() {
         final Label label = createLabel();
-        label.setImmediate(false);
         label.setWidth("-1px");
         label.setHeight("-1px");
         if (StringUtils.hasText(caption)) {

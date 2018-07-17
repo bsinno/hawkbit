@@ -18,8 +18,8 @@ import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Displays a legend for the Groups of a Rollout with the count of targets in
@@ -80,7 +80,6 @@ public class GroupsLegendLayout extends VerticalLayout {
     private static Label createTotalTargetsLabel() {
         final Label label = new LabelBuilder().visible(false).name("").buildLabel();
         label.addStyleName("rollout-target-count-title");
-        label.setImmediate(true);
         label.setSizeUndefined();
         return label;
     }
@@ -88,7 +87,6 @@ public class GroupsLegendLayout extends VerticalLayout {
     private Label createLoadingLabel() {
         final Label label = new LabelBuilder().visible(false).name("").buildLabel();
         label.addStyleName("rollout-target-count-loading");
-        label.setImmediate(true);
         label.setSizeUndefined();
         label.setValue(i18n.getMessage("label.rollout.calculating"));
         return label;
@@ -128,7 +126,7 @@ public class GroupsLegendLayout extends VerticalLayout {
      *            null to hide the label or a count to be displayed as total
      *            targets message
      */
-    public void populateTotalTargets(Long totalTargets) {
+    public void populateTotalTargets(final Long totalTargets) {
         if (totalTargets == null) {
             totalTargetsLabel.setVisible(false);
         } else {
@@ -152,8 +150,8 @@ public class GroupsLegendLayout extends VerticalLayout {
             final Label label = (Label) component;
             if (targetsPerGroup.size() > i) {
                 final Long targetCount = targetsPerGroup.get(i);
-                label.setValue(
-                        getTargetsInGroupMessage(targetCount, i18n.getMessage("textfield.rollout.group.default.name", i + 1)));
+                label.setValue(getTargetsInGroupMessage(targetCount,
+                        i18n.getMessage("textfield.rollout.group.default.name", i + 1)));
                 label.setVisible(true);
             } else {
                 label.setValue("");
@@ -185,7 +183,7 @@ public class GroupsLegendLayout extends VerticalLayout {
         if (validation == null) {
             return;
         }
-        List<Long> targetsPerGroup = validation.getTargetsPerGroup();
+        final List<Long> targetsPerGroup = validation.getTargetsPerGroup();
         final long unassigned = validation.getTotalTargets() - validation.getTargetsInGroups();
         final int labelsToUpdate = (unassigned > 0) ? (groupsLegend.getComponentCount() - 1)
                 : groupsLegend.getComponentCount();

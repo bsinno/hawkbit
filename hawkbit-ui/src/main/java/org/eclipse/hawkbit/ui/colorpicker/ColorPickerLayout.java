@@ -15,12 +15,11 @@ import org.eclipse.hawkbit.ui.common.CoordinatesToColor;
 import org.eclipse.hawkbit.ui.management.tag.SpColorPickerPreview;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.v7.shared.ui.colorpicker.Color;
-import com.vaadin.v7.ui.AbstractColorPicker.Coordinates2Color;
+import com.vaadin.shared.ui.colorpicker.Color;
+import com.vaadin.ui.AbstractColorPicker.Coordinates2Color;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.v7.ui.Slider;
-import com.vaadin.v7.ui.components.colorpicker.ColorPickerGradient;
-import com.vaadin.v7.ui.components.colorpicker.ColorSelector;
+import com.vaadin.ui.Slider;
+import com.vaadin.ui.components.colorpicker.ColorPickerGradient;
 
 /**
  * 
@@ -35,7 +34,7 @@ public class ColorPickerLayout extends GridLayout {
 
     private ColorPickerGradient colorSelect;
 
-    private Set<ColorSelector> selectors;
+    private Set<ColorPickerGradient> selectors;
 
     private Color selectedColor;
 
@@ -73,7 +72,7 @@ public class ColorPickerLayout extends GridLayout {
         selPreview = new SpColorPickerPreview(selectedColor);
 
         colorSelect = new ColorPickerGradient("rgb-gradient", rgbConverter);
-        colorSelect.setColor(selectedColor);
+        colorSelect.setValue(selectedColor);
         colorSelect.setWidth("220px");
 
         redSlider = createRGBSlider("", "red");
@@ -86,7 +85,6 @@ public class ColorPickerLayout extends GridLayout {
 
     private static Slider createRGBSlider(final String caption, final String styleName) {
         final Slider slider = new Slider(caption, 0, 255);
-        slider.setImmediate(true);
         slider.setWidth("150px");
         slider.addStyleName(styleName);
         return slider;
@@ -108,7 +106,7 @@ public class ColorPickerLayout extends GridLayout {
         this.colorSelect = colorSelect;
     }
 
-    public Set<ColorSelector> getSelectors() {
+    public Set<ColorPickerGradient> getSelectors() {
         return selectors;
     }
 

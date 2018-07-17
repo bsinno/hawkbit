@@ -31,24 +31,22 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.server.Page;
-import com.vaadin.v7.shared.ui.colorpicker.Color;
+import com.vaadin.shared.ui.colorpicker.Color;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
-import com.vaadin.v7.ui.components.colorpicker.ColorChangeEvent;
-import com.vaadin.v7.ui.components.colorpicker.ColorChangeListener;
-import com.vaadin.v7.ui.components.colorpicker.ColorSelector;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.components.colorpicker.ColorPickerGradient;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -58,7 +56,7 @@ import com.vaadin.ui.themes.ValoTheme;
  *            entity class
  */
 public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomComponent
-        implements ColorChangeListener, ColorSelector {
+        implements ValueChangeListener<Color> {
 
     private static final long serialVersionUID = 1L;
 
@@ -183,13 +181,11 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
 
         tagName = new TextFieldBuilder(getTagNameSize()).caption(i18n.getMessage("textfield.name"))
                 .styleName(ValoTheme.TEXTFIELD_TINY + " " + SPUIDefinitions.TAG_NAME).required(true, i18n)
-                .prompt(i18n.getMessage("textfield.name")).immediate(true).id(getTagNameId()).buildTextComponent();
+                .prompt(i18n.getMessage("textfield.name")).id(getTagNameId()).buildTextComponent();
 
         tagDesc = new TextAreaBuilder(getTagDescSize()).caption(i18n.getMessage("textfield.description"))
                 .styleName(ValoTheme.TEXTFIELD_TINY + " " + SPUIDefinitions.TAG_DESC)
                 .prompt(i18n.getMessage("textfield.description")).id(getTagDescId()).buildTextComponent();
-
-        tagDesc.setNullRepresentation("");
 
         tagColorPreviewBtn = new Button();
         tagColorPreviewBtn.setId(UIComponentIdProvider.TAG_COLOR_PREVIEW_ID);
@@ -238,8 +234,8 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
     }
 
     protected void addListeners() {
-        colorPickerLayout.getColorSelect().addColorChangeListener(this);
-        colorPickerLayout.getSelPreview().addColorChangeListener(this);
+        colorPickerLayout.getColorSelect().addValueChangeListener(this);
+        colorPickerLayout.getSelPreview().addValueChangeListener(this);
         tagColorPreviewBtn.addClickListener(event -> previewButtonClicked());
         slidersValueChangeListeners();
     }
@@ -254,7 +250,7 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
         tagDesc.clear();
         restoreComponentStyles();
         colorPickerLayout.setSelectedColor(colorPickerLayout.getDefaultColor());
-        colorPickerLayout.getSelPreview().setColor(colorPickerLayout.getSelectedColor());
+        colorPickerLayout.getSelPreview().setValue(colorPickerLayout.getSelectedColor());
         tagPreviewBtnClicked = false;
         disableFields();
     }
@@ -304,7 +300,7 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
 
     protected void setColorToComponents(final Color newColor) {
         setColor(newColor);
-        colorPickerLayout.getColorSelect().setColor(newColor);
+        colorPickerLayout.getColorSelect().setValue(newColor);
         getPreviewButtonColor(newColor.getCSS());
         createDynamicStyleForComponents(tagName, tagDesc, newColor.getCSS());
     }
@@ -319,8 +315,8 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
 
     protected void setTagColor(final Color selectedColor, final String previewColor) {
         getColorPickerLayout().setSelectedColor(selectedColor);
-        getColorPickerLayout().getSelPreview().setColor(getColorPickerLayout().getSelectedColor());
-        getColorPickerLayout().getColorSelect().setColor(getColorPickerLayout().getSelectedColor());
+        getColorPickerLayout().getSelPreview().setValue(getColorPickerLayout().getSelectedColor());
+        getColorPickerLayout().getColorSelect().setValue(getColorPickerLayout().getSelectedColor());
         createDynamicStyleForComponents(tagName, tagDesc, previewColor);
         getPreviewButtonColor(previewColor);
     }
@@ -331,22 +327,20 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
         return isDuplicateByName();
     }
 
-    @Override
     public Color getColor() {
         return null;
     }
 
-    @Override
     public void setColor(final Color color) {
         if (color == null) {
             return;
         }
         colorPickerLayout.setSelectedColor(color);
-        colorPickerLayout.getSelPreview().setColor(colorPickerLayout.getSelectedColor());
-        final String colorPickedPreview = colorPickerLayout.getSelPreview().getColor().getCSS();
+        colorPickerLayout.getSelPreview().setValue(colorPickerLayout.getSelectedColor());
+        final String colorPickedPreview = colorPickerLayout.getSelPreview().getValue().getCSS();
         if (colorPickerLayout.getColorSelect() != null) {
             createDynamicStyleForComponents(tagName, tagDesc, colorPickedPreview);
-            colorPickerLayout.getColorSelect().setColor(colorPickerLayout.getSelPreview().getColor());
+            colorPickerLayout.getColorSelect().setValue(colorPickerLayout.getSelPreview().getValue());
         }
     }
 
@@ -367,17 +361,17 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
     }
 
     @Override
-    public void colorChanged(final ColorChangeEvent event) {
-        setColor(event.getColor());
-        for (final ColorSelector select : colorPickerLayout.getSelectors()) {
+    public void valueChange(final ValueChangeEvent<Color> event) {
+        setColor(event.getValue());
+        for (final ColorPickerGradient select : colorPickerLayout.getSelectors()) {
             if (!event.getSource().equals(select) && select.equals(this)
-                    && !select.getColor().equals(colorPickerLayout.getSelectedColor())) {
-                select.setColor(colorPickerLayout.getSelectedColor());
+                    && !select.getValue().equals(colorPickerLayout.getSelectedColor())) {
+                select.setValue(colorPickerLayout.getSelectedColor());
             }
         }
         ColorPickerHelper.setRgbSliderValues(colorPickerLayout);
-        getPreviewButtonColor(event.getColor().getCSS());
-        createDynamicStyleForComponents(tagName, tagDesc, event.getColor().getCSS());
+        getPreviewButtonColor(event.getValue().getCSS());
+        createDynamicStyleForComponents(tagName, tagDesc, event.getValue().getCSS());
     }
 
     protected String getColorPicked() {
@@ -394,14 +388,6 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
 
     protected GridLayout getMainLayout() {
         return mainLayout;
-    }
-
-    @Override
-    public void addColorChangeListener(final ColorChangeListener listener) {
-    }
-
-    @Override
-    public void removeColorChangeListener(final ColorChangeListener listener) {
     }
 
     protected static String getTagNameDynamicStyle() {
@@ -518,7 +504,7 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
 
             @Override
             public void valueChange(final ValueChangeEvent event) {
-                final double red = (Double) event.getProperty().getValue();
+                final double red = (double) event.getValue();
                 final Color newColor = new Color((int) red, colorPickerLayout.getSelectedColor().getGreen(),
                         colorPickerLayout.getSelectedColor().getBlue());
                 setColorToComponents(newColor);
@@ -529,7 +515,7 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
 
             @Override
             public void valueChange(final ValueChangeEvent event) {
-                final double green = (Double) event.getProperty().getValue();
+                final double green = (Double) event.getValue();
                 final Color newColor = new Color(colorPickerLayout.getSelectedColor().getRed(), (int) green,
                         colorPickerLayout.getSelectedColor().getBlue());
                 setColorToComponents(newColor);
@@ -540,7 +526,7 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
 
             @Override
             public void valueChange(final ValueChangeEvent event) {
-                final double blue = (Double) event.getProperty().getValue();
+                final double blue = (Double) event.getValue();
                 final Color newColor = new Color(colorPickerLayout.getSelectedColor().getRed(),
                         colorPickerLayout.getSelectedColor().getGreen(), (int) blue);
                 setColorToComponents(newColor);

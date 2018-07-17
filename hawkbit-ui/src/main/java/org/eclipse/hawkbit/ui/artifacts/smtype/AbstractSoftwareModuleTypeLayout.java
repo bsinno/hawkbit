@@ -23,8 +23,8 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.OptionGroup;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -47,7 +47,7 @@ public abstract class AbstractSoftwareModuleTypeLayout extends AbstractTypeLayou
 
     private Label multiAssign;
 
-    private OptionGroup assignOptiongroup;
+    private RadioButtonGroup assignOptiongroup;
 
     /**
      * Constructor
@@ -169,11 +169,11 @@ public abstract class AbstractSoftwareModuleTypeLayout extends AbstractTypeLayou
         this.multiAssign = multiAssign;
     }
 
-    public OptionGroup getAssignOptiongroup() {
+    public RadioButtonGroup getAssignOptiongroup() {
         return assignOptiongroup;
     }
 
-    public void setAssignOptiongroup(final OptionGroup assignOptiongroup) {
+    public void setAssignOptiongroup(final RadioButtonGroup assignOptiongroup) {
         this.assignOptiongroup = assignOptiongroup;
     }
 
@@ -185,12 +185,12 @@ public abstract class AbstractSoftwareModuleTypeLayout extends AbstractTypeLayou
     }
 
     private void assignOptionGroupByValues(final List<String> tagOptions) {
-        assignOptiongroup = new OptionGroup("", tagOptions);
+        assignOptiongroup = new RadioButtonGroup("", tagOptions);
         assignOptiongroup.setStyleName(ValoTheme.OPTIONGROUP_SMALL);
         assignOptiongroup.addStyleName("custom-option-group");
         assignOptiongroup.setNullSelectionAllowed(false);
         assignOptiongroup.setId(UIComponentIdProvider.ASSIGN_OPTION_GROUP_SOFTWARE_MODULE_TYPE_ID);
-        assignOptiongroup.select(tagOptions.get(0));
+        assignOptiongroup.setSelectedItem(tagOptions.get(0));
     }
 
 }

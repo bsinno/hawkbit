@@ -30,14 +30,14 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.v7.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 
 /**
@@ -199,14 +199,13 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
                 .id(UIComponentIdProvider.CUSTOM_FILTER_QUERY).buildTextComponent();
         textField.addStyleName("target-filter-textfield");
         textField.setWidth(900.0F, Unit.PIXELS);
-        textField.setTextChangeEventMode(TextChangeEventMode.EAGER);
-        textField.setTextChangeTimeout(100);
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.setValueChangeTimeout(100);
         return textField;
     }
 
     private static Label createStatusIcon() {
         final Label statusIcon = new Label();
-        statusIcon.setImmediate(true);
         statusIcon.setContentMode(ContentMode.HTML);
         statusIcon.setSizeFull();
         setInitialStatusIconStyle(statusIcon);

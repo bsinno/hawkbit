@@ -8,13 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
-import com.vaadin.v7.data.Property;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.Panel;
-import com.vaadin.v7.ui.VerticalLayout;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -22,12 +15,21 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.rollout.ApprovalConfigurationI
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.HasValue.ValueChangeListener;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
+
 /**
  * Provides configuration of the RolloutManagement including enabling/disabling
  * of the approval workflow.
  */
 public class RolloutConfigurationView extends BaseConfigurationView
-        implements Property.ValueChangeListener, ConfigurationItem.ConfigurationItemChangeListener {
+        implements ValueChangeListener, ConfigurationItem.ConfigurationItemChangeListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -65,7 +67,6 @@ public class RolloutConfigurationView extends BaseConfigurationView
 
         final GridLayout gridLayout = new GridLayout(2, 1);
         gridLayout.setSpacing(true);
-        gridLayout.setImmediate(true);
         gridLayout.setColumnExpandRatio(1, 1.0F);
 
         approvalCheckbox = SPUIComponentProvider.getCheckBox("", "", null, false, "");
@@ -92,8 +93,8 @@ public class RolloutConfigurationView extends BaseConfigurationView
     }
 
     @Override
-    public void valueChange(Property.ValueChangeEvent event) {
-        if (approvalCheckbox.equals(event.getProperty())) {
+    public void valueChange(final ValueChangeEvent event) {
+        if (approvalCheckbox.equals(event.getComponent())) {
             if (approvalCheckbox.getValue()) {
                 approvalConfigurationItem.configEnable();
             } else {

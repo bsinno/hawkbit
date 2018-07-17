@@ -28,40 +28,36 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroupItemComponent;
 
 import com.google.common.collect.Maps;
-import com.vaadin.v7.data.Container.ItemSetChangeEvent;
-import com.vaadin.v7.data.Container.ItemSetChangeListener;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.Validator;
-import com.vaadin.v7.data.validator.NullValidator;
-import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
-import com.vaadin.v7.event.FieldEvents.TextChangeListener;
-import com.vaadin.v7.event.FieldEvents.TextChangeNotifier;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.AbstractComponent;
-import com.vaadin.v7.ui.AbstractField;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.Field;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.v7.ui.Table;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Container.ItemSetChangeEvent;
+import com.vaadin.v7.data.Container.ItemSetChangeListener;
+import com.vaadin.v7.data.Validator;
+import com.vaadin.v7.data.validator.NullValidator;
+import com.vaadin.v7.event.FieldEvents.TextChangeNotifier;
+import com.vaadin.v7.ui.Table;
 
 /**
  *
@@ -181,7 +177,7 @@ public class CommonDialogWindow extends Window {
         if (!(field instanceof TextChangeNotifier)) {
             return;
         }
-        for (final Object listener : field.getListeners(TextChangeEvent.class)) {
+        for (final Object listener : field.getListeners(ValueChangeEvent.class)) {
             if (listener instanceof ChangeListener) {
                 ((TextChangeNotifier) field).removeTextChangeListener((ChangeListener) listener);
             }
@@ -334,7 +330,7 @@ public class CommonDialogWindow extends Window {
         for (final AbstractField field : requiredComponents) {
             Object value = getCurrentVaue(currentChangedComponent, newValue, field);
 
-            if (Set.class.equals(field.getType())) {
+            if (Set.class.equals(field.getClass())) {
                 value = emptyToNull((Collection<?>) value);
             }
 
@@ -386,9 +382,10 @@ public class CommonDialogWindow extends Window {
                 components.add((AbstractField<?>) c);
             }
 
-            if (c instanceof FlexibleOptionGroupItemComponent) {
-                components.add(((FlexibleOptionGroupItemComponent) c).getOwner());
-            }
+            // if (c instanceof FlexibleOptionGroupItemComponent) {
+            // components.add(((FlexibleOptionGroupItemComponent)
+            // c).getOwner());
+            // }
 
             if (c instanceof TabSheet) {
                 final TabSheet tabSheet = (TabSheet) c;
@@ -485,22 +482,17 @@ public class CommonDialogWindow extends Window {
         return this.buttonsLayout;
     }
 
-    private class ChangeListener implements ValueChangeListener, TextChangeListener, ItemSetChangeListener {
+    private class ChangeListener implements ValueChangeListener, ItemSetChangeListener {
 
         private static final long serialVersionUID = 1L;
-        private final Field<?> field;
+        private final AbstractField<?> field;
 
-        public ChangeListener(final Field<?> field) {
+        public ChangeListener(final AbstractField<?> field) {
             this.field = field;
         }
 
         @Override
-        public void textChange(final TextChangeEvent event) {
-            saveButton.setEnabled(isSaveButtonEnabledAfterValueChange(field, event.getText()));
-        }
-
-        @Override
-        public void valueChange(final ValueChangeEvent event) {
+        public void valueChange(final ValueChangeEventevent) {
             saveButton.setEnabled(isSaveButtonEnabledAfterValueChange(field, field.getValue()));
         }
 

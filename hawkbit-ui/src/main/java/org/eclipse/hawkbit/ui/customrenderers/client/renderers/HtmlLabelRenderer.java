@@ -12,9 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
-import com.vaadin.v7.client.renderers.WidgetRenderer;
-import com.vaadin.v7.client.ui.VLabel;
-import com.vaadin.v7.client.widget.grid.RendererCellReference;
+import com.vaadin.client.renderers.WidgetRenderer;
+import com.vaadin.client.ui.VLabel;
+import com.vaadin.client.widget.grid.RendererCellReference;
 
 /**
  *
@@ -29,12 +29,12 @@ public class HtmlLabelRenderer extends WidgetRenderer<String, VLabel> {
     }
 
     @Override
-    public void render(RendererCellReference cell, String input, VLabel label) {
-        Map<String, String> map = formatInput(input);
-        String value = map.containsKey("value") ? map.get("value") : null;
-        String style = map.containsKey("style") ? map.get("style") : null;
-        String title = map.containsKey("title") ? map.get("title") : null;
-        String id = map.containsKey("id") ? map.get("id") : null;
+    public void render(final RendererCellReference cell, final String input, final VLabel label) {
+        final Map<String, String> map = formatInput(input);
+        final String value = map.containsKey("value") ? map.get("value") : null;
+        final String style = map.containsKey("style") ? map.get("style") : null;
+        final String title = map.containsKey("title") ? map.get("title") : null;
+        final String id = map.containsKey("id") ? map.get("id") : null;
 
         if (value != null) {
             label.setHTML("<span>&#x" + Integer.toHexString(Integer.parseInt(value)) + ";</span>");
@@ -46,7 +46,7 @@ public class HtmlLabelRenderer extends WidgetRenderer<String, VLabel> {
         label.getElement().setTitle(title);
     }
 
-    private void applyStyle(VLabel label, String style) {
+    private void applyStyle(final VLabel label, final String style) {
         label.setStyleName(VLabel.CLASSNAME);
         label.addStyleName(getStyle("small"));
         label.addStyleName(getStyle("font-icon"));
@@ -59,11 +59,11 @@ public class HtmlLabelRenderer extends WidgetRenderer<String, VLabel> {
         return new StringBuilder(style).append(" ").append(VLabel.CLASSNAME).append("-").append(style).toString();
     }
 
-    private static Map<String, String> formatInput(String input) {
-        Map<String, String> details = new HashMap<>();
-        String[] tempData = input.split(",");
-        for (String statusWithCount : tempData) {
-            String[] statusWithCountList = statusWithCount.split(":");
+    private static Map<String, String> formatInput(final String input) {
+        final Map<String, String> details = new HashMap<>();
+        final String[] tempData = input.split(",");
+        for (final String statusWithCount : tempData) {
+            final String[] statusWithCountList = statusWithCount.split(":");
             details.put(statusWithCountList[0], statusWithCountList[1]);
         }
         return details;

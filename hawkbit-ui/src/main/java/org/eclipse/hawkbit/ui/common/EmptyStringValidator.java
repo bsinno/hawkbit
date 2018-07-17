@@ -10,7 +10,9 @@ package org.eclipse.hawkbit.ui.common;
 
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.data.validator.StringLengthValidator;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.ValueContext;
+import com.vaadin.data.validator.StringLengthValidator;
 
 /**
  * Assures that the entered text does not contain only whitespaces. At least one
@@ -32,12 +34,13 @@ public class EmptyStringValidator extends StringLengthValidator {
      *            max length of the textfield
      */
     public EmptyStringValidator(final VaadinMessageSource i18n, final int maxLength) {
-        super(i18n.getMessage(MESSAGE_KEY, maxLength), 1, maxLength, false);
+        super(i18n.getMessage(MESSAGE_KEY, maxLength), 1, maxLength);
     }
 
     @Override
-    public boolean isValidValue(final String value) {
-        return super.isValidValue(value != null ? value.trim() : null);
+    public ValidationResult apply(final String value, final ValueContext context) {
+        // TODO MR check ValueContext
+        return super.apply(value != null ? value.trim() : null, new ValueContext());
     }
 
 }

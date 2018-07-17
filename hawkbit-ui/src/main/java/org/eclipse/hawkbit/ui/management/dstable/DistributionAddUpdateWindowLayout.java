@@ -42,12 +42,12 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.google.common.collect.Sets;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -71,7 +71,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
     private TextField distVersionTextField;
     private TextArea descTextArea;
     private CheckBox reqMigStepCheckbox;
-    private ComboBox distsetTypeNameComboBox;
+    private ComboBox<Long> distsetTypeNameComboBox;
 
     private FormLayout formLayout;
 
@@ -128,7 +128,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
                 return;
             }
             final boolean isMigStepReq = reqMigStepCheckbox.getValue();
-            final Long distSetTypeId = (Long) distsetTypeNameComboBox.getValue();
+            final Long distSetTypeId = distsetTypeNameComboBox.getValue();
 
             distributionSetTypeManagement.get(distSetTypeId).ifPresent(type -> {
                 final DistributionSet currentDS = distributionSetManagement.update(entityFactory.distributionSet()
@@ -157,7 +157,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
         public void saveOrUpdate() {
             final String name = distNameTextField.getValue();
             final String version = distVersionTextField.getValue();
-            final Long distSetTypeId = (Long) distsetTypeNameComboBox.getValue();
+            final Long distSetTypeId = distsetTypeNameComboBox.getValue();
             final String desc = descTextArea.getValue();
             final boolean isMigStepReq = reqMigStepCheckbox.getValue();
 
@@ -228,8 +228,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
 
         distsetTypeNameComboBox = SPUIComponentProvider.getComboBox(i18n.getMessage("label.combobox.type"), "", null,
                 "", false, "", i18n.getMessage("label.combobox.type"));
-        distsetTypeNameComboBox.setImmediate(true);
-        distsetTypeNameComboBox.setNullSelectionAllowed(false);
+        distsetTypeNameComboBox.setEmptySelectionAllowed(false);
         distsetTypeNameComboBox.setId(UIComponentIdProvider.DIST_ADD_DISTSETTYPE);
 
         descTextArea = new TextAreaBuilder(DistributionSet.DESCRIPTION_MAX_SIZE)

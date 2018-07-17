@@ -30,10 +30,10 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Window.CloseListener;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.util.IndexedContainer;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.ui.Window.CloseListener;
 
 /**
  * Layout for the pop-up window which is created when updating a Distribution

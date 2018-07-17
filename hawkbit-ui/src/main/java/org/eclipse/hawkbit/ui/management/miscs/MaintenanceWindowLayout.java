@@ -25,16 +25,16 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.cronutils.descriptor.CronDescriptor;
-import com.vaadin.v7.data.Validator;
-import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
-import com.vaadin.v7.event.FieldEvents.TextChangeListener;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.server.Page;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Validator;
 
 /**
  * {@link MaintenanceWindowLayout} defines UI layout that is used to specify the
@@ -49,7 +49,7 @@ public class MaintenanceWindowLayout extends VerticalLayout {
 
     private TextField schedule;
     private TextField duration;
-    private ComboBox timeZone;
+    private ComboBox<String> timeZone;
     private Label scheduleTranslator;
 
     /**
@@ -88,7 +88,7 @@ public class MaintenanceWindowLayout extends VerticalLayout {
                 .id(UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_ID)
                 .caption(i18n.getMessage("caption.maintenancewindow.schedule")).validator(new CronValidator())
                 .prompt("0 0 3 ? * 6").required(true, i18n).buildTextComponent();
-        schedule.addTextChangeListener(new CronTranslationListener());
+        schedule.addValueChangeListener(new CronTranslationListener());
     }
 
     /**
@@ -116,18 +116,13 @@ public class MaintenanceWindowLayout extends VerticalLayout {
     /**
      * Used for cron expression translation.
      */
-    private class CronTranslationListener implements TextChangeListener {
+    private class CronTranslationListener implements ValueChangeListener<String> {
         private static final long serialVersionUID = 1L;
 
         private final transient CronDescriptor cronDescriptor;
 
         public CronTranslationListener() {
             cronDescriptor = CronDescriptor.instance(getClientsLocale());
-        }
-
-        @Override
-        public void textChange(final TextChangeEvent event) {
-            scheduleTranslator.setValue(translateCron(event.getText()));
         }
 
         // Exception squid:S1166 - when the format of the cron expression is not
@@ -144,6 +139,11 @@ public class MaintenanceWindowLayout extends VerticalLayout {
         private Locale getClientsLocale() {
             return Page.getCurrent().getWebBrowser().getLocale();
         }
+
+        @Override
+        public void valueChange(final ValueChangeEvent<String> event) {
+            scheduleTranslator.setValue(translateCron(event.getValue()));
+        }
     }
 
     /**
@@ -152,7 +152,8 @@ public class MaintenanceWindowLayout extends VerticalLayout {
     private void createMaintenanceDurationControl() {
         duration = new TextFieldBuilder(Action.MAINTENANCE_WINDOW_DURATION_LENGTH)
                 .id(UIComponentIdProvider.MAINTENANCE_WINDOW_DURATION_ID)
-                .caption(i18n.getMessage("caption.maintenancewindow.duration")).validator(new DurationValidator())
+                .caption(i18n.getMessage("caption.maintenancewindow.duration"))
+                // .validator(new DurationValidator())
                 .prompt("hh:mm:ss").required(true, i18n).buildTextComponent();
     }
 
@@ -189,11 +190,11 @@ public class MaintenanceWindowLayout extends VerticalLayout {
         timeZone = new ComboBox();
         timeZone.setId(UIComponentIdProvider.MAINTENANCE_WINDOW_TIME_ZONE_ID);
         timeZone.setCaption(i18n.getMessage("caption.maintenancewindow.timezone"));
-        timeZone.addItems(getAllTimeZones());
+        timeZone.setItems(getAllTimeZones());
         timeZone.setValue(getClientTimeZone());
         timeZone.addStyleName(ValoTheme.COMBOBOX_SMALL);
         timeZone.setTextInputAllowed(false);
-        timeZone.setNullSelectionAllowed(false);
+        timeZone.setEmptySelectionAllowed(false);
     }
 
     /**
@@ -270,8 +271,8 @@ public class MaintenanceWindowLayout extends VerticalLayout {
      *            change.
      * @return validity of maintenance window controls.
      */
-    public boolean onScheduleChange(final TextChangeEvent event) {
-        schedule.setValue(event.getText());
+    public boolean onScheduleChange(final ValueChangeEvent<String> event) {
+        schedule.setValue(event.getValue());
         return isScheduleAndDurationValid();
     }
 
@@ -283,8 +284,8 @@ public class MaintenanceWindowLayout extends VerticalLayout {
      *            change.
      * @return validity of maintenance window controls.
      */
-    public boolean onDurationChange(final TextChangeEvent event) {
-        duration.setValue(event.getText());
+    public boolean onDurationChange(final ValueChangeEvent<String> event) {
+        duration.setValue(event.getValue());
         return isScheduleAndDurationValid();
     }
 

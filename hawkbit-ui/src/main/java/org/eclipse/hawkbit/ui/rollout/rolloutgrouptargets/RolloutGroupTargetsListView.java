@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 /**
  * Rollout Group Targets List View.

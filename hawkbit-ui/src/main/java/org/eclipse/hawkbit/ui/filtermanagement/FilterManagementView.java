@@ -34,9 +34,9 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * View for custom target filter management.
@@ -85,7 +85,6 @@ public class FilterManagementView extends VerticalLayout implements View {
     @PostConstruct
     void init() {
         setSizeFull();
-        setImmediate(true);
         buildLayout();
         eventBus.subscribe(this);
     }

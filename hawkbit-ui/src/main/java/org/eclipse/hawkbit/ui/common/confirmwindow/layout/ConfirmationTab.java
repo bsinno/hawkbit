@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.confirmwindow.layout;
 
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Confirmation tab of confirmation window.

@@ -8,6 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
@@ -20,11 +23,11 @@ import org.springframework.data.domain.PageRequest;
 
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Default DistributionSet Panel.
@@ -41,7 +44,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     private TenantMetaData tenantMetaData;
 
-    private final ComboBox combobox;
+    private final ComboBox<Long> combobox;
 
     private final Label changeIcon;
 
@@ -83,17 +86,18 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
                 .findAll(new PageRequest(0, 100));
 
         combobox.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_DEFAULTDIS_COMBOBOX);
-        combobox.setNullSelectionAllowed(false);
+        combobox.setEmptySelectionAllowed(false);
+        final List<Long> itemsToSet = new ArrayList<>();
         for (final DistributionSetType distributionSetType : distributionSetTypeCollection) {
-            combobox.addItem(distributionSetType.getId());
+            itemsToSet.add(distributionSetType.getId());
             combobox.setItemCaption(distributionSetType.getId(),
                     distributionSetType.getKey() + " (" + distributionSetType.getName() + ")");
 
             if (distributionSetType.getId().equals(currentDistributionSetType.getId())) {
-                combobox.select(distributionSetType.getId());
+                combobox.setSelectedItem(distributionSetType.getId());
             }
         }
-        combobox.setImmediate(true);
+        combobox.setItems(itemsToSet);
         combobox.addValueChangeListener(event -> selectDistributionSetValue());
         hlayout.addComponent(combobox);
 
@@ -122,7 +126,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     @Override
     public void undo() {
-        combobox.select(currentDefaultDisSetType);
+        combobox.setSelectedItem(currentDefaultDisSetType);
         selectedDefaultDisSetType = currentDefaultDisSetType;
         changeIcon.setVisible(false);
     }
@@ -131,7 +135,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
      * Method that is called when combobox event is performed.
      */
     private void selectDistributionSetValue() {
-        selectedDefaultDisSetType = (Long) combobox.getValue();
+        selectedDefaultDisSetType = combobox.getValue();
         if (!selectedDefaultDisSetType.equals(currentDefaultDisSetType)) {
             changeIcon.setVisible(true);
             notifyConfigurationChanged();

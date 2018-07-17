@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.filtermanagement.client.TextFieldSuggestionBoxClie
 import org.eclipse.hawkbit.ui.filtermanagement.client.TextFieldSuggestionBoxServerRpc;
 
 import com.vaadin.server.AbstractExtension;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 
 /**

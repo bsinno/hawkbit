@@ -27,10 +27,10 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Layout for Custom Filter view
@@ -133,7 +133,7 @@ public class TargetFilterHeader extends VerticalLayout {
     private TextField createSearchField() {
         final TextField campSearchTextField = new TextFieldBuilder(64)
                 .id(UIComponentIdProvider.TARGET_FILTER_SEARCH_TEXT)
-                .createSearchField(event -> searchBy(event.getText()));
+                .createSearchField(event -> searchBy(event.getValue()));
         campSearchTextField.setWidth(500.0F, Unit.PIXELS);
         return campSearchTextField;
     }

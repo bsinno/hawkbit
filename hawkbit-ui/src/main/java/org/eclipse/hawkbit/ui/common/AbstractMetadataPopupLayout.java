@@ -32,24 +32,24 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.IndexedContainer;
-import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
-import com.vaadin.v7.event.SelectionEvent;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.event.selection.SelectionEvent;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.ui.AbstractTextField.TextChangeEventMode;
+import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.Grid;
-import com.vaadin.v7.ui.Grid.SelectionMode;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
-import com.vaadin.v7.ui.renderers.ClickableRenderer.RendererClickEvent;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.renderers.ClickableRenderer.RendererClickEvent;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.util.IndexedContainer;
 
 /**
  * 
@@ -239,8 +239,8 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
     private TextField createKeyTextField() {
         final TextField keyField = new TextFieldBuilder(MetaData.KEY_MAX_SIZE).caption(i18n.getMessage("textfield.key"))
                 .required(true, i18n).id(UIComponentIdProvider.METADATA_KEY_FIELD_ID).buildTextComponent();
-        keyField.addTextChangeListener(this::onKeyChange);
-        keyField.setTextChangeEventMode(TextChangeEventMode.EAGER);
+        keyField.addValueChangeListener(this::onKeyChange);
+        keyField.setValueChangeMode(ValueChangeMode.EAGER);
         keyField.setWidth("100%");
         return keyField;
     }
@@ -250,26 +250,25 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
                 .required(true, i18n).id(UIComponentIdProvider.METADATA_VALUE_ID).buildTextComponent();
         valueTextArea.setSizeFull();
         valueTextArea.setHeight(100, Unit.PERCENTAGE);
-        valueTextArea.addTextChangeListener(this::onValueChange);
-        valueTextArea.setTextChangeEventMode(TextChangeEventMode.EAGER);
+        valueTextArea.addValueChangeListener(this::onValueChange);
+        valueTextArea.setValueChangeMode(ValueChangeMode.EAGER);
         return valueTextArea;
     }
 
     protected Grid createMetadataGrid() {
         final Grid metadataGrid = new Grid();
         metadataGrid.addStyleName(SPUIStyleDefinitions.METADATA_GRID);
-        metadataGrid.setImmediate(true);
         metadataGrid.setHeight("100%");
         metadataGrid.setWidth("100%");
         metadataGrid.setId(UIComponentIdProvider.METDATA_TABLE_ID);
         metadataGrid.setSelectionMode(SelectionMode.SINGLE);
         metadataGrid.setColumnReorderingAllowed(true);
         metadataGrid.setContainerDataSource(getMetadataContainer());
-        metadataGrid.getColumn(KEY).setHeaderCaption(i18n.getMessage("header.key"));
-        metadataGrid.getColumn(VALUE).setHeaderCaption(i18n.getMessage("header.value"));
+        metadataGrid.getColumn(KEY).setCaption(i18n.getMessage("header.key"));
+        metadataGrid.getColumn(VALUE).setCaption(i18n.getMessage("header.value"));
         metadataGrid.getColumn(VALUE).setHidden(true);
         metadataGrid.addSelectionListener(this::onRowClick);
-        metadataGrid.getColumn(DELETE_BUTTON).setHeaderCaption("");
+        metadataGrid.getColumn(DELETE_BUTTON).setCaption("");
         metadataGrid.getColumn(DELETE_BUTTON).setRenderer(new HtmlButtonRenderer(this::onDelete));
         metadataGrid.getColumn(DELETE_BUTTON).setWidth(50);
         metadataGrid.getColumn(KEY).setExpandRatio(1);
@@ -453,9 +452,9 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
         UI.getCurrent().removeWindow(metadataWindow);
     }
 
-    private void onKeyChange(final TextChangeEvent event) {
+    private void onKeyChange(final ValueChangeEvent<String> event) {
         if (hasCreatePermission() || hasUpdatePermission()) {
-            if (!valueTextArea.getValue().isEmpty() && !event.getText().isEmpty()) {
+            if (!valueTextArea.getValue().isEmpty() && !event.getValue().isEmpty()) {
                 metadataWindow.setSaveButtonEnabled(true);
             } else {
                 metadataWindow.setSaveButtonEnabled(false);
@@ -464,7 +463,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
     }
 
     protected void onRowClick(final SelectionEvent event) {
-        final Set<Object> itemsSelected = event.getSelected();
+        final Set itemsSelected = event.getAllSelectedItems();
         if (!itemsSelected.isEmpty()) {
             popualateKeyValue(itemsSelected.iterator().next());
             addIcon.setEnabled(true);
@@ -486,9 +485,9 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
         valueTextArea.setEnabled(true);
     }
 
-    private void onValueChange(final TextChangeEvent event) {
+    private void onValueChange(final ValueChangeEvent<String> event) {
         if (hasCreatePermission() || hasUpdatePermission()) {
-            if (!keyTextField.getValue().isEmpty() && !event.getText().isEmpty()) {
+            if (!keyTextField.getValue().isEmpty() && !event.getValue().isEmpty()) {
                 metadataWindow.setSaveButtonEnabled(true);
             } else {
                 metadataWindow.setSaveButtonEnabled(false);

@@ -14,11 +14,11 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.Grid;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Abstract grid layout class which builds layout with grid {@link AbstractGrid}
@@ -57,7 +57,6 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
         this.grid = createGrid();
         buildLayout();
         setSizeFull();
-        setImmediate(true);
         if (doSubscribeToEventBus()) {
             eventBus.subscribe(this);
         }
@@ -114,7 +113,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      */
     public void registerDetails(final AbstractGrid<?>.DetailsSupport details) {
         grid.addSelectionListener(event -> {
-            final Long masterId = (Long) event.getSelected().stream().findFirst().orElse(null);
+            final Long masterId = (Long) event.getFirstSelectedItem().orElse(null);
             details.populateMasterDataAndRecalculateContainer(masterId);
         });
     }

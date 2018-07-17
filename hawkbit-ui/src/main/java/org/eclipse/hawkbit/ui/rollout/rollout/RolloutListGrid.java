@@ -63,14 +63,17 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.client.widget.grid.CellReference;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.components.grid.HeaderCell;
+import com.vaadin.ui.renderers.ClickableRenderer.RendererClickEvent;
+import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.util.GeneratedPropertyContainer;
 import com.vaadin.v7.data.util.PropertyValueGenerator;
 import com.vaadin.v7.data.util.converter.Converter;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.renderers.ClickableRenderer.RendererClickEvent;
-import com.vaadin.v7.ui.renderers.HtmlRenderer;
+import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 
 /**
  * Rollout list grid component.
@@ -330,29 +333,27 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
 
     @Override
     protected void setColumnHeaderNames() {
-        getColumn(ROLLOUT_RENDERER_DATA).setHeaderCaption(i18n.getMessage("header.name"));
-        getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION)
-                .setHeaderCaption(i18n.getMessage("header.distributionset"));
-        getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setHeaderCaption(i18n.getMessage("header.numberofgroups"));
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setHeaderCaption(i18n.getMessage("header.total.targets"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setHeaderCaption(i18n.getMessage("header.createdDate"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_USER).setHeaderCaption(i18n.getMessage("header.createdBy"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setHeaderCaption(i18n.getMessage("header.modifiedDate"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setHeaderCaption(i18n.getMessage("header.modifiedBy"));
-        getColumn(SPUILabelDefinitions.VAR_APPROVAL_REMARK).setHeaderCaption(i18n.getMessage("header.approvalRemark"));
-        getColumn(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY)
-                .setHeaderCaption(i18n.getMessage("header.approvalDecidedBy"));
-        getColumn(SPUILabelDefinitions.VAR_DESC).setHeaderCaption(i18n.getMessage("header.description"));
+        getColumn(ROLLOUT_RENDERER_DATA).setCaption(i18n.getMessage("header.name"));
+        getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).setCaption(i18n.getMessage("header.distributionset"));
+        getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setCaption(i18n.getMessage("header.numberofgroups"));
+        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"));
+        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setCaption(i18n.getMessage("header.createdDate"));
+        getColumn(SPUILabelDefinitions.VAR_CREATED_USER).setCaption(i18n.getMessage("header.createdBy"));
+        getColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setCaption(i18n.getMessage("header.modifiedDate"));
+        getColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setCaption(i18n.getMessage("header.modifiedBy"));
+        getColumn(SPUILabelDefinitions.VAR_APPROVAL_REMARK).setCaption(i18n.getMessage("header.approvalRemark"));
+        getColumn(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY).setCaption(i18n.getMessage("header.approvalDecidedBy"));
+        getColumn(SPUILabelDefinitions.VAR_DESC).setCaption(i18n.getMessage("header.description"));
         getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
-                .setHeaderCaption(i18n.getMessage("header.detail.status"));
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setHeaderCaption(i18n.getMessage("header.status"));
+                .setCaption(i18n.getMessage("header.detail.status"));
+        getColumn(SPUILabelDefinitions.VAR_STATUS).setCaption(i18n.getMessage("header.status"));
 
-        getColumn(VIRT_PROP_RUN).setHeaderCaption(i18n.getMessage("header.action.run"));
-        getColumn(VIRT_PROP_APPROVE).setHeaderCaption(i18n.getMessage("header.action.approve"));
-        getColumn(VIRT_PROP_PAUSE).setHeaderCaption(i18n.getMessage("header.action.pause"));
-        getColumn(VIRT_PROP_UPDATE).setHeaderCaption(i18n.getMessage("header.action.update"));
-        getColumn(VIRT_PROP_COPY).setHeaderCaption(i18n.getMessage("header.action.copy"));
-        getColumn(VIRT_PROP_DELETE).setHeaderCaption(i18n.getMessage("header.action.delete"));
+        getColumn(VIRT_PROP_RUN).setCaption(i18n.getMessage("header.action.run"));
+        getColumn(VIRT_PROP_APPROVE).setCaption(i18n.getMessage("header.action.approve"));
+        getColumn(VIRT_PROP_PAUSE).setCaption(i18n.getMessage("header.action.pause"));
+        getColumn(VIRT_PROP_UPDATE).setCaption(i18n.getMessage("header.action.update"));
+        getColumn(VIRT_PROP_COPY).setCaption(i18n.getMessage("header.action.copy"));
+        getColumn(VIRT_PROP_DELETE).setCaption(i18n.getMessage("header.action.delete"));
 
         joinColumns().setText(i18n.getMessage("header.action"));
     }
@@ -669,8 +670,7 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
 
     private StatusFontIcon createDeleteButtonMetadata(final RolloutStatus rolloutStatus) {
         final boolean isDisabled = hasToBeDisabled(rolloutStatus, DELETE_COPY_BUTTON_ENABLED);
-        return new StatusFontIcon(FontAwesome.TRASH_O, null,
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_DELETE),
+        return new StatusFontIcon(FontAwesome.TRASH_O, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_DELETE),
                 UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, isDisabled);
     }
 

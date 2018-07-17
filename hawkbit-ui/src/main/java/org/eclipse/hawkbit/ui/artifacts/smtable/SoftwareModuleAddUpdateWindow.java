@@ -28,9 +28,7 @@ import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.common.table.AbstractTable;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -39,13 +37,13 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.google.common.collect.Sets;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 
 /**
  * Generates window for Software module add or update.
@@ -72,7 +70,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
 
     private TextField vendorTextField;
 
-    private ComboBox typeComboBox;
+    private ComboBox<SoftwareModuleType> typeComboBox;
 
     private TextArea descTextArea;
 
@@ -231,8 +229,6 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
                 null, i18n.getMessage("upload.swmodule.type"));
         typeComboBox.setId(UIComponentIdProvider.SW_MODULE_TYPE);
         typeComboBox.setStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE + " " + ValoTheme.COMBOBOX_TINY);
-        typeComboBox.setNewItemsAllowed(Boolean.FALSE);
-        typeComboBox.setImmediate(Boolean.TRUE);
     }
 
     private TextField createTextField(final String in18Key, final String id, final int maxLength) {
@@ -241,9 +237,9 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
     }
 
     private void populateTypeNameCombo() {
-        typeComboBox.setContainerDataSource(
-                HawkbitCommonUtil.createLazyQueryContainer(new BeanQueryFactory<>(SoftwareModuleTypeBeanQuery.class)));
-        typeComboBox.setItemCaptionPropertyId(SPUILabelDefinitions.VAR_NAME);
+        // TODO MR
+        typeComboBox.setItems(new BeanQueryFactory<>(SoftwareModuleTypeBeanQuery.class));
+        typeComboBox.setItemCaptionGenerator(SoftwareModuleType::getName); // SPUILabelDefinitions.VAR_NAME
     }
 
     private void resetComponents() {
@@ -281,9 +277,9 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
         setCompositionRoot(formLayout);
 
         final CommonDialogWindow window = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
-                .caption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module"))).id(UIComponentIdProvider.SW_MODULE_CREATE_DIALOG)
-                .content(this).layout(formLayout).i18n(i18n).saveDialogCloseListener(new SaveOnDialogCloseListener())
-                .buildCommonDialogWindow();
+                .caption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module")))
+                .id(UIComponentIdProvider.SW_MODULE_CREATE_DIALOG).content(this).layout(formLayout).i18n(i18n)
+                .saveDialogCloseListener(new SaveOnDialogCloseListener()).buildCommonDialogWindow();
         nameTextField.setEnabled(!editSwModule);
         versionTextField.setEnabled(!editSwModule);
 

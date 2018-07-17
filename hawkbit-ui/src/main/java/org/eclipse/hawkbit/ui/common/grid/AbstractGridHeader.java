@@ -23,9 +23,9 @@ import org.springframework.util.StringUtils;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * 
@@ -75,7 +75,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         headerCaptionLayout = getHeaderCaptionLayout();
         if (isRollout()) {
             searchField = new TextFieldBuilder(64).id(getSearchBoxId())
-                    .createSearchField(event -> searchBy(event.getText()));
+                    .createSearchField(event -> searchBy(event.getValue()));
             searchResetIcon = createSearchResetIcon();
             addButton = createAddButton();
         }

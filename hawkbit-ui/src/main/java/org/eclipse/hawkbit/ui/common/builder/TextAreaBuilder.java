@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
-import com.vaadin.v7.ui.TextArea;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

@@ -11,9 +11,9 @@ package org.eclipse.hawkbit.ui.customrenderers.client.renderers;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.google.gwt.user.client.ui.Button;
-import com.vaadin.v7.client.renderers.ButtonRenderer;
+import com.vaadin.client.renderers.ButtonRenderer;
 import com.vaadin.client.ui.VButton;
-import com.vaadin.v7.client.widget.grid.RendererCellReference;
+import com.vaadin.client.widget.grid.RendererCellReference;
 
 /**
  * Renders button with provided HTML content. Used to display button with icons.

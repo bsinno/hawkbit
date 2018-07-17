@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * abstract authentication configuration item.
@@ -51,7 +51,6 @@ public abstract class AbstractBooleanTenantConfigurationItem extends VerticalLay
      * initialize the abstract component.
      */
     protected void init(final String labelText) {
-        setImmediate(true);
         addComponent(new LabelBuilder().name(i18n.getMessage(labelText)).buildLabel());
     }
 

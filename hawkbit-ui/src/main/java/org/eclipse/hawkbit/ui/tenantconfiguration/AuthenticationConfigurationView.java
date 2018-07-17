@@ -20,14 +20,14 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.generic.BooleanConfigurationIt
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.HasValue.ValueChangeListener;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * View to configure the authentication mode.
@@ -97,7 +97,6 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
 
         final GridLayout gridLayout = new GridLayout(2, 4);
         gridLayout.setSpacing(true);
-        gridLayout.setImmediate(true);
         gridLayout.setColumnExpandRatio(1, 1.0F);
 
         certificateAuthCheckbox = SPUIComponentProvider.getCheckBox("", DIST_CHECKBOX_STYLE, null, false, "");
@@ -163,13 +162,13 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
     @Override
     public void valueChange(final ValueChangeEvent event) {
 
-        if (!(event.getProperty() instanceof CheckBox)) {
+        if (!(event.getComponent() instanceof CheckBox)) {
             return;
         }
 
         notifyConfigurationChanged();
 
-        final CheckBox checkBox = (CheckBox) event.getProperty();
+        final CheckBox checkBox = (CheckBox) event.getComponent();
         BooleanConfigurationItem configurationItem;
 
         if (gatewaySecTokenCheckBox.equals(checkBox)) {

@@ -15,7 +15,7 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.tenantconfiguration.ConfigurationItem;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.GridLayout;
 
 /**
@@ -39,7 +39,6 @@ public final class DurationConfigField extends GridLayout implements Configurati
 
         this.addStyleName("duration-config-field");
         this.setSpacing(true);
-        this.setImmediate(true);
         this.setColumnExpandRatio(1, 1.0F);
 
         durationField.setId(id + ".field");

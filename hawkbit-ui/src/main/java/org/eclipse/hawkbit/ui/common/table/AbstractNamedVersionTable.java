@@ -19,9 +19,9 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Item;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.ui.DragAndDropWrapper;
+import com.vaadin.v7.data.Item;
 
 /**
  * Abstract table to handling {@link NamedVersionedEntity}

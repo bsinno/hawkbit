@@ -35,19 +35,20 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.event.FieldEvents.BlurListener;
-import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -106,6 +107,10 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
     private BlurListener nameTextFieldBlurListener;
 
     private LayoutClickListener nameLayoutClickListner;
+
+    Registration registrationForBlurListener;
+
+    Registration registrationForClickListener;
 
     CreateOrUpdateFilterHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final FilterManagementUIState filterManagementUIState,
@@ -206,8 +211,8 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
         final TextField nameField = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE)
                 .caption(i18n.getMessage("textfield.customfiltername")).required(true, i18n)
                 .id(UIComponentIdProvider.CUSTOM_FILTER_ADD_NAME).buildTextComponent();
-        nameField.setPropertyDataSource(nameLabel);
-        nameField.addTextChangeListener(this::onFilterNameChange);
+        nameField.setData(nameLabel);
+        nameField.addValueChangeListener(this::onFilterNameChange);
         return nameField;
     }
 
@@ -230,9 +235,9 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
 
     }
 
-    private void onFilterNameChange(final TextChangeEvent event) {
-        if (isNameAndQueryEmpty(event.getText(), queryTextField.getValue())
-                || (event.getText().equals(oldFilterName) && queryTextField.getValue().equals(oldFilterQuery))) {
+    private void onFilterNameChange(final ValueChangeEvent<String> event) {
+        if (isNameAndQueryEmpty(event.getValue(), queryTextField.getValue())
+                || (event.getValue().equals(oldFilterName) && queryTextField.getValue().equals(oldFilterQuery))) {
             saveButton.setEnabled(false);
         } else {
             if (hasSavePermission()) {
@@ -285,13 +290,13 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
     private void setUpCaptionLayout(final boolean isCreateView) {
         captionLayout.removeAllComponents();
         if (isCreateView) {
-            nameTextField.removeBlurListener(nameTextFieldBlurListener);
-            captionLayout.removeLayoutClickListener(nameLayoutClickListner);
+            registrationForBlurListener.remove();
+            registrationForClickListener.remove();
             captionLayout.addComponent(nameTextField);
         } else {
             captionLayout.addComponent(nameLabel);
-            nameTextField.addBlurListener(nameTextFieldBlurListener);
-            captionLayout.addLayoutClickListener(nameLayoutClickListner);
+            registrationForBlurListener = nameTextField.addBlurListener(nameTextFieldBlurListener);
+            registrationForClickListener = captionLayout.addLayoutClickListener(nameLayoutClickListner);
         }
     }
 

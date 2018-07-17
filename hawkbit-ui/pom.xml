@@ -210,13 +210,14 @@
          <groupId>org.vaadin.addons.lazyquerycontainer</groupId>
          <artifactId>vaadin-lazyquerycontainer</artifactId>
       </dependency>
+<!--       <dependency> -->
+<!--          <groupId>org.vaadin.addons</groupId> -->
+<!--          <artifactId>flexibleoptiongroup</artifactId> -->
+<!--       </dependency> -->
       <dependency>
          <groupId>org.vaadin.addons</groupId>
-         <artifactId>flexibleoptiongroup</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.vaadin.addons</groupId>
-         <artifactId>tokenfield</artifactId>
+         <artifactId>extended-token-field</artifactId>
+         <version>0.3.0</version>
       </dependency>
       <dependency>
          <groupId>org.vaadin.alump.distributionbar</groupId>

@@ -45,11 +45,13 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.google.common.collect.Maps;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.util.GeneratedPropertyContainer;
 import com.vaadin.v7.data.util.PropertyValueGenerator;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.ui.UI;
+import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 
 /**
  * This grid presents the action history for a selected target.
@@ -453,13 +455,13 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
     protected void setColumnHeaderNames() {
         final HeaderRow newHeaderRow = resetHeaderDefaultRow();
 
-        getColumn(ProxyAction.PXY_ACTION_IS_ACTIVE_DECO).setHeaderCaption(SPUIDefinitions.ACTION_HIS_TBL_ACTIVE);
-        getColumn(ProxyAction.PXY_ACTION_DS_NAME_VERSION).setHeaderCaption(SPUIDefinitions.ACTION_HIS_TBL_DIST);
-        getColumn(ProxyAction.PXY_ACTION_LAST_MODIFIED_AT).setHeaderCaption(SPUIDefinitions.ACTION_HIS_TBL_DATETIME);
-        getColumn(ProxyAction.PXY_ACTION_STATUS).setHeaderCaption(SPUIDefinitions.ACTION_HIS_TBL_STATUS);
+        getColumn(ProxyAction.PXY_ACTION_IS_ACTIVE_DECO).setCaption(SPUIDefinitions.ACTION_HIS_TBL_ACTIVE);
+        getColumn(ProxyAction.PXY_ACTION_DS_NAME_VERSION).setCaption(SPUIDefinitions.ACTION_HIS_TBL_DIST);
+        getColumn(ProxyAction.PXY_ACTION_LAST_MODIFIED_AT).setCaption(SPUIDefinitions.ACTION_HIS_TBL_DATETIME);
+        getColumn(ProxyAction.PXY_ACTION_STATUS).setCaption(SPUIDefinitions.ACTION_HIS_TBL_STATUS);
         getColumn(ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW)
-                .setHeaderCaption(SPUIDefinitions.ACTION_HIS_TBL_MAINTENANCE_WINDOW);
-        getColumn(VIRT_PROP_FORCED).setHeaderCaption(String.valueOf(forceClientRefreshToggle));
+                .setCaption(SPUIDefinitions.ACTION_HIS_TBL_MAINTENANCE_WINDOW);
+        getColumn(VIRT_PROP_FORCED).setCaption(String.valueOf(forceClientRefreshToggle));
         forceClientRefreshToggle = !forceClientRefreshToggle;
 
         newHeaderRow.join(VIRT_PROP_FORCED, VIRT_PROP_TIMEFORCED).setText(SPUIDefinitions.ACTION_HIS_TBL_FORCED);
@@ -596,9 +598,8 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
          */
         @Override
         protected void setMaximizedHeaders() {
-            getColumn(ProxyAction.PXY_ACTION_ID).setHeaderCaption(SPUIDefinitions.ACTION_HIS_TBL_ACTION_ID);
-            getColumn(ProxyAction.PXY_ACTION_ROLLOUT_NAME)
-                    .setHeaderCaption(SPUIDefinitions.ACTION_HIS_TBL_ROLLOUT_NAME);
+            getColumn(ProxyAction.PXY_ACTION_ID).setCaption(SPUIDefinitions.ACTION_HIS_TBL_ACTION_ID);
+            getColumn(ProxyAction.PXY_ACTION_ROLLOUT_NAME).setCaption(SPUIDefinitions.ACTION_HIS_TBL_ROLLOUT_NAME);
         }
 
         /**

@@ -41,22 +41,21 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.tokenfield.TokenField;
 
 import com.google.common.collect.Maps;
-import com.vaadin.v7.data.Container;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.TextArea;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Container;
 
 /**
  * Bulk target upload layout.
@@ -85,7 +84,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     private static final long serialVersionUID = -6659290471705262389L;
     private VerticalLayout tokenVerticalLayout;
     private TextArea descTextArea;
-    private ComboBox dsNamecomboBox;
+    private ComboBox<Long> dsNamecomboBox;
     private BulkUploadHandler bulkUploader;
     private VerticalLayout mainLayout;
     private ProgressBar progressBar;
@@ -117,13 +116,12 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
         createRequiredComponents();
         buildLayout();
-        setImmediate(true);
         setCompositionRoot(mainLayout);
     }
 
     protected void onStartOfUpload() {
         final TargetBulkUpload targetBulkUpload = managementUIState.getTargetTableFilters().getBulkUpload();
-        targetBulkUpload.setDsNameAndVersion((Long) dsNamecomboBox.getValue());
+        targetBulkUpload.setDsNameAndVersion(dsNamecomboBox.getValue());
         targetBulkUpload.setDescription(descTextArea.getValue());
         targetBulkUpload.setProgressBarCurrentValue(0F);
         targetBulkUpload.setFailedUploadCount(0);
@@ -186,7 +184,6 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private static Label getStatusCountLabel() {
         final Label countLabel = new Label();
-        countLabel.setImmediate(true);
         countLabel.addStyleName("bulk-upload-label");
         countLabel.setVisible(false);
         countLabel.setCaptionAsHtml(true);
@@ -208,11 +205,13 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
                 null, false, "", i18n.getMessage("bulkupload.ds.name"));
         dsComboBox.setSizeUndefined();
         dsComboBox.addStyleName(SPUIDefinitions.BULK_UPLOD_DS_COMBO_STYLE);
-        dsComboBox.setImmediate(true);
-        dsComboBox.setFilteringMode(FilteringMode.STARTSWITH);
+        // TODO MR
+        // dsComboBox.setFilteringMode(FilteringMode.STARTSWITH);
         dsComboBox.setPageLength(7);
-        dsComboBox.setContainerDataSource(container);
-        dsComboBox.setItemCaptionPropertyId(SPUILabelDefinitions.VAR_NAME_VERSION);
+        // TODO MR
+        // dsComboBox.setItems(items); //ContainerDataSource(container);
+        // dsComboBox.setItemCaptionGenerator(); //
+        // PropertyId(SPUILabelDefinitions.VAR_NAME_VERSION);
         dsComboBox.setId(UIComponentIdProvider.BULK_UPLOAD_DS_COMBO);
         dsComboBox.setWidth("100%");
         return dsComboBox;

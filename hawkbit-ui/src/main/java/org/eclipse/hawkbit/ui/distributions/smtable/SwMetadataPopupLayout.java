@@ -23,11 +23,11 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.Grid;
-import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Pop up layout to display software module metadata.
@@ -41,6 +41,7 @@ public class SwMetadataPopupLayout extends AbstractMetadataPopupLayout<SoftwareM
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
     private final transient EntityFactory entityFactory;
+
     private CheckBox targetVisibleField;
 
     public SwMetadataPopupLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
@@ -85,7 +86,7 @@ public class SwMetadataPopupLayout extends AbstractMetadataPopupLayout<SoftwareM
     protected Grid createMetadataGrid() {
         final Grid metadataGrid = super.createMetadataGrid();
         metadataGrid.getContainerDataSource().addContainerProperty(TARGET_VISIBLE, Boolean.class, Boolean.FALSE);
-        metadataGrid.getColumn(TARGET_VISIBLE).setHeaderCaption(i18n.getMessage("metadata.targetvisible"));
+        metadataGrid.getColumn(TARGET_VISIBLE).setCaption(i18n.getMessage("metadata.targetvisible"));
         metadataGrid.getColumn(TARGET_VISIBLE).setHidden(true);
         return metadataGrid;
     }

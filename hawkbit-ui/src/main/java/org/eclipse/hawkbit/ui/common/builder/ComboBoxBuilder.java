@@ -9,10 +9,9 @@
 package org.eclipse.hawkbit.ui.common.builder;
 
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 
-import com.vaadin.v7.data.Property;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.data.HasValue.ValueChangeListener;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -20,7 +19,7 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public class ComboBoxBuilder {
 
-    private Property.ValueChangeListener valueChangeListener;
+    private ValueChangeListener valueChangeListener;
 
     private String id;
 
@@ -28,7 +27,7 @@ public class ComboBoxBuilder {
 
     private String caption;
 
-    public ComboBoxBuilder setValueChangeListener(final Property.ValueChangeListener valueChangeListener) {
+    public ComboBoxBuilder setValueChangeListener(final ValueChangeListener valueChangeListener) {
         this.valueChangeListener = valueChangeListener;
         return this;
     }
@@ -52,11 +51,12 @@ public class ComboBoxBuilder {
      * @return a new ComboBox
      */
     public ComboBox buildCombBox() {
-        final ComboBox comboBox = SPUIComponentProvider.getComboBox(null, "", null, ValoTheme.COMBOBOX_SMALL, false, "",
-                prompt);
-        comboBox.setImmediate(true);
+        final ComboBox<?> comboBox = SPUIComponentProvider.getComboBox(null, "", null, ValoTheme.COMBOBOX_SMALL, false,
+                "", prompt);
         comboBox.setPageLength(7);
-        comboBox.setItemCaptionPropertyId(SPUILabelDefinitions.VAR_NAME);
+        // TODO MR
+        // comboBox.setItemCaptionGenerator(?:getName);
+        // //SPUILabelDefinitions.VAR_NAME
         comboBox.setSizeUndefined();
         if (caption != null) {
             comboBox.setCaption(caption);

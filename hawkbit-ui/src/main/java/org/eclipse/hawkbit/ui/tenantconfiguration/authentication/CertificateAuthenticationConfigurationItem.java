@@ -16,10 +16,10 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * This class represents the UI item for the certificate authenticated by an
@@ -44,7 +44,6 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         configurationEnabled = isConfigEnabled();
 
         detailLayout = new VerticalLayout();
-        detailLayout.setImmediate(true);
 
         final HorizontalLayout caRootAuthorityLayout = new HorizontalLayout();
         caRootAuthorityLayout.setSpacing(true);
@@ -56,7 +55,7 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
 
         caRootAuthorityTextField = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         caRootAuthorityTextField.setWidth("100%");
-        caRootAuthorityTextField.addTextChangeListener(event -> caRootAuthorityChanged());
+        caRootAuthorityTextField.addValueChangeListener(event -> caRootAuthorityChanged());
 
         caRootAuthorityLayout.addComponent(caRootAuthorityLabel);
         caRootAuthorityLayout.setExpandRatio(caRootAuthorityLabel, 0);

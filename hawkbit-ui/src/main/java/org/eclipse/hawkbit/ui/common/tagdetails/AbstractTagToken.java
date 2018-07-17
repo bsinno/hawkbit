@@ -27,16 +27,17 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.tokenfield.TokenField;
 import org.vaadin.tokenfield.TokenField.InsertPosition;
 
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.Property;
-import com.vaadin.v7.data.util.IndexedContainer;
+import com.explicatis.ext_token_field.ExtTokenField;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.util.IndexedContainer;
+import com.vaadin.v7.shared.ui.combobox.FilteringMode;
 
 /**
  * Abstract class for target/ds tag token layout.
@@ -186,7 +187,7 @@ public abstract class AbstractTagToken<T extends BaseEntity> implements Serializ
         return new CustomTokenField(tokenLayout, tokenContainer);
     }
 
-    class CustomTokenField extends TokenField {
+    class CustomTokenField extends ExtTokenField {
         private static final long serialVersionUID = 694216966472937436L;
 
         Container tokenContainer;

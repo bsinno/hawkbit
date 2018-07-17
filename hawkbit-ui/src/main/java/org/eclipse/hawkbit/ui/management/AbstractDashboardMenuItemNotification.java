@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.hawkbit.ui.menu.DashboardMenuItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 /**
  * Contains the menu items' Label for the notification display.

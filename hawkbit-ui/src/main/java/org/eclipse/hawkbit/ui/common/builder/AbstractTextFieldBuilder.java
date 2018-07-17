@@ -15,8 +15,9 @@ import org.eclipse.hawkbit.ui.common.EmptyStringValidator;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.v7.data.Validator;
-import com.vaadin.v7.ui.AbstractTextField;
+import com.vaadin.data.Binder;
+import com.vaadin.data.Validator;
+import com.vaadin.ui.AbstractTextField;
 
 /**
  * Abstract Text field builder.
@@ -34,7 +35,6 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     private String styleName;
     private String prompt;
     private String id;
-    private boolean immediate = true;
     private boolean required;
     private boolean readOnly;
     private boolean enabled = true;
@@ -122,16 +122,6 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     }
 
     /**
-     * @param immediate
-     *            the immediate to set
-     * @return the builder
-     */
-    public T immediate(final boolean immediate) {
-        this.immediate = immediate;
-        return (T) this;
-    }
-
-    /**
      * @param id
      *            the id to set
      * @return the builder
@@ -160,8 +150,7 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     public E buildTextComponent() {
         final E textComponent = createTextComponent();
 
-        textComponent.setRequired(required);
-        textComponent.setImmediate(immediate);
+        new Binder<>().forField(textComponent).asRequired();
         textComponent.setReadOnly(readOnly);
         textComponent.setEnabled(enabled);
 
@@ -177,7 +166,7 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
             textComponent.addStyleName(styleName);
         }
         if (!StringUtils.isEmpty(prompt)) {
-            textComponent.setInputPrompt(prompt);
+            textComponent.setPlaceholder(prompt);
         }
 
         if (maxLengthAllowed > 0) {
@@ -191,8 +180,6 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
         if (!validators.isEmpty()) {
             validators.forEach(textComponent::addValidator);
         }
-
-        textComponent.setNullRepresentation("");
 
         return textComponent;
     }

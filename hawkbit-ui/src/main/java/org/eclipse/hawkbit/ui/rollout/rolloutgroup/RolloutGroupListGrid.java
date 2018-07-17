@@ -43,11 +43,14 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.v7.data.util.converter.Converter;
+import com.vaadin.client.widget.grid.CellReference;
+import com.vaadin.client.widget.grid.CellStyleGenerator;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.renderers.HtmlRenderer;
+import com.vaadin.v7.data.util.converter.Converter;
+import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 import com.vaadin.v7.ui.renderers.ClickableRenderer.RendererClickEvent;
 import com.vaadin.v7.ui.renderers.ClickableRenderer.RendererClickListener;
-import com.vaadin.v7.ui.renderers.HtmlRenderer;
 
 /**
  * Rollout group list grid component.
@@ -195,22 +198,22 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
 
     @Override
     protected void setColumnHeaderNames() {
-        getColumn(ROLLOUT_RENDERER_DATA).setHeaderCaption(i18n.getMessage("header.name"));
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setHeaderCaption(i18n.getMessage("header.status"));
+        getColumn(ROLLOUT_RENDERER_DATA).setCaption(i18n.getMessage("header.name"));
+        getColumn(SPUILabelDefinitions.VAR_STATUS).setCaption(i18n.getMessage("header.status"));
         getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
-                .setHeaderCaption(i18n.getMessage("header.detail.status"));
+                .setCaption(i18n.getMessage("header.detail.status"));
         getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE)
-                .setHeaderCaption(i18n.getMessage("header.rolloutgroup.installed.percentage"));
+                .setCaption(i18n.getMessage("header.rolloutgroup.installed.percentage"));
         getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
-                .setHeaderCaption(i18n.getMessage("header.rolloutgroup.threshold.error"));
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold.error"));
         getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
-                .setHeaderCaption(i18n.getMessage("header.rolloutgroup.threshold"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_USER).setHeaderCaption(i18n.getMessage("header.createdBy"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setHeaderCaption(i18n.getMessage("header.createdDate"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setHeaderCaption(i18n.getMessage("header.modifiedDate"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setHeaderCaption(i18n.getMessage("header.modifiedBy"));
-        getColumn(SPUILabelDefinitions.VAR_DESC).setHeaderCaption(i18n.getMessage("header.description"));
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setHeaderCaption(i18n.getMessage("header.total.targets"));
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold"));
+        getColumn(SPUILabelDefinitions.VAR_CREATED_USER).setCaption(i18n.getMessage("header.createdBy"));
+        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setCaption(i18n.getMessage("header.createdDate"));
+        getColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setCaption(i18n.getMessage("header.modifiedDate"));
+        getColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setCaption(i18n.getMessage("header.modifiedBy"));
+        getColumn(SPUILabelDefinitions.VAR_DESC).setCaption(i18n.getMessage("header.description"));
+        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"));
     }
 
     @Override
@@ -263,7 +266,7 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
 
     private String getDescription(final CellReference cell) {
         if (SPUILabelDefinitions.VAR_STATUS.equals(cell.getPropertyId())) {
-            return cell.getProperty().getValue().toString().toLowerCase();
+            return cell.getValue().toString().toLowerCase();
         } else if (SPUILabelDefinitions.ACTION.equals(cell.getPropertyId())) {
             return SPUILabelDefinitions.ACTION.toLowerCase();
         } else if (ROLLOUT_RENDERER_DATA.equals(cell.getPropertyId())) {

@@ -12,7 +12,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Parent class for filter button layout.

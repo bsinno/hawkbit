@@ -27,9 +27,9 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 
 import com.vaadin.v7.data.Container;
 import com.vaadin.v7.data.Item;
-import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.Table;
 import com.vaadin.ui.UI;
 

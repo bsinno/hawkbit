@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.decorators;
 
 import org.springframework.util.StringUtils;
 
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -53,7 +53,7 @@ public final class SPUIComboBoxDecorator {
             final String styleName, final boolean required, final String data, final String prompt) {
         final ComboBox spUICombo = new ComboBox();
         // Default settings
-        spUICombo.setRequired(required);
+        spUICombo.setRequiredIndicatorVisible(required);
         spUICombo.addStyleName(ValoTheme.COMBOBOX_TINY);
 
         if (!StringUtils.isEmpty(caption)) {
@@ -73,7 +73,7 @@ public final class SPUIComboBoxDecorator {
         }
         // Set prompt
         if (!StringUtils.isEmpty(prompt)) {
-            spUICombo.setInputPrompt(prompt);
+            spUICombo.setPlaceholder(prompt);
         }
         // Set Data
         if (!StringUtils.isEmpty(data)) {

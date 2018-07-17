@@ -22,12 +22,12 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.server.Page;
-import com.vaadin.v7.shared.ui.colorpicker.Color;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.components.colorpicker.ColorChangeEvent;
-import com.vaadin.v7.ui.components.colorpicker.ColorSelector;
+import com.vaadin.shared.ui.colorpicker.Color;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.components.colorpicker.ColorPickerGradient;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -71,26 +71,26 @@ public abstract class AbstractTypeLayout<E extends NamedEntity> extends Abstract
             return;
         }
         getColorPickerLayout().setSelectedColor(color);
-        getColorPickerLayout().getSelPreview().setColor(getColorPickerLayout().getSelectedColor());
-        final String colorPickedPreview = getColorPickerLayout().getSelPreview().getColor().getCSS();
+        getColorPickerLayout().getSelPreview().setValue(getColorPickerLayout().getSelectedColor());
+        final String colorPickedPreview = getColorPickerLayout().getSelPreview().getValue().getCSS();
         if (getTagName().isEnabled() && null != getColorPickerLayout().getColorSelect()) {
             createDynamicStyleForComponents(getTagName(), typeKey, getTagDesc(), colorPickedPreview);
-            getColorPickerLayout().getColorSelect().setColor(getColorPickerLayout().getSelPreview().getColor());
+            getColorPickerLayout().getColorSelect().setValue(getColorPickerLayout().getSelPreview().getValue());
         }
     }
 
     @Override
-    public void colorChanged(final ColorChangeEvent event) {
-        setColor(event.getColor());
-        for (final ColorSelector select : getColorPickerLayout().getSelectors()) {
+    public void valueChange(final ValueChangeEvent<Color> event) {
+        setColor(event.getValue());
+        for (final ColorPickerGradient select : getColorPickerLayout().getSelectors()) {
             if (!event.getSource().equals(select) && select.equals(this)
-                    && !select.getColor().equals(getColorPickerLayout().getSelectedColor())) {
-                select.setColor(getColorPickerLayout().getSelectedColor());
+                    && !select.getValue().equals(getColorPickerLayout().getSelectedColor())) {
+                select.setValue(getColorPickerLayout().getSelectedColor());
             }
         }
         ColorPickerHelper.setRgbSliderValues(getColorPickerLayout());
-        getPreviewButtonColor(event.getColor().getCSS());
-        createDynamicStyleForComponents(getTagName(), typeKey, getTagDesc(), event.getColor().getCSS());
+        getPreviewButtonColor(event.getValue().getCSS());
+        createDynamicStyleForComponents(getTagName(), typeKey, getTagDesc(), event.getValue().getCSS());
     }
 
     @Override
@@ -106,7 +106,7 @@ public abstract class AbstractTypeLayout<E extends NamedEntity> extends Abstract
         typeKey = new TextFieldBuilder(getTypeKeySize()).id(getTypeKeyId())
                 .caption(getI18n().getMessage("textfield.key"))
                 .styleName(ValoTheme.TEXTFIELD_TINY + " " + SPUIDefinitions.DIST_SET_TYPE_KEY).required(true, getI18n())
-                .prompt(getI18n().getMessage("textfield.key")).immediate(true).buildTextComponent();
+                .prompt(getI18n().getMessage("textfield.key")).buildTextComponent();
         getColorLabel().setValue(getI18n().getMessage("label.choose.type.color"));
     }
 
@@ -131,14 +131,14 @@ public abstract class AbstractTypeLayout<E extends NamedEntity> extends Abstract
         if (color == null) {
             getColorPickerLayout()
                     .setSelectedColor(ColorPickerHelper.rgbToColorConverter(ColorPickerConstants.DEFAULT_COLOR));
-            getColorPickerLayout().getSelPreview().setColor(getColorPickerLayout().getSelectedColor());
-            getColorPickerLayout().getColorSelect().setColor(getColorPickerLayout().getSelectedColor());
+            getColorPickerLayout().getSelPreview().setValue(getColorPickerLayout().getSelectedColor());
+            getColorPickerLayout().getColorSelect().setValue(getColorPickerLayout().getSelectedColor());
             createDynamicStyleForComponents(getTagName(), typeKey, getTagDesc(), ColorPickerConstants.DEFAULT_COLOR);
             getPreviewButtonColor(ColorPickerConstants.DEFAULT_COLOR);
         } else {
             getColorPickerLayout().setSelectedColor(ColorPickerHelper.rgbToColorConverter(color));
-            getColorPickerLayout().getSelPreview().setColor(getColorPickerLayout().getSelectedColor());
-            getColorPickerLayout().getColorSelect().setColor(getColorPickerLayout().getSelectedColor());
+            getColorPickerLayout().getSelPreview().setValue(getColorPickerLayout().getSelectedColor());
+            getColorPickerLayout().getColorSelect().setValue(getColorPickerLayout().getSelectedColor());
             createDynamicStyleForComponents(getTagName(), typeKey, getTagDesc(), color);
             getPreviewButtonColor(color);
         }

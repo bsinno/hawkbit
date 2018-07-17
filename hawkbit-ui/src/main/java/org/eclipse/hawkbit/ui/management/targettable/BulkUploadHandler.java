@@ -52,21 +52,21 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.TextArea;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.Upload;
-import com.vaadin.v7.ui.Upload.FailedEvent;
-import com.vaadin.v7.ui.Upload.FailedListener;
-import com.vaadin.v7.ui.Upload.Receiver;
-import com.vaadin.v7.ui.Upload.StartedEvent;
-import com.vaadin.v7.ui.Upload.StartedListener;
-import com.vaadin.v7.ui.Upload.SucceededEvent;
-import com.vaadin.v7.ui.Upload.SucceededListener;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.FailedEvent;
+import com.vaadin.ui.Upload.FailedListener;
+import com.vaadin.ui.Upload.Receiver;
+import com.vaadin.ui.Upload.StartedEvent;
+import com.vaadin.ui.Upload.StartedListener;
+import com.vaadin.ui.Upload.SucceededEvent;
+import com.vaadin.ui.Upload.SucceededListener;
 
 /**
  * Bulk target upload handler.
@@ -82,7 +82,7 @@ public class BulkUploadHandler extends CustomComponent
     private final transient TargetManagement targetManagement;
     private final transient TargetTagManagement tagManagement;
 
-    private final ComboBox comboBox;
+    private final ComboBox<Long> comboBox;
     private final TextArea descTextArea;
     private final VaadinMessageSource i18n;
     private final transient DeploymentManagement deploymentManagement;
@@ -132,7 +132,6 @@ public class BulkUploadHandler extends CustomComponent
         upload.setEnabled(false);
         upload.setButtonCaption("Bulk Upload");
         upload.setReceiver(this);
-        upload.setImmediate(true);
         upload.setWidthUndefined();
         upload.addSucceededListener(this);
         upload.addFailedListener(this);
@@ -155,16 +154,6 @@ public class BulkUploadHandler extends CustomComponent
             LOG.error("Error while reading file {}", filename, e);
         }
         return ByteStreams.nullOutputStream();
-    }
-
-    @Override
-    public void uploadFailed(final FailedEvent event) {
-        LOG.info("Upload failed for file :{} due to {}", event.getFilename(), event.getReason());
-    }
-
-    @Override
-    public void uploadSucceeded(final SucceededEvent event) {
-        uiExecutor.execute(new UploadAsync());
     }
 
     class UploadAsync implements Runnable {
@@ -302,7 +291,7 @@ public class BulkUploadHandler extends CustomComponent
             final long forcedTimeStamp = new Date().getTime();
             final TargetBulkUpload targetBulkUpload = managementUIState.getTargetTableFilters().getBulkUpload();
             final List<String> targetsList = targetBulkUpload.getTargetsCreated();
-            final Long dsSelected = (Long) comboBox.getValue();
+            final Long dsSelected = comboBox.getValue();
             if (!distributionSetManagement.get(dsSelected).isPresent()) {
                 return i18n.getMessage("message.bulk.upload.assignment.failed");
             }
@@ -397,6 +386,16 @@ public class BulkUploadHandler extends CustomComponent
         } else {
             eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.BULK_TARGET_UPLOAD_STARTED));
         }
+    }
+
+    @Override
+    public void uploadFailed(final FailedEvent event) {
+        LOG.info("Upload failed for file :{} due to {}", event.getFilename(), event.getReason());
+    }
+
+    @Override
+    public void uploadSucceeded(final SucceededEvent event) {
+        uiExecutor.execute(new UploadAsync());
     }
 
 }

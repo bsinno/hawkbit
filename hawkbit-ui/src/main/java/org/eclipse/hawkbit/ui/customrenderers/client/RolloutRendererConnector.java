@@ -11,9 +11,9 @@ package org.eclipse.hawkbit.ui.customrenderers.client;
 
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
 
-import com.google.web.bindery.event.shared.HandlerRegistration;
-import com.vaadin.v7.client.connectors.ClickableRendererConnector;
-import com.vaadin.v7.client.renderers.ClickableRenderer.RendererClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.vaadin.client.connectors.ClickableRendererConnector;
+import com.vaadin.client.renderers.ClickableRenderer.RendererClickHandler;
 import com.vaadin.shared.ui.Connect;
 
 import elemental.json.JsonObject;

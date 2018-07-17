@@ -22,22 +22,21 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.v7.data.Container.Indexed;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.Grid;
-import com.vaadin.v7.ui.Grid.SelectionMode;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.v7.ui.renderers.HtmlRenderer;
-import com.vaadin.v7.ui.renderers.ProgressBarRenderer;
+import com.vaadin.ui.renderers.HtmlRenderer;
+import com.vaadin.ui.renderers.ProgressBarRenderer;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Container.Indexed;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.util.IndexedContainer;
 
 import elemental.json.JsonValue;
 
@@ -147,7 +146,6 @@ public class UploadProgressInfoWindow extends Window {
     private void setPopupProperties() {
         setId(UIComponentIdProvider.UPLOAD_STATUS_POPUP_ID);
         addStyleName(SPUIStyleDefinitions.UPLOAD_INFO);
-        setImmediate(true);
         setResizable(false);
         setDraggable(true);
         setClosable(false);
@@ -160,8 +158,7 @@ public class UploadProgressInfoWindow extends Window {
         grid.setColumnOrder(COLUMN_STATUS, COLUMN_PROGRESS, COLUMN_FILE_NAME, SPUILabelDefinitions.NAME_VERSION,
                 COLUMN_REASON);
         setColumnWidth();
-        grid.getColumn(SPUILabelDefinitions.NAME_VERSION)
-                .setHeaderCaption(i18n.getMessage("upload.swModuleTable.header"));
+        grid.getColumn(SPUILabelDefinitions.NAME_VERSION).setCaption(i18n.getMessage("upload.swModuleTable.header"));
         grid.setFrozenColumnCount(5);
     }
 
@@ -171,7 +168,6 @@ public class UploadProgressInfoWindow extends Window {
         statusGrid.setId(UIComponentIdProvider.UPLOAD_STATUS_POPUP_GRID);
         statusGrid.setSelectionMode(SelectionMode.NONE);
         statusGrid.setHeaderVisible(true);
-        statusGrid.setImmediate(true);
         statusGrid.setSizeFull();
         return statusGrid;
     }

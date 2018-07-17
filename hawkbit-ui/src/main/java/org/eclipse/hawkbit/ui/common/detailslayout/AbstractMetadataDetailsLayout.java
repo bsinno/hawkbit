@@ -13,11 +13,11 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.ui.Button;
+import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.util.IndexedContainer;
-import com.vaadin.ui.Button;
 import com.vaadin.v7.ui.Table;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Abstract metadata tab for entities.

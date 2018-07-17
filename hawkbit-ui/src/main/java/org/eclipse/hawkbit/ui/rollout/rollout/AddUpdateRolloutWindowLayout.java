@@ -31,10 +31,6 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
-import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupErrorAction;
-import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupErrorCondition;
-import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessAction;
-import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessCondition;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
@@ -52,6 +48,9 @@ import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupLayout;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupLayout.ActionTypeOption;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
+import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupNumberValidator;
+import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupSizeValidator;
+import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.ThresholdFieldValidator;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
@@ -70,25 +69,28 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.Validator;
+import com.vaadin.data.ValueContext;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.data.validator.LongRangeValidator;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.RadioButtonGroup;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.data.Container;
 import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Validator;
-import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
-import com.vaadin.v7.data.validator.IntegerRangeValidator;
-import com.vaadin.v7.data.validator.LongRangeValidator;
-import com.vaadin.v7.data.validator.NullValidator;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.OptionGroup;
-import com.vaadin.ui.TabSheet;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Validator.InvalidValueException;
 
 /**
  * Rollout add or update popup layout.
@@ -140,9 +142,9 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private TextField rolloutName;
 
-    private ComboBox distributionSet;
+    private ComboBox<Long> distributionSet;
 
-    private ComboBox targetFilterQueryCombo;
+    private ComboBox<String> targetFilterQueryCombo;
 
     private TextField noOfGroups;
 
@@ -154,7 +156,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private TextArea description;
 
-    private OptionGroup errorThresholdOptionGroup;
+    private RadioButtonGroup<String> errorThresholdOptionGroup;
 
     private Label approvalLabel;
 
@@ -176,13 +178,11 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private GroupsLegendLayout groupsLegendLayout;
 
-    private OptionGroup approveButtonsGroup;
+    private RadioButtonGroup<Rollout.ApprovalDecision> approveButtonsGroup;
 
     private TextField approvalRemarkField;
 
     private final transient RolloutGroupConditions defaultRolloutGroupConditions;
-
-    private final NullValidator nullValidator = new NullValidator(null, false);
 
     @SuppressWarnings("squid:S00107")
     AddUpdateRolloutWindowLayout(final RolloutManagement rolloutManagement, final TargetManagement targetManagement,
@@ -228,8 +228,8 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
             if (editRolloutEnabled) {
                 editRollout();
                 if (rollout.getStatus().equals(Rollout.RolloutStatus.WAITING_FOR_APPROVAL)) {
-                    rolloutManagement.approveOrDeny(rollout.getId(),
-                            (Rollout.ApprovalDecision) approveButtonsGroup.getValue(), approvalRemarkField.getValue());
+                    rolloutManagement.approveOrDeny(rollout.getId(), approveButtonsGroup.getValue(),
+                            approvalRemarkField.getValue());
                     eventBus.publish(this, RolloutEvent.UPDATE_ROLLOUT);
                 }
                 return;
@@ -268,7 +268,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
                 return;
             }
 
-            final Long distributionSetId = (Long) distributionSet.getValue();
+            final Long distributionSetId = distributionSet.getValue();
 
             final RolloutUpdate rolloutUpdate = entityFactory.rollout().update(rollout.getId())
                     .name(rolloutName.getValue()).description(description.getValue()).set(distributionSetId)
@@ -316,7 +316,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
         private Rollout saveRollout() {
 
-            final Long distributionId = (Long) distributionSet.getValue();
+            final Long distributionId = distributionSet.getValue();
 
             final int amountGroup = Integer.parseInt(noOfGroups.getValue());
             final int errorThresholdPercent = getErrorThresholdPercentage(amountGroup);
@@ -370,13 +370,11 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         }
 
         private ActionType getActionType() {
-            return ((ActionTypeOptionGroupLayout.ActionTypeOption) actionTypeOptionGroupLayout
-                    .getActionTypeOptionGroup().getValue()).getActionType();
+            return actionTypeOptionGroupLayout.getActionTypeOptionGroup().getValue().getActionType();
         }
 
         private AutoStartOptionGroupLayout.AutoStartOption getAutoStartOption() {
-            return (AutoStartOptionGroupLayout.AutoStartOption) autoStartOptionGroupLayout.getAutoStartOptionGroup()
-                    .getValue();
+            return autoStartOptionGroupLayout.getAutoStartOptionGroup().getValue();
         }
 
     }
@@ -524,8 +522,9 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private TextField createIntegerTextField(final String in18Key, final String id) {
         final TextField textField = createTextField(in18Key, id, 32);
-        textField.setConverter(new StringToIntegerConverter());
         textField.setConversionError(i18n.getMessage(MESSAGE_ENTER_NUMBER));
+        new Binder<>().forField(textField)
+                .withConverter(new StringToIntegerConverter("", i18n.getMessage(MESSAGE_ENTER_NUMBER)));
         textField.setSizeUndefined();
         return textField;
     }
@@ -595,9 +594,12 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
                 i18n.getMessage("caption.rollout.tabs.advanced"));
         advancedTab.setId(UIComponentIdProvider.ROLLOUT_ADVANCED_TAB);
 
-        tabSheet.addSelectedTabChangeListener(event -> validateGroups());
+        tabSheet.addSelectedTabChangeListener(
+
+                event -> validateGroups());
 
         return tabSheet;
+
     }
 
     private static int getPositionOfSelectedTab(final TabSheet tabSheet) {
@@ -640,12 +642,12 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private HorizontalLayout createApprovalLayout() {
-        approveButtonsGroup = new OptionGroup();
+        approveButtonsGroup = new RadioButtonGroup<>();
         approveButtonsGroup.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_OPTIONGROUP_ID);
         approveButtonsGroup.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
         approveButtonsGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
         approveButtonsGroup.addStyleName("custom-option-group");
-        approveButtonsGroup.addItems(Rollout.ApprovalDecision.APPROVED, Rollout.ApprovalDecision.DENIED);
+        approveButtonsGroup.setItems(Rollout.ApprovalDecision.APPROVED, Rollout.ApprovalDecision.DENIED);
 
         approveButtonsGroup.setItemCaption(Rollout.ApprovalDecision.APPROVED, i18n.getMessage(APPROVAL_BUTTON_LABEL));
         approveButtonsGroup.setItemIcon(Rollout.ApprovalDecision.APPROVED, FontAwesome.CHECK);
@@ -665,7 +667,6 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     private static Label createCountLabel() {
         final Label groupSize = new LabelBuilder().visible(false).name("").buildLabel();
         groupSize.addStyleName(ValoTheme.LABEL_TINY + " " + "rollout-target-count-message");
-        groupSize.setImmediate(true);
         groupSize.setSizeUndefined();
         return groupSize;
     }
@@ -680,11 +681,13 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         return filterField;
     }
 
-    private OptionGroup createErrorThresholdOptionGroup() {
-        final OptionGroup errorThresoldOptions = new OptionGroup();
+    private RadioButtonGroup<String> createErrorThresholdOptionGroup() {
+        final RadioButtonGroup<String> errorThresoldOptions = new RadioButtonGroup<>();
+        List<String> itemsToSet = new ArrayList<>();
         for (final ERROR_THRESHOLD_OPTIONS option : ERROR_THRESHOLD_OPTIONS.values()) {
-            errorThresoldOptions.addItem(option.getValue());
+            itemsToSet.add(option.getValue());
         }
+        errorThresoldOptions.setItems(itemsToSet);
         errorThresoldOptions.setId(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_OPTION_ID);
         errorThresoldOptions.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
         errorThresoldOptions.addStyleName(SPUIStyleDefinitions.ROLLOUT_OPTION_GROUP);
@@ -696,7 +699,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     private void listenerOnErrorThresoldOptionChange(final ValueChangeEvent event) {
         errorThreshold.clear();
         errorThreshold.removeAllValidators();
-        if (event.getProperty().getValue().equals(ERROR_THRESHOLD_OPTIONS.COUNT.getValue())) {
+        if (event.getValue().equals(ERROR_THRESHOLD_OPTIONS.COUNT.getValue())) {
             errorThreshold.addValidator(new ErrorThresholdOptionValidator());
         } else {
             errorThreshold.addValidator(new ThresholdFieldValidator());
@@ -771,7 +774,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         }
     }
 
-    private ComboBox createTargetFilterQueryCombo() {
+    private ComboBox<String> createTargetFilterQueryCombo() {
         return new ComboBoxBuilder().setValueChangeListener(this::onTargetFilterChange)
                 .setPrompt(i18n.getMessage("prompt.target.filter"))
                 .setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID).buildCombBox();
@@ -865,12 +868,11 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         return noOfGroupsField;
     }
 
-    private void onGroupNumberChange(final ValueChangeEvent event) {
+    private void onGroupNumberChange(final ValueChangeEvent<Integer> event) {
         if (editRolloutEnabled) {
             return;
         }
-        if (event.getProperty().getValue() != null && noOfGroups.isValid() && totalTargetsCount != null
-                && isNumberOfGroups()) {
+        if (event.getValue() != null && noOfGroups.isValid() && totalTargetsCount != null && isNumberOfGroups()) {
             groupSizeLabel.setValue(getTargetPerGroupMessage(String.valueOf(getGroupSize())));
             groupSizeLabel.setVisible(true);
             updateGroupsChart(Integer.parseInt(noOfGroups.getValue()));
@@ -882,7 +884,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         }
     }
 
-    private ComboBox createDistributionSetCombo() {
+    private ComboBox<Long> createDistributionSetCombo() {
         return new ComboBoxBuilder().setPrompt(i18n.getMessage("prompt.distribution.set"))
                 .setId(UIComponentIdProvider.ROLLOUT_DS_ID).buildCombBox();
     }
@@ -927,8 +929,20 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
         private boolean isNoOfGroupsOrTargetFilterEmpty() {
             return !StringUtils.hasText(noOfGroups.getValue())
-                    || (!StringUtils.hasText((String) targetFilterQueryCombo.getValue())
+                    || (!StringUtils.hasText(targetFilterQueryCombo.getValue())
                             && !StringUtils.hasText(targetFilterQuery.getValue()));
+        }
+
+        @Override
+        public Object apply(Object t, Object u) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ValidationResult apply(Object value, ValueContext context) {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 
@@ -947,6 +961,18 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
                         .validate(totalTargetsCount);
             }
         }
+
+        @Override
+        public Object apply(Object t, Object u) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ValidationResult apply(Object value, ValueContext context) {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
     class ThresholdFieldValidator implements Validator {
@@ -958,6 +984,18 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
                 new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
                         .validate(Integer.valueOf(value.toString()));
             }
+        }
+
+        @Override
+        public Object apply(Object t, Object u) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ValidationResult apply(Object value, ValueContext context) {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 
@@ -971,6 +1009,18 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
                 new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 1, maxGroups), 1,
                         maxGroups).validate(Integer.valueOf(value.toString()));
             }
+        }
+
+        @Override
+        public Object apply(Object t, Object u) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ValidationResult apply(Object value, ValueContext context) {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 
@@ -986,6 +1036,18 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
                     throw new InvalidValueException(msg);
                 }
             }
+        }
+
+        @Override
+        public Object apply(Object t, Object u) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public ValidationResult apply(Object value, ValueContext context) {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 

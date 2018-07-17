@@ -26,10 +26,16 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.client.widget.grid.CellReference;
+import com.vaadin.client.widget.grid.CellStyleGenerator;
+import com.vaadin.data.SelectionModel;
+import com.vaadin.ui.DescriptionGenerator;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.v7.data.Container.Indexed;
 import com.vaadin.v7.data.util.GeneratedPropertyContainer;
 import com.vaadin.v7.data.util.converter.Converter;
-import com.vaadin.v7.ui.Grid;
+import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 
 /**
  * Abstract grid that offers various capabilities (aka support) to offer
@@ -73,7 +79,6 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      */
     protected void init() {
         setSizeFull();
-        setImmediate(true);
         setId(getGridId());
         if (!hasSingleSelectionSupport()) {
             setSelectionMode(SelectionMode.NONE);
@@ -340,7 +345,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      * Template method invoked by {@link this#addNewContainerDS()} for adding a
      * CellDescriptionGenerator to the grid.
      */
-    protected abstract CellDescriptionGenerator getDescriptionGenerator();
+    public abstract DescriptionGenerator getDescriptionGenerator();
 
     /**
      * Gets id of the grid.
@@ -620,8 +625,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
         }
 
         @Override
-        public String getStyle(final CellReference cellReference) {
-
+        public String getStyle(CellReference cellReference) {
             if (center != null
                     && Arrays.stream(center).anyMatch(o -> Objects.equals(o, cellReference.getPropertyId()))) {
                 return "centeralign";

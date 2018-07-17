@@ -8,10 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
-import com.vaadin.v7.event.FieldEvents.TextChangeListener;
+import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.v7.ui.AbstractTextField.TextChangeEventMode;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.shared.ui.ValueChangeMode;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -38,13 +38,13 @@ public class TextFieldBuilder extends AbstractTextFieldBuilder<TextFieldBuilder,
      *            listener when text is changed.
      * @return the textfield
      */
-    public TextField createSearchField(final TextChangeListener textChangeListener) {
+    public TextField createSearchField(final ValueChangeListener<String> textChangeListener) {
         final TextField textField = style("filter-box").styleName("text-style filter-box-hide").buildTextComponent();
         textField.setWidth(100.0F, Unit.PERCENTAGE);
-        textField.addTextChangeListener(textChangeListener);
-        textField.setTextChangeEventMode(TextChangeEventMode.LAZY);
+        textField.addValueChangeListener(textChangeListener);
+        textField.setValueChangeMode(ValueChangeMode.LAZY);
         // 1 seconds timeout.
-        textField.setTextChangeTimeout(1000);
+        textField.setValueChangeTimeout(1000);
         return textField;
     }
 

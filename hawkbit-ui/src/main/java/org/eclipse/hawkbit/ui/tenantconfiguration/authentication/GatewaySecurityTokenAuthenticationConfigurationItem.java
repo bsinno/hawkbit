@@ -20,9 +20,9 @@ import org.springframework.util.StringUtils;
 
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -56,21 +56,17 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
         configurationEnabled = isConfigEnabled();
 
         detailLayout = new VerticalLayout();
-        detailLayout.setImmediate(true);
 
         final Button gatewaytokenBtn = SPUIComponentProvider.getButton("TODO-ID", "Regenerate Key", "",
                 ValoTheme.BUTTON_TINY + " " + "redicon", true, null, SPUIButtonStyleSmall.class);
-        gatewaytokenBtn.setImmediate(true);
         gatewaytokenBtn.setIcon(FontAwesome.REFRESH);
         gatewaytokenBtn.addClickListener(event -> generateGatewayToken());
 
         gatewayTokenkeyLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();
         gatewayTokenkeyLabel.addStyleName("gateway-token-label");
-        gatewayTokenkeyLabel.setImmediate(true);
 
         final HorizontalLayout keyGenerationLayout = new HorizontalLayout();
         keyGenerationLayout.setSpacing(true);
-        keyGenerationLayout.setImmediate(true);
 
         keyGenerationLayout.addComponent(gatewayTokenkeyLabel);
         keyGenerationLayout.addComponent(gatewaytokenBtn);
