@@ -49,21 +49,20 @@ import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
+import org.springframework.data.domain.Sort.Direction;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.client.widget.grid.CellReference;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.components.grid.HeaderCell;
@@ -221,14 +220,16 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
         if (!rollout.isPresent()) {
             return;
         }
-        final GeneratedPropertyContainer rolloutContainer = (GeneratedPropertyContainer) getContainerDataSource();
-        final Item item = rolloutContainer.getItem(rolloutChangeEvent.getRolloutId());
-        if (item == null) {
-            refreshContainer();
-            return;
-        }
-
-        updateItem(rollout.get(), item);
+        // final GeneratedPropertyContainer rolloutContainer =
+        // (GeneratedPropertyContainer) getContainerDataSource();
+        // final Item item =
+        // rolloutContainer.getItem(rolloutChangeEvent.getRolloutId());
+        // if (item == null) {
+        // refreshContainer();
+        // return;
+        // }
+        //
+        // updateItem(rollout.get(), item);
     }
 
     private void updateItem(final Rollout rollout, final Item item) {
@@ -253,10 +254,11 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
     }
 
     @Override
-    protected LazyQueryContainer createContainer() {
-        final BeanQueryFactory<RolloutBeanQuery> rolloutQf = new BeanQueryFactory<>(RolloutBeanQuery.class);
-        return new LazyQueryContainer(
-                new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, SPUILabelDefinitions.VAR_ID), rolloutQf);
+    protected DataProvider createDataProvider() {
+        new RolloutBeanQuery(new Object[] { Direction.ASC }, SPUILabelDefinitions.VAR_ID);
+        // return new LazyQueryContainer(
+        // new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE,
+        // SPUILabelDefinitions.VAR_ID), rolloutQf);
     }
 
     @Override

@@ -22,13 +22,13 @@ import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.client.widget.grid.CellReference;
 import com.vaadin.client.widget.grid.CellStyleGenerator;
 import com.vaadin.data.SelectionModel;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.ui.DescriptionGenerator;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.components.grid.HeaderRow;
@@ -99,22 +99,24 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
         return true;
     }
 
-    /**
-     * Refresh the container.
-     */
-    @Override
-    public void refreshContainer() {
-        final Indexed container = getContainerDataSource();
-        if (hasGeneratedPropertySupport()
-                && getGeneratedPropertySupport().getRawContainer() instanceof LazyQueryContainer) {
-            ((LazyQueryContainer) getGeneratedPropertySupport().getRawContainer()).refresh();
-            return;
-        }
-
-        if (container instanceof LazyQueryContainer) {
-            ((LazyQueryContainer) container).refresh();
-        }
-    }
+    // /**
+    // * Refresh the container.
+    // */
+    // @Override
+    // public void refreshContainer() {
+    // final Indexed container = getContainerDataSource();
+    // if (hasGeneratedPropertySupport()
+    // && getGeneratedPropertySupport().getRawContainer() instanceof
+    // LazyQueryContainer) {
+    // ((LazyQueryContainer)
+    // getGeneratedPropertySupport().getRawContainer()).refresh();
+    // return;
+    // }
+    //
+    // if (container instanceof LazyQueryContainer) {
+    // ((LazyQueryContainer) container).refresh();
+    // }
+    // }
 
     /**
      * Creates a new container instance by calling the required
@@ -125,15 +127,14 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      * selection as common in master-details relations)
      */
     protected void addNewContainerDS() {
-        final T container = createContainer();
-        Indexed indexedContainer = container;
-        if (hasGeneratedPropertySupport()) {
-            indexedContainer = getGeneratedPropertySupport().decorate(container);
-            setContainerDataSource(indexedContainer);
-            getGeneratedPropertySupport().addGeneratedContainerProperties();
-        } else {
-            setContainerDataSource(indexedContainer);
-        }
+        setDataProvider(createDataProvider());
+        // if (hasGeneratedPropertySupport()) {
+        // indexedContainer = getGeneratedPropertySupport().decorate(container);
+        // setContainerDataSource(indexedContainer);
+        // getGeneratedPropertySupport().addGeneratedContainerProperties();
+        // } else {
+        setContainerDataSource(indexedContainer);
+        // }
         addContainerProperties();
 
         setColumnProperties();
@@ -301,7 +302,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      *
      * @return new container instance used by the grid.
      */
-    protected abstract T createContainer();
+    protected abstract DataProvider<T, Void> createDataProvider();
 
     /**
      * Template method invoked by {@link this#addNewContainerDS()} for adding
@@ -345,6 +346,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      * Template method invoked by {@link this#addNewContainerDS()} for adding a
      * CellDescriptionGenerator to the grid.
      */
+    @Override
     public abstract DescriptionGenerator getDescriptionGenerator();
 
     /**
@@ -625,7 +627,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
         }
 
         @Override
-        public String getStyle(CellReference cellReference) {
+        public String getStyle(final CellReference cellReference) {
             if (center != null
                     && Arrays.stream(center).anyMatch(o -> Objects.equals(o, cellReference.getPropertyId()))) {
                 return "centeralign";

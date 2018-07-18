@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.RolloutManagement;
@@ -28,8 +27,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.util.StringUtils;
-import org.vaadin.addons.lazyquerycontainer.AbstractBeanQuery;
-import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
 /**
  *
@@ -37,9 +34,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  * of {@link ProxyRollout} beans.
  *
  */
-public class RolloutBeanQuery extends AbstractBeanQuery<ProxyRollout> {
-
-    private static final long serialVersionUID = 4027879794344836185L;
+public class RolloutBeanQuery {
 
     private final String searchText;
 
@@ -52,25 +47,15 @@ public class RolloutBeanQuery extends AbstractBeanQuery<ProxyRollout> {
     /**
      * Parametric Constructor.
      *
-     * @param definition
-     *            as QueryDefinition
-     * @param queryConfig
-     *            as Config
      * @param sortIds
      *            as sort
      * @param sortStates
      *            as Sort status
      */
-    public RolloutBeanQuery(final QueryDefinition definition, final Map<String, Object> queryConfig,
-            final Object[] sortIds, final boolean[] sortStates) {
-        super(definition, queryConfig, sortIds, sortStates);
-
+    public RolloutBeanQuery(final Object[] sortIds, final boolean[] sortStates) {
         searchText = getSearchText();
-
         if (sortStates != null && sortStates.length > 0) {
-
             sort = new Sort(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortIds[0]);
-
             for (int targetId = 1; targetId < sortIds.length; targetId++) {
                 sort.and(new Sort(sortStates[targetId] ? Direction.ASC : Direction.DESC, (String) sortIds[targetId]));
             }
@@ -81,21 +66,18 @@ public class RolloutBeanQuery extends AbstractBeanQuery<ProxyRollout> {
         return getRolloutUIState().getSearchText().map(value -> String.format("%%%s%%", value)).orElse(null);
     }
 
-    @Override
     protected ProxyRollout constructBean() {
         return new ProxyRollout();
     }
 
-    @Override
-    protected List<ProxyRollout> loadBeans(final int startIndex, final int count) {
+    protected List<ProxyRollout> loadBeans(final int startIndex) {
         final Slice<Rollout> rolloutBeans;
         final PageRequest pageRequest = new PageRequest(startIndex / SPUIDefinitions.PAGE_SIZE,
                 SPUIDefinitions.PAGE_SIZE, sort);
         if (StringUtils.isEmpty(searchText)) {
             rolloutBeans = getRolloutManagement().findAllWithDetailedStatus(pageRequest, false);
         } else {
-            rolloutBeans = getRolloutManagement().findByFiltersWithDetailedStatus(pageRequest, searchText,
-                    false);
+            rolloutBeans = getRolloutManagement().findByFiltersWithDetailedStatus(pageRequest, searchText, false);
         }
         return getProxyRolloutList(rolloutBeans);
     }
@@ -129,15 +111,6 @@ public class RolloutBeanQuery extends AbstractBeanQuery<ProxyRollout> {
         return proxyRollout;
     }
 
-    @Override
-    protected void saveBeans(final List<ProxyRollout> arg0, final List<ProxyRollout> arg1,
-            final List<ProxyRollout> arg2) {
-        /**
-         * CRUD operations on Target will be done through repository methods
-         */
-    }
-
-    @Override
     public int size() {
         long size = getRolloutManagement().count();
         if (!StringUtils.isEmpty(searchText)) {
@@ -147,14 +120,14 @@ public class RolloutBeanQuery extends AbstractBeanQuery<ProxyRollout> {
     }
 
     private RolloutManagement getRolloutManagement() {
-        if (null == rolloutManagement) {
+        if (rolloutManagement == null) {
             rolloutManagement = SpringContextHelper.getBean(RolloutManagement.class);
         }
         return rolloutManagement;
     }
 
     private RolloutUIState getRolloutUIState() {
-        if (null == rolloutUIState) {
+        if (rolloutUIState == null) {
             rolloutUIState = SpringContextHelper.getBean(RolloutUIState.class);
         }
         return rolloutUIState;
