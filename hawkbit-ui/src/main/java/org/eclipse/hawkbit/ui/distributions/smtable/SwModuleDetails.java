@@ -24,7 +24,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -87,7 +87,7 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
     }
 
     private Button createShowArtifactDetailsButton() {
-        artifactDetailsButton = SPUIComponentProvider.getButton("", "", "", null, false, FontAwesome.FILE_O,
+        artifactDetailsButton = SPUIComponentProvider.getButton("", "", "", null, false, VaadinIcons.FILE_O,
                 SPUIButtonStyleNoBorder.class);
         artifactDetailsButton.setDescription(getI18n().getMessage(UIMessageIdProvider.TOOLTIP_ARTIFACT_ICON));
         artifactDetailsButton.addClickListener(event -> showArtifactDetailsWindow(getSelectedBaseEntity()));

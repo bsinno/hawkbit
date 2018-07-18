@@ -30,6 +30,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.data.HasValue.ValueChangeListener;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Alignment;
@@ -284,7 +285,7 @@ public class DistributionSetSelectWindow implements CommonDialogWindow.SaveDialo
             buttonsLayout.setExpandRatio(okButton, 1.0F);
 
             final Button cancelButton = SPUIComponentProvider.getButton(UIComponentIdProvider.CANCEL_BUTTON,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), "", "", true, FontAwesome.TIMES,
+                    i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), "", "", true, VaadinIcons.CLOSE,
                     SPUIButtonStyleNoBorderWithIcon.class);
             cancelButton.setSizeUndefined();
             cancelButton.addStyleName("default-color");

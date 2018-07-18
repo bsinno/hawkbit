@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
-import static org.eclipse.hawkbit.ui.utils.SPUIDefinitions.NO_TAG_BUTTON_ID;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,19 +29,21 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Item;
 import com.vaadin.event.dd.DropHandler;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.DragAndDropWrapper;
 import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
-import com.vaadin.v7.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.CloseListener;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.Table.ColumnHeaderMode;
+import com.vaadin.v7.ui.Table.TableDragMode;
 
 /**
  * Parent class for filter button layout.
@@ -172,7 +172,7 @@ public abstract class AbstractFilterButtons extends Table {
             return null;
         }
 
-        final Button deleteButton = SPUIComponentProvider.getButton("", "", "", "", true, FontAwesome.TRASH_O,
+        final Button deleteButton = SPUIComponentProvider.getButton("", "", "", "", true, VaadinIcons.TRASH_O,
                 SPUIButtonStyleNoBorder.class);
         if (itemId instanceof TagIdName) {
             deleteButton.setId(UIComponentIdProvider.DELETE_TAG_ID + ((TagIdName) itemId).getName());
@@ -189,7 +189,7 @@ public abstract class AbstractFilterButtons extends Table {
             return null;
         }
 
-        final Button editButton = SPUIComponentProvider.getButton("", "", "", "", true, FontAwesome.EDIT,
+        final Button editButton = SPUIComponentProvider.getButton("", "", "", "", true, VaadinIcons.EDIT,
                 SPUIButtonStyleNoBorder.class);
         if (itemId instanceof TagIdName) {
             editButton.setId(UIComponentIdProvider.UPDATE_TAG_ID + ((TagIdName) itemId).getName());
@@ -284,7 +284,7 @@ public abstract class AbstractFilterButtons extends Table {
     private static String prepareFilterButtonCaption(final String name, final String color) {
         final StringBuilder caption = new StringBuilder();
         caption.append("<span style=\"color: ").append(color).append(" !important;\">");
-        caption.append(FontAwesome.CIRCLE.getHtml());
+        caption.append(VaadinIcons.CIRCLE.getHtml());
         caption.append("</span> ");
         caption.append(name);
         return caption.toString();

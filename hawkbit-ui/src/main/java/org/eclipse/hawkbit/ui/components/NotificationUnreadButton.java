@@ -17,8 +17,8 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.event.FieldEvents.BlurEvent;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
@@ -59,7 +59,7 @@ public class NotificationUnreadButton extends Button {
     NotificationUnreadButton(final VaadinMessageSource i18n) {
         this.i18n = i18n;
         this.unreadNotifications = new ConcurrentHashMap<>();
-        setIcon(FontAwesome.BELL);
+        setIcon(VaadinIcons.BELL);
         setId(UIComponentIdProvider.NOTIFICATION_UNREAD_ID);
         addStyleName(ValoTheme.BUTTON_SMALL);
         addStyleName(STYLE);

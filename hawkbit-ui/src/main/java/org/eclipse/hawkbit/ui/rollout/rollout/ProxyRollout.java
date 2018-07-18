@@ -12,12 +12,8 @@ import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus;
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;perties.**/
 
-/**
- * Proxy rollout with custom properties.
- *
- */
 public class ProxyRollout {
 
     private String distributionSetNameVersion;
@@ -145,7 +141,7 @@ public class ProxyRollout {
     }
 
     public String getAction() {
-        return FontAwesome.CIRCLE_O.getHtml();
+        return VaadinIcons.SPINNER.getHtml();
     }
 
     public Long getId() {

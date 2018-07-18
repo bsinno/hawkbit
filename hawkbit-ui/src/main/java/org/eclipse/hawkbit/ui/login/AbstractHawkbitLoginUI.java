@@ -40,7 +40,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
@@ -281,7 +281,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
 
     private void buildPasswordField() {
         password = new PasswordField(i18n.getMessage("label.login.password"));
-        password.setIcon(FontAwesome.LOCK);
+        password.setIcon(VaadinIcons.LOCK);
         password.addStyleName(
                 ValoTheme.TEXTFIELD_INLINE_ICON + " " + ValoTheme.TEXTFIELD_SMALL + " " + LOGIN_TEXTFIELD);
         password.setId("login-password");
@@ -289,7 +289,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
 
     private void buildUserField() {
         username = new TextField(i18n.getMessage("label.login.username"));
-        username.setIcon(FontAwesome.USER);
+        username.setIcon(VaadinIcons.USER);
         username.addStyleName(
                 ValoTheme.TEXTFIELD_INLINE_ICON + " " + ValoTheme.TEXTFIELD_SMALL + " " + LOGIN_TEXTFIELD);
         username.setId("login-username");
@@ -298,7 +298,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
     private void buildTenantField() {
         if (multiTenancyIndicator.isMultiTenancySupported()) {
             tenant = new TextField(i18n.getMessage("label.login.tenant"));
-            tenant.setIcon(FontAwesome.DATABASE);
+            tenant.setIcon(VaadinIcons.DATABASE);
             tenant.addStyleName(
                     ValoTheme.TEXTFIELD_INLINE_ICON + " " + ValoTheme.TEXTFIELD_SMALL + " " + LOGIN_TEXTFIELD);
             tenant.addStyleName("uppercase");
@@ -316,14 +316,14 @@ public abstract class AbstractHawkbitLoginUI extends UI {
         if (!uiProperties.getLinks().getDocumentation().getRoot().isEmpty()) {
             final Link docuLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_DOCUMENTATION,
                     i18n.getMessage("link.documentation.name"), uiProperties.getLinks().getDocumentation().getRoot(),
-                    FontAwesome.QUESTION_CIRCLE, "_blank", linkStyle);
+                    VaadinIcons.QUESTION_CIRCLE, "_blank", linkStyle);
             links.addComponent(docuLink);
             docuLink.addStyleName(ValoTheme.LINK_SMALL);
         }
 
         if (!uiProperties.getDemo().getUser().isEmpty()) {
             final Link demoLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_DEMO,
-                    i18n.getMessage("link.demo.name"), "?demo", FontAwesome.DESKTOP, "_top", linkStyle);
+                    i18n.getMessage("link.demo.name"), "?demo", VaadinIcons.DESKTOP, "_top", linkStyle);
             links.addComponent(demoLink);
             demoLink.addStyleName(ValoTheme.LINK_SMALL);
         }
@@ -331,7 +331,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
         if (!uiProperties.getLinks().getRequestAccount().isEmpty()) {
             final Link requestAccountLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_REQUESTACCOUNT,
                     i18n.getMessage("link.requestaccount.name"), uiProperties.getLinks().getRequestAccount(),
-                    FontAwesome.SHOPPING_CART, "", linkStyle);
+                    VaadinIcons.CART, "", linkStyle);
             links.addComponent(requestAccountLink);
             requestAccountLink.addStyleName(ValoTheme.LINK_SMALL);
         }
@@ -339,7 +339,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
         if (!uiProperties.getLinks().getUserManagement().isEmpty()) {
             final Link userManagementLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_USERMANAGEMENT,
                     i18n.getMessage("link.usermanagement.name"), uiProperties.getLinks().getUserManagement(),
-                    FontAwesome.USERS, "_blank", linkStyle);
+                    VaadinIcons.USERS, "_blank", linkStyle);
             links.addComponent(userManagementLink);
             userManagementLink.addStyleName(ValoTheme.LINK_SMALL);
         }

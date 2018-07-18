@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -92,7 +92,7 @@ public class ConfigMenuBar extends MenuBar {
         }
         setStyleName(ValoTheme.MENUBAR_BORDERLESS);
         addStyleName(SPUIStyleDefinitions.CONFIG_MENU_BAR_POSITION);
-        config = addItem("", FontAwesome.COG, null);
+        config = addItem("", VaadinIcons.COG_O, null);
         config.setStyleName(SPUIStyleDefinitions.CONFIG_MENU_BAR_ITEMS);
         config.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE));
 
@@ -101,13 +101,13 @@ public class ConfigMenuBar extends MenuBar {
 
     private void addMenuItems() {
         if (createPermission) {
-            config.addItem(UIComponentIdProvider.CONFIG_MENU_BAR_CREATE, FontAwesome.PLUS, addButtonCommand);
+            config.addItem(UIComponentIdProvider.CONFIG_MENU_BAR_CREATE, VaadinIcons.PLUS, addButtonCommand);
         }
         if (updatePermission) {
-            config.addItem(UIComponentIdProvider.CONFIG_MENU_BAR_UPDATE, FontAwesome.EDIT, updateButtonCommand);
+            config.addItem(UIComponentIdProvider.CONFIG_MENU_BAR_UPDATE, VaadinIcons.EDIT, updateButtonCommand);
         }
         if (deletePermission) {
-            config.addItem(UIComponentIdProvider.CONFIG_MENU_BAR_DELETE, FontAwesome.TRASH_O, deleteButtonCommand);
+            config.addItem(UIComponentIdProvider.CONFIG_MENU_BAR_DELETE, VaadinIcons.TRASH, deleteButtonCommand);
         }
     }
 

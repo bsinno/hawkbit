@@ -31,16 +31,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus;
 
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.IndexedContainer;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.util.IndexedContainer;
+import com.vaadin.v7.ui.Table;
 
 /**
  * Software module details table.
@@ -223,7 +223,7 @@ public class SoftwareModuleDetailsTable extends Table {
                 horizontalLayout.setSizeFull();
                 final Label softwareModule = HawkbitCommonUtil.getFormatedLabel("");
                 final Button reassignSoftModule = SPUIComponentProvider.getButton(sw.getName(), "", "", "", true,
-                        FontAwesome.TIMES, SPUIButtonStyleNoBorder.class);
+                        VaadinIcons.CLOSE, SPUIButtonStyleNoBorder.class);
                 reassignSoftModule
                         .addClickListener(event -> unassignSW(event, distributionSet, alreadyAssignedSwModules));
                 final String softwareModNameVersion = HawkbitCommonUtil.getFormattedNameVersion(sw.getName(),

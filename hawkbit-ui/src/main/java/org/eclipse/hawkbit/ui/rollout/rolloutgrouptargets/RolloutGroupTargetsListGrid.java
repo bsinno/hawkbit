@@ -33,8 +33,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.v7.data.util.converter.Converter;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 
 /**
  * Grid component with targets of rollout group.
@@ -49,25 +50,25 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<LazyQueryContainer
 
     static {
         statusIconMap.put(Status.FINISHED,
-                new StatusFontIcon(FontAwesome.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
+                new StatusFontIcon(VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
         statusIconMap.put(Status.SCHEDULED,
-                new StatusFontIcon(FontAwesome.HOURGLASS_1, SPUIStyleDefinitions.STATUS_ICON_PENDING));
+                new StatusFontIcon(VaadinIcons.HOURGLASS_EMPTY, SPUIStyleDefinitions.STATUS_ICON_PENDING));
         statusIconMap.put(Status.RUNNING,
-                new StatusFontIcon(FontAwesome.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
+                new StatusFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
         statusIconMap.put(Status.RETRIEVED,
-                new StatusFontIcon(FontAwesome.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
+                new StatusFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
         statusIconMap.put(Status.WARNING,
-                new StatusFontIcon(FontAwesome.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
+                new StatusFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
         statusIconMap.put(Status.DOWNLOAD,
-                new StatusFontIcon(FontAwesome.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
+                new StatusFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
         statusIconMap.put(Status.DOWNLOADED,
-                new StatusFontIcon(FontAwesome.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
+                new StatusFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
         statusIconMap.put(Status.CANCELING,
-                new StatusFontIcon(FontAwesome.TIMES_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_PENDING));
+                new StatusFontIcon(VaadinIcons.CLOSE_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_PENDING));
         statusIconMap.put(Status.CANCELED,
-                new StatusFontIcon(FontAwesome.TIMES_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
+                new StatusFontIcon(VaadinIcons.CLOSE_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
         statusIconMap.put(Status.ERROR,
-                new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
+                new StatusFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
     }
 
     /**
@@ -148,13 +149,13 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<LazyQueryContainer
 
     @Override
     protected void setColumnHeaderNames() {
-        getColumn(SPUILabelDefinitions.VAR_NAME).setHeaderCaption(i18n.getMessage("header.name"));
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setHeaderCaption(i18n.getMessage("header.status"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setHeaderCaption(i18n.getMessage("header.createdDate"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_BY).setHeaderCaption(i18n.getMessage("header.createdBy"));
-        getColumn(SPUILabelDefinitions.VAR_LAST_MODIFIED_DATE).setHeaderCaption(i18n.getMessage("header.modifiedDate"));
-        getColumn(SPUILabelDefinitions.VAR_LAST_MODIFIED_BY).setHeaderCaption(i18n.getMessage("header.modifiedBy"));
-        getColumn(SPUILabelDefinitions.VAR_DESC).setHeaderCaption(i18n.getMessage("header.description"));
+        getColumn(SPUILabelDefinitions.VAR_NAME).setCaption(i18n.getMessage("header.name"));
+        getColumn(SPUILabelDefinitions.VAR_STATUS).setCaption(i18n.getMessage("header.status"));
+        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setCaption(i18n.getMessage("header.createdDate"));
+        getColumn(SPUILabelDefinitions.VAR_CREATED_BY).setCaption(i18n.getMessage("header.createdBy"));
+        getColumn(SPUILabelDefinitions.VAR_LAST_MODIFIED_DATE).setCaption(i18n.getMessage("header.modifiedDate"));
+        getColumn(SPUILabelDefinitions.VAR_LAST_MODIFIED_BY).setCaption(i18n.getMessage("header.modifiedBy"));
+        getColumn(SPUILabelDefinitions.VAR_DESC).setCaption(i18n.getMessage("header.description"));
     }
 
     @Override
@@ -247,14 +248,14 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<LazyQueryContainer
             final RolloutGroup rolloutGroup = rolloutUIState.getRolloutGroup().orElse(null);
             if (rolloutGroup != null && rolloutGroup.getStatus() == RolloutGroupStatus.READY) {
                 return HawkbitCommonUtil.getStatusLabelDetailsInString(
-                        Integer.toString(FontAwesome.DOT_CIRCLE_O.getCodepoint()), "statusIconLightBlue", null);
+                        Integer.toString(VaadinIcons.BULLSEYE.getCodepoint()), "statusIconLightBlue", null);
             }
             if (rolloutGroup != null && rolloutGroup.getStatus() == RolloutGroupStatus.FINISHED) {
                 return HawkbitCommonUtil.getStatusLabelDetailsInString(
-                        Integer.toString(FontAwesome.MINUS_CIRCLE.getCodepoint()), "statusIconBlue", null);
+                        Integer.toString(VaadinIcons.MINUS_CIRCLE.getCodepoint()), "statusIconBlue", null);
             }
             return HawkbitCommonUtil.getStatusLabelDetailsInString(
-                    Integer.toString(FontAwesome.QUESTION_CIRCLE.getCodepoint()), "statusIconBlue", null);
+                    Integer.toString(VaadinIcons.QUESTION_CIRCLE.getCodepoint()), "statusIconBlue", null);
         }
 
     }

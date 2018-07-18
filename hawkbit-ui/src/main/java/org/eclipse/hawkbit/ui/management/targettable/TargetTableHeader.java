@@ -47,16 +47,16 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.Table;
-import com.vaadin.v7.ui.Table.TableTransferable;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.Table.TableTransferable;
 
 /**
  * Target table header layout.
@@ -382,7 +382,7 @@ public class TargetTableHeader extends AbstractTableHeader {
 
     private void addFilterTextField(final DistributionSetIdName distributionSetIdName) {
         final Button filterLabelClose = SPUIComponentProvider.getButton("drop.filter.close", "", "", "", true,
-                FontAwesome.TIMES_CIRCLE, SPUIButtonStyleNoBorder.class);
+                VaadinIcons.CLOSE_CIRCLE, SPUIButtonStyleNoBorder.class);
         filterLabelClose.addClickListener(clickEvent -> closeFilterByDistribution());
         final Label filteredDistLabel = new Label();
         filteredDistLabel.setStyleName(ValoTheme.LABEL_COLORED + " " + ValoTheme.LABEL_SMALL);

@@ -30,7 +30,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -203,7 +203,7 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
 
     protected Button createCancelButtonForUpdateOrDeleteTag() {
         cancelTagButton = SPUIComponentProvider.getButton(UIComponentIdProvider.CANCEL_UPDATE_TAG_ID, "", "", null,
-                false, FontAwesome.TIMES_CIRCLE, SPUIButtonStyleNoBorder.class);
+                false, VaadinIcons.CLOSE_CIRCLE, SPUIButtonStyleNoBorder.class);
         cancelTagButton.addClickListener(this::cancelUpdateOrDeleteTag);
         return cancelTagButton;
     }

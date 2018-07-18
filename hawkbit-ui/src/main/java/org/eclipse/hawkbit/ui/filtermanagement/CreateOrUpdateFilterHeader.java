@@ -38,6 +38,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.Registration;
 import com.vaadin.ui.Alignment;
@@ -320,7 +321,7 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
     private SPUIButton createSearchResetIcon() {
         final SPUIButton button = (SPUIButton) SPUIComponentProvider.getButton(
                 UIComponentIdProvider.CUSTOM_FILTER_CLOSE, "", i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLOSE), null,
-                false, FontAwesome.TIMES, SPUIButtonStyleNoBorder.class);
+                false, VaadinIcons.CLOSE, SPUIButtonStyleNoBorder.class);
         button.addClickListener(event -> closeFilterLayout());
         return button;
     }
@@ -344,7 +345,7 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
 
     private Button createSearchIcon() {
         searchIcon = SPUIComponentProvider.getButton(UIComponentIdProvider.FILTER_SEARCH_ICON_ID, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, FontAwesome.SEARCH,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcons.SEARCH,
                 SPUIButtonStyleNoBorder.class);
         searchIcon.addClickListener(event -> onSearchIconClick());
         searchIcon.setEnabled(false);

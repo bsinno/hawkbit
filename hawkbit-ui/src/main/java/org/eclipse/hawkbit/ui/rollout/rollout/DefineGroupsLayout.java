@@ -48,7 +48,7 @@ import com.vaadin.data.converter.StringToFloatConverter;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.FloatRangeValidator;
 import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -56,11 +56,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.v7.data.Container;
 import com.vaadin.v7.data.Item;
-import com.vaadin.ui.TextArea;
 
 /**
  * Define groups for a Rollout
@@ -162,7 +162,7 @@ public class DefineGroupsLayout extends GridLayout {
 
     private Button createAddButton() {
         final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.ROLLOUT_GROUP_ADD_ID,
-                i18n.getMessage("button.rollout.add.group"), "", "", true, FontAwesome.PLUS,
+                i18n.getMessage("button.rollout.add.group"), "", "", true, VaadinIcons.PLUS,
                 SPUIButtonStyleNoBorderWithIcon.class);
         button.setSizeUndefined();
         button.addStyleName("default-color");
@@ -522,7 +522,7 @@ public class DefineGroupsLayout extends GridLayout {
 
         private Button createRemoveButton() {
             final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.ROLLOUT_GROUP_REMOVE_ID, "", "",
-                    "", true, FontAwesome.MINUS, SPUIButtonStyleNoBorderWithIcon.class);
+                    "", true, VaadinIcons.MINUS, SPUIButtonStyleNoBorderWithIcon.class);
             button.setSizeUndefined();
             button.addStyleName("default-color");
             button.setEnabled(true);

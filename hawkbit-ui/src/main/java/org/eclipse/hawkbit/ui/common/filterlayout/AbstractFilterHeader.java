@@ -22,7 +22,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -82,7 +82,7 @@ public abstract class AbstractFilterHeader extends VerticalLayout {
 
     private Button createCancelButtonForUpdateOrDeleteTag() {
         cancelTagButton = SPUIComponentProvider.getButton(UIComponentIdProvider.CANCEL_UPDATE_TAG_ID, "", "", null,
-                false, FontAwesome.TIMES_CIRCLE, SPUIButtonStyleNoBorder.class);
+                false, VaadinIcons.CLOSE_CIRCLE, SPUIButtonStyleNoBorder.class);
         cancelTagButton.addClickListener(this::cancelUpdateOrDeleteTag);
         return cancelTagButton;
     }
@@ -101,7 +101,7 @@ public abstract class AbstractFilterHeader extends VerticalLayout {
                     getAddButtonCommand(), getUpdateButtonCommand(), getDeleteButtonCommand(), getMenuBarId(), i18n);
         }
         hideIcon = SPUIComponentProvider.getButton(getHideButtonId(), "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLOSE), "", true, FontAwesome.TIMES,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLOSE), "", true, VaadinIcons.CLOSE,
                 SPUIButtonStyleNoBorder.class);
         hideIcon.addClickListener(event -> hideFilterButtonLayout());
     }

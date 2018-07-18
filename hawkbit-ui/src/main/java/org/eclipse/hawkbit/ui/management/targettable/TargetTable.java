@@ -93,7 +93,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -404,10 +404,10 @@ public class TargetTable extends AbstractTable<Target> {
         final String pollStatusToolTip = (String) getContainerDataSource().getItem(itemId)
                 .getItemProperty(SPUILabelDefinitions.VAR_POLL_STATUS_TOOL_TIP).getValue();
         if (StringUtils.hasText(pollStatusToolTip)) {
-            statusLabel.setValue(FontAwesome.EXCLAMATION_CIRCLE.getHtml());
+            statusLabel.setValue(VaadinIcons.EXCLAMATION_CIRCLE.getHtml());
             statusLabel.setDescription(pollStatusToolTip);
         } else {
-            statusLabel.setValue(FontAwesome.CLOCK_O.getHtml());
+            statusLabel.setValue(VaadinIcons.CLOCK_O.getHtml());
             statusLabel.setDescription(getI18n().getMessage(UIMessageIdProvider.TOOLTIP_IN_TIME));
         }
 

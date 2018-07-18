@@ -33,6 +33,7 @@ import com.google.common.collect.Maps;
 import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractField;
@@ -442,7 +443,7 @@ public class CommonDialogWindow extends Window {
 
     private void createCancelButton() {
         cancelButton = SPUIComponentProvider.getButton(UIComponentIdProvider.CANCEL_BUTTON, "Cancel", "", "", true,
-                FontAwesome.TIMES, SPUIButtonStyleNoBorderWithIcon.class);
+                VaadinIcons.CLOSE, SPUIButtonStyleNoBorderWithIcon.class);
         cancelButton.setSizeUndefined();
         cancelButton.addStyleName("default-color");
         addCloseListenerForCancelButton();

@@ -31,6 +31,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
@@ -147,7 +148,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         hlayout.addComponent(saveConfigurationBtn);
 
         undoConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_CANCEL, "",
-                "", "", true, FontAwesome.UNDO, SPUIButtonStyleNoBorder.class);
+                "", "", true, VaadinIcons.ROTATE_LEFT, SPUIButtonStyleNoBorder.class);
         undoConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.setDescription(i18n.getMessage("configuration.cancellbutton.tooltip"));
         undoConfigurationBtn.addClickListener(event -> undoConfiguration());

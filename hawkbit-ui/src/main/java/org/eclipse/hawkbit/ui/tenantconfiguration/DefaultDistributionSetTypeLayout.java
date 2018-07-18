@@ -21,7 +21,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
@@ -101,7 +101,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         combobox.addValueChangeListener(event -> selectDistributionSetValue());
         hlayout.addComponent(combobox);
 
-        changeIcon.setIcon(FontAwesome.CHECK);
+        changeIcon.setIcon(VaadinIcons.CHECK);
         hlayout.addComponent(changeIcon);
         changeIcon.setVisible(false);
 

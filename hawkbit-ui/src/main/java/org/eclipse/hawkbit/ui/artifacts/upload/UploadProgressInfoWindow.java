@@ -22,7 +22,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Grid;
@@ -218,10 +218,10 @@ public class UploadProgressInfoWindow extends Window {
             final String result;
             switch (value) {
             case STATUS_FINISHED:
-                result = "<div class=\"statusIconGreen\">" + FontAwesome.CHECK_CIRCLE.getHtml() + "</div>";
+                result = "<div class=\"statusIconGreen\">" + VaadinIcons.CHECK_CIRCLE.getHtml() + "</div>";
                 break;
             case STATUS_FAILED:
-                result = "<div class=\"statusIconRed\">" + FontAwesome.EXCLAMATION_CIRCLE.getHtml() + "</div>";
+                result = "<div class=\"statusIconRed\">" + VaadinIcons.EXCLAMATION_CIRCLE.getHtml() + "</div>";
                 break;
             case STATUS_INPROGRESS:
                 result = "<div class=\"statusIconActive\"></div>";
@@ -280,7 +280,7 @@ public class UploadProgressInfoWindow extends Window {
 
     private Button getCloseButton() {
         final Button closeBtn = SPUIComponentProvider.getButton(
-                UIComponentIdProvider.UPLOAD_STATUS_POPUP_CLOSE_BUTTON_ID, "", "", "", true, FontAwesome.TIMES,
+                UIComponentIdProvider.UPLOAD_STATUS_POPUP_CLOSE_BUTTON_ID, "", "", "", true, VaadinIcons.CLOSE,
                 SPUIButtonStyleNoBorder.class);
         closeBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
         closeBtn.addClickListener(event -> onClose());

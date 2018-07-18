@@ -29,7 +29,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.spring.annotation.SpringComponent;
@@ -100,7 +100,7 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final CustomFilterUIEvent custFUIEvent) {
         if (custFUIEvent == CustomFilterUIEvent.UPDATE_TARGET_FILTER_SEARCH_ICON) {
-            validationIcon.setValue(FontAwesome.CHECK_CIRCLE.getHtml());
+            validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
             if (!isValidationError()) {
                 validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
             } else {
@@ -114,7 +114,7 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
      */
     public void clear() {
         queryTextField.clear();
-        validationIcon.setValue(FontAwesome.CHECK_CIRCLE.getHtml());
+        validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
         validationIcon.setStyleName("hide-status-label");
     }
 
@@ -159,7 +159,10 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
         } else {
             showValidationFailureIcon(validationMessage);
         }
-        listeners.forEach(listener -> listener.queryChanged(valid, currentText));
+        listeners.forEach(
+
+                listener -> listener.queryChanged(valid, currentText));
+
     }
 
     /**
@@ -169,7 +172,7 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
      *            the text to store in the UI state object
      */
     public void showValidationSuccesIcon(final String text) {
-        validationIcon.setValue(FontAwesome.CHECK_CIRCLE.getHtml());
+        validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
         validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
         filterManagementUIState.setFilterQueryValue(text);
         filterManagementUIState.setIsFilterByInvalidFilterQuery(Boolean.FALSE);
@@ -183,7 +186,7 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
      *            tooltip
      */
     public void showValidationFailureIcon(final String validationMessage) {
-        validationIcon.setValue(FontAwesome.TIMES_CIRCLE.getHtml());
+        validationIcon.setValue(VaadinIcons.CLOSE_CIRCLE_O.getHtml());
         validationIcon.setStyleName(SPUIStyleDefinitions.ERROR_ICON);
         validationIcon.setDescription(validationMessage);
         filterManagementUIState.setFilterQueryValue(null);
@@ -214,7 +217,7 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
     }
 
     private static void setInitialStatusIconStyle(final Label statusIcon) {
-        statusIcon.setValue(FontAwesome.CHECK_CIRCLE.getHtml());
+        statusIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
         statusIcon.setStyleName("hide-status-label");
     }
 

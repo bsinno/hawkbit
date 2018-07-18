@@ -12,7 +12,7 @@ import java.io.Serializable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
 
@@ -61,7 +61,7 @@ public class UINotification implements Serializable {
      *            as message.
      */
     public void displayValidationError(final String message) {
-        final StringBuilder updatedMsg = new StringBuilder(FontAwesome.EXCLAMATION_TRIANGLE.getHtml());
+        final StringBuilder updatedMsg = new StringBuilder(VaadinIcons.EXCLAMATION_CIRCLE.getHtml());
         updatedMsg.append(' ');
         updatedMsg.append(message);
         notificationMessage.showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE, null,

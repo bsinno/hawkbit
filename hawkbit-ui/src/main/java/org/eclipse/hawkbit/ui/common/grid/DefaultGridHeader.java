@@ -17,7 +17,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
@@ -81,7 +81,6 @@ public class DefaultGridHeader extends VerticalLayout {
     protected Label buildTitleLabel() {
         // create default title - even shown when no data is available
         title = new LabelBuilder().name(titleText).buildCaptionLabel();
-        title.setImmediate(true);
         title.setContentMode(ContentMode.HTML);
 
         return title;
@@ -118,7 +117,6 @@ public class DefaultGridHeader extends VerticalLayout {
         addComponent(titleLayout);
         setComponentAlignment(titleLayout, Alignment.TOP_LEFT);
         setWidth(100, Unit.PERCENTAGE);
-        setImmediate(true);
         addStyleName("action-history-header");
         addStyleName("bordered-layout");
         addStyleName("no-border-bottom");
@@ -224,7 +222,7 @@ public class DefaultGridHeader extends VerticalLayout {
          */
         protected SPUIButton createMinMaxButton(final String buttonId) {
             return (SPUIButton) SPUIComponentProvider.getButton(buttonId, "",
-                    i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, true, FontAwesome.EXPAND,
+                    i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, true, VaadinIcons.EXPAND,
                     SPUIButtonStyleNoBorder.class);
         }
 
@@ -232,7 +230,7 @@ public class DefaultGridHeader extends VerticalLayout {
          * Styles min-max-button icon with minimize decoration
          */
         public void showMinIcon() {
-            maxMinButton.toggleIcon(FontAwesome.COMPRESS);
+            maxMinButton.toggleIcon(VaadinIcons.COMPRESS);
             maxMinButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MINIMIZE));
             maxMinButton.setData(Boolean.TRUE);
         }
@@ -241,7 +239,7 @@ public class DefaultGridHeader extends VerticalLayout {
          * Styles min-max-button icon with maximize decoration
          */
         public void showMaxIcon() {
-            maxMinButton.toggleIcon(FontAwesome.EXPAND);
+            maxMinButton.toggleIcon(VaadinIcons.EXPAND);
             maxMinButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE));
             maxMinButton.setData(Boolean.FALSE);
         }

@@ -37,14 +37,14 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.vaadin.v7.data.Item;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.ui.Table;
 
 /**
  *
@@ -204,23 +204,23 @@ public class CreateOrUpdateFilterTable extends Table {
         if (targetStatus == TargetUpdateStatus.PENDING) {
             label.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_STATUS_PENDING));
             label.setStyleName(SPUIStyleDefinitions.STATUS_ICON_YELLOW);
-            label.setValue(FontAwesome.ADJUST.getHtml());
+            label.setValue(VaadinIcons.ADJUST.getHtml());
         } else if (targetStatus == TargetUpdateStatus.REGISTERED) {
             label.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_STATUS_REGISTERED));
             label.setStyleName(SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE);
-            label.setValue(FontAwesome.DOT_CIRCLE_O.getHtml());
+            label.setValue(VaadinIcons.DOT_CIRCLE_O.getHtml());
         } else if (targetStatus == TargetUpdateStatus.ERROR) {
             label.setDescription(i18n.getMessage(i18n.getMessage(UIMessageIdProvider.TOOLTIP_STATUS_ERROR)));
             label.setStyleName(SPUIStyleDefinitions.STATUS_ICON_RED);
-            label.setValue(FontAwesome.EXCLAMATION_CIRCLE.getHtml());
+            label.setValue(VaadinIcons.EXCLAMATION_CIRCLE.getHtml());
         } else if (targetStatus == TargetUpdateStatus.IN_SYNC) {
             label.setStyleName(SPUIStyleDefinitions.STATUS_ICON_GREEN);
             label.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_STATUS_INSYNC));
-            label.setValue(FontAwesome.CHECK_CIRCLE.getHtml());
+            label.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
         } else if (targetStatus == TargetUpdateStatus.UNKNOWN) {
             label.setStyleName(SPUIStyleDefinitions.STATUS_ICON_BLUE);
             label.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_TARGET_STATUS_UNKNOWN));
-            label.setValue(FontAwesome.QUESTION_CIRCLE.getHtml());
+            label.setValue(VaadinIcons.QUESTION_CIRCLE.getHtml());
         }
         return label;
     }

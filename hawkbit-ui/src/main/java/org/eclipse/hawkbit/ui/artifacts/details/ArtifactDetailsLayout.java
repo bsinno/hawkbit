@@ -47,7 +47,7 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.google.common.collect.Maps;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -181,7 +181,7 @@ public class ArtifactDetailsLayout extends VerticalLayout {
 
     private SPUIButton createMaxMinButton() {
         final SPUIButton button = (SPUIButton) SPUIComponentProvider.getButton(SPUIDefinitions.EXPAND_ACTION_HISTORY,
-                "", i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, true, FontAwesome.EXPAND,
+                "", i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, true, VaadinIcons.EXPAND,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(event -> maxArtifactDetails());
         return button;
@@ -267,7 +267,7 @@ public class ArtifactDetailsLayout extends VerticalLayout {
                 final Button deleteIcon = SPUIComponentProvider.getButton(
                         fileName + "-" + UIComponentIdProvider.UPLOAD_FILE_DELETE_ICON, "",
                         SPUILabelDefinitions.DISCARD, ValoTheme.BUTTON_TINY + " " + "blueicon", true,
-                        FontAwesome.TRASH_O, SPUIButtonStyleNoBorder.class);
+                        VaadinIcons.TRASH_O, SPUIButtonStyleNoBorder.class);
                 deleteIcon.setData(itemId);
                 deleteIcon.addClickListener(event -> confirmAndDeleteArtifact((Long) itemId, fileName));
                 return deleteIcon;
@@ -500,13 +500,13 @@ public class ArtifactDetailsLayout extends VerticalLayout {
     }
 
     private void showMinIcon() {
-        maxMinButton.toggleIcon(FontAwesome.COMPRESS);
+        maxMinButton.toggleIcon(VaadinIcons.COMPRESS);
         maxMinButton.setData(Boolean.TRUE);
         maxMinButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MINIMIZE));
     }
 
     private void showMaxIcon() {
-        maxMinButton.toggleIcon(FontAwesome.EXPAND);
+        maxMinButton.toggleIcon(VaadinIcons.EXPAND);
         maxMinButton.setData(Boolean.FALSE);
         maxMinButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE));
     }

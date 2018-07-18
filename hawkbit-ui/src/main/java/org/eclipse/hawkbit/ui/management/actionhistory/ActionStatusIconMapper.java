@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.repository.model.ActionStatus;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 
 import com.google.common.collect.Maps;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 
 /**
  * Mapping utility for {@link ActionStatus} to icon in action history table.
@@ -26,37 +26,37 @@ public final class ActionStatusIconMapper {
 
     static {
         MAPPINGS.put(Action.Status.FINISHED, new ActionStatusIconMapper("label.finished",
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, FontAwesome.CHECK_CIRCLE));
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, VaadinIcons.CHECK_CIRCLE));
         MAPPINGS.put(Action.Status.CANCELED, new ActionStatusIconMapper("label.cancelled",
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, FontAwesome.TIMES_CIRCLE));
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, VaadinIcons.CLOSE_CIRCLE));
 
         MAPPINGS.put(Action.Status.ERROR, new ActionStatusIconMapper("label.error",
-                SPUIStyleDefinitions.STATUS_ICON_RED, FontAwesome.EXCLAMATION_CIRCLE));
+                SPUIStyleDefinitions.STATUS_ICON_RED, VaadinIcons.EXCLAMATION_CIRCLE));
 
         MAPPINGS.put(Action.Status.WARNING, new ActionStatusIconMapper("label.warning",
-                SPUIStyleDefinitions.STATUS_ICON_ORANGE, FontAwesome.EXCLAMATION_CIRCLE));
+                SPUIStyleDefinitions.STATUS_ICON_ORANGE, VaadinIcons.EXCLAMATION_CIRCLE));
         MAPPINGS.put(Action.Status.CANCEL_REJECTED, new ActionStatusIconMapper("label.warning",
-                SPUIStyleDefinitions.STATUS_ICON_ORANGE, FontAwesome.EXCLAMATION_CIRCLE));
+                SPUIStyleDefinitions.STATUS_ICON_ORANGE, VaadinIcons.EXCLAMATION_CIRCLE));
 
         MAPPINGS.put(Action.Status.RUNNING, new ActionStatusIconMapper("label.running",
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, FontAwesome.ADJUST));
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, VaadinIcons.ADJUST));
         MAPPINGS.put(Action.Status.CANCELING, new ActionStatusIconMapper("label.cancelling",
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, FontAwesome.TIMES_CIRCLE));
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, VaadinIcons.CLOSE_CIRCLE));
         MAPPINGS.put(Action.Status.RETRIEVED, new ActionStatusIconMapper("label.retrieved",
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, FontAwesome.CIRCLE_O));
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, VaadinIcons.BULLSEYE));
         MAPPINGS.put(Action.Status.DOWNLOAD, new ActionStatusIconMapper("label.download",
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, FontAwesome.CLOUD_DOWNLOAD));
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, VaadinIcons.CLOUD_DOWNLOAD));
         MAPPINGS.put(Action.Status.DOWNLOADED, new ActionStatusIconMapper("label.downloaded",
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, FontAwesome.CLOUD_DOWNLOAD));
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, VaadinIcons.CLOUD_DOWNLOAD));
         MAPPINGS.put(Action.Status.SCHEDULED, new ActionStatusIconMapper("label.scheduled",
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, FontAwesome.HOURGLASS_1));
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, VaadinIcons.HOURGLASS));
     }
 
     private final String descriptionI18N;
     private final String styleName;
-    private final FontAwesome icon;
+    private final VaadinIcons icon;
 
-    private ActionStatusIconMapper(final String descriptionI18N, final String styleName, final FontAwesome icon) {
+    private ActionStatusIconMapper(final String descriptionI18N, final String styleName, final VaadinIcons icon) {
         this.descriptionI18N = descriptionI18N;
         this.styleName = styleName;
         this.icon = icon;
@@ -70,7 +70,7 @@ public final class ActionStatusIconMapper {
         return styleName;
     }
 
-    FontAwesome getIcon() {
+    VaadinIcons getIcon() {
         return icon;
     }
 

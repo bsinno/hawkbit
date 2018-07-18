@@ -34,7 +34,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.event.selection.SelectionEvent;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -322,7 +322,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
 
     private Button createAddIcon() {
         addIcon = SPUIComponentProvider.getButton(UIComponentIdProvider.METADTA_ADD_ICON_ID,
-                i18n.getMessage("button.save"), null, null, false, FontAwesome.PLUS, SPUIButtonStyleNoBorder.class);
+                i18n.getMessage("button.save"), null, null, false, VaadinIcons.PLUS, SPUIButtonStyleNoBorder.class);
         addIcon.addClickListener(event -> onAdd());
         return addIcon;
     }
@@ -335,7 +335,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
         final IndexedContainer swcontactContainer = new IndexedContainer();
         swcontactContainer.addContainerProperty(KEY, String.class, "");
         swcontactContainer.addContainerProperty(VALUE, String.class, "");
-        swcontactContainer.addContainerProperty(DELETE_BUTTON, String.class, FontAwesome.TRASH_O.getHtml());
+        swcontactContainer.addContainerProperty(DELETE_BUTTON, String.class, VaadinIcons.TRASH_O.getHtml());
         return swcontactContainer;
     }
 

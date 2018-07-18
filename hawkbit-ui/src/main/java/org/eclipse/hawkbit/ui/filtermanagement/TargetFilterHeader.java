@@ -24,7 +24,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
@@ -116,7 +116,7 @@ public class TargetFilterHeader extends VerticalLayout {
 
     private Button createAddButton() {
         final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.TARGET_FILTER_ADD_ICON_ID, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, FontAwesome.PLUS,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, VaadinIcons.PLUS,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(event -> addNewFilter());
         return button;
@@ -146,7 +146,7 @@ public class TargetFilterHeader extends VerticalLayout {
     private SPUIButton createSearchResetIcon() {
         final SPUIButton button = (SPUIButton) SPUIComponentProvider.getButton(
                 UIComponentIdProvider.TARGET_FILTER_TBL_SEARCH_RESET_ID, "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, FontAwesome.SEARCH,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcons.SEARCH,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(event -> onSearchResetClick());
         return button;
@@ -166,7 +166,7 @@ public class TargetFilterHeader extends VerticalLayout {
 
     private void openSearchTextField() {
         searchResetIcon.addStyleName(SPUIDefinitions.FILTER_RESET_ICON);
-        searchResetIcon.toggleIcon(FontAwesome.TIMES);
+        searchResetIcon.toggleIcon(VaadinIcons.CLOSE);
         searchResetIcon.setData(Boolean.TRUE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
         searchField.removeStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
@@ -178,7 +178,7 @@ public class TargetFilterHeader extends VerticalLayout {
         searchField.setValue("");
         searchField.addStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
         searchResetIcon.removeStyleName(SPUIDefinitions.FILTER_RESET_ICON);
-        searchResetIcon.toggleIcon(FontAwesome.SEARCH);
+        searchResetIcon.toggleIcon(VaadinIcons.SEARCH);
         searchResetIcon.setData(Boolean.FALSE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
         resetSearchText();

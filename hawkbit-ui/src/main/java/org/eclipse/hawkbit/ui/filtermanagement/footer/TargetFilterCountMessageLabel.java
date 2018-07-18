@@ -19,7 +19,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
@@ -71,7 +71,7 @@ public class TargetFilterCountMessageLabel extends Label {
             final StringBuilder targetMessage = new StringBuilder(i18n.getMessage("label.target.filtered.total"));
             if (filterManagementUIState.getTargetsTruncated() != null) {
                 // set the icon
-                setIcon(FontAwesome.INFO_CIRCLE);
+                setIcon(VaadinIcons.INFO_CIRCLE);
                 setDescription(i18n.getMessage("label.target.filter.truncated",
                         filterManagementUIState.getTargetsTruncated(), SPUIDefinitions.MAX_TABLE_ENTRIES));
 

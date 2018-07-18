@@ -77,7 +77,7 @@ import com.vaadin.data.ValueContext;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.data.validator.LongRangeValidator;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
@@ -650,9 +650,9 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         approveButtonsGroup.setItems(Rollout.ApprovalDecision.APPROVED, Rollout.ApprovalDecision.DENIED);
 
         approveButtonsGroup.setItemCaption(Rollout.ApprovalDecision.APPROVED, i18n.getMessage(APPROVAL_BUTTON_LABEL));
-        approveButtonsGroup.setItemIcon(Rollout.ApprovalDecision.APPROVED, FontAwesome.CHECK);
+        approveButtonsGroup.setItemIcon(Rollout.ApprovalDecision.APPROVED, VaadinIcons.CHECK);
         approveButtonsGroup.setItemCaption(Rollout.ApprovalDecision.DENIED, i18n.getMessage(DENY_BUTTON_LABEL));
-        approveButtonsGroup.setItemIcon(Rollout.ApprovalDecision.DENIED, FontAwesome.TIMES);
+        approveButtonsGroup.setItemIcon(Rollout.ApprovalDecision.DENIED, VaadinIcons.CLOSE);
 
         approvalRemarkField = createTextField("label.approval.remark",
                 UIComponentIdProvider.ROLLOUT_APPROVAL_REMARK_FIELD_ID, Rollout.APPROVAL_REMARK_MAX_SIZE);

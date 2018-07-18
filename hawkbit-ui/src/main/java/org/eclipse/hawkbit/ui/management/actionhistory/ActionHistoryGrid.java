@@ -45,7 +45,7 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.google.common.collect.Maps;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.v7.data.Item;
@@ -242,19 +242,19 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
 
     private StatusFontIcon createCancelButtonMetadata(final Action action) {
         final boolean isDisabled = !action.isActive() || action.isCancelingOrCanceled();
-        return new StatusFontIcon(FontAwesome.TIMES, STATUS_ICON_NEUTRAL, i18n.getMessage("message.cancel.action"),
+        return new StatusFontIcon(VaadinIcons.CLOSE, STATUS_ICON_NEUTRAL, i18n.getMessage("message.cancel.action"),
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_CANCEL_ID, isDisabled);
     }
 
     private StatusFontIcon createForceButtonMetadata(final Action action) {
         final boolean isDisabled = !action.isActive() || action.isForce() || action.isCancelingOrCanceled();
-        return new StatusFontIcon(FontAwesome.BOLT, STATUS_ICON_NEUTRAL, i18n.getMessage("message.force.action"),
+        return new StatusFontIcon(VaadinIcons.BOLT, STATUS_ICON_NEUTRAL, i18n.getMessage("message.force.action"),
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_ID, isDisabled);
     }
 
     private StatusFontIcon createForceQuitButtonMetadata(final Action action) {
         final boolean isDisabled = !action.isActive() || !action.isCancelingOrCanceled();
-        return new StatusFontIcon(FontAwesome.TIMES, STATUS_ICON_RED, i18n.getMessage("message.forcequit.action"),
+        return new StatusFontIcon(VaadinIcons.CLOSE, STATUS_ICON_RED, i18n.getMessage("message.forcequit.action"),
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_QUIT_ID, isDisabled);
     }
 
@@ -269,7 +269,7 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
     private static StatusFontIcon createForcedLabelMetadata(final Action action) {
         StatusFontIcon result = null;
         if (ActionType.FORCED.equals(action.getActionType()) || ActionType.TIMEFORCED.equals(action.getActionType())) {
-            result = new StatusFontIcon(FontAwesome.BOLT, STATUS_ICON_FORCED, "Forced",
+            result = new StatusFontIcon(VaadinIcons.BOLT, STATUS_ICON_FORCED, "Forced",
                     UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCED_LABEL_ID);
         }
         return result;
@@ -291,7 +291,7 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
                 title = "auto forcing in "
                         + SPDateTimeUtil.getDurationFormattedString(currentTimeMillis, action.getForcedTime(), i18n);
             }
-            result = new StatusFontIcon(FontAwesome.HISTORY, style, title,
+            result = new StatusFontIcon(VaadinIcons.TIME_BACKWARD, style, title,
                     UIComponentIdProvider.ACTION_HISTORY_TABLE_TIMEFORCED_LABEL_ID);
         }
         return result;
@@ -343,7 +343,7 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
                     } else {
                         notification.displayValidationError(i18n.getMessage("message.forcequit.action.failed"));
                     }
-                }, FontAwesome.WARNING);
+                }, VaadinIcons.WARNING);
         UI.getCurrent().addWindow(confirmDialog.getWindow());
 
         confirmDialog.getWindow().bringToFront();
@@ -720,25 +720,25 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
         public Map<Action.Status, StatusFontIcon> createStatusLabelConfig(final VaadinMessageSource i18n,
                 final String statusLabelId) {
             final HashMap<Action.Status, StatusFontIcon> stateMap = Maps.newHashMapWithExpectedSize(9);
-            stateMap.put(Action.Status.FINISHED, new StatusFontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_GREEN,
+            stateMap.put(Action.Status.FINISHED, new StatusFontIcon(VaadinIcons.CHECK_CIRCLE, STATUS_ICON_GREEN,
                     i18n.getMessage("label.finished"), statusLabelId));
-            stateMap.put(Action.Status.ERROR, new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, STATUS_ICON_RED,
+            stateMap.put(Action.Status.ERROR, new StatusFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, STATUS_ICON_RED,
                     i18n.getMessage("label.error"), statusLabelId));
-            stateMap.put(Action.Status.WARNING, new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, STATUS_ICON_ORANGE,
+            stateMap.put(Action.Status.WARNING, new StatusFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, STATUS_ICON_ORANGE,
                     i18n.getMessage("label.warning"), statusLabelId));
-            stateMap.put(Action.Status.RUNNING, new StatusFontIcon(FontAwesome.ADJUST, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.RUNNING, new StatusFontIcon(VaadinIcons.ADJUST, STATUS_ICON_PENDING,
                     i18n.getMessage("label.running"), statusLabelId));
-            stateMap.put(Action.Status.CANCELING, new StatusFontIcon(FontAwesome.TIMES_CIRCLE, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.CANCELING, new StatusFontIcon(VaadinIcons.CLOSE_CIRCLE, STATUS_ICON_PENDING,
                     i18n.getMessage("label.cancelling"), statusLabelId));
-            stateMap.put(Action.Status.CANCELED, new StatusFontIcon(FontAwesome.TIMES_CIRCLE, STATUS_ICON_GREEN,
+            stateMap.put(Action.Status.CANCELED, new StatusFontIcon(VaadinIcons.CLOSE_CIRCLE, STATUS_ICON_GREEN,
                     i18n.getMessage("label.cancelled"), statusLabelId));
-            stateMap.put(Action.Status.RETRIEVED, new StatusFontIcon(FontAwesome.CIRCLE_O, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.RETRIEVED, new StatusFontIcon(VaadinIcons.BULLSEYE, STATUS_ICON_PENDING,
                     i18n.getMessage("label.retrieved"), statusLabelId));
-            stateMap.put(Action.Status.DOWNLOADED, new StatusFontIcon(FontAwesome.CLOUD_DOWNLOAD, STATUS_ICON_GREEN,
+            stateMap.put(Action.Status.DOWNLOADED, new StatusFontIcon(VaadinIcons.CLOUD_DOWNLOAD, STATUS_ICON_GREEN,
                     i18n.getMessage("label.downloaded"), statusLabelId));
-            stateMap.put(Action.Status.DOWNLOAD, new StatusFontIcon(FontAwesome.CLOUD_DOWNLOAD, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.DOWNLOAD, new StatusFontIcon(VaadinIcons.CLOUD_DOWNLOAD, STATUS_ICON_PENDING,
                     i18n.getMessage("label.download"), statusLabelId));
-            stateMap.put(Action.Status.SCHEDULED, new StatusFontIcon(FontAwesome.HOURGLASS_1, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.SCHEDULED, new StatusFontIcon(VaadinIcons.HOURGLASS, STATUS_ICON_PENDING,
                     i18n.getMessage("label.scheduled"), statusLabelId));
             return stateMap;
         }
@@ -752,13 +752,13 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
         public Map<IsActiveDecoration, StatusFontIcon> createActiveStatusLabelConfig(final String activeStateId) {
             final HashMap<IsActiveDecoration, StatusFontIcon> activeStateMap = Maps.newHashMapWithExpectedSize(4);
             activeStateMap.put(IsActiveDecoration.SCHEDULED,
-                    new StatusFontIcon(FontAwesome.HOURGLASS_1, STATUS_ICON_PENDING, "Scheduled", activeStateId));
+                    new StatusFontIcon(VaadinIcons.HOURGLASS, STATUS_ICON_PENDING, "Scheduled", activeStateId));
             activeStateMap.put(IsActiveDecoration.ACTIVE,
                     new StatusFontIcon(null, STATUS_ICON_ACTIVE, "Active", activeStateId));
             activeStateMap.put(IsActiveDecoration.IN_ACTIVE,
-                    new StatusFontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_NEUTRAL, "In-active", activeStateId));
+                    new StatusFontIcon(VaadinIcons.CHECK_CIRCLE, STATUS_ICON_NEUTRAL, "In-active", activeStateId));
             activeStateMap.put(IsActiveDecoration.IN_ACTIVE_ERROR,
-                    new StatusFontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_RED, "In-active", activeStateId));
+                    new StatusFontIcon(VaadinIcons.CHECK_CIRCLE, STATUS_ICON_RED, "In-active", activeStateId));
             return activeStateMap;
         }
     }

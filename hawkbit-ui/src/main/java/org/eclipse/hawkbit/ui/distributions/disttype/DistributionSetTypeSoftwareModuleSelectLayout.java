@@ -21,7 +21,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
@@ -95,10 +95,10 @@ public class DistributionSetTypeSoftwareModuleSelectLayout extends VerticalLayou
 
         final VerticalLayout selectButtonLayout = new VerticalLayout();
         final Button selectButton = SPUIComponentProvider.getButton(UIComponentIdProvider.SELECT_DIST_TYPE, "", "",
-                "arrow-button", true, FontAwesome.FORWARD, SPUIButtonStyleNoBorder.class);
+                "arrow-button", true, VaadinIcons.FORWARD, SPUIButtonStyleNoBorder.class);
         selectButton.addClickListener(event -> addSMType());
         final Button unSelectButton = SPUIComponentProvider.getButton("unselect-dist-type", "", "", "arrow-button",
-                true, FontAwesome.BACKWARD, SPUIButtonStyleNoBorder.class);
+                true, VaadinIcons.BACKWARDS, SPUIButtonStyleNoBorder.class);
         unSelectButton.addClickListener(event -> removeSMType());
         selectButtonLayout.addComponent(selectButton);
         selectButtonLayout.addComponent(unSelectButton);

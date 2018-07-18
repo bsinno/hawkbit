@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Resource;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
@@ -42,7 +42,7 @@ public class DeploymentViewMenuItem extends AbstractDashboardMenuItemNotificatio
 
     @Override
     public Resource getDashboardIcon() {
-        return FontAwesome.HOME;
+        return VaadinIcons.HOME;
     }
 
     @Override

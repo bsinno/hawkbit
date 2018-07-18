@@ -41,7 +41,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.tokenfield.TokenField;
 
 import com.google.common.collect.Maps;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -158,7 +158,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private Button getCloseButton() {
         final Button closeBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.BULK_UPLOAD_CLOSE_BUTTON_ID, "",
-                "", "", true, FontAwesome.TIMES, SPUIButtonStyleNoBorder.class);
+                "", "", true, VaadinIcons.CLOSE, SPUIButtonStyleNoBorder.class);
         closeBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
         closeBtn.addClickListener(event -> closePopup());
         return closeBtn;
@@ -166,7 +166,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private Button getMinimizeButton() {
         final Button minimizeBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.BULK_UPLOAD_MINIMIZE_BUTTON_ID,
-                "", "", "", true, FontAwesome.MINUS, SPUIButtonStyleNoBorder.class);
+                "", "", "", true, VaadinIcons.MINUS, SPUIButtonStyleNoBorder.class);
         minimizeBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
         minimizeBtn.addClickListener(event -> minimizeWindow());
         minimizeBtn.setEnabled(false);

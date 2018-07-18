@@ -70,7 +70,7 @@ public class ActionTypeOptionGroupLayout extends HorizontalLayout {
         // addComponent(forceItem);
         // final Label forceLabel = new Label();
         // forceLabel.setStyleName("statusIconPending");
-        // forceLabel.setIcon(FontAwesome.BOLT);
+        // forceLabel.setIcon(VaadinIcons.BOLT);
         // forceLabel.setCaption("Forced");
         // forceLabel.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_FORCED_ITEM));
         // forceLabel.setStyleName("padding-right-style");
@@ -96,7 +96,7 @@ public class ActionTypeOptionGroupLayout extends HorizontalLayout {
         // addComponent(autoForceItem);
         // final Label autoForceLabel = new Label();
         // autoForceLabel.setStyleName("statusIconPending");
-        // autoForceLabel.setIcon(FontAwesome.HISTORY);
+        // autoForceLabel.setIcon(VaadinIcons.HISTORY);
         // autoForceLabel.setCaption("Time Forced");
         // autoForceLabel.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_ITEM));
         // autoForceLabel.setStyleName(STYLE_DIST_WINDOW_ACTIONTYPE);

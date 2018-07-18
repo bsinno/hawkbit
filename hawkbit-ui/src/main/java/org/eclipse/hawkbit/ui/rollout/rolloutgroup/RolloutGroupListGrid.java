@@ -45,7 +45,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.client.widget.grid.CellReference;
 import com.vaadin.client.widget.grid.CellStyleGenerator;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.v7.data.util.converter.Converter;
 import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
@@ -69,15 +69,15 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
 
     static {
         statusIconMap.put(RolloutGroupStatus.FINISHED,
-                new StatusFontIcon(FontAwesome.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
+                new StatusFontIcon(VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
         statusIconMap.put(RolloutGroupStatus.SCHEDULED,
-                new StatusFontIcon(FontAwesome.HOURGLASS_1, SPUIStyleDefinitions.STATUS_ICON_PENDING));
+                new StatusFontIcon(VaadinIcons.HOURGLASS_START, SPUIStyleDefinitions.STATUS_ICON_PENDING));
         statusIconMap.put(RolloutGroupStatus.RUNNING,
-                new StatusFontIcon(FontAwesome.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
+                new StatusFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
         statusIconMap.put(RolloutGroupStatus.READY,
-                new StatusFontIcon(FontAwesome.DOT_CIRCLE_O, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE));
+                new StatusFontIcon(VaadinIcons.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE));
         statusIconMap.put(RolloutGroupStatus.ERROR,
-                new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
+                new StatusFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
     }
 
     /**
@@ -373,7 +373,7 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
 
         private String convertRolloutGroupStatusToString(final RolloutGroupStatus value) {
             final StatusFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(value))
-                    .orElse(new StatusFontIcon(FontAwesome.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE));
+                    .orElse(new StatusFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE));
             final String codePoint = HawkbitCommonUtil.getCodePoint(statusFontIcon);
             return HawkbitCommonUtil.getStatusLabelDetailsInString(codePoint, statusFontIcon.getStyle(),
                     UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID);

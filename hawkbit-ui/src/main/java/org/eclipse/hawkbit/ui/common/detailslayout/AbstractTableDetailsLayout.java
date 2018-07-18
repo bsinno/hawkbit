@@ -27,7 +27,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -232,18 +232,17 @@ public abstract class AbstractTableDetailsLayout<T extends NamedEntity> extends 
 
     protected void createComponents() {
         caption = createHeaderCaption();
-        caption.setImmediate(true);
         caption.setContentMode(ContentMode.HTML);
         caption.setId(getDetailsHeaderCaptionId());
 
         editButton = SPUIComponentProvider.getButton("", "", i18n.getMessage(UIMessageIdProvider.TOOLTIP_UPDATE), null,
-                false, FontAwesome.PENCIL_SQUARE_O, SPUIButtonStyleNoBorder.class);
+                false, VaadinIcons.PENCIL, SPUIButtonStyleNoBorder.class);
         editButton.setId(getEditButtonId());
         editButton.addClickListener(this::onEdit);
         editButton.setEnabled(false);
 
         manageMetadataBtn = SPUIComponentProvider.getButton("", "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_METADATA_ICON), null, false, FontAwesome.LIST_ALT,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_METADATA_ICON), null, false, VaadinIcons.LIST_UL,
                 SPUIButtonStyleNoBorder.class);
         manageMetadataBtn.setId(getMetadataButtonId());
         manageMetadataBtn.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_METADATA_ICON));
@@ -251,7 +250,6 @@ public abstract class AbstractTableDetailsLayout<T extends NamedEntity> extends 
         manageMetadataBtn.setEnabled(false);
 
         detailsTab = SPUIComponentProvider.getDetailsTabSheet();
-        detailsTab.setImmediate(true);
         detailsTab.setWidth(98, Unit.PERCENTAGE);
         detailsTab.setHeight(90, Unit.PERCENTAGE);
         detailsTab.addStyleName(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);

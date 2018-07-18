@@ -28,7 +28,7 @@ import org.vaadin.tokenfield.TokenField;
 import org.vaadin.tokenfield.TokenField.InsertPosition;
 
 import com.explicatis.ext_token_field.ExtTokenField;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.UI;
@@ -225,7 +225,7 @@ public abstract class AbstractTagToken<T extends BaseEntity> implements Serializ
             }
 
             final String color = getColor(item);
-            button.setCaption("<span style=\"color:" + color + " !important;\">" + FontAwesome.CIRCLE.getHtml()
+            button.setCaption("<span style=\"color:" + color + " !important;\">" + VaadinIcons.CIRCLE.getHtml()
                     + "</span>" + " " + getItemNameProperty(tokenId).getValue().toString().concat(" ×"));
             button.setCaptionAsHtml(true);
         }

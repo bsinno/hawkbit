@@ -81,7 +81,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 import com.google.common.collect.Maps;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
@@ -829,7 +829,7 @@ public class DistributionTable extends AbstractNamedVersionTable<DistributionSet
         final DistributionSetIdName distributionSetIdName = new DistributionSetIdName((Long) itemId, name, version);
 
         final Button pinBtn = new Button();
-        pinBtn.setIcon(FontAwesome.THUMB_TACK);
+        pinBtn.setIcon(VaadinIcons.THUMB_TACK);
         pinBtn.setHeightUndefined();
         pinBtn.addStyleName(getPinStyle());
         pinBtn.setData(distributionSetIdName);

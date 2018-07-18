@@ -64,7 +64,7 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.client.widget.grid.CellReference;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.components.grid.HeaderCell;
 import com.vaadin.ui.renderers.ClickableRenderer.RendererClickEvent;
@@ -129,24 +129,24 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
 
     static {
         statusIconMap.put(RolloutStatus.FINISHED,
-                new StatusFontIcon(FontAwesome.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
+                new StatusFontIcon(VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
         statusIconMap.put(RolloutStatus.PAUSED,
-                new StatusFontIcon(FontAwesome.PAUSE, SPUIStyleDefinitions.STATUS_ICON_BLUE));
+                new StatusFontIcon(VaadinIcons.PAUSE, SPUIStyleDefinitions.STATUS_ICON_BLUE));
         statusIconMap.put(RolloutStatus.RUNNING, new StatusFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_YELLOW));
         statusIconMap.put(RolloutStatus.WAITING_FOR_APPROVAL,
-                new StatusFontIcon(FontAwesome.HOURGLASS_HALF, SPUIStyleDefinitions.STATUS_ICON_ORANGE));
+                new StatusFontIcon(VaadinIcons.HOURGLASS, SPUIStyleDefinitions.STATUS_ICON_ORANGE));
         statusIconMap.put(RolloutStatus.APPROVAL_DENIED,
-                new StatusFontIcon(FontAwesome.TIMES_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
+                new StatusFontIcon(VaadinIcons.CLOSE_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
         statusIconMap.put(RolloutStatus.READY,
-                new StatusFontIcon(FontAwesome.DOT_CIRCLE_O, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE));
+                new StatusFontIcon(VaadinIcons.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE));
         statusIconMap.put(RolloutStatus.STOPPED,
-                new StatusFontIcon(FontAwesome.STOP, SPUIStyleDefinitions.STATUS_ICON_RED));
+                new StatusFontIcon(VaadinIcons.STOP, SPUIStyleDefinitions.STATUS_ICON_RED));
         statusIconMap.put(RolloutStatus.CREATING, new StatusFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_GREY));
         statusIconMap.put(RolloutStatus.STARTING, new StatusFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_BLUE));
         statusIconMap.put(RolloutStatus.ERROR_CREATING,
-                new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
+                new StatusFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
         statusIconMap.put(RolloutStatus.ERROR_STARTING,
-                new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
+                new StatusFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
         statusIconMap.put(RolloutStatus.DELETING, new StatusFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_RED));
     }
 
@@ -640,37 +640,37 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
 
     private StatusFontIcon createApprovalButtonMetadata(final RolloutStatus rolloutStatus) {
         final boolean isDisabled = hasToBeDisabled(rolloutStatus, APPROVE_BUTTON_ENABLED);
-        return new StatusFontIcon(FontAwesome.GAVEL, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE),
+        return new StatusFontIcon(VaadinIcons.GAVEL, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE),
                 UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID, isDisabled);
     }
 
     private StatusFontIcon createRunButtonMetadata(final RolloutStatus rolloutStatus) {
         final boolean isDisabled = hasToBeDisabled(rolloutStatus, RUN_BUTTON_ENABLED);
-        return new StatusFontIcon(FontAwesome.PLAY, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN),
+        return new StatusFontIcon(VaadinIcons.PLAY, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN),
                 UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID, isDisabled);
     }
 
     private StatusFontIcon createPauseButtonMetadata(final RolloutStatus rolloutStatus) {
         final boolean isDisabled = hasToBeDisabled(rolloutStatus, PAUSE_BUTTON_ENABLED);
-        return new StatusFontIcon(FontAwesome.PAUSE, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_PAUSE),
+        return new StatusFontIcon(VaadinIcons.PAUSE, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_PAUSE),
                 UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID, isDisabled);
     }
 
     private StatusFontIcon createCopyButtonMetadata(final RolloutStatus rolloutStatus) {
         final boolean isDisabled = hasToBeDisabled(rolloutStatus, DELETE_COPY_BUTTON_ENABLED);
-        return new StatusFontIcon(FontAwesome.COPY, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY),
+        return new StatusFontIcon(VaadinIcons.COPY, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY),
                 UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID, isDisabled);
     }
 
     private StatusFontIcon createUpdateButtonMetadata(final RolloutStatus rolloutStatus) {
         final boolean isDisabled = hasToBeDisabled(rolloutStatus, UPDATE_BUTTON_ENABLED);
-        return new StatusFontIcon(FontAwesome.EDIT, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE),
+        return new StatusFontIcon(VaadinIcons.EDIT, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE),
                 UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID, isDisabled);
     }
 
     private StatusFontIcon createDeleteButtonMetadata(final RolloutStatus rolloutStatus) {
         final boolean isDisabled = hasToBeDisabled(rolloutStatus, DELETE_COPY_BUTTON_ENABLED);
-        return new StatusFontIcon(FontAwesome.TRASH_O, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_DELETE),
+        return new StatusFontIcon(VaadinIcons.TRASH, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_DELETE),
                 UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, isDisabled);
     }
 
@@ -708,7 +708,7 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
         private String convertRolloutStatusToString(final RolloutStatus value) {
             StatusFontIcon statusFontIcon = statusIconMap.get(value);
             if (statusFontIcon == null) {
-                statusFontIcon = new StatusFontIcon(FontAwesome.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
+                statusFontIcon = new StatusFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
             }
             final String codePoint = HawkbitCommonUtil.getCodePoint(statusFontIcon);
             return HawkbitCommonUtil.getStatusLabelDetailsInString(codePoint, statusFontIcon.getStyle(),

@@ -26,7 +26,7 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.event.dd.DropHandler;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -221,7 +221,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
     private SPUIButton createSearchResetIcon() {
         final SPUIButton button = (SPUIButton) SPUIComponentProvider.getButton(getSearchRestIconId(), "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, FontAwesome.SEARCH,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcons.SEARCH,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(event -> onSearchResetClick());
         button.setData(Boolean.FALSE);
@@ -230,7 +230,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
     private Button createAddIcon() {
         final Button button = SPUIComponentProvider.getButton(getAddIconId(), "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, FontAwesome.PLUS,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, VaadinIcons.PLUS,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(this::addNewItem);
         return button;
@@ -238,7 +238,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
     private Button createBulkUploadIcon() {
         final Button button = SPUIComponentProvider.getButton(getBulkUploadIconId(), "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_BULK_UPLOAD), null, false, FontAwesome.UPLOAD,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_BULK_UPLOAD), null, false, VaadinIcons.UPLOAD,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(this::bulkUpload);
         return button;
@@ -246,7 +246,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
     private Button createShowFilterButtonLayout() {
         final Button button = SPUIComponentProvider.getButton(getShowFilterButtonLayoutId(), null,
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SHOW_TAGS), null, false, FontAwesome.TAGS,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SHOW_TAGS), null, false, VaadinIcons.TAGS,
                 SPUIButtonStyleNoBorder.class);
         button.setVisible(false);
         button.addClickListener(event -> showFilterButtonsIconClicked());
@@ -255,7 +255,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
     private SPUIButton createMaxMinIcon() {
         final SPUIButton button = (SPUIButton) SPUIComponentProvider.getButton(getMaxMinIconId(), "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, false, FontAwesome.EXPAND,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, false, VaadinIcons.EXPAND,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(event -> maxMinButtonClicked());
         return button;
@@ -278,7 +278,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
     private void openSearchTextField() {
         searchResetIcon.addStyleName(SPUIDefinitions.FILTER_RESET_ICON);
-        searchResetIcon.toggleIcon(FontAwesome.TIMES);
+        searchResetIcon.toggleIcon(VaadinIcons.CLOSE);
         searchResetIcon.setData(Boolean.TRUE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
         searchField.removeStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
@@ -290,7 +290,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
         searchField.addStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
         searchResetIcon.removeStyleName(SPUIDefinitions.FILTER_RESET_ICON);
-        searchResetIcon.toggleIcon(FontAwesome.SEARCH);
+        searchResetIcon.toggleIcon(VaadinIcons.SEARCH);
         searchResetIcon.setData(Boolean.FALSE);
         resetSearchText();
     }
@@ -319,13 +319,13 @@ public abstract class AbstractTableHeader extends VerticalLayout {
     }
 
     private void showMinIcon() {
-        maxMinIcon.toggleIcon(FontAwesome.COMPRESS);
+        maxMinIcon.toggleIcon(VaadinIcons.COMPRESS);
         maxMinIcon.setData(Boolean.TRUE);
         maxMinIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MINIMIZE));
     }
 
     private void showMaxIcon() {
-        maxMinIcon.toggleIcon(FontAwesome.EXPAND);
+        maxMinIcon.toggleIcon(VaadinIcons.EXPAND);
         maxMinIcon.setData(Boolean.FALSE);
         maxMinIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE));
     }

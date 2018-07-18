@@ -77,7 +77,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
         // addComponent(manualItem);
         // final Label manualLabel = new Label();
         // manualLabel.setStyleName("statusIconPending");
-        // manualLabel.setIcon(FontAwesome.HAND_PAPER_O);
+        // manualLabel.setIcon(VaadinIcons.HAND_PAPER_O);
         // manualLabel.setCaption(i18n.getMessage("caption.rollout.start.manual"));
         // manualLabel.setDescription(i18n.getMessage("caption.rollout.start.manual.desc"));
         // manualLabel.setStyleName("padding-right-style");
@@ -91,7 +91,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
         // addComponent(autoStartItem);
         // final Label autoStartLabel = new Label();
         // autoStartLabel.setSizeFull();
-        // autoStartLabel.setIcon(FontAwesome.PLAY);
+        // autoStartLabel.setIcon(VaadinIcons.PLAY);
         // autoStartLabel.setCaption(i18n.getMessage("caption.rollout.start.auto"));
         // autoStartLabel.setDescription(i18n.getMessage("caption.rollout.start.auto.desc"));
         // autoStartLabel.setStyleName("padding-right-style");
@@ -106,7 +106,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
         // addComponent(scheduledItem);
         // final Label scheduledLabel = new Label();
         // scheduledLabel.setStyleName("statusIconPending");
-        // scheduledLabel.setIcon(FontAwesome.CLOCK_O);
+        // scheduledLabel.setIcon(VaadinIcons.CLOCK_O);
         // scheduledLabel.setCaption(i18n.getMessage("caption.rollout.start.scheduled"));
         // scheduledLabel.setDescription(i18n.getMessage("caption.rollout.start.scheduled.desc"));
         // scheduledLabel.setStyleName(STYLE_DIST_WINDOW_AUTO_START);

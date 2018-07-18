@@ -39,20 +39,20 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Item;
 import com.vaadin.event.Transferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.v7.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.ui.Table;
 
 /**
  * Abstract table to handling entity
@@ -361,7 +361,7 @@ public abstract class AbstractTable<E extends NamedEntity> extends Table impleme
     }
 
     private Object createDeleteButton(final Object itemId) {
-        final Button deleteButton = SPUIComponentProvider.getButton("", "", "", "", true, FontAwesome.TRASH_O,
+        final Button deleteButton = SPUIComponentProvider.getButton("", "", "", "", true, VaadinIcons.TRASH,
                 SPUIButtonStyleNoBorderWithIcon.class);
         final String id = getEntityId(itemId);
         deleteButton.setId("delete.entity." + id);

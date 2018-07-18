@@ -37,13 +37,13 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.v7.data.Item;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.v7.data.Item;
 
 /**
  * Distribution set details layout.
@@ -158,7 +158,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
                 .map(selected -> targetManagement.countByAssignedDistributionSet(selected) <= 0).orElse(false)) {
 
             final Button reassignSoftModule = SPUIComponentProvider.getButton(softwareModuleName, "", "", "", true,
-                    FontAwesome.TIMES, SPUIButtonStyleNoBorder.class);
+                    VaadinIcons.CLOSE, SPUIButtonStyleNoBorder.class);
             reassignSoftModule.setEnabled(false);
             return reassignSoftModule;
         }

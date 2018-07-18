@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.rollout;
 
 import java.io.Serializable;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 
 /**
  * Helper class which holds the details of font icon to be displayed as
@@ -22,7 +22,7 @@ import com.vaadin.server.FontAwesome;
 public class StatusFontIcon implements Serializable {
     /** serialVersionUID. */
     private static final long serialVersionUID = 1L;
-    private FontAwesome fontIcon;
+    private VaadinIcons fontIcon;
     private String style;
     private String title;
     private String id;
@@ -43,7 +43,7 @@ public class StatusFontIcon implements Serializable {
      * @param style
      *            the style
      */
-    public StatusFontIcon(final FontAwesome fontIcon, final String style) {
+    public StatusFontIcon(final VaadinIcons fontIcon, final String style) {
         this(fontIcon, style, "", "", false);
     }
 
@@ -57,7 +57,7 @@ public class StatusFontIcon implements Serializable {
      * @param title
      *            the title shown as tooltip
      */
-    public StatusFontIcon(final FontAwesome fontIcon, final String style, final String title) {
+    public StatusFontIcon(final VaadinIcons fontIcon, final String style, final String title) {
         this(fontIcon, style, title, "", false);
     }
 
@@ -73,7 +73,7 @@ public class StatusFontIcon implements Serializable {
      * @param id
      *            the id for direct access
      */
-    public StatusFontIcon(final FontAwesome fontIcon, final String style, final String title, final String id) {
+    public StatusFontIcon(final VaadinIcons fontIcon, final String style, final String title, final String id) {
         this(fontIcon, style, title, id, false);
     }
 
@@ -91,7 +91,7 @@ public class StatusFontIcon implements Serializable {
      * @param disabled
      *            disabled-state of the icon
      */
-    public StatusFontIcon(final FontAwesome fontIcon, final String style, final String title, final String id,
+    public StatusFontIcon(final VaadinIcons fontIcon, final String style, final String title, final String id,
             final boolean disabled) {
         this.fontIcon = fontIcon;
         this.style = style;
@@ -105,7 +105,7 @@ public class StatusFontIcon implements Serializable {
      *
      * @return the font representing the icon
      */
-    public FontAwesome getFontIcon() {
+    public VaadinIcons getFontIcon() {
         return fontIcon;
     }
 
