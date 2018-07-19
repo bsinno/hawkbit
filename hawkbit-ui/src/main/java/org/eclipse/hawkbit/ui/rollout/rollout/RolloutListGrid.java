@@ -249,27 +249,19 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     @Override
     protected void addColumns() {
         rolloutGridContainer.addContainerProperty(ROLLOUT_RENDERER_DATA, RolloutRendererData.class, null, false, false);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_DESC, String.class, null, false, false);
+        addColumn(SPUILabelDefinitions.VAR_DESC);
         rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_STATUS, RolloutStatus.class, null, false,
                 false);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_DIST_NAME_VERSION, String.class, null, false,
-                false);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_DATE, String.class, null, false,
-                false);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY, String.class, null,
-                false, false);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_APPROVAL_REMARK, String.class, null, false,
-                false);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_MODIFIED_DATE, String.class, null, false,
-                false);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_USER, String.class, null, false,
-                false);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_MODIFIED_BY, String.class, null, false,
-                false);
+        addColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION);
+        addColumn(SPUILabelDefinitions.VAR_CREATED_DATE);
+        addColumn(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY);
+        addColumn(SPUILabelDefinitions.VAR_APPROVAL_REMARK);
+        addColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE);
+        addColumn(SPUILabelDefinitions.VAR_CREATED_USER);
+        addColumn(SPUILabelDefinitions.VAR_MODIFIED_BY);
         rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS, Integer.class, 0, false,
                 false);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS, String.class, "0", false,
-                false);
+        addColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS);
         rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS,
                 TotalTargetCountStatus.class, null, false, false);
 
