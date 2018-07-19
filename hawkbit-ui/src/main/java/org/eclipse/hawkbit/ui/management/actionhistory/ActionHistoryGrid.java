@@ -455,18 +455,18 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
     protected void setColumnHeaderNames() {
         final HeaderRow newHeaderRow = resetHeaderDefaultRow();
 
-        getColumn(ProxyAction.PXY_ACTION_IS_ACTIVE_DECO).setCaption(SPUIDefinitions.ACTION_HIS_TBL_ACTIVE);
-        getColumn(ProxyAction.PXY_ACTION_DS_NAME_VERSION).setCaption(SPUIDefinitions.ACTION_HIS_TBL_DIST);
-        getColumn(ProxyAction.PXY_ACTION_LAST_MODIFIED_AT).setCaption(SPUIDefinitions.ACTION_HIS_TBL_DATETIME);
-        getColumn(ProxyAction.PXY_ACTION_STATUS).setCaption(SPUIDefinitions.ACTION_HIS_TBL_STATUS);
+        getColumn(ProxyAction.PXY_ACTION_IS_ACTIVE_DECO).setCaption(i18n.getMessage("label.active"));
+        getColumn(ProxyAction.PXY_ACTION_DS_NAME_VERSION).setCaption(i18n.getMessage("distribution.details.header"));
+        getColumn(ProxyAction.PXY_ACTION_LAST_MODIFIED_AT).setCaption(i18n.getMessage("header.rolloutgroup.target.date"));
+        getColumn(ProxyAction.PXY_ACTION_STATUS).setCaption(i18n.getMessage("header.status"));
         getColumn(ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW)
                 .setCaption(SPUIDefinitions.ACTION_HIS_TBL_MAINTENANCE_WINDOW);
         getColumn(VIRT_PROP_FORCED).setCaption(String.valueOf(forceClientRefreshToggle));
         forceClientRefreshToggle = !forceClientRefreshToggle;
 
-        newHeaderRow.join(VIRT_PROP_FORCED, VIRT_PROP_TIMEFORCED).setText(SPUIDefinitions.ACTION_HIS_TBL_FORCED);
+        newHeaderRow.join(VIRT_PROP_FORCED, VIRT_PROP_TIMEFORCED).setText(i18n.getMessage("label.action.forced"));
         newHeaderRow.join(VIRT_PROP_ACTION_CANCEL, VIRT_PROP_ACTION_FORCE, VIRT_PROP_ACTION_FORCE_QUIT)
-                .setText(SPUIDefinitions.ACTIONS_COLUMN);
+                .setText(i18n.getMessage("header.action"));
     }
 
     @Override
@@ -598,8 +598,8 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
          */
         @Override
         protected void setMaximizedHeaders() {
-            getColumn(ProxyAction.PXY_ACTION_ID).setCaption(SPUIDefinitions.ACTION_HIS_TBL_ACTION_ID);
-            getColumn(ProxyAction.PXY_ACTION_ROLLOUT_NAME).setCaption(SPUIDefinitions.ACTION_HIS_TBL_ROLLOUT_NAME);
+            getColumn(ProxyAction.PXY_ACTION_ID).setCaption(i18n.getMessage("label.action.id"));
+            getColumn(ProxyAction.PXY_ACTION_ROLLOUT_NAME).setCaption(i18n.getMessage("caption.rollout.name"));
         }
 
         /**
