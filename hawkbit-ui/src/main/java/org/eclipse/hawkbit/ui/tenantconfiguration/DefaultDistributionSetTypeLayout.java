@@ -63,7 +63,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         rootPanel.setSizeFull();
         rootPanel.addStyleName("config-panel");
         final VerticalLayout vlayout = new VerticalLayout();
-        vlayout.setMargin(true);
+        vlayout.setSpacing(false);
         vlayout.setSizeFull();
         final String disSetTypeTitle = i18n.getMessage("configuration.defaultdistributionset.title");
 
@@ -74,8 +74,8 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         currentDefaultDisSetType = currentDistributionSetType.getId();
 
         final HorizontalLayout hlayout = new HorizontalLayout();
-        hlayout.setSpacing(true);
         hlayout.setStyleName("config-h-panel");
+        hlayout.setMargin(false);
 
         final Label configurationLabel = new Label(
                 i18n.getMessage("configuration.defaultdistributionset.select.label"));

@@ -141,7 +141,7 @@ public final class DashboardMenu extends CustomComponent {
 
     private VerticalLayout buildLinksAndVersion() {
         final VerticalLayout links = new VerticalLayout();
-        links.setSpacing(true);
+        links.setMargin(false);
         links.addStyleName("links");
         final String linkStyle = "v-link";
 

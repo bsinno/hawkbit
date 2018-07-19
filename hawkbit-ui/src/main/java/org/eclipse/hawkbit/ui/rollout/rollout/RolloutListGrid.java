@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
-import static org.eclipse.hawkbit.ui.rollout.DistributionBarHelper.getTooltip;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -55,21 +53,17 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.Sort.Direction;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.client.widget.grid.CellReference;
-import com.vaadin.data.provider.DataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.components.grid.HeaderCell;
 import com.vaadin.ui.renderers.ClickableRenderer.RendererClickEvent;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.GeneratedPropertyContainer;
 import com.vaadin.v7.data.util.PropertyValueGenerator;
 import com.vaadin.v7.data.util.converter.Converter;
 import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
@@ -77,7 +71,7 @@ import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 /**
  * Rollout list grid component.
  */
-public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
+public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
 
     private static final long serialVersionUID = 1L;
 
@@ -101,6 +95,8 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
     private final UINotification uiNotification;
 
     private final RolloutUIState rolloutUIState;
+
+    private final ProxyRolloutService proxyRolloutService;
 
     private static final List<RolloutStatus> DELETE_COPY_BUTTON_ENABLED = Arrays.asList(RolloutStatus.CREATING,
             RolloutStatus.ERROR_CREATING, RolloutStatus.ERROR_STARTING, RolloutStatus.PAUSED, RolloutStatus.READY,
@@ -155,7 +151,7 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
             final TargetManagement targetManagement, final EntityFactory entityFactory, final UiProperties uiProperties,
             final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
-            final TenantConfigurationManagement tenantConfigManagement) {
+            final TenantConfigurationManagement tenantConfigManagement, final ProxyRolloutService proxyRolloutService) {
         super(i18n, eventBus, permissionChecker);
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
@@ -165,8 +161,8 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
                 rolloutGroupManagement, quotaManagement);
         this.uiNotification = uiNotification;
         this.rolloutUIState = rolloutUIState;
+        this.proxyRolloutService = proxyRolloutService;
 
-        setGeneratedPropertySupport(new RolloutGeneratedPropertySupport());
         init();
         hideColumnsDueToInsufficientPermissions();
     }
@@ -220,16 +216,6 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
         if (!rollout.isPresent()) {
             return;
         }
-        // final GeneratedPropertyContainer rolloutContainer =
-        // (GeneratedPropertyContainer) getContainerDataSource();
-        // final Item item =
-        // rolloutContainer.getItem(rolloutChangeEvent.getRolloutId());
-        // if (item == null) {
-        // refreshContainer();
-        // return;
-        // }
-        //
-        // updateItem(rollout.get(), item);
     }
 
     private void updateItem(final Rollout rollout, final Item item) {
@@ -254,17 +240,14 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
     }
 
     @Override
-    protected DataProvider createDataProvider() {
-        new RolloutBeanQuery(new Object[] { Direction.ASC }, SPUILabelDefinitions.VAR_ID);
-        // return new LazyQueryContainer(
-        // new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE,
-        // SPUILabelDefinitions.VAR_ID), rolloutQf);
+    protected void setDataProvider() {
+        setDataProvider((sortOrder, offset, limit) -> {
+            return proxyRolloutService.getEntriesPaged(filter, offset, limit, sortOrder).stream();
+        }, () -> proxyRolloutService.countEntries(filter));
     }
 
     @Override
-    protected void addContainerProperties() {
-        final LazyQueryContainer rolloutGridContainer = getGeneratedPropertySupport().getRawContainer();
-
+    protected void addColumns() {
         rolloutGridContainer.addContainerProperty(ROLLOUT_RENDERER_DATA, RolloutRendererData.class, null, false, false);
         rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_DESC, String.class, null, false, false);
         rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_STATUS, RolloutStatus.class, null, false,
@@ -456,34 +439,14 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
         }
     }
 
-    /**
-     * Adds support for virtual properties (aka generated properties)
-     */
-    class RolloutGeneratedPropertySupport extends AbstractGeneratedPropertySupport {
-
-        @Override
-        public GeneratedPropertyContainer getDecoratedContainer() {
-            return (GeneratedPropertyContainer) getContainerDataSource();
-        }
-
-        @Override
-        public LazyQueryContainer getRawContainer() {
-            return (LazyQueryContainer) (getDecoratedContainer()).getWrappedContainer();
-        }
-
-        @Override
-        protected GeneratedPropertyContainer addGeneratedContainerProperties() {
-            final GeneratedPropertyContainer decoratedContainer = getDecoratedContainer();
-
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_RUN, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_APPROVE, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_PAUSE, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_UPDATE, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_COPY, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_DELETE, new GenericPropertyValueGenerator());
-
-            return decoratedContainer;
-        }
+    @Override
+    protected void addGeneratedColumns() {
+        addColumn(VIRT_PROP_RUN, new GenericPropertyValueGenerator()).setId(VIRT_PROP_RUN);
+        addColumn(VIRT_PROP_APPROVE, new GenericPropertyValueGenerator()).setId(VIRT_PROP_APPROVE);
+        addColumn(VIRT_PROP_PAUSE, new GenericPropertyValueGenerator()).setId(VIRT_PROP_PAUSE);
+        addColumn(VIRT_PROP_UPDATE, new GenericPropertyValueGenerator()).setId(VIRT_PROP_UPDATE);
+        addColumn(VIRT_PROP_COPY, new GenericPropertyValueGenerator()).setId(VIRT_PROP_COPY);
+        addColumn(VIRT_PROP_DELETE, new GenericPropertyValueGenerator()).setId(VIRT_PROP_DELETE);
     }
 
     /**
@@ -808,6 +771,12 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
         }
 
         setColumns(modifiableColumnsList.toArray());
+    }
+
+    @Override
+    public void refreshContainer() {
+        // TODO Auto-generated method stub
+
     }
 
 }

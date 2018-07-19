@@ -71,8 +71,6 @@ public class NotificationUnreadButton extends Button {
 
     private void createUnreadMessagesLayout() {
         final VerticalLayout notificationsLayout = new VerticalLayout();
-        notificationsLayout.setMargin(true);
-        notificationsLayout.setSpacing(true);
 
         final Label title = new Label(i18n.getMessage(TITLE));
         title.addStyleName(ValoTheme.LABEL_H3);

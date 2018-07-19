@@ -66,7 +66,7 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
         gatewayTokenkeyLabel.addStyleName("gateway-token-label");
 
         final HorizontalLayout keyGenerationLayout = new HorizontalLayout();
-        keyGenerationLayout.setSpacing(true);
+        keyGenerationLayout.setMargin(false);
 
         keyGenerationLayout.addComponent(gatewayTokenkeyLabel);
         keyGenerationLayout.addComponent(gatewaytokenBtn);

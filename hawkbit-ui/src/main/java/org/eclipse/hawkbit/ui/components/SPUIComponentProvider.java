@@ -287,10 +287,7 @@ public final class SPUIComponentProvider {
      * @return VerticalLayout
      */
     public static VerticalLayout getDetailTabLayout() {
-        final VerticalLayout layout = new VerticalLayout();
-        layout.setSpacing(true);
-        layout.setMargin(true);
-        return layout;
+        return new VerticalLayout();
     }
 
     /**

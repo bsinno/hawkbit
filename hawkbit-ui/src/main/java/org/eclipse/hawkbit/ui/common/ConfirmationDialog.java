@@ -196,7 +196,7 @@ public class ConfirmationDialog implements Button.ClickListener {
 
     private HorizontalLayout createButtonLayout(final Button cancelButton) {
         final HorizontalLayout hButtonLayout = new HorizontalLayout();
-        hButtonLayout.setSpacing(true);
+        hButtonLayout.setMargin(false);
         hButtonLayout.addComponent(okButton);
         hButtonLayout.addComponent(cancelButton);
         hButtonLayout.setSizeUndefined();

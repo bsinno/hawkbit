@@ -18,11 +18,15 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid.LongToFormattedDateStringConverter;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.AbstractGridButtonConverter;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.AbstractHtmlLabelConverter;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.GridButtonRenderer;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlLabelRenderer;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGrid.ActionGridButtonConverter;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGrid.HtmlIsActiveLabelConverter;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGrid.HtmlVirtPropLabelConverter;
 import org.eclipse.hawkbit.ui.management.actionhistory.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
@@ -49,7 +53,6 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.GeneratedPropertyContainer;
 import com.vaadin.v7.data.util.PropertyValueGenerator;
 import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 
@@ -133,7 +136,6 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
             getSingleSelectionSupport().disable();
         }
 
-        setGeneratedPropertySupport(new ActionHistoryGeneratedPropertySupport());
         setDetailsSupport(new DetailsSupport());
 
         final LabelConfig conf = new LabelConfig();
@@ -160,6 +162,33 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
     protected void init() {
         super.init();
         restorePreviousState();
+    }
+
+    /**
+     * Generator class responsible to retrieve an Action from the grid data in
+     * order to generate a virtual property.
+     */
+    class GenericPropertyValueGenerator extends PropertyValueGenerator<Action> {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Action getValue(final Item item, final Object itemId, final Object propertyId) {
+            return (Action) item.getItemProperty(ProxyAction.PXY_ACTION).getValue();
+        }
+
+        @Override
+        public Class<Action> getType() {
+            return Action.class;
+        }
+    }
+
+    @Override
+    protected void addGeneratedColumns() {
+        addColumn(VIRT_PROP_FORCED, new GenericPropertyValueGenerator()).setId(VIRT_PROP_FORCED);
+        addColumn(VIRT_PROP_TIMEFORCED, new GenericPropertyValueGenerator()).setId(VIRT_PROP_TIMEFORCED);
+        addColumn(VIRT_PROP_ACTION_CANCEL, new GenericPropertyValueGenerator()).setId(VIRT_PROP_ACTION_CANCEL);
+        addColumn(VIRT_PROP_ACTION_FORCE, new GenericPropertyValueGenerator()).setId(VIRT_PROP_ACTION_FORCE);
+        addColumn(VIRT_PROP_ACTION_FORCE_QUIT, new GenericPropertyValueGenerator()).setId(VIRT_PROP_ACTION_FORCE_QUIT);
     }
 
     /**
@@ -457,7 +486,8 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
 
         getColumn(ProxyAction.PXY_ACTION_IS_ACTIVE_DECO).setCaption(i18n.getMessage("label.active"));
         getColumn(ProxyAction.PXY_ACTION_DS_NAME_VERSION).setCaption(i18n.getMessage("distribution.details.header"));
-        getColumn(ProxyAction.PXY_ACTION_LAST_MODIFIED_AT).setCaption(i18n.getMessage("header.rolloutgroup.target.date"));
+        getColumn(ProxyAction.PXY_ACTION_LAST_MODIFIED_AT)
+                .setCaption(i18n.getMessage("header.rolloutgroup.target.date"));
         getColumn(ProxyAction.PXY_ACTION_STATUS).setCaption(i18n.getMessage("header.status"));
         getColumn(ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW)
                 .setCaption(SPUIDefinitions.ACTION_HIS_TBL_MAINTENANCE_WINDOW);
@@ -539,35 +569,6 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
      */
     private void alignColumns() {
         setCellStyleGenerator(alignGenerator);
-    }
-
-    /**
-     * Adds support for virtual properties (aka generated properties)
-     */
-    class ActionHistoryGeneratedPropertySupport extends AbstractGeneratedPropertySupport {
-
-        @Override
-        public GeneratedPropertyContainer getDecoratedContainer() {
-            return (GeneratedPropertyContainer) getContainerDataSource();
-        }
-
-        @Override
-        public LazyQueryContainer getRawContainer() {
-            return (LazyQueryContainer) (getDecoratedContainer()).getWrappedContainer();
-        }
-
-        @Override
-        protected GeneratedPropertyContainer addGeneratedContainerProperties() {
-            final GeneratedPropertyContainer decoratedContainer = getDecoratedContainer();
-
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_FORCED, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_TIMEFORCED, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_ACTION_CANCEL, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_ACTION_FORCE, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_ACTION_FORCE_QUIT, new GenericPropertyValueGenerator());
-
-            return decoratedContainer;
-        }
     }
 
     /**
@@ -682,24 +683,6 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
 
         @Override
         public Class<Action> getModelType() {
-            return Action.class;
-        }
-    }
-
-    /**
-     * Generator class responsible to retrieve an Action from the grid data in
-     * order to generate a virtual property.
-     */
-    class GenericPropertyValueGenerator extends PropertyValueGenerator<Action> {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public Action getValue(final Item item, final Object itemId, final Object propertyId) {
-            return (Action) item.getItemProperty(ProxyAction.PXY_ACTION).getValue();
-        }
-
-        @Override
-        public Class<Action> getType() {
             return Action.class;
         }
     }

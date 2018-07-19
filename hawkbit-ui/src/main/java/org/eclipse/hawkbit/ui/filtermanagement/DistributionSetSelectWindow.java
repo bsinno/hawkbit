@@ -253,8 +253,6 @@ public class DistributionSetSelectWindow implements CommonDialogWindow.SaveDialo
             setResizable(false);
 
             final VerticalLayout layout = new VerticalLayout();
-            layout.setSpacing(true);
-            layout.setMargin(true);
             setContent(layout);
 
             final Long targetsCount = targetManagement.countByRsqlAndNonDS(distributionSetId,
@@ -270,7 +268,7 @@ public class DistributionSetSelectWindow implements CommonDialogWindow.SaveDialo
 
             final HorizontalLayout buttonsLayout = new HorizontalLayout();
             buttonsLayout.setSizeFull();
-            buttonsLayout.setSpacing(true);
+            buttonsLayout.setMargin(false);
             buttonsLayout.addStyleName("actionButtonsMargin");
             layout.addComponent(buttonsLayout);
 

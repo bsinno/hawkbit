@@ -359,7 +359,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
      */
     private void populateDistSetTypeNameCombo() {
         distsetTypeNameComboBox.setContainerDataSource(getDistSetTypeLazyQueryContainer());
-        distsetTypeNameComboBox.setItemCaptionPropertyId(SPUILabelDefinitions.VAR_NAME);
+        distsetTypeNameComboBox.setItemCaptionGenerator(DistributionSetType::getName);
         distsetTypeNameComboBox.setValue(getDefaultDistributionSetType().getId());
     }
 

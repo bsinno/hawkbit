@@ -170,7 +170,7 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
 
         detailAndUploadLayout.setSizeFull();
         detailAndUploadLayout.addStyleName("group");
-        detailAndUploadLayout.setSpacing(true);
+        detailAndUploadLayout.setMargin(false);
         return detailAndUploadLayout;
     }
 

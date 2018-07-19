@@ -254,7 +254,7 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
 
         titleFilterIconsLayout = new HorizontalLayout();
         titleFilterIconsLayout.addComponents(headerCaption, captionLayout);
-        titleFilterIconsLayout.setSpacing(true);
+        titleFilterIconsLayout.setMargin(false);
 
         final HorizontalLayout breadcrumbLayout = new HorizontalLayout();
         breadcrumbLayout.addComponent(breadcrumbButton);
@@ -277,13 +277,13 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
 
         final HorizontalLayout queryLayout = new HorizontalLayout();
         queryLayout.setSizeUndefined();
-        queryLayout.setSpacing(true);
+        queryLayout.setMargin(false);
         queryLayout.addComponents(queryTextField, iconLayout);
 
         addComponent(breadcrumbLayout);
         addComponent(titleFilterLayout);
         addComponent(queryLayout);
-        setSpacing(true);
+        setMargin(false);
         addStyleName(SPUIStyleDefinitions.WIDGET_TITLE);
         addStyleName("bordered-layout");
     }

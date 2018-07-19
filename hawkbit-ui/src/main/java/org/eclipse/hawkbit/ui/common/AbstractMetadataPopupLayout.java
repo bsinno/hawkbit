@@ -220,7 +220,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
         mainLayout.setExpandRatio(tableLayout, 0.5F);
         mainLayout.setExpandRatio(metadataFieldsLayout, 0.5F);
         mainLayout.setSizeFull();
-        mainLayout.setSpacing(true);
+        mainLayout.setMargin(false);
         setCompositionRoot(mainLayout);
         setSizeFull();
     }
@@ -231,7 +231,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedVersionedEntity
         metadataFieldsLayout.setHeight("100%");
         metadataFieldsLayout.addComponent(keyTextField);
         metadataFieldsLayout.addComponent(valueTextArea);
-        metadataFieldsLayout.setSpacing(true);
+        metadataFieldsLayout.setMargin(false);
         metadataFieldsLayout.setExpandRatio(valueTextArea, 1F);
         return metadataFieldsLayout;
     }

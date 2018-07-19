@@ -209,7 +209,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
 
         final VerticalLayout loginPanel = new VerticalLayout();
         loginPanel.setSizeUndefined();
-        loginPanel.setSpacing(true);
+        loginPanel.setMargin(false);
         loginPanel.addStyleName("login-panel");
         Responsive.makeResponsive(loginPanel);
         loginPanel.addComponent(buildFields());
@@ -231,7 +231,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
 
     protected Component buildFields() {
         final HorizontalLayout fields = new HorizontalLayout();
-        fields.setSpacing(true);
+        fields.setMargin(false);
         fields.addStyleName("fields");
         buildTenantField();
         buildUserField();
@@ -309,7 +309,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
     protected Component buildLinks() {
 
         final HorizontalLayout links = new HorizontalLayout();
-        links.setSpacing(true);
+        links.setMargin(false);
         links.addStyleName("links");
         final String linkStyle = "v-link";
 

@@ -34,8 +34,6 @@ public class SPTargetAttributesLayout {
      */
     SPTargetAttributesLayout(final Map<String, String> controllerAttibs) {
         targetAttributesLayout = new VerticalLayout();
-        targetAttributesLayout.setSpacing(true);
-        targetAttributesLayout.setMargin(true);
         decorate(controllerAttibs);
     }
 

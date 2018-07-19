@@ -86,7 +86,7 @@ public class UploadProgressInfoWindow extends Window {
         createStatusPopupHeaderComponents();
 
         mainLayout = new VerticalLayout();
-        mainLayout.setSpacing(Boolean.TRUE);
+        mainLayout.setMargin(false);
         mainLayout.setSizeUndefined();
         setPopupSizeInMinMode();
 

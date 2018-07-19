@@ -258,7 +258,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private void buildLayout() {
         mainLayout = new VerticalLayout();
-        mainLayout.setSpacing(Boolean.TRUE);
+        mainLayout.setMargin(false);
         mainLayout.setSizeUndefined();
         mainLayout.setWidth("200px");
 

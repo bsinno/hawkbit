@@ -46,7 +46,7 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         detailLayout = new VerticalLayout();
 
         final HorizontalLayout caRootAuthorityLayout = new HorizontalLayout();
-        caRootAuthorityLayout.setSpacing(true);
+        caRootAuthorityLayout.setMargin(false);
 
         final Label caRootAuthorityLabel = new LabelBuilder().name("SSL Issuer Hash:").buildLabel();
         caRootAuthorityLabel.setDescription(

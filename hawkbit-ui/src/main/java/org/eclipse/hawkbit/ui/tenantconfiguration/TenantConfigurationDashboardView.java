@@ -122,8 +122,6 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
         final VerticalLayout rootLayout = new VerticalLayout();
         rootLayout.setSizeFull();
-        rootLayout.setMargin(true);
-        rootLayout.setSpacing(true);
 
         configurationViews.forEach(rootLayout::addComponent);
 
@@ -139,7 +137,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     private HorizontalLayout saveConfigurationButtonsLayout() {
 
         final HorizontalLayout hlayout = new HorizontalLayout();
-        hlayout.setSpacing(true);
+        hlayout.setMargin(false);
         saveConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_SAVE, "", "",
                 "", true, FontAwesome.SAVE, SPUIButtonStyleNoBorder.class);
         saveConfigurationBtn.setEnabled(false);

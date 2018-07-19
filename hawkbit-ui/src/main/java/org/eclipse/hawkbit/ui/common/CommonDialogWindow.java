@@ -196,10 +196,6 @@ public class CommonDialogWindow extends Window {
 
     private final void init() {
 
-        if (content instanceof AbstractOrderedLayout) {
-            ((AbstractOrderedLayout) content).setSpacing(true);
-            ((AbstractOrderedLayout) content).setMargin(true);
-        }
         if (content instanceof GridLayout) {
             addStyleName("marginTop");
         }
@@ -412,8 +408,6 @@ public class CommonDialogWindow extends Window {
 
         buttonsLayout = new HorizontalLayout();
         buttonsLayout.setSizeFull();
-        buttonsLayout.setSpacing(true);
-        buttonsLayout.setSpacing(true);
         buttonsLayout.addStyleName("actionButtonsMargin");
 
         createSaveButton();
