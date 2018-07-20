@@ -10,12 +10,10 @@ package org.eclipse.hawkbit.ui.common.grid;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Objects;
 
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGrid.AbstractGeneratedPropertySupport;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.management.actionhistory.ProxyAction;
 import org.eclipse.hawkbit.ui.management.actionhistory.ProxyActionStatus;
@@ -28,12 +26,14 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.client.widget.grid.CellReference;
 import com.vaadin.client.widget.grid.CellStyleGenerator;
+import com.vaadin.data.Binder;
+import com.vaadin.data.Converter;
+import com.vaadin.data.Result;
 import com.vaadin.data.SelectionModel;
-import com.vaadin.ui.DescriptionGenerator;
+import com.vaadin.data.ValueContext;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.v7.data.Container.Indexed;
-import com.vaadin.v7.data.util.converter.Converter;
 import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 
 /**
@@ -45,17 +45,18 @@ import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
  * @param <T>
  *            The container-type used by the grid
  */
-public abstract class AbstractGrid<T> extends Grid implements RefreshableContainer {
+public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableContainer {
     private static final long serialVersionUID = 1L;
 
-    protected final VaadinMessageSource i18n;
+    protected VaadinMessageSource i18n;
     protected final transient EventBus.UIEventBus eventBus;
     protected final SpPermissionChecker permissionChecker;
 
     private transient AbstractMaximizeSupport maximizeSupport;
-    private transient AbstractGeneratedPropertySupport generatedPropertySupport;
     private transient SingleSelectionSupport singleSelectionSupport;
     private transient DetailsSupport detailsSupport;
+
+    private final Binder<?> binder = new Binder<>();
 
     /**
      * Constructor.
@@ -85,12 +86,13 @@ public abstract class AbstractGrid<T> extends Grid implements RefreshableContain
             setSelectionMode(SelectionMode.NONE);
         }
         setColumnReorderingAllowed(true);
-        addNewContainerDS();
         if (doSubscribeToEventBus()) {
             eventBus.subscribe(this);
         }
-        addGeneratedColumns();
+        createColumns();
     }
+
+    protected abstract void addColumns();
 
     protected abstract void addGeneratedColumns();
 
@@ -130,26 +132,16 @@ public abstract class AbstractGrid<T> extends Grid implements RefreshableContain
      * content fundamentally changes (e.g. if container content depends on a
      * selection as common in master-details relations)
      */
-    protected void addNewContainerDS() {
+    protected void createColumns() {
         setDataProvider();
-        addColumns();
 
-        setColumnProperties();
+        addColumns();
         setColumnHeaderNames();
         setColumnsHidable();
         addColumnRenderes();
+        setColumns();
         setColumnExpandRatio();
-
         setHiddenColumns();
-
-        final CellDescriptionGenerator cellDescriptionGenerator = getDescriptionGenerator();
-        if (getDescriptionGenerator() != null) {
-            setCellDescriptionGenerator(cellDescriptionGenerator);
-        }
-
-        if (indexedContainer != null && indexedContainer.size() == 0) {
-            setData(i18n.getMessage(UIMessageIdProvider.MESSAGE_NO_DATA));
-        }
     }
 
     /**
@@ -286,12 +278,6 @@ public abstract class AbstractGrid<T> extends Grid implements RefreshableContain
     protected abstract void setColumnHeaderNames();
 
     /**
-     * Template method invoked by {@link this#addNewContainerDS()} for setting
-     * the column properties to the grid.
-     */
-    protected abstract void setColumnProperties();
-
-    /**
      * Template method invoked by {@link this#addNewContainerDS()} for adding
      * special column renderers if needed.
      */
@@ -303,13 +289,6 @@ public abstract class AbstractGrid<T> extends Grid implements RefreshableContain
      * grid column menu.
      */
     protected abstract void setHiddenColumns();
-
-    /**
-     * Template method invoked by {@link this#addNewContainerDS()} for adding a
-     * CellDescriptionGenerator to the grid.
-     */
-    @Override
-    public abstract DescriptionGenerator getDescriptionGenerator();
 
     /**
      * Gets id of the grid.
@@ -326,7 +305,7 @@ public abstract class AbstractGrid<T> extends Grid implements RefreshableContain
      */
     protected HeaderRow resetHeaderDefaultRow() {
         getHeader().removeRow(getHeader().getDefaultRow());
-        final HeaderRow newHeaderRow = getHeader().appendRow();
+        final HeaderRow newHeaderRow = getHeader().addRowAt(0);
         getHeader().setDefaultRow(newHeaderRow);
         return newHeaderRow;
     }
@@ -432,7 +411,7 @@ public abstract class AbstractGrid<T> extends Grid implements RefreshableContain
          * Renews the content for minimized layout.
          */
         public void createMinimizedContent() {
-            setColumnProperties();
+            setColumns();
             setHiddenColumns();
             setColumnExpandRatio();
         }
@@ -601,29 +580,29 @@ public abstract class AbstractGrid<T> extends Grid implements RefreshableContain
         private static final long serialVersionUID = 1247513913478717845L;
 
         @Override
-        public Long convertToModel(final String value, final Class<? extends Long> targetType, final Locale locale) {
+        public Result<Long> convertToModel(final String value, final ValueContext context) {
             // not needed
             return null;
         }
 
         @Override
-        public String convertToPresentation(final Long value, final Class<? extends String> targetType,
-                final Locale locale) {
+        public String convertToPresentation(final Long value, final ValueContext context) {
             return SPDateTimeUtil.getFormattedDate(value, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT);
-        }
-
-        @Override
-        public Class<Long> getModelType() {
-            return Long.class;
-        }
-
-        @Override
-        public Class<String> getPresentationType() {
-            return String.class;
         }
     }
 
     protected String getActionLabeltext() {
         return i18n.getMessage(UIMessageIdProvider.MESSAGE_UPLOAD_ACTION);
     }
+
+    protected VaadinMessageSource getI18n() {
+        return i18n;
+    }
+
+    protected Binder<?> getBinder() {
+        return binder;
+    }
+
+    protected abstract void setColumns();
+
 }

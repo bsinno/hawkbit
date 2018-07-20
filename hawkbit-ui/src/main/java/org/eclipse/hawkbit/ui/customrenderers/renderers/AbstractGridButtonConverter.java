@@ -9,12 +9,13 @@
 package org.eclipse.hawkbit.ui.customrenderers.renderers;
 
 import java.io.Serializable;
-import java.util.Locale;
 
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.FontIconData;
 import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
 
-import com.vaadin.v7.data.util.converter.Converter;
+import com.vaadin.data.Converter;
+import com.vaadin.data.Result;
+import com.vaadin.data.ValueContext;
 
 /**
  * Converter that adapts to a model and converts to a grid-button presentation.
@@ -29,14 +30,13 @@ public abstract class AbstractGridButtonConverter<T> implements Converter<FontIc
     private GridButtonAdapter<T> adapter;
 
     @Override
-    public T convertToModel(final FontIconData meta, final Class<? extends T> targetType, final Locale locale) {
+    public Result<T> convertToModel(final FontIconData value, final ValueContext context) {
         // not needed
         return null;
     }
 
     @Override
-    public FontIconData convertToPresentation(final T status, final Class<? extends FontIconData> targetType,
-            final Locale locale) {
+    public FontIconData convertToPresentation(final T status, final ValueContext context) {
         if (adapter == null) {
             throw new IllegalStateException(
                     "Adapter must be set before usage! Convertion without adapter is not possible!");
@@ -51,8 +51,8 @@ public abstract class AbstractGridButtonConverter<T> implements Converter<FontIc
      *            icon metadata
      * @return icon metadata transport object
      */
-    private static FontIconData createFontIconData(StatusFontIcon meta) {
-        FontIconData result = new FontIconData();
+    private static FontIconData createFontIconData(final StatusFontIcon meta) {
+        final FontIconData result = new FontIconData();
         result.setFontIconHtml(meta.getFontIcon().getHtml());
         result.setTitle(meta.getTitle());
         result.setStyle(meta.getStyle());
@@ -60,11 +60,6 @@ public abstract class AbstractGridButtonConverter<T> implements Converter<FontIc
         result.setDisabled(meta.isDisabled());
 
         return result;
-    }
-
-    @Override
-    public Class<FontIconData> getPresentationType() {
-        return FontIconData.class;
     }
 
     /**
@@ -75,7 +70,7 @@ public abstract class AbstractGridButtonConverter<T> implements Converter<FontIc
      *            label-adapter that converts from model to label-presentation.
      * @return self for method-chaining
      */
-    public AbstractGridButtonConverter<T> addAdapter(GridButtonAdapter<T> adapter) {
+    public AbstractGridButtonConverter<T> addAdapter(final GridButtonAdapter<T> adapter) {
         this.adapter = adapter;
         return this;
     }

@@ -8,14 +8,16 @@
  */
 package org.eclipse.hawkbit.ui.customrenderers.renderers;
 
-import com.vaadin.v7.ui.Grid.AbstractRenderer;
+import com.vaadin.ui.renderers.AbstractRenderer;
 
 /**
  *
  * Renders label with provided value and style.
+ * 
+ * @param <T>
  *
  */
-public class HtmlLabelRenderer extends AbstractRenderer<String> {
+public class HtmlLabelRenderer<T> extends AbstractRenderer<T, String> {
 
     private static final long serialVersionUID = -7675588068526774915L;
 

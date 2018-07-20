@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,8 +34,6 @@ import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.AbstractGridButtonConverter;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.GridButtonRenderer;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlLabelRenderer;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.RolloutRenderer;
 import org.eclipse.hawkbit.ui.push.RolloutChangeEventContainer;
@@ -58,15 +55,17 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.client.widget.grid.CellReference;
+import com.vaadin.data.Converter;
+import com.vaadin.data.Result;
+import com.vaadin.data.ValueContext;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.components.grid.HeaderCell;
 import com.vaadin.ui.renderers.ClickableRenderer.RendererClickEvent;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.util.PropertyValueGenerator;
-import com.vaadin.v7.data.util.converter.Converter;
-import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 
 /**
  * Rollout list grid component.
@@ -117,7 +116,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
 
     private static final Map<RolloutStatus, StatusFontIcon> statusIconMap = new EnumMap<>(RolloutStatus.class);
 
-    private static final List<Object> HIDDEN_COLUMNS = Arrays.asList(SPUILabelDefinitions.VAR_CREATED_DATE,
+    private static final List<String> HIDDEN_COLUMNS = Arrays.asList(SPUILabelDefinitions.VAR_CREATED_DATE,
             SPUILabelDefinitions.VAR_CREATED_USER, SPUILabelDefinitions.VAR_MODIFIED_DATE,
             SPUILabelDefinitions.VAR_MODIFIED_BY, SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY,
             SPUILabelDefinitions.VAR_APPROVAL_REMARK, SPUILabelDefinitions.VAR_DESC);
@@ -241,32 +240,116 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
 
     @Override
     protected void setDataProvider() {
+        // use a Data Provider to fill the Grid with Data. You can also use
+        // grid.setItems(list), but this is only for a small amount of data. If
+        // the data amount is too large this is not recommended.
         setDataProvider((sortOrder, offset, limit) -> {
             return proxyRolloutService.getEntriesPaged(filter, offset, limit, sortOrder).stream();
         }, () -> proxyRolloutService.countEntries(filter));
     }
 
     @Override
-    protected void addColumns() {
-        rolloutGridContainer.addContainerProperty(ROLLOUT_RENDERER_DATA, RolloutRendererData.class, null, false, false);
-        addColumn(SPUILabelDefinitions.VAR_DESC);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_STATUS, RolloutStatus.class, null, false,
-                false);
-        addColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION);
-        addColumn(SPUILabelDefinitions.VAR_CREATED_DATE);
-        addColumn(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY);
-        addColumn(SPUILabelDefinitions.VAR_APPROVAL_REMARK);
-        addColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE);
-        addColumn(SPUILabelDefinitions.VAR_CREATED_USER);
-        addColumn(SPUILabelDefinitions.VAR_MODIFIED_BY);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS, Integer.class, 0, false,
-                false);
-        addColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS);
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS,
-                TotalTargetCountStatus.class, null, false, false);
+    protected void addColumnRenderes() {
+        getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setRenderer(new TotalTargetGroupsConverter());
+        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
+                .setRenderer(new TotalTargetCountStatusConverter());
 
-        rolloutGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_STATUS, RolloutStatus.class, null, true,
-                false);
+        getColumn(SPUILabelDefinitions.VAR_STATUS).setRenderer(new RolloutStatusConverter());
+
+        final RolloutRenderer customObjectRenderer = new RolloutRenderer(RolloutRendererData.class);
+        customObjectRenderer.addClickListener(this::onClickOfRolloutName);
+        getColumn(ROLLOUT_RENDERER_DATA).setRenderer(customObjectRenderer);
+    }
+
+    @Override
+    protected void addColumns() {
+        final RolloutRenderer customObjectRenderer = new RolloutRenderer(RolloutRendererData.class);
+        customObjectRenderer.addClickListener(this::onClickOfRolloutName);
+        addColumn(ProxyRollout::getRolloutRendererData, customObjectRenderer).setId(ROLLOUT_RENDERER_DATA);
+        addColumn(ProxyRollout::getDistributionSetNameVersion).setId(SPUILabelDefinitions.VAR_DIST_NAME_VERSION);
+        addColumn(ProxyRollout::getStatus, new HtmlLabelRenderer()).setId(SPUILabelDefinitions.VAR_STATUS);
+        addColumn(rollout -> rollout.getTotalTargetCountStatus(), new HtmlRenderer())
+                .setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS);
+        addColumn(rollout -> rollout.getNumberOfGroups(), new HtmlRenderer())
+                .setId(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS);
+        addColumn(ProxyRollout::getTotalTargetsCount).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS);
+        addGeneratedColumns();
+        addColumn(ProxyRollout::getCreatedDate).setId(SPUILabelDefinitions.VAR_CREATED_DATE);
+        addColumn(ProxyRollout::getCreatedDate).setId(SPUILabelDefinitions.VAR_CREATED_USER);
+        addColumn(ProxyRollout::getModifiedDate).setId(SPUILabelDefinitions.VAR_MODIFIED_DATE);
+        addColumn(ProxyRollout::getLastModifiedBy).setId(SPUILabelDefinitions.VAR_MODIFIED_BY);
+        addColumn(ProxyRollout::getApprovalDecidedBy).setId(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY);
+        addColumn(ProxyRollout::getApprovalRemark).setId(SPUILabelDefinitions.VAR_APPROVAL_REMARK);
+        addColumn(ProxyRollout::getDescription).setId(SPUILabelDefinitions.VAR_DESC);
+    }
+
+    @Override
+    protected void addGeneratedColumns() {
+        // you can use components in Grid cells. You don't need renderers.
+        addComponentColumn(rollout -> {
+            final Button run = new Button();
+            run.addClickListener(
+                    clickEvent -> startOrResumeRollout(rollout.getId(), rollout.getName(), rollout.getStatus()));
+            run.setIcon(VaadinIcons.PLAY);
+            return run;
+        }).setId(VIRT_PROP_RUN);
+        addComponentColumn(rollout -> {
+            final Button approve = new Button();
+            approve.addClickListener(clickEvent -> approveRollout(rollout.getId()));
+            // in VaadinIcons there is a handshake icon. I would use that for
+            // approving a rollout instead of the hammer
+            approve.setIcon(VaadinIcons.HANDSHAKE);
+            return approve;
+        }).setId(VIRT_PROP_APPROVE);
+        addComponentColumn(rollout -> {
+            final Button pause = new Button();
+            pause.addClickListener(clickEvent -> pauseRollout(rollout.getId(), rollout.getName(), rollout.getStatus()));
+            pause.setIcon(VaadinIcons.PAUSE);
+            return pause;
+        }).setId(VIRT_PROP_PAUSE);
+        addComponentColumn(rollout -> {
+            final Button update = new Button();
+            update.addClickListener(clickEvent -> updateRollout(rollout.getId()));
+            update.setIcon(VaadinIcons.EDIT);
+            return update;
+        }).setId(VIRT_PROP_UPDATE);
+        addComponentColumn(rollout -> {
+            final Button copy = new Button();
+            copy.addClickListener(clickEvent -> copyRollout(rollout.getId()));
+            copy.setIcon(VaadinIcons.COPY);
+            return copy;
+        }).setId(VIRT_PROP_COPY);
+        addComponentColumn(rollout -> {
+            final Button delete = new Button();
+            delete.addClickListener(clickEvent -> deleteRollout(rollout.getId(), rollout.getName()));
+            delete.setIcon(VaadinIcons.TRASH);
+            return delete;
+        }).setId(VIRT_PROP_DELETE);
+        joinColumns().setText(i18n.getMessage("header.action"));
+    }
+
+    @Override
+    protected void setColumnHeaderNames() {
+        getColumn(ROLLOUT_RENDERER_DATA).setCaption(i18n.getMessage("header.name"));
+        getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).setCaption(i18n.getMessage("header.distributionset"));
+        getColumn(SPUILabelDefinitions.VAR_STATUS).setCaption(i18n.getMessage("header.status"));
+        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
+                .setCaption(i18n.getMessage("header.detail.status"));
+        getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setCaption(i18n.getMessage("header.numberofgroups"));
+        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"));
+        getColumn(VIRT_PROP_RUN).setCaption(i18n.getMessage("header.action.run"));
+        getColumn(VIRT_PROP_APPROVE).setCaption(i18n.getMessage("header.action.approve"));
+        getColumn(VIRT_PROP_PAUSE).setCaption(i18n.getMessage("header.action.pause"));
+        getColumn(VIRT_PROP_UPDATE).setCaption(i18n.getMessage("header.action.update"));
+        getColumn(VIRT_PROP_COPY).setCaption(i18n.getMessage("header.action.copy"));
+        getColumn(VIRT_PROP_DELETE).setCaption(i18n.getMessage("header.action.delete"));
+        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setCaption(i18n.getMessage("header.createdDate"));
+        getColumn(SPUILabelDefinitions.VAR_CREATED_USER).setCaption(i18n.getMessage("header.createdBy"));
+        getColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setCaption(i18n.getMessage("header.modifiedDate"));
+        getColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setCaption(i18n.getMessage("header.modifiedBy"));
+        getColumn(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY).setCaption(i18n.getMessage("header.approvalDecidedBy"));
+        getColumn(SPUILabelDefinitions.VAR_APPROVAL_REMARK).setCaption(i18n.getMessage("header.approvalRemark"));
+        getColumn(SPUILabelDefinitions.VAR_DESC).setCaption(i18n.getMessage("header.description"));
     }
 
     @Override
@@ -308,33 +391,6 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS).setMinimumWidth(280);
     }
 
-    @Override
-    protected void setColumnHeaderNames() {
-        getColumn(ROLLOUT_RENDERER_DATA).setCaption(i18n.getMessage("header.name"));
-        getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).setCaption(i18n.getMessage("header.distributionset"));
-        getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setCaption(i18n.getMessage("header.numberofgroups"));
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setCaption(i18n.getMessage("header.createdDate"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_USER).setCaption(i18n.getMessage("header.createdBy"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setCaption(i18n.getMessage("header.modifiedDate"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setCaption(i18n.getMessage("header.modifiedBy"));
-        getColumn(SPUILabelDefinitions.VAR_APPROVAL_REMARK).setCaption(i18n.getMessage("header.approvalRemark"));
-        getColumn(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY).setCaption(i18n.getMessage("header.approvalDecidedBy"));
-        getColumn(SPUILabelDefinitions.VAR_DESC).setCaption(i18n.getMessage("header.description"));
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
-                .setCaption(i18n.getMessage("header.detail.status"));
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setCaption(i18n.getMessage("header.status"));
-
-        getColumn(VIRT_PROP_RUN).setCaption(i18n.getMessage("header.action.run"));
-        getColumn(VIRT_PROP_APPROVE).setCaption(i18n.getMessage("header.action.approve"));
-        getColumn(VIRT_PROP_PAUSE).setCaption(i18n.getMessage("header.action.pause"));
-        getColumn(VIRT_PROP_UPDATE).setCaption(i18n.getMessage("header.action.update"));
-        getColumn(VIRT_PROP_COPY).setCaption(i18n.getMessage("header.action.copy"));
-        getColumn(VIRT_PROP_DELETE).setCaption(i18n.getMessage("header.action.delete"));
-
-        joinColumns().setText(i18n.getMessage("header.action"));
-    }
-
     private HeaderCell joinColumns() {
 
         return getDefaultHeaderRow().join(VIRT_PROP_RUN, VIRT_PROP_APPROVE, VIRT_PROP_PAUSE, VIRT_PROP_UPDATE,
@@ -347,8 +403,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     }
 
     @Override
-    protected void setColumnProperties() {
-
+    protected void setColumns() {
         final List<String> columnsToShowInOrder = Arrays.asList(ROLLOUT_RENDERER_DATA,
                 SPUILabelDefinitions.VAR_DIST_NAME_VERSION, SPUILabelDefinitions.VAR_STATUS,
                 SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS, SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS,
@@ -358,12 +413,12 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
                 SPUILabelDefinitions.VAR_MODIFIED_BY, SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY,
                 SPUILabelDefinitions.VAR_APPROVAL_REMARK, SPUILabelDefinitions.VAR_DESC);
 
-        setColumns(columnsToShowInOrder.toArray());
+        setColumns(columnsToShowInOrder.toArray(new String[columnsToShowInOrder.size()]));
     }
 
     @Override
     protected void setHiddenColumns() {
-        for (final Object propertyId : HIDDEN_COLUMNS) {
+        for (final String propertyId : HIDDEN_COLUMNS) {
             getColumn(propertyId).setHidden(true);
         }
 
@@ -375,42 +430,80 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         getColumn(VIRT_PROP_COPY).setHidable(false);
     }
 
-    @Override
-    protected CellDescriptionGenerator getDescriptionGenerator() {
-        return this::getDescription;
+    /**
+     *
+     * Converter to convert {@link RolloutStatus} to string.
+     *
+     */
+    // TODO MR don't need that inner class, use Lambda
+    class RolloutStatusConverter implements Converter<String, RolloutStatus> {
+
+        private static final long serialVersionUID = 1L;
+
+        private String convertRolloutStatusToString(final RolloutStatus value) {
+            StatusFontIcon statusFontIcon = statusIconMap.get(value);
+            if (statusFontIcon == null) {
+                statusFontIcon = new StatusFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
+            }
+            final String codePoint = HawkbitCommonUtil.getCodePoint(statusFontIcon);
+            return HawkbitCommonUtil.getStatusLabelDetailsInString(codePoint, statusFontIcon.getStyle(),
+                    UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID);
+        }
+
+        @Override
+        public Result<RolloutStatus> convertToModel(final String value, final ValueContext context) {
+            return null;
+        }
+
+        @Override
+        public String convertToPresentation(final RolloutStatus value, final ValueContext context) {
+            return convertRolloutStatusToString(value);
+        }
     }
 
-    @Override
-    protected void addColumnRenderes() {
-        getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setRenderer(new HtmlRenderer(),
-                new TotalTargetGroupsConverter());
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS).setRenderer(new HtmlRenderer(),
-                new TotalTargetCountStatusConverter());
+    /**
+     * Converter to convert 0 to empty, if total target groups is zero.
+     *
+     */
+    // TODO MR don't need that inner class, use Lambda
+    class TotalTargetGroupsConverter implements Converter<String, Integer> {
 
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setRenderer(new HtmlLabelRenderer(), new RolloutStatusConverter());
+        private static final long serialVersionUID = 1L;
 
-        final RolloutRenderer customObjectRenderer = new RolloutRenderer(RolloutRendererData.class);
-        customObjectRenderer.addClickListener(this::onClickOfRolloutName);
-        getColumn(ROLLOUT_RENDERER_DATA).setRenderer(customObjectRenderer);
+        @Override
+        public Result<Integer> convertToModel(final String value, final ValueContext context) {
+            return null;
+        }
 
-        getColumn(VIRT_PROP_RUN).setRenderer(
-                new GridButtonRenderer(clickEvent -> startOrResumeRollout((Long) clickEvent.getItemId())),
-                new RolloutGridButtonConverter(this::createRunButtonMetadata));
-        getColumn(VIRT_PROP_APPROVE).setRenderer(
-                new GridButtonRenderer(clickEvent -> approveRollout((Long) clickEvent.getItemId())),
-                new RolloutGridButtonConverter(this::createApprovalButtonMetadata));
-        getColumn(VIRT_PROP_PAUSE).setRenderer(
-                new GridButtonRenderer(clickEvent -> pauseRollout((Long) clickEvent.getItemId())),
-                new RolloutGridButtonConverter(this::createPauseButtonMetadata));
-        getColumn(VIRT_PROP_UPDATE).setRenderer(
-                new GridButtonRenderer(clickEvent -> updateRollout((Long) clickEvent.getItemId())),
-                new RolloutGridButtonConverter(this::createUpdateButtonMetadata));
-        getColumn(VIRT_PROP_COPY).setRenderer(
-                new GridButtonRenderer(clickEvent -> copyRollout((Long) clickEvent.getItemId())),
-                new RolloutGridButtonConverter(this::createCopyButtonMetadata));
-        getColumn(VIRT_PROP_DELETE).setRenderer(
-                new GridButtonRenderer(clickEvent -> deleteRollout((Long) clickEvent.getItemId())),
-                new RolloutGridButtonConverter(this::createDeleteButtonMetadata));
+        @Override
+        public String convertToPresentation(final Integer value, final ValueContext context) {
+            if (value == 0) {
+                return "";
+            }
+            return value.toString();
+        }
+
+    }
+
+    /**
+     * Converter to convert {@link TotalTargetCountStatus} to formatted string
+     * with status and count details.
+     *
+     */
+    // TODO MR don't need that inner class, use Lambda
+    class TotalTargetCountStatusConverter implements Converter<String, TotalTargetCountStatus> {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Result<TotalTargetCountStatus> convertToModel(final String value, final ValueContext context) {
+            return null;
+        }
+
+        @Override
+        public String convertToPresentation(final TotalTargetCountStatus value, final ValueContext context) {
+            return DistributionBarHelper.getDistributionBarAsHTMLString(value.getStatusTotalCountMap());
+        }
     }
 
     /**
@@ -431,74 +524,24 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         }
     }
 
-    @Override
-    protected void addGeneratedColumns() {
-        addColumn(VIRT_PROP_RUN, new GenericPropertyValueGenerator()).setId(VIRT_PROP_RUN);
-        addColumn(VIRT_PROP_APPROVE, new GenericPropertyValueGenerator()).setId(VIRT_PROP_APPROVE);
-        addColumn(VIRT_PROP_PAUSE, new GenericPropertyValueGenerator()).setId(VIRT_PROP_PAUSE);
-        addColumn(VIRT_PROP_UPDATE, new GenericPropertyValueGenerator()).setId(VIRT_PROP_UPDATE);
-        addColumn(VIRT_PROP_COPY, new GenericPropertyValueGenerator()).setId(VIRT_PROP_COPY);
-        addColumn(VIRT_PROP_DELETE, new GenericPropertyValueGenerator()).setId(VIRT_PROP_DELETE);
-    }
-
-    /**
-     * Concrete grid-button converter that handles Rollouts Status.
-     */
-    class RolloutGridButtonConverter extends AbstractGridButtonConverter<RolloutStatus> {
-
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Constructor that sets the appropriate adapter.
-         *
-         * @param adapter
-         *            adapts <code>RolloutStatus</code> to
-         *            <code>StatusFontIcon</code>
-         */
-        public RolloutGridButtonConverter(final GridButtonAdapter<RolloutStatus> adapter) {
-            addAdapter(adapter);
-        }
-
-        @Override
-        public Class<RolloutStatus> getModelType() {
-            return RolloutStatus.class;
-        }
-    }
-
     private void onClickOfRolloutName(final RendererClickEvent event) {
-        rolloutUIState.setRolloutId((long) event.getItemId());
-        final String rolloutName = (String) getContainerDataSource().getItem(event.getItemId())
-                .getItemProperty(SPUILabelDefinitions.VAR_NAME).getValue();
-        rolloutUIState.setRolloutName(rolloutName);
-        final String ds = (String) getContainerDataSource().getItem(event.getItemId())
-                .getItemProperty(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).getValue();
-        rolloutUIState.setRolloutDistributionSet(ds);
+        rolloutUIState.setRolloutId(((ProxyRollout) event.getItem()).getId());
+        rolloutUIState.setRolloutName(((ProxyRollout) event.getItem()).getName());
+        rolloutUIState.setRolloutDistributionSet(((ProxyRollout) event.getItem()).getDistributionSetNameVersion());
         eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUPS);
     }
 
-    private void pauseRollout(final Long rolloutId) {
-        final Item row = getContainerDataSource().getItem(rolloutId);
-
-        final RolloutStatus rolloutStatus = (RolloutStatus) row.getItemProperty(SPUILabelDefinitions.VAR_STATUS)
-                .getValue();
-
+    private void pauseRollout(final Long rolloutId, final String rolloutName, final RolloutStatus rolloutStatus) {
         if (!RolloutStatus.RUNNING.equals(rolloutStatus)) {
             return;
         }
-
-        final String rolloutName = (String) row.getItemProperty(SPUILabelDefinitions.VAR_NAME).getValue();
 
         rolloutManagement.pauseRollout(rolloutId);
         uiNotification.displaySuccess(i18n.getMessage("message.rollout.paused", rolloutName));
     }
 
-    private void startOrResumeRollout(final Long rolloutId) {
-        final Item row = getContainerDataSource().getItem(rolloutId);
-
-        final RolloutStatus rolloutStatus = (RolloutStatus) row.getItemProperty(SPUILabelDefinitions.VAR_STATUS)
-                .getValue();
-        final String rolloutName = (String) row.getItemProperty(SPUILabelDefinitions.VAR_NAME).getValue();
-
+    private void startOrResumeRollout(final Long rolloutId, final String rolloutName,
+            final RolloutStatus rolloutStatus) {
         if (RolloutStatus.READY.equals(rolloutStatus)) {
             rolloutManagement.start(rolloutId);
             uiNotification.displaySuccess(i18n.getMessage("message.rollout.started", rolloutName));
@@ -533,7 +576,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         addTargetWindow.setVisible(Boolean.TRUE);
     }
 
-    private void deleteRollout(final Long rolloutId) {
+    private void deleteRollout(final Long rolloutId, final String rolloutName) {
         final Optional<Rollout> rollout = rolloutManagement.getWithDetailedStatus(rolloutId);
 
         if (!rollout.isPresent()) {
@@ -548,8 +591,6 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
                     if (!ok) {
                         return;
                     }
-                    final Item row = getContainerDataSource().getItem(rolloutId);
-                    final String rolloutName = (String) row.getItemProperty(SPUILabelDefinitions.VAR_NAME).getValue();
                     rolloutManagement.delete(rolloutId);
                     uiNotification.displaySuccess(i18n.getMessage("message.rollout.deleted", rolloutName));
                 }, UIComponentIdProvider.ROLLOUT_DELETE_CONFIRMATION_DIALOG);
@@ -631,117 +672,9 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
                 UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, isDisabled);
     }
 
-    /**
-     *
-     * Converter to convert {@link RolloutStatus} to string.
-     *
-     */
-    class RolloutStatusConverter implements Converter<String, RolloutStatus> {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public RolloutStatus convertToModel(final String value, final Class<? extends RolloutStatus> targetType,
-                final Locale locale) {
-            return null;
-        }
-
-        @Override
-        public String convertToPresentation(final RolloutStatus value, final Class<? extends String> targetType,
-                final Locale locale) {
-            return convertRolloutStatusToString(value);
-        }
-
-        @Override
-        public Class<RolloutStatus> getModelType() {
-            return RolloutStatus.class;
-        }
-
-        @Override
-        public Class<String> getPresentationType() {
-            return String.class;
-        }
-
-        private String convertRolloutStatusToString(final RolloutStatus value) {
-            StatusFontIcon statusFontIcon = statusIconMap.get(value);
-            if (statusFontIcon == null) {
-                statusFontIcon = new StatusFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
-            }
-            final String codePoint = HawkbitCommonUtil.getCodePoint(statusFontIcon);
-            return HawkbitCommonUtil.getStatusLabelDetailsInString(codePoint, statusFontIcon.getStyle(),
-                    UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID);
-        }
-    }
-
-    /**
-     * Converter to convert {@link TotalTargetCountStatus} to formatted string
-     * with status and count details.
-     *
-     */
-    class TotalTargetCountStatusConverter implements Converter<String, TotalTargetCountStatus> {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public TotalTargetCountStatus convertToModel(final String value,
-                final Class<? extends TotalTargetCountStatus> targetType, final Locale locale) {
-            return null;
-        }
-
-        @Override
-        public String convertToPresentation(final TotalTargetCountStatus value,
-                final Class<? extends String> targetType, final Locale locale) {
-            return DistributionBarHelper.getDistributionBarAsHTMLString(value.getStatusTotalCountMap());
-        }
-
-        @Override
-        public Class<TotalTargetCountStatus> getModelType() {
-            return TotalTargetCountStatus.class;
-        }
-
-        @Override
-        public Class<String> getPresentationType() {
-            return String.class;
-        }
-    }
-
-    /**
-     * Converter to convert 0 to empty, if total target groups is zero.
-     *
-     */
-    class TotalTargetGroupsConverter implements Converter<String, Integer> {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public Integer convertToModel(final String value, final Class<? extends Integer> targetType,
-                final Locale locale) {
-            return null;
-        }
-
-        @Override
-        public String convertToPresentation(final Integer value, final Class<? extends String> targetType,
-                final Locale locale) {
-            if (value == 0) {
-                return "";
-            }
-            return value.toString();
-        }
-
-        @Override
-        public Class<Integer> getModelType() {
-            return Integer.class;
-        }
-
-        @Override
-        public Class<String> getPresentationType() {
-            return String.class;
-        }
-    }
-
     private final void hideColumnsDueToInsufficientPermissions() {
 
-        final List<Object> modifiableColumnsList = getColumns().stream().map(Column::getPropertyId)
+        final List<String> modifiableColumnsList = getColumns().stream().map(Column::getId)
                 .collect(Collectors.toList());
 
         if (!permissionChecker.hasRolloutUpdatePermission()) {
@@ -762,11 +695,17 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             modifiableColumnsList.remove(VIRT_PROP_RUN);
         }
 
-        setColumns(modifiableColumnsList.toArray());
+        setColumns(modifiableColumnsList.toArray(new String[modifiableColumnsList.size()]));
     }
 
     @Override
     public void refreshContainer() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    protected void addContainerProperties() {
         // TODO Auto-generated method stub
 
     }

@@ -11,14 +11,16 @@ package org.eclipse.hawkbit.ui.customrenderers.renderers;
 
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
 
-import com.vaadin.v7.ui.renderers.ClickableRenderer;
+import com.vaadin.ui.renderers.ClickableRenderer;
 
 import elemental.json.JsonValue;
 
 /**
  * Renders button with provided CustomObject. Used to display button with link.
+ * 
+ * @param <T>
  */
-public class RolloutRenderer extends ClickableRenderer<RolloutRendererData> {
+public class RolloutRenderer<T> extends ClickableRenderer<T, RolloutRendererData> {
 
     private static final long serialVersionUID = -8754180585906263554L;
 
@@ -47,7 +49,7 @@ public class RolloutRenderer extends ClickableRenderer<RolloutRendererData> {
      * @param listener
      *            the click listener to register
      */
-    public RolloutRenderer(final RendererClickListener listener) {
+    public RolloutRenderer(final RendererClickListener<T> listener) {
         this();
         addClickListener(listener);
     }
