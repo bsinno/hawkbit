@@ -59,6 +59,7 @@ import com.vaadin.data.Converter;
 import com.vaadin.data.Result;
 import com.vaadin.data.ValueContext;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.components.grid.HeaderCell;
@@ -215,26 +216,28 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         if (!rollout.isPresent()) {
             return;
         }
+
+        updateItem(rollout.get());
     }
 
-    private void updateItem(final Rollout rollout, final Item item) {
-        final TotalTargetCountStatus totalTargetCountStatus = rollout.getTotalTargetCountStatus();
-        item.getItemProperty(SPUILabelDefinitions.VAR_STATUS).setValue(rollout.getStatus());
-        item.getItemProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS).setValue(totalTargetCountStatus);
-        final Long groupCount = Long
-                .valueOf((Integer) item.getItemProperty(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).getValue());
+    private void updateItem(final Rollout rollout) {
+
+        final ProxyRollout proxyRollout = (ProxyRollout) getDataProvider()
+                .getId(ProxyRolloutService.createProxy(rollout));
+        proxyRollout.setStatus(rollout.getStatus());
+        proxyRollout.setTotalTargetCountStatus(rollout.getTotalTargetCountStatus());
+        final Long groupCount = Long.valueOf(proxyRollout.getNumberOfGroups());
         final int groupsCreated = rollout.getRolloutGroupsCreated();
-        item.getItemProperty(ROLLOUT_RENDERER_DATA)
-                .setValue(new RolloutRendererData(rollout.getName(), rollout.getStatus().toString()));
+        proxyRollout.setRolloutRendererData(new RolloutRendererData(rollout.getName(), rollout.getStatus().toString()));
 
         if (groupsCreated != 0) {
-            item.getItemProperty(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setValue(Integer.valueOf(groupsCreated));
+            proxyRollout.setNumberOfGroups(groupsCreated);
             return;
         }
 
         final Long size = rolloutGroupManagement.countTargetsOfRolloutsGroup(rollout.getId());
         if (!size.equals(groupCount)) {
-            item.getItemProperty(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setValue(size.intValue());
+            proxyRollout.setNumberOfGroups(size.intValue());
         }
     }
 
@@ -243,9 +246,11 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         // use a Data Provider to fill the Grid with Data. You can also use
         // grid.setItems(list), but this is only for a small amount of data. If
         // the data amount is too large this is not recommended.
-        setDataProvider((sortOrder, offset, limit) -> {
-            return proxyRolloutService.getEntriesPaged(filter, offset, limit, sortOrder).stream();
-        }, () -> proxyRolloutService.countEntries(filter));
+        setDataProvider((sortOrders, offset, limit) -> {
+            final Map<String, Boolean> sortOrder = sortOrders.stream().collect(Collectors
+                    .toMap(sort -> sort.getSorted(), sort -> SortDirection.ASCENDING.equals(sort.getDirection())));
+            return proxyRolloutService.findAll(offset, limit, sortOrder).stream();
+        }, proxyRolloutService::size);
     }
 
     @Override
@@ -291,6 +296,9 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             run.addClickListener(
                     clickEvent -> startOrResumeRollout(rollout.getId(), rollout.getName(), rollout.getStatus()));
             run.setIcon(VaadinIcons.PLAY);
+            run.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN));
+            run.setEnabled(hasToBeEnabled(rollout.getStatus(), RUN_BUTTON_ENABLED));
+            run.setId(UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID);
             return run;
         }).setId(VIRT_PROP_RUN);
         addComponentColumn(rollout -> {
@@ -299,30 +307,45 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             // in VaadinIcons there is a handshake icon. I would use that for
             // approving a rollout instead of the hammer
             approve.setIcon(VaadinIcons.HANDSHAKE);
+            approve.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE));
+            approve.setEnabled(hasToBeEnabled(rollout.getStatus(), APPROVE_BUTTON_ENABLED));
+            approve.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID);
             return approve;
         }).setId(VIRT_PROP_APPROVE);
         addComponentColumn(rollout -> {
             final Button pause = new Button();
             pause.addClickListener(clickEvent -> pauseRollout(rollout.getId(), rollout.getName(), rollout.getStatus()));
             pause.setIcon(VaadinIcons.PAUSE);
+            pause.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_PAUSE));
+            pause.setEnabled(hasToBeEnabled(rollout.getStatus(), PAUSE_BUTTON_ENABLED));
+            pause.setId(UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID);
             return pause;
         }).setId(VIRT_PROP_PAUSE);
         addComponentColumn(rollout -> {
             final Button update = new Button();
             update.addClickListener(clickEvent -> updateRollout(rollout.getId()));
             update.setIcon(VaadinIcons.EDIT);
+            update.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE));
+            update.setEnabled(hasToBeEnabled(rollout.getStatus(), UPDATE_BUTTON_ENABLED));
+            update.setId(UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID);
             return update;
         }).setId(VIRT_PROP_UPDATE);
         addComponentColumn(rollout -> {
             final Button copy = new Button();
             copy.addClickListener(clickEvent -> copyRollout(rollout.getId()));
             copy.setIcon(VaadinIcons.COPY);
+            copy.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY));
+            copy.setEnabled(hasToBeEnabled(rollout.getStatus(), DELETE_COPY_BUTTON_ENABLED));
+            copy.setId(UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID);
             return copy;
         }).setId(VIRT_PROP_COPY);
         addComponentColumn(rollout -> {
             final Button delete = new Button();
             delete.addClickListener(clickEvent -> deleteRollout(rollout.getId(), rollout.getName()));
             delete.setIcon(VaadinIcons.TRASH);
+            delete.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_DELETE));
+            delete.setEnabled(hasToBeEnabled(rollout.getStatus(), DELETE_COPY_BUTTON_ENABLED));
+            delete.setId(UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID);
             return delete;
         }).setId(VIRT_PROP_DELETE);
         joinColumns().setText(i18n.getMessage("header.action"));
@@ -614,11 +637,19 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         return i18n.getMessage("message.delete.rollout", rollout.getName(), rolloutDetailsMessage);
     }
 
+    // @Override
+    // protected CellDescriptionGenerator getDescriptionGenerator() {
+    // return this::getDescription;
+    // }
+
     private String getDescription(final CellReference cell) {
 
         String description = null;
 
-        if (SPUILabelDefinitions.VAR_STATUS.equals(cell.getPropertyId())) {
+        // apparently there is no getId() on the Column object. You need to use
+        // the header caption for comparision. Check if this is even necessary.
+        // The class CellDescriptionGenerator is deprecated.
+        if (SPUILabelDefinitions.VAR_STATUS.equals(cell.getColumn().getHeaderCaption())) {
             description = cell.getProperty().getValue().toString().toLowerCase().replace("_", " ");
         } else if (getActionLabeltext().equals(cell.getPropertyId())) {
             description = getActionLabeltext().toLowerCase();
@@ -631,45 +662,9 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         return description;
     }
 
-    private static boolean hasToBeDisabled(final RolloutStatus currentRolloutStatus,
+    private static boolean hasToBeEnabled(final RolloutStatus currentRolloutStatus,
             final List<RolloutStatus> expectedRolloutStatus) {
-        return !expectedRolloutStatus.contains(currentRolloutStatus);
-    }
-
-    private StatusFontIcon createApprovalButtonMetadata(final RolloutStatus rolloutStatus) {
-        final boolean isDisabled = hasToBeDisabled(rolloutStatus, APPROVE_BUTTON_ENABLED);
-        return new StatusFontIcon(VaadinIcons.GAVEL, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE),
-                UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID, isDisabled);
-    }
-
-    private StatusFontIcon createRunButtonMetadata(final RolloutStatus rolloutStatus) {
-        final boolean isDisabled = hasToBeDisabled(rolloutStatus, RUN_BUTTON_ENABLED);
-        return new StatusFontIcon(VaadinIcons.PLAY, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN),
-                UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID, isDisabled);
-    }
-
-    private StatusFontIcon createPauseButtonMetadata(final RolloutStatus rolloutStatus) {
-        final boolean isDisabled = hasToBeDisabled(rolloutStatus, PAUSE_BUTTON_ENABLED);
-        return new StatusFontIcon(VaadinIcons.PAUSE, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_PAUSE),
-                UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID, isDisabled);
-    }
-
-    private StatusFontIcon createCopyButtonMetadata(final RolloutStatus rolloutStatus) {
-        final boolean isDisabled = hasToBeDisabled(rolloutStatus, DELETE_COPY_BUTTON_ENABLED);
-        return new StatusFontIcon(VaadinIcons.COPY, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY),
-                UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID, isDisabled);
-    }
-
-    private StatusFontIcon createUpdateButtonMetadata(final RolloutStatus rolloutStatus) {
-        final boolean isDisabled = hasToBeDisabled(rolloutStatus, UPDATE_BUTTON_ENABLED);
-        return new StatusFontIcon(VaadinIcons.EDIT, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE),
-                UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID, isDisabled);
-    }
-
-    private StatusFontIcon createDeleteButtonMetadata(final RolloutStatus rolloutStatus) {
-        final boolean isDisabled = hasToBeDisabled(rolloutStatus, DELETE_COPY_BUTTON_ENABLED);
-        return new StatusFontIcon(VaadinIcons.TRASH, null, i18n.getMessage(UIMessageIdProvider.TOOLTIP_DELETE),
-                UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, isDisabled);
+        return expectedRolloutStatus.contains(currentRolloutStatus);
     }
 
     private final void hideColumnsDueToInsufficientPermissions() {

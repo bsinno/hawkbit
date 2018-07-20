@@ -499,38 +499,25 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
      * Value change listeners implementations of sliders.
      */
     private void slidersValueChangeListeners() {
-        colorPickerLayout.getRedSlider().addValueChangeListener(new ValueChangeListener() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void valueChange(final ValueChangeEvent event) {
-                final double red = (double) event.getValue();
-                final Color newColor = new Color((int) red, colorPickerLayout.getSelectedColor().getGreen(),
-                        colorPickerLayout.getSelectedColor().getBlue());
-                setColorToComponents(newColor);
-            }
+        colorPickerLayout.getRedSlider().addValueChangeListener(event -> {
+            final double red = event.getValue();
+            final Color newColor = new Color((int) red, colorPickerLayout.getSelectedColor().getGreen(),
+                    colorPickerLayout.getSelectedColor().getBlue());
+            setColorToComponents(newColor);
         });
-        colorPickerLayout.getGreenSlider().addValueChangeListener(new ValueChangeListener() {
-            private static final long serialVersionUID = 1L;
 
-            @Override
-            public void valueChange(final ValueChangeEvent event) {
-                final double green = (Double) event.getValue();
-                final Color newColor = new Color(colorPickerLayout.getSelectedColor().getRed(), (int) green,
-                        colorPickerLayout.getSelectedColor().getBlue());
-                setColorToComponents(newColor);
-            }
+        colorPickerLayout.getGreenSlider().addValueChangeListener(event -> {
+            final double green = event.getValue();
+            final Color newColor = new Color(colorPickerLayout.getSelectedColor().getRed(), (int) green,
+                    colorPickerLayout.getSelectedColor().getBlue());
+            setColorToComponents(newColor);
         });
-        colorPickerLayout.getBlueSlider().addValueChangeListener(new ValueChangeListener() {
-            private static final long serialVersionUID = 1L;
 
-            @Override
-            public void valueChange(final ValueChangeEvent event) {
-                final double blue = (Double) event.getValue();
-                final Color newColor = new Color(colorPickerLayout.getSelectedColor().getRed(),
-                        colorPickerLayout.getSelectedColor().getGreen(), (int) blue);
-                setColorToComponents(newColor);
-            }
+        colorPickerLayout.getBlueSlider().addValueChangeListener(event -> {
+            final double blue = event.getValue();
+            final Color newColor = new Color(colorPickerLayout.getSelectedColor().getRed(),
+                    colorPickerLayout.getSelectedColor().getGreen(), (int) blue);
+            setColorToComponents(newColor);
         });
     }
 

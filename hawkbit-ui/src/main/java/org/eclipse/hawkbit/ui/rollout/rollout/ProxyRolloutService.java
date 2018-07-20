@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.RolloutManagement;
@@ -39,7 +40,7 @@ public class ProxyRolloutService {
         this.searchText = getSearchText();
     }
 
-    public List<ProxyRollout> findAll() {
+    public List<ProxyRollout> findAll(final int offset, final int limit, final Map<String, Boolean> sortOrders) {
         final Slice<Rollout> rolloutBeans;
         final PageRequest pageRequest = new PageRequest(0, SPUIDefinitions.PAGE_SIZE, Sort.Direction.ASC);
         if (StringUtils.isEmpty(searchText)) {
@@ -82,7 +83,7 @@ public class ProxyRolloutService {
         return rolloutBeans.getContent().stream().map(ProxyRolloutService::createProxy).collect(Collectors.toList());
     }
 
-    private static ProxyRollout createProxy(final Rollout rollout) {
+    protected static ProxyRollout createProxy(final Rollout rollout) {
         final ProxyRollout proxyRollout = new ProxyRollout();
         proxyRollout.setName(rollout.getName());
         proxyRollout.setDescription(rollout.getDescription());
