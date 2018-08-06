@@ -16,13 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
-import org.eclipse.hawkbit.ui.management.targettable.TargetAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -39,25 +35,22 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.AbstractLayout;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HasComponents;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.data.Container.ItemSetChangeEvent;
-import com.vaadin.v7.data.Container.ItemSetChangeListener;
-import com.vaadin.v7.data.Validator;
-import com.vaadin.v7.data.validator.NullValidator;
 import com.vaadin.v7.event.FieldEvents.TextChangeNotifier;
 import com.vaadin.v7.ui.Table;
 
@@ -165,11 +158,12 @@ public class CommonDialogWindow extends Window {
     }
 
     private void removeItemSetChangeistener(final AbstractField<?> field) {
-        if (!(field instanceof Table)) {
+        if (!(field instanceof Grid<?>)) {
             return;
         }
         for (final Object listener : field.getListeners(ItemSetChangeEvent.class)) {
             if (listener instanceof ChangeListener) {
+                field.remov
                 ((Table) field).removeItemSetChangeListener((ChangeListener) listener);
             }
         }
@@ -228,11 +222,12 @@ public class CommonDialogWindow extends Window {
      */
     public final void setOrginaleValues() {
         for (final AbstractField<?> field : allComponents) {
-            Object value = field.getValue();
+            final Object value = field.getValue();
 
-            if (field instanceof Table) {
-                value = ((Table) field).getContainerDataSource().getItemIds();
-            }
+            // TODO rollouts:
+            // if (field instanceof Grid) {
+            // value = ((Table) field).getContainerDataSource().getItemIds();
+            // }
             orginalValues.put(field, value);
         }
         saveButton.setEnabled(isSaveButtonEnabledAfterValueChange(null, null));
@@ -262,13 +257,16 @@ public class CommonDialogWindow extends Window {
         removeListeners();
 
         for (final AbstractField<?> field : allComponents) {
-            if (field instanceof TextChangeNotifier) {
-                ((TextChangeNotifier) field).addTextChangeListener(new ChangeListener(field));
-            }
-
-            if (field instanceof Table) {
-                ((Table) field).addItemSetChangeListener(new ChangeListener(field));
-            }
+            // if (field instanceof TextChangeNotifier) {
+            // field.addValueChangeListener()
+            // ((TextChangeNotifier) field).addTextChangeListener(new
+            // ChangeListener(field));
+            // }
+            //
+            // if (field instanceof Table) {
+            // ((Table) field).addItemSetChangeListener(new
+            // ChangeListener(field));
+            // }
             field.addValueChangeListener(new ChangeListener(field));
         }
     }
@@ -297,9 +295,10 @@ public class CommonDialogWindow extends Window {
     private static Object getCurrentVaue(final Component currentChangedComponent, final Object newValue,
             final AbstractField<?> field) {
         Object currentValue = field.getValue();
-        if (field instanceof Table) {
-            currentValue = ((Table) field).getContainerDataSource().getItemIds();
-        }
+        // TODO rollouts: handle grid
+        // if (field instanceof Table) {
+        // currentValue = ((Table) field).getContainerDataSource().getItemIds();
+        // }
 
         if (field.equals(currentChangedComponent)) {
             currentValue = newValue;
@@ -308,43 +307,45 @@ public class CommonDialogWindow extends Window {
     }
 
     private boolean shouldMandatoryLabelShown() {
-        for (final AbstractField<?> field : allComponents) {
-            if (field.isRequired()) {
-                return true;
-            }
-        }
+//        for (final AbstractField<?> field : allComponents) {
+//            if (field.isRequired()) {
+//                return true;
+//            }
+//        }
 
         return false;
     }
 
     private boolean isMandatoryFieldNotEmptyAndValid(final Component currentChangedComponent, final Object newValue) {
 
-        boolean valid = true;
-        final List<AbstractField<?>> requiredComponents = allComponents.stream().filter(AbstractField::isRequired)
-                .filter(AbstractField::isEnabled).collect(Collectors.toList());
-
-        requiredComponents.addAll(allComponents.stream().filter(this::hasNullValidator).collect(Collectors.toList()));
-
-        for (final AbstractField field : requiredComponents) {
-            Object value = getCurrentVaue(currentChangedComponent, newValue, field);
-
-            if (Set.class.equals(field.getClass())) {
-                value = emptyToNull((Collection<?>) value);
-            }
-
-            if (value == null) {
-                return false;
-            }
-
-            // We need to loop through the entire loop for validity testing.
-            // Otherwise the UI will only mark the
-            // first field with errors and then stop. If there are several
-            // fields with errors, this is bad.
-            field.setValue(value);
-            if (!field.isValid()) {
-                valid = false;
-            }
-        }
+        final boolean valid = true;
+        // final List<AbstractField<?>> requiredComponents =
+        // allComponents.stream().filter(AbstractField::isRequired)
+        // .filter(AbstractField::isEnabled).collect(Collectors.toList());
+        //
+        // requiredComponents.addAll(allComponents.stream().filter(this::hasNullValidator).collect(Collectors.toList()));
+        //
+        // for (final AbstractField field : requiredComponents) {
+        // Object value = getCurrentVaue(currentChangedComponent, newValue,
+        // field);
+        //
+        // if (Set.class.equals(field.getClass())) {
+        // value = emptyToNull((Collection<?>) value);
+        // }
+        //
+        // if (value == null) {
+        // return false;
+        // }
+        //
+        // // We need to loop through the entire loop for validity testing.
+        // // Otherwise the UI will only mark the
+        // // first field with errors and then stop. If there are several
+        // // fields with errors, this is bad.
+        // field.setValue(value);
+        // if (!field.isValid()) {
+        // valid = false;
+        // }
+        // }
 
         return valid;
     }
@@ -352,27 +353,27 @@ public class CommonDialogWindow extends Window {
     private static Object emptyToNull(final Collection<?> c) {
         return CollectionUtils.isEmpty(c) ? null : c;
     }
+    //
+    // private boolean hasNullValidator(final Component component) {
+    //
+    // if (component instanceof AbstractField<?>) {
+    // final AbstractField<?> fieldComponent = (AbstractField<?>) component;
+    // for (final Validator validator : fieldComponent.getValidators()) {
+    // if (validator instanceof NullValidator) {
+    // return true;
+    // }
+    // }
+    // }
+    // return false;
+    // }
 
-    private boolean hasNullValidator(final Component component) {
-
-        if (component instanceof AbstractField<?>) {
-            final AbstractField<?> fieldComponent = (AbstractField<?>) component;
-            for (final Validator validator : fieldComponent.getValidators()) {
-                if (validator instanceof NullValidator) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static List<AbstractField<?>> getAllComponents(final AbstractLayout abstractLayout) {
+    private static List<AbstractField<?>> getAllComponents(final HasComponents abstractLayout) {
         final List<AbstractField<?>> components = new ArrayList<>();
 
         final Iterator<Component> iterate = abstractLayout.iterator();
         while (iterate.hasNext()) {
             final Component c = iterate.next();
-            if (c instanceof AbstractLayout) {
+            if (c instanceof HasComponents) {
                 components.addAll(getAllComponents((AbstractLayout) c));
             }
 
@@ -385,24 +386,25 @@ public class CommonDialogWindow extends Window {
             // c).getOwner());
             // }
 
-            if (c instanceof TabSheet) {
-                final TabSheet tabSheet = (TabSheet) c;
-                components.addAll(getAllComponentsFromTabSheet(tabSheet));
-            }
+            // if (c instanceof TabSheet) {
+            // final TabSheet tabSheet = (TabSheet) c;
+            // components.addAll(getAllComponentsFromTabSheet(tabSheet));
+            // }
         }
         return components;
     }
 
-    private static List<AbstractField<?>> getAllComponentsFromTabSheet(final TabSheet tabSheet) {
-        final List<AbstractField<?>> components = new ArrayList<>();
-        for (final Iterator<Component> i = tabSheet.iterator(); i.hasNext();) {
-            final Component component = i.next();
-            if (component instanceof AbstractLayout) {
-                components.addAll(getAllComponents((AbstractLayout) component));
-            }
-        }
-        return components;
-    }
+    // private static List<AbstractField<?>> getAllComponentsFromTabSheet(final
+    // TabSheet tabSheet) {
+    // final List<AbstractField<?>> components = new ArrayList<>();
+    // for (final Iterator<Component> i = tabSheet.iterator(); i.hasNext();) {
+    // final Component component = i.next();
+    // if (component instanceof AbstractLayout) {
+    // components.addAll(getAllComponents((AbstractLayout) component));
+    // }
+    // }
+    // return components;
+    // }
 
     private HorizontalLayout createActionButtonsLayout() {
 
@@ -427,11 +429,13 @@ public class CommonDialogWindow extends Window {
         final Label mandatoryLabel = new Label(i18n.getMessage("label.mandatory.field"));
         mandatoryLabel.addStyleName(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR + " " + ValoTheme.LABEL_TINY);
 
-        if (content instanceof TargetAddUpdateWindowLayout) {
-            ((TargetAddUpdateWindowLayout) content).getFormLayout().addComponent(mandatoryLabel);
-        } else if (content instanceof SoftwareModuleAddUpdateWindow) {
-            ((SoftwareModuleAddUpdateWindow) content).getFormLayout().addComponent(mandatoryLabel);
-        }
+        // if (content instanceof TargetAddUpdateWindowLayout) {
+        // ((TargetAddUpdateWindowLayout)
+        // content).getFormLayout().addComponent(mandatoryLabel);
+        // } else if (content instanceof SoftwareModuleAddUpdateWindow) {
+        // ((SoftwareModuleAddUpdateWindow)
+        // content).getFormLayout().addComponent(mandatoryLabel);
+        // }
 
         mainLayout.addComponent(mandatoryLabel);
     }
@@ -480,29 +484,27 @@ public class CommonDialogWindow extends Window {
         return this.buttonsLayout;
     }
 
-    private class ChangeListener implements ValueChangeListener, ItemSetChangeListener {
+    private class ChangeListener<T> implements ValueChangeListener<T>
+
+    {
 
         private static final long serialVersionUID = 1L;
-        private final AbstractField<?> field;
-
-        public ChangeListener(final AbstractField<?> field) {
-            this.field = field;
-        }
 
         @Override
-        public void valueChange(final ValueChangeEventevent) {
-            saveButton.setEnabled(isSaveButtonEnabledAfterValueChange(field, field.getValue()));
+        public void valueChange(final ValueChangeEvent<T> event) {
+            saveButton.setEnabled(isSaveButtonEnabledAfterValueChange(event.getComponent(), event.getValue()));
         }
 
-        @Override
-        public void containerItemSetChange(final ItemSetChangeEvent event) {
-            if (!(field instanceof Table)) {
-                return;
-            }
-            final Table table = (Table) field;
-            saveButton.setEnabled(
-                    isSaveButtonEnabledAfterValueChange(table, table.getContainerDataSource().getItemIds()));
-        }
+        // @Override
+        // public void containerItemSetChange(final ItemSetChangeEvent event) {
+        // if (!(field instanceof Table)) {
+        // return;
+        // }
+        // final Table table = (Table) field;
+        // saveButton.setEnabled(
+        // isSaveButtonEnabledAfterValueChange(table,
+        // table.getContainerDataSource().getItemIds()));
+        // }
     }
 
     /**
@@ -513,10 +515,10 @@ public class CommonDialogWindow extends Window {
      * @param component
      *            AbstractField
      */
-    public void updateAllComponents(final AbstractField<?> component) {
+    public <T> void updateAllComponents(final AbstractField<T> component) {
 
         allComponents.add(component);
-        component.addValueChangeListener(new ChangeListener(component));
+        component.addValueChangeListener(new ChangeListener<T>());
     }
 
     public VerticalLayout getMainLayout() {
