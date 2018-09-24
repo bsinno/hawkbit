@@ -9,53 +9,32 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
-import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlLabelRenderer;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.RolloutRenderer;
 import org.eclipse.hawkbit.ui.push.RolloutGroupChangedEventContainer;
-import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.client.widget.grid.CellReference;
-import com.vaadin.client.widget.grid.CellStyleGenerator;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.renderers.HtmlRenderer;
-import com.vaadin.v7.data.util.converter.Converter;
-import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
-import com.vaadin.v7.ui.renderers.ClickableRenderer.RendererClickEvent;
-import com.vaadin.v7.ui.renderers.ClickableRenderer.RendererClickListener;
 
 /**
  * Rollout group list grid component.
  */
-public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
+public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
 
     private static final long serialVersionUID = 1L;
 
@@ -115,7 +94,7 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
         if (RolloutEvent.SHOW_ROLLOUT_GROUPS != event) {
             return;
         }
-        ((LazyQueryContainer) getContainerDataSource()).refresh();
+        // ((LazyQueryContainer) getContainerDataSource()).refresh();
     }
 
     /**
@@ -132,46 +111,59 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
         if (!rolloutUIState.isShowRolloutGroups()) {
             return;
         }
-        ((LazyQueryContainer) getContainerDataSource()).refresh();
+        // ((LazyQueryContainer) getContainerDataSource()).refresh();
     }
 
-    @Override
-    protected LazyQueryContainer createContainer() {
-        final BeanQueryFactory<RolloutGroupBeanQuery> rolloutQf = new BeanQueryFactory<>(RolloutGroupBeanQuery.class);
-        return new LazyQueryContainer(
-                new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, SPUILabelDefinitions.VAR_ID), rolloutQf);
-    }
+    // @Override
+    // protected LazyQueryContainer createContainer() {
+    // final BeanQueryFactory<RolloutGroupBeanQuery> rolloutQf = new
+    // BeanQueryFactory<>(RolloutGroupBeanQuery.class);
+    // return new LazyQueryContainer(
+    // new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE,
+    // SPUILabelDefinitions.VAR_ID), rolloutQf);
+    // }
 
     @Override
     protected void addContainerProperties() {
-        final LazyQueryContainer rolloutGroupGridContainer = (LazyQueryContainer) getContainerDataSource();
-
-        rolloutGroupGridContainer.addContainerProperty(ROLLOUT_RENDERER_DATA, RolloutRendererData.class, null, false,
-                false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_DESC, String.class, null, false, false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_STATUS, RolloutGroupStatus.class, null,
-                false, false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE,
-                String.class, null, false, false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD, String.class,
-                null, false, false);
-
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD, String.class, null,
-                false, false);
-
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_DATE, String.class, null, false,
-                false);
-
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_MODIFIED_DATE, String.class, null,
-                false, false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_USER, String.class, null, false,
-                false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_MODIFIED_BY, String.class, null, false,
-                false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS, String.class, "0", false,
-                false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS,
-                TotalTargetCountStatus.class, null, false, false);
+        // final LazyQueryContainer rolloutGroupGridContainer =
+        // (LazyQueryContainer) getContainerDataSource();
+        //
+        // rolloutGroupGridContainer.addContainerProperty(ROLLOUT_RENDERER_DATA,
+        // RolloutRendererData.class, null, false,
+        // false);
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_DESC,
+        // String.class, null, false, false);
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_STATUS,
+        // RolloutGroupStatus.class, null,
+        // false, false);
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE,
+        // String.class, null, false, false);
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD,
+        // String.class,
+        // null, false, false);
+        //
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD,
+        // String.class, null,
+        // false, false);
+        //
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_DATE,
+        // String.class, null, false,
+        // false);
+        //
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_MODIFIED_DATE,
+        // String.class, null,
+        // false, false);
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_USER,
+        // String.class, null, false,
+        // false);
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_MODIFIED_BY,
+        // String.class, null, false,
+        // false);
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS,
+        // String.class, "0", false,
+        // false);
+        // rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS,
+        // TotalTargetCountStatus.class, null, false, false);
     }
 
     @Override
@@ -221,165 +213,222 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
     protected String getGridId() {
         return UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID;
     }
-
-    @Override
-    protected void setColumnProperties() {
-        final Object[] columnsToShowInOrder = new Object[] { ROLLOUT_RENDERER_DATA, SPUILabelDefinitions.VAR_STATUS,
-                SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS, SPUILabelDefinitions.VAR_TOTAL_TARGETS,
-                SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE,
-                SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD, SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD,
-                SPUILabelDefinitions.VAR_CREATED_DATE, SPUILabelDefinitions.VAR_CREATED_USER,
-                SPUILabelDefinitions.VAR_MODIFIED_DATE, SPUILabelDefinitions.VAR_MODIFIED_BY,
-                SPUILabelDefinitions.VAR_DESC };
-        setColumns(columnsToShowInOrder);
-        alignColumns();
-    }
+    //
+    // @Override
+    // protected void setColumnProperties() {
+    // setColumnOrder(ROLLOUT_RENDERER_DATA, SPUILabelDefinitions.VAR_STATUS,
+    // SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS,
+    // SPUILabelDefinitions.VAR_TOTAL_TARGETS,
+    // SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE,
+    // SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD,
+    // SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD,
+    // SPUILabelDefinitions.VAR_CREATED_DATE,
+    // SPUILabelDefinitions.VAR_CREATED_USER,
+    // SPUILabelDefinitions.VAR_MODIFIED_DATE,
+    // SPUILabelDefinitions.VAR_MODIFIED_BY,
+    // SPUILabelDefinitions.VAR_DESC);
+    // alignColumns();
+    // }
 
     @Override
     protected void addColumnRenderes() {
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setRenderer(new HtmlLabelRenderer(),
-                new RolloutGroupStatusConverter());
-
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS).setRenderer(new HtmlRenderer(),
-                new TotalTargetCountStatusConverter());
-        if (permissionChecker.hasRolloutTargetsReadPermission()) {
-            getColumn(ROLLOUT_RENDERER_DATA).setRenderer(new RolloutRenderer(new RolloutGroupClickListener()));
-        }
+        // getColumn(SPUILabelDefinitions.VAR_STATUS).setRenderer(new
+        // HtmlLabelRenderer(),
+        // new RolloutGroupStatusConverter());
+        //
+        // getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS).setRenderer(new
+        // HtmlRenderer(),
+        // new TotalTargetCountStatusConverter());
+        // if (permissionChecker.hasRolloutTargetsReadPermission()) {
+        // getColumn(ROLLOUT_RENDERER_DATA).setRenderer(new RolloutRenderer(new
+        // RolloutGroupClickListener()));
+        // }
     }
 
     @Override
     protected void setHiddenColumns() {
-        final List<Object> columnsToBeHidden = new ArrayList<>();
+        final List<String> columnsToBeHidden = new ArrayList<>();
         columnsToBeHidden.add(SPUILabelDefinitions.VAR_CREATED_DATE);
         columnsToBeHidden.add(SPUILabelDefinitions.VAR_CREATED_USER);
         columnsToBeHidden.add(SPUILabelDefinitions.VAR_MODIFIED_DATE);
         columnsToBeHidden.add(SPUILabelDefinitions.VAR_MODIFIED_BY);
         columnsToBeHidden.add(SPUILabelDefinitions.VAR_DESC);
-        for (final Object propertyId : columnsToBeHidden) {
+        for (final String propertyId : columnsToBeHidden) {
             getColumn(propertyId).setHidden(true);
         }
+
+    }
+
+    // @Override
+    // protected CellDescriptionGenerator getDescriptionGenerator() {
+    // return this::getDescription;
+    // }
+
+    // private String getDescription(final CellReference cell) {
+    // if (SPUILabelDefinitions.VAR_STATUS.equals(cell.getPropertyId())) {
+    // return cell.getValue().toString().toLowerCase();
+    // } else if (getActionLabeltext().equals(cell.getPropertyId())) {
+    // return getActionLabeltext().toLowerCase();
+    // } else if (ROLLOUT_RENDERER_DATA.equals(cell.getPropertyId())) {
+    // return ((RolloutRendererData) cell.getProperty().getValue()).getName();
+    // } else if
+    // (SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS.equals(cell.getPropertyId()))
+    // {
+    // return DistributionBarHelper
+    // .getTooltip(((TotalTargetCountStatus)
+    // cell.getValue()).getStatusTotalCountMap());
+    // }
+    // return null;
+    // }
+
+    private void alignColumns() {
+        // setCellStyleGenerator(new CellStyleGenerator() {
+        // private static final long serialVersionUID = 5573570647129792429L;
+        //
+        // @Override
+        // public String getStyle(final CellReference cellReference) {
+        // final String[] coulmnNames = { SPUILabelDefinitions.VAR_STATUS,
+        // SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS };
+        // if
+        // (Arrays.asList(coulmnNames).contains(cellReference.getPropertyId()))
+        // {
+        // return "centeralign";
+        // }
+        // return null;
+        // }
+        // });
+    }
+
+    // private class RolloutGroupClickListener implements
+    // RendererClickListener<T> {
+    //
+    // private static final long serialVersionUID = 1L;
+    //
+    // @Override
+    // public void click(final RendererClickEvent event) {
+    // final Optional<RolloutGroup> group =
+    // rolloutGroupManagement.getWithDetailedStatus((Long) event.getItemId());
+    // if (!group.isPresent()) {
+    // eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
+    // return;
+    // }
+    // rolloutUIState.setRolloutGroup(group.get());
+    // eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUP_TARGETS);
+    // }
+    // }
+
+    // /**
+    // *
+    // * Converts {@link TotalTargetCountStatus} into formatted string with
+    // status
+    // * and count details.
+    // */
+    // class TotalTargetCountStatusConverter implements Converter<String,
+    // TotalTargetCountStatus> {
+    //
+    // private static final long serialVersionUID = -9205943894818450807L;
+    //
+    // @Override
+    // public TotalTargetCountStatus convertToModel(final String value,
+    // final Class<? extends TotalTargetCountStatus> targetType, final Locale
+    // locale) {
+    // return null;
+    // }
+    //
+    // @Override
+    // public String convertToPresentation(final TotalTargetCountStatus value,
+    // final Class<? extends String> targetType, final Locale locale) {
+    // return
+    // DistributionBarHelper.getDistributionBarAsHTMLString(value.getStatusTotalCountMap());
+    // }
+    //
+    // @Override
+    // public Class<TotalTargetCountStatus> getModelType() {
+    // return TotalTargetCountStatus.class;
+    // }
+    //
+    // @Override
+    // public Class<String> getPresentationType() {
+    // return String.class;
+    // }
+    // }
+
+    // /**
+    // * Converts {@link RolloutGroupStatus} to string.
+    // */
+    // class RolloutGroupStatusConverter implements Converter<String,
+    // RolloutGroupStatus> {
+    //
+    // private static final long serialVersionUID = 5448062736373292820L;
+    //
+    // @Override
+    // public RolloutGroupStatus convertToModel(final String value,
+    // final Class<? extends RolloutGroupStatus> targetType, final Locale
+    // locale) {
+    // return null;
+    // }
+    //
+    // @Override
+    // public String convertToPresentation(final RolloutGroupStatus value, final
+    // Class<? extends String> targetType,
+    // final Locale locale) {
+    // return convertRolloutGroupStatusToString(value);
+    // }
+    //
+    // @Override
+    // public Class<RolloutGroupStatus> getModelType() {
+    // return RolloutGroupStatus.class;
+    // }
+    //
+    // @Override
+    // public Class<String> getPresentationType() {
+    // return String.class;
+    // }
+    //
+    // private String convertRolloutGroupStatusToString(final RolloutGroupStatus
+    // value) {
+    // final StatusFontIcon statusFontIcon =
+    // Optional.ofNullable(statusIconMap.get(value))
+    // .orElse(new StatusFontIcon(VaadinIcons.QUESTION_CIRCLE,
+    // SPUIStyleDefinitions.STATUS_ICON_BLUE));
+    // final String codePoint = HawkbitCommonUtil.getCodePoint(statusFontIcon);
+    // return HawkbitCommonUtil.getStatusLabelDetailsInString(codePoint,
+    // statusFontIcon.getStyle(),
+    // UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID);
+    // }
+    //
+    // }
+
+    @Override
+    protected void addColumns() {
+        addColumn(ROLLOUT_RENDERER_DATA).setCaption(i18n.getMessage("header.name"));
+        addColumn(SPUILabelDefinitions.VAR_STATUS).setCaption(i18n.getMessage("header.status"));
+        addColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
+                .setCaption(i18n.getMessage("header.detail.status"));
+        addColumn(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE)
+                .setCaption(i18n.getMessage("header.rolloutgroup.installed.percentage"));
+        addColumn(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold.error"));
+        addColumn(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold"));
+        addColumn(SPUILabelDefinitions.VAR_CREATED_USER).setCaption(i18n.getMessage("header.createdBy"));
+        addColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setCaption(i18n.getMessage("header.createdDate"));
+        addColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setCaption(i18n.getMessage("header.modifiedDate"));
+        addColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setCaption(i18n.getMessage("header.modifiedBy"));
+        addColumn(SPUILabelDefinitions.VAR_DESC).setCaption(i18n.getMessage("header.description"));
+        addColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"));
+
     }
 
     @Override
-    protected CellDescriptionGenerator getDescriptionGenerator() {
-        return this::getDescription;
+    protected void addGeneratedColumns() {
+        // TODO Auto-generated method stub
+
     }
 
-    private String getDescription(final CellReference cell) {
-        if (SPUILabelDefinitions.VAR_STATUS.equals(cell.getPropertyId())) {
-            return cell.getValue().toString().toLowerCase();
-        } else if (getActionLabeltext().equals(cell.getPropertyId())) {
-            return getActionLabeltext().toLowerCase();
-        } else if (ROLLOUT_RENDERER_DATA.equals(cell.getPropertyId())) {
-            return ((RolloutRendererData) cell.getProperty().getValue()).getName();
-        } else if (SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS.equals(cell.getPropertyId())) {
-            return DistributionBarHelper
-                    .getTooltip(((TotalTargetCountStatus) cell.getValue()).getStatusTotalCountMap());
-        }
-        return null;
-    }
-
-    private void alignColumns() {
-        setCellStyleGenerator(new CellStyleGenerator() {
-            private static final long serialVersionUID = 5573570647129792429L;
-
-            @Override
-            public String getStyle(final CellReference cellReference) {
-                final String[] coulmnNames = { SPUILabelDefinitions.VAR_STATUS,
-                        SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS };
-                if (Arrays.asList(coulmnNames).contains(cellReference.getPropertyId())) {
-                    return "centeralign";
-                }
-                return null;
-            }
-        });
-    }
-
-    private class RolloutGroupClickListener implements RendererClickListener {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public void click(final RendererClickEvent event) {
-            final Optional<RolloutGroup> group = rolloutGroupManagement.getWithDetailedStatus((Long) event.getItemId());
-            if (!group.isPresent()) {
-                eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
-                return;
-            }
-            rolloutUIState.setRolloutGroup(group.get());
-            eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUP_TARGETS);
-        }
-    }
-
-    /**
-     *
-     * Converts {@link TotalTargetCountStatus} into formatted string with status
-     * and count details.
-     */
-    class TotalTargetCountStatusConverter implements Converter<String, TotalTargetCountStatus> {
-
-        private static final long serialVersionUID = -9205943894818450807L;
-
-        @Override
-        public TotalTargetCountStatus convertToModel(final String value,
-                final Class<? extends TotalTargetCountStatus> targetType, final Locale locale) {
-            return null;
-        }
-
-        @Override
-        public String convertToPresentation(final TotalTargetCountStatus value,
-                final Class<? extends String> targetType, final Locale locale) {
-            return DistributionBarHelper.getDistributionBarAsHTMLString(value.getStatusTotalCountMap());
-        }
-
-        @Override
-        public Class<TotalTargetCountStatus> getModelType() {
-            return TotalTargetCountStatus.class;
-        }
-
-        @Override
-        public Class<String> getPresentationType() {
-            return String.class;
-        }
-    }
-
-    /**
-     * Converts {@link RolloutGroupStatus} to string.
-     */
-    class RolloutGroupStatusConverter implements Converter<String, RolloutGroupStatus> {
-
-        private static final long serialVersionUID = 5448062736373292820L;
-
-        @Override
-        public RolloutGroupStatus convertToModel(final String value,
-                final Class<? extends RolloutGroupStatus> targetType, final Locale locale) {
-            return null;
-        }
-
-        @Override
-        public String convertToPresentation(final RolloutGroupStatus value, final Class<? extends String> targetType,
-                final Locale locale) {
-            return convertRolloutGroupStatusToString(value);
-        }
-
-        @Override
-        public Class<RolloutGroupStatus> getModelType() {
-            return RolloutGroupStatus.class;
-        }
-
-        @Override
-        public Class<String> getPresentationType() {
-            return String.class;
-        }
-
-        private String convertRolloutGroupStatusToString(final RolloutGroupStatus value) {
-            final StatusFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(value))
-                    .orElse(new StatusFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE));
-            final String codePoint = HawkbitCommonUtil.getCodePoint(statusFontIcon);
-            return HawkbitCommonUtil.getStatusLabelDetailsInString(codePoint, statusFontIcon.getStyle(),
-                    UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID);
-        }
-
+    @Override
+    protected void setDataProvider() {
+        setDataProvider(new RolloutGroupDataProvider());
     }
 
 }

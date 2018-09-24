@@ -14,19 +14,9 @@
 
    <inherits name="com.google.gwt.logging.Logging" />
 
-   <inherits name="com.vaadin.v7.Vaadin7WidgetSet" />
-
-   <inherits name="org.vaadin.alump.distributionbar.gwt.DistributionBarWidgetset" />
-
    <inherits name="org.eclipse.hawkbit.ui.AppWidgetSet" />
 
-   
-
-   <inherits name="org.vaadin.tokenfield.TokenfieldWidgetset" />
-
    <inherits name="org.eclipse.hawkbit.ui.customrenderers.CustomRendererWidgetSet" />
-
-   <inherits name="org.vaadin.hene.flexibleoptiongroup.widgetset.FlexibleOptionGroupWidgetset" />
 
    <!--add logging module -->
    <inherits name="com.google.gwt.logging.Logging" />
@@ -35,4 +25,9 @@
    <!--To enable logging -->
    <set-property name="gwt.logging.enabled" value="TRUE" />
 
+   <inherits name="com.vaadin.DefaultWidgetSet" />
+
+   <inherits name="org.vaadin.alump.distributionbar.gwt.DistributionBarWidgetset" />
+
+    
 </module>

@@ -30,24 +30,13 @@ import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterBeanQuery;
-import org.eclipse.hawkbit.ui.rollout.rollout.DefineGroupsLayout.ValidationStatus;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 
-import com.vaadin.data.converter.StringToFloatConverter;
-import com.vaadin.data.converter.StringToIntegerConverter;
-import com.vaadin.data.validator.FloatRangeValidator;
-import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
@@ -59,8 +48,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Item;
 
 /**
  * Define groups for a Rollout
@@ -444,14 +431,14 @@ public class DefineGroupsLayout extends GridLayout {
             final TextField textField = new TextFieldBuilder(32).prompt(i18n.getMessage(in18Key)).id(id)
                     .buildTextComponent();
             textField.setWidth(80, Unit.PIXELS);
-            textField.setConverter(new StringToIntegerConverter());
-            textField.addValidator(this::validateMandatoryPercentage);
+            // textField.setConverter(new StringToIntegerConverter());
+            // textField.addValidator(this::validateMandatoryPercentage);
             return textField;
         }
 
         private TextField createPercentageWithDecimalsField(final String in18Key, final String id) {
             final TextField textField = createPercentageField(in18Key, id);
-            textField.setConverter(new StringToFloatConverter());
+            // textField.setConverter(new StringToFloatConverter());
             return textField;
         }
 
@@ -461,17 +448,19 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         private void validateMandatoryPercentage(final Object value) {
-            if (value != null) {
-                final String message = i18n.getMessage("message.rollout.field.value.range", 0, 100);
-                if (value instanceof Float) {
-                    new FloatRangeValidator(message, 0F, 100F).validate(value);
-                }
-                if (value instanceof Integer) {
-                    new IntegerRangeValidator(message, 0, 100).validate(value);
-                }
-            } else {
-                throw new Validator.EmptyValueException(i18n.getMessage("message.enter.number"));
-            }
+            // if (value != null) {
+            // final String message =
+            // i18n.getMessage("message.rollout.field.value.range", 0, 100);
+            // if (value instanceof Float) {
+            // new FloatRangeValidator(message, 0F, 100F).validate(value);
+            // }
+            // if (value instanceof Integer) {
+            // new IntegerRangeValidator(message, 0, 100).validate(value);
+            // }
+            // } else {
+            // throw new
+            // Validator.EmptyValueException(i18n.getMessage("message.enter.number"));
+            // }
         }
 
         private void valueChanged() {
@@ -495,8 +484,8 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         private void populateTargetFilterQuery() {
-            final Container container = createTargetFilterComboContainer();
-            targetFilterQueryCombo.setContainerDataSource(container);
+            // final Container container = createTargetFilterComboContainer();
+            // targetFilterQueryCombo.setContainerDataSource(container);
         }
 
         private void populateTargetFilterQuery(final RolloutGroup group) {
@@ -512,13 +501,15 @@ public class DefineGroupsLayout extends GridLayout {
             }
         }
 
-        private Container createTargetFilterComboContainer() {
-            final BeanQueryFactory<TargetFilterBeanQuery> targetFilterQF = new BeanQueryFactory<>(
-                    TargetFilterBeanQuery.class);
-            return new LazyQueryContainer(
-                    new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, SPUILabelDefinitions.VAR_NAME),
-                    targetFilterQF);
-        }
+        // private Container createTargetFilterComboContainer() {
+        // final BeanQueryFactory<TargetFilterBeanQuery> targetFilterQF = new
+        // BeanQueryFactory<>(
+        // TargetFilterBeanQuery.class);
+        // return new LazyQueryContainer(
+        // new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE,
+        // SPUILabelDefinitions.VAR_NAME),
+        // targetFilterQF);
+        // }
 
         private Button createRemoveButton() {
             final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.ROLLOUT_GROUP_REMOVE_ID, "", "",
@@ -551,12 +542,15 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         private String getTargetFilterQuery() {
-            if (!StringUtils.hasText((String) targetFilterQueryCombo.getValue())) {
-                return null;
-            }
-            final Item filterItem = targetFilterQueryCombo.getContainerDataSource()
-                    .getItem(targetFilterQueryCombo.getValue());
-            return (String) filterItem.getItemProperty("query").getValue();
+            // if (!StringUtils.hasText((String)
+            // targetFilterQueryCombo.getValue())) {
+            // return null;
+            // }
+            // final Item filterItem =
+            // targetFilterQueryCombo.getContainerDataSource()
+            // .getItem(targetFilterQueryCombo.getValue());
+            // return (String) filterItem.getItemProperty("query").getValue();
+            return "";
         }
 
         /**
@@ -628,8 +622,12 @@ public class DefineGroupsLayout extends GridLayout {
          * @return whether the data entered in this row is valid
          */
         public boolean isValid() {
-            return !StringUtils.isEmpty(groupName.getValue()) && targetPercentage.isValid()
-                    && triggerThreshold.isValid() && errorThreshold.isValid();
+            return !StringUtils.isEmpty(
+                    groupName.getValue()) /*
+                                           * && targetPercentage.isValid() &&
+                                           * triggerThreshold.isValid() &&
+                                           * errorThreshold.isValid()
+                                           */;
         }
 
         private void setError(final String error) {

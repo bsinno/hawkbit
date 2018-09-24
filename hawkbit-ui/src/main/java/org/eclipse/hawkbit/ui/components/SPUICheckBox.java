@@ -45,7 +45,7 @@ public class SPUICheckBox extends CheckBox {
     private void decorate(final String id, final String caption, final String style, final String styleName,
             final boolean required, final String data) {
         // Default settings
-        setRequired(required);
+        // setRequired(required);
         addStyleName(ValoTheme.CHECKBOX_SMALL);
         if (id != null) {
             setId(id);

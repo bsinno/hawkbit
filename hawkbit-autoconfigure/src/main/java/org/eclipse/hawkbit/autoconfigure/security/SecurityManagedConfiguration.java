@@ -87,11 +87,10 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.security.VaadinSecurityContext;
-import org.vaadin.spring.security.annotation.EnableVaadinSecurity;
-import org.vaadin.spring.security.web.VaadinDefaultRedirectStrategy;
+import org.vaadin.spring.security.annotation.EnableVaadinSharedSecurity;
+import org.vaadin.spring.security.shared.VaadinAuthenticationSuccessHandler;
+import org.vaadin.spring.security.shared.VaadinUrlAuthenticationSuccessHandler;
 import org.vaadin.spring.security.web.VaadinRedirectStrategy;
-import org.vaadin.spring.security.web.authentication.VaadinAuthenticationSuccessHandler;
-import org.vaadin.spring.security.web.authentication.VaadinUrlAuthenticationSuccessHandler;
 
 /**
  * All configurations related to HawkBit's authentication and authorization
@@ -538,7 +537,7 @@ public class SecurityManagedConfiguration {
      */
     @Configuration
     @Order(400)
-    @EnableVaadinSecurity
+    @EnableVaadinSharedSecurity
     @ConditionalOnClass(MgmtUiConfiguration.class)
     public static class UISecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
@@ -580,7 +579,8 @@ public class SecurityManagedConfiguration {
          */
         @PostConstruct
         public void afterPropertiesSet() {
-            this.vaadinSecurityContext.addAuthenticationSuccessHandler(redirectSaveHandler());
+            // TODO rollouts: SECURITY
+            // this.vaadinSecurityContext.addAuthenticationSuccessHandler(redirectSaveHandler());
         }
 
         @Bean(name = "authenticationManager")
@@ -679,6 +679,12 @@ class TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler extends 
 
     @Autowired
     private SystemSecurityContext systemSecurityContext;
+
+    public TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(
+            final org.vaadin.spring.http.HttpService http,
+            final VaadinRedirectStrategy redirectStrategy, final String defaultTargetUrl) {
+        super(http, redirectStrategy, defaultTargetUrl);
+    }
 
     @Override
     public void onAuthenticationSuccess(final Authentication authentication) throws Exception {

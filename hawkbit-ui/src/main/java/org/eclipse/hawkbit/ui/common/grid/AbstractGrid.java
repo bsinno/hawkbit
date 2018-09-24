@@ -8,15 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Objects;
-
-import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
-import org.eclipse.hawkbit.ui.management.actionhistory.ProxyAction;
-import org.eclipse.hawkbit.ui.management.actionhistory.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -24,17 +17,14 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.client.widget.grid.CellReference;
-import com.vaadin.client.widget.grid.CellStyleGenerator;
 import com.vaadin.data.Binder;
 import com.vaadin.data.Converter;
 import com.vaadin.data.Result;
 import com.vaadin.data.SelectionModel;
 import com.vaadin.data.ValueContext;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.components.grid.Header.Row;
 import com.vaadin.ui.components.grid.HeaderRow;
-import com.vaadin.v7.data.Container.Indexed;
-import com.vaadin.v7.ui.Grid.CellDescriptionGenerator;
 
 /**
  * Abstract grid that offers various capabilities (aka support) to offer
@@ -105,24 +95,24 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
         return true;
     }
 
-    // /**
-    // * Refresh the container.
-    // */
-    // @Override
-    // public void refreshContainer() {
-    // final Indexed container = getContainerDataSource();
-    // if (hasGeneratedPropertySupport()
-    // && getGeneratedPropertySupport().getRawContainer() instanceof
-    // LazyQueryContainer) {
-    // ((LazyQueryContainer)
-    // getGeneratedPropertySupport().getRawContainer()).refresh();
-    // return;
-    // }
-    //
-    // if (container instanceof LazyQueryContainer) {
-    // ((LazyQueryContainer) container).refresh();
-    // }
-    // }
+    /**
+     * Refresh the container.
+     */
+    @Override
+    public void refreshContainer() {
+        // final Indexed container = getContainerDataSource();
+        // if (hasGeneratedPropertySupport()
+        // && getGeneratedPropertySupport().getRawContainer() instanceof
+        // LazyQueryContainer) {
+        // ((LazyQueryContainer)
+        // getGeneratedPropertySupport().getRawContainer()).refresh();
+        // return;
+        // }
+        //
+        // if (container instanceof LazyQueryContainer) {
+        // ((LazyQueryContainer) container).refresh();
+        // }
+    }
 
     /**
      * Creates a new container instance by calling the required
@@ -139,7 +129,7 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
         setColumnHeaderNames();
         setColumnsHidable();
         addColumnRenderes();
-        setColumns();
+        // setColumns();
         setColumnExpandRatio();
         setHiddenColumns();
     }
@@ -305,7 +295,7 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
      */
     protected HeaderRow resetHeaderDefaultRow() {
         getHeader().removeRow(getHeader().getDefaultRow());
-        final HeaderRow newHeaderRow = getHeader().addRowAt(0);
+        final Row newHeaderRow = getHeader().addRowAt(0);
         getHeader().setDefaultRow(newHeaderRow);
         return newHeaderRow;
     }
@@ -387,7 +377,7 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
         private void recreateContainer() {
             removeAllColumns();
             clearSortOrder();
-            addNewContainerDS();
+            // addNewContainerDS();
         }
     }
 
@@ -411,7 +401,7 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
          * Renews the content for minimized layout.
          */
         public void createMinimizedContent() {
-            setColumns();
+            // setColumns();
             setHiddenColumns();
             setColumnExpandRatio();
         }
@@ -462,14 +452,14 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
                 return;
             }
 
-            final Indexed container = getContainerDataSource();
-            final int size = container.size();
-            if (size > 0) {
-                refreshRows(getContainerDataSource().firstItemId());
-                getSingleSelectionModel().select(getContainerDataSource().firstItemId());
-            } else {
-                getSingleSelectionModel().select(null);
-            }
+            // final Indexed container = getContainerDataSource();
+            // final int size = container.size();
+            // if (size > 0) {
+            // refreshRows(getContainerDataSource().firstItemId());
+            // getSingleSelectionModel().select(getContainerDataSource().firstItemId());
+            // } else {
+            // getSingleSelectionModel().select(null);
+            // }
         }
 
         private boolean isSingleSelectionModel() {
@@ -491,86 +481,99 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
         }
     }
 
-    /**
-     * CellStyleGenerator that concerns about alignment in the grid cells.
-     */
-    public static class AlignCellStyleGenerator implements CellStyleGenerator {
-        private static final long serialVersionUID = 1L;
+    // /**
+    // * CellStyleGenerator that concerns about alignment in the grid cells.
+    // */
+    // public static class AlignCellStyleGenerator implements CellStyleGenerator
+    // {
+    // private static final long serialVersionUID = 1L;
+    //
+    // private final String[] left;
+    // private final String[] center;
+    // private final String[] right;
+    //
+    // /**
+    // * Constructor.
+    // *
+    // * @param left
+    // * list of propertyIds that should be left-aligned
+    // * @param center
+    // * list of propertyIds that should be center-aligned
+    // * @param right
+    // * list of propertyIds that should be right-aligned
+    // */
+    // public AlignCellStyleGenerator(final String[] left, final String[]
+    // center, final String[] right) {
+    // this.left = left;
+    // this.center = center;
+    // this.right = right;
+    // }
+    //
+    // @Override
+    // public String getStyle(final CellReference cellReference) {
+    // if (center != null
+    // && Arrays.stream(center).anyMatch(o -> Objects.equals(o,
+    // cellReference.getPropertyId()))) {
+    // return "centeralign";
+    // } else if (right != null
+    // && Arrays.stream(right).anyMatch(o -> Objects.equals(o,
+    // cellReference.getPropertyId()))) {
+    // return "rightalign";
+    // } else if (left != null
+    // && Arrays.stream(left).anyMatch(o -> Objects.equals(o,
+    // cellReference.getPropertyId()))) {
+    // return "leftalign";
+    // }
+    // return null;
+    // }
+    // }
 
-        private final String[] left;
-        private final String[] center;
-        private final String[] right;
-
-        /**
-         * Constructor.
-         *
-         * @param left
-         *            list of propertyIds that should be left-aligned
-         * @param center
-         *            list of propertyIds that should be center-aligned
-         * @param right
-         *            list of propertyIds that should be right-aligned
-         */
-        public AlignCellStyleGenerator(final String[] left, final String[] center, final String[] right) {
-            this.left = left;
-            this.center = center;
-            this.right = right;
-        }
-
-        @Override
-        public String getStyle(final CellReference cellReference) {
-            if (center != null
-                    && Arrays.stream(center).anyMatch(o -> Objects.equals(o, cellReference.getPropertyId()))) {
-                return "centeralign";
-            } else if (right != null
-                    && Arrays.stream(right).anyMatch(o -> Objects.equals(o, cellReference.getPropertyId()))) {
-                return "rightalign";
-            } else if (left != null
-                    && Arrays.stream(left).anyMatch(o -> Objects.equals(o, cellReference.getPropertyId()))) {
-                return "leftalign";
-            }
-            return null;
-        }
-    }
-
-    /**
-     * Adds a tooltip to the 'Date and time' and 'Maintenance Window' columns in
-     * detailed format.
-     */
-    public static class TooltipGenerator implements CellDescriptionGenerator {
-
-        private static final long serialVersionUID = 1L;
-
-        private final VaadinMessageSource i18n;
-
-        public TooltipGenerator(final VaadinMessageSource i18n) {
-            this.i18n = i18n;
-        }
-
-        @Override
-        public String getDescription(final CellReference cell) {
-            final String propertyId = (String) cell.getPropertyId();
-            switch (propertyId) {
-            case ProxyAction.PXY_ACTION_LAST_MODIFIED_AT:
-            case ProxyActionStatus.PXY_AS_CREATED_AT:
-                final Long timestamp = (Long) cell.getItem().getItemProperty(propertyId).getValue();
-                return SPDateTimeUtil.getFormattedDate(timestamp);
-
-            case ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW:
-                final Action action = (Action) cell.getItem().getItemProperty(ProxyAction.PXY_ACTION).getValue();
-                return action.getMaintenanceWindowStartTime().map(this::getFormattedNextMaintenanceWindow).orElse(null);
-
-            default:
-                return null;
-            }
-        }
-
-        private String getFormattedNextMaintenanceWindow(final ZonedDateTime nextAt) {
-            final long nextAtMilli = nextAt.toInstant().toEpochMilli();
-            return i18n.getMessage(UIMessageIdProvider.TOOLTIP_NEXT_MAINTENANCE_WINDOW,
-                    SPDateTimeUtil.getFormattedDate(nextAtMilli, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT));
-        }
-    }
+    // /**
+    // * Adds a tooltip to the 'Date and time' and 'Maintenance Window' columns
+    // in
+    // * detailed format.
+    // */
+    // public static class TooltipGenerator implements CellDescriptionGenerator
+    // {
+    //
+    // private static final long serialVersionUID = 1L;
+    //
+    // private final VaadinMessageSource i18n;
+    //
+    // public TooltipGenerator(final VaadinMessageSource i18n) {
+    // this.i18n = i18n;
+    // }
+    //
+    // @Override
+    // public String getDescription(final CellReference cell) {
+    // final String propertyId = (String) cell.getPropertyId();
+    // switch (propertyId) {
+    // case ProxyAction.PXY_ACTION_LAST_MODIFIED_AT:
+    // case ProxyActionStatus.PXY_AS_CREATED_AT:
+    // final Long timestamp = (Long)
+    // cell.getItem().getItemProperty(propertyId).getValue();
+    // return SPDateTimeUtil.getFormattedDate(timestamp);
+    //
+    // case ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW:
+    // final Action action = (Action)
+    // cell.getItem().getItemProperty(ProxyAction.PXY_ACTION).getValue();
+    // return
+    // action.getMaintenanceWindowStartTime().map(this::getFormattedNextMaintenanceWindow).orElse(null);
+    //
+    // default:
+    // return null;
+    // }
+    // }
+    //
+    // private String getFormattedNextMaintenanceWindow(final ZonedDateTime
+    // nextAt) {
+    // final long nextAtMilli = nextAt.toInstant().toEpochMilli();
+    // return
+    // i18n.getMessage(UIMessageIdProvider.TOOLTIP_NEXT_MAINTENANCE_WINDOW,
+    // SPDateTimeUtil.getFormattedDate(nextAtMilli,
+    // SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT));
+    // }
+    // }
 
     /**
      * Converter that gets time-data as input of type <code>Long</code> and
@@ -603,6 +606,6 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
         return binder;
     }
 
-    protected abstract void setColumns();
+    // protected abstract void setColumns();
 
 }

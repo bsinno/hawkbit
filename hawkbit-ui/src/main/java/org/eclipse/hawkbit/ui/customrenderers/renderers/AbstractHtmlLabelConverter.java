@@ -9,12 +9,13 @@
 package org.eclipse.hawkbit.ui.customrenderers.renderers;
 
 import java.io.Serializable;
-import java.util.Locale;
 
 import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.v7.data.util.converter.Converter;
+import com.vaadin.data.Converter;
+import com.vaadin.data.Result;
+import com.vaadin.data.ValueContext;
 
 /**
  * Converter that adapts to a model and converts to a label presentation.
@@ -29,19 +30,14 @@ public abstract class AbstractHtmlLabelConverter<T> implements Converter<String,
     private LabelAdapter<T> adapter;
 
     @Override
-    public T convertToModel(final String value, final Class<? extends T> targetType, final Locale locale) {
+    public Result<T> convertToModel(final String presentation, final ValueContext valueContext) {
         // not needed
         return null;
     }
 
     @Override
-    public String convertToPresentation(final T status, final Class<? extends String> targetType, final Locale locale) {
-        return convert(status);
-    }
-
-    @Override
-    public Class<String> getPresentationType() {
-        return String.class;
+    public String convertToPresentation(final T model, final ValueContext valueContext) {
+        return convert(model);
     }
 
     /**

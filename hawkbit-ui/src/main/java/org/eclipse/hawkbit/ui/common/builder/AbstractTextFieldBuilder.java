@@ -177,9 +177,9 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
             textComponent.setId(id);
         }
 
-        if (!validators.isEmpty()) {
-            validators.forEach(textComponent::addValidator);
-        }
+        // if (!validators.isEmpty()) {
+        // validators.forEach(textComponent::addValidator);
+        // }
 
         return textComponent;
     }

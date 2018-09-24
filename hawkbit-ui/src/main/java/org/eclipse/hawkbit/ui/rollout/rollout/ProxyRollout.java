@@ -12,8 +12,12 @@ import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus;
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
 
-import com.vaadin.icons.VaadinIcons;perties.**/
+import com.vaadin.icons.VaadinIcons;
 
+/**
+ * Proxy rollout with custom properties.
+ *
+ */
 public class ProxyRollout {
 
     private String distributionSetNameVersion;
@@ -68,7 +72,7 @@ public class ProxyRollout {
     /**
      * @return the numberOfGroups
      */
-    public int getNumberOfGroups() {
+    public Integer getNumberOfGroups() {
         return numberOfGroups;
     }
 

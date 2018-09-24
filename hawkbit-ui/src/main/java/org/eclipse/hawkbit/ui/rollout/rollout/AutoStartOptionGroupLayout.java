@@ -8,10 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.TimeZone;
-
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -20,7 +16,6 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.themes.ValoTheme;
-import com.vaadin.v7.shared.ui.datefield.Resolution;
 
 /**
  * Rollout start types options layout
@@ -113,17 +108,17 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
         // addComponent(scheduledLabel);
 
         startAtDateField = new DateField();
-        startAtDateField.setInvalidAllowed(false);
-        startAtDateField.setInvalidCommitted(false);
+        // startAtDateField.setInvalidAllowed(false);
+        // startAtDateField.setInvalidCommitted(false);
         startAtDateField.setEnabled(false);
         startAtDateField.setStyleName("dist-window-forcedtime");
 
-        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
-        startAtDateField.setValue(
-                Date.from(LocalDateTime.now().plusMinutes(30).atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant()));
-        startAtDateField.setTimeZone(tz);
+        SPDateTimeUtil.getBrowserTimeZone();
+        // startAtDateField.setValue(
+        // Date.from(LocalDateTime.now().plusMinutes(30).atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant()));
+        // startAtDateField.setTimeZone(tz);
         startAtDateField.setLocale(HawkbitCommonUtil.getLocale());
-        startAtDateField.setResolution(Resolution.MINUTE);
+        // startAtDateField.setResolution(Resolution.MINUTE);
         startAtDateField.addStyleName(ValoTheme.DATEFIELD_SMALL);
         addComponent(startAtDateField);
     }

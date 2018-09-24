@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
@@ -29,50 +29,40 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
+import com.vaadin.data.provider.AbstractBackEndDataProvider;
+import com.vaadin.data.provider.Query;
+
 /**
  * Bean query for distribution set combo.
  *
  */
-public class DistributionBeanQuery /*
-                                    * extends
-                                    * AbstractBeanQuery<ProxyDistribution>
-                                    */ {
+public class DistributionBeanDataProvider extends AbstractBackEndDataProvider<ProxyDistribution, String> {
 
     private static final long serialVersionUID = 5176481314404662215L;
-    private Sort sort = new Sort(Direction.ASC, "name", "version");
+    private final Sort sort = new Sort(Direction.ASC, "name", "version");
     private transient DistributionSetManagement distributionSetManagement;
     private transient Page<DistributionSet> firstPageDistributionSets = null;
 
-    /**
-     * Parametric Constructor.
-     * 
-     * 
-     * @param queryConfig
-     *            as Config
-     * @param sortPropertyIds
-     *            as sort
-     * @param sortStates
-     *            as Sort status
-     */
-    public DistributionBeanQuery(/* final QueryDefinition definition, */ final Map<String, Object> queryConfig,
-            final Object[] sortPropertyIds, final boolean[] sortStates) {
-        // super(definition, queryConfig, sortPropertyIds, sortStates);
 
-        if (sortStates.length > 0) {
-            // Initalize sort
-            sort = new Sort(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortPropertyIds[0]);
-            // Add sort
-            for (int distId = 1; distId < sortPropertyIds.length; distId++) {
-                sort.and(new Sort(sortStates[distId] ? Direction.ASC : Direction.DESC,
-                        (String) sortPropertyIds[distId]));
-            }
-        }
+    public DistributionBeanDataProvider() {
+
+        // if (sortStates.length > 0) {
+        // // Initalize sort
+        // sort = new Sort(sortStates[0] ? Direction.ASC : Direction.DESC,
+        // (String) sortPropertyIds[0]);
+        // // Add sort
+        // for (int distId = 1; distId < sortPropertyIds.length; distId++) {
+        // sort.and(new Sort(sortStates[distId] ? Direction.ASC :
+        // Direction.DESC,
+        // (String) sortPropertyIds[distId]));
+        // }
+        // }
     }
 
     // @Override
-    protected ProxyDistribution constructBean() {
-        return new ProxyDistribution();
-    }
+    // protected ProxyDistribution constructBean() {
+    // return new ProxyDistribution();
+    // }
 
     // @Override
     protected List<ProxyDistribution> loadBeans(final int startIndex, final int count) {
@@ -108,27 +98,6 @@ public class DistributionBeanQuery /*
         return proxyDistributions;
     }
 
-    // @Override
-    protected void saveBeans(final List<ProxyDistribution> arg0, final List<ProxyDistribution> arg1,
-            final List<ProxyDistribution> arg2) {
-        // Add,Delete and Update are performed through repository methods
-    }
-
-    // @Override
-    public int size() {
-        final DistributionSetFilter distributionSetFilter = new DistributionSetFilterBuilder().setIsDeleted(false)
-                .setIsComplete(true).build();
-
-        firstPageDistributionSets = getDistributionSetManagement().findByDistributionSetFilter(
-                new PageRequest(0, SPUIDefinitions.PAGE_SIZE, sort), distributionSetFilter);
-        final long size = firstPageDistributionSets.getTotalElements();
-        if (size > Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE;
-        }
-
-        return (int) size;
-    }
-
     private DistributionSetManagement getDistributionSetManagement() {
         if (distributionSetManagement == null) {
             distributionSetManagement = SpringContextHelper.getBean(DistributionSetManagement.class);
@@ -140,5 +109,25 @@ public class DistributionBeanQuery /*
     private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         firstPageDistributionSets = (Page<DistributionSet>) in.readObject();
+    }
+
+    @Override
+    protected Stream<ProxyDistribution> fetchFromBackEnd(final Query<ProxyDistribution, String> query) {
+        return loadBeans(query.getOffset(), query.getLimit()).stream();
+    }
+
+    @Override
+    protected int sizeInBackEnd(final Query<ProxyDistribution, String> query) {
+        final DistributionSetFilter distributionSetFilter = new DistributionSetFilterBuilder().setIsDeleted(false)
+                .setIsComplete(true).build();
+
+        firstPageDistributionSets = getDistributionSetManagement().findByDistributionSetFilter(
+                new PageRequest(0, SPUIDefinitions.PAGE_SIZE, sort), distributionSetFilter);
+        final long size = firstPageDistributionSets.getTotalElements();
+        if (size > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+
+        return (int) size;
     }
 }

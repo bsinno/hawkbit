@@ -10,8 +10,6 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -19,7 +17,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 
@@ -68,27 +65,31 @@ public class RolloutGroupTargetsCountLabelMessage extends Label {
     }
 
     private void displayRolloutGroupTargetMessage() {
-        long totalTargetTableEnteries = rolloutGroupTargetsListGrid.getContainerDataSource().size();
-        if (rolloutUIState.getRolloutGroupTargetsTruncated() != null) {
-            // set the icon
-            setIcon(VaadinIcons.INFO_CIRCLE);
-            setDescription(i18n.getMessage("rollout.group.label.target.truncated",
-                    rolloutUIState.getRolloutGroupTargetsTruncated(), SPUIDefinitions.MAX_TABLE_ENTRIES));
-            totalTargetTableEnteries += rolloutUIState.getRolloutGroupTargetsTruncated();
-        } else {
-            setIcon(null);
-            setDescription(null);
-        }
-
-        final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.filter.count"));
-        message.append(rolloutUIState.getRolloutGroupTargetsTotalCount());
-
-        if (totalTargetTableEnteries > SPUIDefinitions.MAX_TABLE_ENTRIES) {
-            message.append(HawkbitCommonUtil.SP_STRING_PIPE);
-            message.append(i18n.getMessage("label.filter.shown"));
-            message.append(SPUIDefinitions.MAX_TABLE_ENTRIES);
-        }
-
-        setCaption(message.toString());
+        // long totalTargetTableEnteries =
+        // rolloutGroupTargetsListGrid.getDataProvider().size();
+        // if (rolloutUIState.getRolloutGroupTargetsTruncated() != null) {
+        // // set the icon
+        // setIcon(VaadinIcons.INFO_CIRCLE);
+        // setDescription(i18n.getMessage("rollout.group.label.target.truncated",
+        // rolloutUIState.getRolloutGroupTargetsTruncated(),
+        // SPUIDefinitions.MAX_TABLE_ENTRIES));
+        // totalTargetTableEnteries +=
+        // rolloutUIState.getRolloutGroupTargetsTruncated();
+        // } else {
+        // setIcon(null);
+        // setDescription(null);
+        // }
+        //
+        // final StringBuilder message = new
+        // StringBuilder(i18n.getMessage("label.target.filter.count"));
+        // message.append(rolloutUIState.getRolloutGroupTargetsTotalCount());
+        //
+        // if (totalTargetTableEnteries > SPUIDefinitions.MAX_TABLE_ENTRIES) {
+        // message.append(HawkbitCommonUtil.SP_STRING_PIPE);
+        // message.append(i18n.getMessage("label.filter.shown"));
+        // message.append(SPUIDefinitions.MAX_TABLE_ENTRIES);
+        // }
+        //
+        // setCaption(message.toString());
     }
 }

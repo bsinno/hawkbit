@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.rollout.rollout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,17 +42,14 @@ import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterBeanQuery;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupLayout;
-import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupLayout.ActionTypeOption;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
-import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupNumberValidator;
-import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupSizeValidator;
-import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.ThresholdFieldValidator;
+//import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupNumberValidator;
+//import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupSizeValidator;
+//import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.ThresholdFieldValidator;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -63,20 +59,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.Binder;
 import com.vaadin.data.HasValue.ValueChangeEvent;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.Validator;
-import com.vaadin.data.ValueContext;
-import com.vaadin.data.converter.StringToIntegerConverter;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.data.validator.LongRangeValidator;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.ComboBox;
@@ -88,9 +74,7 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.Validator.InvalidValueException;
+
 
 /**
  * Rollout add or update popup layout.
@@ -319,12 +303,15 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
             final Long distributionId = distributionSet.getValue();
 
             final int amountGroup = Integer.parseInt(noOfGroups.getValue());
-            final int errorThresholdPercent = getErrorThresholdPercentage(amountGroup);
+            getErrorThresholdPercentage(amountGroup);
             final RolloutGroupConditions conditions = new RolloutGroupConditionBuilder()
-                    .successAction(RolloutGroupSuccessAction.NEXTGROUP, null)
-                    .successCondition(RolloutGroupSuccessCondition.THRESHOLD, triggerThreshold.getValue())
-                    .errorCondition(RolloutGroupErrorCondition.THRESHOLD, String.valueOf(errorThresholdPercent))
-                    .errorAction(RolloutGroupErrorAction.PAUSE, null).build();
+                    // .successAction(RolloutGroupSuccessAction.NEXTGROUP, null)
+                    // .successCondition(RolloutGroupSuccessCondition.THRESHOLD,
+                    // triggerThreshold.getValue())
+                    // .errorCondition(RolloutGroupErrorCondition.THRESHOLD,
+                    // String.valueOf(errorThresholdPercent))
+                    // .errorAction(RolloutGroupErrorAction.PAUSE, null)
+                    .build();
 
             final RolloutCreate rolloutCreate = entityFactory.rollout().create().name(rolloutName.getValue())
                     .description(description.getValue()).set(distributionId).targetFilterQuery(getTargetFilterQuery())
@@ -348,15 +335,22 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         }
 
         private long getForcedTimeStamp() {
-            return ActionTypeOption.AUTO_FORCED
-                    .equals(actionTypeOptionGroupLayout.getActionTypeOptionGroup().getValue())
-                            ? actionTypeOptionGroupLayout.getForcedTimeDateField().getValue().getTime()
-                            : RepositoryModelConstants.NO_FORCE_TIME;
+            return /*
+                    * ActionTypeOption.AUTO_FORCED
+                    * .equals(actionTypeOptionGroupLayout.
+                    * getActionTypeOptionGroup().getValue()) ?
+                    * actionTypeOptionGroupLayout.getForcedTimeDateField().
+                    * getValue().getTime() :
+                    */RepositoryModelConstants.NO_FORCE_TIME;
         }
 
         private Long getScheduledStartTime() {
-            return AutoStartOptionGroupLayout.AutoStartOption.SCHEDULED.equals(getAutoStartOption())
-                    ? autoStartOptionGroupLayout.getStartAtDateField().getValue().getTime() : null;
+            return /*
+                    * AutoStartOptionGroupLayout.AutoStartOption.SCHEDULED.
+                    * equals(getAutoStartOption()) ?
+                    * autoStartOptionGroupLayout.getStartAtDateField().getValue(
+                    * ).getTime() :
+                    */null;
         }
 
         private int getErrorThresholdPercentage(final int amountGroup) {
@@ -434,7 +428,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         approvalButtonsLayout.setVisible(false);
         approveButtonsGroup.clear();
         approvalRemarkField.clear();
-        approveButtonsGroup.removeAllValidators();
+        // approveButtonsGroup.removeAllValidators();
     }
 
     private void addGroupsDefinitionTabs() {
@@ -473,17 +467,17 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
         addComponent(getMandatoryLabel("textfield.name"), 0, 0);
         addComponent(rolloutName, 1, 0);
-        rolloutName.addValidator(nullValidator);
+        // rolloutName.addValidator(nullValidator);
 
         addComponent(getMandatoryLabel("prompt.distribution.set"), 0, 1);
         addComponent(distributionSet, 1, 1);
-        distributionSet.addValidator(nullValidator);
+        // distributionSet.addValidator(nullValidator);
 
         addComponent(getMandatoryLabel("prompt.target.filter"), 0, 2);
         addComponent(targetFilterQueryCombo, 1, 2);
-        targetFilterQueryCombo.addValidator(nullValidator);
-        targetFilterQueryCombo.addValidator(new TargetExistsValidator());
-        targetFilterQuery.removeValidator(nullValidator);
+        // targetFilterQueryCombo.addValidator(nullValidator);
+        // targetFilterQueryCombo.addValidator(new TargetExistsValidator());
+        // targetFilterQuery.removeValidator(nullValidator);
 
         addComponent(getLabel("textfield.description"), 0, 3);
         addComponent(description, 1, 3, 1, 3);
@@ -522,9 +516,10 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private TextField createIntegerTextField(final String in18Key, final String id) {
         final TextField textField = createTextField(in18Key, id, 32);
-        textField.setConversionError(i18n.getMessage(MESSAGE_ENTER_NUMBER));
-        new Binder<>().forField(textField)
-                .withConverter(new StringToIntegerConverter("", i18n.getMessage(MESSAGE_ENTER_NUMBER)));
+        // textField.setConversionError(i18n.getMessage(MESSAGE_ENTER_NUMBER));
+        // new Binder<>().forField(textField)
+        // .withConverter(new StringToIntegerConverter("",
+        // i18n.getMessage(MESSAGE_ENTER_NUMBER)));
         textField.setSizeUndefined();
         return textField;
     }
@@ -625,17 +620,17 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
         layout.addComponent(getMandatoryLabel("prompt.number.of.groups"), 0, 1);
         layout.addComponent(noOfGroups, 1, 1);
-        noOfGroups.addValidator(nullValidator);
+        // noOfGroups.addValidator(nullValidator);
         layout.addComponent(groupSizeLabel, 2, 1);
 
         layout.addComponent(getMandatoryLabel("prompt.tigger.threshold"), 0, 2);
         layout.addComponent(triggerThreshold, 1, 2);
-        triggerThreshold.addValidator(nullValidator);
+        // triggerThreshold.addValidator(nullValidator);
         layout.addComponent(getPercentHintLabel(), 2, 2);
 
         layout.addComponent(getMandatoryLabel("prompt.error.threshold"), 0, 3);
         layout.addComponent(errorThreshold, 1, 3);
-        errorThreshold.addValidator(nullValidator);
+        // errorThreshold.addValidator(nullValidator);
         layout.addComponent(errorThresholdOptionGroup, 2, 3);
 
         return layout;
@@ -649,10 +644,20 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         approveButtonsGroup.addStyleName("custom-option-group");
         approveButtonsGroup.setItems(Rollout.ApprovalDecision.APPROVED, Rollout.ApprovalDecision.DENIED);
 
-        approveButtonsGroup.setItemCaption(Rollout.ApprovalDecision.APPROVED, i18n.getMessage(APPROVAL_BUTTON_LABEL));
-        approveButtonsGroup.setItemIcon(Rollout.ApprovalDecision.APPROVED, VaadinIcons.CHECK);
-        approveButtonsGroup.setItemCaption(Rollout.ApprovalDecision.DENIED, i18n.getMessage(DENY_BUTTON_LABEL));
-        approveButtonsGroup.setItemIcon(Rollout.ApprovalDecision.DENIED, VaadinIcons.CLOSE);
+        approveButtonsGroup.setItemCaptionGenerator(item -> {
+            if (Rollout.ApprovalDecision.APPROVED.equals(item)) {
+                return i18n.getMessage(APPROVAL_BUTTON_LABEL);
+            } else {
+                return i18n.getMessage(DENY_BUTTON_LABEL);
+            }
+        });
+        approveButtonsGroup.setItemIconGenerator(item -> {
+            if (Rollout.ApprovalDecision.APPROVED.equals(item)) {
+                return VaadinIcons.CHECK;
+            } else {
+                return VaadinIcons.CLOSE;
+            }
+        });
 
         approvalRemarkField = createTextField("label.approval.remark",
                 UIComponentIdProvider.ROLLOUT_APPROVAL_REMARK_FIELD_ID, Rollout.APPROVAL_REMARK_MAX_SIZE);
@@ -683,7 +688,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private RadioButtonGroup<String> createErrorThresholdOptionGroup() {
         final RadioButtonGroup<String> errorThresoldOptions = new RadioButtonGroup<>();
-        List<String> itemsToSet = new ArrayList<>();
+        final List<String> itemsToSet = new ArrayList<>();
         for (final ERROR_THRESHOLD_OPTIONS option : ERROR_THRESHOLD_OPTIONS.values()) {
             itemsToSet.add(option.getValue());
         }
@@ -698,13 +703,14 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private void listenerOnErrorThresoldOptionChange(final ValueChangeEvent event) {
         errorThreshold.clear();
-        errorThreshold.removeAllValidators();
-        if (event.getValue().equals(ERROR_THRESHOLD_OPTIONS.COUNT.getValue())) {
-            errorThreshold.addValidator(new ErrorThresholdOptionValidator());
-        } else {
-            errorThreshold.addValidator(new ThresholdFieldValidator());
-        }
-        errorThreshold.getValidators();
+        // errorThreshold.removeAllValidators();
+        // if
+        // (event.getValue().equals(ERROR_THRESHOLD_OPTIONS.COUNT.getValue())) {
+        // errorThreshold.addValidator(new ErrorThresholdOptionValidator());
+        // } else {
+        // errorThreshold.addValidator(new ThresholdFieldValidator());
+        // }
+        // errorThreshold.getValidators();
     }
 
     private void validateGroups() {
@@ -721,11 +727,11 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
             updateGroupsChart(defineGroupsLayout.getGroupsValidation());
         }
         if (isNumberOfGroups()) {
-            if (noOfGroups.isValid() && !noOfGroups.getValue().isEmpty()) {
-                updateGroupsChart(Integer.parseInt(noOfGroups.getValue()));
-            } else {
-                updateGroupsChart(0);
-            }
+            // if (noOfGroups.isValid() && !noOfGroups.getValue().isEmpty()) {
+            // updateGroupsChart(Integer.parseInt(noOfGroups.getValue()));
+            // } else {
+            // updateGroupsChart(0);
+            // }
         }
     }
 
@@ -800,8 +806,8 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private void populateTargetFilterQuery() {
-        final Container container = createTargetFilterComboContainer();
-        targetFilterQueryCombo.setContainerDataSource(container);
+        // final Container container = createTargetFilterComboContainer();
+        // targetFilterQueryCombo.setContainerDataSource(container);
     }
 
     private void populateTargetFilterQuery(final Rollout rollout) {
@@ -813,21 +819,25 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         }
     }
 
-    private static Container createTargetFilterComboContainer() {
-        final BeanQueryFactory<TargetFilterBeanQuery> targetFilterQF = new BeanQueryFactory<>(
-                TargetFilterBeanQuery.class);
-        return new LazyQueryContainer(
-                new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, SPUILabelDefinitions.VAR_NAME),
-                targetFilterQF);
-    }
+    // private static Container createTargetFilterComboContainer() {
+    // final BeanQueryFactory<TargetFilterBeanQuery> targetFilterQF = new
+    // BeanQueryFactory<>(
+    // TargetFilterBeanQuery.class);
+    // return new LazyQueryContainer(
+    // new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE,
+    // SPUILabelDefinitions.VAR_NAME),
+    // targetFilterQF);
+    // }
 
     private String getTargetFilterQuery() {
         if (StringUtils.isEmpty(targetFilterQueryCombo.getValue())) {
             return null;
         }
-        final Item filterItem = targetFilterQueryCombo.getContainerDataSource()
-                .getItem(targetFilterQueryCombo.getValue());
-        return (String) filterItem.getItemProperty("query").getValue();
+        // final Item filterItem =
+        // targetFilterQueryCombo.getContainerDataSource()
+        // .getItem(targetFilterQueryCombo.getValue());
+        // return (String) filterItem.getItemProperty("query").getValue();
+        return "";
     }
 
     private void setDefaultSaveStartGroupOption() {
@@ -844,7 +854,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     private TextField createErrorThreshold() {
         final TextField errorField = createIntegerTextField("prompt.error.threshold",
                 UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID);
-        errorField.addValidator(new ThresholdFieldValidator());
+        // errorField.addValidator(new ThresholdFieldValidator());
         errorField.setMaxLength(7);
         errorField.setValue(defaultRolloutGroupConditions.getErrorConditionExp());
         return errorField;
@@ -853,7 +863,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     private TextField createTriggerThreshold() {
         final TextField thresholdField = createIntegerTextField("prompt.tigger.threshold",
                 UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID);
-        thresholdField.addValidator(new ThresholdFieldValidator());
+        // thresholdField.addValidator(new ThresholdFieldValidator());
         thresholdField.setValue(defaultRolloutGroupConditions.getSuccessConditionExp());
         return thresholdField;
     }
@@ -861,10 +871,10 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     private TextField createNoOfGroupsField() {
         final TextField noOfGroupsField = createIntegerTextField("prompt.number.of.groups",
                 UIComponentIdProvider.ROLLOUT_NO_OF_GROUPS_ID);
-        noOfGroupsField.addValidator(new GroupNumberValidator());
-        noOfGroupsField.addValidator(new GroupSizeValidator());
+        // noOfGroupsField.addValidator(new GroupNumberValidator());
+        // noOfGroupsField.addValidator(new GroupSizeValidator());
         noOfGroupsField.setMaxLength(3);
-        noOfGroupsField.addValueChangeListener(this::onGroupNumberChange);
+        // noOfGroupsField.addValueChangeListener(this::onGroupNumberChange);
         return noOfGroupsField;
     }
 
@@ -872,7 +882,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         if (editRolloutEnabled) {
             return;
         }
-        if (event.getValue() != null && noOfGroups.isValid() && totalTargetsCount != null && isNumberOfGroups()) {
+        if (event.getValue() != null && /* noOfGroups.isValid() && */ totalTargetsCount != null && isNumberOfGroups()) {
             groupSizeLabel.setValue(getTargetPerGroupMessage(String.valueOf(getGroupSize())));
             groupSizeLabel.setVisible(true);
             updateGroupsChart(Integer.parseInt(noOfGroups.getValue()));
@@ -890,16 +900,18 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private void populateDistributionSet() {
-        final Container container = createDsComboContainer();
-        distributionSet.setContainerDataSource(container);
+        // final Container container = createDsComboContainer();
+        // distributionSet.setContainerDataSource(container);
     }
 
-    private static Container createDsComboContainer() {
-        final BeanQueryFactory<DistributionBeanQuery> distributionQF = new BeanQueryFactory<>(
-                DistributionBeanQuery.class);
-        return new LazyQueryContainer(
-                new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, SPUILabelDefinitions.VAR_ID), distributionQF);
-    }
+    // private static Container createDsComboContainer() {
+    // final BeanQueryFactory<DistributionBeanQuery> distributionQF = new
+    // BeanQueryFactory<>(
+    // DistributionBeanQuery.class);
+    // return new LazyQueryContainer(
+    // new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE,
+    // SPUILabelDefinitions.VAR_ID), distributionQF);
+    // }
 
     private TextField createRolloutNameField() {
         final TextField rolloutNameField = new TextFieldBuilder(Rollout.NAME_MAX_SIZE)
@@ -910,146 +922,155 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         return rolloutNameField;
     }
 
-    class ErrorThresholdOptionValidator implements Validator {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public void validate(final Object value) {
-            if (isNoOfGroupsOrTargetFilterEmpty()) {
-                uiNotification
-                        .displayValidationError(i18n.getMessage("message.rollout.noofgroups.or.targetfilter.missing"));
-            } else {
-                if (value != null) {
-                    final int groupSize = getGroupSize();
-                    new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, groupSize), 0,
-                            groupSize).validate(Integer.valueOf(value.toString()));
-                }
-            }
-        }
-
-        private boolean isNoOfGroupsOrTargetFilterEmpty() {
-            return !StringUtils.hasText(noOfGroups.getValue())
-                    || (!StringUtils.hasText(targetFilterQueryCombo.getValue())
-                            && !StringUtils.hasText(targetFilterQuery.getValue()));
-        }
-
-        @Override
-        public Object apply(Object t, Object u) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public ValidationResult apply(Object value, ValueContext context) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-    }
+    // class ErrorThresholdOptionValidator implements Validator {
+    // private static final long serialVersionUID = 1L;
+    //
+    // @Override
+    // public void validate(final Object value) {
+    // if (isNoOfGroupsOrTargetFilterEmpty()) {
+    // uiNotification
+    // .displayValidationError(i18n.getMessage("message.rollout.noofgroups.or.targetfilter.missing"));
+    // } else {
+    // if (value != null) {
+    // final int groupSize = getGroupSize();
+    // new
+    // IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE,
+    // 0, groupSize), 0,
+    // groupSize).validate(Integer.valueOf(value.toString()));
+    // }
+    // }
+    // }
+    //
+    // private boolean isNoOfGroupsOrTargetFilterEmpty() {
+    // return !StringUtils.hasText(noOfGroups.getValue())
+    // || (!StringUtils.hasText(targetFilterQueryCombo.getValue())
+    // && !StringUtils.hasText(targetFilterQuery.getValue()));
+    // }
+    //
+    // @Override
+    // public Object apply(Object t, Object u) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    //
+    // @Override
+    // public ValidationResult apply(Object value, ValueContext context) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    // }
 
     private int getGroupSize() {
         return (int) Math.ceil((double) totalTargetsCount / Double.parseDouble(noOfGroups.getValue()));
     }
 
-    class TargetExistsValidator implements Validator {
+    // class TargetExistsValidator implements Validator {
+    //
+    // private static final long serialVersionUID = 1L;
+    //
+    // @Override
+    // public void validate(final Object value) {
+    // if (value != null) {
+    // new
+    // LongRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FILTER_TARGET_EXISTS),
+    // 1L, null)
+    // .validate(totalTargetsCount);
+    // }
+    // }
+    //
+    // @Override
+    // public Object apply(Object t, Object u) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    //
+    // @Override
+    // public ValidationResult apply(Object value, ValueContext context) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    // }
 
-        private static final long serialVersionUID = 1L;
+    // class ThresholdFieldValidator implements Validator {
+    // private static final long serialVersionUID = 1L;
+    //
+    // @Override
+    // public void validate(final Object value) {
+    // if (value != null) {
+    // new
+    // IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE,
+    // 0, 100), 0, 100)
+    // .validate(Integer.valueOf(value.toString()));
+    // }
+    // }
+    //
+    // @Override
+    // public Object apply(Object t, Object u) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    //
+    // @Override
+    // public ValidationResult apply(Object value, ValueContext context) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    // }
 
-        @Override
-        public void validate(final Object value) {
-            if (value != null) {
-                new LongRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FILTER_TARGET_EXISTS), 1L, null)
-                        .validate(totalTargetsCount);
-            }
-        }
+    // class GroupNumberValidator implements Validator {
+    // private static final long serialVersionUID = 1L;
+    //
+    // @Override
+    // public void validate(final Object value) {
+    // if (value != null) {
+    // final int maxGroups = quotaManagement.getMaxRolloutGroupsPerRollout();
+    // new
+    // IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE,
+    // 1, maxGroups), 1,
+    // maxGroups).validate(Integer.valueOf(value.toString()));
+    // }
+    // }
+    //
+    // @Override
+    // public Object apply(Object t, Object u) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    //
+    // @Override
+    // public ValidationResult apply(Object value, ValueContext context) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    // }
 
-        @Override
-        public Object apply(Object t, Object u) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public ValidationResult apply(Object value, ValueContext context) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-    }
-
-    class ThresholdFieldValidator implements Validator {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public void validate(final Object value) {
-            if (value != null) {
-                new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
-                        .validate(Integer.valueOf(value.toString()));
-            }
-        }
-
-        @Override
-        public Object apply(Object t, Object u) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public ValidationResult apply(Object value, ValueContext context) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-    }
-
-    class GroupNumberValidator implements Validator {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public void validate(final Object value) {
-            if (value != null) {
-                final int maxGroups = quotaManagement.getMaxRolloutGroupsPerRollout();
-                new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 1, maxGroups), 1,
-                        maxGroups).validate(Integer.valueOf(value.toString()));
-            }
-        }
-
-        @Override
-        public Object apply(Object t, Object u) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public ValidationResult apply(Object value, ValueContext context) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-    }
-
-    class GroupSizeValidator implements Validator {
-        private static final long serialVersionUID = 0L;
-
-        @Override
-        public void validate(final Object value) {
-            if (value != null && totalTargetsCount != null) {
-                final int maxGroupSize = quotaManagement.getMaxTargetsPerRolloutGroup();
-                if (getGroupSize() > maxGroupSize) {
-                    final String msg = i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED, maxGroupSize);
-                    throw new InvalidValueException(msg);
-                }
-            }
-        }
-
-        @Override
-        public Object apply(Object t, Object u) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public ValidationResult apply(Object value, ValueContext context) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-    }
+    // class GroupSizeValidator implements Validator {
+    // private static final long serialVersionUID = 0L;
+    //
+    // @Override
+    // public void validate(final Object value) {
+    // if (value != null && totalTargetsCount != null) {
+    // final int maxGroupSize = quotaManagement.getMaxTargetsPerRolloutGroup();
+    // if (getGroupSize() > maxGroupSize) {
+    // final String msg =
+    // i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED, maxGroupSize);
+    // throw new InvalidValueException(msg);
+    // }
+    // }
+    // }
+    //
+    // @Override
+    // public Object apply(Object t, Object u) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    //
+    // @Override
+    // public ValidationResult apply(Object value, ValueContext context) {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
+    // }
 
     private void populateData(final Long rolloutId, final boolean copy) {
         if (rolloutId == null) {
@@ -1085,7 +1106,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
             if (rollout.getStatus() == Rollout.RolloutStatus.WAITING_FOR_APPROVAL) {
                 approvalButtonsLayout.setVisible(true);
-                approveButtonsGroup.addValidator(nullValidator);
+                // approveButtonsGroup.addValidator(nullValidator);
                 approvalLabel.setVisible(true);
             }
 
@@ -1094,9 +1115,9 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
             targetFilterQuery.setValue(rollout.getTargetFilterQuery());
             removeComponent(1, 2);
-            targetFilterQueryCombo.removeValidator(nullValidator);
+            // targetFilterQueryCombo.removeValidator(nullValidator);
             addComponent(targetFilterQuery, 1, 2);
-            targetFilterQuery.addValidator(nullValidator);
+            // targetFilterQuery.addValidator(nullValidator);
 
             removeComponent(defineGroupsLayout);
             removeComponent(groupsDefinitionTabs);
@@ -1145,7 +1166,8 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
                 actionTypeOptionGroupLayout.getActionTypeOptionGroup().setValue(groupAction);
                 final SimpleDateFormat format = new SimpleDateFormat(SPUIDefinitions.LAST_QUERY_DATE_FORMAT);
                 format.setTimeZone(SPDateTimeUtil.getBrowserTimeZone());
-                actionTypeOptionGroupLayout.getForcedTimeDateField().setValue(new Date(rollout.getForcedTime()));
+                // actionTypeOptionGroupLayout.getForcedTimeDateField().setValue(new
+                // Date(rollout.getForcedTime()));
                 break;
             }
         }
@@ -1158,11 +1180,13 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         } else if (rollout.getStartAt() < System.currentTimeMillis()) {
             autoStartOptionGroupLayout.getAutoStartOptionGroup()
                     .setValue(AutoStartOptionGroupLayout.AutoStartOption.AUTO_START);
-            autoStartOptionGroupLayout.getStartAtDateField().setValue(new Date(rollout.getStartAt()));
+            // autoStartOptionGroupLayout.getStartAtDateField().setValue(new
+            // Date(rollout.getStartAt()));
         } else {
             autoStartOptionGroupLayout.getAutoStartOptionGroup()
                     .setValue(AutoStartOptionGroupLayout.AutoStartOption.SCHEDULED);
-            autoStartOptionGroupLayout.getStartAtDateField().setValue(new Date(rollout.getStartAt()));
+            // autoStartOptionGroupLayout.getStartAtDateField().setValue(new
+            // Date(rollout.getStartAt()));
         }
     }
 

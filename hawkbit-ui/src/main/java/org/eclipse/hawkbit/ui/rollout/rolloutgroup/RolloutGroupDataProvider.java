@@ -8,13 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.domain.Sort.Direction.DESC;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
@@ -34,21 +31,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
+import com.vaadin.data.provider.AbstractBackEndDataProvider;
+import com.vaadin.data.provider.Query;
+
 /**
  * Simple implementation of generics bean query which dynamically loads a batch
  * of {@link ProxyRolloutGroup} beans.
  *
  */
-public class RolloutGroupBeanQuery /*
-                                    * extends
-                                    * AbstractBeanQuery<ProxyRolloutGroup>
-                                    */ {
+public class RolloutGroupDataProvider extends AbstractBackEndDataProvider<ProxyRolloutGroup, String> {
 
     private static final long serialVersionUID = 5342450502894318589L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupBeanQuery.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupDataProvider.class);
 
-    private Sort sort = new Sort(Direction.ASC, "id");
+    private final Sort sort = new Sort(Direction.ASC, "id");
 
     private transient Page<RolloutGroup> firstPageRolloutGroupSets;
 
@@ -63,6 +60,8 @@ public class RolloutGroupBeanQuery /*
     /**
      * Parametric Constructor.
      *
+     * @param definition
+     *            as QueryDefinition
      * @param queryConfig
      *            as Config
      * @param sortPropertyIds
@@ -70,33 +69,27 @@ public class RolloutGroupBeanQuery /*
      * @param sortStates
      *            as Sort status
      */
-    public RolloutGroupBeanQuery(/* final QueryDefinition definition, */final Map<String, Object> queryConfig,
-            final Object[] sortPropertyIds, final boolean[] sortStates) {
-
-        // super(definition, queryConfig, sortPropertyIds, sortStates);
+    public RolloutGroupDataProvider() {
 
         rolloutId = getRolloutId();
 
-        if (sortStates != null && sortStates.length > 0) {
-
-            sort = new Sort(sortStates[0] ? ASC : DESC, (String) sortPropertyIds[0]);
-
-            for (int targetId = 1; targetId < sortPropertyIds.length; targetId++) {
-                sort.and(new Sort(sortStates[targetId] ? ASC : DESC, (String) sortPropertyIds[targetId]));
-            }
-        }
+        // if (sortStates != null && sortStates.length > 0) {
+        //
+        // sort = new Sort(sortStates[0] ? ASC : DESC, (String)
+        // sortPropertyIds[0]);
+        //
+        // for (int targetId = 1; targetId < sortPropertyIds.length; targetId++)
+        // {
+        // sort.and(new Sort(sortStates[targetId] ? ASC : DESC, (String)
+        // sortPropertyIds[targetId]));
+        // }
+        // }
     }
 
     private Long getRolloutId() {
         return getRolloutUIState().getRolloutId().orElse(null);
     }
 
-    // @Override
-    protected ProxyRolloutGroup constructBean() {
-        return new ProxyRolloutGroup();
-    }
-
-    // @Override
     protected List<ProxyRolloutGroup> loadBeans(final int startIndex, final int count) {
         List<RolloutGroup> proxyRolloutGroupsList = new ArrayList<>();
         if (rolloutId != null) {
@@ -112,7 +105,7 @@ public class RolloutGroupBeanQuery /*
     }
 
     private List<ProxyRolloutGroup> getProxyRolloutGroupList(final List<RolloutGroup> rolloutGroupBeans) {
-        return rolloutGroupBeans.stream().map(RolloutGroupBeanQuery::createProxy).collect(Collectors.toList());
+        return rolloutGroupBeans.stream().map(RolloutGroupDataProvider::createProxy).collect(Collectors.toList());
     }
 
     private static ProxyRolloutGroup createProxy(final RolloutGroup rolloutGroup) {
@@ -142,37 +135,6 @@ public class RolloutGroupBeanQuery /*
         return proxyRolloutGroup;
     }
 
-    // @Override
-    // protected void saveBeans(final List<ProxyRolloutGroup> arg0, final
-    // List<ProxyRolloutGroup> arg1,
-    // final List<ProxyRolloutGroup> arg2) {
-    // /**
-    // * CRUD operations be done through repository methods.
-    // */
-    // }
-
-    // @Override
-    public int size() {
-        long size = 0;
-        if (rolloutId != null) {
-            try {
-                firstPageRolloutGroupSets = getRolloutGroupManagement().findByRolloutWithDetailedStatus(
-                        new PageRequest(0, SPUIDefinitions.PAGE_SIZE, sort), rolloutId);
-                size = firstPageRolloutGroupSets.getTotalElements();
-            } catch (final EntityNotFoundException e) {
-                LOG.error("Rollout does not exists. Redirect to Rollouts overview", e);
-                rolloutUIState.setShowRolloutGroups(false);
-                rolloutUIState.setShowRollOuts(true);
-                return 0;
-            }
-        }
-        if (size > Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE;
-        }
-
-        return (int) size;
-    }
-
     public RolloutManagement getRolloutManagement() {
         if (rolloutManagement == null) {
             rolloutManagement = SpringContextHelper.getBean(RolloutManagement.class);
@@ -192,6 +154,33 @@ public class RolloutGroupBeanQuery /*
             rolloutUIState = SpringContextHelper.getBean(RolloutUIState.class);
         }
         return rolloutUIState;
+    }
+
+    @Override
+    protected Stream<ProxyRolloutGroup> fetchFromBackEnd(final Query<ProxyRolloutGroup, String> query) {
+        return loadBeans(query.getOffset(), query.getLimit()).stream();
+    }
+
+    @Override
+    protected int sizeInBackEnd(final Query<ProxyRolloutGroup, String> query) {
+        long size = 0;
+        if (rolloutId != null) {
+            try {
+                firstPageRolloutGroupSets = getRolloutGroupManagement().findByRolloutWithDetailedStatus(
+                        new PageRequest(0, SPUIDefinitions.PAGE_SIZE, sort), rolloutId);
+                size = firstPageRolloutGroupSets.getTotalElements();
+            } catch (final EntityNotFoundException e) {
+                LOG.error("Rollout does not exists. Redirect to Rollouts overview", e);
+                rolloutUIState.setShowRolloutGroups(false);
+                rolloutUIState.setShowRollOuts(true);
+                return 0;
+            }
+        }
+        if (size > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+
+        return (int) size;
     }
 
 }

@@ -22,8 +22,6 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.HeadElement;
-import com.google.gwt.dom.client.StyleElement;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -31,10 +29,8 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
-import com.google.gwt.user.client.ui.Widget;
 import com.vaadin.client.UIDL;
 import com.vaadin.client.ui.VNotification;
-import com.vaadin.v7.client.ui.VScrollTable;
 import com.vaadin.client.ui.dd.VAcceptCallback;
 import com.vaadin.client.ui.dd.VAcceptCriteria;
 import com.vaadin.client.ui.dd.VAcceptCriterion;
@@ -183,29 +179,29 @@ public final class ViewClientCriterion extends VAcceptCriterion implements VAcce
      *            the current drag event holding the context.
      */
     void setMultiRowDragDecoration(final VDragEvent drag) {
-        final Widget widget = drag.getTransferable().getDragSource().getWidget();
+        drag.getTransferable().getDragSource().getWidget();
 
-        if (widget instanceof VScrollTable) {
-            final VScrollTable table = (VScrollTable) widget;
-            final int rowCount = table.selectedRowKeys.size();
-
-            Element dragCountElement = Document.get().getElementById(SP_DRAG_COUNT);
-            if (rowCount > 1 && table.selectedRowKeys.contains(table.focusedRow.getKey())) {
-                if (dragCountElement == null) {
-                    dragCountElement = Document.get().createStyleElement();
-                    dragCountElement.setId(SP_DRAG_COUNT);
-                    final HeadElement head = HeadElement
-                            .as(Document.get().getElementsByTagName(HeadElement.TAG).getItem(0));
-                    head.appendChild(dragCountElement);
-                }
-                final SafeHtml formattedCssStyle = getDraggableTemplate()
-                        .multiSelectionStyle(determineActiveTheme(drag), String.valueOf(rowCount));
-                final StyleElement dragCountStyleElement = StyleElement.as(dragCountElement);
-                dragCountStyleElement.setInnerSafeHtml(formattedCssStyle);
-            } else if (dragCountElement != null) {
-                dragCountElement.removeFromParent();
-            }
-        }
+//        if (widget instanceof VScrollTable) {
+//            final VScrollTable table = (VScrollTable) widget;
+//            final int rowCount = table.selectedRowKeys.size();
+//
+//            Element dragCountElement = Document.get().getElementById(SP_DRAG_COUNT);
+//            if (rowCount > 1 && table.selectedRowKeys.contains(table.focusedRow.getKey())) {
+//                if (dragCountElement == null) {
+//                    dragCountElement = Document.get().createStyleElement();
+//                    dragCountElement.setId(SP_DRAG_COUNT);
+//                    final HeadElement head = HeadElement
+//                            .as(Document.get().getElementsByTagName(HeadElement.TAG).getItem(0));
+//                    head.appendChild(dragCountElement);
+//                }
+//                final SafeHtml formattedCssStyle = getDraggableTemplate()
+//                        .multiSelectionStyle(determineActiveTheme(drag), String.valueOf(rowCount));
+//                final StyleElement dragCountStyleElement = StyleElement.as(dragCountElement);
+//                dragCountStyleElement.setInnerSafeHtml(formattedCssStyle);
+//            } else if (dragCountElement != null) {
+        // dragCountElement.removeFromParent();
+//            }
+        // }
     }
 
     /**

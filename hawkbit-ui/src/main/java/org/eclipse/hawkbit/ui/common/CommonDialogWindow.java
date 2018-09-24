@@ -41,7 +41,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Grid;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HasComponents;
 import com.vaadin.ui.HorizontalLayout;
@@ -50,9 +49,6 @@ import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
-import com.vaadin.v7.data.Container.ItemSetChangeEvent;
-import com.vaadin.v7.event.FieldEvents.TextChangeNotifier;
-import com.vaadin.v7.ui.Table;
 
 /**
  *
@@ -158,34 +154,39 @@ public class CommonDialogWindow extends Window {
     }
 
     private void removeItemSetChangeistener(final AbstractField<?> field) {
-        if (!(field instanceof Grid<?>)) {
-            return;
-        }
-        for (final Object listener : field.getListeners(ItemSetChangeEvent.class)) {
-            if (listener instanceof ChangeListener) {
-                field.remov
-                ((Table) field).removeItemSetChangeListener((ChangeListener) listener);
-            }
-        }
+        // if (!(field instanceof Grid<?>)) {
+        // return;
+        // }
+        // for (final Object listener :
+        // field.getListeners(ItemSetChangeEvent.class)) {
+        // if (listener instanceof ChangeListener) {
+        // field.remov
+        // ((Table) field).removeItemSetChangeListener((ChangeListener)
+        // listener);
+        // }
+        // }
     }
 
     private void removeTextListener(final AbstractField<?> field) {
-        if (!(field instanceof TextChangeNotifier)) {
-            return;
-        }
-        for (final Object listener : field.getListeners(ValueChangeEvent.class)) {
-            if (listener instanceof ChangeListener) {
-                ((TextChangeNotifier) field).removeTextChangeListener((ChangeListener) listener);
-            }
-        }
+        // if (!(field instanceof TextChangeNotifier)) {
+        // return;
+        // }
+        // for (final Object listener :
+        // field.getListeners(ValueChangeEvent.class)) {
+        // if (listener instanceof TextChangeListener) {
+        // ((TextChangeNotifier)
+        // field).removeTextChangeListener((TextChangeListener) listener);
+        // }
+        // }
     }
 
     private void removeValueChangeListener(final AbstractField<?> field) {
-        for (final Object listener : field.getListeners(ValueChangeEvent.class)) {
-            if (listener instanceof ChangeListener) {
-                field.removeValueChangeListener((ChangeListener) listener);
-            }
-        }
+        // for (final Object listener :
+        // field.getListeners(ValueChangeEvent.class)) {
+        // if (listener instanceof ChangeListener) {
+        // field.removeValueChangeListener((ChangeListener) listener);
+        // }
+        // }
     }
 
     private final void init() {
@@ -267,7 +268,7 @@ public class CommonDialogWindow extends Window {
             // ((Table) field).addItemSetChangeListener(new
             // ChangeListener(field));
             // }
-            field.addValueChangeListener(new ChangeListener(field));
+            // field.addValueChangeListener(new ChangeListener(field));
         }
     }
 

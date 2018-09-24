@@ -10,9 +10,9 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
@@ -33,18 +33,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
+import com.vaadin.data.provider.AbstractBackEndDataProvider;
+import com.vaadin.data.provider.Query;
+
 /**
  * Simple implementation of generics bean query which dynamically loads a batch
  * of {@link ProxyTarget} beans.
  */
-public class RolloutGroupTargetsBeanQuery /*
-                                           * extends
-                                           * AbstractBeanQuery<ProxyTarget>
-                                           */ {
+public class RolloutGroupTargetsDataProvider extends AbstractBackEndDataProvider<ProxyTarget, String> {
 
-    private static final long serialVersionUID = -8841076207255485907L;
+    private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupTargetsBeanQuery.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupTargetsDataProvider.class);
 
     private static final Sort sort = new Sort(Direction.ASC, "id");
 
@@ -58,29 +58,11 @@ public class RolloutGroupTargetsBeanQuery /*
 
     private final transient Optional<RolloutGroup> rolloutGroup;
 
-    /**
-     * Parametric Constructor.
-     * 
-     * @param queryConfig
-     *            as Config
-     * @param sortPropertyIds
-     *            as sort
-     * @param sortStates
-     *            as Sort status
-     */
-    public RolloutGroupTargetsBeanQuery(/* final QueryDefinition definition, */final Map<String, Object> queryConfig,
-            final Object[] sortPropertyIds, final boolean[] sortStates) {
+    public RolloutGroupTargetsDataProvider() {
 
-        // super(definition, queryConfig, sortPropertyIds, sortStates);
         rolloutGroup = getRolloutUIState().getRolloutGroup();
     }
 
-    // @Override
-    protected ProxyTarget constructBean() {
-        return new ProxyTarget();
-    }
-
-    // @Override
     protected List<ProxyTarget> loadBeans(final int startIndex, final int count) {
         if (startIndex == 0 && firstPageTargetSets != null) {
             return getProxyRolloutGroupTargetsList(firstPageTargetSets.getContent());
@@ -94,7 +76,7 @@ public class RolloutGroupTargetsBeanQuery /*
     private static List<ProxyTarget> getProxyRolloutGroupTargetsList(
             final List<TargetWithActionStatus> rolloutGroupTargets) {
 
-        return rolloutGroupTargets.stream().map(RolloutGroupTargetsBeanQuery::mapTargetToProxy)
+        return rolloutGroupTargets.stream().map(RolloutGroupTargetsDataProvider::mapTargetToProxy)
                 .collect(Collectors.toList());
     }
 
@@ -120,38 +102,6 @@ public class RolloutGroupTargetsBeanQuery /*
         return prxyTarget;
     }
 
-    // @Override
-    protected void saveBeans(final List<ProxyTarget> arg0, final List<ProxyTarget> arg1, final List<ProxyTarget> arg2) {
-        /**
-         * No implementation required.
-         */
-    }
-
-    // @Override
-    public int size() {
-        long size = 0;
-
-        try {
-            firstPageTargetSets = rolloutGroup.map(group -> getRolloutGroupManagement()
-                    .findAllTargetsOfRolloutGroupWithActionStatus(new PageRequest(0, SPUIDefinitions.PAGE_SIZE, sort), group.getId()))
-                    .orElse(null);
-
-            size = firstPageTargetSets == null ? 0 : firstPageTargetSets.getTotalElements();
-        } catch (final EntityNotFoundException e) {
-            LOG.error("Rollout does not exists. Redirect to Rollouts overview", e);
-            rolloutUIState.setShowRolloutGroupTargets(false);
-            rolloutUIState.setShowRollOuts(true);
-            return 0;
-        }
-
-        getRolloutUIState().setRolloutGroupTargetsTotalCount(size);
-        if (size > SPUIDefinitions.MAX_TABLE_ENTRIES) {
-            getRolloutUIState().setRolloutGroupTargetsTruncated(size - SPUIDefinitions.MAX_TABLE_ENTRIES);
-            return SPUIDefinitions.MAX_TABLE_ENTRIES;
-        }
-
-        return (int) size;
-    }
 
     /**
      * @return the rolloutManagement
@@ -181,6 +131,38 @@ public class RolloutGroupTargetsBeanQuery /*
             rolloutUIState = SpringContextHelper.getBean(RolloutUIState.class);
         }
         return rolloutUIState;
+    }
+
+    @Override
+    protected Stream<ProxyTarget> fetchFromBackEnd(final Query<ProxyTarget, String> query) {
+        return loadBeans(query.getOffset(), query.getLimit()).stream();
+    }
+
+    @Override
+    protected int sizeInBackEnd(final Query<ProxyTarget, String> query) {
+        long size = 0;
+
+        try {
+            firstPageTargetSets = rolloutGroup
+                    .map(group -> getRolloutGroupManagement().findAllTargetsOfRolloutGroupWithActionStatus(
+                            new PageRequest(0, SPUIDefinitions.PAGE_SIZE, sort), group.getId()))
+                    .orElse(null);
+
+            size = firstPageTargetSets == null ? 0 : firstPageTargetSets.getTotalElements();
+        } catch (final EntityNotFoundException e) {
+            LOG.error("Rollout does not exists. Redirect to Rollouts overview", e);
+            rolloutUIState.setShowRolloutGroupTargets(false);
+            rolloutUIState.setShowRollOuts(true);
+            return 0;
+        }
+
+        getRolloutUIState().setRolloutGroupTargetsTotalCount(size);
+        if (size > SPUIDefinitions.MAX_TABLE_ENTRIES) {
+            getRolloutUIState().setRolloutGroupTargetsTruncated(size - SPUIDefinitions.MAX_TABLE_ENTRIES);
+            return SPUIDefinitions.MAX_TABLE_ENTRIES;
+        }
+
+        return (int) size;
     }
 
 }

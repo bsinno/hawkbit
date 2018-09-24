@@ -10,20 +10,16 @@
 
 -->
 <module>
-    <inherits name="com.vaadin.v7.Vaadin7WidgetSet"/>
 
     <inherits name="org.eclipse.hawkbit.ui.AppWidgetSet"/>
 
-    
-
-    <inherits name="org.vaadin.tokenfield.TokenfieldWidgetset"/>
-
     <inherits name="org.eclipse.hawkbit.ui.customrenderers.CustomRendererWidgetSet"/>
-
-    <inherits name="org.vaadin.hene.flexibleoptiongroup.widgetset.FlexibleOptionGroupWidgetset"/>
-
-    <inherits name="org.vaadin.alump.distributionbar.gwt.DistributionBarWidgetset"/>
 
     <inherits name="com.github.gwtd3.D3"/>
 
+    <inherits name="com.vaadin.DefaultWidgetSet" />
+
+    <inherits name="org.vaadin.alump.distributionbar.gwt.DistributionBarWidgetset" />
+
+    
 </module>
