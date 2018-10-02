@@ -91,5 +91,9 @@
          <artifactId>protostuff-runtime</artifactId>
          <optional>true</optional>
       </dependency>
+      <dependency>
+         <groupId>org.vaadin.spring.extensions</groupId>
+         <artifactId>vaadin-spring-ext-security</artifactId>
+      </dependency>      
    </dependencies>
 </project>

@@ -86,10 +86,12 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.util.StringUtils;
+import org.vaadin.spring.http.HttpService;
 import org.vaadin.spring.security.VaadinSecurityContext;
 import org.vaadin.spring.security.annotation.EnableVaadinSharedSecurity;
 import org.vaadin.spring.security.shared.VaadinAuthenticationSuccessHandler;
 import org.vaadin.spring.security.shared.VaadinUrlAuthenticationSuccessHandler;
+import org.vaadin.spring.security.web.DefaultVaadinRedirectStrategy;
 import org.vaadin.spring.security.web.VaadinRedirectStrategy;
 
 /**
@@ -550,6 +552,9 @@ public class SecurityManagedConfiguration {
         @Autowired
         private HawkbitSecurityProperties hawkbitSecurityProperties;
 
+        @Autowired
+        private HttpService httpService;
+
         /**
          * Filter to protect the hawkBit management UI against to many requests.
          * 
@@ -594,7 +599,7 @@ public class SecurityManagedConfiguration {
          */
         @Bean
         public VaadinRedirectStrategy vaadinRedirectStrategy() {
-            return new VaadinDefaultRedirectStrategy();
+            return new DefaultVaadinRedirectStrategy();
         }
 
         /**
@@ -603,10 +608,11 @@ public class SecurityManagedConfiguration {
         @Bean
         public VaadinAuthenticationSuccessHandler redirectSaveHandler() {
 
-            final VaadinUrlAuthenticationSuccessHandler handler = new TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler();
+            final VaadinUrlAuthenticationSuccessHandler handler = new TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(
+                    httpService, vaadinRedirectStrategy(), "/UI/");
 
-            handler.setRedirectStrategy(vaadinRedirectStrategy());
-            handler.setDefaultTargetUrl("/UI/");
+            // handler.setRedirectStrategy(vaadinRedirectStrategy());
+            // handler.setDefaultTargetUrl("/UI/");
             handler.setTargetUrlParameter("r");
 
             return handler;
