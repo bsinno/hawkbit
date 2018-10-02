@@ -28,6 +28,8 @@ public class RolloutGroupsListView extends AbstractGridComponentLayout {
     private final RolloutUIState rolloutUIState;
     private final transient RolloutGroupManagement rolloutGroupManagement;
 
+    private final RolloutGroupDataProvider rolloutGroupDataProvider;
+
     /**
      * Constructor for RolloutGroupsListView
      * 
@@ -44,11 +46,12 @@ public class RolloutGroupsListView extends AbstractGridComponentLayout {
      */
     public RolloutGroupsListView(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
-            final SpPermissionChecker permissionChecker) {
+            final SpPermissionChecker permissionChecker, final RolloutGroupDataProvider rolloutGroupDataProvider) {
         super(i18n, eventBus);
         this.permissionChecker = permissionChecker;
         this.rolloutUIState = rolloutUIState;
         this.rolloutGroupManagement = rolloutGroupManagement;
+        this.rolloutGroupDataProvider = rolloutGroupDataProvider;
         init();
     }
 
@@ -65,7 +68,7 @@ public class RolloutGroupsListView extends AbstractGridComponentLayout {
     @Override
     public Grid createGrid() {
         return new RolloutGroupListGrid(getI18n(), getEventBus(), rolloutGroupManagement, rolloutUIState,
-                permissionChecker);
+                permissionChecker, rolloutGroupDataProvider);
     }
 
 }

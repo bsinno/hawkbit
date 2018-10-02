@@ -47,6 +47,8 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
     private static final Map<RolloutGroupStatus, StatusFontIcon> statusIconMap = new EnumMap<>(
             RolloutGroupStatus.class);
 
+    private final RolloutGroupDataProvider rolloutGroupDataProvider;
+
     static {
         statusIconMap.put(RolloutGroupStatus.FINISHED,
                 new StatusFontIcon(VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
@@ -76,10 +78,13 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
      */
     public RolloutGroupListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
-            final SpPermissionChecker permissionChecker) {
+            final SpPermissionChecker permissionChecker, final RolloutGroupDataProvider rolloutGroupDataProvider) {
         super(i18n, eventBus, permissionChecker);
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.rolloutUIState = rolloutUIState;
+        this.rolloutGroupDataProvider = rolloutGroupDataProvider;
+
+        setBeanType(ProxyRolloutGroup.class);
 
         init();
     }
@@ -332,7 +337,7 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
     // public TotalTargetCountStatus convertToModel(final String value,
     // final Class<? extends TotalTargetCountStatus> targetType, final Locale
     // locale) {
-    // return null;
+    // return null;rolloutGroupDataProvider
     // }
     //
     // @Override
@@ -428,7 +433,7 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
 
     @Override
     protected void setDataProvider() {
-        setDataProvider(new RolloutGroupDataProvider());
+        setDataProvider(rolloutGroupDataProvider);
     }
 
 }

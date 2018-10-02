@@ -25,10 +25,14 @@ public class RolloutGroupTargetsListView extends AbstractGridComponentLayout {
 
     private final RolloutUIState rolloutUIState;
 
+    private final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider;
+
     public RolloutGroupTargetsListView(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final RolloutUIState rolloutUIState) {
+            final RolloutUIState rolloutUIState,
+            final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider) {
         super(i18n, eventBus);
         this.rolloutUIState = rolloutUIState;
+        this.rolloutGroupTargetsDataProvider = rolloutGroupTargetsDataProvider;
         this.setFooterSupport(new RolloutTargetsCountFooterSupport());
         init();
     }
@@ -45,7 +49,8 @@ public class RolloutGroupTargetsListView extends AbstractGridComponentLayout {
 
     @Override
     public RolloutGroupTargetsListGrid createGrid() {
-        return new RolloutGroupTargetsListGrid(getI18n(), getEventBus(), rolloutUIState);
+        return new RolloutGroupTargetsListGrid(getI18n(), getEventBus(), rolloutUIState,
+                rolloutGroupTargetsDataProvider);
     }
 
     class RolloutTargetsCountFooterSupport extends AbstractFooterSupport {

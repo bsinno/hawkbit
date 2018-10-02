@@ -57,7 +57,6 @@ import com.vaadin.data.Converter;
 import com.vaadin.data.Result;
 import com.vaadin.data.ValueContext;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.components.grid.HeaderCell;
@@ -91,7 +90,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
 
     private final RolloutUIState rolloutUIState;
 
-    private final ProxyRolloutService proxyRolloutService;
+    private final RolloutDataProvider rolloutDataProvider;
 
     private static final List<RolloutStatus> DELETE_COPY_BUTTON_ENABLED = Arrays.asList(RolloutStatus.CREATING,
             RolloutStatus.ERROR_CREATING, RolloutStatus.ERROR_STARTING, RolloutStatus.PAUSED, RolloutStatus.READY,
@@ -146,7 +145,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             final TargetManagement targetManagement, final EntityFactory entityFactory, final UiProperties uiProperties,
             final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
-            final TenantConfigurationManagement tenantConfigManagement, final ProxyRolloutService proxyRolloutService) {
+            final TenantConfigurationManagement tenantConfigManagement, final RolloutDataProvider rolloutDataProvider) {
         super(i18n, eventBus, permissionChecker);
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
@@ -156,7 +155,9 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
                 rolloutGroupManagement, quotaManagement);
         this.uiNotification = uiNotification;
         this.rolloutUIState = rolloutUIState;
-        this.proxyRolloutService = proxyRolloutService;
+        this.rolloutDataProvider = rolloutDataProvider;
+
+        setBeanType(ProxyRollout.class);
 
         init();
         hideColumnsDueToInsufficientPermissions();
@@ -241,11 +242,12 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         // use a Data Provider to fill the Grid with Data. You can also use
         // grid.setItems(list), but this is only for a small amount of data. If
         // the data amount is too large this is not recommended.
-        setDataProvider((sortOrders, offset, limit) -> {
-            final Map<String, Boolean> sortOrder = sortOrders.stream().collect(Collectors
-                    .toMap(sort -> sort.getSorted(), sort -> SortDirection.ASCENDING.equals(sort.getDirection())));
-            return proxyRolloutService.findAll(offset, limit, sortOrder).stream();
-        }, proxyRolloutService::size);
+//        setDataProvider((sortOrders, offset, limit) -> {
+//            final Map<String, Boolean> sortOrder = sortOrders.stream().collect(Collectors
+//                    .toMap(sort -> sort.getSorted(), sort -> SortDirection.ASCENDING.equals(sort.getDirection())));
+//            return proxyRolloutService.findAll(offset, limit, sortOrder).stream();
+//        }, proxyRolloutService::size);
+        setDataProvider(rolloutDataProvider);
     }
 
     @Override

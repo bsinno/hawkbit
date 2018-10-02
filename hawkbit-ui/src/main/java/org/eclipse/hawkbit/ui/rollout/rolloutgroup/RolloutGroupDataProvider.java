@@ -23,9 +23,9 @@ import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SpringContextHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -69,7 +69,13 @@ public class RolloutGroupDataProvider extends AbstractBackEndDataProvider<ProxyR
      * @param sortStates
      *            as Sort status
      */
-    public RolloutGroupDataProvider() {
+    @Autowired
+    public RolloutGroupDataProvider(final RolloutManagement rolloutManagement,
+            final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState) {
+
+        this.rolloutManagement = rolloutManagement;
+        this.rolloutGroupManagement = rolloutGroupManagement;
+        this.rolloutUIState = rolloutUIState;
 
         rolloutId = getRolloutId();
 
@@ -84,6 +90,29 @@ public class RolloutGroupDataProvider extends AbstractBackEndDataProvider<ProxyR
         // sortPropertyIds[targetId]));
         // }
         // }
+    }
+
+    public RolloutManagement getRolloutManagement() {
+        // if (rolloutManagement == null) {
+        // rolloutManagement =
+        // SpringContextHelper.getBean(RolloutManagement.class);
+        // }
+        return rolloutManagement;
+    }
+
+    public RolloutGroupManagement getRolloutGroupManagement() {
+        // if (rolloutGroupManagement == null) {
+        // rolloutGroupManagement =
+        // SpringContextHelper.getBean(RolloutGroupManagement.class);
+        // }
+        return rolloutGroupManagement;
+    }
+
+    public RolloutUIState getRolloutUIState() {
+        // if (rolloutUIState == null) {
+        // rolloutUIState = SpringContextHelper.getBean(RolloutUIState.class);
+        // }
+        return rolloutUIState;
     }
 
     private Long getRolloutId() {
@@ -133,27 +162,6 @@ public class RolloutGroupDataProvider extends AbstractBackEndDataProvider<ProxyR
         proxyRolloutGroup.setTotalTargetCountStatus(rolloutGroup.getTotalTargetCountStatus());
 
         return proxyRolloutGroup;
-    }
-
-    public RolloutManagement getRolloutManagement() {
-        if (rolloutManagement == null) {
-            rolloutManagement = SpringContextHelper.getBean(RolloutManagement.class);
-        }
-        return rolloutManagement;
-    }
-
-    public RolloutGroupManagement getRolloutGroupManagement() {
-        if (rolloutGroupManagement == null) {
-            rolloutGroupManagement = SpringContextHelper.getBean(RolloutGroupManagement.class);
-        }
-        return rolloutGroupManagement;
-    }
-
-    public RolloutUIState getRolloutUIState() {
-        if (rolloutUIState == null) {
-            rolloutUIState = SpringContextHelper.getBean(RolloutUIState.class);
-        }
-        return rolloutUIState;
     }
 
     @Override

@@ -39,11 +39,13 @@ import com.vaadin.icons.VaadinIcons;
  */
 public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget> {
 
-    private static final long serialVersionUID = -2244756637458984597L;
+    private static final long serialVersionUID = 1L;
 
     private final RolloutUIState rolloutUIState;
 
     private static final Map<Status, StatusFontIcon> statusIconMap = new EnumMap<>(Status.class);
+
+    private final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider;
 
     static {
         statusIconMap.put(Status.FINISHED,
@@ -79,9 +81,13 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget> {
      *            RolloutUIState
      */
     public RolloutGroupTargetsListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final RolloutUIState rolloutUIState) {
+            final RolloutUIState rolloutUIState,
+            final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider) {
         super(i18n, eventBus, null);
         this.rolloutUIState = rolloutUIState;
+        this.rolloutGroupTargetsDataProvider = rolloutGroupTargetsDataProvider;
+
+        setBeanType(ProxyTarget.class);
 
         init();
     }
@@ -116,7 +122,7 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget> {
         // rolloutGroupTargetGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_STATUS,
         // Status.class,
         // Status.RETRIEVED, false, false);
-        // rolloutGroupTargetGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_BY,
+        // rolloutGroupTargetGridContainer.addContainerProperty(SPUIrolloutGroupTargetsDataProviderLabelDefinitions.VAR_CREATED_BY,
         // String.class, null,
         // false, true);
         // rolloutGroupTargetGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_LAST_MODIFIED_BY,
@@ -293,7 +299,7 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget> {
 
     @Override
     protected void setDataProvider() {
-        setDataProvider(new RolloutGroupTargetsDataProvider());
+        setDataProvider(rolloutGroupTargetsDataProvider);
     }
 
 }

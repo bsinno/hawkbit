@@ -25,9 +25,9 @@ import org.eclipse.hawkbit.ui.components.ProxyTarget;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SpringContextHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -58,9 +58,40 @@ public class RolloutGroupTargetsDataProvider extends AbstractBackEndDataProvider
 
     private final transient Optional<RolloutGroup> rolloutGroup;
 
-    public RolloutGroupTargetsDataProvider() {
+    @Autowired
+    public RolloutGroupTargetsDataProvider(final RolloutManagement rolloutManagement,
+            final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState) {
+
+        this.rolloutManagement = rolloutManagement;
+        this.rolloutGroupManagement = rolloutGroupManagement;
+        this.rolloutUIState = rolloutUIState;
 
         rolloutGroup = getRolloutUIState().getRolloutGroup();
+    }
+
+
+    public RolloutManagement getRolloutManagement() {
+        // if (null == rolloutManagement) {
+        // rolloutManagement =
+        // SpringContextHelper.getBean(RolloutManagement.class);
+        // }
+        return rolloutManagement;
+    }
+
+    public RolloutGroupManagement getRolloutGroupManagement() {
+        // if (null == rolloutGroupManagement) {
+        // rolloutGroupManagement =
+        // SpringContextHelper.getBean(RolloutGroupManagement.class);
+        // }
+        return rolloutGroupManagement;
+    }
+
+
+    public RolloutUIState getRolloutUIState() {
+        // if (null == rolloutUIState) {
+        // rolloutUIState = SpringContextHelper.getBean(RolloutUIState.class);
+        // }
+        return rolloutUIState;
     }
 
     protected List<ProxyTarget> loadBeans(final int startIndex, final int count) {
@@ -100,37 +131,6 @@ public class RolloutGroupTargetsDataProvider extends AbstractBackEndDataProvider
         prxyTarget.setLastTargetQuery(targ.getLastTargetQuery());
         prxyTarget.setId(targ.getId());
         return prxyTarget;
-    }
-
-
-    /**
-     * @return the rolloutManagement
-     */
-    public RolloutManagement getRolloutManagement() {
-        if (null == rolloutManagement) {
-            rolloutManagement = SpringContextHelper.getBean(RolloutManagement.class);
-        }
-        return rolloutManagement;
-    }
-
-    /**
-     * @return the rolloutManagement
-     */
-    public RolloutGroupManagement getRolloutGroupManagement() {
-        if (null == rolloutGroupManagement) {
-            rolloutGroupManagement = SpringContextHelper.getBean(RolloutGroupManagement.class);
-        }
-        return rolloutGroupManagement;
-    }
-
-    /**
-     * @return the rolloutUIState
-     */
-    public RolloutUIState getRolloutUIState() {
-        if (null == rolloutUIState) {
-            rolloutUIState = SpringContextHelper.getBean(RolloutUIState.class);
-        }
-        return rolloutUIState;
     }
 
     @Override

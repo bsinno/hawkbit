@@ -11,12 +11,18 @@ package org.eclipse.hawkbit.autoconfigure.mgmt.ui;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.hawkbit.DistributedResourceBundleMessageSource;
+import org.eclipse.hawkbit.repository.RolloutGroupManagement;
+import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.ui.MgmtUiConfiguration;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.push.DelayedEventBusPushStrategy;
 import org.eclipse.hawkbit.ui.push.EventPushStrategy;
 import org.eclipse.hawkbit.ui.push.HawkbitEventProvider;
 import org.eclipse.hawkbit.ui.push.UIEventProvider;
+import org.eclipse.hawkbit.ui.rollout.rollout.RolloutDataProvider;
+import org.eclipse.hawkbit.ui.rollout.rolloutgroup.RolloutGroupDataProvider;
+import org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets.RolloutGroupTargetsDataProvider;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -94,6 +100,30 @@ public class MgmtUiAutoConfiguration {
                 eventBus, eventProvider, uiProperties.getEvent().getPush().getDelay());
         applicationContext.addApplicationListener(delayedEventBusPushStrategy);
         return delayedEventBusPushStrategy;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @UIScope
+    RolloutDataProvider rolloutDataProvider(final RolloutManagement rolloutManagement,
+            final RolloutUIState rolloutUIState) {
+        return new RolloutDataProvider(rolloutManagement, rolloutUIState);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @UIScope
+    RolloutGroupDataProvider rolloutGroupDataProvider(final RolloutManagement rolloutManagement,
+            final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState) {
+        return new RolloutGroupDataProvider(rolloutManagement, rolloutGroupManagement, rolloutUIState);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @UIScope
+    RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider(final RolloutManagement rolloutManagement,
+            final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState) {
+        return new RolloutGroupTargetsDataProvider(rolloutManagement, rolloutGroupManagement, rolloutUIState);
     }
 
 }

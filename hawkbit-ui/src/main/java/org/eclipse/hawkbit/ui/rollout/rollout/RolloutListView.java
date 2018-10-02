@@ -39,7 +39,7 @@ public class RolloutListView extends AbstractGridComponentLayout {
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
     private final transient QuotaManagement quotaManagement;
     private final transient TenantConfigurationManagement tenantConfigManagement;
-    private final transient ProxyRolloutService proxyRolloutService;
+    private final transient RolloutDataProvider rolloutDataProvider;
 
     private final SpPermissionChecker permissionChecker;
     private final RolloutUIState rolloutUIState;
@@ -52,7 +52,7 @@ public class RolloutListView extends AbstractGridComponentLayout {
             final UiProperties uiProperties, final EntityFactory entityFactory, final VaadinMessageSource i18n,
             final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
-            final TenantConfigurationManagement tenantConfigManagement, final ProxyRolloutService proxyRolloutService) {
+            final TenantConfigurationManagement tenantConfigManagement, final RolloutDataProvider rolloutDataProvider) {
         super(i18n, eventBus);
         this.permissionChecker = permissionChecker;
         this.rolloutUIState = rolloutUIState;
@@ -65,7 +65,7 @@ public class RolloutListView extends AbstractGridComponentLayout {
         this.entityFactory = entityFactory;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.tenantConfigManagement = tenantConfigManagement;
-        this.proxyRolloutService = proxyRolloutService;
+        this.rolloutDataProvider = rolloutDataProvider;
 
         init();
     }
@@ -86,7 +86,7 @@ public class RolloutListView extends AbstractGridComponentLayout {
     public Grid createGrid() {
         return new RolloutListGrid(getI18n(), getEventBus(), rolloutManagement, uiNotification, rolloutUIState,
                 permissionChecker, targetManagement, entityFactory, uiProperties, targetFilterQueryManagement,
-                rolloutGroupManagement, quotaManagement, tenantConfigManagement, proxyRolloutService);
+                rolloutGroupManagement, quotaManagement, tenantConfigManagement, rolloutDataProvider);
     }
 
 }
