@@ -34,7 +34,6 @@ import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.RolloutRenderer;
 import org.eclipse.hawkbit.ui.push.RolloutChangeEventContainer;
 import org.eclipse.hawkbit.ui.push.RolloutDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
@@ -56,10 +55,13 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 import com.vaadin.data.Converter;
 import com.vaadin.data.Result;
 import com.vaadin.data.ValueContext;
+import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.components.grid.HeaderCell;
+import com.vaadin.ui.renderers.AbstractRenderer;
+import com.vaadin.ui.renderers.ButtonRenderer;
 import com.vaadin.ui.renderers.ClickableRenderer.RendererClickEvent;
 
 /**
@@ -111,11 +113,6 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
 
     private static final Map<RolloutStatus, StatusFontIcon> statusIconMap = new EnumMap<>(RolloutStatus.class);
 
-    private static final List<String> HIDDEN_COLUMNS = Arrays.asList(SPUILabelDefinitions.VAR_CREATED_DATE,
-            SPUILabelDefinitions.VAR_CREATED_USER, SPUILabelDefinitions.VAR_MODIFIED_DATE,
-            SPUILabelDefinitions.VAR_MODIFIED_BY, SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY,
-            SPUILabelDefinitions.VAR_APPROVAL_REMARK, SPUILabelDefinitions.VAR_DESC);
-
     static {
         statusIconMap.put(RolloutStatus.FINISHED,
                 new StatusFontIcon(VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
@@ -157,10 +154,11 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         this.rolloutUIState = rolloutUIState;
         this.rolloutDataProvider = rolloutDataProvider;
 
-        setBeanType(ProxyRollout.class);
+        // setBeanType(ProxyRollout.class);
 
         init();
-        hideColumnsDueToInsufficientPermissions();
+        // hideColumnsDueToInsufficientPermissions();
+
     }
 
     /**
@@ -242,11 +240,14 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         // use a Data Provider to fill the Grid with Data. You can also use
         // grid.setItems(list), but this is only for a small amount of data. If
         // the data amount is too large this is not recommended.
-//        setDataProvider((sortOrders, offset, limit) -> {
-//            final Map<String, Boolean> sortOrder = sortOrders.stream().collect(Collectors
-//                    .toMap(sort -> sort.getSorted(), sort -> SortDirection.ASCENDING.equals(sort.getDirection())));
-//            return proxyRolloutService.findAll(offset, limit, sortOrder).stream();
-//        }, proxyRolloutService::size);
+        // setDataProvider((sortOrders, offset, limit) -> {
+        // final Map<String, Boolean> sortOrder =
+        // sortOrders.stream().collect(Collectors
+        // .toMap(sort -> sort.getSorted(), sort ->
+        // SortDirection.ASCENDING.equals(sort.getDirection())));
+        // return proxyRolloutService.findAll(offset, limit,
+        // sortOrder).stream();
+        // }, proxyRolloutService::size);
         setDataProvider(rolloutDataProvider);
     }
 
@@ -268,28 +269,247 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     }
 
     @Override
-    protected void addColumns() {
-        final RolloutRenderer customObjectRenderer = new RolloutRenderer(RolloutRendererData.class);
-        customObjectRenderer.addClickListener(this::onClickOfRolloutName);
+    protected void setColumnHeaderNames() {
+        // getColumn(ROLLOUT_RENDERER_DATA).setCaption(i18n.getMessage("header.name"));
+        // getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).setCaption(i18n.getMessage("header.distributionset"));
+        // getColumn(SPUILabelDefinitions.VAR_STATUS).setCaption(i18n.getMessage("header.status"));
+        // getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
+        // .setCaption(i18n.getMessage("header.detail.status"));
+        // getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setCaption(i18n.getMessage("header.numberofgroups"));
+        // getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"));
+        // getColumn(VIRT_PROP_RUN).setCaption(i18n.getMessage("header.action.run"));
+        // getColumn(VIRT_PROP_APPROVE).setCaption(i18n.getMessage("header.action.approve"));
+        // getColumn(VIRT_PROP_PAUSE).setCaption(i18n.getMessage("header.action.pause"));
+        // getColumn(VIRT_PROP_UPDATE).setCaption(i18n.getMessage("header.action.update"));
+        // getColumn(VIRT_PROP_COPY).setCaption(i18n.getMessage("header.action.copy"));
+        // getColumn(VIRT_PROP_DELETE).setCaption(i18n.getMessage("header.action.delete"));
+        // getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setCaption(i18n.getMessage("header.createdDate"));
+        // getColumn(SPUILabelDefinitions.VAR_CREATED_USER).setCaption(i18n.getMessage("header.createdBy"));
+        // getColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setCaption(i18n.getMessage("header.modifiedDate"));
+        // getColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setCaption(i18n.getMessage("header.modifiedBy"));
+        // getColumn(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY).setCaption(i18n.getMessage("header.approvalDecidedBy"));
+        // getColumn(SPUILabelDefinitions.VAR_APPROVAL_REMARK).setCaption(i18n.getMessage("header.approvalRemark"));
+        // getColumn(SPUILabelDefinitions.VAR_DESC).setCaption(i18n.getMessage("header.description"));
+    }
 
-        addColumn(ProxyRollout::getRolloutRendererData, customObjectRenderer).setId(ROLLOUT_RENDERER_DATA);
-        addColumn(ProxyRollout::getDistributionSetNameVersion).setId(SPUILabelDefinitions.VAR_DIST_NAME_VERSION);
-        addColumn(ProxyRollout::getStatus)/*
-                                           * .setRenderer(new
-                                           * HtmlLabelRenderer<RolloutStatus>())
-                                           */
-                .setId(SPUILabelDefinitions.VAR_STATUS);
-        addColumn(ProxyRollout::getTotalTargetCountStatus).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS);
-        addColumn(ProxyRollout::getNumberOfGroups).setId(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS);
-        addColumn(ProxyRollout::getTotalTargetsCount).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS);
+    @Override
+    protected void setColumnExpandRatio() {
+        //
+        // getColumn(ROLLOUT_RENDERER_DATA).setMinimumWidth(40);
+        // getColumn(ROLLOUT_RENDERER_DATA).setMaximumWidth(300);
+
+        // getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).setMinimumWidth(40);
+        // getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).setMaximumWidth(300);
+
+        // getColumn(SPUILabelDefinitions.VAR_STATUS).setMinimumWidth(40);
+        // getColumn(SPUILabelDefinitions.VAR_STATUS).setMaximumWidth(60);
+
+        // getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setMinimumWidth(40);
+        // getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setMaximumWidth(60);
+
+        // getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setMinimumWidth(40);
+        // getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setMaximumWidth(60);
+
+        // getColumn(VIRT_PROP_RUN).setMinimumWidth(25);
+        // getColumn(VIRT_PROP_RUN).setMaximumWidth(25);
+        //
+        // getColumn(VIRT_PROP_APPROVE).setMinimumWidth(25);
+        // getColumn(VIRT_PROP_APPROVE).setMaximumWidth(25);
+        //
+        // getColumn(VIRT_PROP_PAUSE).setMinimumWidth(25);
+        // getColumn(VIRT_PROP_PAUSE).setMaximumWidth(25);
+        //
+        // getColumn(VIRT_PROP_UPDATE).setMinimumWidth(25);
+        // getColumn(VIRT_PROP_UPDATE).setMaximumWidth(25);
+        //
+        // getColumn(VIRT_PROP_COPY).setMinimumWidth(25);
+        // getColumn(VIRT_PROP_COPY).setMaximumWidth(25);
+        //
+        // getColumn(VIRT_PROP_DELETE).setMinimumWidth(25);
+        // getColumn(VIRT_PROP_DELETE).setMaximumWidth(40);
+
+        // getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS).setMinimumWidth(280);
+    }
+
+    // private static final List<String> HIDDEN_COLUMNS =
+    // Arrays.asList(SPUILabelDefinitions.VAR_CREATED_DATE,
+    // SPUILabelDefinitions.VAR_CREATED_USER,
+    // SPUILabelDefinitions.VAR_MODIFIED_DATE,
+    // SPUILabelDefinitions.VAR_MODIFIED_BY,
+    // SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY,
+    // SPUILabelDefinitions.VAR_APPROVAL_REMARK, SPUILabelDefinitions.VAR_DESC);
+
+    @Override
+    protected void setHiddenColumns() {
+        // for (final String propertyId : HIDDEN_COLUMNS) {
+        // getColumn(propertyId).setHidden(true);
+        // }
+        //
+        // getColumn(VIRT_PROP_RUN).setHidable(false);
+        // getColumn(VIRT_PROP_APPROVE).setHidable(false);
+        // getColumn(VIRT_PROP_PAUSE).setHidable(false);
+        // getColumn(VIRT_PROP_DELETE).setHidable(false);
+        // getColumn(VIRT_PROP_UPDATE).setHidable(false);
+        // getColumn(VIRT_PROP_COPY).setHidable(false);
+    }
+
+    @Override
+    protected void addColumns() {
+        final ButtonRenderer<ProxyRollout> buttonRenderer = new ButtonRenderer<>();
+        buttonRenderer.addClickListener(this::onClickOfRolloutName);
+        addColumnInternal(new ColumnDefinition<String>(buttonRenderer, ROLLOUT_RENDERER_DATA, "header.name",
+                ProxyRollout::getName, 40d, 300d, true, false));
+
+        // addComponentColumn(rollout -> {
+        // final Button link = new Button();
+        // link.addClickListener(clickEvent -> approveRollout(rollout.getId()));
+        // link.setCaption(rollout.getName());
+        // return approve;
+        // });
+
+        // final RolloutRenderer<ProxyRollout> renderer = new
+        // RolloutRenderer<>(RolloutRendererData.class);
+        // renderer.addClickListener(this::onClickOfRolloutName);
+        // addColumnInternal(new ColumnDefinition<RolloutRendererData>(renderer,
+        // ROLLOUT_RENDERER_DATA + "1",
+        // "header.name",
+        // ProxyRollout::getRolloutRendererData, 40d, 300d, true, false));
+
+        addColumnInternal(new ColumnDefinition<String>(null, SPUILabelDefinitions.VAR_DIST_NAME_VERSION,
+                "header.distributionset", ProxyRollout::getDistributionSetNameVersion, 40d, 300d, true, false));
+
+        addColumnInternal(new ColumnDefinition<>(null, SPUILabelDefinitions.VAR_STATUS, "header.status",
+                ProxyRollout::getStatus, 40d, 60d, true, false));
+        
+        addColumnInternal(new ColumnDefinition<TotalTargetCountStatus>(null,
+                SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS, "header.detail.status",
+                ProxyRollout::getTotalTargetCountStatus, 280d, null, true, false));
+
+        addColumnInternal(new ColumnDefinition<Integer>(null, SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS,
+                "header.numberofgroups", ProxyRollout::getNumberOfGroups, 40d, 60d, true, false));
+
+        addColumnInternal(new ColumnDefinition<String>(null, SPUILabelDefinitions.VAR_TOTAL_TARGETS,
+                "header.total.targets", ProxyRollout::getTotalTargetsCount, 40d, 60d, true, false));
+
         addGeneratedColumns();
-        addColumn(ProxyRollout::getCreatedDate).setId(SPUILabelDefinitions.VAR_CREATED_DATE);
-        addColumn(ProxyRollout::getCreatedDate).setId(SPUILabelDefinitions.VAR_CREATED_USER);
-        addColumn(ProxyRollout::getModifiedDate).setId(SPUILabelDefinitions.VAR_MODIFIED_DATE);
-        addColumn(ProxyRollout::getLastModifiedBy).setId(SPUILabelDefinitions.VAR_MODIFIED_BY);
-        addColumn(ProxyRollout::getApprovalDecidedBy).setId(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY);
-        addColumn(ProxyRollout::getApprovalRemark).setId(SPUILabelDefinitions.VAR_APPROVAL_REMARK);
-        addColumn(ProxyRollout::getDescription).setId(SPUILabelDefinitions.VAR_DESC);
+        
+        addColumnInternal(new ColumnDefinition<String>(null, SPUILabelDefinitions.VAR_CREATED_DATE,
+                "header.createdDate", ProxyRollout::getCreatedDate, null, null, true, true));
+
+        addColumnInternal(new ColumnDefinition<String>(null, SPUILabelDefinitions.VAR_CREATED_USER, "header.createdBy",
+                ProxyRollout::getCreatedBy, null, null, true, true));
+
+        addColumnInternal(new ColumnDefinition<String>(null, SPUILabelDefinitions.VAR_MODIFIED_DATE,
+                "header.modifiedDate", ProxyRollout::getModifiedDate, null, null, true, true));
+
+        addColumnInternal(new ColumnDefinition<String>(null, SPUILabelDefinitions.VAR_MODIFIED_BY, "header.modifiedBy",
+                ProxyRollout::getLastModifiedBy, null, null, true, true));
+
+        addColumnInternal(new ColumnDefinition<String>(null, SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY,
+                "header.approvalDecidedBy", ProxyRollout::getApprovalDecidedBy, null, null, true, true));
+
+        addColumnInternal(new ColumnDefinition<String>(null, SPUILabelDefinitions.VAR_APPROVAL_REMARK,
+                "header.approvalRemark", ProxyRollout::getApprovalRemark, null, null, true, true));
+
+        addColumnInternal(new ColumnDefinition<String>(null, SPUILabelDefinitions.VAR_DESC, "header.description",
+                ProxyRollout::getDescription, null, null, true, true));
+
+        // addColumn(ProxyRollout::getRolloutRendererData,
+        // customObjectRenderer).setId(ROLLOUT_RENDERER_DATA);
+        
+        // addColumn(ProxyRollout::getDistributionSetNameVersion).setId(SPUILabelDefinitions.VAR_DIST_NAME_VERSION);
+        // addColumn(ProxyRollout::getStatus)/*
+        // * .setRenderer(new
+        // * HtmlLabelRenderer<RolloutStatus>())
+        // */
+        // .setId(SPUILabelDefinitions.VAR_STATUS);
+        // addColumn(ProxyRollout::getTotalTargetCountStatus).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS);
+        // addColumn(ProxyRollout::getNumberOfGroups).setId(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS);
+        // addColumn(ProxyRollout::getTotalTargetsCount).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS);
+        // addGeneratedColumns();
+        // addColumn(ProxyRollout::getCreatedDate).setId(SPUILabelDefinitions.VAR_CREATED_DATE);
+        // addColumn(ProxyRollout::getCreatedDate).setId(SPUILabelDefinitions.VAR_CREATED_USER);
+        // addColumn(ProxyRollout::getModifiedDate).setId(SPUILabelDefinitions.VAR_MODIFIED_DATE);
+        // addColumn(ProxyRollout::getLastModifiedBy).setId(SPUILabelDefinitions.VAR_MODIFIED_BY);
+        // addColumn(ProxyRollout::getApprovalDecidedBy).setId(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY);
+        // addColumn(ProxyRollout::getApprovalRemark).setId(SPUILabelDefinitions.VAR_APPROVAL_REMARK);
+        // addColumn(ProxyRollout::getDescription).setId(SPUILabelDefinitions.VAR_DESC);
+    }
+
+    private <V> void addColumnInternal(final ColumnDefinition<V> columnDefinition) {
+
+        final Column<ProxyRollout, V> column = addColumn(columnDefinition.getValueProvider())
+                .setId(columnDefinition.getId())
+                .setCaption(i18n.getMessage(columnDefinition.getHeaderMessagePropertyId()))
+                .setHidable(columnDefinition.isHidable()).setHidden(columnDefinition.isHidden());
+
+        if (columnDefinition.getRenderer() != null) {
+            column.setRenderer(columnDefinition.getRenderer());
+        }
+        if(columnDefinition.getMinWidth()!=null) {
+            column.setMinimumWidth(columnDefinition.getMinWidth());
+        }
+        if(columnDefinition.getMaxWidth()!=null) {
+            column.setMaximumWidth(columnDefinition.getMaxWidth());
+        }
+    }
+    
+    private class ColumnDefinition<V> {
+        private final String id;
+        private final ValueProvider<ProxyRollout, V> valueProvider;
+        private final Double minWidth;
+        private final Double maxWidth;
+        private final boolean hidable;
+        private final boolean hidden;
+        private final AbstractRenderer<ProxyRollout, V> renderer;
+        private final String headerMessagePropertyId;
+
+        public ColumnDefinition(final AbstractRenderer<ProxyRollout, V> renderer, final String id,
+                final String headerMessagePropertyId,
+                final ValueProvider<ProxyRollout, V> valueProvider, final Double minWidth, final Double maxWidth,
+                final boolean hidable, final boolean hidden) {
+            super();
+            this.id = id;
+            this.renderer = renderer;
+            this.headerMessagePropertyId = headerMessagePropertyId;
+            this.valueProvider = valueProvider;
+            this.minWidth = minWidth;
+            this.maxWidth = maxWidth;
+            this.hidable = hidable;
+            this.hidden = hidden;
+        }
+
+        public AbstractRenderer<ProxyRollout, V> getRenderer() {
+            return renderer;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public ValueProvider<ProxyRollout, V> getValueProvider() {
+            return valueProvider;
+        }
+
+        public Double getMinWidth() {
+            return minWidth;
+        }
+
+        public Double getMaxWidth() {
+            return maxWidth;
+        }
+
+        public boolean isHidable() {
+            return hidable;
+        }
+
+        public boolean isHidden() {
+            return hidden;
+        }
+
+        public String getHeaderMessagePropertyId() {
+            return headerMessagePropertyId;
+        }
     }
 
     @Override
@@ -304,7 +524,8 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             run.setEnabled(hasToBeEnabled(rollout.getStatus(), RUN_BUTTON_ENABLED));
             run.setId(UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID);
             return run;
-        }).setId(VIRT_PROP_RUN);
+        }).setId(VIRT_PROP_RUN).setCaption(i18n.getMessage("header.action.run")).setHidable(false).setMinimumWidth(25)
+                .setMaximumWidth(25);
         addComponentColumn(rollout -> {
             final Button approve = new Button();
             approve.addClickListener(clickEvent -> approveRollout(rollout.getId()));
@@ -315,7 +536,8 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             approve.setEnabled(hasToBeEnabled(rollout.getStatus(), APPROVE_BUTTON_ENABLED));
             approve.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID);
             return approve;
-        }).setId(VIRT_PROP_APPROVE);
+        }).setId(VIRT_PROP_APPROVE).setCaption(i18n.getMessage("header.action.approve")).setHidable(false)
+                .setMinimumWidth(25).setMaximumWidth(25);
         addComponentColumn(rollout -> {
             final Button pause = new Button();
             pause.addClickListener(clickEvent -> pauseRollout(rollout.getId(), rollout.getName(), rollout.getStatus()));
@@ -324,7 +546,8 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             pause.setEnabled(hasToBeEnabled(rollout.getStatus(), PAUSE_BUTTON_ENABLED));
             pause.setId(UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID);
             return pause;
-        }).setId(VIRT_PROP_PAUSE);
+        }).setId(VIRT_PROP_PAUSE).setCaption(i18n.getMessage("header.action.pause")).setHidable(false)
+                .setMinimumWidth(25).setMaximumWidth(25);
         addComponentColumn(rollout -> {
             final Button update = new Button();
             update.addClickListener(clickEvent -> updateRollout(rollout.getId()));
@@ -333,7 +556,8 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             update.setEnabled(hasToBeEnabled(rollout.getStatus(), UPDATE_BUTTON_ENABLED));
             update.setId(UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID);
             return update;
-        }).setId(VIRT_PROP_UPDATE);
+        }).setId(VIRT_PROP_UPDATE).setCaption(i18n.getMessage("header.action.update")).setHidable(false)
+                .setMinimumWidth(25).setMaximumWidth(25);
         addComponentColumn(rollout -> {
             final Button copy = new Button();
             copy.addClickListener(clickEvent -> copyRollout(rollout.getId()));
@@ -342,7 +566,8 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             copy.setEnabled(hasToBeEnabled(rollout.getStatus(), DELETE_COPY_BUTTON_ENABLED));
             copy.setId(UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID);
             return copy;
-        }).setId(VIRT_PROP_COPY);
+        }).setId(VIRT_PROP_COPY).setCaption(i18n.getMessage("header.action.copy")).setHidable(false).setMinimumWidth(25)
+                .setMaximumWidth(25);
         addComponentColumn(rollout -> {
             final Button delete = new Button();
             delete.addClickListener(clickEvent -> deleteRollout(rollout.getId(), rollout.getName()));
@@ -351,71 +576,9 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             delete.setEnabled(hasToBeEnabled(rollout.getStatus(), DELETE_COPY_BUTTON_ENABLED));
             delete.setId(UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID);
             return delete;
-        }).setId(VIRT_PROP_DELETE);
+        }).setId(VIRT_PROP_DELETE).setCaption(i18n.getMessage("header.action.delete")).setHidable(false)
+                .setMinimumWidth(25).setMaximumWidth(40);
         joinColumns().setText(i18n.getMessage("header.action"));
-    }
-
-    @Override
-    protected void setColumnHeaderNames() {
-        getColumn(ROLLOUT_RENDERER_DATA).setCaption(i18n.getMessage("header.name"));
-        getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).setCaption(i18n.getMessage("header.distributionset"));
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setCaption(i18n.getMessage("header.status"));
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
-                .setCaption(i18n.getMessage("header.detail.status"));
-        getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setCaption(i18n.getMessage("header.numberofgroups"));
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"));
-        getColumn(VIRT_PROP_RUN).setCaption(i18n.getMessage("header.action.run"));
-        getColumn(VIRT_PROP_APPROVE).setCaption(i18n.getMessage("header.action.approve"));
-        getColumn(VIRT_PROP_PAUSE).setCaption(i18n.getMessage("header.action.pause"));
-        getColumn(VIRT_PROP_UPDATE).setCaption(i18n.getMessage("header.action.update"));
-        getColumn(VIRT_PROP_COPY).setCaption(i18n.getMessage("header.action.copy"));
-        getColumn(VIRT_PROP_DELETE).setCaption(i18n.getMessage("header.action.delete"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setCaption(i18n.getMessage("header.createdDate"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_USER).setCaption(i18n.getMessage("header.createdBy"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setCaption(i18n.getMessage("header.modifiedDate"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setCaption(i18n.getMessage("header.modifiedBy"));
-        getColumn(SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY).setCaption(i18n.getMessage("header.approvalDecidedBy"));
-        getColumn(SPUILabelDefinitions.VAR_APPROVAL_REMARK).setCaption(i18n.getMessage("header.approvalRemark"));
-        getColumn(SPUILabelDefinitions.VAR_DESC).setCaption(i18n.getMessage("header.description"));
-    }
-
-    @Override
-    protected void setColumnExpandRatio() {
-
-        getColumn(ROLLOUT_RENDERER_DATA).setMinimumWidth(40);
-        getColumn(ROLLOUT_RENDERER_DATA).setMaximumWidth(300);
-
-        getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).setMinimumWidth(40);
-        getColumn(SPUILabelDefinitions.VAR_DIST_NAME_VERSION).setMaximumWidth(300);
-
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setMinimumWidth(40);
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setMaximumWidth(60);
-
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setMinimumWidth(40);
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setMaximumWidth(60);
-
-        getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setMinimumWidth(40);
-        getColumn(SPUILabelDefinitions.VAR_NUMBER_OF_GROUPS).setMaximumWidth(60);
-
-        getColumn(VIRT_PROP_RUN).setMinimumWidth(25);
-        getColumn(VIRT_PROP_RUN).setMaximumWidth(25);
-
-        getColumn(VIRT_PROP_APPROVE).setMinimumWidth(25);
-        getColumn(VIRT_PROP_APPROVE).setMaximumWidth(25);
-
-        getColumn(VIRT_PROP_PAUSE).setMinimumWidth(25);
-        getColumn(VIRT_PROP_PAUSE).setMaximumWidth(25);
-
-        getColumn(VIRT_PROP_UPDATE).setMinimumWidth(25);
-        getColumn(VIRT_PROP_UPDATE).setMaximumWidth(25);
-
-        getColumn(VIRT_PROP_COPY).setMinimumWidth(25);
-        getColumn(VIRT_PROP_COPY).setMaximumWidth(25);
-
-        getColumn(VIRT_PROP_DELETE).setMinimumWidth(25);
-        getColumn(VIRT_PROP_DELETE).setMaximumWidth(40);
-
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS).setMinimumWidth(280);
     }
 
     private HeaderCell joinColumns() {
@@ -428,7 +591,8 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     protected String getGridId() {
         return UIComponentIdProvider.ROLLOUT_LIST_GRID_ID;
     }
-    //
+
+
     // @Override
     // protected void setColumns() {
     // final List<String> columnsToShowInOrder =
@@ -497,20 +661,6 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
 
     }
 
-    @Override
-    protected void setHiddenColumns() {
-        for (final String propertyId : HIDDEN_COLUMNS) {
-            getColumn(propertyId).setHidden(true);
-        }
-
-        getColumn(VIRT_PROP_RUN).setHidable(false);
-        getColumn(VIRT_PROP_APPROVE).setHidable(false);
-        getColumn(VIRT_PROP_PAUSE).setHidable(false);
-        getColumn(VIRT_PROP_DELETE).setHidable(false);
-        getColumn(VIRT_PROP_UPDATE).setHidable(false);
-        getColumn(VIRT_PROP_COPY).setHidable(false);
-    }
-
     /**
      *
      * Converter to convert {@link RolloutStatus} to string.
@@ -564,10 +714,10 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     // }
     // }
 
-    private void onClickOfRolloutName(final RendererClickEvent event) {
-        rolloutUIState.setRolloutId(((ProxyRollout) event.getItem()).getId());
-        rolloutUIState.setRolloutName(((ProxyRollout) event.getItem()).getName());
-        rolloutUIState.setRolloutDistributionSet(((ProxyRollout) event.getItem()).getDistributionSetNameVersion());
+    private void onClickOfRolloutName(final RendererClickEvent<ProxyRollout> event) {
+        rolloutUIState.setRolloutId((event.getItem()).getId());
+        rolloutUIState.setRolloutName((event.getItem()).getName());
+        rolloutUIState.setRolloutDistributionSet((event.getItem()).getDistributionSetNameVersion());
         eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUPS);
     }
 
@@ -718,16 +868,8 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     }
 
     @Override
-    public void refreshContainer() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     protected void addContainerProperties() {
         // TODO Auto-generated method stub
 
     }
-
-
 }

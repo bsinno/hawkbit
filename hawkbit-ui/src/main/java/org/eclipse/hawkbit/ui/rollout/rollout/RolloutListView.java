@@ -24,7 +24,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Grid;
 
 /**
  * Rollout list view.
@@ -83,7 +82,7 @@ public class RolloutListView extends AbstractGridComponentLayout {
     }
 
     @Override
-    public Grid createGrid() {
+    public RolloutListGrid createGrid() {
         return new RolloutListGrid(getI18n(), getEventBus(), rolloutManagement, uiNotification, rolloutUIState,
                 permissionChecker, targetManagement, entityFactory, uiProperties, targetFilterQueryManagement,
                 rolloutGroupManagement, quotaManagement, tenantConfigManagement, rolloutDataProvider);

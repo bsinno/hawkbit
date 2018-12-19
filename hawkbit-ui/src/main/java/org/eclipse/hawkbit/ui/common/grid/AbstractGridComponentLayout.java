@@ -24,7 +24,7 @@ import com.vaadin.ui.VerticalLayout;
  * Abstract grid layout class which builds layout with grid {@link AbstractGrid}
  * and grid header {@link DefaultGridHeader}.
  */
-public abstract class AbstractGridComponentLayout extends VerticalLayout {
+public abstract class AbstractGridComponentLayout<T> extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,7 +33,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
     private final VaadinMessageSource i18n;
 
     private AbstractOrderedLayout gridHeader;
-    private Grid grid;
+    private Grid<T> grid;
 
     private transient AbstractFooterSupport footerSupport;
 
@@ -84,9 +84,10 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
         gridHeaderLayout.setMargin(false);
 
         gridHeaderLayout.setStyleName("table-layout");
-        gridHeaderLayout.addComponent(gridHeader);
 
+        gridHeaderLayout.addComponent(gridHeader);
         gridHeaderLayout.setComponentAlignment(gridHeader, Alignment.TOP_CENTER);
+
         gridHeaderLayout.addComponent(grid);
         gridHeaderLayout.setComponentAlignment(grid, Alignment.TOP_CENTER);
         gridHeaderLayout.setExpandRatio(grid, 1.0F);
@@ -122,7 +123,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      *
      * @return grid instance displayed and owned by the layout.
      */
-    public Grid getGrid() {
+    public Grid<T> getGrid() {
         return grid;
     }
 
@@ -148,7 +149,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      *
      * @return newly created grid instance displayed and owned by the layout.
      */
-    public abstract Grid createGrid();
+    public abstract Grid<T> createGrid();
 
     /**
      * Enables footer-support for the grid by setting a FooterSupport

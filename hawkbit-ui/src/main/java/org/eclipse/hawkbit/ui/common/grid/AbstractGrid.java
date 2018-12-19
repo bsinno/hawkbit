@@ -76,15 +76,11 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
             setSelectionMode(SelectionMode.NONE);
         }
         setColumnReorderingAllowed(true);
+        createColumns();
         if (doSubscribeToEventBus()) {
             eventBus.subscribe(this);
         }
-        createColumns();
     }
-
-    protected abstract void addColumns();
-
-    protected abstract void addGeneratedColumns();
 
     /**
      * Subscribes the view to the eventBus. Method has to be overriden (return
@@ -100,6 +96,7 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
      */
     @Override
     public void refreshContainer() {
+        getDataProvider().refreshAll();
         // final Indexed container = getContainerDataSource();
         // if (hasGeneratedPropertySupport()
         // && getGeneratedPropertySupport().getRawContainer() instanceof
@@ -126,13 +123,16 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
         setDataProvider();
 
         addColumns();
-        setColumnHeaderNames();
-        setColumnsHidable();
-        addColumnRenderes();
-        // setColumns();
-        setColumnExpandRatio();
-        setHiddenColumns();
+        // setColumnHeaderNames();
+        // setColumnsHidable();
+        // addColumnRenderes();
+        // setColumnExpandRatio();
+        // setHiddenColumns();
     }
+
+    protected abstract void addColumns();
+
+    protected abstract void addGeneratedColumns();
 
     /**
      * Sets the standard behavior of columns to be hidable. If implementors
