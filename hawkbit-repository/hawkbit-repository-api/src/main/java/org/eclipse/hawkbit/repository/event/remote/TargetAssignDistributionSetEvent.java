@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.model.NamedEntity;
+import org.eclipse.hawkbit.repository.model.RolloutGroup;
 
 /**
  * TenantAwareEvent that gets sent when a distribution set gets assigned to a
@@ -29,6 +31,9 @@ public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
     private boolean maintenanceWindowAvailable;
 
     private final Map<String, Long> actions = new HashMap<>();
+    
+    private Long rolloutId;
+
 
     /**
      * Default constructor.
@@ -58,7 +63,8 @@ public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
         this.maintenanceWindowAvailable = maintenanceWindowAvailable;
         actions.putAll(a.stream().filter(action -> action.getDistributionSet().getId().longValue() == distributionSetId)
                 .collect(Collectors.toMap(action -> action.getTarget().getControllerId(), Action::getId)));
-
+        
+        this.rolloutId = a.get(0).getRollout().getId();
     }
 
     public TargetAssignDistributionSetEvent(final Action action, final String applicationId) {
@@ -76,6 +82,10 @@ public class TargetAssignDistributionSetEvent extends RemoteTenantAwareEvent {
 
     public Map<String, Long> getActions() {
         return actions;
+    }
+    
+    public Long getRolloutId() {
+        return this.rolloutId;
     }
 
 }
