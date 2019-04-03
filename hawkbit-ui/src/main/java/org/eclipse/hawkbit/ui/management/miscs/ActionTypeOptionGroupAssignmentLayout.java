@@ -8,25 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.management.miscs;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.TimeZone;
-
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroup;
-import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroupItemComponent;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.DateField;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Action type option group layout for manual assignment.
@@ -66,6 +53,7 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
 
     @Override
     protected void createOptionGroup() {
+        forcedTimeDateField = new DateField();
         actionTypeOptionGroup = new FlexibleOptionGroup();
         actionTypeOptionGroup.addItem(ActionTypeOption.SOFT);
         actionTypeOptionGroup.addItem(ActionTypeOption.FORCED);
@@ -75,53 +63,8 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
 
         addForcedItemWithLabel();
         addSoftItemWithLabel();
-        addAutoForceItemWithLabelAndDateField();
+        addAutoForceItemWithLabelAndDateField(forcedTimeDateField);
         addDownloadOnlyItemWithLabel();
-    }
-
-    private void addAutoForceItemWithLabelAndDateField() {
-        final FlexibleOptionGroupItemComponent autoForceItem = actionTypeOptionGroup
-                .getItemComponent(ActionTypeOption.AUTO_FORCED);
-        autoForceItem.setStyleName(STYLE_DIST_WINDOW_ACTIONTYPE);
-        autoForceItem.setId(UIComponentIdProvider.ACTION_TYPE_OPTION_GROUP_SAVE_TIMEFORCED);
-        addComponent(autoForceItem);
-        final Label autoForceLabel = new Label();
-        autoForceLabel.setStyleName("statusIconPending");
-        autoForceLabel.setIcon(FontAwesome.HISTORY);
-        autoForceLabel.setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED));
-        autoForceLabel.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_ITEM));
-        autoForceLabel.setStyleName(STYLE_DIST_WINDOW_ACTIONTYPE);
-        addComponent(autoForceLabel);
-
-        forcedTimeDateField = new DateField();
-        forcedTimeDateField.setInvalidAllowed(false);
-        forcedTimeDateField.setInvalidCommitted(false);
-        forcedTimeDateField.setEnabled(false);
-        forcedTimeDateField.setStyleName("dist-window-forcedtime");
-
-        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
-        forcedTimeDateField.setValue(
-                Date.from(LocalDateTime.now().plusWeeks(2).atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant()));
-        forcedTimeDateField.setImmediate(true);
-        forcedTimeDateField.setTimeZone(tz);
-        forcedTimeDateField.setLocale(HawkbitCommonUtil.getCurrentLocale());
-        forcedTimeDateField.setResolution(Resolution.MINUTE);
-        forcedTimeDateField.addStyleName(ValoTheme.DATEFIELD_SMALL);
-        addComponent(forcedTimeDateField);
-    }
-
-    private void addDownloadOnlyItemWithLabel() {
-        final FlexibleOptionGroupItemComponent downloadOnlyItem = actionTypeOptionGroup.getItemComponent(ActionTypeOption.DOWNLOAD_ONLY);
-        downloadOnlyItem.setId(UIComponentIdProvider.ACTION_DETAILS_DOWNLOAD_ONLY_ID);
-        downloadOnlyItem.setStyleName(STYLE_DIST_WINDOW_ACTIONTYPE);
-        addComponent(downloadOnlyItem);
-        final Label downloadOnlyLabel = new Label();
-        downloadOnlyLabel.setSizeFull();
-        downloadOnlyLabel.setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY));
-        downloadOnlyLabel.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_DOWNLOAD_ONLY_ITEM));
-        downloadOnlyLabel.setStyleName("padding-right-style");
-        downloadOnlyLabel.setIcon(FontAwesome.DOWNLOAD);
-        addComponent(downloadOnlyLabel);
     }
 
     public DateField getForcedTimeDateField() {

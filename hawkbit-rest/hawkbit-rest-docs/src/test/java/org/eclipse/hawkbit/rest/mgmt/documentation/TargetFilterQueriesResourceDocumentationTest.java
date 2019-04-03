@@ -81,7 +81,7 @@ public class TargetFilterQueriesResourceDocumentationTest extends AbstractApiRes
                         fieldWithPath("content[].autoAssignActionType")
                                 .description(MgmtApiModelProperties.ACTION_FORCE_TYPE)
                                 .type(JsonFieldType.STRING.toString())
-                                .attributes(key("value").value("['forced', 'soft']")),
+                                .attributes(key("value").value("['forced', 'soft', 'downloadonly']")),
                         fieldWithPath("content[].createdAt").description(ApiModelPropertiesGeneric.CREATED_AT),
                         fieldWithPath("content[].createdBy").description(ApiModelPropertiesGeneric.CREATED_BY),
                         fieldWithPath("content[].lastModifiedAt")
@@ -199,7 +199,31 @@ public class TargetFilterQueriesResourceDocumentationTest extends AbstractApiRes
                         requestFields(requestFieldWithPath("id").description(MgmtApiModelProperties.DS_ID),
                                 optionalRequestFieldWithPath("type")
                                         .description(MgmtApiModelProperties.ACTION_FORCE_TYPE)
-                                        .attributes(key("value").value("['forced', 'soft']"))),
+                                        .attributes(key("value").value("['forced', 'soft', 'downloadonly']"))),
+                        getResponseFieldTargetFilterQuery(false)));
+    }
+
+    @Test
+    @Description("Handles the POST request of setting a distribution set for auto assignment within SP with " +
+            "ActionType DOWNLOAD_ONLY. Required Permission: CREATE_TARGET.")
+    public void postAutoAssignDSWithActionTypeDownloadOnly() throws Exception {
+        final TargetFilterQuery tfq = createTargetFilterQuery();
+        final DistributionSet distributionSet = createDistributionSet();
+        final String filterByDistSet = "{\"id\":\"" + distributionSet.getId() + "\", \"type\":\""
+                + MgmtActionType.DOWNLOAD_ONLY.getName() + "\"}";
+
+        this.mockMvc
+                .perform(
+                        post(MgmtRestConstants.TARGET_FILTER_V1_REQUEST_MAPPING + "/{targetFilterQueryId}/autoAssignDS",
+                                tfq.getId()).contentType(MediaType.APPLICATION_JSON).content(filterByDistSet))
+                .andExpect(status().isOk()).andDo(MockMvcResultPrinter.print())
+                .andDo(this.document.document(
+                        pathParameters(parameterWithName("targetFilterQueryId")
+                                .description(ApiModelPropertiesGeneric.ITEM_ID)),
+                        requestFields(requestFieldWithPath("id").description(MgmtApiModelProperties.DS_ID),
+                                optionalRequestFieldWithPath("type")
+                                        .description(MgmtApiModelProperties.ACTION_TYPE)
+                                        .attributes(key("value").value("['forced', 'soft', 'downloadonly']"))),
                         getResponseFieldTargetFilterQuery(false)));
     }
 
@@ -226,7 +250,7 @@ public class TargetFilterQueriesResourceDocumentationTest extends AbstractApiRes
                         .type(JsonFieldType.NUMBER.toString()),
                 fieldWithPath(arrayPrefix + "autoAssignActionType")
                         .description(MgmtApiModelProperties.ACTION_FORCE_TYPE).type(JsonFieldType.STRING.toString())
-                        .attributes(key("value").value("['forced', 'soft']")),
+                        .attributes(key("value").value("['forced', 'soft', 'downloadonly']")),
                 fieldWithPath(arrayPrefix + "createdAt").description(ApiModelPropertiesGeneric.CREATED_AT),
                 fieldWithPath(arrayPrefix + "createdBy").description(ApiModelPropertiesGeneric.CREATED_BY),
                 fieldWithPath(arrayPrefix + "lastModifiedAt").description(ApiModelPropertiesGeneric.LAST_MODIFIED_AT),

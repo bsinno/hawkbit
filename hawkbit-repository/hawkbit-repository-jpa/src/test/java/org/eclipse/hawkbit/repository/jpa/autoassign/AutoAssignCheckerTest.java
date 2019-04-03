@@ -212,7 +212,7 @@ public class AutoAssignCheckerTest extends AbstractJpaIntegrationTest {
 
     @Test
     @Description("Test auto assignment of a distribution set with FORCED and SOFT action types")
-    public void checkAutoAssignWithDifferentActionTypes() {
+    public void checkAutoAssignWithForcedAndSoftActionTypes() {
         final DistributionSet distributionSet = testdataFactory.createDistributionSet();
         final String targetDsAIdPref = "targA";
         final String targetDsBIdPref = "targB";
@@ -241,6 +241,28 @@ public class AutoAssignCheckerTest extends AbstractJpaIntegrationTest {
 
         verifyThatTargetsHaveAssignmentActionType(ActionType.FORCED, targetsA);
         verifyThatTargetsHaveAssignmentActionType(ActionType.SOFT, targetsB);
+    }
+
+    @Test
+    @Description("Test auto assignment of a distribution set with DOWNLOAD_ONLY action type")
+    public void checkAutoAssignWithDownloadOnlyActionType() {
+        final DistributionSet distributionSet = testdataFactory.createDistributionSet();
+        final String targetDsAIdPref = "targA";
+
+        final List<Target> targetsA = testdataFactory.createTargets(5, targetDsAIdPref,
+                targetDsAIdPref.concat(" description"));
+
+        targetFilterQueryManagement
+                .updateAutoAssignDSWithActionType(
+                        targetFilterQueryManagement.create(entityFactory.targetFilterQuery().create().name("filterA")
+                                .query("id==" + targetDsAIdPref + "*")).getId(),
+                        distributionSet.getId(), ActionType.DOWNLOAD_ONLY);
+
+        autoAssignChecker.check();
+
+        verifyThatTargetsHaveDistributionSetAssignment(distributionSet, targetsA, targetsA.size());
+
+        verifyThatTargetsHaveAssignmentActionType(ActionType.DOWNLOAD_ONLY, targetsA);
     }
 
     @Step
