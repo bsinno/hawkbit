@@ -364,23 +364,6 @@ public interface DeploymentManagement {
     Page<Action> findActiveActionsByTarget(@NotNull Pageable pageable, @NotEmpty String controllerId);
 
     /**
-     * Retrieves all active {@link Action}s of a specific target.
-     * 
-     * @param pageable
-     *            the page request parameter for paging and sorting the result
-     * @param controllerId
-     *            the target associated with the actions
-     * @param distributionSetId
-     *            the distributionSetId associated with the actions    
-     * @return a list of actions associated with the given target
-     * 
-     * @throws EntityNotFoundException
-     *             if target with given ID does not exist
-     */
-    @PreAuthorize(SpringEvalExpressions.HAS_AUTH_READ_TARGET)
-    Page<Action> findActiveActionsByTargetAndDistributionSet(@NotNull Pageable pageable, @NotEmpty String controllerId,@NotNull Long distributionSetId);
-    
-    /**
      * Retrieves all inactive {@link Action}s of a specific target.
      *
      * @param pageable

@@ -616,12 +616,6 @@ public class JpaDeploymentManagement implements DeploymentManagement {
         throwExceptionIfTargetDoesNotExist(controllerId);
         return actionRepository.findByActiveAndTarget(pageable, controllerId, true);
     }
-    
-    @Override
-    public Page<Action> findActiveActionsByTargetAndDistributionSet(final Pageable pageable, final String controllerId,final Long distributionSetId) {
-        throwExceptionIfTargetDoesNotExist(controllerId);
-        return actionRepository.findByActiveAndTargetAndDistributionSet(pageable, controllerId,distributionSetId, true);
-    }
 
     @Override
     public Page<Action> findInActiveActionsByTarget(final Pageable pageable, final String controllerId) {

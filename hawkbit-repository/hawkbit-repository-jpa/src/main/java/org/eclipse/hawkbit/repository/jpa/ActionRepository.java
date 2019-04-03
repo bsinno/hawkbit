@@ -202,11 +202,11 @@ public interface ActionRepository extends BaseEntityRepository<JpaAction, Long>,
      * @param active
      *            {@code true} for all actions which are currently active,
      *            {@code false} for inactive
-     * @return a list of actions
+     * @return action that matches the criteria 
      */
     @EntityGraph(value = "Action.ds", type = EntityGraphType.LOAD)
     @Query("Select a from JpaAction a where a.target.controllerId = :controllerId and a.distributionSet.id = :distributionSetId and a.active = :active")
-    Page<Action> findByActiveAndTargetAndDistributionSet(Pageable pageable, @Param("controllerId") String controllerId,
+    Optional<Action> findByActiveAndTargetAndDistributionSet(@Param("controllerId") String controllerId,
             @Param("distributionSetId") Long distributionSetId, @Param("active") boolean active);
 
     /**
