@@ -204,30 +204,6 @@ public class TargetFilterQueriesResourceDocumentationTest extends AbstractApiRes
     }
 
     @Test
-    @Description("Handles the POST request of setting a distribution set for auto assignment within SP with " +
-            "ActionType DOWNLOAD_ONLY. Required Permission: CREATE_TARGET.")
-    public void postAutoAssignDSWithActionTypeDownloadOnly() throws Exception {
-        final TargetFilterQuery tfq = createTargetFilterQuery();
-        final DistributionSet distributionSet = createDistributionSet();
-        final String filterByDistSet = "{\"id\":\"" + distributionSet.getId() + "\", \"type\":\""
-                + MgmtActionType.DOWNLOAD_ONLY.getName() + "\"}";
-
-        this.mockMvc
-                .perform(
-                        post(MgmtRestConstants.TARGET_FILTER_V1_REQUEST_MAPPING + "/{targetFilterQueryId}/autoAssignDS",
-                                tfq.getId()).contentType(MediaType.APPLICATION_JSON).content(filterByDistSet))
-                .andExpect(status().isOk()).andDo(MockMvcResultPrinter.print())
-                .andDo(this.document.document(
-                        pathParameters(parameterWithName("targetFilterQueryId")
-                                .description(ApiModelPropertiesGeneric.ITEM_ID)),
-                        requestFields(requestFieldWithPath("id").description(MgmtApiModelProperties.DS_ID),
-                                optionalRequestFieldWithPath("type")
-                                        .description(MgmtApiModelProperties.ACTION_TYPE)
-                                        .attributes(key("value").value("['forced', 'soft', 'downloadonly']"))),
-                        getResponseFieldTargetFilterQuery(false)));
-    }
-
-    @Test
     @Description("Handles the DELETE request of deleting the auto assign distribution set from a target filter query within SP. Required Permission: DELETE_TARGET.")
     public void deleteAutoAssignDS() throws Exception {
         final TargetFilterQuery tfq = createTargetFilterQueryWithDS(createDistributionSet());
