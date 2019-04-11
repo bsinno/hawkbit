@@ -225,7 +225,7 @@ public class AutoAssignCheckerTest extends AbstractJpaIntegrationTest {
         List<Target> targetsC = createTargetsAndAutoAssignDistSet(targetDsCIdPref, 10, distributionSet,
                 ActionType.DOWNLOAD_ONLY);
 
-        final int targetsCount = 25;
+        final int targetsCount = targetsA.size() + targetsB.size() + targetsC.size();
 
         autoAssignChecker.check();
 
