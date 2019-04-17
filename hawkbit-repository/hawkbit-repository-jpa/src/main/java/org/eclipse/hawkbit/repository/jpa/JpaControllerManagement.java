@@ -573,13 +573,6 @@ public class JpaControllerManagement implements ControllerManagement {
         }
         return handleAddUpdateActionStatus(actionStatus, action);
     }
-    
-    
-    @Override
-    public Optional<Action> findActiveActionsByTargetAndDistributionSet(final String controllerId,final Long distributionSetId) {
-        throwExceptionIfTargetDoesNotExist(controllerId);
-        return actionRepository.findByActiveAndTargetAndDistributionSet(controllerId,distributionSetId, true);
-    }
 
     private boolean actionIsNotActiveButIntermediateFeedbackStillAllowed(final ActionStatus actionStatus,
             final boolean actionActive) {

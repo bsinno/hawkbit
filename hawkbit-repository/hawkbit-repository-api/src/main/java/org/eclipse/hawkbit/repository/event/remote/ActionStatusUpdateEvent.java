@@ -3,40 +3,30 @@ package org.eclipse.hawkbit.repository.event.remote;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.event.TenantAwareEvent;
-import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 
 /**
- * Information that represents status of a target for a given distributionSetId.
+ * Information that represents status of a target for a given actionId.
  */
 public class ActionStatusUpdateEvent implements TenantAwareEvent {
-    private final Long distributionSetId;
-    private final String targetControllerId;
+    private final Long actionId;
     private final String tenant;
     private final List<String> messages;
     private final Status status;
 
-    public ActionStatusUpdateEvent(String tenant, Long distributionSetId, String targetControllerId, Status status,
+    public ActionStatusUpdateEvent(String tenant, Long actionId, Status status,
             List<String> messages) {
-        this.distributionSetId = distributionSetId;
-        this.targetControllerId = targetControllerId;
+        this.actionId = actionId;
         this.tenant = tenant;
         this.messages = messages;
         this.status = status;
     }
 
     /**
-     * @return distributionSetId to which the current status belongs to.
+     * @return the actionId for which the status is available.
      */
-    public Long getDistributionSetId() {
-        return distributionSetId;
-    }
-
-    /**
-     * @return targetId for which the status is available.
-     */
-    public String getTargetControllerId() {
-        return targetControllerId;
+    public Long getActionId() {
+        return actionId;
     }
 
     /**

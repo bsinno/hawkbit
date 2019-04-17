@@ -13,8 +13,6 @@ import org.eclipse.hawkbit.repository.builder.ActionStatusCreate;
 import org.eclipse.hawkbit.repository.event.remote.ActionStatusUpdateEvent;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,8 +27,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
  */
 public class ActionStatusUpdateHandlerService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ActionStatusUpdateHandlerService.class);
-
     private final ControllerManagement controllerManagement;
     private final EntityFactory entityFactory;
 
@@ -42,15 +38,15 @@ public class ActionStatusUpdateHandlerService {
 
     @EventListener(classes = ActionStatusUpdateEvent.class)
     public void handle(final ActionStatusUpdateEvent event) {
-        Optional<Action> action = controllerManagement.findActiveActionsByTargetAndDistributionSet(event.getTargetControllerId(),
-                event.getDistributionSetId());
-        if (action.isPresent()) {
-            final SecurityContext oldContext = SecurityContextHolder.getContext();
-            try {
-                this.updateStatus(action.get(), event.getTenant(), event.getMessages(), event.getStatus());
-            } finally {
-                SecurityContextHolder.setContext(oldContext);
+        final SecurityContext oldContext = SecurityContextHolder.getContext();
+        setTenantSecurityContext(event.getTenant());
+        Optional<Action> action = controllerManagement.findActionWithDetails(event.getActionId());
+        try {
+            if (action.isPresent() && action.get().isActive()) {
+                this.updateStatus(action.get(), event.getMessages(), event.getStatus());
             }
+        } finally {
+            SecurityContextHolder.setContext(oldContext);
         }
     }
 
@@ -68,10 +64,7 @@ public class ActionStatusUpdateHandlerService {
         SecurityContextHolder.setContext(securityContextImpl);
     }
 
-    private Action updateStatus(Action action, String tenant, List<String> messages, Status status) {
-        // attempt to avoid permission issue. Not happening
-        setTenantSecurityContext(tenant);
-
+    private Action updateStatus(Action action, List<String> messages, Status status) {
         final ActionStatusCreate actionStatus = entityFactory.actionStatus().create(action.getId()).status(status)
                 .messages(messages);
         if (Status.CANCELED.equals(status)) {
