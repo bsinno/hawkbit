@@ -31,10 +31,8 @@ import io.qameta.allure.Story;
 /**
  * Junit tests for RolloutStatusHandlerService.
  */
-@ActiveProfiles({ "test" })
 @Feature("Component Tests - Repository")
 @Story("Rollout Status Handler")
-@SpringBootTest(classes = { RepositoryApplicationConfiguration.class })
 public class ActionStatusUpdateHandlerServiceTest extends AbstractJpaIntegrationTest {
 
     @Test
@@ -48,10 +46,10 @@ public class ActionStatusUpdateHandlerServiceTest extends AbstractJpaIntegration
         JpaSoftwareModule swModule = this.generateSoftwareModule(tenant);
         JpaDistributionSet ds = generateDistributionSet(swModule, tenant);
         JpaTarget target = generateSampleTarget(1L, controllerId, tenant);
-        JpaAction action = generateAction(101L,ds, target, tenant);
+        JpaAction action = generateAction(101L, ds, target, tenant);
 
         ActionStatusUpdateHandlerService rolloutStatusHandlerService = new ActionStatusUpdateHandlerService(
-                this.controllerManagement, this.entityFactory,this.systemSecurityContext);
+                this.controllerManagement, this.entityFactory, this.systemSecurityContext);
 
         // initiate the test
         ActionStatusUpdateEvent targetStatus = new ActionStatusUpdateEvent("default", action.getId(), Status.FINISHED,
@@ -74,7 +72,7 @@ public class ActionStatusUpdateHandlerServiceTest extends AbstractJpaIntegration
         this.distributionSetRepository.deleteById(ds.getId());
     }
 
-    private JpaDistributionSet generateDistributionSet(JpaSoftwareModule swModule, String tenant) {
+    private JpaDistributionSet generateDistributionSet(final JpaSoftwareModule swModule, final String tenant) {
         // TODO Auto-generated method stub
         JpaDistributionSet ds = new JpaDistributionSet();
         // ds.setId(distributionSetId);
@@ -88,7 +86,7 @@ public class ActionStatusUpdateHandlerServiceTest extends AbstractJpaIntegration
         return this.distributionSetRepository.save(ds);
     }
 
-    private JpaSoftwareModule generateSoftwareModule(String tenant) {
+    private JpaSoftwareModule generateSoftwareModule(final String tenant) {
         JpaSoftwareModuleType type = this.softwareModuleTypeRepository.findById(3L).get();
         JpaSoftwareModule swMod = new JpaSoftwareModule(type, "test swm", "0.0.1", "", "");
         swMod.setId(1L);
@@ -96,7 +94,8 @@ public class ActionStatusUpdateHandlerServiceTest extends AbstractJpaIntegration
         return this.softwareModuleRepository.save(swMod);
     }
 
-    private JpaAction generateAction(Long actionId, DistributionSet distributionSet, Target target, String tenant) {
+    private JpaAction generateAction(final Long actionId, final DistributionSet distributionSet, final Target target,
+            final String tenant) {
         final JpaAction action = new JpaAction();
         action.setId(actionId);
         action.setActive(true);
@@ -108,7 +107,7 @@ public class ActionStatusUpdateHandlerServiceTest extends AbstractJpaIntegration
         return actionRepository.save(action);
     }
 
-    private JpaTarget generateSampleTarget(Long id, String controllerId, String tenant) {
+    private JpaTarget generateSampleTarget(final Long id, final String controllerId, final String tenant) {
         JpaTarget jpaTarget = new JpaTarget(controllerId);
         jpaTarget.setId(id);
         jpaTarget.setTenant(tenant);

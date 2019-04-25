@@ -416,14 +416,18 @@ public interface ControllerManagement {
      */
     @PreAuthorize(SpringEvalExpressions.IS_CONTROLLER)
     Action cancelAction(long actionId);
-    
-    /** Updates given {@link Action} with its external id.
-     * @param actionId to be updated
-     * @param externalRef of the action
+
+    /**
+     * Updates given {@link Action} with its external id.
+     * 
+     * @param actionId
+     *            to be updated
+     * @param externalRef
+     *            of the action
      */
     @PreAuthorize(SpringEvalExpressions.IS_CONTROLLER)
-    void updateActionExternalRef(long actionId,String externalRef);
-    
+    void updateActionExternalRef(long actionId, @NotEmpty String externalRef);
+
     @PreAuthorize(SpringEvalExpressions.IS_CONTROLLER)
     /**
      * Retrieves list of {@link Action}s which matches the provided
@@ -433,5 +437,5 @@ public interface ControllerManagement {
      *            for which the actions need to be fetched.
      * @return
      */
-    List<Action> getActiveActionsByExternalRef(List<String> externalRefs);
+    List<Action> getActiveActionsByExternalRef(@NotNull List<String> externalRefs);
 }

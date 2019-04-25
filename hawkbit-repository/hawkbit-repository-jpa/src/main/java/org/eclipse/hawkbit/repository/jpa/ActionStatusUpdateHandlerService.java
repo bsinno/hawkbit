@@ -8,11 +8,7 @@
  */
 package org.eclipse.hawkbit.repository.jpa;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
-import org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions;
 import org.eclipse.hawkbit.repository.ControllerManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.builder.ActionStatusCreate;
@@ -21,7 +17,6 @@ import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  * A service that listens and processes the TargetStatusForDistributionSetEvent
@@ -42,15 +37,10 @@ public class ActionStatusUpdateHandlerService {
 
     @EventListener(classes = ActionStatusUpdateEvent.class)
     public void handle(final ActionStatusUpdateEvent event) {
-        List<SimpleGrantedAuthority> authorities = Collections
-                .singletonList(new SimpleGrantedAuthority(SpringEvalExpressions.CONTROLLER_ROLE_ANONYMOUS));
-        securityContext.runWithAuthority(() -> {
-            Optional<Action> action = controllerManagement.findActionWithDetails(event.getActionId());
-            if (action.isPresent() && action.get().isActive()) {
-                return this.updateStatus(action.get(), event.getMessages(), event.getStatus());
-            }
-            return action;
-        }, authorities, event.getTenant());
+        securityContext.runAsControllerAsTenant(event.getTenant(), () -> {
+            return controllerManagement.findActionWithDetails(event.getActionId()).filter(Action::isActive)
+                    .map(action -> updateStatus(action, event.getMessages(), event.getStatus()));
+        });
     }
 
     private Action updateStatus(final Action action, final List<String> messages, final Status status) {

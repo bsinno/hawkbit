@@ -233,8 +233,7 @@ public interface ActionRepository extends BaseEntityRepository<JpaAction, Long>,
      *            flag to indicate active/inactive actions
      * @return list of actions 
      */
-    @Query("SELECT a FROM JpaAction a WHERE a.externalRef IN :externalRefs AND a.active = :active")
-    List<Action> findByExternalRefInAndIsActive(@Param("externalRefs") List<String> externalRefs,
+    List<Action> findByExternalRefInAndActive(@Param("externalRefs") List<String> externalRefs,
             @Param("active") boolean active);
 
     /**
