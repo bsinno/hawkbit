@@ -34,7 +34,7 @@ public class DmfSoftwareModule {
     @JsonProperty
     private List<DmfArtifact> artifacts;
     @JsonProperty
-    private List<DmfMetadata> metadata;
+    private List<DmfMetadata> metadata = Collections.emptyList();
 
     public String getModuleType() {
         return moduleType;
@@ -81,6 +81,13 @@ public class DmfSoftwareModule {
         if (metadata != null && !metadata.isEmpty()) {
             this.metadata = metadata;
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "DmfSoftwareModule [moduleId=%d, moduleType='%s', moduleVersion='%s', artifacts=%s, metadata=%s]",
+                moduleId, moduleType, moduleVersion, artifacts, metadata);
     }
 
 }
