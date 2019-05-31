@@ -17,10 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -61,7 +58,6 @@ import org.eclipse.hawkbit.repository.test.matcher.Expect;
 import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.junit.Test;
-import org.springframework.context.ApplicationListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -1120,73 +1116,6 @@ public class DeploymentManagementTest extends AbstractJpaIntegrationTest {
             return undeployedTargetIDs;
         }
 
-    }
-
-    protected static class EventHandlerStub implements ApplicationListener<TargetAssignDistributionSetEvent> {
-        private final List<TargetAssignDistributionSetEvent> events = Collections.synchronizedList(new LinkedList<>());
-        private CountDownLatch latch;
-        private int expectedNumberOfEvents;
-
-        /**
-         * @param expectedNumberOfEvents
-         *            the expectedNumberOfEvents to set
-         */
-        public void setExpectedNumberOfEvents(final int expectedNumberOfEvents) {
-            events.clear();
-            this.expectedNumberOfEvents = expectedNumberOfEvents;
-            this.latch = new CountDownLatch(expectedNumberOfEvents);
-        }
-
-        public List<TargetAssignDistributionSetEvent> getEvents(final long timeout, final TimeUnit unit)
-                throws InterruptedException {
-            latch.await(timeout, unit);
-            final List<TargetAssignDistributionSetEvent> handledEvents = Collections
-                    .unmodifiableList(new LinkedList<>(events));
-            assertThat(handledEvents).as("Did not receive the expected amount of events (" + expectedNumberOfEvents
-                    + ") within timeout. Received events are " + handledEvents).hasSize(expectedNumberOfEvents);
-            return handledEvents;
-
-        }
-
-        @Override
-        public void onApplicationEvent(final TargetAssignDistributionSetEvent event) {
-            if (latch == null) {
-                return;
-            }
-            events.add(event);
-            latch.countDown();
-
-        }
-    }
-
-    private static class CancelEventHandlerStub implements ApplicationListener<CancelTargetAssignmentEvent> {
-        private final List<CancelTargetAssignmentEvent> events = Collections.synchronizedList(new LinkedList<>());
-        private CountDownLatch latch;
-        private int expectedNumberOfEvents;
-
-        public void setExpectedNumberOfEvents(final int expectedNumberOfEvents) {
-            events.clear();
-            this.expectedNumberOfEvents = expectedNumberOfEvents;
-            this.latch = new CountDownLatch(expectedNumberOfEvents);
-        }
-
-        public List<CancelTargetAssignmentEvent> getEvents(final long timeout, final TimeUnit unit)
-                throws InterruptedException {
-            latch.await(timeout, unit);
-            final List<CancelTargetAssignmentEvent> handledEvents = new LinkedList<>(events);
-            assertThat(handledEvents).as("Did not receive the expected amount of events (" + expectedNumberOfEvents
-                    + ") within timeout. Received events are " + handledEvents).hasSize(expectedNumberOfEvents);
-            return handledEvents;
-        }
-
-        @Override
-        public void onApplicationEvent(final CancelTargetAssignmentEvent event) {
-            if (latch == null) {
-                return;
-            }
-            events.add(event);
-            latch.countDown();
-        }
     }
 
     private void enableMultiAssignments() {
