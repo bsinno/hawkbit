@@ -640,7 +640,7 @@
          <dependency>
             <groupId>com.github.gwtd3</groupId>
             <artifactId>gwt-d3-api</artifactId>
-            <version>1.2.0</version>
+            <version>${vaadin.gwt-api.version}</version>
             <exclusions>
                <exclusion>
                   <groupId>com.google.gwt</groupId>
@@ -780,6 +780,12 @@
             <groupId>com.google.gwt.gwtmockito</groupId>
             <artifactId>gwtmockito</artifactId>
             <version>${gwtmockito.version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>com.google.gwt</groupId>
+                  <artifactId>gwt-user</artifactId>
+               </exclusion>
+            </exclusions>            
             <scope>test</scope>
          </dependency>
          <dependency>
