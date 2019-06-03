@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.colorpicker;
 
-import com.vaadin.shared.ui.colorpicker.Color;
+import com.vaadin.v7.shared.ui.colorpicker.Color;
 
 /**
  * Provides color constants for the ColorPickerLayout

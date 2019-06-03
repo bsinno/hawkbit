@@ -13,13 +13,13 @@ import java.lang.reflect.Field;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.google.common.base.Throwables;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.shared.ui.colorpicker.Color;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.components.colorpicker.ColorPickerPreview;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
+import com.vaadin.v7.event.FieldEvents.TextChangeListener;
+import com.vaadin.v7.shared.ui.colorpicker.Color;
+import com.vaadin.v7.ui.TextField;
+import com.vaadin.v7.ui.components.colorpicker.ColorPickerPreview;
 
 /**
  *

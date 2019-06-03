@@ -19,10 +19,10 @@ import java.util.Set;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 
-import com.vaadin.data.Item;
-import com.vaadin.ui.AbstractSelect.ItemDescriptionGenerator;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Table;
+import com.vaadin.v7.ui.Table;
 
 public class AssignInstalledDSTooltipGenerator implements ItemDescriptionGenerator {
     private static final long serialVersionUID = 688730421728162456L;

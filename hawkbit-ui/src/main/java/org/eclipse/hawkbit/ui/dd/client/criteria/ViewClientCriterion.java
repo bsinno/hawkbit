@@ -34,7 +34,7 @@ import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.ui.Widget;
 import com.vaadin.client.UIDL;
 import com.vaadin.client.ui.VNotification;
-import com.vaadin.client.ui.VScrollTable;
+import com.vaadin.v7.client.ui.VScrollTable;
 import com.vaadin.client.ui.dd.VAcceptCallback;
 import com.vaadin.client.ui.dd.VAcceptCriteria;
 import com.vaadin.client.ui.dd.VAcceptCriterion;

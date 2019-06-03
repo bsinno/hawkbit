@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.shared.ui.colorpicker.Color;
-import com.vaadin.ui.Slider.ValueOutOfBoundsException;
+import com.vaadin.v7.shared.ui.colorpicker.Color;
+import com.vaadin.v7.ui.Slider.ValueOutOfBoundsException;
 
 /**
  * Contains helper methods for the ColorPickerLayout to handle the ColorPicker

@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
 import org.vaadin.addons.lazyquerycontainer.AbstractBeanQuery;
 import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 
-import com.vaadin.data.util.filter.SimpleStringFilter;
+import com.vaadin.v7.data.util.filter.SimpleStringFilter;
 
 /**
  * Manage Distributions table bean query.

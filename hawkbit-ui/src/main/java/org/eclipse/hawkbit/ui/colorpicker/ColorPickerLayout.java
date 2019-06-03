@@ -15,12 +15,12 @@ import org.eclipse.hawkbit.ui.common.CoordinatesToColor;
 import org.eclipse.hawkbit.ui.management.tag.SpColorPickerPreview;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.shared.ui.colorpicker.Color;
-import com.vaadin.ui.AbstractColorPicker.Coordinates2Color;
+import com.vaadin.v7.shared.ui.colorpicker.Color;
+import com.vaadin.v7.ui.AbstractColorPicker.Coordinates2Color;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Slider;
-import com.vaadin.ui.components.colorpicker.ColorPickerGradient;
-import com.vaadin.ui.components.colorpicker.ColorSelector;
+import com.vaadin.v7.ui.Slider;
+import com.vaadin.v7.ui.components.colorpicker.ColorPickerGradient;
+import com.vaadin.v7.ui.components.colorpicker.ColorSelector;
 
 /**
  * 

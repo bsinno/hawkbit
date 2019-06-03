@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.customrenderers.renderers;
 
-import com.vaadin.ui.renderers.ButtonRenderer;
+import com.vaadin.v7.ui.renderers.ButtonRenderer;
 
 /**
  * 

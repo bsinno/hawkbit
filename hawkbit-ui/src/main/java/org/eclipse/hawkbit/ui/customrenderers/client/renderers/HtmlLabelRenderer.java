@@ -12,9 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
-import com.vaadin.client.renderers.WidgetRenderer;
-import com.vaadin.client.ui.VLabel;
-import com.vaadin.client.widget.grid.RendererCellReference;
+import com.vaadin.v7.client.renderers.WidgetRenderer;
+import com.vaadin.v7.client.ui.VLabel;
+import com.vaadin.v7.client.widget.grid.RendererCellReference;
 
 /**
  *

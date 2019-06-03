@@ -31,7 +31,7 @@ import com.google.gwtmockito.GwtMockitoTestRunner;
 import com.google.gwtmockito.WithClassesToStub;
 import com.vaadin.client.UIDL;
 import com.vaadin.client.ui.VDragAndDropWrapper;
-import com.vaadin.client.ui.VScrollTable;
+import com.vaadin.v7.client.ui.VScrollTable;
 import com.vaadin.client.ui.dd.VDragEvent;
 
 import io.qameta.allure.Description;

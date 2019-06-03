@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.customrenderers.renderers;
 
-import com.vaadin.ui.Grid.AbstractRenderer;
+import com.vaadin.v7.ui.Grid.AbstractRenderer;
 
 /**
  *

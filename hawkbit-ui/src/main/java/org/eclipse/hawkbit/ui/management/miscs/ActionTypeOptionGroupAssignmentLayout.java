@@ -20,12 +20,12 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroup;
 import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroupItemComponent;
 
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.v7.data.Property.ValueChangeEvent;
+import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.shared.ui.datefield.Resolution;
-import com.vaadin.ui.DateField;
-import com.vaadin.ui.Label;
+import com.vaadin.v7.shared.ui.datefield.Resolution;
+import com.vaadin.v7.ui.DateField;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

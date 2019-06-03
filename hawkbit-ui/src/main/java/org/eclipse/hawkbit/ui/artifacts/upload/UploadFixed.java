@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.artifacts.upload;
 import java.io.OutputStream;
 
 import com.vaadin.server.StreamVariable;
-import com.vaadin.ui.Upload;
+import com.vaadin.v7.ui.Upload;
 
 /**
  * The {@link Upload} class has a bug.The lifecycle methods of the registered

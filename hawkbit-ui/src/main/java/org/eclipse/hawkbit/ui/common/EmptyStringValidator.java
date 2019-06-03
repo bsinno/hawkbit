@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.common;
 
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.validator.StringLengthValidator;
+import com.vaadin.v7.data.validator.StringLengthValidator;
 
 /**
  * Assures that the entered text does not contain only whitespaces. At least one

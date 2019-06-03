@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.common.builder;
 
 import org.springframework.util.StringUtils;
 
-import com.vaadin.ui.Label;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**

@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.customrenderers.client;
 
 import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlLabelRenderer;
 
-import com.vaadin.client.connectors.AbstractRendererConnector;
+import com.vaadin.v7.client.connectors.AbstractRendererConnector;
 import com.vaadin.shared.ui.Connect;
 
 /**
