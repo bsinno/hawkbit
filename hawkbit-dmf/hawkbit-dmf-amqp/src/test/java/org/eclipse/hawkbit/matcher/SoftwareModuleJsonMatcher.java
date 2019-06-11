@@ -65,10 +65,6 @@ public final class SoftwareModuleJsonMatcher {
             @SuppressWarnings("unchecked")
             final Collection<SoftwareModule> modules = (Collection<SoftwareModule>) actual;
 
-            if (modules.size() != expectedModules.size()) {
-                return false;
-            }
-
             return expectedModules.stream().allMatch(e -> existsIn(e, modules));
         }
 
