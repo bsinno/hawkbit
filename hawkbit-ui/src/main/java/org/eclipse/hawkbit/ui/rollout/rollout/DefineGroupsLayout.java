@@ -31,6 +31,7 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterBeanQuery;
+import org.eclipse.hawkbit.ui.rollout.rollout.DefineGroupsLayout.ValidationStatus;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -43,6 +44,12 @@ import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 
+import com.vaadin.server.FontAwesome;
+import com.vaadin.server.UserError;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.UI;
 import com.vaadin.v7.data.Container;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.Validator;
@@ -50,17 +57,12 @@ import com.vaadin.v7.data.util.converter.StringToFloatConverter;
 import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
 import com.vaadin.v7.data.validator.FloatRangeValidator;
 import com.vaadin.v7.data.validator.IntegerRangeValidator;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.server.UserError;
-import com.vaadin.ui.Button;
+import com.vaadin.v7.data.validator.RangeValidator;
 import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.TextArea;
 import com.vaadin.v7.ui.TextField;
-import com.vaadin.ui.UI;
 
 /**
  * Define groups for a Rollout
@@ -331,8 +333,13 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         // validate the single groups
-        final int maxTargets = quotaManagement.getMaxTargetsPerRolloutGroup();
+        singleGroupsValidation(lastRow);
+    }
+
+    private void singleGroupsValidation(final GroupRow lastRow) {
         final boolean hasRemainingTargetsError = validationStatus == ValidationStatus.INVALID;
+        final int maxTargets = quotaManagement.getMaxTargetsPerRolloutGroup();
+
         for (int i = 0; i < groupRows.size(); ++i) {
             final GroupRow row = groupRows.get(i);
             // do not mask the 'remaining targets' error
@@ -340,13 +347,14 @@ public class DefineGroupsLayout extends GridLayout {
                 continue;
             }
             row.resetError();
-            final Long count = groupsValidation.getTargetsPerGroup().get(i);
-            if (count != null && count > maxTargets) {
-                row.setError(i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED, maxTargets));
-                setValidationStatus(ValidationStatus.INVALID);
+            if (groupsValidation != null) {
+                final Long count = groupsValidation.getTargetsPerGroup().get(i);
+                if (count != null && count > maxTargets) {
+                    row.setError(i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED, maxTargets));
+                    setValidationStatus(ValidationStatus.INVALID);
+                }
             }
         }
-
     }
 
     private List<RolloutGroupCreate> getGroupsFromRows() {
@@ -463,12 +471,16 @@ public class DefineGroupsLayout extends GridLayout {
         private void validateMandatoryPercentage(final Object value) {
             if (value != null) {
                 final String message = i18n.getMessage("message.rollout.field.value.range", 0, 100);
+                RangeValidator rangeValidator;
                 if (value instanceof Float) {
-                    new FloatRangeValidator(message, 0F, 100F).validate(value);
+                    rangeValidator = new FloatRangeValidator(message, 0F, 100F);
+                } else if (value instanceof Integer) {
+                    rangeValidator = new IntegerRangeValidator(message, 0, 100);
+                } else {
+                    throw new Validator.InvalidValueException(i18n.getMessage("message.enter.number"));
                 }
-                if (value instanceof Integer) {
-                    new IntegerRangeValidator(message, 0, 100).validate(value);
-                }
+                rangeValidator.setMinValueIncluded(false);
+                rangeValidator.validate(value);
             } else {
                 throw new Validator.EmptyValueException(i18n.getMessage("message.enter.number"));
             }
@@ -615,7 +627,7 @@ public class DefineGroupsLayout extends GridLayout {
             targetFilterQuery.setValue(group.getTargetFilterQuery());
             populateTargetFilterQuery(group);
 
-            targetPercentage.setValue(String.format("%.2f", group.getTargetPercentage()));
+            targetPercentage.setValue(String.format(getCurrentLocale(), "%.2f", group.getTargetPercentage()));
             triggerThreshold.setValue(group.getSuccessConditionExp());
             errorThreshold.setValue(group.getErrorConditionExp());
 
