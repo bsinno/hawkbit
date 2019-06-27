@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -84,16 +83,16 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.vaadin.spring.security.VaadinSecurityContext;
-import org.vaadin.spring.security.annotation.EnableVaadinSecurity;
+import org.vaadin.spring.http.HttpService;
+import org.vaadin.spring.security.annotation.EnableVaadinSharedSecurity;
+import org.vaadin.spring.security.config.VaadinSharedSecurityConfiguration;
+import org.vaadin.spring.security.shared.VaadinAuthenticationSuccessHandler;
+import org.vaadin.spring.security.shared.VaadinUrlAuthenticationSuccessHandler;
 import org.vaadin.spring.security.web.VaadinRedirectStrategy;
-import org.vaadin.spring.security.web.authentication.VaadinAuthenticationSuccessHandler;
-import org.vaadin.spring.security.web.authentication.VaadinUrlAuthenticationSuccessHandler;
 
 /**
  * All configurations related to HawkBit's authentication and authorization
@@ -560,23 +559,14 @@ public class SecurityManagedConfiguration {
      */
     @Configuration
     @Order(400)
-    @EnableVaadinSecurity
+    @EnableVaadinSharedSecurity
     @ConditionalOnClass(MgmtUiConfiguration.class)
     public static class UISecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
-        @Autowired
-        private VaadinSecurityContext vaadinSecurityContext;
+        final HawkbitSecurityProperties hawkbitSecurityProperties;
 
-        @Autowired
-        private HawkbitSecurityProperties hawkbitSecurityProperties;
-
-        private final VaadinUrlAuthenticationSuccessHandler handler;
-
-        public UISecurityConfigurationAdapter(final VaadinRedirectStrategy redirectStrategy) {
-            handler = new TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler();
-            handler.setRedirectStrategy(redirectStrategy);
-            handler.setDefaultTargetUrl("/UI/");
-            handler.setTargetUrlParameter("r");
+        public UISecurityConfigurationAdapter(final HawkbitSecurityProperties hawkbitSecurityProperties) {
+            this.hawkbitSecurityProperties = hawkbitSecurityProperties;
         }
 
         /**
@@ -602,17 +592,8 @@ public class SecurityManagedConfiguration {
             return filterRegBean;
         }
 
-        /**
-         * post construct for setting the authentication success handler for the
-         * vaadin security context.
-         */
-        @PostConstruct
-        public void afterPropertiesSet() {
-            this.vaadinSecurityContext.addAuthenticationSuccessHandler(handler);
-        }
-
         @Override
-        @Bean(name = "authenticationManager")
+        @Bean(name = VaadinSharedSecurityConfiguration.AUTHENTICATION_MANAGER_BEAN)
         public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();
         }
@@ -620,8 +601,13 @@ public class SecurityManagedConfiguration {
         /**
          * @return the vaadin success authentication handler
          */
-        @Bean
-        public VaadinAuthenticationSuccessHandler redirectSaveHandler() {
+        @Bean(name = VaadinSharedSecurityConfiguration.VAADIN_AUTHENTICATION_SUCCESS_HANDLER_BEAN)
+        public VaadinAuthenticationSuccessHandler redirectSaveHandler(final HttpService httpService,
+                final VaadinRedirectStrategy redirectStrategy) {
+            final VaadinUrlAuthenticationSuccessHandler handler = new TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(
+                    httpService, redirectStrategy, "/UI/");
+            handler.setTargetUrlParameter("r");
+
             return handler;
         }
 
@@ -674,7 +660,7 @@ public class SecurityManagedConfiguration {
 
         @Override
         public void configure(final WebSecurity webSecurity) throws Exception {
-            // Not security for static content
+            // No security for static content
             webSecurity.ignoring().antMatchers("/documentation/**", "/VAADIN/**", "/*.*", "/docs/**");
         }
     }
@@ -692,6 +678,11 @@ class TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler extends 
 
     @Autowired
     private SystemSecurityContext systemSecurityContext;
+
+    public TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(final HttpService http,
+            final VaadinRedirectStrategy redirectStrategy, final String defaultTargetUrl) {
+        super(http, redirectStrategy, defaultTargetUrl);
+    }
 
     @Override
     public void onAuthenticationSuccess(final Authentication authentication) throws Exception {

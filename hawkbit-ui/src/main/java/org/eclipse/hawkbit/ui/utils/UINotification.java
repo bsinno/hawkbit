@@ -10,11 +10,12 @@ package org.eclipse.hawkbit.ui.utils;
 
 import java.io.Serializable;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.Page;
+import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.ui.Notification;
 
 /**
  * Show success and error messages.
@@ -23,14 +24,7 @@ import com.vaadin.spring.annotation.UIScope;
 @SpringComponent
 public class UINotification implements Serializable {
 
-    private static final long serialVersionUID = -9030485417988977466L;
-
-    private final NotificationMessage notificationMessage;
-
-    @Autowired
-    UINotification(final NotificationMessage notificationMessage) {
-        this.notificationMessage = notificationMessage;
-    }
+    private static final long serialVersionUID = 1L;
 
     /**
      * Display success type of notification message.
@@ -39,8 +33,7 @@ public class UINotification implements Serializable {
      *            is the message to displayed as success.
      */
     public void displaySuccess(final String message) {
-        notificationMessage.showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_SUCCESS_MESSAGE_STYLE, null, message,
-                true);
+        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_SUCCESS_MESSAGE_STYLE, null, message);
     }
 
     /**
@@ -50,8 +43,7 @@ public class UINotification implements Serializable {
      *            is the message to displayed as warning.
      */
     public void displayWarning(final String message) {
-        notificationMessage.showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_WARNING_MESSAGE_STYLE, null, message,
-                true);
+        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_WARNING_MESSAGE_STYLE, null, message);
     }
 
     /**
@@ -61,11 +53,31 @@ public class UINotification implements Serializable {
      *            as message.
      */
     public void displayValidationError(final String message) {
-        final StringBuilder updatedMsg = new StringBuilder(FontAwesome.EXCLAMATION_TRIANGLE.getHtml());
+        final StringBuilder updatedMsg = new StringBuilder(VaadinIcons.EXCLAMATION_CIRCLE.getHtml());
         updatedMsg.append(' ');
         updatedMsg.append(message);
-        notificationMessage.showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE, null,
-                updatedMsg.toString(), true);
+        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE, null, updatedMsg.toString());
+    }
+
+    private void showNotification(final String styleName, final String caption, final String description,
+            final Boolean autoClose) {
+        final Notification notification = new Notification(caption, description);
+
+        notification.setStyleName(styleName);
+        notification.setHtmlContentAllowed(true);
+        notification.setPosition(Position.BOTTOM_RIGHT);
+
+        if (autoClose) {
+            notification.setDelayMsec(SPUILabelDefinitions.SP_DELAY);
+        } else {
+            notification.setDelayMsec(-1);
+        }
+
+        notification.show(Page.getCurrent());
+    }
+
+    private void showNotification(final String styleName, final String caption, final String description) {
+        showNotification(styleName, caption, description, true);
     }
 
 }
