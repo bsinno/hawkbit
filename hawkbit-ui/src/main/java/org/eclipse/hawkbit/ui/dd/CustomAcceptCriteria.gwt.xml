@@ -26,8 +26,6 @@
 
    <inherits name="org.eclipse.hawkbit.ui.customrenderers.CustomRendererWidgetSet" />
 
-   <inherits name="org.vaadin.hene.flexibleoptiongroup.widgetset.FlexibleOptionGroupWidgetset" />
-
    <!--add logging module -->
    <inherits name="com.google.gwt.logging.Logging" />
    <!--To change the default logLevel -->

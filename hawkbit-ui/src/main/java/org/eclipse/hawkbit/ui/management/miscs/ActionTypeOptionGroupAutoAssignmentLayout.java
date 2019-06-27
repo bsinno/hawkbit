@@ -8,8 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.management.miscs;
 
+import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroup;
 
 /**
  * Action type option group layout for auto assignment.
@@ -28,15 +28,8 @@ public class ActionTypeOptionGroupAutoAssignmentLayout extends AbstractActionTyp
     }
 
     @Override
-    protected void createOptionGroup() {
-        actionTypeOptionGroup = new FlexibleOptionGroup();
-        actionTypeOptionGroup.addItem(ActionTypeOption.SOFT);
-        actionTypeOptionGroup.addItem(ActionTypeOption.FORCED);
-        actionTypeOptionGroup.addItem(ActionTypeOption.DOWNLOAD_ONLY);
-        selectDefaultOption();
-
-        addForcedItemWithLabel();
-        addSoftItemWithLabel();
-        addDownloadOnlyItemWithLabel();
+    protected void addOptionGroup() {
+        actionTypeOptionGroup.setItems(ActionType.FORCED, ActionType.SOFT, ActionType.DOWNLOAD_ONLY);
+        addComponent(actionTypeOptionGroup);
     }
 }

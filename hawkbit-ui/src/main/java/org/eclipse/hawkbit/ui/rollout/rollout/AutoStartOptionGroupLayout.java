@@ -8,24 +8,17 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.TimeZone;
 
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroup;
-import org.vaadin.hene.flexibleoptiongroup.FlexibleOptionGroupItemComponent;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.datefield.Resolution;
-import com.vaadin.v7.ui.DateField;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.datefield.DateTimeResolution;
+import com.vaadin.ui.DateTimeField;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -33,14 +26,13 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public class AutoStartOptionGroupLayout extends HorizontalLayout {
 
-    private static final long serialVersionUID = -8460459258964093525L;
-    private static final String STYLE_DIST_WINDOW_AUTO_START = "dist-window-actiontype";
+    private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;
 
-    private FlexibleOptionGroup autoStartOptionGroup;
+    private RadioButtonGroup<AutoStartOption> autoStartOptionGroup;
 
-    private DateField startAtDateField;
+    private DateTimeField startAtDateField;
 
     /**
      * Instantiates the auto start options layout
@@ -53,111 +45,89 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
 
         createOptionGroup();
         addValueChangeListener();
-        setStyleName("dist-window-actiontype-horz-layout");
         setSizeUndefined();
     }
 
     private void addValueChangeListener() {
-        autoStartOptionGroup.addValueChangeListener(new ValueChangeListener() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            // Vaadin is returning object, so "==" might not work
-            @SuppressWarnings("squid:S4551")
-            public void valueChange(final ValueChangeEvent event) {
-                if (event.getProperty().getValue().equals(AutoStartOption.SCHEDULED)) {
-                    startAtDateField.setEnabled(true);
-                    startAtDateField.setRequired(true);
-                } else {
-                    startAtDateField.setEnabled(false);
-                    startAtDateField.setRequired(false);
-                }
+        autoStartOptionGroup.addValueChangeListener(event -> {
+            if (event.getValue().equals(AutoStartOption.SCHEDULED)) {
+                startAtDateField.setEnabled(true);
+                startAtDateField.setRequiredIndicatorVisible(true);
+            } else {
+                startAtDateField.setEnabled(false);
+                startAtDateField.setRequiredIndicatorVisible(false);
             }
         });
     }
 
     private void createOptionGroup() {
-        autoStartOptionGroup = new FlexibleOptionGroup();
-        autoStartOptionGroup.addItem(AutoStartOption.MANUAL);
-        autoStartOptionGroup.addItem(AutoStartOption.AUTO_START);
-        autoStartOptionGroup.addItem(AutoStartOption.SCHEDULED);
-        selectDefaultOption();
+        autoStartOptionGroup = new RadioButtonGroup<>();
+        autoStartOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
+        autoStartOptionGroup.setItemIconGenerator(item -> {
+            switch (item) {
+            case MANUAL:
+                return VaadinIcons.HAND;
+            case AUTO_START:
+                return VaadinIcons.PLAY;
+            case SCHEDULED:
+                return VaadinIcons.CLOCK;
+            default:
+                return null;
+            }
+        });
+        autoStartOptionGroup.setItemCaptionGenerator(item -> {
+            switch (item) {
+            case MANUAL:
+                return i18n.getMessage("caption.rollout.start.manual");
+            case AUTO_START:
+                return i18n.getMessage("caption.rollout.start.auto");
+            case SCHEDULED:
+                return i18n.getMessage("caption.rollout.start.scheduled");
+            default:
+                return null;
+            }
+        });
+        autoStartOptionGroup.setItemDescriptionGenerator(item -> {
+            switch (item) {
+            case MANUAL:
+                return i18n.getMessage("caption.rollout.start.manual.desc");
+            case AUTO_START:
+                return i18n.getMessage("caption.rollout.start.auto.desc");
+            case SCHEDULED:
+                return i18n.getMessage("caption.rollout.start.scheduled.desc");
+            default:
+                return null;
+            }
+        });
 
-        final FlexibleOptionGroupItemComponent manualItem = autoStartOptionGroup
-                .getItemComponent(AutoStartOption.MANUAL);
-        manualItem.setStyleName(STYLE_DIST_WINDOW_AUTO_START);
-        // set Id for Forced radio button.
-        manualItem.setId(UIComponentIdProvider.ROLLOUT_START_MANUAL_ID);
-        addComponent(manualItem);
-        final Label manualLabel = new Label();
-        manualLabel.setStyleName("statusIconPending");
-        manualLabel.setIcon(FontAwesome.HAND_PAPER_O);
-        manualLabel.setCaption(i18n.getMessage("caption.rollout.start.manual"));
-        manualLabel.setDescription(i18n.getMessage("caption.rollout.start.manual.desc"));
-        manualLabel.setStyleName("padding-right-style");
-        addComponent(manualLabel);
+        autoStartOptionGroup.setItems(AutoStartOption.values());
+        addComponent(autoStartOptionGroup);
 
-        final FlexibleOptionGroupItemComponent autoStartItem = autoStartOptionGroup
-                .getItemComponent(AutoStartOption.AUTO_START);
-        autoStartItem.setId(UIComponentIdProvider.ROLLOUT_START_AUTO_ID);
-        autoStartItem.setStyleName(STYLE_DIST_WINDOW_AUTO_START);
-        addComponent(autoStartItem);
-        final Label autoStartLabel = new Label();
-        autoStartLabel.setSizeFull();
-        autoStartLabel.setIcon(FontAwesome.PLAY);
-        autoStartLabel.setCaption(i18n.getMessage("caption.rollout.start.auto"));
-        autoStartLabel.setDescription(i18n.getMessage("caption.rollout.start.auto.desc"));
-        autoStartLabel.setStyleName("padding-right-style");
-        addComponent(autoStartLabel);
-
-        final FlexibleOptionGroupItemComponent scheduledItem = autoStartOptionGroup
-                .getItemComponent(AutoStartOption.SCHEDULED);
-        scheduledItem.setStyleName(STYLE_DIST_WINDOW_AUTO_START);
-        // setted Id for Time Forced radio button.
-        scheduledItem.setId(UIComponentIdProvider.ROLLOUT_START_SCHEDULED_ID);
-        addComponent(scheduledItem);
-        final Label scheduledLabel = new Label();
-        scheduledLabel.setStyleName("statusIconPending");
-        scheduledLabel.setIcon(FontAwesome.CLOCK_O);
-        scheduledLabel.setCaption(i18n.getMessage("caption.rollout.start.scheduled"));
-        scheduledLabel.setDescription(i18n.getMessage("caption.rollout.start.scheduled.desc"));
-        scheduledLabel.setStyleName(STYLE_DIST_WINDOW_AUTO_START);
-        addComponent(scheduledLabel);
-
-        startAtDateField = new DateField();
-        startAtDateField.setInvalidAllowed(false);
-        startAtDateField.setInvalidCommitted(false);
+        startAtDateField = new DateTimeField();
         startAtDateField.setEnabled(false);
         startAtDateField.setStyleName("dist-window-forcedtime");
 
         final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
-        startAtDateField.setValue(
-                Date.from(LocalDateTime.now().plusMinutes(30).atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant()));
-        startAtDateField.setImmediate(true);
-        startAtDateField.setTimeZone(tz);
+        startAtDateField.setZoneId(SPDateTimeUtil.getTimeZoneId(tz));
         startAtDateField.setLocale(HawkbitCommonUtil.getCurrentLocale());
-        startAtDateField.setResolution(Resolution.MINUTE);
+        startAtDateField.setResolution(DateTimeResolution.MINUTE);
         startAtDateField.addStyleName(ValoTheme.DATEFIELD_SMALL);
         addComponent(startAtDateField);
-    }
-
-    void selectDefaultOption() {
-        autoStartOptionGroup.select(AutoStartOption.MANUAL);
     }
 
     /**
      * Rollout start options
      */
     enum AutoStartOption {
-        MANUAL, AUTO_START, SCHEDULED
+        MANUAL, AUTO_START, SCHEDULED;
 
     }
 
-    public FlexibleOptionGroup getAutoStartOptionGroup() {
+    public RadioButtonGroup<AutoStartOption> getAutoStartOptionGroup() {
         return autoStartOptionGroup;
     }
 
-    public DateField getStartAtDateField() {
+    public DateTimeField getStartAtDateField() {
         return startAtDateField;
     }
 
