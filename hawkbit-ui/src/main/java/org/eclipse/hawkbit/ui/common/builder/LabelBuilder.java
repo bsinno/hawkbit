@@ -85,7 +85,7 @@ public class LabelBuilder {
      */
     public Label buildLabel() {
         final Label label = createLabel();
-        label.setImmediate(false);
+
         label.setWidth("-1px");
         label.setHeight("-1px");
         if (StringUtils.hasText(caption)) {

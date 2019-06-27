@@ -51,7 +51,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
         isMultiAssignmentsEnabled = isConfigEnabled();
 
         container = new VerticalLayout();
-        container.setImmediate(true);
+
 
         container.addComponent(newLabel(MSG_KEY_NOTICE));
 

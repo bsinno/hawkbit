@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
-import org.eclipse.hawkbit.ui.management.miscs.AbstractActionTypeOptionGroupLayout.ActionTypeOption;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAutoAssignmentLayout;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -36,12 +35,12 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
-import com.vaadin.ui.UI;
 import com.vaadin.v7.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 
 /**
  * Creates a dialog window to select the distribution set for a target filter
@@ -75,7 +74,7 @@ public class DistributionSetSelectWindow implements CommonDialogWindow.SaveDialo
 
         checkBox = new CheckBox(i18n.getMessage(UIMessageIdProvider.LABEL_AUTO_ASSIGNMENT_ENABLE));
         checkBox.setId(UIComponentIdProvider.DIST_SET_SELECT_ENABLE_ID);
-        checkBox.setImmediate(true);
+
         checkBox.addValueChangeListener(
                 event -> switchAutoAssignmentInputsVisibility((boolean) event.getProperty().getValue()));
 
@@ -124,9 +123,8 @@ public class DistributionSetSelectWindow implements CommonDialogWindow.SaveDialo
         checkBox.setValue(distributionSet != null);
         switchAutoAssignmentInputsVisibility(distributionSet != null);
 
-        final ActionTypeOption actionTypeToSet = ActionTypeOption.getOptionForActionType(actionType)
-                .orElse(ActionTypeOption.FORCED);
-        actionTypeOptionGroupLayout.getActionTypeOptionGroup().select(actionTypeToSet);
+        final ActionType actionTypeToSet = actionType == null ? ActionType.FORCED : actionType;
+        actionTypeOptionGroupLayout.getActionTypeOptionGroup().setSelectedItem(actionTypeToSet);
 
         if (distributionSet != null) {
             final String initialFilterString = HawkbitCommonUtil.getFormattedNameVersion(distributionSet.getName(),
@@ -181,8 +179,7 @@ public class DistributionSetSelectWindow implements CommonDialogWindow.SaveDialo
     @Override
     public void saveOrUpdate() {
         if (checkBox.getValue() && dsCombo.getValue() != null) {
-            final ActionType autoAssignActionType = ((ActionTypeOption) actionTypeOptionGroupLayout
-                    .getActionTypeOptionGroup().getValue()).getActionType();
+            final ActionType autoAssignActionType = actionTypeOptionGroupLayout.getActionTypeOptionGroup().getValue();
             updateTargetFilterQueryDS(tfqId, (Long) dsCombo.getValue(), autoAssignActionType);
         } else if (!checkBox.getValue()) {
             updateTargetFilterQueryDS(tfqId, null, null);

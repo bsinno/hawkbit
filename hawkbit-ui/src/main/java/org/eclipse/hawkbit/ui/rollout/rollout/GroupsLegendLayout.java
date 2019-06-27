@@ -86,7 +86,7 @@ public class GroupsLegendLayout extends VerticalLayout {
     private static Label createTotalTargetsLabel() {
         final Label label = new LabelBuilder().visible(false).name("").buildLabel();
         label.addStyleName("rollout-target-count-title");
-        label.setImmediate(true);
+
         label.setSizeUndefined();
         return label;
     }
@@ -94,7 +94,7 @@ public class GroupsLegendLayout extends VerticalLayout {
     private Label createLoadingLabel() {
         final Label label = new LabelBuilder().visible(false).name("").buildLabel();
         label.addStyleName("rollout-target-count-loading");
-        label.setImmediate(true);
+
         label.setSizeUndefined();
         label.setValue(i18n.getMessage("label.rollout.calculating"));
         return label;

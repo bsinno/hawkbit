@@ -655,7 +655,7 @@ public class DistributionTable extends AbstractNamedVersionTable<DistributionSet
         pinBtn.addStyleName(getPinStyle());
         pinBtn.setData(distributionSetIdName);
         pinBtn.setId(getPinButtonId(name, version));
-        pinBtn.setImmediate(true);
+
         pinBtn.setDescription(getI18n().getMessage(UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN));
         return pinBtn;
     }

@@ -29,11 +29,10 @@ import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
-import org.eclipse.hawkbit.ui.management.miscs.AbstractActionTypeOptionGroupLayout;
-import org.eclipse.hawkbit.ui.management.miscs.AbstractActionTypeOptionGroupLayout.ActionTypeOption;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.management.miscs.MaintenanceWindowLayout;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -41,11 +40,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Property;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.HorizontalLayout;
 
 /**
  * Helper Class for Target Assignment Operations from the Deployment View
@@ -88,12 +86,13 @@ public final class TargetAssignmentOperations {
             final UINotification notification, final UIEventBus eventBus, final VaadinMessageSource i18n,
             final Object eventSource) {
 
-        final ActionType actionType = ((ActionTypeOption) actionTypeOptionGroupLayout.getActionTypeOptionGroup()
-                .getValue()).getActionType();
+        final ActionType actionType = actionTypeOptionGroupLayout.getActionTypeOptionGroup().getValue();
 
-        final long forcedTimeStamp = (((ActionTypeOption) actionTypeOptionGroupLayout.getActionTypeOptionGroup()
-                .getValue()) == ActionTypeOption.AUTO_FORCED)
-                        ? actionTypeOptionGroupLayout.getForcedTimeDateField().getValue().getTime()
+        final long forcedTimeStamp = actionTypeOptionGroupLayout.getActionTypeOptionGroup()
+                .getValue() == ActionType.TIMEFORCED
+                        ? actionTypeOptionGroupLayout.getForcedTimeDateField().getValue()
+                                .atZone(SPDateTimeUtil.getTimeZoneId(SPDateTimeUtil.getBrowserTimeZone())).toInstant()
+                                .toEpochMilli()
                         : RepositoryModelConstants.NO_FORCE_TIME;
 
         final String maintenanceSchedule = maintenanceWindowLayout.getMaintenanceSchedule();
@@ -192,10 +191,10 @@ public final class TargetAssignmentOperations {
                 saveButtonToggle);
         final Link maintenanceWindowHelpLink = maintenanceWindowHelpLinkControl(uiProperties, i18n);
         final HorizontalLayout layout = createHorizontalLayout(maintenanceWindowControl, maintenanceWindowHelpLink);
-        actionTypeOptionGroupLayout.selectDefaultOption();
 
         initMaintenanceWindow(maintenanceWindowLayout, saveButtonToggle);
-        addValueChangeListener(actionTypeOptionGroupLayout, maintenanceWindowControl, maintenanceWindowHelpLink);
+        addDownloadOnlyValueChangeListener(actionTypeOptionGroupLayout, maintenanceWindowControl,
+                maintenanceWindowHelpLink);
         return createAssignmentTab(actionTypeOptionGroupLayout, layout, maintenanceWindowLayout);
     }
 
@@ -243,30 +242,19 @@ public final class TargetAssignmentOperations {
         return enableMaintenanceWindow;
     }
 
-    private static void addValueChangeListener(final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout,
+    private static void addDownloadOnlyValueChangeListener(
+            final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout,
             final CheckBox enableMaintenanceWindowControl, final Link maintenanceWindowHelpLinkControl) {
-        actionTypeOptionGroupLayout.getActionTypeOptionGroup()
-                .addValueChangeListener(new Property.ValueChangeListener() {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    // Vaadin is returning object so "==" might not work
-                    @SuppressWarnings("squid:S4551")
-                    public void valueChange(final Property.ValueChangeEvent event) {
-
-                        if (event.getProperty().getValue()
-                                .equals(AbstractActionTypeOptionGroupLayout.ActionTypeOption.DOWNLOAD_ONLY)) {
-                            enableMaintenanceWindowControl.setValue(false);
-                            enableMaintenanceWindowControl.setEnabled(false);
-                            maintenanceWindowHelpLinkControl.setEnabled(false);
-
-                        } else {
-                            enableMaintenanceWindowControl.setEnabled(true);
-                            maintenanceWindowHelpLinkControl.setEnabled(true);
-                        }
-
-                    }
-                });
+        actionTypeOptionGroupLayout.getActionTypeOptionGroup().addValueChangeListener(event -> {
+            if (event.getValue() == ActionType.DOWNLOAD_ONLY) {
+                enableMaintenanceWindowControl.setValue(false);
+                enableMaintenanceWindowControl.setEnabled(false);
+                maintenanceWindowHelpLinkControl.setEnabled(false);
+            } else {
+                enableMaintenanceWindowControl.setEnabled(true);
+                maintenanceWindowHelpLinkControl.setEnabled(true);
+            }
+        });
     }
 
     private static Link maintenanceWindowHelpLinkControl(final UiProperties uiProperties,

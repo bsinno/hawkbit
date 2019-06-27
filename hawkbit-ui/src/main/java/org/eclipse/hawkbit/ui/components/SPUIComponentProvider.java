@@ -290,7 +290,7 @@ public final class SPUIComponentProvider {
         final VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);
         layout.setMargin(true);
-        layout.setImmediate(true);
+
         return layout;
     }
 

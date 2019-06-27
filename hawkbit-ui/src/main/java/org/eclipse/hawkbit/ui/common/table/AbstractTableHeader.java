@@ -190,7 +190,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
         dropHintDropFilterLayout.setWidth(100, Unit.PERCENTAGE);
         if (isDropFilterRequired()) {
             filterDroppedInfo = new HorizontalLayout();
-            filterDroppedInfo.setImmediate(true);
+
             filterDroppedInfo.setStyleName("target-dist-filter-info");
             filterDroppedInfo.setHeightUndefined();
             filterDroppedInfo.setSizeUndefined();

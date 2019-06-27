@@ -239,7 +239,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
 
         distsetTypeNameComboBox = SPUIComponentProvider.getComboBox(i18n.getMessage("label.combobox.type"), "", null,
                 "", false, "", i18n.getMessage("label.combobox.type"));
-        distsetTypeNameComboBox.setImmediate(true);
+
         distsetTypeNameComboBox.setNullSelectionAllowed(false);
         distsetTypeNameComboBox.setId(UIComponentIdProvider.DIST_ADD_DISTSETTYPE);
 

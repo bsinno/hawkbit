@@ -133,7 +133,7 @@ public class DistributionSetTypeSoftwareModuleSelectLayout extends VerticalLayou
         createSelectedTableContainer();
         selectedTable.setContainerDataSource(selectedTableContainer);
         addTooltTipToSelectedTable();
-        selectedTable.setImmediate(true);
+
         selectedTable.setVisibleColumns(DIST_TYPE_NAME, DIST_TYPE_MANDATORY);
         selectedTable.setColumnHeaders(i18n.getMessage("header.dist.twintable.selected"), STAR);
         selectedTable.setColumnExpandRatio(DIST_TYPE_NAME, 0.75F);
@@ -168,7 +168,7 @@ public class DistributionSetTypeSoftwareModuleSelectLayout extends VerticalLayou
         sourceTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
         sourceTable.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         sourceTable.addStyleName(ValoTheme.TABLE_SMALL);
-        sourceTable.setImmediate(true);
+
         sourceTable.setSizeFull();
         sourceTable.addStyleName("dist_type_twin-table");
         sourceTable.setSortEnabled(false);

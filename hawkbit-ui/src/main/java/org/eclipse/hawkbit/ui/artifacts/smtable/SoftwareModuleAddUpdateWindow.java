@@ -235,7 +235,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
         typeComboBox.setId(UIComponentIdProvider.SW_MODULE_TYPE);
         typeComboBox.setStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE + " " + ValoTheme.COMBOBOX_TINY);
         typeComboBox.setNewItemsAllowed(Boolean.FALSE);
-        typeComboBox.setImmediate(Boolean.TRUE);
+
     }
 
     private TextField createTextField(final String in18Key, final String id, final int maxLength) {

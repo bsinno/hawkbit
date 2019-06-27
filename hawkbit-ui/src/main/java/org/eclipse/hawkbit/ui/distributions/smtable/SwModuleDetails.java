@@ -101,7 +101,7 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
         artifactDtlsWindow.setCaptionAsHtml(true);
         artifactDtlsWindow.setClosable(true);
         artifactDtlsWindow.setResizable(true);
-        artifactDtlsWindow.setImmediate(true);
+
         artifactDtlsWindow.setWindowMode(WindowMode.NORMAL);
         artifactDtlsWindow.setModal(true);
         artifactDtlsWindow.addStyleName(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);

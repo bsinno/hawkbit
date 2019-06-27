@@ -187,7 +187,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private static Label getStatusCountLabel() {
         final Label countLabel = new Label();
-        countLabel.setImmediate(true);
+
         countLabel.addStyleName("bulk-upload-label");
         countLabel.setVisible(false);
         countLabel.setCaptionAsHtml(true);
@@ -209,7 +209,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
                 null, false, "", i18n.getMessage("bulkupload.ds.name"));
         dsComboBox.setSizeUndefined();
         dsComboBox.addStyleName(SPUIDefinitions.BULK_UPLOD_DS_COMBO_STYLE);
-        dsComboBox.setImmediate(true);
+
         dsComboBox.setFilteringMode(FilteringMode.STARTSWITH);
         dsComboBox.setPageLength(7);
         dsComboBox.setContainerDataSource(container);
@@ -359,7 +359,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         bulkUploadWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption("").content(this)
                 .buildWindow();
         bulkUploadWindow.addStyleName("bulk-upload-window");
-        bulkUploadWindow.setImmediate(true);
+
         if (managementUIState.getTargetTableFilters().getBulkUpload().getProgressBarCurrentValue() <= 0) {
             bulkUploader.getUpload().setEnabled(true);
         } else {

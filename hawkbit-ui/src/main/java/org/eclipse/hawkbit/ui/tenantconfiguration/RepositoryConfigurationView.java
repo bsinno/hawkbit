@@ -85,7 +85,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView
 
         final GridLayout gridLayout = new GridLayout(3, 3);
         gridLayout.setSpacing(true);
-        gridLayout.setImmediate(true);
+
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 

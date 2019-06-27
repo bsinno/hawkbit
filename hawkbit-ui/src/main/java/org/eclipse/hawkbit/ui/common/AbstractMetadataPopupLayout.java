@@ -249,7 +249,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
     protected Grid createMetadataGrid() {
         final Grid metadataGrid = new Grid();
         metadataGrid.addStyleName(SPUIStyleDefinitions.METADATA_GRID);
-        metadataGrid.setImmediate(true);
+
         metadataGrid.setHeight("100%");
         metadataGrid.setWidth("100%");
         metadataGrid.setId(UIComponentIdProvider.METDATA_TABLE_ID);

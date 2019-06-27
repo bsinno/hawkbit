@@ -72,7 +72,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
-        hlayout.setImmediate(true);
+
 
         final Label configurationLabel = new LabelBuilder()
                 .name(i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
@@ -92,7 +92,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
                 combobox.select(distributionSetType.getId());
             }
         }
-        combobox.setImmediate(true);
+
         combobox.addValueChangeListener(event -> selectDistributionSetValue());
         hlayout.addComponent(combobox);
 

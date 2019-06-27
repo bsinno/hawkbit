@@ -161,7 +161,7 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
         final E textComponent = createTextComponent();
 
         textComponent.setRequired(required);
-        textComponent.setImmediate(immediate);
+
         textComponent.setReadOnly(readOnly);
         textComponent.setEnabled(enabled);
 

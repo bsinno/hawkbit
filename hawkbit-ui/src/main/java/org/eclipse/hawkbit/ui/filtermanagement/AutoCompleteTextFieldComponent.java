@@ -206,7 +206,7 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
 
     private static Label createStatusIcon() {
         final Label statusIcon = new Label();
-        statusIcon.setImmediate(true);
+
         statusIcon.setContentMode(ContentMode.HTML);
         statusIcon.setSizeFull();
         setInitialStatusIconStyle(statusIcon);

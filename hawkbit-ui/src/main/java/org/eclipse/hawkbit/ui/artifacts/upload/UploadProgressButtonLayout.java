@@ -146,7 +146,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         final FileTransferHandlerVaadinUpload uploadHandler = new FileTransferHandlerVaadinUpload(
                 multipartConfigElement.getMaxFileSize(), softwareModuleManagement, artifactManagement, i18n);
         upload.setButtonCaption(i18n.getMessage("upload.file"));
-        upload.setImmediate(true);
+
         upload.setReceiver(uploadHandler);
         upload.addSucceededListener(uploadHandler);
         upload.addFailedListener(uploadHandler);

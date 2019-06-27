@@ -81,7 +81,7 @@ public class DefaultGridHeader extends VerticalLayout {
     protected Label buildTitleLabel() {
         // create default title - even shown when no data is available
         title = new LabelBuilder().name(titleText).buildCaptionLabel();
-        title.setImmediate(true);
+
         title.setContentMode(ContentMode.HTML);
 
         return title;

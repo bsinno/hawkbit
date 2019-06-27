@@ -48,10 +48,13 @@ import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterBeanQuery;
-import org.eclipse.hawkbit.ui.management.miscs.AbstractActionTypeOptionGroupLayout.ActionTypeOption;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
+import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupNumberValidator;
+import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupSizeValidator;
+import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.ThresholdFieldValidator;
+import org.eclipse.hawkbit.ui.rollout.rollout.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
@@ -70,6 +73,10 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.data.Container;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.Property.ValueChangeEvent;
@@ -78,17 +85,13 @@ import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
 import com.vaadin.v7.data.validator.IntegerRangeValidator;
 import com.vaadin.v7.data.validator.LongRangeValidator;
 import com.vaadin.v7.data.validator.NullValidator;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.OptionGroup;
-import com.vaadin.ui.TabSheet;
 import com.vaadin.v7.ui.TextArea;
 import com.vaadin.v7.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Rollout add or update popup layout.
@@ -348,14 +351,18 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         }
 
         private long getForcedTimeStamp() {
-            return ActionTypeOption.AUTO_FORCED == actionTypeOptionGroupLayout.getActionTypeOptionGroup().getValue()
-                    ? actionTypeOptionGroupLayout.getForcedTimeDateField().getValue().getTime()
+            return ActionType.TIMEFORCED == actionTypeOptionGroupLayout.getActionTypeOptionGroup().getValue()
+                    ? actionTypeOptionGroupLayout.getForcedTimeDateField().getValue()
+                            .atZone(SPDateTimeUtil.getTimeZoneId(SPDateTimeUtil.getBrowserTimeZone())).toInstant()
+                            .toEpochMilli()
                     : RepositoryModelConstants.NO_FORCE_TIME;
         }
 
         private Long getScheduledStartTime() {
             return AutoStartOptionGroupLayout.AutoStartOption.SCHEDULED == getAutoStartOption()
-                    ? autoStartOptionGroupLayout.getStartAtDateField().getValue().getTime()
+                    ? autoStartOptionGroupLayout.getStartAtDateField().getValue()
+                            .atZone(SPDateTimeUtil.getTimeZoneId(SPDateTimeUtil.getBrowserTimeZone())).toInstant()
+                            .toEpochMilli()
                     : null;
         }
 
@@ -370,13 +377,11 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         }
 
         private ActionType getActionType() {
-            return ((ActionTypeOption) actionTypeOptionGroupLayout.getActionTypeOptionGroup().getValue())
-                    .getActionType();
+            return actionTypeOptionGroupLayout.getActionTypeOptionGroup().getValue();
         }
 
         private AutoStartOptionGroupLayout.AutoStartOption getAutoStartOption() {
-            return (AutoStartOptionGroupLayout.AutoStartOption) autoStartOptionGroupLayout.getAutoStartOptionGroup()
-                    .getValue();
+            return autoStartOptionGroupLayout.getAutoStartOptionGroup().getValue();
         }
 
     }
@@ -426,8 +431,8 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         addGroupsLegendLayout();
         addGroupsDefinitionTabs();
 
-        actionTypeOptionGroupLayout.selectDefaultOption();
-        autoStartOptionGroupLayout.selectDefaultOption();
+        actionTypeOptionGroupLayout.getActionTypeOptionGroup().setSelectedItem(ActionType.FORCED);
+        autoStartOptionGroupLayout.getAutoStartOptionGroup().setSelectedItem(AutoStartOption.AUTO_START);
         totalTargetsCount = 0L;
         rollout = null;
         groupsDefinitionTabs.setVisible(true);
@@ -554,8 +559,8 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         description = createDescription();
         errorThresholdOptionGroup = createErrorThresholdOptionGroup();
         setDefaultSaveStartGroupOption();
-        actionTypeOptionGroupLayout.selectDefaultOption();
-        autoStartOptionGroupLayout.selectDefaultOption();
+        actionTypeOptionGroupLayout.getActionTypeOptionGroup().setSelectedItem(ActionType.FORCED);
+        autoStartOptionGroupLayout.getAutoStartOptionGroup().setSelectedItem(AutoStartOption.AUTO_START);
         targetFilterQuery = createTargetFilterQuery();
         actionTypeOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ROLLOUT_ACTION_TYPE_LAYOUT);
         autoStartOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ROLLOUT_ACTION_TYPE_LAYOUT);
@@ -666,7 +671,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     private static Label createCountLabel() {
         final Label groupSize = new LabelBuilder().visible(false).name("").buildLabel();
         groupSize.addStyleName(ValoTheme.LABEL_TINY + " " + "rollout-target-count-message");
-        groupSize.setImmediate(true);
+
         groupSize.setSizeUndefined();
         return groupSize;
     }

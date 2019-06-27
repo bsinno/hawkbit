@@ -39,7 +39,7 @@ public final class DurationConfigField extends GridLayout implements Configurati
 
         this.addStyleName("duration-config-field");
         this.setSpacing(true);
-        this.setImmediate(true);
+
         this.setColumnExpandRatio(1, 1.0F);
 
         durationField.setId(id + ".field");

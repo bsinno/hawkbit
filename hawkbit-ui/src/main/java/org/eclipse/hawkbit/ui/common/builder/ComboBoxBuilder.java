@@ -54,7 +54,7 @@ public class ComboBoxBuilder {
     public ComboBox buildCombBox() {
         final ComboBox comboBox = SPUIComponentProvider.getComboBox(null, "", null, ValoTheme.COMBOBOX_SMALL, false, "",
                 prompt);
-        comboBox.setImmediate(true);
+
         comboBox.setPageLength(7);
         comboBox.setItemCaptionPropertyId(SPUILabelDefinitions.VAR_NAME);
         comboBox.setSizeUndefined();

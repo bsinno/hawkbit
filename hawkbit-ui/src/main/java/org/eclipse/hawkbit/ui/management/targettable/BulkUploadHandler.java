@@ -132,7 +132,7 @@ public class BulkUploadHandler extends CustomComponent
         upload.setEnabled(false);
         upload.setButtonCaption(i18n.getMessage("caption.bulk.upload"));
         upload.setReceiver(this);
-        upload.setImmediate(true);
+
         upload.setWidthUndefined();
         upload.addSucceededListener(this);
         upload.addFailedListener(this);

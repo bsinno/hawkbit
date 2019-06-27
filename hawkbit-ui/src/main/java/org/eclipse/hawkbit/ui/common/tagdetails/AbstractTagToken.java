@@ -123,7 +123,7 @@ public abstract class AbstractTagToken<T extends BaseEntity> implements Serializ
         tokenField.setFilteringMode(FilteringMode.CONTAINS);
         tokenField.setInputPrompt(getTokenInputPrompt());
         tokenField.setTokenInsertPosition(InsertPosition.AFTER);
-        tokenField.setImmediate(true);
+
         tokenField.addStyleName(ValoTheme.COMBOBOX_TINY);
         tokenField.setSizeFull();
         tokenField.setTokenCaptionPropertyId(NAME_PROPERTY);

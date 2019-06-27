@@ -20,7 +20,7 @@ public class SPUITagButtonStyle implements SPUIButtonDecorator {
     @Override
     public Button decorate(final Button button, final String style, final boolean setStyle, final Resource icon) {
 
-        button.setImmediate(true);
+
         button.addStyleName("generatedColumnPadding button-no-border" + " " + ValoTheme.BUTTON_BORDERLESS + " "
                 + "button-tag-no-border");
 

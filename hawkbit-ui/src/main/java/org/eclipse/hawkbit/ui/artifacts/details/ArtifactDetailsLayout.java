@@ -167,7 +167,7 @@ public class ArtifactDetailsLayout extends VerticalLayout {
                 .name(HawkbitCommonUtil.getArtifactoryDetailsLabelId(labelSoftwareModule, i18n)).buildCaptionLabel();
         titleOfArtifactDetails.setContentMode(ContentMode.HTML);
         titleOfArtifactDetails.setSizeFull();
-        titleOfArtifactDetails.setImmediate(true);
+
         maxMinButton = createMaxMinButton();
 
         artifactDetailsTable = createArtifactDetailsTable();
@@ -198,7 +198,7 @@ public class ArtifactDetailsLayout extends VerticalLayout {
         header.setMargin(false);
         header.setSizeFull();
         header.setHeightUndefined();
-        header.setImmediate(true);
+
         header.addComponents(titleOfArtifactDetails, maxMinButton);
         header.setComponentAlignment(titleOfArtifactDetails, Alignment.TOP_LEFT);
         header.setComponentAlignment(maxMinButton, Alignment.TOP_RIGHT);
@@ -341,7 +341,7 @@ public class ArtifactDetailsLayout extends VerticalLayout {
         final Table detailsTable = new Table();
         detailsTable.addStyleName("sp-table");
 
-        detailsTable.setImmediate(true);
+
         detailsTable.setSizeFull();
 
         detailsTable.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_DETAILS_TABLE);

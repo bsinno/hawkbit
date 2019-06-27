@@ -214,7 +214,7 @@ public abstract class AbstractTableDetailsLayout<T extends NamedEntity> extends 
 
     protected void createComponents() {
         caption = createHeaderCaption();
-        caption.setImmediate(true);
+
         caption.setContentMode(ContentMode.HTML);
         caption.setId(getDetailsHeaderCaptionId());
 
@@ -233,7 +233,7 @@ public abstract class AbstractTableDetailsLayout<T extends NamedEntity> extends 
         manageMetadataBtn.setEnabled(false);
 
         detailsTab = SPUIComponentProvider.getDetailsTabSheet();
-        detailsTab.setImmediate(true);
+
         detailsTab.setWidth(98, Unit.PERCENTAGE);
         detailsTab.setHeight(90, Unit.PERCENTAGE);
         detailsTab.addStyleName(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);

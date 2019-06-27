@@ -44,7 +44,7 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         configurationEnabled = isConfigEnabled();
 
         detailLayout = new VerticalLayout();
-        detailLayout.setImmediate(true);
+
 
         final HorizontalLayout caRootAuthorityLayout = new HorizontalLayout();
         caRootAuthorityLayout.setSpacing(true);

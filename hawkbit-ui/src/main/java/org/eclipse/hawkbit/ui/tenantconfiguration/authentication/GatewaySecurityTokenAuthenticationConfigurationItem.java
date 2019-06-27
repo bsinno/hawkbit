@@ -56,21 +56,21 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
         configurationEnabled = isConfigEnabled();
 
         detailLayout = new VerticalLayout();
-        detailLayout.setImmediate(true);
+
 
         final Button gatewaytokenBtn = SPUIComponentProvider.getButton(null, i18n.getMessage("configuration.button.regenerateKey"), "",
                 ValoTheme.BUTTON_TINY + " " + "redicon", true, null, SPUIButtonStyleSmall.class);
-        gatewaytokenBtn.setImmediate(true);
+
         gatewaytokenBtn.setIcon(FontAwesome.REFRESH);
         gatewaytokenBtn.addClickListener(event -> generateGatewayToken());
 
         gatewayTokenkeyLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();
         gatewayTokenkeyLabel.addStyleName("gateway-token-label");
-        gatewayTokenkeyLabel.setImmediate(true);
+
 
         final HorizontalLayout keyGenerationLayout = new HorizontalLayout();
         keyGenerationLayout.setSpacing(true);
-        keyGenerationLayout.setImmediate(true);
+
 
         keyGenerationLayout.addComponent(gatewayTokenkeyLabel);
         keyGenerationLayout.addComponent(gatewaytokenBtn);

@@ -170,7 +170,7 @@ public class UploadProgressInfoWindow extends Window {
         statusGrid.setId(UIComponentIdProvider.UPLOAD_STATUS_POPUP_GRID);
         statusGrid.setSelectionMode(SelectionMode.NONE);
         statusGrid.setHeaderVisible(true);
-        statusGrid.setImmediate(true);
+
         statusGrid.setSizeFull();
         return statusGrid;
     }

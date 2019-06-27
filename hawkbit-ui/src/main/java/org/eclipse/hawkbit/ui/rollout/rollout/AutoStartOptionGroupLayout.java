@@ -42,22 +42,10 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
      */
     AutoStartOptionGroupLayout(final VaadinMessageSource i18n) {
         this.i18n = i18n;
+        setSizeUndefined();
 
         createOptionGroup();
         addValueChangeListener();
-        setSizeUndefined();
-    }
-
-    private void addValueChangeListener() {
-        autoStartOptionGroup.addValueChangeListener(event -> {
-            if (event.getValue().equals(AutoStartOption.SCHEDULED)) {
-                startAtDateField.setEnabled(true);
-                startAtDateField.setRequiredIndicatorVisible(true);
-            } else {
-                startAtDateField.setEnabled(false);
-                startAtDateField.setRequiredIndicatorVisible(false);
-            }
-        });
     }
 
     private void createOptionGroup() {
@@ -113,6 +101,18 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
         startAtDateField.setResolution(DateTimeResolution.MINUTE);
         startAtDateField.addStyleName(ValoTheme.DATEFIELD_SMALL);
         addComponent(startAtDateField);
+    }
+
+    private void addValueChangeListener() {
+        autoStartOptionGroup.addValueChangeListener(event -> {
+            if (event.getValue().equals(AutoStartOption.SCHEDULED)) {
+                startAtDateField.setEnabled(true);
+                startAtDateField.setRequiredIndicatorVisible(true);
+            } else {
+                startAtDateField.setEnabled(false);
+                startAtDateField.setRequiredIndicatorVisible(false);
+            }
+        });
     }
 
     /**

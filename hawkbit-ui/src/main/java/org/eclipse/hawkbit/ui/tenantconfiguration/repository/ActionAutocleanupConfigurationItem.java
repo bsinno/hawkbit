@@ -94,7 +94,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         cleanupEnabled = isConfigEnabled();
 
         container = new VerticalLayout();
-        container.setImmediate(true);
+
 
         final HorizontalLayout row1 = newHorizontalLayout();
 
@@ -107,7 +107,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
             actionStatusCombobox.addItem(statusOption);
             actionStatusCombobox.setItemCaption(statusOption, statusOption.getName());
         }
-        actionStatusCombobox.setImmediate(true);
+
         actionStatusCombobox.addValueChangeListener(e -> onActionStatusChanged());
         actionStatusCombobox.select(getActionStatusOption());
 
@@ -204,7 +204,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
     private static HorizontalLayout newHorizontalLayout() {
         final HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
-        layout.setImmediate(true);
+
         return layout;
     }
 

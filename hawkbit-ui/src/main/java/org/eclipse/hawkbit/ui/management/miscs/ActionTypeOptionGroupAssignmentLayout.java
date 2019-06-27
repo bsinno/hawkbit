@@ -42,7 +42,7 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
 
     private void addValueChangeListener() {
         actionTypeOptionGroup.addValueChangeListener(event -> {
-            if (event.getValue().equals(ActionType.TIMEFORCED)) {
+            if (event.getValue() == ActionType.TIMEFORCED) {
                 forcedTimeDateField.setEnabled(true);
                 forcedTimeDateField.setRequiredIndicatorVisible(true);
             } else {

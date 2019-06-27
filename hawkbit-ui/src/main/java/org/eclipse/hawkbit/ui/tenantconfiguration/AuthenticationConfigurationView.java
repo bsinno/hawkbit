@@ -94,7 +94,7 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
 
         final GridLayout gridLayout = new GridLayout(3, 4);
         gridLayout.setSpacing(true);
-        gridLayout.setImmediate(true);
+
         gridLayout.setSizeFull();
         gridLayout.setColumnExpandRatio(1, 1.0F);
 

@@ -74,7 +74,7 @@ public class AutoCompleteTextFieldConnector extends AbstractExtensionConnector {
     @Override
     protected void extend(final ServerConnector target) {
         textFieldWidget = (VTextField) ((ComponentConnector) target).getWidget();
-        textFieldWidget.setImmediate(true);
+
         textFieldWidget.textChangeEventMode = "EAGER";
         panel.setWidget(select);
         panel.setStyleName("suggestion-popup");

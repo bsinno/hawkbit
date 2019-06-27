@@ -86,7 +86,7 @@ public class ColorPickerLayout extends GridLayout {
 
     private static Slider createRGBSlider(final String caption, final String styleName) {
         final Slider slider = new Slider(caption, 0, 255);
-        slider.setImmediate(true);
+
         slider.setWidth("150px");
         slider.addStyleName(styleName);
         return slider;
