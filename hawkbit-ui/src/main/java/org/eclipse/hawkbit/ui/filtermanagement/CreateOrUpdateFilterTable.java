@@ -76,7 +76,7 @@ public class CreateOrUpdateFilterTable extends Table {
 
         setStyleName("sp-table");
         setSizeFull();
-        setImmediate(true);
+
         setHeight(100.0F, Unit.PERCENTAGE);
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_SMALL);

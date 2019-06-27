@@ -205,7 +205,7 @@ public class ArtifactDetailsLayout extends VerticalLayout {
         header.setExpandRatio(titleOfArtifactDetails, 1.0F);
 
         setSizeFull();
-        setImmediate(true);
+
         addStyleName("artifact-table");
         addStyleName("table-layout");
         addComponent(header);

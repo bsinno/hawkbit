@@ -37,7 +37,7 @@ public class DistributionSetInfoPanel extends Panel {
      */
     DistributionSetInfoPanel(final DistributionSet distributionSet, final String caption, final String style1,
             final String style2) {
-        setImmediate(false);
+
         decorate(distributionSet, caption, style1, style2);
     }
 
@@ -75,7 +75,7 @@ public class DistributionSetInfoPanel extends Panel {
         addStyleName(style1);
         addStyleName(style2);
         addStyleName("small");
-        setImmediate(false);
+
     }
 
     /**

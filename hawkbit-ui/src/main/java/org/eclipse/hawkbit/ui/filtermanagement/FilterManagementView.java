@@ -83,7 +83,7 @@ public class FilterManagementView extends VerticalLayout implements View {
     @PostConstruct
     void init() {
         setSizeFull();
-        setImmediate(true);
+
         buildLayout();
         eventBus.subscribe(this);
     }

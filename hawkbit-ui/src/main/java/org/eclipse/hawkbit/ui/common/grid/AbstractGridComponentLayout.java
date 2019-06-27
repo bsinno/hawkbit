@@ -56,7 +56,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
         this.grid = createGrid();
         buildLayout();
         setSizeFull();
-        setImmediate(true);
+
         if (doSubscribeToEventBus()) {
             eventBus.subscribe(this);
         }

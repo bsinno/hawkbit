@@ -48,7 +48,7 @@ public abstract class AbstractMetadataDetailsLayout extends Table {
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         setSelectable(false);
-        setImmediate(true);
+
         setContainerDataSource(getContainer());
         setColumnHeaderMode(ColumnHeaderMode.EXPLICIT);
         addTableHeader();

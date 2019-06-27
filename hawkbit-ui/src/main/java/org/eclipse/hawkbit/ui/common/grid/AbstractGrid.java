@@ -73,7 +73,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      */
     protected void init() {
         setSizeFull();
-        setImmediate(true);
+
         setId(getGridId());
         if (!hasSingleSelectionSupport()) {
             setSelectionMode(SelectionMode.NONE);

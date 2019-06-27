@@ -143,7 +143,7 @@ public class UploadProgressInfoWindow extends Window {
     private void setPopupProperties() {
         setId(UIComponentIdProvider.UPLOAD_STATUS_POPUP_ID);
         addStyleName(SPUIStyleDefinitions.UPLOAD_INFO);
-        setImmediate(true);
+
         setResizable(false);
         setDraggable(true);
         setClosable(false);

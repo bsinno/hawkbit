@@ -118,7 +118,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
         createRequiredComponents();
         buildLayout();
-        setImmediate(true);
+
         setCompositionRoot(mainLayout);
     }
 

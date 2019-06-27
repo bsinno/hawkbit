@@ -86,7 +86,7 @@ public abstract class AbstractFilterButtons extends Table {
     }
 
     private void createTable() {
-        setImmediate(true);
+
         setId(getButtonsTableId());
         setStyleName("type-button-layout");
         setStyle();

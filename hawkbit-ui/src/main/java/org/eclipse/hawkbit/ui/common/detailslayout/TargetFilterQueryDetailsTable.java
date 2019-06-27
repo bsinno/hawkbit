@@ -68,7 +68,7 @@ public class TargetFilterQueryDetailsTable extends Table {
         addStyleName(SPUIStyleDefinitions.SW_MODULE_TABLE);
         addStyleName("details-layout");
         setSelectable(false);
-        setImmediate(true);
+
         setContainerDataSource(getDistSetContainer());
         setColumnHeaderMode(ColumnHeaderMode.EXPLICIT);
         addTableHeader();

@@ -109,7 +109,7 @@ public class SoftwareModuleDetailsTable extends Table {
     private void createSwModuleTable() {
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         setSelectable(false);
-        setImmediate(true);
+
         setContainerDataSource(getSwModuleContainer());
         setColumnHeaderMode(ColumnHeaderMode.EXPLICIT);
         addSWModuleTableHeader();

@@ -118,7 +118,7 @@ public class DefaultGridHeader extends VerticalLayout {
         addComponent(titleLayout);
         setComponentAlignment(titleLayout, Alignment.TOP_LEFT);
         setWidth(100, Unit.PERCENTAGE);
-        setImmediate(true);
+
         addStyleName("action-history-header");
         addStyleName("bordered-layout");
         addStyleName("no-border-bottom");

@@ -95,7 +95,7 @@ public abstract class AbstractTable<E extends NamedEntity> extends Table impleme
         this.permChecker = permChecker;
         setStyleName("sp-table");
         setSizeFull();
-        setImmediate(true);
+
         setHeight(100.0F, Unit.PERCENTAGE);
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_SMALL);

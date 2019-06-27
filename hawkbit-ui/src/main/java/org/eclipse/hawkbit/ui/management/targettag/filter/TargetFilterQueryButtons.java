@@ -63,7 +63,7 @@ public class TargetFilterQueryButtons extends Table {
     }
 
     private void createTable() {
-        setImmediate(true);
+
         setId(getButtonsTableId());
         setStyleName("type-button-layout");
         setStyle();
