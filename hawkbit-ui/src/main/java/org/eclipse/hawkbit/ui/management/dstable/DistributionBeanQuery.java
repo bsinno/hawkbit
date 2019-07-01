@@ -19,8 +19,8 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter.DistributionSetFilterBuilder;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
-import org.eclipse.hawkbit.ui.components.ProxyDistribution;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -38,7 +38,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  * of beans.
  *
  */
-public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> {
+public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistributionSet> {
 
     private static final long serialVersionUID = 5862679853949173536L;
     private Sort sort = new Sort(Direction.ASC, "id");
@@ -95,9 +95,9 @@ public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> 
      *            as total data
      */
     @Override
-    protected List<ProxyDistribution> loadBeans(final int startIndex, final int count) {
+    protected List<ProxyDistributionSet> loadBeans(final int startIndex, final int count) {
         Page<DistributionSet> distBeans;
-        final List<ProxyDistribution> proxyDistributions = new ArrayList<>();
+        final List<ProxyDistributionSet> proxyDistributions = new ArrayList<>();
         if (startIndex == 0 && firstPageDistributionSets != null) {
             distBeans = firstPageDistributionSets;
         } else if (pinnedTarget != null) {
@@ -121,7 +121,7 @@ public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> 
         }
 
         for (final DistributionSet distributionSet : distBeans) {
-            final ProxyDistribution proxyDistribution = new ProxyDistribution();
+            final ProxyDistributionSet proxyDistribution = new ProxyDistributionSet();
             proxyDistribution.setName(distributionSet.getName());
             proxyDistribution.setDescription(distributionSet.getDescription());
             proxyDistribution.setId(distributionSet.getId());
@@ -173,14 +173,14 @@ public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> 
     }
 
     @Override
-    protected void saveBeans(final List<ProxyDistribution> addedDists, final List<ProxyDistribution> modifiedDists,
-            final List<ProxyDistribution> removedDists) {
+    protected void saveBeans(final List<ProxyDistributionSet> addedDists, final List<ProxyDistributionSet> modifiedDists,
+            final List<ProxyDistributionSet> removedDists) {
         // Add,Delete and Update are performed through repository methods
     }
 
     @Override
-    protected ProxyDistribution constructBean() {
-        return new ProxyDistribution();
+    protected ProxyDistributionSet constructBean() {
+        return new ProxyDistributionSet();
     }
 
     private DistributionSetManagement getDistributionSetManagement() {

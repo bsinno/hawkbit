@@ -51,8 +51,10 @@ import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterBeanQuery;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
+import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.ErrorThresholdOptionValidator;
 import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupNumberValidator;
 import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupSizeValidator;
+import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.TargetExistsValidator;
 import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.ThresholdFieldValidator;
 import org.eclipse.hawkbit.ui.rollout.rollout.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -81,6 +83,7 @@ import com.vaadin.v7.data.Container;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.Property.ValueChangeEvent;
 import com.vaadin.v7.data.Validator;
+import com.vaadin.v7.data.Validator.InvalidValueException;
 import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
 import com.vaadin.v7.data.validator.IntegerRangeValidator;
 import com.vaadin.v7.data.validator.LongRangeValidator;
@@ -1109,7 +1112,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
         }
     }
 
-    private enum ERROR_THRESHOLD_OPTIONS {
+    public enum ERROR_THRESHOLD_OPTIONS {
 
         PERCENT("label.errorthreshold.option.percent"), COUNT("label.errorthreshold.option.count");
 

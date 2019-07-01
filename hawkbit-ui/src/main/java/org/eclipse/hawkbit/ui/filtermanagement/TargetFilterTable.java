@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
-import org.eclipse.hawkbit.ui.components.ProxyDistribution;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
@@ -236,7 +236,7 @@ public class TargetFilterTable extends Table {
 
     private Button customFilterDistributionSetButton(final Long itemId) {
         final Item row1 = getItem(itemId);
-        final ProxyDistribution distSet = (ProxyDistribution) row1
+        final ProxyDistributionSet distSet = (ProxyDistributionSet) row1
                 .getItemProperty(SPUILabelDefinitions.AUTO_ASSIGN_DISTRIBUTION_SET).getValue();
         final ActionType actionType = (ActionType) row1.getItemProperty(SPUILabelDefinitions.AUTO_ASSIGN_ACTION_TYPE)
                 .getValue();

@@ -6,9 +6,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.components;
+package org.eclipse.hawkbit.ui.common.data.proxies;
 
-import java.io.Serializable;
 import java.net.URI;
 
 import org.eclipse.hawkbit.repository.model.Action.Status;
@@ -18,16 +17,18 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 
 /**
  * Proxy for {@link Target}.
- *
  */
-public class ProxyTarget implements Serializable {
-    private static final long serialVersionUID = -8891449133620645310L;
-    private String controllerId;
-    private URI address;
-    private Long lastTargetQuery;
-    private Long installationDate;
+public class ProxyTarget extends ProxyNamedEntity {
 
-    private Long id;
+    private static final long serialVersionUID = 1L;
+
+    private String controllerId;
+
+    private URI address;
+
+    private Long lastTargetQuery;
+
+    private Long installationDate;
 
     private TargetUpdateStatus updateStatus = TargetUpdateStatus.UNKNOWN;
 
@@ -41,85 +42,7 @@ public class ProxyTarget implements Serializable {
 
     private String pollStatusToolTip;
 
-    private String createdByUser;
-
-    private String createdDate;
-
-    private String lastModifiedDate;
-
-    private String modifiedByUser;
-
     private Status status;
-
-    private String name;
-
-    private String description;
-
-    private Long createdAt;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(final Long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getCreatedByUser() {
-        return createdByUser;
-    }
-
-    public void setCreatedByUser(final String createdByUser) {
-        this.createdByUser = createdByUser;
-    }
-
-    public String getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(final String createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public String getModifiedByUser() {
-        return modifiedByUser;
-    }
-
-    public void setModifiedByUser(final String modifiedByUser) {
-        this.modifiedByUser = modifiedByUser;
-    }
-
-    public String getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(final String lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
 
     public String getAssignedDistNameVersion() {
         return assignedDistNameVersion;

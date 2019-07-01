@@ -17,7 +17,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter.DistributionSetFilterBuilder;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
-import org.eclipse.hawkbit.ui.components.ProxyDistribution;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SpringContextHelper;
@@ -36,7 +36,7 @@ import com.vaadin.v7.data.util.filter.SimpleStringFilter;
  * Manage Distributions table bean query.
  *
  */
-public class ManageDistBeanQuery extends AbstractBeanQuery<ProxyDistribution> {
+public class ManageDistBeanQuery extends AbstractBeanQuery<ProxyDistributionSet> {
 
     private static final long serialVersionUID = 1L;
 
@@ -108,14 +108,14 @@ public class ManageDistBeanQuery extends AbstractBeanQuery<ProxyDistribution> {
     }
 
     @Override
-    protected ProxyDistribution constructBean() {
-        return new ProxyDistribution();
+    protected ProxyDistributionSet constructBean() {
+        return new ProxyDistributionSet();
     }
 
     @Override
-    protected List<ProxyDistribution> loadBeans(final int startIndex, final int count) {
+    protected List<ProxyDistributionSet> loadBeans(final int startIndex, final int count) {
         Page<DistributionSet> distBeans;
-        final List<ProxyDistribution> proxyDistributions = new ArrayList<>();
+        final List<ProxyDistributionSet> proxyDistributions = new ArrayList<>();
 
         if (startIndex == 0 && firstPageDistributionSets != null) {
             distBeans = firstPageDistributionSets;
@@ -124,14 +124,14 @@ public class ManageDistBeanQuery extends AbstractBeanQuery<ProxyDistribution> {
         }
 
         for (final DistributionSet distributionSet : distBeans) {
-            proxyDistributions.add(new ProxyDistribution(distributionSet));
+            proxyDistributions.add(new ProxyDistributionSet(distributionSet));
         }
         return proxyDistributions;
     }
 
     @Override
-    protected void saveBeans(final List<ProxyDistribution> arg0, final List<ProxyDistribution> arg1,
-            final List<ProxyDistribution> arg2) {
+    protected void saveBeans(final List<ProxyDistributionSet> arg0, final List<ProxyDistributionSet> arg1,
+            final List<ProxyDistributionSet> arg2) {
         // Add,Delete and Update are performed through repository methods
     }
 

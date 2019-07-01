@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;

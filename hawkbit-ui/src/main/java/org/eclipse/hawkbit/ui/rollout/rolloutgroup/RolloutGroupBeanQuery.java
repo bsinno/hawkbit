@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;

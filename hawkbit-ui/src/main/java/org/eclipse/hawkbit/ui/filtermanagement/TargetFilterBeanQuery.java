@@ -17,8 +17,8 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
-import org.eclipse.hawkbit.ui.components.ProxyDistribution;
-import org.eclipse.hawkbit.ui.components.ProxyTargetFilter;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilter;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -104,7 +104,7 @@ public class TargetFilterBeanQuery extends AbstractBeanQuery<ProxyTargetFilter> 
 
             final DistributionSet distributionSet = tarFilterQuery.getAutoAssignDistributionSet();
             if (distributionSet != null) {
-                proxyTarFilter.setAutoAssignDistributionSet(new ProxyDistribution(distributionSet));
+                proxyTarFilter.setAutoAssignDistributionSet(new ProxyDistributionSet(distributionSet));
                 // we need to apply a fallback since the action type field has
                 // been added belatedly (and might be null for older filters)
                 final ActionType autoAssignActionType = tarFilterQuery.getAutoAssignActionType();

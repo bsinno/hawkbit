@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter.DistributionSetFilterBuilder;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
-import org.eclipse.hawkbit.ui.components.ProxyDistribution;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -35,7 +35,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  * Bean query for distribution set combo.
  *
  */
-public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> {
+public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistributionSet> {
 
     private static final long serialVersionUID = 5176481314404662215L;
     private Sort sort = new Sort(Direction.ASC, "name", "version");
@@ -70,12 +70,12 @@ public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> 
     }
 
     @Override
-    protected ProxyDistribution constructBean() {
-        return new ProxyDistribution();
+    protected ProxyDistributionSet constructBean() {
+        return new ProxyDistributionSet();
     }
 
     @Override
-    protected List<ProxyDistribution> loadBeans(final int startIndex, final int count) {
+    protected List<ProxyDistributionSet> loadBeans(final int startIndex, final int count) {
         Page<DistributionSet> distBeans;
         final DistributionSetFilter distributionSetFilter = new DistributionSetFilterBuilder().setIsDeleted(false)
                 .build();
@@ -88,10 +88,10 @@ public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> 
         return createProxyDistributions(distBeans);
     }
 
-    private List<ProxyDistribution> createProxyDistributions(final Page<DistributionSet> distBeans) {
-        final List<ProxyDistribution> proxyDistributions = new ArrayList<>();
+    private List<ProxyDistributionSet> createProxyDistributions(final Page<DistributionSet> distBeans) {
+        final List<ProxyDistributionSet> proxyDistributions = new ArrayList<>();
         for (final DistributionSet distributionSet : distBeans) {
-            final ProxyDistribution proxyDistribution = new ProxyDistribution();
+            final ProxyDistributionSet proxyDistribution = new ProxyDistributionSet();
             proxyDistribution.setName(
                     HawkbitCommonUtil.getFormattedNameVersion(distributionSet.getName(), distributionSet.getVersion()));
             proxyDistribution.setDescription(distributionSet.getDescription());
@@ -109,8 +109,8 @@ public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> 
     }
 
     @Override
-    protected void saveBeans(final List<ProxyDistribution> arg0, final List<ProxyDistribution> arg1,
-            final List<ProxyDistribution> arg2) {
+    protected void saveBeans(final List<ProxyDistributionSet> arg0, final List<ProxyDistributionSet> arg1,
+            final List<ProxyDistributionSet> arg2) {
         // Add,Delete and Update are performed through repository methods
     }
 

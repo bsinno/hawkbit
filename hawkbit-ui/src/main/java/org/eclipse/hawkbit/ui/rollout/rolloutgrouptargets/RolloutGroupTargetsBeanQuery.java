@@ -21,7 +21,7 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetWithActionStatus;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
-import org.eclipse.hawkbit.ui.components.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
