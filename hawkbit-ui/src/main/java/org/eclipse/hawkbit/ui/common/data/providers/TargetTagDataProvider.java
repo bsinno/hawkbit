@@ -12,7 +12,7 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.TargetTag;
-import org.eclipse.hawkbit.ui.common.data.mappers.TargetTagToProxyTagMapper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -31,7 +31,7 @@ public class TargetTagDataProvider extends ProxyDataProvider<ProxyTag, TargetTag
     private final transient TargetTagManagement tagManagementService;
 
     public TargetTagDataProvider(final TargetTagManagement tagManagementService,
-            final TargetTagToProxyTagMapper mapper) {
+            final TagToProxyTagMapper<TargetTag> mapper) {
         super(mapper);
         this.tagManagementService = tagManagementService;
     }

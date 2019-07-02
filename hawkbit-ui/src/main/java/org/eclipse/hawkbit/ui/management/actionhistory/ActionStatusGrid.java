@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 import java.util.Map;
 
 import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlLabelRenderer;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGrid.LabelConfig;

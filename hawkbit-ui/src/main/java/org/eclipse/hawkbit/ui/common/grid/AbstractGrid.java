@@ -15,9 +15,9 @@ import java.util.Objects;
 
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
-import org.eclipse.hawkbit.ui.management.actionhistory.ProxyAction;
-import org.eclipse.hawkbit.ui.management.actionhistory.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;

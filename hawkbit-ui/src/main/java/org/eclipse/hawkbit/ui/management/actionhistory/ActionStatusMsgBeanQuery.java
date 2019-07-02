@@ -16,6 +16,8 @@ import java.util.Map;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.model.ActionStatus;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SpringContextHelper;
 import org.springframework.data.domain.Page;

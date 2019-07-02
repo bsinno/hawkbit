@@ -18,22 +18,7 @@ import java.util.Set;
  * assigned to a {@link Target}.
  *
  */
-public interface DistributionSetType extends NamedEntity {
-    /**
-     * Maximum length of key.
-     */
-    int KEY_MAX_SIZE = 64;
-
-    /**
-     * Maximum length of colour in Management UI.
-     */
-    int COLOUR_MAX_SIZE = 16;
-
-    /**
-     * @return <code>true</code> if the type is deleted and only kept for
-     *         history purposes.
-     */
-    boolean isDeleted();
+public interface DistributionSetType extends Type {
 
     /**
      * @return immutable set of {@link SoftwareModuleType}s that need to be in a
@@ -119,21 +104,10 @@ public interface DistributionSetType extends NamedEntity {
     boolean areModuleEntriesIdentical(DistributionSetType dsType);
 
     /**
-     * @return business key of this {@link DistributionSetType}.
-     */
-    String getKey();
-
-    /**
      * @param distributionSet
      *            to check for completeness
      * @return <code>true</code> if the all mandatory software module types are
      *         in the system.
      */
     boolean checkComplete(DistributionSet distributionSet);
-
-    /**
-     * @return get color code to by used in management UI views.
-     */
-    String getColour();
-
 }

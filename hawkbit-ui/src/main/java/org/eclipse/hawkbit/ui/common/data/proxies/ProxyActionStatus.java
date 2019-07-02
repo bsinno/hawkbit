@@ -6,9 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management.actionhistory;
-
-import java.io.Serializable;
+package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.ActionStatus;
@@ -16,35 +14,15 @@ import org.eclipse.hawkbit.repository.model.ActionStatus;
 /**
  * Proxy for {@link ActionStatus}
  */
-public class ProxyActionStatus implements Serializable {
+public class ProxyActionStatus extends ProxyIdentifiableEntity {
     private static final long serialVersionUID = 1L;
 
     public static final String PXY_AS_STATUS = "status";
     public static final String PXY_AS_CREATED_AT = "createdAt";
     public static final String PXY_AS_ID = "id";
 
-    private Long id;
     private Action.Status status;
     private Long createdAt;
-
-    /**
-     * Get id for the entry.
-     *
-     * @return id for the entry.
-     */
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * Set the id for the entry.
-     *
-     * @param id
-     *            of the status entry.
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     /**
      * Gets the status literal.
@@ -61,7 +39,7 @@ public class ProxyActionStatus implements Serializable {
      * @param status
      *            literal
      */
-    public void setStatus(Action.Status status) {
+    public void setStatus(final Action.Status status) {
         this.status = status;
     }
 
@@ -80,7 +58,7 @@ public class ProxyActionStatus implements Serializable {
      * @param createdAt
      *            raw long-value for createdAt-date
      */
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(final Long createdAt) {
         this.createdAt = createdAt;
     }
 }

@@ -6,42 +6,20 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management.actionhistory;
-
-import java.io.Serializable;
+package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import org.eclipse.hawkbit.repository.model.ActionStatus;
 
 /**
  * Proxy for an entry of {@link ActionStatus#getMessages()}
  */
-public class ProxyMessage implements Serializable {
+public class ProxyMessage extends ProxyIdentifiableEntity {
     private static final long serialVersionUID = 1L;
 
     public static final String PXY_MSG_ID = "id";
     public static final String PXY_MSG_VALUE = "message";
 
-    private String id;
     private String message;
-
-    /**
-     * Get id for the entry.
-     *
-     * @return id for the entry.
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Set the id for the entry.
-     *
-     * @param id
-     *            of the message entry.
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
 
     /**
      * Get message value.
@@ -58,7 +36,7 @@ public class ProxyMessage implements Serializable {
      * @param message
      *            value
      */
-    public void setMessage(String message) {
+    public void setMessage(final String message) {
         this.message = message;
     }
 }

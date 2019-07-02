@@ -16,17 +16,13 @@ import org.eclipse.hawkbit.ui.management.tag.TagIdName;
  *
  *
  */
-public class ProxyTag extends ProxyIdentifiableEntity {
+public class ProxyTag extends ProxyNamedEntity {
 
     private static final long serialVersionUID = 1L;
 
     private TagIdName tagIdName;
 
-    private String name;
-
     private String colour;
-
-    private String description;
 
     /**
      * Proxy tag constructor.
@@ -36,28 +32,12 @@ public class ProxyTag extends ProxyIdentifiableEntity {
         tagIdName = new TagIdName(generatedIntId.toString(), null);
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
     public TagIdName getTagIdName() {
         return tagIdName;
     }
 
     public void setTagIdName(final TagIdName tagIdName) {
         this.tagIdName = tagIdName;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 
     public String getColour() {

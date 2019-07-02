@@ -6,16 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management.actionhistory;
-
-import java.io.Serializable;
+package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import org.eclipse.hawkbit.repository.model.Action;
 
 /**
  * Proxy for {@link Action}
  */
-public class ProxyAction implements Serializable {
+public class ProxyAction extends ProxyIdentifiableEntity {
     private static final long serialVersionUID = 1L;
 
     public static final String PXY_ACTION_STATUS = "status";
@@ -31,7 +29,6 @@ public class ProxyAction implements Serializable {
     private Action.Status status;
     private boolean isActive;
     private IsActiveDecoration isActiveDecoration;
-    private Long id;
     private String dsNameVersion;
     private Action action;
     private Long lastModifiedAt;
@@ -44,25 +41,6 @@ public class ProxyAction implements Serializable {
 
     public void setMaintenanceWindow(final String maintenanceWindow) {
         this.maintenanceWindow = maintenanceWindow;
-    }
-
-    /**
-     * Get id for the entry.
-     *
-     * @return id for the entry.
-     */
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * Set the id for the entry.
-     *
-     * @param id
-     *            of the action entry.
-     */
-    public void setId(final Long id) {
-        this.id = id;
     }
 
     /**

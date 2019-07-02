@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.util.Map;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
