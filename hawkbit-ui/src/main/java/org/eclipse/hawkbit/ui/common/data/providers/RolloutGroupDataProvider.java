@@ -52,7 +52,7 @@ public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGrou
     }
 
     @Override
-    protected Optional<Slice<RolloutGroup>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<RolloutGroup>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
         return rolloutUIState.getRolloutId()
                 .map(rolloutId -> rolloutGroupManagement.findByRolloutWithDetailedStatus(pageRequest, rolloutId));
 

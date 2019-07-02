@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 /**
  * Proxy for {@link TargetFilterQuery}.
  */
-public class ProxyTargetFilter extends ProxyNamedEntity {
+public class ProxyTargetFilterQuery extends ProxyNamedEntity {
 
     private static final long serialVersionUID = 6622060929679084419L;
 

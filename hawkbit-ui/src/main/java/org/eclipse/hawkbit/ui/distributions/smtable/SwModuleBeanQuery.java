@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.model.AssignedSoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignedSoftwareModule;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -32,7 +33,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  * of beans.
  *
  */
-public class SwModuleBeanQuery extends AbstractBeanQuery<ProxyBaseSwModuleItem> {
+public class SwModuleBeanQuery extends AbstractBeanQuery<ProxyAssignedSoftwareModule> {
     private static final long serialVersionUID = 4362142538539335466L;
     private transient SoftwareModuleManagement softwareManagementService;
     private final Long type;
@@ -74,21 +75,21 @@ public class SwModuleBeanQuery extends AbstractBeanQuery<ProxyBaseSwModuleItem> 
     }
 
     @Override
-    protected ProxyBaseSwModuleItem constructBean() {
-        return new ProxyBaseSwModuleItem();
+    protected ProxyAssignedSoftwareModule constructBean() {
+        return new ProxyAssignedSoftwareModule();
     }
 
     @Override
-    protected List<ProxyBaseSwModuleItem> loadBeans(final int startIndex, final int count) {
+    protected List<ProxyAssignedSoftwareModule> loadBeans(final int startIndex, final int count) {
         return getSoftwareModuleManagement()
                 .findAllOrderBySetAssignmentAndModuleNameAscModuleVersionAsc(
                         new OffsetBasedPageRequest(startIndex, count), orderByDistId, searchText, type)
                 .getContent().stream().map(SwModuleBeanQuery::getProxyBean).collect(Collectors.toList());
     }
 
-    private static ProxyBaseSwModuleItem getProxyBean(final AssignedSoftwareModule customSoftwareModule) {
+    private static ProxyAssignedSoftwareModule getProxyBean(final AssignedSoftwareModule customSoftwareModule) {
         final SoftwareModule bean = customSoftwareModule.getSoftwareModule();
-        final ProxyBaseSwModuleItem proxyItem = new ProxyBaseSwModuleItem();
+        final ProxyAssignedSoftwareModule proxyItem = new ProxyAssignedSoftwareModule();
         proxyItem.setSwId(bean.getId());
         final String swNameVersion = HawkbitCommonUtil.concatStrings(":", bean.getName(), bean.getVersion());
         proxyItem.setNameAndVersion(swNameVersion);
@@ -123,8 +124,8 @@ public class SwModuleBeanQuery extends AbstractBeanQuery<ProxyBaseSwModuleItem> 
     }
 
     @Override
-    protected void saveBeans(final List<ProxyBaseSwModuleItem> addedBeans,
-            final List<ProxyBaseSwModuleItem> modifiedBeans, final List<ProxyBaseSwModuleItem> removedBeans) {
+    protected void saveBeans(final List<ProxyAssignedSoftwareModule> addedBeans,
+            final List<ProxyAssignedSoftwareModule> modifiedBeans, final List<ProxyAssignedSoftwareModule> removedBeans) {
         // save of the entity not required from this method
     }
 

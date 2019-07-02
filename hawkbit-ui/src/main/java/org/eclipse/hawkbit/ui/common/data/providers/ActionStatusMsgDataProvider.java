@@ -56,11 +56,10 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
         final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
 
-        return loadBeans(pageRequest).map(messages -> createProxyMessages(messages)).orElse(Collections.emptyList())
-                .stream();
+        return loadBackendEntities(pageRequest).map(this::createProxyMessages).orElse(Collections.emptyList()).stream();
     }
 
-    private Optional<Page<String>> loadBeans(final PageRequest pageRequest) {
+    private Optional<Page<String>> loadBackendEntities(final PageRequest pageRequest) {
         return currentSelectedActionStatusId != null
                 ? Optional.of(
                         deploymentManagement.findMessagesByActionStatusId(pageRequest, currentSelectedActionStatusId))
@@ -79,7 +78,7 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
         final List<ProxyMessage> proxyMsgs = new ArrayList<>(messages.getNumberOfElements());
 
         Long idx = messages.getNumber() * ((long) messages.getSize());
-        for (final String msg : messages) {
+        for (final String msg : messages.getContent()) {
             final ProxyMessage proxyMsg = new ProxyMessage();
 
             proxyMsg.setMessage(msg);

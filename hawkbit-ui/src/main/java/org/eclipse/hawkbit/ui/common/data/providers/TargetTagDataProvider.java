@@ -16,6 +16,8 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
 /**
  * Data provider for {@link TargetTag}, which dynamically loads a batch of
@@ -24,20 +26,18 @@ import org.springframework.data.domain.Slice;
  */
 public class TargetTagDataProvider extends ProxyDataProvider<ProxyTag, TargetTag, String> {
 
-    // TODO: override sortOrders: new Sort(Direction.ASC, "name");
-
     private static final long serialVersionUID = 1L;
 
     private final transient TargetTagManagement tagManagementService;
 
     public TargetTagDataProvider(final TargetTagManagement tagManagementService,
             final TagToProxyTagMapper<TargetTag> mapper) {
-        super(mapper);
+        super(mapper, new Sort(Direction.ASC, "name"));
         this.tagManagementService = tagManagementService;
     }
 
     @Override
-    protected Optional<Slice<TargetTag>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<TargetTag>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
         return Optional.of(tagManagementService.findAll(pageRequest));
     }
 

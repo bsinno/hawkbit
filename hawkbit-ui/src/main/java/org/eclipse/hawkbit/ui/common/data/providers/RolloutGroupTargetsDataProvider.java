@@ -46,7 +46,8 @@ public class RolloutGroupTargetsDataProvider extends ProxyDataProvider<ProxyTarg
     }
 
     @Override
-    protected Optional<Slice<TargetWithActionStatus>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<TargetWithActionStatus>> loadBackendEntities(final PageRequest pageRequest,
+            final String filter) {
         return getRolloutGroupIdFromUiState().map(rolloutGroupId -> rolloutGroupManagement
                 .findAllTargetsOfRolloutGroupWithActionStatus(pageRequest, rolloutGroupId));
     }

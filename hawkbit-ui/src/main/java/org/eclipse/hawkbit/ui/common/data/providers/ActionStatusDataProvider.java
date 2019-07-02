@@ -16,6 +16,8 @@ import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatu
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
 /**
  * Data provider for {@link ActionStatus}, which dynamically loads a batch of
@@ -24,8 +26,6 @@ import org.springframework.data.domain.Slice;
  */
 public class ActionStatusDataProvider extends ProxyDataProvider<ProxyActionStatus, ActionStatus, String> {
 
-    // TODO: override sortOrders: new Sort(Direction.DESC, "id");
-
     private static final long serialVersionUID = 1L;
 
     private final transient DeploymentManagement deploymentManagement;
@@ -33,14 +33,14 @@ public class ActionStatusDataProvider extends ProxyDataProvider<ProxyActionStatu
 
     public ActionStatusDataProvider(final DeploymentManagement deploymentManagement, final Long currentSelectedActionId,
             final ActionStatusToProxyActionStatusMapper entityMapper) {
-        super(entityMapper);
+        super(entityMapper, new Sort(Direction.DESC, "id"));
 
         this.deploymentManagement = deploymentManagement;
         this.currentSelectedActionId = currentSelectedActionId;
     }
 
     @Override
-    protected Optional<Slice<ActionStatus>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<ActionStatus>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
         return currentSelectedActionId != null
                 ? Optional.of(deploymentManagement.findActionStatusByAction(pageRequest, currentSelectedActionId))
                 : Optional.empty();

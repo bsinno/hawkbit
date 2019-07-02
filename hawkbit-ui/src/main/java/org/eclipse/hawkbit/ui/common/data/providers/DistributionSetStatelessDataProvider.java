@@ -19,6 +19,8 @@ import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistribu
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
 /**
  * Data provider for {@link DistributionSet}, which dynamically loads a batch of
@@ -28,20 +30,18 @@ import org.springframework.data.domain.Slice;
 public class DistributionSetStatelessDataProvider
         extends ProxyDataProvider<ProxyDistributionSet, DistributionSet, String> {
 
-    // TODO: override sortOrders: new Sort(Direction.ASC, "name", "version");
-
     private static final long serialVersionUID = 1L;
 
     private final transient DistributionSetManagement distributionSetManagement;
 
     public DistributionSetStatelessDataProvider(final DistributionSetManagement distributionSetManagement,
             final DistributionSetToProxyDistributionMapper entityMapper) {
-        super(entityMapper);
+        super(entityMapper, new Sort(Direction.ASC, "name", "version"));
         this.distributionSetManagement = distributionSetManagement;
     }
 
     @Override
-    protected Optional<Slice<DistributionSet>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<DistributionSet>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
         return Optional.ofNullable(
                 distributionSetManagement.findByDistributionSetFilter(pageRequest, getDistributionSetFilter(filter)));
     }

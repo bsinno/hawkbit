@@ -40,7 +40,7 @@ public class RolloutDataProvider extends ProxyDataProvider<ProxyRollout, Rollout
     }
 
     @Override
-    protected Optional<Slice<Rollout>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<Rollout>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
         return Optional.of(getSearchTextFromUiState()
                 .map(searchText -> rolloutManagement.findByFiltersWithDetailedStatus(pageRequest, searchText, false))
                 .orElseGet(() -> rolloutManagement.findAllWithDetailedStatus(pageRequest, false)));
@@ -48,8 +48,7 @@ public class RolloutDataProvider extends ProxyDataProvider<ProxyRollout, Rollout
 
     @Override
     protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
-        return getSearchTextFromUiState().map(searchText -> rolloutManagement.countByFilters(searchText))
-                .orElseGet(() -> rolloutManagement.count());
+        return getSearchTextFromUiState().map(rolloutManagement::countByFilters).orElseGet(rolloutManagement::count);
 
     }
 

@@ -13,36 +13,37 @@ import java.util.Optional;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilter;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link TargetFilterQuery}, which dynamically loads a batch
  * of {@link TargetFilterQuery} entities from backend and maps them to
- * corresponding {@link ProxyTargetFilter} entities.
+ * corresponding {@link ProxyTargetFilterQuery} entities.
  */
-public class TargetFilterDataProvider extends ProxyDataProvider<ProxyTargetFilter, TargetFilterQuery, String> {
-
-    // TODO: override sortOrders: new Sort(Direction.ASC, "name");
+public class TargetFilterQueryDataProvider extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, String> {
 
     private static final long serialVersionUID = 1L;
 
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
     private final RolloutUIState rolloutUIState;
 
-    public TargetFilterDataProvider(final TargetFilterQueryManagement targetFilterQueryManagement,
+    public TargetFilterQueryDataProvider(final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutUIState rolloutUIState, final TargetFilterQueryToProxyTargetFilterMapper entityMapper) {
-        super(entityMapper);
+        super(entityMapper, new Sort(Direction.ASC, "name"));
 
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.rolloutUIState = rolloutUIState;
     }
 
     @Override
-    protected Optional<Slice<TargetFilterQuery>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<TargetFilterQuery>> loadBackendEntities(final PageRequest pageRequest,
+            final String filter) {
         return Optional.of(getSearchTextFromUiState()
                 .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText))
                 .orElseGet(() -> targetFilterQueryManagement.findAll(pageRequest)));

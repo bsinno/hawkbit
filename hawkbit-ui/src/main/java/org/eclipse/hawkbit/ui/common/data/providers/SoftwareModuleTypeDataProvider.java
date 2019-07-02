@@ -16,6 +16,8 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeTagMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
 /**
  * Data provider for {@link SoftwareModuleType}, which dynamically loads a batch
@@ -24,20 +26,19 @@ import org.springframework.data.domain.Slice;
  */
 public class SoftwareModuleTypeDataProvider extends ProxyDataProvider<ProxyType, SoftwareModuleType, String> {
 
-    // TODO: override sortOrders: new Sort(Direction.ASC, "name");
-
     private static final long serialVersionUID = 1L;
 
     private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
 
     public SoftwareModuleTypeDataProvider(final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final TypeToProxyTypeTagMapper<SoftwareModuleType> mapper) {
-        super(mapper);
+        super(mapper, new Sort(Direction.ASC, "name"));
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
     }
 
     @Override
-    protected Optional<Slice<SoftwareModuleType>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<SoftwareModuleType>> loadBackendEntities(final PageRequest pageRequest,
+            final String filter) {
         return Optional.of(softwareModuleTypeManagement.findAll(pageRequest));
     }
 

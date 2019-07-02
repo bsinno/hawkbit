@@ -44,7 +44,7 @@ public class DistributionSetDistributionsStateDataProvider
     }
 
     @Override
-    protected Optional<Slice<DistributionSet>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<DistributionSet>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
         return Optional
                 .of(distributionSetManagement.findByDistributionSetFilter(pageRequest, getDistributionSetFilter()));
     }

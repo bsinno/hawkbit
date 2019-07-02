@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilter;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -37,7 +37,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  *
  *
  */
-public class TargetFilterBeanQuery extends AbstractBeanQuery<ProxyTargetFilter> {
+public class TargetFilterBeanQuery extends AbstractBeanQuery<ProxyTargetFilterQuery> {
 
     private static final long serialVersionUID = 1845964596238990987L;
     private Sort sort = new Sort(Direction.ASC, "name");
@@ -73,14 +73,14 @@ public class TargetFilterBeanQuery extends AbstractBeanQuery<ProxyTargetFilter> 
     }
 
     @Override
-    protected ProxyTargetFilter constructBean() {
-        return new ProxyTargetFilter();
+    protected ProxyTargetFilterQuery constructBean() {
+        return new ProxyTargetFilterQuery();
     }
 
     @Override
-    protected List<ProxyTargetFilter> loadBeans(final int startIndex, final int count) {
+    protected List<ProxyTargetFilterQuery> loadBeans(final int startIndex, final int count) {
         Slice<TargetFilterQuery> targetFilterQuery;
-        final List<ProxyTargetFilter> proxyTargetFilter = new ArrayList<>();
+        final List<ProxyTargetFilterQuery> proxyTargetFilter = new ArrayList<>();
         if (startIndex == 0 && firstPageTargetFilter != null) {
             targetFilterQuery = firstPageTargetFilter;
         } else if (StringUtils.isEmpty(searchText)) {
@@ -93,7 +93,7 @@ public class TargetFilterBeanQuery extends AbstractBeanQuery<ProxyTargetFilter> 
                     searchText);
         }
         for (final TargetFilterQuery tarFilterQuery : targetFilterQuery) {
-            final ProxyTargetFilter proxyTarFilter = new ProxyTargetFilter();
+            final ProxyTargetFilterQuery proxyTarFilter = new ProxyTargetFilterQuery();
             proxyTarFilter.setName(tarFilterQuery.getName());
             proxyTarFilter.setId(tarFilterQuery.getId());
             proxyTarFilter.setCreatedDate(SPDateTimeUtil.getFormattedDate(tarFilterQuery.getCreatedAt()));
@@ -118,8 +118,8 @@ public class TargetFilterBeanQuery extends AbstractBeanQuery<ProxyTargetFilter> 
     }
 
     @Override
-    protected void saveBeans(final List<ProxyTargetFilter> arg0, final List<ProxyTargetFilter> arg1,
-            final List<ProxyTargetFilter> arg2) {
+    protected void saveBeans(final List<ProxyTargetFilterQuery> arg0, final List<ProxyTargetFilterQuery> arg1,
+            final List<ProxyTargetFilterQuery> arg2) {
         /* CRUD operations on Target will be done through repository methods. */
 
     }

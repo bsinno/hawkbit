@@ -6,24 +6,20 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.distributions.smtable;
-
-import org.eclipse.hawkbit.ui.artifacts.smtable.ProxyBaseSoftwareModuleItem;
+package org.eclipse.hawkbit.ui.common.data.proxies;
 
 /**
  * Proxy for software module to display details in Software modules table.
- * 
- *
- *
- *
  */
-public class ProxyBaseSwModuleItem extends ProxyBaseSoftwareModuleItem {
+public class ProxyAssignedSoftwareModule extends ProxySoftwareModule {
 
-    private static final long serialVersionUID = -1555306616599140635L;
+    private static final long serialVersionUID = 1L;
 
     private String colour;
 
     private Long typeId;
+
+    private boolean assigned;
 
     public String getColour() {
         return colour;
@@ -39,6 +35,14 @@ public class ProxyBaseSwModuleItem extends ProxyBaseSoftwareModuleItem {
 
     public void setTypeId(final Long typeId) {
         this.typeId = typeId;
+    }
+
+    public boolean isAssigned() {
+        return assigned;
+    }
+
+    public void setAssigned(final boolean assigned) {
+        this.assigned = assigned;
     }
 
 }

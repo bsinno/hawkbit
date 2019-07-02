@@ -36,28 +36,34 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
 
     private static final long serialVersionUID = 1L;
 
-    private final Sort defaultSortOrder = new Sort(Direction.ASC, "id");
+    private final Sort defaultSortOrder;
 
     private final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> entityMapper;
 
     public ProxyDataProvider(final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> mapper) {
+        this(mapper, new Sort(Direction.ASC, "id"));
+    }
+
+    public ProxyDataProvider(final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> mapper,
+            final Sort defaultSortOrder) {
         this.entityMapper = mapper;
+        this.defaultSortOrder = defaultSortOrder;
     }
 
     @Override
     protected Stream<T> fetchFromBackEnd(final Query<T, F> query) {
         final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
-        return getProxyRolloutList(loadBeans(pageRequest, query.getFilter().orElse(null))).stream();
+        return getProxyEntities(loadBackendEntities(pageRequest, query.getFilter().orElse(null))).stream();
     }
 
-    private List<T> getProxyRolloutList(final Optional<Slice<U>> rolloutBeans) {
-        return rolloutBeans
-                .map(beans -> beans.getContent().stream().map(entityMapper::map).collect(Collectors.toList()))
+    private List<T> getProxyEntities(final Optional<Slice<U>> backendEntities) {
+        return backendEntities
+                .map(entities -> entities.getContent().stream().map(entityMapper::map).collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
     }
 
-    protected abstract Optional<Slice<U>> loadBeans(final PageRequest pageRequest, F filter);
+    protected abstract Optional<Slice<U>> loadBackendEntities(final PageRequest pageRequest, F filter);
 
     @Override
     protected int sizeInBackEnd(final Query<T, F> query) {

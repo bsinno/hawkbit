@@ -11,19 +11,19 @@ package org.eclipse.hawkbit.ui.common.data.mappers;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilter;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 
 /**
  * Maps {@link TargetFilterQuery} entities, fetched from backend, to the
- * {@link ProxyTargetFilter} entities.
+ * {@link ProxyTargetFilterQuery} entities.
  */
 public class TargetFilterQueryToProxyTargetFilterMapper
-        implements IdentifiableEntityToProxyIdentifiableEntityMapper<ProxyTargetFilter, TargetFilterQuery> {
+        implements IdentifiableEntityToProxyIdentifiableEntityMapper<ProxyTargetFilterQuery, TargetFilterQuery> {
 
     @Override
-    public ProxyTargetFilter map(final TargetFilterQuery targetFilterQuery) {
-        final ProxyTargetFilter proxyTargetFilter = new ProxyTargetFilter();
+    public ProxyTargetFilterQuery map(final TargetFilterQuery targetFilterQuery) {
+        final ProxyTargetFilterQuery proxyTargetFilter = new ProxyTargetFilterQuery();
 
         proxyTargetFilter.setName(targetFilterQuery.getName());
         proxyTargetFilter.setId(targetFilterQuery.getId());

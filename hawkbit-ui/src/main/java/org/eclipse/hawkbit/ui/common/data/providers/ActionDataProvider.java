@@ -17,6 +17,8 @@ import org.eclipse.hawkbit.ui.common.data.mappers.ActionToProxyActionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
 /**
  * Data provider for {@link Action}, which dynamically loads a batch of
@@ -25,8 +27,6 @@ import org.springframework.data.domain.Slice;
  */
 public class ActionDataProvider extends ProxyDataProvider<ProxyAction, Action, String> {
 
-    // TODO: override sortOrders: new Sort(Direction.DESC, "id");
-
     private static final long serialVersionUID = 1L;
 
     private final transient DeploymentManagement deploymentManagement;
@@ -34,14 +34,14 @@ public class ActionDataProvider extends ProxyDataProvider<ProxyAction, Action, S
 
     public ActionDataProvider(final DeploymentManagement deploymentManagement, final Target selectedTarget,
             final ActionToProxyActionMapper entityMapper) {
-        super(entityMapper);
+        super(entityMapper, new Sort(Direction.DESC, "id"));
 
         this.deploymentManagement = deploymentManagement;
         this.selectedTarget = selectedTarget;
     }
 
     @Override
-    protected Optional<Slice<Action>> loadBeans(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<Action>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
         return selectedTarget != null
                 ? Optional.of(deploymentManagement.findActionsByTarget(selectedTarget.getControllerId(), pageRequest))
                 : Optional.empty();
