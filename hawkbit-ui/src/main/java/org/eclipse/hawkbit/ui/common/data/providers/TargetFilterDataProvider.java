@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilter;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link TargetFilterQuery}, which dynamically loads a batch
@@ -25,28 +26,38 @@ import org.springframework.data.domain.Slice;
  */
 public class TargetFilterDataProvider extends ProxyDataProvider<ProxyTargetFilter, TargetFilterQuery, String> {
 
+    // TODO: override sortOrders: new Sort(Direction.ASC, "name");
+
     private static final long serialVersionUID = 1L;
 
-    private transient TargetFilterQueryManagement targetFilterQueryManagement;
+    private final transient TargetFilterQueryManagement targetFilterQueryManagement;
+    private final RolloutUIState rolloutUIState;
 
     public TargetFilterDataProvider(final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutUIState rolloutUIState, final TargetFilterQueryToProxyTargetFilterMapper entityMapper) {
-        super(rolloutUIState, entityMapper);
+        super(entityMapper);
+
         this.targetFilterQueryManagement = targetFilterQueryManagement;
+        this.rolloutUIState = rolloutUIState;
     }
 
     @Override
-    protected Optional<Slice<TargetFilterQuery>> loadBeans(final PageRequest pageRequest) {
+    protected Optional<Slice<TargetFilterQuery>> loadBeans(final PageRequest pageRequest, final String filter) {
         return Optional.of(getSearchTextFromUiState()
                 .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText))
                 .orElseGet(() -> targetFilterQueryManagement.findAll(pageRequest)));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
         return getSearchTextFromUiState()
                 .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText).getTotalElements())
                 .orElseGet(() -> targetFilterQueryManagement.findAll(pageRequest).getTotalElements());
+    }
+
+    private Optional<String> getSearchTextFromUiState() {
+        return rolloutUIState.getSearchText().filter(searchText -> !StringUtils.isEmpty(searchText))
+                .map(value -> String.format("%%%s%%", value));
     }
 
 }

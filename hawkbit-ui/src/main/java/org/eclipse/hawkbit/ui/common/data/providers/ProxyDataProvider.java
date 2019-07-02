@@ -15,17 +15,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.mappers.IdentifiableEntityToProxyIdentifiableEntityMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.hateoas.Identifiable;
-import org.springframework.util.StringUtils;
 
 import com.vaadin.data.provider.AbstractBackEndDataProvider;
 import com.vaadin.data.provider.Query;
@@ -41,13 +38,9 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
 
     private final Sort defaultSortOrder = new Sort(Direction.ASC, "id");
 
-    private final RolloutUIState rolloutUIState;
-
     private final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> entityMapper;
 
-    public ProxyDataProvider(final RolloutUIState rolloutUIState,
-            final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> mapper) {
-        this.rolloutUIState = rolloutUIState;
+    public ProxyDataProvider(final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> mapper) {
         this.entityMapper = mapper;
     }
 
@@ -55,7 +48,7 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
     protected Stream<T> fetchFromBackEnd(final Query<T, F> query) {
         final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
-        return getProxyRolloutList(loadBeans(pageRequest)).stream();
+        return getProxyRolloutList(loadBeans(pageRequest, query.getFilter().orElse(null))).stream();
     }
 
     private List<T> getProxyRolloutList(final Optional<Slice<U>> rolloutBeans) {
@@ -64,14 +57,14 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
                 .orElse(Collections.emptyList());
     }
 
-    protected abstract Optional<Slice<U>> loadBeans(final PageRequest pageRequest);
+    protected abstract Optional<Slice<U>> loadBeans(final PageRequest pageRequest, F filter);
 
     @Override
     protected int sizeInBackEnd(final Query<T, F> query) {
         final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
 
-        final long size = sizeInBackEnd(pageRequest);
+        final long size = sizeInBackEnd(pageRequest, query.getFilter().orElse(null));
 
         if (size > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
@@ -80,28 +73,11 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
         return (int) size;
     }
 
-    protected abstract long sizeInBackEnd(final PageRequest pageRequest);
+    protected abstract long sizeInBackEnd(final PageRequest pageRequest, F filter);
 
     @Override
     public Object getId(final T item) {
         Objects.requireNonNull(item, "Cannot provide an id for a null item.");
         return item.getId();
-    }
-
-    protected Optional<String> getSearchTextFromUiState() {
-        return rolloutUIState.getSearchText().filter(searchText -> !StringUtils.isEmpty(searchText))
-                .map(value -> String.format("%%%s%%", value));
-    }
-
-    protected Optional<Long> getRolloutIdFromUiState() {
-        return rolloutUIState.getRolloutId();
-    }
-
-    protected Optional<Long> getRolloutGroupIdFromUiState() {
-        return Optional.ofNullable(rolloutUIState.getRolloutGroup().map(RolloutGroup::getId).orElse(null));
-    }
-
-    protected RolloutUIState getRolloutUiState() {
-        return rolloutUIState;
     }
 }

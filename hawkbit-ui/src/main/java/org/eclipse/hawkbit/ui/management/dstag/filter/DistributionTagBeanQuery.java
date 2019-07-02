@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.OffsetBasedPageRequest;
 import org.eclipse.hawkbit.repository.model.DistributionSetTag;
-import org.eclipse.hawkbit.ui.management.tag.ProxyTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.management.tag.TagIdName;
 import org.eclipse.hawkbit.ui.utils.SpringContextHelper;
 import org.springframework.data.domain.Slice;

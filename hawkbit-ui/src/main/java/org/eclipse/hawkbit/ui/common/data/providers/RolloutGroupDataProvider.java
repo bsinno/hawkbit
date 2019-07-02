@@ -32,7 +32,8 @@ public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGrou
 
     private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupDataProvider.class);
 
-    private transient RolloutGroupManagement rolloutGroupManagement;
+    private final transient RolloutGroupManagement rolloutGroupManagement;
+    private final RolloutUIState rolloutUIState;
 
     /**
      * Parametric Constructor.
@@ -44,27 +45,29 @@ public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGrou
      */
     public RolloutGroupDataProvider(final RolloutGroupManagement rolloutGroupManagement,
             final RolloutUIState rolloutUIState, final RolloutGroupToProxyRolloutGroupMapper entityMapper) {
-        super(rolloutUIState, entityMapper);
+        super(entityMapper);
+
         this.rolloutGroupManagement = rolloutGroupManagement;
+        this.rolloutUIState = rolloutUIState;
     }
 
     @Override
-    protected Optional<Slice<RolloutGroup>> loadBeans(final PageRequest pageRequest) {
-        return getRolloutIdFromUiState()
+    protected Optional<Slice<RolloutGroup>> loadBeans(final PageRequest pageRequest, final String filter) {
+        return rolloutUIState.getRolloutId()
                 .map(rolloutId -> rolloutGroupManagement.findByRolloutWithDetailedStatus(pageRequest, rolloutId));
 
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest) {
-        final Optional<Long> rolloutId = getRolloutIdFromUiState();
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+        final Optional<Long> rolloutId = rolloutUIState.getRolloutId();
         return rolloutId.map(id -> {
             try {
                 return rolloutGroupManagement.countByRollout(id);
             } catch (final EntityNotFoundException e) {
                 LOG.warn("Rollout does not exists. Redirecting to Rollouts overview", e);
-                getRolloutUiState().setShowRolloutGroups(false);
-                getRolloutUiState().setShowRollOuts(true);
+                rolloutUIState.setShowRolloutGroups(false);
+                rolloutUIState.setShowRollOuts(true);
 
                 return 0L;
             }

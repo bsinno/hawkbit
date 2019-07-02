@@ -6,24 +6,23 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management.tag;
+package org.eclipse.hawkbit.ui.common.data.proxies;
 
-import java.io.Serializable;
 import java.security.SecureRandom;
+
+import org.eclipse.hawkbit.ui.management.tag.TagIdName;
 
 /**
  *
  *
  */
-public class ProxyTag implements Serializable {
+public class ProxyTag extends ProxyIdentifiableEntity {
 
-    private static final long serialVersionUID = -9010500141590644093L;
+    private static final long serialVersionUID = 1L;
 
     private TagIdName tagIdName;
 
     private String name;
-
-    private Long id;
 
     private String colour;
 
@@ -59,14 +58,6 @@ public class ProxyTag implements Serializable {
 
     public void setName(final String name) {
         this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
     }
 
     public String getColour() {

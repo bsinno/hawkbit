@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link Rollout}, which dynamically loads a batch of
@@ -27,25 +28,33 @@ public class RolloutDataProvider extends ProxyDataProvider<ProxyRollout, Rollout
 
     private static final long serialVersionUID = 1L;
 
-    private transient RolloutManagement rolloutManagement;
+    private final transient RolloutManagement rolloutManagement;
+    private final RolloutUIState rolloutUIState;
 
     public RolloutDataProvider(final RolloutManagement rolloutManagement, final RolloutUIState rolloutUIState,
             final RolloutToProxyRolloutMapper entityMapper) {
-        super(rolloutUIState, entityMapper);
+        super(entityMapper);
+
         this.rolloutManagement = rolloutManagement;
+        this.rolloutUIState = rolloutUIState;
     }
 
     @Override
-    protected Optional<Slice<Rollout>> loadBeans(final PageRequest pageRequest) {
+    protected Optional<Slice<Rollout>> loadBeans(final PageRequest pageRequest, final String filter) {
         return Optional.of(getSearchTextFromUiState()
                 .map(searchText -> rolloutManagement.findByFiltersWithDetailedStatus(pageRequest, searchText, false))
                 .orElseGet(() -> rolloutManagement.findAllWithDetailedStatus(pageRequest, false)));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
         return getSearchTextFromUiState().map(searchText -> rolloutManagement.countByFilters(searchText))
                 .orElseGet(() -> rolloutManagement.count());
 
+    }
+
+    private Optional<String> getSearchTextFromUiState() {
+        return rolloutUIState.getSearchText().filter(searchText -> !StringUtils.isEmpty(searchText))
+                .map(value -> String.format("%%%s%%", value));
     }
 }
