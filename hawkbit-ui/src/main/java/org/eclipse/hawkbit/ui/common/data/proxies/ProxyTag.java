@@ -10,11 +10,11 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import java.security.SecureRandom;
 
+import org.eclipse.hawkbit.repository.model.Tag;
 import org.eclipse.hawkbit.ui.management.tag.TagIdName;
 
 /**
- *
- *
+ * Proxy for {@link Tag}.
  */
 public class ProxyTag extends ProxyNamedEntity {
 

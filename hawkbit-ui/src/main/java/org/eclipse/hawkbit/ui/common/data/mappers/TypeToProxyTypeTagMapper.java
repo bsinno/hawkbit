@@ -8,13 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
-import org.eclipse.hawkbit.repository.model.Tag;
 import org.eclipse.hawkbit.repository.model.Type;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 
 /**
- * Maps {@link Tag} entities, fetched from backend, to the {@link ProxyTag}
+ * Maps {@link Type} entities, fetched from backend, to the {@link ProxyType}
  * entities.
  */
 public class TypeToProxyTypeTagMapper<T extends Type>

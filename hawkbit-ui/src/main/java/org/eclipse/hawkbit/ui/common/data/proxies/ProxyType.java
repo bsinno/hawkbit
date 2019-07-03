@@ -8,6 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
+import org.eclipse.hawkbit.repository.model.Type;
+
+/**
+ * Proxy for {@link Type}.
+ */
 public class ProxyType extends ProxyNamedEntity {
 
     private static final long serialVersionUID = 1L;
@@ -22,7 +27,7 @@ public class ProxyType extends ProxyNamedEntity {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -30,7 +35,7 @@ public class ProxyType extends ProxyNamedEntity {
         return colour;
     }
 
-    public void setColour(String colour) {
+    public void setColour(final String colour) {
         this.colour = colour;
     }
 
@@ -38,7 +43,7 @@ public class ProxyType extends ProxyNamedEntity {
         return deleted;
     }
 
-    public void setDeleted(boolean deleted) {
+    public void setDeleted(final boolean deleted) {
         this.deleted = deleted;
     }
 

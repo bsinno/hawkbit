@@ -10,8 +10,11 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import java.security.SecureRandom;
 
+import org.eclipse.hawkbit.repository.model.SoftwareModule;
+
 /**
- * Proxy for software module to display details in Software modules table.
+ * Proxy for {@link SoftwareModule} to display details in Software modules
+ * table.
  */
 public class ProxySoftwareModule extends ProxyNamedEntity {
 

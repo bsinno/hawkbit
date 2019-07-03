@@ -9,7 +9,8 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 /**
- * Proxy for software module to display details in Software modules table.
+ * Proxy for assignable software module to display details in Software modules
+ * table.
  */
 public class ProxyAssignedSoftwareModule extends ProxySoftwareModule {
 

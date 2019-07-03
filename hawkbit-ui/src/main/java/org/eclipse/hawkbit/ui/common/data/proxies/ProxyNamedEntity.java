@@ -8,8 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
+import org.eclipse.hawkbit.repository.model.NamedEntity;
+
 /**
- * Proxy entity representing the named entity, fetched from backend.
+ * Proxy entity representing the {@link NamedEntity}, fetched from backend.
  */
 public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity {
 
