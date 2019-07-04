@@ -8,28 +8,24 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
-
-import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
+import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Container.Indexed;
-import com.vaadin.v7.data.util.GeneratedPropertyContainer;
-import com.vaadin.v7.data.util.converter.Converter;
-import com.vaadin.v7.ui.Grid;
+import com.vaadin.data.Converter;
+import com.vaadin.data.Result;
+import com.vaadin.data.ValueContext;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.components.grid.Header.Row;
+import com.vaadin.ui.components.grid.HeaderRow;
 
 /**
  * Abstract grid that offers various capabilities (aka support) to offer
@@ -38,7 +34,7 @@ import com.vaadin.v7.ui.Grid;
  * @param <T>
  *            The container-type used by the grid
  */
-public abstract class AbstractGrid<T extends Indexed> extends Grid implements RefreshableContainer {
+public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableContainer {
     private static final long serialVersionUID = 1L;
 
     protected final VaadinMessageSource i18n;
@@ -46,7 +42,6 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
     protected final SpPermissionChecker permissionChecker;
 
     private transient AbstractMaximizeSupport maximizeSupport;
-    private transient AbstractGeneratedPropertySupport generatedPropertySupport;
     private transient SingleSelectionSupport singleSelectionSupport;
     private transient DetailsSupport detailsSupport;
 
@@ -73,13 +68,13 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      */
     protected void init() {
         setSizeFull();
-
         setId(getGridId());
         if (!hasSingleSelectionSupport()) {
             setSelectionMode(SelectionMode.NONE);
         }
         setColumnReorderingAllowed(true);
-        addNewContainerDS();
+        setDataProvider();
+        addColumns();
         if (doSubscribeToEventBus()) {
             eventBus.subscribe(this);
         }
@@ -99,66 +94,20 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      */
     @Override
     public void refreshContainer() {
-        final Indexed container = getContainerDataSource();
-        if (hasGeneratedPropertySupport()
-                && getGeneratedPropertySupport().getRawContainer() instanceof LazyQueryContainer) {
-            ((LazyQueryContainer) getGeneratedPropertySupport().getRawContainer()).refresh();
-            return;
-        }
-
-        if (container instanceof LazyQueryContainer) {
-            ((LazyQueryContainer) container).refresh();
-        }
+        getDataProvider().refreshAll();
     }
 
     /**
-     * Creates a new container instance by calling the required
-     * template-methods.
-     * <p>
-     * A new container is created on initialization as well as when container
-     * content fundamentally changes (e.g. if container content depends on a
-     * selection as common in master-details relations)
+     * Method for setting the data provider in order to populate the grid with
+     * data.
      */
-    protected void addNewContainerDS() {
-        final T container = createContainer();
-        Indexed indexedContainer = container;
-        if (hasGeneratedPropertySupport()) {
-            indexedContainer = getGeneratedPropertySupport().decorate(container);
-            setContainerDataSource(indexedContainer);
-            getGeneratedPropertySupport().addGeneratedContainerProperties();
-        } else {
-            setContainerDataSource(indexedContainer);
-        }
-        addContainerProperties();
-
-        setColumnProperties();
-        setColumnHeaderNames();
-        setColumnsHidable();
-        addColumnRenderers();
-        setColumnExpandRatio();
-
-        setHiddenColumns();
-
-        final CellDescriptionGenerator cellDescriptionGenerator = getDescriptionGenerator();
-        if (getDescriptionGenerator() != null) {
-            setCellDescriptionGenerator(cellDescriptionGenerator);
-        }
-
-        if (indexedContainer != null && indexedContainer.size() == 0) {
-            setData(i18n.getMessage(UIMessageIdProvider.MESSAGE_NO_DATA));
-        }
-    }
+    protected abstract void setDataProvider();
 
     /**
-     * Sets the standard behavior of columns to be hidable. If implementors
-     * needs other behavior they have to concern about it.
+     * Method for setting up the required columns together with their definition
+     * and rendering options.
      */
-    protected void setColumnsHidable() {
-        // Allow column hiding
-        for (final Column c : getColumns()) {
-            c.setHidable(true);
-        }
-    }
+    protected abstract void addColumns();
 
     /**
      * Enables maximize-support for the grid by setting a MaximizeSupport
@@ -190,40 +139,6 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      */
     protected boolean hasMaximizeSupport() {
         return maximizeSupport != null;
-    }
-
-    /**
-     * Enables support for generated properties. This implies that the
-     * standard-container has to be decorated and the generators have to be
-     * registered for the generated (aka virtual) properties.
-     *
-     * @param generatedPropertySupport
-     *            that encapsulates behavior for generated properties
-     */
-    protected void setGeneratedPropertySupport(final AbstractGeneratedPropertySupport generatedPropertySupport) {
-        this.generatedPropertySupport = generatedPropertySupport;
-    }
-
-    /**
-     * Gets the GeneratedPropertySupport implementation describing generated
-     * properties by registering their generators and attaching them to a
-     * wrapper-container.
-     *
-     * @return generatedPropertySupport that encapsulates registration of
-     *         generated properties.
-     */
-    protected AbstractGeneratedPropertySupport getGeneratedPropertySupport() {
-        return generatedPropertySupport;
-    }
-
-    /**
-     * Checks whether support for generated properties is enabled.
-     *
-     * @return <code>true</code> if support for generated properties is enabled,
-     *         otherwise <code>false</code>
-     */
-    protected boolean hasGeneratedPropertySupport() {
-        return generatedPropertySupport != null;
     }
 
     /**
@@ -291,58 +206,6 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
     }
 
     /**
-     * Template method invoked by {@link #addNewContainerDS()} for creating a
-     * container instance.
-     *
-     * @return new container instance used by the grid.
-     */
-    protected abstract T createContainer();
-
-    /**
-     * Template method invoked by {@link #addNewContainerDS()} for adding
-     * properties to the container (usually by invoking { @link
-     * Container#addContainerProperty(Object, Class, Object))})
-     */
-    protected abstract void addContainerProperties();
-
-    /**
-     * Template method invoked by {@link #addNewContainerDS()} for setting the
-     * expand ratio of the columns.
-     */
-    protected abstract void setColumnExpandRatio();
-
-    /**
-     * Template method invoked by {@link #addNewContainerDS()} for setting the
-     * column names.
-     */
-    protected abstract void setColumnHeaderNames();
-
-    /**
-     * Template method invoked by {@link #addNewContainerDS()} for setting the
-     * column properties to the grid.
-     */
-    protected abstract void setColumnProperties();
-
-    /**
-     * Template method invoked by {@link #addNewContainerDS()} for adding
-     * special column renderers if needed.
-     */
-    protected abstract void addColumnRenderers();
-
-    /**
-     * Template method invoked by {@link #addNewContainerDS()} that hides
-     * columns. If a column is hideable and hidden, it can be made visible via
-     * grid column menu.
-     */
-    protected abstract void setHiddenColumns();
-
-    /**
-     * Template method invoked by {@link #addNewContainerDS()} for adding a
-     * CellDescriptionGenerator to the grid.
-     */
-    protected abstract CellDescriptionGenerator getDescriptionGenerator();
-
-    /**
      * Gets id of the grid.
      *
      * @return id of the grid
@@ -357,7 +220,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      */
     protected HeaderRow resetHeaderDefaultRow() {
         getHeader().removeRow(getHeader().getDefaultRow());
-        final HeaderRow newHeaderRow = getHeader().appendRow();
+        final Row newHeaderRow = getHeader().addRowAt(0);
         getHeader().setDefaultRow(newHeaderRow);
         return newHeaderRow;
     }
@@ -439,7 +302,8 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
         private void recreateContainer() {
             removeAllColumns();
             clearSortOrder();
-            addNewContainerDS();
+            // TODO: check if it is sufficient
+            addColumns();
         }
     }
 
@@ -447,7 +311,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
      * Via implementations of this support capability an expand-mode is provided
      * that maximizes the grid size.
      */
-    protected abstract class AbstractMaximizeSupport {
+    public abstract class AbstractMaximizeSupport {
 
         /**
          * Renews the content for maximized layout.
@@ -463,9 +327,7 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
          * Renews the content for minimized layout.
          */
         public void createMinimizedContent() {
-            setColumnProperties();
-            setHiddenColumns();
-            setColumnExpandRatio();
+            // TODO: implement the column creation for minimized case
         }
 
         /**
@@ -490,59 +352,9 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
     }
 
     /**
-     * Grids that are used in conjunction with
-     * {@link GeneratedPropertyContainer}, might use
-     * {@link AbstractGeneratedPropertySupport} to get type-save access to the
-     * raw container as well as the decorated container.
-     */
-    protected abstract class AbstractGeneratedPropertySupport {
-
-        /**
-         * Gives type-save access to the wrapper container the grid works on.
-         * This wrapper container attaches generated properties that are not
-         * part of the raw container that encapsulates the database access.
-         *
-         * @return decorated container that includes the generated properties as
-         *         well as the native properties.
-         */
-        public abstract GeneratedPropertyContainer getDecoratedContainer();
-
-        /**
-         * Gives type-save access to the wrapped container that binds to the
-         * database. The grid does not work directly with this container but
-         * with a container that wraps and decorates it with generated
-         * properties.
-         *
-         * @return raw container that gives access to the native properties.
-         */
-        public abstract T getRawContainer();
-
-        /**
-         * Adds the generated properties to the decorated container. Each
-         * generated property has to be associated with a property generator
-         * that is capable to calculate the value of the generated (aka virtual)
-         * property.
-         *
-         * @return decorated container that includes the generated properties
-         */
-        protected abstract GeneratedPropertyContainer addGeneratedContainerProperties();
-
-        /**
-         * Decorates the raw-container by wrapping it.
-         *
-         * @param container
-         *            raw-container to be wrapped.
-         * @return decorated container.
-         */
-        protected GeneratedPropertyContainer decorate(final T container) {
-            return new GeneratedPropertyContainer(container);
-        }
-    }
-
-    /**
      * Support for single selection on the grid.
      */
-    protected class SingleSelectionSupport {
+    public class SingleSelectionSupport {
 
         public SingleSelectionSupport() {
             enable();
@@ -560,121 +372,19 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
          * Selects the first row if available and enabled.
          */
         public void selectFirstRow() {
-            if (!isSingleSelectionModel()) {
-                return;
-            }
-
-            final Indexed container = getContainerDataSource();
-            final int size = container.size();
-            if (size > 0) {
-                refreshRows(getContainerDataSource().firstItemId());
-                getSingleSelectionModel().select(getContainerDataSource().firstItemId());
-            } else {
-                getSingleSelectionModel().select(null);
-            }
-        }
-
-        private boolean isSingleSelectionModel() {
-            return getSelectionModel() instanceof SelectionModel.Single;
+            // TODO: select first row
         }
 
         /**
          * Clears the selection.
          */
         public void clearSelection() {
-            if (!isSingleSelectionModel()) {
-                return;
-            }
-            getSingleSelectionModel().select(null);
-        }
-
-        private SelectionModel.Single getSingleSelectionModel() {
-            return (SelectionModel.Single) getSelectionModel();
+            // TODO: deselect row
         }
     }
 
-    /**
-     * CellStyleGenerator that concerns about alignment in the grid cells.
-     */
-    protected static class AlignCellStyleGenerator implements CellStyleGenerator {
-        private static final long serialVersionUID = 1L;
-
-        private final String[] left;
-        private final String[] center;
-        private final String[] right;
-
-        /**
-         * Constructor.
-         *
-         * @param left
-         *            list of propertyIds that should be left-aligned
-         * @param center
-         *            list of propertyIds that should be center-aligned
-         * @param right
-         *            list of propertyIds that should be right-aligned
-         */
-        public AlignCellStyleGenerator(final String[] left, final String[] center, final String[] right) {
-            this.left = left;
-            this.center = center;
-            this.right = right;
-        }
-
-        @Override
-        public String getStyle(final CellReference cellReference) {
-
-            if (center != null
-                    && Arrays.stream(center).anyMatch(o -> Objects.equals(o, cellReference.getPropertyId()))) {
-                return "centeralign";
-            } else if (right != null
-                    && Arrays.stream(right).anyMatch(o -> Objects.equals(o, cellReference.getPropertyId()))) {
-                return "rightalign";
-            } else if (left != null
-                    && Arrays.stream(left).anyMatch(o -> Objects.equals(o, cellReference.getPropertyId()))) {
-                return "leftalign";
-            }
-            return null;
-        }
-    }
-
-    /**
-     * Adds a tooltip to the 'Date and time' and 'Maintenance Window' columns in
-     * detailed format.
-     */
-    protected static class TooltipGenerator implements CellDescriptionGenerator {
-
-        private static final long serialVersionUID = 1L;
-
-        private final VaadinMessageSource i18n;
-
-        public TooltipGenerator(final VaadinMessageSource i18n) {
-            this.i18n = i18n;
-        }
-
-        @Override
-        public String getDescription(final CellReference cell) {
-            final String propertyId = (String) cell.getPropertyId();
-            switch (propertyId) {
-            case ProxyAction.PXY_ACTION_LAST_MODIFIED_AT:
-            case ProxyActionStatus.PXY_AS_CREATED_AT:
-                final Long timestamp = (Long) cell.getItem().getItemProperty(propertyId).getValue();
-                return SPDateTimeUtil.getFormattedDate(timestamp);
-
-            case ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW:
-                final Action action = (Action) cell.getItem().getItemProperty(ProxyAction.PXY_ACTION).getValue();
-                return action.getMaintenanceWindowStartTime().map(this::getFormattedNextMaintenanceWindow).orElse(null);
-
-            default:
-                return null;
-            }
-        }
-
-        private String getFormattedNextMaintenanceWindow(final ZonedDateTime nextAt) {
-            final long nextAtMilli = nextAt.toInstant().toEpochMilli();
-            return i18n.getMessage(UIMessageIdProvider.TOOLTIP_NEXT_MAINTENANCE_WINDOW,
-                    SPDateTimeUtil.getFormattedDate(nextAtMilli, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT));
-        }
-    }
-
+    // TODO: check if we really need it or is it better to inline it with lambda
+    // expression
     /**
      * Converter that gets time-data as input of type <code>Long</code> and
      * converts to a formatted date string.
@@ -683,29 +393,32 @@ public abstract class AbstractGrid<T extends Indexed> extends Grid implements Re
         private static final long serialVersionUID = 1247513913478717845L;
 
         @Override
-        public Long convertToModel(final String value, final Class<? extends Long> targetType, final Locale locale) {
+        public Result<Long> convertToModel(final String value, final ValueContext context) {
             // not needed
             return null;
         }
 
         @Override
-        public String convertToPresentation(final Long value, final Class<? extends String> targetType,
-                final Locale locale) {
+        public String convertToPresentation(final Long value, final ValueContext context) {
             return SPDateTimeUtil.getFormattedDate(value, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT);
-        }
-
-        @Override
-        public Class<Long> getModelType() {
-            return Long.class;
-        }
-
-        @Override
-        public Class<String> getPresentationType() {
-            return String.class;
         }
     }
 
+    // TODO: check if we really need it in parent class
     protected String getActionLabeltext() {
         return i18n.getMessage(UIMessageIdProvider.MESSAGE_UPLOAD_ACTION);
+    }
+
+    protected Label buildLabelIcon(final FontIcon fontIcon, final String id) {
+        final String fontIconHtml = fontIcon.getIcon() != null ? fontIcon.getIcon().getHtml() : "<span></span>";
+
+        final Label labelIcon = new Label(fontIconHtml, ContentMode.HTML);
+        labelIcon.setId(id);
+        labelIcon.setDescription(fontIcon.getDescription());
+        labelIcon.addStyleName("small");
+        labelIcon.addStyleName("font-icon");
+        labelIcon.addStyleName(fontIcon.getStyle());
+
+        return labelIcon;
     }
 }

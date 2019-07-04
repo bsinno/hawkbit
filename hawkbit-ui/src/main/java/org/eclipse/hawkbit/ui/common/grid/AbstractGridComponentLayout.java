@@ -14,17 +14,17 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.Grid;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Abstract grid layout class which builds layout with grid {@link AbstractGrid}
  * and grid header {@link DefaultGridHeader}.
  */
-public abstract class AbstractGridComponentLayout extends VerticalLayout {
+public abstract class AbstractGridComponentLayout<T> extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,7 +33,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
     private final VaadinMessageSource i18n;
 
     private AbstractOrderedLayout gridHeader;
-    private Grid grid;
+    private Grid<T> grid;
 
     private transient AbstractFooterSupport footerSupport;
 
@@ -56,7 +56,6 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
         this.grid = createGrid();
         buildLayout();
         setSizeFull();
-
         if (doSubscribeToEventBus()) {
             eventBus.subscribe(this);
         }
@@ -85,9 +84,10 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
         gridHeaderLayout.setMargin(false);
 
         gridHeaderLayout.setStyleName("table-layout");
-        gridHeaderLayout.addComponent(gridHeader);
 
+        gridHeaderLayout.addComponent(gridHeader);
         gridHeaderLayout.setComponentAlignment(gridHeader, Alignment.TOP_CENTER);
+
         gridHeaderLayout.addComponent(grid);
         gridHeaderLayout.setComponentAlignment(grid, Alignment.TOP_CENTER);
         gridHeaderLayout.setExpandRatio(grid, 1.0F);
@@ -113,7 +113,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      */
     public void registerDetails(final AbstractGrid<?>.DetailsSupport details) {
         grid.addSelectionListener(event -> {
-            final Long masterId = (Long) event.getSelected().stream().findFirst().orElse(null);
+            final Long masterId = (Long) event.getFirstSelectedItem().orElse(null);
             details.populateMasterDataAndRecalculateContainer(masterId);
         });
     }
@@ -123,7 +123,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      *
      * @return grid instance displayed and owned by the layout.
      */
-    public Grid getGrid() {
+    public Grid<T> getGrid() {
         return grid;
     }
 
@@ -149,7 +149,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      *
      * @return newly created grid instance displayed and owned by the layout.
      */
-    public abstract Grid createGrid();
+    public abstract Grid<T> createGrid();
 
     /**
      * Enables footer-support for the grid by setting a FooterSupport
@@ -195,6 +195,8 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
             final HorizontalLayout footerLayout = new HorizontalLayout();
             footerLayout.addComponent(getFooterMessageLabel());
             footerLayout.setWidth(100, Unit.PERCENTAGE);
+            footerLayout.setMargin(false);
+            footerLayout.setSpacing(false);
             return footerLayout;
         }
 

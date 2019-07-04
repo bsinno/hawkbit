@@ -21,7 +21,7 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.UiProperties.Localization;
-import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
+import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.springframework.util.StringUtils;
 import org.vaadin.addons.lazyquerycontainer.AbstractBeanQuery;
 import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
@@ -511,7 +511,7 @@ public final class HawkbitCommonUtil {
      *            the status font icon
      * @return the code point of the StatusFontIcon
      */
-    public static String getCodePoint(final StatusFontIcon statusFontIcon) {
+    public static String getCodePoint(final FontIcon statusFontIcon) {
         if (statusFontIcon == null) {
             return null;
         }

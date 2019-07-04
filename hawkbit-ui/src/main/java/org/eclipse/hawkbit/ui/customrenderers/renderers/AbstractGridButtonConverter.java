@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.Locale;
 
 import org.eclipse.hawkbit.ui.customrenderers.client.renderers.FontIconData;
-import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
+import org.eclipse.hawkbit.ui.rollout.FontIcon;
 
 import com.vaadin.v7.data.util.converter.Converter;
 
@@ -51,7 +51,7 @@ public abstract class AbstractGridButtonConverter<T> implements Converter<FontIc
      *            icon metadata
      * @return icon metadata transport object
      */
-    private static FontIconData createFontIconData(StatusFontIcon meta) {
+    private static FontIconData createFontIconData(FontIcon meta) {
         FontIconData result = new FontIconData();
         result.setFontIconHtml(meta.getFontIcon().getHtml());
         result.setTitle(meta.getTitle());
@@ -95,7 +95,7 @@ public abstract class AbstractGridButtonConverter<T> implements Converter<FontIc
          * @return meta representation that is used as input for label
          *         generation.
          */
-        StatusFontIcon adapt(final T status);
+        FontIcon adapt(final T status);
     }
 
 }

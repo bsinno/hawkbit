@@ -8,75 +8,52 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
-import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.customrenderers.client.renderers.RolloutRendererData;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlLabelRenderer;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.RolloutRenderer;
 import org.eclipse.hawkbit.ui.push.RolloutGroupChangedEventContainer;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
-import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
+import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.v7.data.util.converter.Converter;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.ui.renderers.ClickableRenderer.RendererClickEvent;
-import com.vaadin.v7.ui.renderers.ClickableRenderer.RendererClickListener;
-import com.vaadin.v7.ui.renderers.HtmlRenderer;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.renderers.HtmlRenderer;
 
 /**
  * Rollout group list grid component.
  */
-public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
+public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String ROLLOUT_RENDERER_DATA = "rolloutRendererData";
+    private static final String ROLLOUT_GROUP_LINK_ID = "rolloutGroup";
 
     private final transient RolloutGroupManagement rolloutGroupManagement;
 
     private final RolloutUIState rolloutUIState;
 
-    private static final Map<RolloutGroupStatus, StatusFontIcon> statusIconMap = new EnumMap<>(
-            RolloutGroupStatus.class);
+    private final Map<RolloutGroupStatus, FontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
 
-    static {
-        statusIconMap.put(RolloutGroupStatus.FINISHED,
-                new StatusFontIcon(FontAwesome.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN));
-        statusIconMap.put(RolloutGroupStatus.SCHEDULED,
-                new StatusFontIcon(FontAwesome.HOURGLASS_1, SPUIStyleDefinitions.STATUS_ICON_PENDING));
-        statusIconMap.put(RolloutGroupStatus.RUNNING,
-                new StatusFontIcon(FontAwesome.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW));
-        statusIconMap.put(RolloutGroupStatus.READY,
-                new StatusFontIcon(FontAwesome.DOT_CIRCLE_O, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE));
-        statusIconMap.put(RolloutGroupStatus.ERROR,
-                new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
-    }
+    private final RolloutGroupDataProvider rolloutGroupDataProvider;
 
     /**
      * Constructor for RolloutGroupListGrid (Header with breadcrumbs)
@@ -94,12 +71,43 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
      */
     public RolloutGroupListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
-            final SpPermissionChecker permissionChecker) {
+            final SpPermissionChecker permissionChecker, final RolloutGroupDataProvider rolloutGroupDataProvider) {
         super(i18n, eventBus, permissionChecker);
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.rolloutUIState = rolloutUIState;
+        this.rolloutGroupDataProvider = rolloutGroupDataProvider;
+
+        initStatusIconMap();
 
         init();
+    }
+
+    private void initStatusIconMap() {
+        statusIconMap.put(RolloutGroupStatus.FINISHED, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(RolloutGroupStatus.FINISHED)));
+        statusIconMap.put(RolloutGroupStatus.SCHEDULED, new FontIcon(VaadinIcons.HOURGLASS_START,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(RolloutGroupStatus.SCHEDULED)));
+        statusIconMap.put(RolloutGroupStatus.RUNNING, new FontIcon(VaadinIcons.ADJUST,
+                SPUIStyleDefinitions.STATUS_ICON_YELLOW, getStatusDescription(RolloutGroupStatus.RUNNING)));
+        statusIconMap.put(RolloutGroupStatus.READY, new FontIcon(VaadinIcons.BULLSEYE,
+                SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE, getStatusDescription(RolloutGroupStatus.READY)));
+        statusIconMap.put(RolloutGroupStatus.ERROR, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(RolloutGroupStatus.ERROR)));
+    }
+
+    private String getStatusDescription(final RolloutGroupStatus groupStatus) {
+        return i18n.getMessage(
+                UIMessageIdProvider.TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX + groupStatus.toString().toLowerCase());
+    }
+
+    @Override
+    protected String getGridId() {
+        return UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID;
+    }
+
+    @Override
+    protected void setDataProvider() {
+        setDataProvider(rolloutGroupDataProvider);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -112,7 +120,8 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
         if (RolloutEvent.SHOW_ROLLOUT_GROUPS != event) {
             return;
         }
-        ((LazyQueryContainer) getContainerDataSource()).refresh();
+
+        getDataProvider().refreshAll();
     }
 
     /**
@@ -129,254 +138,108 @@ public class RolloutGroupListGrid extends AbstractGrid<LazyQueryContainer> {
         if (!rolloutUIState.isShowRolloutGroups()) {
             return;
         }
-        ((LazyQueryContainer) getContainerDataSource()).refresh();
+
+        getDataProvider().refreshAll();
     }
 
     @Override
-    protected LazyQueryContainer createContainer() {
-        final BeanQueryFactory<RolloutGroupBeanQuery> rolloutQf = new BeanQueryFactory<>(RolloutGroupBeanQuery.class);
-        return new LazyQueryContainer(
-                new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, SPUILabelDefinitions.VAR_ID), rolloutQf);
+    protected void addColumns() {
+        addComponentColumn(this::buildRolloutGroupLink).setId(ROLLOUT_GROUP_LINK_ID)
+                .setCaption(i18n.getMessage("header.name")).setMinimumWidth(40).setMaximumWidth(200).setHidable(true);
+
+        addComponentColumn(this::buildStatusIcon).setId(SPUILabelDefinitions.VAR_STATUS)
+                .setCaption(i18n.getMessage("header.status")).setMinimumWidth(75).setMaximumWidth(75).setHidable(true)
+                .setStyleGenerator(item -> "v-align-center");
+
+        addColumn(rolloutGroup -> DistributionBarHelper
+                .getDistributionBarAsHTMLString(rolloutGroup.getTotalTargetCountStatus().getStatusTotalCountMap()),
+                new HtmlRenderer()).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
+                        .setCaption(i18n.getMessage("header.detail.status")).setMinimumWidth(280).setHidable(true);
+
+        addColumn(ProxyRolloutGroup::getFinishedPercentage)
+                .setId(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE)
+                .setCaption(i18n.getMessage("header.rolloutgroup.installed.percentage")).setMinimumWidth(40)
+                .setMaximumWidth(100).setHidable(true);
+
+        addColumn(ProxyRolloutGroup::getErrorConditionExp).setId(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold.error")).setMinimumWidth(40)
+                .setMaximumWidth(100).setHidable(true);
+
+        addColumn(ProxyRolloutGroup::getSuccessConditionExp).setId(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold")).setMinimumWidth(40).setMaximumWidth(100)
+                .setHidable(true);
+
+        addColumn(ProxyRolloutGroup::getCreatedBy).setId(SPUILabelDefinitions.VAR_CREATED_USER)
+                .setCaption(i18n.getMessage("header.createdBy")).setHidable(true).setHidden(true);
+
+        addColumn(ProxyRolloutGroup::getCreatedDate).setId(SPUILabelDefinitions.VAR_CREATED_DATE)
+                .setCaption(i18n.getMessage("header.createdDate")).setHidable(true).setHidden(true);
+
+        addColumn(ProxyRolloutGroup::getModifiedDate).setId(SPUILabelDefinitions.VAR_MODIFIED_DATE)
+                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
+
+        addColumn(ProxyRolloutGroup::getLastModifiedBy).setId(SPUILabelDefinitions.VAR_MODIFIED_BY)
+                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
+
+        addColumn(ProxyRolloutGroup::getDescription).setId(SPUILabelDefinitions.VAR_DESC)
+                .setCaption(i18n.getMessage("header.description")).setHidable(true).setHidden(true);
+
+        addColumn(ProxyRolloutGroup::getTotalTargetsCount).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS)
+                .setCaption(i18n.getMessage("header.total.targets")).setMinimumWidth(40).setMaximumWidth(100)
+                .setHidable(true);
     }
 
-    @Override
-    protected void addContainerProperties() {
-        final LazyQueryContainer rolloutGroupGridContainer = (LazyQueryContainer) getContainerDataSource();
+    private Label buildStatusIcon(final ProxyRolloutGroup rolloutGroup) {
+        final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rolloutGroup.getStatus()))
+                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage("label.unknown")));
 
-        rolloutGroupGridContainer.addContainerProperty(ROLLOUT_RENDERER_DATA, RolloutRendererData.class, null, false,
-                false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_DESC, String.class, null, false, false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_STATUS, RolloutGroupStatus.class, null,
-                false, false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE,
-                String.class, null, false, false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD, String.class,
-                null, false, false);
+        final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID).append(".")
+                .append(rolloutGroup.getId()).toString();
 
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD, String.class, null,
-                false, false);
-
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_DATE, String.class, null, false,
-                false);
-
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_MODIFIED_DATE, String.class, null,
-                false, false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_USER, String.class, null, false,
-                false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_MODIFIED_BY, String.class, null, false,
-                false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS, String.class, "0", false,
-                false);
-        rolloutGroupGridContainer.addContainerProperty(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS,
-                TotalTargetCountStatus.class, null, false, false);
+        return buildLabelIcon(statusFontIcon, statusId);
     }
 
-    @Override
-    protected void setColumnExpandRatio() {
-        getColumn(ROLLOUT_RENDERER_DATA).setMinimumWidth(40);
-        getColumn(ROLLOUT_RENDERER_DATA).setMaximumWidth(200);
+    private Button buildRolloutGroupLink(final ProxyRolloutGroup rolloutGroup) {
+        final Button rolloutGroupLink = new Button();
 
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setMinimumWidth(40);
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setMaximumWidth(100);
-
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setMinimumWidth(75);
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setMaximumWidth(75);
-
-        getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE).setMinimumWidth(40);
-        getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE).setMaximumWidth(100);
-
-        getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD).setMinimumWidth(40);
-        getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD).setMaximumWidth(100);
-
-        getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD).setMinimumWidth(40);
-        getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD).setMaximumWidth(100);
-
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS).setMinimumWidth(280);
-    }
-
-    @Override
-    protected void setColumnHeaderNames() {
-        getColumn(ROLLOUT_RENDERER_DATA).setHeaderCaption(i18n.getMessage("header.name"));
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setHeaderCaption(i18n.getMessage("header.status"));
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
-                .setHeaderCaption(i18n.getMessage("header.detail.status"));
-        getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE)
-                .setHeaderCaption(i18n.getMessage("header.rolloutgroup.installed.percentage"));
-        getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
-                .setHeaderCaption(i18n.getMessage("header.rolloutgroup.threshold.error"));
-        getColumn(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
-                .setHeaderCaption(i18n.getMessage("header.rolloutgroup.threshold"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_USER).setHeaderCaption(i18n.getMessage("header.createdBy"));
-        getColumn(SPUILabelDefinitions.VAR_CREATED_DATE).setHeaderCaption(i18n.getMessage("header.createdDate"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_DATE).setHeaderCaption(i18n.getMessage("header.modifiedDate"));
-        getColumn(SPUILabelDefinitions.VAR_MODIFIED_BY).setHeaderCaption(i18n.getMessage("header.modifiedBy"));
-        getColumn(SPUILabelDefinitions.VAR_DESC).setHeaderCaption(i18n.getMessage("header.description"));
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setHeaderCaption(i18n.getMessage("header.total.targets"));
-    }
-
-    @Override
-    protected String getGridId() {
-        return UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID;
-    }
-
-    @Override
-    protected void setColumnProperties() {
-        final Object[] columnsToShowInOrder = new Object[] { ROLLOUT_RENDERER_DATA, SPUILabelDefinitions.VAR_STATUS,
-                SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS, SPUILabelDefinitions.VAR_TOTAL_TARGETS,
-                SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE,
-                SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD, SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD,
-                SPUILabelDefinitions.VAR_CREATED_DATE, SPUILabelDefinitions.VAR_CREATED_USER,
-                SPUILabelDefinitions.VAR_MODIFIED_DATE, SPUILabelDefinitions.VAR_MODIFIED_BY,
-                SPUILabelDefinitions.VAR_DESC };
-        setColumns(columnsToShowInOrder);
-        alignColumns();
-    }
-
-    @Override
-    protected void addColumnRenderers() {
-        getColumn(SPUILabelDefinitions.VAR_STATUS).setRenderer(new HtmlLabelRenderer(),
-                new RolloutGroupStatusConverter());
-
-        getColumn(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS).setRenderer(new HtmlRenderer(),
-                new TotalTargetCountStatusConverter());
         if (permissionChecker.hasRolloutTargetsReadPermission()) {
-            getColumn(ROLLOUT_RENDERER_DATA).setRenderer(new RolloutRenderer(new RolloutGroupClickListener()));
+            rolloutGroupLink.addClickListener(clickEvent -> onClickOfRolloutGroupName(rolloutGroup.getId()));
         }
+
+        rolloutGroupLink.setId(new StringBuilder("rolloutgroup.link.").append(rolloutGroup.getId()).toString());
+        rolloutGroupLink.addStyleName("borderless");
+        rolloutGroupLink.addStyleName("small");
+        rolloutGroupLink.addStyleName("on-focus-no-border");
+        rolloutGroupLink.addStyleName("link");
+        rolloutGroupLink.setCaption(rolloutGroup.getName());
+        // this is to allow the button to disappear, if the text is null
+        rolloutGroupLink.setVisible(rolloutGroup.getName() != null);
+
+        /*
+         * checking RolloutGroup Status for applying button style. If
+         * RolloutGroup status is not "CREATING", then the RolloutGroup button
+         * is applying hyperlink style
+         */
+        final boolean isStatusCreating = rolloutGroup.getStatus() != null
+                && RolloutGroupStatus.CREATING.equals(rolloutGroup.getStatus());
+        if (isStatusCreating) {
+            rolloutGroupLink.addStyleName("boldhide");
+            rolloutGroupLink.setEnabled(false);
+        } else {
+            rolloutGroupLink.setEnabled(true);
+        }
+
+        return rolloutGroupLink;
     }
 
-    @Override
-    protected void setHiddenColumns() {
-        final List<Object> columnsToBeHidden = new ArrayList<>();
-        columnsToBeHidden.add(SPUILabelDefinitions.VAR_CREATED_DATE);
-        columnsToBeHidden.add(SPUILabelDefinitions.VAR_CREATED_USER);
-        columnsToBeHidden.add(SPUILabelDefinitions.VAR_MODIFIED_DATE);
-        columnsToBeHidden.add(SPUILabelDefinitions.VAR_MODIFIED_BY);
-        columnsToBeHidden.add(SPUILabelDefinitions.VAR_DESC);
-        for (final Object propertyId : columnsToBeHidden) {
-            getColumn(propertyId).setHidden(true);
+    private void onClickOfRolloutGroupName(final Long rolloutGroupId) {
+        final Optional<RolloutGroup> group = rolloutGroupManagement.getWithDetailedStatus(rolloutGroupId);
+        if (!group.isPresent()) {
+            eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
+            return;
         }
+        rolloutUIState.setRolloutGroup(group.get());
+        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUP_TARGETS);
     }
-
-    @Override
-    protected CellDescriptionGenerator getDescriptionGenerator() {
-        return this::getDescription;
-    }
-
-    private String getDescription(final CellReference cell) {
-        if (SPUILabelDefinitions.VAR_STATUS.equals(cell.getPropertyId())) {
-            return cell.getProperty().getValue().toString().toLowerCase();
-        } else if (getActionLabeltext().equals(cell.getPropertyId())) {
-            return getActionLabeltext().toLowerCase();
-        } else if (ROLLOUT_RENDERER_DATA.equals(cell.getPropertyId())) {
-            return ((RolloutRendererData) cell.getProperty().getValue()).getName();
-        } else if (SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS.equals(cell.getPropertyId())) {
-            return DistributionBarHelper
-                    .getTooltip(((TotalTargetCountStatus) cell.getValue()).getStatusTotalCountMap(), i18n);
-        }
-        return null;
-    }
-
-    private void alignColumns() {
-        setCellStyleGenerator(new CellStyleGenerator() {
-            private static final long serialVersionUID = 5573570647129792429L;
-
-            @Override
-            public String getStyle(final CellReference cellReference) {
-                final String[] coulmnNames = { SPUILabelDefinitions.VAR_STATUS,
-                        SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS };
-                if (Arrays.asList(coulmnNames).contains(cellReference.getPropertyId())) {
-                    return "centeralign";
-                }
-                return null;
-            }
-        });
-    }
-
-    private class RolloutGroupClickListener implements RendererClickListener {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public void click(final RendererClickEvent event) {
-            final Optional<RolloutGroup> group = rolloutGroupManagement.getWithDetailedStatus((Long) event.getItemId());
-            if (!group.isPresent()) {
-                eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
-                return;
-            }
-            rolloutUIState.setRolloutGroup(group.get());
-            eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUP_TARGETS);
-        }
-    }
-
-    /**
-     *
-     * Converts {@link TotalTargetCountStatus} into formatted string with status
-     * and count details.
-     */
-    class TotalTargetCountStatusConverter implements Converter<String, TotalTargetCountStatus> {
-
-        private static final long serialVersionUID = -9205943894818450807L;
-
-        @Override
-        public TotalTargetCountStatus convertToModel(final String value,
-                final Class<? extends TotalTargetCountStatus> targetType, final Locale locale) {
-            return null;
-        }
-
-        @Override
-        public String convertToPresentation(final TotalTargetCountStatus value,
-                final Class<? extends String> targetType, final Locale locale) {
-            return DistributionBarHelper.getDistributionBarAsHTMLString(value.getStatusTotalCountMap());
-        }
-
-        @Override
-        public Class<TotalTargetCountStatus> getModelType() {
-            return TotalTargetCountStatus.class;
-        }
-
-        @Override
-        public Class<String> getPresentationType() {
-            return String.class;
-        }
-    }
-
-    /**
-     * Converts {@link RolloutGroupStatus} to string.
-     */
-    class RolloutGroupStatusConverter implements Converter<String, RolloutGroupStatus> {
-
-        private static final long serialVersionUID = 5448062736373292820L;
-
-        @Override
-        public RolloutGroupStatus convertToModel(final String value,
-                final Class<? extends RolloutGroupStatus> targetType, final Locale locale) {
-            return null;
-        }
-
-        @Override
-        public String convertToPresentation(final RolloutGroupStatus value, final Class<? extends String> targetType,
-                final Locale locale) {
-            return convertRolloutGroupStatusToString(value);
-        }
-
-        @Override
-        public Class<RolloutGroupStatus> getModelType() {
-            return RolloutGroupStatus.class;
-        }
-
-        @Override
-        public Class<String> getPresentationType() {
-            return String.class;
-        }
-
-        private String convertRolloutGroupStatusToString(final RolloutGroupStatus value) {
-            final StatusFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(value))
-                    .orElse(new StatusFontIcon(FontAwesome.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE));
-            final String codePoint = HawkbitCommonUtil.getCodePoint(statusFontIcon);
-            return HawkbitCommonUtil.getStatusLabelDetailsInString(codePoint, statusFontIcon.getStyle(),
-                    UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID);
-        }
-
-    }
-
 }

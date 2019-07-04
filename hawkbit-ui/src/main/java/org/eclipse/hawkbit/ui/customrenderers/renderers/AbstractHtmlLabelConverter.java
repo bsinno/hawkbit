@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.customrenderers.renderers;
 import java.io.Serializable;
 import java.util.Locale;
 
-import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
+import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.v7.data.util.converter.Converter;
@@ -70,7 +70,7 @@ public abstract class AbstractHtmlLabelConverter<T> implements Converter<String,
             throw new IllegalStateException(
                     "Adapter must be set before usage! Convertion without adapter is not possible!");
         }
-        final StatusFontIcon statusProps = adapter.adapt(status);
+        final FontIcon statusProps = adapter.adapt(status);
         // fail fast
         if (statusProps == null) {
             return "";
@@ -121,7 +121,7 @@ public abstract class AbstractHtmlLabelConverter<T> implements Converter<String,
      *            the label-metadata that holds the font-icon
      *
      */
-    private static String getCodePoint(final StatusFontIcon statusFontIcon) {
+    private static String getCodePoint(final FontIcon statusFontIcon) {
         return statusFontIcon.getFontIcon() != null ? Integer.toString(statusFontIcon.getFontIcon().getCodepoint())
                 : null;
     }
@@ -141,7 +141,7 @@ public abstract class AbstractHtmlLabelConverter<T> implements Converter<String,
          * @return meta representation that is used as input for label
          *         generation.
          */
-        StatusFontIcon adapt(final T status);
+        FontIcon adapt(final T status);
     }
 
 }

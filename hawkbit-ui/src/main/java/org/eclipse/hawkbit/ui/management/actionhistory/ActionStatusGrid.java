@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlLabelRenderer;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGrid.LabelConfig;
-import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
+import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -39,7 +39,7 @@ public class ActionStatusGrid extends AbstractGrid<LazyQueryContainer> {
     private final AlignCellStyleGenerator alignGenerator;
     private final TooltipGenerator tooltipGenerator;
 
-    private final Map<Action.Status, StatusFontIcon> states;
+    private final Map<Action.Status, FontIcon> states;
 
     private final BeanQueryFactory<ActionStatusBeanQuery> targetQF = new BeanQueryFactory<>(
             ActionStatusBeanQuery.class);
@@ -140,7 +140,7 @@ public class ActionStatusGrid extends AbstractGrid<LazyQueryContainer> {
         getColumn(ProxyActionStatus.PXY_AS_CREATED_AT).setConverter(new LongToFormattedDateStringConverter());
     }
 
-    private StatusFontIcon createStatusLabelMetadata(final Action.Status status) {
+    private FontIcon createStatusLabelMetadata(final Action.Status status) {
         return states.get(status);
     }
 

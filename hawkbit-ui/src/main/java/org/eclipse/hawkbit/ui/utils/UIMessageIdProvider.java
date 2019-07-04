@@ -203,6 +203,10 @@ public final class UIMessageIdProvider {
 
     public static final String TOOLTIP_ROLLOUT_STATUS_PREFIX = "tooltip.rollout.status.";
 
+    public static final String TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX = "tooltip.rollout.group.status.";
+
+    public static final String TOOLTIP_ACTION_STATUS_PREFIX = "tooltip.action.status.";
+
     /**
      * Private Constructor.
      */

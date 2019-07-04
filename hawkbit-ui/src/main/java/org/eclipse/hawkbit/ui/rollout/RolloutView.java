@@ -13,6 +13,7 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
@@ -41,7 +42,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Rollout management view.
@@ -74,21 +75,26 @@ public class RolloutView extends VerticalLayout implements View {
             final RolloutGroupManagement rolloutGroupManagement, final TargetManagement targetManagement,
             final UINotification uiNotification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final VaadinMessageSource i18n, final TargetFilterQueryManagement targetFilterQueryManagement,
-            final QuotaManagement quotaManagement, final TenantConfigurationManagement tenantConfigManagement) {
+            final QuotaManagement quotaManagement, final TenantConfigurationManagement tenantConfigManagement,
+            final DistributionSetManagement distributionSetManagement) {
         this.permChecker = permissionChecker;
         this.rolloutManagement = rolloutManagement;
+
         this.rolloutListView = new RolloutListView(permissionChecker, rolloutUIState, eventBus, rolloutManagement,
                 targetManagement, uiNotification, uiProperties, entityFactory, i18n, targetFilterQueryManagement,
-                rolloutGroupManagement, quotaManagement, tenantConfigManagement);
+                rolloutGroupManagement, quotaManagement, tenantConfigManagement, distributionSetManagement);
         this.rolloutGroupsListView = new RolloutGroupsListView(i18n, eventBus, rolloutGroupManagement, rolloutUIState,
                 permissionChecker);
-        this.rolloutGroupTargetsListView = new RolloutGroupTargetsListView(eventBus, i18n, rolloutUIState);
+        this.rolloutGroupTargetsListView = new RolloutGroupTargetsListView(eventBus, i18n, rolloutUIState,
+                rolloutGroupManagement);
         this.rolloutUIState = rolloutUIState;
         this.eventBus = eventBus;
     }
 
     @PostConstruct
     void init() {
+        setSpacing(false);
+        setMargin(false);
         setSizeFull();
         if (!(rolloutUIState.isShowRollOuts() || rolloutUIState.isShowRolloutGroups()
                 || rolloutUIState.isShowRolloutGroupTargets())) {

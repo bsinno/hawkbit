@@ -16,7 +16,9 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderNew;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
@@ -27,8 +29,8 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -40,19 +42,26 @@ public class RolloutListHeader extends AbstractGridHeader {
 
     private final transient EventBus.UIEventBus eventBus;
 
-    private final AddUpdateRolloutWindowLayout addUpdateRolloutWindow;
+    private final transient RolloutWindowBuilder rolloutWindowBuilder;
+    private final UiProperties uiProperties;
 
     RolloutListHeader(final SpPermissionChecker permissionChecker, final RolloutUIState rolloutUIState,
             final UIEventBus eventBus, final RolloutManagement rolloutManagement,
             final TargetManagement targetManagement, final UINotification uiNotification,
             final UiProperties uiProperties, final EntityFactory entityFactory, final VaadinMessageSource i18n,
             final TargetFilterQueryManagement targetFilterQueryManagement,
-            final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement) {
+            final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
+            final DistributionSetStatelessDataProvider distributionSetDataProvider,
+            final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
         super(permissionChecker, rolloutUIState, i18n);
         this.eventBus = eventBus;
-        this.addUpdateRolloutWindow = new AddUpdateRolloutWindowLayout(rolloutManagement, targetManagement,
-                uiNotification, uiProperties, entityFactory, i18n, eventBus, targetFilterQueryManagement,
-                rolloutGroupManagement, quotaManagement);
+        this.uiProperties = uiProperties;
+
+        final RolloutWindowDependecies rolloutWindowDependecies = new RolloutWindowDependecies(rolloutManagement,
+                targetManagement, uiNotification, entityFactory, i18n, uiProperties, eventBus,
+                targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, distributionSetDataProvider,
+                targetFilterQueryDataProvider);
+        this.rolloutWindowBuilder = new RolloutWindowBuilder(rolloutWindowDependecies);
     }
 
     @Override
@@ -88,9 +97,10 @@ public class RolloutListHeader extends AbstractGridHeader {
 
     @Override
     protected void addNewItem(final ClickEvent event) {
-        final Window addTargetWindow = addUpdateRolloutWindow.getWindow();
-        UI.getCurrent().addWindow(addTargetWindow);
-        addTargetWindow.setVisible(Boolean.TRUE);
+        final Window addWindow = rolloutWindowBuilder.getWindowForAddRollout();
+
+        UI.getCurrent().addWindow(addWindow);
+        addWindow.setVisible(Boolean.TRUE);
 
     }
 
@@ -131,8 +141,10 @@ public class RolloutListHeader extends AbstractGridHeader {
 
     @Override
     protected HorizontalLayout getHeaderCaptionLayout() {
-        final Label headerCaption = new LabelBuilder().name(getHeaderCaption()).buildCaptionLabel();
+        final Label headerCaption = new LabelBuilderNew().name(getHeaderCaption()).buildCaptionLabel();
         final HorizontalLayout headerCaptionLayout = new HorizontalLayout();
+        headerCaptionLayout.setSpacing(false);
+        headerCaptionLayout.setMargin(false);
         headerCaptionLayout.addComponent(headerCaption);
 
         return headerCaptionLayout;

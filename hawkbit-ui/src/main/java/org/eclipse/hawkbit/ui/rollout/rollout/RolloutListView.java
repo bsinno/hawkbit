@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
+import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
@@ -17,21 +18,27 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
+import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.Grid;
 
 /**
  * Rollout list view.
  */
-public class RolloutListView extends AbstractGridComponentLayout {
-    private static final long serialVersionUID = -2703552177439393208L;
+public class RolloutListView extends AbstractGridComponentLayout<ProxyRollout> {
+    private static final long serialVersionUID = 1L;
 
     private final transient RolloutManagement rolloutManagement;
     private final transient RolloutGroupManagement rolloutGroupManagement;
@@ -40,6 +47,9 @@ public class RolloutListView extends AbstractGridComponentLayout {
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
     private final transient QuotaManagement quotaManagement;
     private final transient TenantConfigurationManagement tenantConfigManagement;
+    private final transient RolloutDataProvider rolloutDataProvider;
+    private final transient DistributionSetStatelessDataProvider distributionSetDataProvider;
+    private final transient TargetFilterQueryDataProvider targetFilterQueryDataProvider;
 
     private final SpPermissionChecker permissionChecker;
     private final RolloutUIState rolloutUIState;
@@ -52,7 +62,8 @@ public class RolloutListView extends AbstractGridComponentLayout {
             final UiProperties uiProperties, final EntityFactory entityFactory, final VaadinMessageSource i18n,
             final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
-            final TenantConfigurationManagement tenantConfigManagement) {
+            final TenantConfigurationManagement tenantConfigManagement,
+            final DistributionSetManagement distributionSetManagement) {
         super(i18n, eventBus);
         this.permissionChecker = permissionChecker;
         this.rolloutUIState = rolloutUIState;
@@ -65,6 +76,12 @@ public class RolloutListView extends AbstractGridComponentLayout {
         this.entityFactory = entityFactory;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.tenantConfigManagement = tenantConfigManagement;
+        this.rolloutDataProvider = new RolloutDataProvider(rolloutManagement, rolloutUIState,
+                new RolloutToProxyRolloutMapper());
+        this.distributionSetDataProvider = new DistributionSetStatelessDataProvider(distributionSetManagement,
+                new DistributionSetToProxyDistributionMapper());
+        this.targetFilterQueryDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
+                rolloutUIState, new TargetFilterQueryToProxyTargetFilterMapper());
 
         init();
     }
@@ -78,14 +95,15 @@ public class RolloutListView extends AbstractGridComponentLayout {
     public AbstractOrderedLayout createGridHeader() {
         return new RolloutListHeader(permissionChecker, rolloutUIState, getEventBus(), rolloutManagement,
                 targetManagement, uiNotification, uiProperties, entityFactory, getI18n(), targetFilterQueryManagement,
-                rolloutGroupManagement, quotaManagement);
+                rolloutGroupManagement, quotaManagement, distributionSetDataProvider, targetFilterQueryDataProvider);
     }
 
     @Override
-    public AbstractGrid<LazyQueryContainer> createGrid() {
+    public Grid<ProxyRollout> createGrid() {
         return new RolloutListGrid(getI18n(), getEventBus(), rolloutManagement, uiNotification, rolloutUIState,
                 permissionChecker, targetManagement, entityFactory, uiProperties, targetFilterQueryManagement,
-                rolloutGroupManagement, quotaManagement, tenantConfigManagement);
+                rolloutGroupManagement, quotaManagement, tenantConfigManagement, rolloutDataProvider,
+                distributionSetDataProvider, targetFilterQueryDataProvider);
     }
 
 }

@@ -30,7 +30,7 @@ import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.rollout.StatusFontIcon;
+import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -105,8 +105,8 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
     private final AlignCellStyleGenerator alignGenerator;
     private final TooltipGenerator tooltipGenerator;
 
-    private final Map<Action.Status, StatusFontIcon> states;
-    private final Map<IsActiveDecoration, StatusFontIcon> activeStates;
+    private final Map<Action.Status, FontIcon> states;
+    private final Map<IsActiveDecoration, FontIcon> activeStates;
 
     private final BeanQueryFactory<ActionBeanQuery> targetQF = new BeanQueryFactory<>(ActionBeanQuery.class);
 
@@ -232,56 +232,56 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
                 new ActionGridButtonConverter(this::createForceQuitButtonMetadata));
     }
 
-    private StatusFontIcon createCancelButtonMetadata(final Action action) {
+    private FontIcon createCancelButtonMetadata(final Action action) {
         final boolean isDisabled = !action.isActive() || action.isCancelingOrCanceled()
                 || !permissionChecker.hasUpdateTargetPermission();
-        return new StatusFontIcon(FontAwesome.TIMES, STATUS_ICON_NEUTRAL, i18n.getMessage("message.cancel.action"),
+        return new FontIcon(FontAwesome.TIMES, STATUS_ICON_NEUTRAL, i18n.getMessage("message.cancel.action"),
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_CANCEL_ID, isDisabled);
     }
 
-    private StatusFontIcon createForceButtonMetadata(final Action action) {
+    private FontIcon createForceButtonMetadata(final Action action) {
         final boolean isDisabled = !action.isActive() || action.isForce() || action.isCancelingOrCanceled()
                 || !permissionChecker.hasUpdateTargetPermission();
-        return new StatusFontIcon(FontAwesome.BOLT, STATUS_ICON_NEUTRAL, i18n.getMessage("message.force.action"),
+        return new FontIcon(FontAwesome.BOLT, STATUS_ICON_NEUTRAL, i18n.getMessage("message.force.action"),
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_ID, isDisabled);
     }
 
-    private StatusFontIcon createForceQuitButtonMetadata(final Action action) {
+    private FontIcon createForceQuitButtonMetadata(final Action action) {
         final boolean isDisabled = !action.isActive() || !action.isCancelingOrCanceled()
                 || !permissionChecker.hasUpdateTargetPermission();
-        return new StatusFontIcon(FontAwesome.TIMES, STATUS_ICON_RED, i18n.getMessage("message.forcequit.action"),
+        return new FontIcon(FontAwesome.TIMES, STATUS_ICON_RED, i18n.getMessage("message.forcequit.action"),
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_QUIT_ID, isDisabled);
     }
 
-    private StatusFontIcon createStatusLabelMetadata(final Action.Status status) {
+    private FontIcon createStatusLabelMetadata(final Action.Status status) {
         return states.get(status);
     }
 
-    private StatusFontIcon createIsActiveLabelMetadata(final IsActiveDecoration isActiveDeco) {
+    private FontIcon createIsActiveLabelMetadata(final IsActiveDecoration isActiveDeco) {
         return activeStates.get(isActiveDeco);
     }
 
-    private StatusFontIcon createTypeLabelMetadata(final Action action) {
+    private FontIcon createTypeLabelMetadata(final Action action) {
         if (ActionType.FORCED == action.getActionType() || ActionType.TIMEFORCED == action.getActionType()) {
-            return new StatusFontIcon(FontAwesome.BOLT, STATUS_ICON_FORCED,
+            return new FontIcon(FontAwesome.BOLT, STATUS_ICON_FORCED,
                     i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED),
                     UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID);
         }
         if (ActionType.SOFT == action.getActionType()) {
-            return new StatusFontIcon(FontAwesome.STEP_FORWARD, STATUS_ICON_SOFT,
+            return new FontIcon(FontAwesome.STEP_FORWARD, STATUS_ICON_SOFT,
                     i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT),
                     UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID);
         }
         if (ActionType.DOWNLOAD_ONLY == action.getActionType()) {
-            return new StatusFontIcon(FontAwesome.DOWNLOAD, STATUS_ICON_DOWNLOAD_ONLY,
+            return new FontIcon(FontAwesome.DOWNLOAD, STATUS_ICON_DOWNLOAD_ONLY,
                     i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY),
                     UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID);
         }
         return null;
     }
 
-    private StatusFontIcon createTimeForcedLabelMetadata(final Action action) {
-        StatusFontIcon result = null;
+    private FontIcon createTimeForcedLabelMetadata(final Action action) {
+        FontIcon result = null;
 
         if (ActionType.TIMEFORCED == action.getActionType()) {
             final long currentTimeMillis = System.currentTimeMillis();
@@ -298,7 +298,7 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
                         action.getForcedTime(), i18n);
                 title = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_IN, duration);
             }
-            result = new StatusFontIcon(FontAwesome.HISTORY, style, title,
+            result = new FontIcon(FontAwesome.HISTORY, style, title,
                     UIComponentIdProvider.ACTION_HISTORY_TABLE_TIMEFORCED_LABEL_ID);
         }
         return result;
@@ -721,28 +721,28 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
          * @param statusLabelId
          * @return the configured map
          */
-        public Map<Action.Status, StatusFontIcon> createStatusLabelConfig(final VaadinMessageSource i18n,
+        public Map<Action.Status, FontIcon> createStatusLabelConfig(final VaadinMessageSource i18n,
                 final String statusLabelId) {
-            final HashMap<Action.Status, StatusFontIcon> stateMap = Maps.newHashMapWithExpectedSize(9);
-            stateMap.put(Action.Status.FINISHED, new StatusFontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_GREEN,
+            final HashMap<Action.Status, FontIcon> stateMap = Maps.newHashMapWithExpectedSize(9);
+            stateMap.put(Action.Status.FINISHED, new FontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_GREEN,
                     i18n.getMessage("label.finished"), statusLabelId));
-            stateMap.put(Action.Status.ERROR, new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, STATUS_ICON_RED,
+            stateMap.put(Action.Status.ERROR, new FontIcon(FontAwesome.EXCLAMATION_CIRCLE, STATUS_ICON_RED,
                     i18n.getMessage("label.error"), statusLabelId));
-            stateMap.put(Action.Status.WARNING, new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, STATUS_ICON_ORANGE,
+            stateMap.put(Action.Status.WARNING, new FontIcon(FontAwesome.EXCLAMATION_CIRCLE, STATUS_ICON_ORANGE,
                     i18n.getMessage("label.warning"), statusLabelId));
-            stateMap.put(Action.Status.RUNNING, new StatusFontIcon(FontAwesome.ADJUST, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.RUNNING, new FontIcon(FontAwesome.ADJUST, STATUS_ICON_PENDING,
                     i18n.getMessage("label.running"), statusLabelId));
-            stateMap.put(Action.Status.CANCELING, new StatusFontIcon(FontAwesome.TIMES_CIRCLE, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.CANCELING, new FontIcon(FontAwesome.TIMES_CIRCLE, STATUS_ICON_PENDING,
                     i18n.getMessage("label.cancelling"), statusLabelId));
-            stateMap.put(Action.Status.CANCELED, new StatusFontIcon(FontAwesome.TIMES_CIRCLE, STATUS_ICON_GREEN,
+            stateMap.put(Action.Status.CANCELED, new FontIcon(FontAwesome.TIMES_CIRCLE, STATUS_ICON_GREEN,
                     i18n.getMessage("label.cancelled"), statusLabelId));
-            stateMap.put(Action.Status.RETRIEVED, new StatusFontIcon(FontAwesome.CIRCLE_O, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.RETRIEVED, new FontIcon(FontAwesome.CIRCLE_O, STATUS_ICON_PENDING,
                     i18n.getMessage("label.retrieved"), statusLabelId));
-            stateMap.put(Action.Status.DOWNLOADED, new StatusFontIcon(FontAwesome.CLOUD_DOWNLOAD, STATUS_ICON_GREEN,
+            stateMap.put(Action.Status.DOWNLOADED, new FontIcon(FontAwesome.CLOUD_DOWNLOAD, STATUS_ICON_GREEN,
                     i18n.getMessage("label.downloaded"), statusLabelId));
-            stateMap.put(Action.Status.DOWNLOAD, new StatusFontIcon(FontAwesome.CLOUD_DOWNLOAD, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.DOWNLOAD, new FontIcon(FontAwesome.CLOUD_DOWNLOAD, STATUS_ICON_PENDING,
                     i18n.getMessage("label.download"), statusLabelId));
-            stateMap.put(Action.Status.SCHEDULED, new StatusFontIcon(FontAwesome.HOURGLASS_1, STATUS_ICON_PENDING,
+            stateMap.put(Action.Status.SCHEDULED, new FontIcon(FontAwesome.HOURGLASS_1, STATUS_ICON_PENDING,
                     i18n.getMessage("label.scheduled"), statusLabelId));
             return stateMap;
         }
@@ -753,16 +753,16 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
          * @param activeStateId
          * @return the configured map
          */
-        public Map<IsActiveDecoration, StatusFontIcon> createActiveStatusLabelConfig(final String activeStateId) {
-            final HashMap<IsActiveDecoration, StatusFontIcon> activeStateMap = Maps.newHashMapWithExpectedSize(4);
+        public Map<IsActiveDecoration, FontIcon> createActiveStatusLabelConfig(final String activeStateId) {
+            final HashMap<IsActiveDecoration, FontIcon> activeStateMap = Maps.newHashMapWithExpectedSize(4);
             activeStateMap.put(IsActiveDecoration.SCHEDULED,
-                    new StatusFontIcon(FontAwesome.HOURGLASS_1, STATUS_ICON_PENDING, "Scheduled", activeStateId));
+                    new FontIcon(FontAwesome.HOURGLASS_1, STATUS_ICON_PENDING, "Scheduled", activeStateId));
             activeStateMap.put(IsActiveDecoration.ACTIVE,
-                    new StatusFontIcon(null, STATUS_ICON_ACTIVE, "Active", activeStateId));
+                    new FontIcon(null, STATUS_ICON_ACTIVE, "Active", activeStateId));
             activeStateMap.put(IsActiveDecoration.IN_ACTIVE,
-                    new StatusFontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_NEUTRAL, "In-active", activeStateId));
+                    new FontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_NEUTRAL, "In-active", activeStateId));
             activeStateMap.put(IsActiveDecoration.IN_ACTIVE_ERROR,
-                    new StatusFontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_RED, "In-active", activeStateId));
+                    new FontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_RED, "In-active", activeStateId));
             return activeStateMap;
         }
     }

@@ -19,16 +19,17 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.data.provider.Query;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Label;
 
 /**
  * Count message label for the targets of the rollout group.
  */
 public class RolloutGroupTargetsCountLabelMessage extends Label {
 
-    private static final long serialVersionUID = -3876685878918411453L;
+    private static final long serialVersionUID = 1L;
 
     private final RolloutUIState rolloutUIState;
 
@@ -68,13 +69,14 @@ public class RolloutGroupTargetsCountLabelMessage extends Label {
     }
 
     private void displayRolloutGroupTargetMessage() {
-        long totalTargetTableEnteries = rolloutGroupTargetsListGrid.getContainerDataSource().size();
+        long totalTargetTableEntries = rolloutGroupTargetsListGrid.getDataProvider().size(new Query<>());
+
         if (rolloutUIState.getRolloutGroupTargetsTruncated() != null) {
             // set the icon
-            setIcon(FontAwesome.INFO_CIRCLE);
+            setIcon(VaadinIcons.INFO_CIRCLE);
             setDescription(i18n.getMessage("rollout.group.label.target.truncated",
                     rolloutUIState.getRolloutGroupTargetsTruncated(), SPUIDefinitions.MAX_TABLE_ENTRIES));
-            totalTargetTableEnteries += rolloutUIState.getRolloutGroupTargetsTruncated();
+            totalTargetTableEntries += rolloutUIState.getRolloutGroupTargetsTruncated();
         } else {
             setIcon(null);
             setDescription(null);
@@ -83,7 +85,7 @@ public class RolloutGroupTargetsCountLabelMessage extends Label {
         final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.filter.count"));
         message.append(rolloutUIState.getRolloutGroupTargetsTotalCount());
 
-        if (totalTargetTableEnteries > SPUIDefinitions.MAX_TABLE_ENTRIES) {
+        if (totalTargetTableEntries > SPUIDefinitions.MAX_TABLE_ENTRIES) {
             message.append(HawkbitCommonUtil.SP_STRING_PIPE);
             message.append(i18n.getMessage("label.filter.shown"));
             message.append(SPUIDefinitions.MAX_TABLE_ENTRIES);

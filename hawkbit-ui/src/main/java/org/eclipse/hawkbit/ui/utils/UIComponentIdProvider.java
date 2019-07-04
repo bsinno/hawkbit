@@ -1004,6 +1004,11 @@ public final class UIComponentIdProvider {
     public static final String ROLLOUT_ACTION_ID = "rollout.action.button.id";
 
     /**
+     * Rollout list action type label Id.
+     */
+    public static final String ROLLOUT_ACTION_TYPE_LABEL_ID = "rollout.action.type.id";
+
+    /**
      * Rollout start button id.
      */
     public static final String ROLLOUT_RUN_BUTTON_ID = ROLLOUT_ACTION_ID + ".6";
@@ -1047,6 +1052,11 @@ public final class UIComponentIdProvider {
      * Rollout group status label id.
      */
     public static final String ROLLOUT_GROUP_STATUS_LABEL_ID = "rollout.group.status.id";
+
+    /**
+     * Rollout group target status label id.
+     */
+    public static final String ROLLOUT_GROUP_TARGET_STATUS_LABEL_ID = "rollout.group.target.status.id";
 
     /**
      * Rollout % or count option group id.

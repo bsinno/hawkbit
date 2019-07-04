@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.common.grid;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderNew;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -20,12 +20,12 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * 
@@ -74,8 +74,8 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     private void createComponents() {
         headerCaptionLayout = getHeaderCaptionLayout();
         if (isRollout()) {
-            searchField = new TextFieldBuilder(64).id(getSearchBoxId())
-                    .createSearchField(event -> searchBy(event.getText()));
+            searchField = new TextFieldBuilderNew(64).id(getSearchBoxId())
+                    .createSearchField(event -> searchBy(event.getValue()));
             searchResetIcon = createSearchResetIcon();
             addButton = createAddButton();
         }
@@ -83,6 +83,8 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     }
 
     private void buildLayout() {
+        setSpacing(false);
+        setMargin(false);
         final HorizontalLayout titleFilterIconsLayout = createHeaderFilterIconLayout();
         titleFilterIconsLayout.addComponents(headerCaptionLayout);
 
@@ -117,7 +119,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
     private SPUIButton createSearchResetIcon() {
         final SPUIButton button = (SPUIButton) SPUIComponentProvider.getButton(getSearchRestIconId(), "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, FontAwesome.SEARCH,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcons.SEARCH,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(event -> onSearchResetClick());
         button.setData(Boolean.FALSE);
@@ -126,7 +128,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
     private Button createAddButton() {
         final Button button = SPUIComponentProvider.getButton(getAddIconId(), "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, FontAwesome.PLUS,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, VaadinIcons.PLUS,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(this::addNewItem);
         return button;
@@ -134,7 +136,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
     private Button createCloseButton() {
         final Button button = SPUIComponentProvider.getButton(getCloseButtonId(), "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLOSE), null, false, FontAwesome.TIMES,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLOSE), null, false, VaadinIcons.CLOSE,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(this::onClose);
         return button;
@@ -157,7 +159,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
     private void openSearchTextField() {
         searchResetIcon.addStyleName(SPUIDefinitions.FILTER_RESET_ICON);
-        searchResetIcon.toggleIcon(FontAwesome.TIMES);
+        searchResetIcon.toggleIcon(VaadinIcons.CLOSE);
         searchResetIcon.setData(Boolean.TRUE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
         searchField.removeStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
@@ -170,7 +172,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         searchField.addStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
         searchField.setVisible(false);
         searchResetIcon.removeStyleName(SPUIDefinitions.FILTER_RESET_ICON);
-        searchResetIcon.toggleIcon(FontAwesome.SEARCH);
+        searchResetIcon.toggleIcon(VaadinIcons.SEARCH);
         searchResetIcon.setData(Boolean.FALSE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
 
