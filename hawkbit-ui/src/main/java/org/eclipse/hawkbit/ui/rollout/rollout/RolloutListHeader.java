@@ -22,6 +22,8 @@ import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvide
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
+import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -38,12 +40,11 @@ import com.vaadin.ui.Window;
  * Header layout of rollout list view.
  */
 public class RolloutListHeader extends AbstractGridHeader {
-    private static final long serialVersionUID = 2365400733081333174L;
+    private static final long serialVersionUID = 1L;
 
     private final transient EventBus.UIEventBus eventBus;
 
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
-    private final UiProperties uiProperties;
 
     RolloutListHeader(final SpPermissionChecker permissionChecker, final RolloutUIState rolloutUIState,
             final UIEventBus eventBus, final RolloutManagement rolloutManagement,
@@ -55,9 +56,8 @@ public class RolloutListHeader extends AbstractGridHeader {
             final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
         super(permissionChecker, rolloutUIState, i18n);
         this.eventBus = eventBus;
-        this.uiProperties = uiProperties;
 
-        final RolloutWindowDependecies rolloutWindowDependecies = new RolloutWindowDependecies(rolloutManagement,
+        final RolloutWindowDependencies rolloutWindowDependecies = new RolloutWindowDependencies(rolloutManagement,
                 targetManagement, uiNotification, entityFactory, i18n, uiProperties, eventBus,
                 targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, distributionSetDataProvider,
                 targetFilterQueryDataProvider);

@@ -29,7 +29,6 @@ import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus.Status;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindowNew;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
@@ -44,6 +43,8 @@ import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
+import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -58,6 +59,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 /**
@@ -96,8 +98,6 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     private final transient TenantConfigurationManagement tenantConfigManagement;
 
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
-
-    private final UiProperties uiProperties;
 
     private final UINotification uiNotification;
 
@@ -138,12 +138,11 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.tenantConfigManagement = tenantConfigManagement;
-        this.uiProperties = uiProperties;
         this.uiNotification = uiNotification;
         this.rolloutUIState = rolloutUIState;
         this.rolloutDataProvider = rolloutDataProvider;
 
-        final RolloutWindowDependecies rolloutWindowDependecies = new RolloutWindowDependecies(rolloutManagement,
+        final RolloutWindowDependencies rolloutWindowDependecies = new RolloutWindowDependencies(rolloutManagement,
                 targetManagement, uiNotification, entityFactory, i18n, uiProperties, eventBus,
                 targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, distributionSetDataProvider,
                 targetFilterQueryDataProvider);
@@ -486,7 +485,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     }
 
     private void approveRollout(final ProxyRollout rollout) {
-        final CommonDialogWindowNew approveWindow = rolloutWindowBuilder.getWindowForApproveRollout(rollout);
+        final Window approveWindow = rolloutWindowBuilder.getWindowForApproveRollout(rollout);
 
         approveWindow.setCaption(i18n.getMessage("caption.approve.rollout"));
         UI.getCurrent().addWindow(approveWindow);
@@ -494,7 +493,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     }
 
     private void updateRollout(final ProxyRollout rollout) {
-        final CommonDialogWindowNew updateWindow = rolloutWindowBuilder.getWindowForUpdateRollout(rollout);
+        final Window updateWindow = rolloutWindowBuilder.getWindowForUpdateRollout(rollout);
 
         updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.rollout")));
         UI.getCurrent().addWindow(updateWindow);
@@ -502,7 +501,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     }
 
     private void copyRollout(final ProxyRollout rollout) {
-        final CommonDialogWindowNew copyWindow = rolloutWindowBuilder.getWindowForCopyRollout(rollout);
+        final Window copyWindow = rolloutWindowBuilder.getWindowForCopyRollout(rollout);
 
         copyWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.rollout")));
         UI.getCurrent().addWindow(copyWindow);

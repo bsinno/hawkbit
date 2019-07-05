@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.rollout.rollout;
+package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,50 +19,45 @@ import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
-import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
+import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupErrorAction;
+import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupErrorCondition;
+import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessAction;
+import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessCondition;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
+import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.builder.ComboBoxBuilder;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderNew;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderNew;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderNew;
+import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterBeanQuery;
-import org.eclipse.hawkbit.ui.rollout.rollout.DefineGroupsLayout.ValidationStatus;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.data.Binder;
+import com.vaadin.data.converter.StringToFloatConverter;
+import com.vaadin.data.validator.FloatRangeValidator;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.Validator;
-import com.vaadin.v7.data.util.converter.StringToFloatConverter;
-import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
-import com.vaadin.v7.data.validator.FloatRangeValidator;
-import com.vaadin.v7.data.validator.IntegerRangeValidator;
-import com.vaadin.v7.data.validator.RangeValidator;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Define groups for a Rollout
@@ -105,21 +100,24 @@ public class DefineGroupsLayout extends GridLayout {
 
     private final AtomicInteger runningValidationsCounter;
 
-    DefineGroupsLayout(final VaadinMessageSource i18n, final EntityFactory entityFactory,
+    private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
+
+    public DefineGroupsLayout(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final RolloutManagement rolloutManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
-            final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement) {
+            final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
+            final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.quotaManagement = quotaManagement;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
+        this.targetFilterQueryDataProvider = targetFilterQueryDataProvider;
+
         runningValidationsCounter = new AtomicInteger(0);
-
         groupRows = new ArrayList<>(10);
-        setSizeUndefined();
-        buildLayout();
 
+        buildLayout();
     }
 
     private void buildLayout() {
@@ -152,19 +150,13 @@ public class DefineGroupsLayout extends GridLayout {
         updateValidation();
     }
 
-    private int addRow() {
-        final int insertIndex = getRows() - 1;
-        insertRow(insertIndex);
-        return insertIndex;
-    }
-
     private Label getLabel(final String key) {
-        return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
+        return new LabelBuilderNew().name(i18n.getMessage(key)).buildLabel();
     }
 
     private Button createAddButton() {
         final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.ROLLOUT_GROUP_ADD_ID,
-                i18n.getMessage("button.rollout.add.group"), "", "", true, FontAwesome.PLUS,
+                i18n.getMessage("button.rollout.add.group"), "", "", true, VaadinIcons.PLUS,
                 SPUIButtonStyleNoBorderWithIcon.class);
         button.setSizeUndefined();
         button.addStyleName("default-color");
@@ -175,6 +167,12 @@ public class DefineGroupsLayout extends GridLayout {
 
     }
 
+    public void addGroupRowAndValidate() {
+        final GroupRow groupRow = addGroupRow();
+        groupRow.populateWithDefaults();
+        updateValidation();
+    }
+
     private GroupRow addGroupRow() {
         final int rowIndex = addRow();
         final GroupRow groupRow = new GroupRow();
@@ -183,10 +181,10 @@ public class DefineGroupsLayout extends GridLayout {
         return groupRow;
     }
 
-    private GroupRow addGroupRowAndValidate() {
-        final GroupRow groupRow = addGroupRow();
-        updateValidation();
-        return groupRow;
+    private int addRow() {
+        final int insertIndex = getRows() - 1;
+        insertRow(insertIndex);
+        return insertIndex;
     }
 
     public List<RolloutGroupCreate> getSavedRolloutGroups() {
@@ -217,32 +215,20 @@ public class DefineGroupsLayout extends GridLayout {
     }
 
     /**
-     * Reset the field values.
-     */
-    public void resetComponents() {
-
-        validationStatus = ValidationStatus.VALID;
-        groupsCount = 0;
-
-        removeAllRows();
-        addGroupRowAndValidate();
-    }
-
-    /**
-     * Populate groups by rollout
+     * Populate groups by rollout Id
      *
-     * @param rollout
-     *            the rollout
+     * @param rolloutId
+     *            the rollout Id
      */
-    public void populateByRollout(final Rollout rollout) {
-        if (rollout == null) {
+    public void populateByRolloutId(final Long rolloutId) {
+        if (rolloutId == null) {
             return;
         }
 
         removeAllRows();
 
         final List<RolloutGroup> groups = rolloutGroupManagement
-                .findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()), rollout.getId())
+                .findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()), rolloutId)
                 .getContent();
         for (final RolloutGroup group : groups) {
             final GroupRow groupRow = addGroupRow();
@@ -251,6 +237,17 @@ public class DefineGroupsLayout extends GridLayout {
 
         updateValidation();
 
+    }
+
+    private void updateValidation() {
+        validationStatus = ValidationStatus.VALID;
+        if (isValid()) {
+            setValidationStatus(ValidationStatus.LOADING);
+            savedRolloutGroups = getGroupsFromRows();
+            validateRemainingTargets();
+        } else {
+            setValidationStatus(ValidationStatus.INVALID);
+        }
     }
 
     /**
@@ -263,17 +260,8 @@ public class DefineGroupsLayout extends GridLayout {
         return groupRows.stream().allMatch(GroupRow::isValid);
     }
 
-    private void updateValidation() {
-        validationStatus = ValidationStatus.VALID;
-        if (isValid()) {
-            setValidationStatus(ValidationStatus.LOADING);
-            savedRolloutGroups = getGroupsFromRows();
-            validateRemainingTargets();
-
-        } else {
-            resetErrors();
-            setValidationStatus(ValidationStatus.INVALID);
-        }
+    private void resetErrors() {
+        groupRows.forEach(GroupRow::resetError);
     }
 
     private void setValidationStatus(final ValidationStatus status) {
@@ -281,10 +269,6 @@ public class DefineGroupsLayout extends GridLayout {
         if (validationListener != null) {
             validationListener.validation(status);
         }
-    }
-
-    private void resetErrors() {
-        groupRows.forEach(GroupRow::resetError);
     }
 
     private void validateRemainingTargets() {
@@ -325,7 +309,6 @@ public class DefineGroupsLayout extends GridLayout {
         final int lastIdx = groupRows.size() - 1;
         final GroupRow lastRow = groupRows.get(lastIdx);
         if (groupsValidation != null && groupsValidation.isValid() && validationStatus != ValidationStatus.INVALID) {
-            lastRow.resetError();
             setValidationStatus(ValidationStatus.VALID);
         } else {
             lastRow.setError(i18n.getMessage("message.rollout.remaining.targets.error"));
@@ -333,28 +316,21 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         // validate the single groups
-        singleGroupsValidation(lastRow);
-    }
-
-    private void singleGroupsValidation(final GroupRow lastRow) {
-        final boolean hasRemainingTargetsError = validationStatus == ValidationStatus.INVALID;
         final int maxTargets = quotaManagement.getMaxTargetsPerRolloutGroup();
-
+        final boolean hasRemainingTargetsError = validationStatus == ValidationStatus.INVALID;
         for (int i = 0; i < groupRows.size(); ++i) {
             final GroupRow row = groupRows.get(i);
             // do not mask the 'remaining targets' error
             if (hasRemainingTargetsError && row.equals(lastRow)) {
                 continue;
             }
-            row.resetError();
-            if (groupsValidation != null) {
-                final Long count = groupsValidation.getTargetsPerGroup().get(i);
-                if (count != null && count > maxTargets) {
-                    row.setError(i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED, maxTargets));
-                    setValidationStatus(ValidationStatus.INVALID);
-                }
+            final Long count = groupsValidation.getTargetsPerGroup().get(i);
+            if (count != null && count > maxTargets) {
+                row.setError(i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED, maxTargets));
+                setValidationStatus(ValidationStatus.INVALID);
             }
         }
+
     }
 
     private List<RolloutGroupCreate> getGroupsFromRows() {
@@ -391,7 +367,7 @@ public class DefineGroupsLayout extends GridLayout {
 
         private TextField groupName;
 
-        private ComboBox targetFilterQueryCombo;
+        private ComboBox<ProxyTargetFilterQuery> targetFilterQueryCombo;
 
         private TextArea targetFilterQuery;
 
@@ -405,136 +381,116 @@ public class DefineGroupsLayout extends GridLayout {
 
         private boolean populated;
 
-        private boolean initialized;
+        private ProxyAdvancedRolloutGroupRow proxyAdvancedRolloutGroupRow;
+
+        private final Binder<ProxyAdvancedRolloutGroupRow> proxyGroupRowBinder;
 
         public GroupRow() {
+            proxyGroupRowBinder = new Binder<>();
             init();
         }
 
         private void init() {
             groupsCount += 1;
-            groupName = createTextField("textfield.name", UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID);
-            groupName.setValue(i18n.getMessage("textfield.rollout.group.default.name", groupsCount));
-            groupName.setStyleName("rollout-group-name");
-            groupName.addValueChangeListener(event -> valueChanged());
+            createGroupName();
+            createTargetFilterQueryCombo();
 
-            targetFilterQueryCombo = createTargetFilterQueryCombo();
+            createTargetFilterQuery();
+            createTargetPercentage();
+            createTriggerThreshold();
+            createErrorThreshold();
 
-            populateTargetFilterQuery();
-            targetFilterQueryCombo.addValueChangeListener(event -> valueChanged());
-            targetFilterQuery = createTargetFilterQuery();
-            targetPercentage = createPercentageWithDecimalsField("textfield.target.percentage",
-                    UIComponentIdProvider.ROLLOUT_GROUP_TARGET_PERC_ID);
-            targetPercentage.setValue("100");
-            targetPercentage.addValueChangeListener(event -> valueChanged());
-            triggerThreshold = createPercentageField("prompt.tigger.threshold",
-                    UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID);
-            triggerThreshold.setValue(defaultTriggerThreshold);
-            triggerThreshold.addValueChangeListener(event -> valueChanged());
-            errorThreshold = createPercentageField("prompt.error.threshold",
-                    UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID);
-            errorThreshold.setValue(defaultErrorThreshold);
-            errorThreshold.addValueChangeListener(event -> valueChanged());
             optionsLayout = new HorizontalLayout();
             optionsLayout.addComponent(createRemoveButton());
-            initialized = true;
         }
 
-        private TextField createTextField(final String in18Key, final String id) {
-            final TextField textField = new TextFieldBuilder(RolloutGroup.NAME_MAX_SIZE).required(true, i18n)
-                    .prompt(i18n.getMessage(in18Key)).id(id).buildTextComponent();
+        private void createGroupName() {
+            groupName = new TextFieldBuilderNew(RolloutGroup.NAME_MAX_SIZE).prompt(i18n.getMessage("textfield.name"))
+                    .id(UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID).buildTextComponent();
+            groupName.setSizeUndefined();
+            groupName.setStyleName("rollout-group-name");
 
-            textField.setSizeUndefined();
-            return textField;
+            proxyGroupRowBinder.forField(groupName).asRequired("Group name can not be empty")
+                    .bind(ProxyAdvancedRolloutGroupRow::getGroupName, ProxyAdvancedRolloutGroupRow::setGroupName);
         }
 
-        private TextField createPercentageField(final String in18Key, final String id) {
-            final TextField textField = new TextFieldBuilder(32).prompt(i18n.getMessage(in18Key)).id(id)
-                    .buildTextComponent();
-            textField.setWidth(80, Unit.PIXELS);
-            textField.setConverter(new StringToIntegerConverter());
-            textField.addValidator(this::validateMandatoryPercentage);
-            return textField;
-        }
+        private void createTargetFilterQueryCombo() {
+            targetFilterQueryCombo = new ComboBox<>();
 
-        private TextField createPercentageWithDecimalsField(final String in18Key, final String id) {
-            final TextField textField = createPercentageField(in18Key, id);
-            textField.setConverter(new StringToFloatConverter());
-            return textField;
-        }
+            targetFilterQueryCombo.setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID);
+            targetFilterQueryCombo.setPlaceholder(i18n.getMessage("prompt.target.filter"));
+            targetFilterQueryCombo.addStyleName(ValoTheme.COMBOBOX_SMALL);
 
-        private void removeGroupRow(final GroupRow groupRow) {
-            groupRows.remove(groupRow);
-            updateValidation();
-        }
+            targetFilterQueryCombo.setItemCaptionGenerator(ProxyTargetFilterQuery::getName);
+            targetFilterQueryCombo.setDataProvider(targetFilterQueryDataProvider);
 
-        private void validateMandatoryPercentage(final Object value) {
-            if (value != null) {
-                final String message = i18n.getMessage("message.rollout.field.value.range", 0, 100);
-                RangeValidator rangeValidator;
-                if (value instanceof Float) {
-                    rangeValidator = new FloatRangeValidator(message, 0F, 100F);
-                } else if (value instanceof Integer) {
-                    rangeValidator = new IntegerRangeValidator(message, 0, 100);
-                } else {
-                    throw new Validator.InvalidValueException(i18n.getMessage("message.enter.number"));
+            proxyGroupRowBinder.forField(targetFilterQueryCombo).withConverter(filter -> {
+                if (filter == null) {
+                    return null;
                 }
-                rangeValidator.setMinValueIncluded(false);
-                rangeValidator.validate(value);
-            } else {
-                throw new Validator.EmptyValueException(i18n.getMessage("message.enter.number"));
-            }
+
+                return filter.getId();
+            }, filterId -> {
+                if (filterId == null) {
+                    return null;
+                }
+
+                final ProxyTargetFilterQuery filter = new ProxyTargetFilterQuery();
+                filter.setId(filterId);
+
+                return filter;
+            }).bind(ProxyAdvancedRolloutGroupRow::getTargetFilterId, ProxyAdvancedRolloutGroupRow::setTargetFilterId);
         }
 
-        private void valueChanged() {
-            if (initialized) {
-                updateValidation();
-            }
-        }
-
-        private ComboBox createTargetFilterQueryCombo() {
-            return new ComboBoxBuilder().setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID)
-                    .setPrompt(i18n.getMessage("prompt.target.filter")).buildCombBox();
-        }
-
-        private TextArea createTargetFilterQuery() {
-            final TextArea filterField = new TextAreaBuilder(TargetFilterQuery.QUERY_MAX_SIZE).style("text-area-style")
+        private void createTargetFilterQuery() {
+            targetFilterQuery = new TextAreaBuilderNew(TargetFilterQuery.QUERY_MAX_SIZE).style("text-area-style")
                     .id(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_QUERY_FIELD).buildTextComponent();
+            targetFilterQuery.setEnabled(false);
+            targetFilterQuery.setSizeUndefined();
 
-            filterField.setEnabled(false);
-            filterField.setSizeUndefined();
-            return filterField;
+            proxyGroupRowBinder.forField(targetFilterQuery).bind(ProxyAdvancedRolloutGroupRow::getTargetFilterQuery,
+                    ProxyAdvancedRolloutGroupRow::setTargetFilterQuery);
         }
 
-        private void populateTargetFilterQuery() {
-            final Container container = createTargetFilterComboContainer();
-            targetFilterQueryCombo.setContainerDataSource(container);
+        private void createTargetPercentage() {
+            targetPercentage = new TextFieldBuilderNew(32).prompt(i18n.getMessage("textfield.target.percentage"))
+                    .id(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_PERC_ID).buildTextComponent();
+            targetPercentage.setWidth(80, Unit.PIXELS);
+
+            proxyGroupRowBinder.forField(targetPercentage).asRequired()
+                    .withConverter(new StringToFloatConverter("only float values are allowed"))
+                    .withValidator((value, context) -> {
+                        final FloatRangeValidator validator = new FloatRangeValidator(
+                                i18n.getMessage("message.rollout.field.value.range", 0, 100), 0F, 100F);
+                        validator.setMinValueIncluded(false);
+                        return validator.apply(value, context);
+                    }).bind(ProxyAdvancedRolloutGroupRow::getTargetPercentage,
+                            ProxyAdvancedRolloutGroupRow::setTargetPercentage);
         }
 
-        private void populateTargetFilterQuery(final RolloutGroup group) {
-            if (StringUtils.isEmpty(group.getTargetFilterQuery())) {
-                targetFilterQueryCombo.setValue(null);
-            } else {
-                final Page<TargetFilterQuery> filterQueries = targetFilterQueryManagement
-                        .findByQuery(PageRequest.of(0, 1), group.getTargetFilterQuery());
-                if (filterQueries.getTotalElements() > 0) {
-                    final TargetFilterQuery filterQuery = filterQueries.getContent().get(0);
-                    targetFilterQueryCombo.setValue(filterQuery.getName());
-                }
-            }
+        private void createTriggerThreshold() {
+            triggerThreshold = new TextFieldBuilderNew(32).prompt(i18n.getMessage("prompt.tigger.threshold"))
+                    .id(UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID).buildTextComponent();
+            triggerThreshold.setWidth(80, Unit.PIXELS);
+
+            proxyGroupRowBinder.forField(triggerThreshold).asRequired().bind(
+                    ProxyAdvancedRolloutGroupRow::getTriggerThresholdPercentage,
+                    ProxyAdvancedRolloutGroupRow::setTriggerThresholdPercentage);
         }
 
-        private Container createTargetFilterComboContainer() {
-            final BeanQueryFactory<TargetFilterBeanQuery> targetFilterQF = new BeanQueryFactory<>(
-                    TargetFilterBeanQuery.class);
-            return new LazyQueryContainer(
-                    new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, SPUILabelDefinitions.VAR_NAME),
-                    targetFilterQF);
+        private void createErrorThreshold() {
+            errorThreshold = new TextFieldBuilderNew(32).prompt(i18n.getMessage("prompt.error.threshold"))
+                    .id(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID).buildTextComponent();
+            errorThreshold.setWidth(80, Unit.PIXELS);
+
+            proxyGroupRowBinder.forField(errorThreshold).asRequired().bind(
+                    ProxyAdvancedRolloutGroupRow::getErrorThresholdPercentage,
+                    ProxyAdvancedRolloutGroupRow::setErrorThresholdPercentage);
         }
 
         private Button createRemoveButton() {
             final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.ROLLOUT_GROUP_REMOVE_ID, "", "",
-                    "", true, FontAwesome.MINUS, SPUIButtonStyleNoBorderWithIcon.class);
+                    "", true, VaadinIcons.MINUS, SPUIButtonStyleNoBorderWithIcon.class);
             button.setSizeUndefined();
             button.addStyleName("default-color");
             button.setEnabled(true);
@@ -551,6 +507,11 @@ public class DefineGroupsLayout extends GridLayout {
             removeGroupRow(this);
         }
 
+        private void removeGroupRow(final GroupRow groupRow) {
+            groupRows.remove(groupRow);
+            updateValidation();
+        }
+
         private int findRowIndexFor(final Component component, final int col) {
             final int rows = getRows();
             for (int i = 0; i < rows; i++) {
@@ -560,15 +521,6 @@ public class DefineGroupsLayout extends GridLayout {
                 }
             }
             return -1;
-        }
-
-        private String getTargetFilterQuery() {
-            if (!StringUtils.hasText((String) targetFilterQueryCombo.getValue())) {
-                return null;
-            }
-            final Item filterItem = targetFilterQueryCombo.getContainerDataSource()
-                    .getItem(targetFilterQueryCombo.getValue());
-            return (String) filterItem.getItemProperty("query").getValue();
         }
 
         /**
@@ -590,7 +542,6 @@ public class DefineGroupsLayout extends GridLayout {
             layout.addComponent(triggerThreshold, 3, rowIndex);
             layout.addComponent(errorThreshold, 4, rowIndex);
             layout.addComponent(optionsLayout, 5, rowIndex);
-
         }
 
         /**
@@ -599,20 +550,34 @@ public class DefineGroupsLayout extends GridLayout {
          * @return the RolloutGroupCreate definition
          */
         public RolloutGroupCreate getGroupEntity() {
-            final RolloutGroupConditionBuilder conditionBuilder = new RolloutGroupConditionBuilder()
-                    .successAction(RolloutGroup.RolloutGroupSuccessAction.NEXTGROUP, null)
-                    .successCondition(RolloutGroup.RolloutGroupSuccessCondition.THRESHOLD, triggerThreshold.getValue());
-            if (!StringUtils.isEmpty(errorThreshold.getValue())) {
-                conditionBuilder
-                        .errorCondition(RolloutGroup.RolloutGroupErrorCondition.THRESHOLD, errorThreshold.getValue())
-                        .errorAction(RolloutGroup.RolloutGroupErrorAction.PAUSE, null);
-            }
-            final String percentageString = targetPercentage.getValue().replace(",", ".");
-            final Float percentage = Float.parseFloat(percentageString);
+            final RolloutGroupConditions conditions = new RolloutGroupConditionBuilder()
+                    .successAction(RolloutGroupSuccessAction.NEXTGROUP, null)
+                    .successCondition(RolloutGroupSuccessCondition.THRESHOLD,
+                            proxyAdvancedRolloutGroupRow.getTriggerThresholdPercentage())
+                    .errorCondition(RolloutGroupErrorCondition.THRESHOLD,
+                            proxyAdvancedRolloutGroupRow.getErrorThresholdPercentage())
+                    .errorAction(RolloutGroupErrorAction.PAUSE, null).build();
 
-            return entityFactory.rolloutGroup().create().name(groupName.getValue()).description(groupName.getValue())
-                    .targetFilterQuery(getTargetFilterQuery()).targetPercentage(percentage)
-                    .conditions(conditionBuilder.build());
+            return entityFactory.rolloutGroup().create().name(proxyAdvancedRolloutGroupRow.getGroupName())
+                    .description(proxyAdvancedRolloutGroupRow.getGroupName())
+                    .targetFilterQuery(proxyAdvancedRolloutGroupRow.getTargetFilterQuery())
+                    .targetPercentage(proxyAdvancedRolloutGroupRow.getTargetPercentage()).conditions(conditions);
+        }
+
+        /**
+         * Populates the row with the default data.
+         * 
+         */
+        public void populateWithDefaults() {
+            proxyAdvancedRolloutGroupRow = new ProxyAdvancedRolloutGroupRow();
+            proxyAdvancedRolloutGroupRow
+                    .setGroupName(i18n.getMessage("textfield.rollout.group.default.name", groupsCount));
+            proxyAdvancedRolloutGroupRow.setTargetPercentage(100f);
+            proxyAdvancedRolloutGroupRow.setTriggerThresholdPercentage(defaultTriggerThreshold);
+            proxyAdvancedRolloutGroupRow.setErrorThresholdPercentage(defaultErrorThreshold);
+            proxyGroupRowBinder.setBean(proxyAdvancedRolloutGroupRow);
+
+            proxyGroupRowBinder.addStatusChangeListener(event -> updateValidation());
         }
 
         /**
@@ -622,35 +587,37 @@ public class DefineGroupsLayout extends GridLayout {
          *            the data source
          */
         public void populateByGroup(final RolloutGroup group) {
-            initialized = false;
-            groupName.setValue(group.getName());
-            targetFilterQuery.setValue(group.getTargetFilterQuery());
-            populateTargetFilterQuery(group);
-
-            targetPercentage.setValue(String.format(getCurrentLocale(), "%.2f", group.getTargetPercentage()));
-            triggerThreshold.setValue(group.getSuccessConditionExp());
-            errorThreshold.setValue(group.getErrorConditionExp());
+            proxyAdvancedRolloutGroupRow = new ProxyAdvancedRolloutGroupRow();
+            proxyAdvancedRolloutGroupRow.setGroupName(group.getName());
+            if (!StringUtils.isEmpty(group.getTargetFilterQuery())) {
+                proxyAdvancedRolloutGroupRow.setTargetFilterQuery(group.getTargetFilterQuery());
+                final Page<TargetFilterQuery> filterQueries = targetFilterQueryManagement
+                        .findByQuery(PageRequest.of(0, 1), group.getTargetFilterQuery());
+                if (filterQueries.getTotalElements() > 0) {
+                    proxyAdvancedRolloutGroupRow.setTargetFilterId(filterQueries.getContent().get(0).getId());
+                }
+            }
+            proxyAdvancedRolloutGroupRow.setTargetPercentage(group.getTargetPercentage());
+            proxyAdvancedRolloutGroupRow.setTriggerThresholdPercentage(group.getSuccessConditionExp());
+            proxyAdvancedRolloutGroupRow.setErrorThresholdPercentage(group.getErrorConditionExp());
+            proxyGroupRowBinder.setBean(proxyAdvancedRolloutGroupRow);
 
             populated = true;
-            initialized = true;
 
+            proxyGroupRowBinder.addStatusChangeListener(event -> updateValidation());
         }
 
         /**
          * @return whether the data entered in this row is valid
          */
         public boolean isValid() {
-            return !StringUtils.isEmpty(groupName.getValue()) && targetPercentage.isValid()
-                    && triggerThreshold.isValid() && errorThreshold.isValid();
+            return proxyGroupRowBinder.isValid();
         }
 
         private void setError(final String error) {
             targetPercentage.setComponentError(new UserError(error));
         }
 
-        /**
-         * Hides an error of the row
-         */
         private void resetError() {
             targetPercentage.setComponentError(null);
         }

@@ -56,7 +56,10 @@ import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.Group
 import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.GroupSizeValidator;
 import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.TargetExistsValidator;
 import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.ThresholdFieldValidator;
-import org.eclipse.hawkbit.ui.rollout.rollout.AutoStartOptionGroupLayout.AutoStartOption;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.DefineGroupsLayout;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.GroupsLegendLayout;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;

@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.rollout.rollout;
+package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import java.util.TimeZone;
 
@@ -40,7 +40,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
      * @param i18n
      *            the internationalization helper
      */
-    AutoStartOptionGroupLayout(final VaadinMessageSource i18n) {
+    public AutoStartOptionGroupLayout(final VaadinMessageSource i18n) {
         this.i18n = i18n;
         setSizeUndefined();
 
@@ -118,7 +118,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
     /**
      * Rollout start options
      */
-    enum AutoStartOption {
+    public enum AutoStartOption {
         MANUAL, AUTO_START, SCHEDULED;
 
     }

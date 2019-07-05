@@ -25,7 +25,7 @@ import com.vaadin.ui.Grid;
  */
 public class RolloutGroupsListView extends AbstractGridComponentLayout<ProxyRolloutGroup> {
 
-    private static final long serialVersionUID = 7252345838154270259L;
+    private static final long serialVersionUID = 1L;
 
     private final SpPermissionChecker permissionChecker;
     private final RolloutUIState rolloutUIState;

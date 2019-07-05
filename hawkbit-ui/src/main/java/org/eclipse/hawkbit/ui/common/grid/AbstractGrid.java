@@ -8,12 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
+import java.util.Collections;
+
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -21,11 +22,13 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.data.Converter;
 import com.vaadin.data.Result;
 import com.vaadin.data.ValueContext;
+import com.vaadin.data.provider.Query;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.components.grid.Header.Row;
 import com.vaadin.ui.components.grid.HeaderRow;
+import com.vaadin.ui.components.grid.SingleSelectionModel;
 
 /**
  * Abstract grid that offers various capabilities (aka support) to offer
@@ -372,14 +375,33 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
          * Selects the first row if available and enabled.
          */
         public void selectFirstRow() {
-            // TODO: select first row
+            if (!isSingleSelectionModel()) {
+                return;
+            }
+
+            final int size = getDataProvider().size(new Query<>());
+            if (size > 0) {
+                final T firstItem = getDataProvider().fetch(new Query<>(0, 1, Collections.emptyList(), null, null))
+                        .findFirst().orElse(null);
+                getDataProvider().refreshItem(firstItem);
+                getSelectionModel().select(firstItem);
+            } else {
+                getSelectionModel().select(null);
+            }
+        }
+
+        private boolean isSingleSelectionModel() {
+            return getSelectionModel() instanceof SingleSelectionModel;
         }
 
         /**
          * Clears the selection.
          */
         public void clearSelection() {
-            // TODO: deselect row
+            if (!isSingleSelectionModel()) {
+                return;
+            }
+            getSelectionModel().select(null);
         }
     }
 
@@ -402,11 +424,6 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
         public String convertToPresentation(final Long value, final ValueContext context) {
             return SPDateTimeUtil.getFormattedDate(value, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT);
         }
-    }
-
-    // TODO: check if we really need it in parent class
-    protected String getActionLabeltext() {
-        return i18n.getMessage(UIMessageIdProvider.MESSAGE_UPLOAD_ACTION);
     }
 
     protected Label buildLabelIcon(final FontIcon fontIcon, final String id) {

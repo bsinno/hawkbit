@@ -30,7 +30,6 @@ public class ProxyAction extends ProxyIdentifiableEntity {
     private boolean isActive;
     private IsActiveDecoration isActiveDecoration;
     private String dsNameVersion;
-    private Action action;
     private Long lastModifiedAt;
     private String rolloutName;
     private String maintenanceWindow;
@@ -123,24 +122,6 @@ public class ProxyAction extends ProxyIdentifiableEntity {
      */
     public void setDsNameVersion(final String dsNameVersion) {
         this.dsNameVersion = dsNameVersion;
-    }
-
-    /**
-     * Gets the action to be evaluated by generators of virtual properties.
-     *
-     * @return action
-     */
-    public Action getAction() {
-        return action;
-    }
-
-    /**
-     * Sets the action to be evaluated by generators of virtual properties.
-     *
-     * @param action
-     */
-    public void setAction(final Action action) {
-        this.action = action;
     }
 
     /**

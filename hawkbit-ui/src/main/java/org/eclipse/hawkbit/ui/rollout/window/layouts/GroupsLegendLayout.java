@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.rollout.rollout;
+package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,18 +14,19 @@ import java.util.List;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderNew;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Displays a legend for the Groups of a Rollout with the count of targets in
  * each group. On top of the group list, the total targets are displayed. If
  * there are unassigned targets, they get display on top of the groups list.
  */
+@SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class GroupsLegendLayout extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
@@ -45,7 +46,7 @@ public class GroupsLegendLayout extends VerticalLayout {
     /**
      * Initializes a new GroupsLegendLayout
      */
-    GroupsLegendLayout(final VaadinMessageSource i18n) {
+    public GroupsLegendLayout(final VaadinMessageSource i18n) {
         this.i18n = i18n;
 
         init();
@@ -59,6 +60,8 @@ public class GroupsLegendLayout extends VerticalLayout {
         loadingLabel.setVisible(false);
 
         groupsLegend = new VerticalLayout();
+        groupsLegend.setMargin(false);
+        groupsLegend.setSpacing(false);
         groupsLegend.setStyleName("groups-legend");
 
         addComponent(totalTargetsLabel);
@@ -84,38 +87,36 @@ public class GroupsLegendLayout extends VerticalLayout {
     }
 
     private static Label createTotalTargetsLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
+        final Label label = new LabelBuilderNew().visible(false).name("").buildLabel();
         label.addStyleName("rollout-target-count-title");
-
         label.setSizeUndefined();
         return label;
     }
 
     private Label createLoadingLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
+        final Label label = new LabelBuilderNew().visible(false).name("").buildLabel();
         label.addStyleName("rollout-target-count-loading");
-
         label.setSizeUndefined();
         label.setValue(i18n.getMessage("label.rollout.calculating"));
         return label;
     }
 
     private static Label createUnassignedTargetsLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
+        final Label label = new LabelBuilderNew().visible(false).name("").buildLabel();
         label.addStyleName("rollout-group-unassigned");
         label.setSizeUndefined();
         return label;
     }
 
     private static Label createGroupTargetsLabel() {
-        final Label label = new LabelBuilder().visible(false).name("").buildLabel();
+        final Label label = new LabelBuilderNew().visible(false).name("").buildLabel();
         label.addStyleName("rollout-group-count");
         label.setSizeUndefined();
         return label;
     }
 
     private static Label createToBeContinuedLabel() {
-        return new LabelBuilder().caption("...").visible(false).buildLabel();
+        return new LabelBuilderNew().caption("...").visible(false).buildLabel();
     }
 
     private String getTotalTargetMessage(final long totalTargetsCount) {
@@ -247,6 +248,7 @@ public class GroupsLegendLayout extends VerticalLayout {
             unassignedTargetsLabel.setValue("");
             unassignedTargetsLabel.setVisible(false);
         }
+
     }
 
     /**

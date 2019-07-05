@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.Rollout.ApprovalDecision;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
-import org.eclipse.hawkbit.ui.rollout.rollout.AddUpdateRolloutWindowLayout.ERROR_THRESHOLD_OPTIONS;
+import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder.ERROR_THRESHOLD_OPTIONS;
 
 import com.vaadin.icons.VaadinIcons;
 

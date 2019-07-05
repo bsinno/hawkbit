@@ -28,7 +28,6 @@ public class ActionToProxyActionMapper
         proxyAction.setActive(action.isActive());
         proxyAction.setIsActiveDecoration(buildIsActiveDecoration(action));
         proxyAction.setDsNameVersion(dsNameVersion);
-        proxyAction.setAction(action);
         proxyAction.setId(action.getId());
         proxyAction.setLastModifiedAt(action.getLastModifiedAt());
         proxyAction.setRolloutName(action.getRollout() != null ? action.getRollout().getName() : "");
