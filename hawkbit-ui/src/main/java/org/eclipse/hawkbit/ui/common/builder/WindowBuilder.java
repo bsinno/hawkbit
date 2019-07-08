@@ -8,8 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
-import org.eclipse.hawkbit.ui.common.CommonDialogWindowNew;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindowNew.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -21,7 +21,7 @@ import com.vaadin.ui.Window;
 /**
  * Builder for Window.
  */
-public class WindowBuilderNew {
+public class WindowBuilder {
 
     private String caption;
     private Component content;
@@ -39,7 +39,7 @@ public class WindowBuilderNew {
      * @param type
      *            window type
      */
-    public WindowBuilderNew(final String type) {
+    public WindowBuilder(final String type) {
         this.type = type;
     }
 
@@ -50,7 +50,7 @@ public class WindowBuilderNew {
      *            the saveDialogCloseListener
      * @return the window builder
      */
-    public WindowBuilderNew saveDialogCloseListener(final SaveDialogCloseListener saveDialogCloseListener) {
+    public WindowBuilder saveDialogCloseListener(final SaveDialogCloseListener saveDialogCloseListener) {
         this.saveDialogCloseListener = saveDialogCloseListener;
         return this;
     }
@@ -62,7 +62,7 @@ public class WindowBuilderNew {
      *            the caption
      * @return the window builder
      */
-    public WindowBuilderNew caption(final String caption) {
+    public WindowBuilder caption(final String caption) {
         this.caption = caption;
         return this;
     }
@@ -74,7 +74,7 @@ public class WindowBuilderNew {
      *            the content
      * @return the window builder
      */
-    public WindowBuilderNew content(final Component content) {
+    public WindowBuilder content(final Component content) {
         this.content = content;
         return this;
     }
@@ -86,7 +86,7 @@ public class WindowBuilderNew {
      *            the cancelButtonClickListener
      * @return the window builder
      */
-    public WindowBuilderNew cancelButtonClickListener(final ClickListener cancelButtonClickListener) {
+    public WindowBuilder cancelButtonClickListener(final ClickListener cancelButtonClickListener) {
         this.cancelButtonClickListener = cancelButtonClickListener;
         return this;
     }
@@ -98,7 +98,7 @@ public class WindowBuilderNew {
      *            the helpLink
      * @return the window builder
      */
-    public WindowBuilderNew helpLink(final String helpLink) {
+    public WindowBuilder helpLink(final String helpLink) {
         this.helpLink = helpLink;
         return this;
     }
@@ -110,7 +110,7 @@ public class WindowBuilderNew {
      *            the i18n
      * @return the window builder
      */
-    public WindowBuilderNew i18n(final VaadinMessageSource i18n) {
+    public WindowBuilder i18n(final VaadinMessageSource i18n) {
         this.i18n = i18n;
         return this;
     }
@@ -119,7 +119,7 @@ public class WindowBuilderNew {
      * @param id
      *            the id to set * @return the window builder
      */
-    public WindowBuilderNew id(final String id) {
+    public WindowBuilder id(final String id) {
         this.id = id;
         return this;
     }
@@ -129,8 +129,8 @@ public class WindowBuilderNew {
      *
      * @return the window.
      */
-    public CommonDialogWindowNew buildCommonDialogWindow() {
-        final CommonDialogWindowNew window = new CommonDialogWindowNew(caption, content, helpLink,
+    public CommonDialogWindow buildCommonDialogWindow() {
+        final CommonDialogWindow window = new CommonDialogWindow(caption, content, helpLink,
                 saveDialogCloseListener, cancelButtonClickListener, i18n);
         decorateWindow(window);
         return window;

@@ -8,9 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window;
 
-import org.eclipse.hawkbit.ui.common.CommonDialogWindowNew;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindowNew.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilderNew;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.rollout.window.controllers.AddRolloutWindowController;
 import org.eclipse.hawkbit.ui.rollout.window.controllers.CopyRolloutWindowController;
@@ -62,7 +62,7 @@ public final class RolloutWindowBuilder {
     private Window getWindowForRollout(final ProxyRollout proxyRollout, final RolloutWindowController controller) {
         controller.populateWithData(proxyRollout);
 
-        final CommonDialogWindowNew window = createWindow(controller.getLayout(),
+        final CommonDialogWindow window = createWindow(controller.getLayout(),
                 controller.getSaveDialogCloseListener());
 
         controller.getLayout().addValidationListener(window::setSaveButtonEnabled);
@@ -71,9 +71,9 @@ public final class RolloutWindowBuilder {
 
     }
 
-    private CommonDialogWindowNew createWindow(final Component content,
+    private CommonDialogWindow createWindow(final Component content,
             final SaveDialogCloseListener saveDialogCloseListener) {
-        return new WindowBuilderNew(SPUIDefinitions.CREATE_UPDATE_WINDOW).id(UIComponentIdProvider.ROLLOUT_POPUP_ID)
+        return new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).id(UIComponentIdProvider.ROLLOUT_POPUP_ID)
                 .caption(dependencies.getI18n().getMessage("caption.create.new",
                         dependencies.getI18n().getMessage("caption.rollout")))
                 .content(content).i18n(dependencies.getI18n())

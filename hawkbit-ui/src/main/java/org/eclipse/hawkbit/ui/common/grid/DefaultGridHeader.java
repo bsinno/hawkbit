@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderNew;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -80,7 +80,7 @@ public class DefaultGridHeader extends VerticalLayout {
      */
     protected Label buildTitleLabel() {
         // create default title - even shown when no data is available
-        title = new LabelBuilderNew().name(titleText).buildCaptionLabel();
+        title = new LabelBuilder().name(titleText).buildCaptionLabel();
         title.setContentMode(ContentMode.HTML);
 
         return title;

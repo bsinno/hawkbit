@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderNew;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridHeader;
@@ -141,7 +141,7 @@ public class RolloutListHeader extends AbstractGridHeader {
 
     @Override
     protected HorizontalLayout getHeaderCaptionLayout() {
-        final Label headerCaption = new LabelBuilderNew().name(getHeaderCaption()).buildCaptionLabel();
+        final Label headerCaption = new LabelBuilder().name(getHeaderCaption()).buildCaptionLabel();
         final HorizontalLayout headerCaptionLayout = new HorizontalLayout();
         headerCaptionLayout.setSpacing(false);
         headerCaptionLayout.setMargin(false);

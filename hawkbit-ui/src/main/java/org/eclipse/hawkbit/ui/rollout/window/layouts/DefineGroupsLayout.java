@@ -28,9 +28,9 @@ import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderNew;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderNew;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderNew;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
@@ -151,7 +151,7 @@ public class DefineGroupsLayout extends GridLayout {
     }
 
     private Label getLabel(final String key) {
-        return new LabelBuilderNew().name(i18n.getMessage(key)).buildLabel();
+        return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
     }
 
     private Button createAddButton() {
@@ -405,7 +405,7 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         private void createGroupName() {
-            groupName = new TextFieldBuilderNew(RolloutGroup.NAME_MAX_SIZE).prompt(i18n.getMessage("textfield.name"))
+            groupName = new TextFieldBuilder(RolloutGroup.NAME_MAX_SIZE).prompt(i18n.getMessage("textfield.name"))
                     .id(UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID).buildTextComponent();
             groupName.setSizeUndefined();
             groupName.setStyleName("rollout-group-name");
@@ -443,7 +443,7 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         private void createTargetFilterQuery() {
-            targetFilterQuery = new TextAreaBuilderNew(TargetFilterQuery.QUERY_MAX_SIZE).style("text-area-style")
+            targetFilterQuery = new TextAreaBuilder(TargetFilterQuery.QUERY_MAX_SIZE).style("text-area-style")
                     .id(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_QUERY_FIELD).buildTextComponent();
             targetFilterQuery.setEnabled(false);
             targetFilterQuery.setSizeUndefined();
@@ -453,7 +453,7 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         private void createTargetPercentage() {
-            targetPercentage = new TextFieldBuilderNew(32).prompt(i18n.getMessage("textfield.target.percentage"))
+            targetPercentage = new TextFieldBuilder(32).prompt(i18n.getMessage("textfield.target.percentage"))
                     .id(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_PERC_ID).buildTextComponent();
             targetPercentage.setWidth(80, Unit.PIXELS);
 
@@ -469,7 +469,7 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         private void createTriggerThreshold() {
-            triggerThreshold = new TextFieldBuilderNew(32).prompt(i18n.getMessage("prompt.tigger.threshold"))
+            triggerThreshold = new TextFieldBuilder(32).prompt(i18n.getMessage("prompt.tigger.threshold"))
                     .id(UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID).buildTextComponent();
             triggerThreshold.setWidth(80, Unit.PIXELS);
 
@@ -479,7 +479,7 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         private void createErrorThreshold() {
-            errorThreshold = new TextFieldBuilderNew(32).prompt(i18n.getMessage("prompt.error.threshold"))
+            errorThreshold = new TextFieldBuilder(32).prompt(i18n.getMessage("prompt.error.threshold"))
                     .id(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID).buildTextComponent();
             errorThreshold.setWidth(80, Unit.PIXELS);
 

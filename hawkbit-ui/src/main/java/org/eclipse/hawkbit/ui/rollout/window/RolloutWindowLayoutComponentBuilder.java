@@ -18,9 +18,9 @@ import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderNew;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderNew;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderNew;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
@@ -88,7 +88,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     public TextField createRolloutNameField(final Binder<ProxyRolloutWindow> binder) {
-        final TextField rolloutName = new TextFieldBuilderNew(Rollout.NAME_MAX_SIZE)
+        final TextField rolloutName = new TextFieldBuilder(Rollout.NAME_MAX_SIZE)
                 .prompt(dependencies.getI18n().getMessage(TEXTFIELD_NAME))
                 .id(UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID).buildTextComponent();
         rolloutName.setSizeUndefined();
@@ -165,7 +165,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     public TextArea createTargetFilterQuery(final Binder<ProxyRolloutWindow> binder) {
-        final TextArea targetFilterQuery = new TextAreaBuilderNew(TargetFilterQuery.QUERY_MAX_SIZE)
+        final TextArea targetFilterQuery = new TextAreaBuilder(TargetFilterQuery.QUERY_MAX_SIZE)
                 .style("text-area-style").id(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_QUERY_FIELD)
                 .buildTextComponent();
         targetFilterQuery.setEnabled(false);
@@ -178,7 +178,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     public TextArea createDescription(final Binder<ProxyRolloutWindow> binder) {
-        final TextArea description = new TextAreaBuilderNew(Rollout.DESCRIPTION_MAX_SIZE).style("text-area-style")
+        final TextArea description = new TextAreaBuilder(Rollout.DESCRIPTION_MAX_SIZE).style("text-area-style")
                 .id(UIComponentIdProvider.ROLLOUT_DESCRIPTION_ID).buildTextComponent();
         description.setSizeUndefined();
 
@@ -263,7 +263,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     private TextField createTextField(final String in18Key, final String id, final int maxLength) {
-        return new TextFieldBuilderNew(maxLength).prompt(dependencies.getI18n().getMessage(in18Key)).id(id)
+        return new TextFieldBuilder(maxLength).prompt(dependencies.getI18n().getMessage(in18Key)).id(id)
                 .buildTextComponent();
     }
 
@@ -322,7 +322,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     public Label getLabel(final String key) {
-        return new LabelBuilderNew().name(dependencies.getI18n().getMessage(key)).buildLabel();
+        return new LabelBuilder().name(dependencies.getI18n().getMessage(key)).buildLabel();
     }
 
     public Entry<TextField, Binding<ProxyRolloutWindow, Integer>> createNoOfGroupsField(
@@ -355,7 +355,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     public Label createCountLabel() {
-        final Label groupSizeLabel = new LabelBuilderNew().visible(false).name("").buildLabel();
+        final Label groupSizeLabel = new LabelBuilder().visible(false).name("").buildLabel();
         groupSizeLabel.addStyleName(ValoTheme.LABEL_TINY + " " + "rollout-target-count-message");
         groupSizeLabel.setSizeUndefined();
 

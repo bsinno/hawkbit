@@ -18,7 +18,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * Textfield builder.
  *
  */
-public class TextFieldBuilderNew extends AbstractTextFieldBuilderNew<TextFieldBuilderNew, TextField> {
+public class TextFieldBuilder extends AbstractTextFieldBuilder<TextFieldBuilder, TextField> {
 
     /**
      * Constructor.
@@ -26,7 +26,7 @@ public class TextFieldBuilderNew extends AbstractTextFieldBuilderNew<TextFieldBu
      * @param maxLengthAllowed
      *            as mandatory field
      */
-    public TextFieldBuilderNew(final int maxLengthAllowed) {
+    public TextFieldBuilder(final int maxLengthAllowed) {
         super(maxLengthAllowed);
         styleName(ValoTheme.TEXTAREA_TINY);
     }

@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.common.grid;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderNew;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -74,7 +74,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     private void createComponents() {
         headerCaptionLayout = getHeaderCaptionLayout();
         if (isRollout()) {
-            searchField = new TextFieldBuilderNew(64).id(getSearchBoxId())
+            searchField = new TextFieldBuilder(64).id(getSearchBoxId())
                     .createSearchField(event -> searchBy(event.getValue()));
             searchResetIcon = createSearchResetIcon();
             addButton = createAddButton();

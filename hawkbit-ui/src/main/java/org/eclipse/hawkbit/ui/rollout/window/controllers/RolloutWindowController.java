@@ -1,6 +1,6 @@
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
-import org.eclipse.hawkbit.ui.common.CommonDialogWindowNew.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AbstractRolloutWindowLayout;
 

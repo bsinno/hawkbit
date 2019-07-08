@@ -40,7 +40,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * corner and a save and cancel button at the bottom. Is not intended to reuse.
  *
  */
-public class CommonDialogWindowNew extends Window {
+public class CommonDialogWindow extends Window {
 
     private static final long serialVersionUID = 1L;
 
@@ -82,7 +82,7 @@ public class CommonDialogWindowNew extends Window {
      * @param i18n
      *            the i18n service
      */
-    public CommonDialogWindowNew(final String caption, final Component content, final String helpLink,
+    public CommonDialogWindow(final String caption, final Component content, final String helpLink,
             final SaveDialogCloseListener closeListener, final ClickListener cancelButtonClickListener,
             final VaadinMessageSource i18n) {
         checkNotNull(closeListener);
