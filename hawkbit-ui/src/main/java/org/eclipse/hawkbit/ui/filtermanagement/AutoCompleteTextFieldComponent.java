@@ -17,7 +17,7 @@ import javax.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -195,7 +195,7 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
     }
 
     private TextField createSearchField() {
-        final TextField textField = new TextFieldBuilder(TargetFilterQuery.QUERY_MAX_SIZE)
+        final TextField textField = new TextFieldBuilderV7(TargetFilterQuery.QUERY_MAX_SIZE)
                 .id(UIComponentIdProvider.CUSTOM_FILTER_QUERY).buildTextComponent();
         textField.addStyleName("target-filter-textfield");
         textField.setWidth(900.0F, Unit.PIXELS);

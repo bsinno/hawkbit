@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -140,7 +140,7 @@ public class RolloutGroupTargetsListHeader extends AbstractGridHeader {
 
     @Override
     protected HorizontalLayout getHeaderCaptionLayout() {
-        headerCaption = new LabelBuilder().name("").buildCaptionLabel();
+        headerCaption = new LabelBuilderV7().name("").buildCaptionLabel();
         headerCaption.setStyleName(ValoTheme.LABEL_BOLD + " " + ValoTheme.LABEL_SMALL);
         final Button rolloutsListViewLink = SPUIComponentProvider.getButton(null, "", "", null, false, null,
                 SPUIButtonStyleNoBorder.class);

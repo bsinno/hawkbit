@@ -16,8 +16,8 @@ import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -174,10 +174,10 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
 
         breadcrumbButton = createBreadcrumbButton();
 
-        headerCaption = new LabelBuilder().name(i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER))
+        headerCaption = new LabelBuilderV7().name(i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER))
                 .buildCaptionLabel();
 
-        nameLabel = new LabelBuilder().name("").buildLabel();
+        nameLabel = new LabelBuilderV7().name("").buildLabel();
         nameLabel.setId(UIComponentIdProvider.TARGET_FILTER_QUERY_NAME_LABEL_ID);
 
         nameTextField = createNameTextField();
@@ -204,7 +204,7 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
     }
 
     private TextField createNameTextField() {
-        final TextField nameField = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE)
+        final TextField nameField = new TextFieldBuilderV7(NamedEntity.NAME_MAX_SIZE)
                 .caption(i18n.getMessage("textfield.customfiltername")).required(true, i18n)
                 .id(UIComponentIdProvider.CUSTOM_FILTER_ADD_NAME).buildTextComponent();
         nameField.setPropertyDataSource(nameLabel);
@@ -254,7 +254,7 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
         final HorizontalLayout breadcrumbLayout = new HorizontalLayout();
         breadcrumbLayout.addComponent(breadcrumbButton);
         breadcrumbLayout.addComponent(new Label(">"));
-        breadcrumbName = new LabelBuilder().buildCaptionLabel();
+        breadcrumbName = new LabelBuilderV7().buildCaptionLabel();
         breadcrumbLayout.addComponent(breadcrumbName);
         breadcrumbName.addStyleName("breadcrumbPaddingLeft");
 

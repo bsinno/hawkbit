@@ -27,7 +27,7 @@ import com.vaadin.v7.ui.AbstractTextField;
  *            the text component
  *
  */
-public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
+public abstract class AbstractTextFieldBuilderV7<T, E extends AbstractTextField> {
 
     private String caption;
     private String style;
@@ -41,7 +41,7 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     private final int maxLengthAllowed;
     private final List<Validator> validators = new LinkedList<>();
 
-    protected AbstractTextFieldBuilder(final int maxLengthAllowed) {
+    protected AbstractTextFieldBuilderV7(final int maxLengthAllowed) {
         this.maxLengthAllowed = maxLengthAllowed;
     }
 

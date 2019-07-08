@@ -18,13 +18,13 @@ import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.common.SoftwareModuleTypeBeanQuery;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.common.table.AbstractTable;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -193,7 +193,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
      * @return reference of {@link com.vaadin.ui.Window} to add new software
      *         module.
      */
-    public CommonDialogWindow createAddSoftwareModuleWindow() {
+    public CommonDialogWindowV7 createAddSoftwareModuleWindow() {
         return createUpdateSoftwareModuleWindow(null);
     }
 
@@ -205,7 +205,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
      * @return reference of {@link com.vaadin.ui.Window} to update software
      *         module.
      */
-    public CommonDialogWindow createUpdateSoftwareModuleWindow(final Long baseSwModuleId) {
+    public CommonDialogWindowV7 createUpdateSoftwareModuleWindow(final Long baseSwModuleId) {
         this.baseSwModuleId = baseSwModuleId;
         resetComponents();
         populateTypeNameCombo();
@@ -221,11 +221,11 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
         versionTextField = createTextField("textfield.version", UIComponentIdProvider.SOFT_MODULE_VERSION,
                 SoftwareModule.VERSION_MAX_SIZE);
 
-        vendorTextField = new TextFieldBuilder(SoftwareModule.VENDOR_MAX_SIZE)
+        vendorTextField = new TextFieldBuilderV7(SoftwareModule.VENDOR_MAX_SIZE)
                 .caption(i18n.getMessage("textfield.vendor")).id(UIComponentIdProvider.SOFT_MODULE_VENDOR)
                 .buildTextComponent();
 
-        descTextArea = new TextAreaBuilder(SoftwareModule.DESCRIPTION_MAX_SIZE)
+        descTextArea = new TextAreaBuilderV7(SoftwareModule.DESCRIPTION_MAX_SIZE)
                 .caption(i18n.getMessage("textfield.description")).style("text-area-style")
                 .id(UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION).buildTextComponent();
 
@@ -239,7 +239,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
     }
 
     private TextField createTextField(final String in18Key, final String id, final int maxLength) {
-        return new TextFieldBuilder(maxLength).caption(i18n.getMessage(in18Key)).required(true, i18n).id(id)
+        return new TextFieldBuilderV7(maxLength).caption(i18n.getMessage(in18Key)).required(true, i18n).id(id)
                 .buildTextComponent();
     }
 
@@ -260,7 +260,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
         editSwModule = Boolean.FALSE;
     }
 
-    private CommonDialogWindow createWindow() {
+    private CommonDialogWindowV7 createWindow() {
         final Label madatoryStarLabel = new Label("*");
         madatoryStarLabel.setStyleName("v-caption v-required-field-indicator");
         madatoryStarLabel.setWidth(null);
@@ -283,7 +283,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
 
         setCompositionRoot(formLayout);
 
-        final CommonDialogWindow window = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
+        final CommonDialogWindowV7 window = new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW)
                 .caption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module")))
                 .id(UIComponentIdProvider.SW_MODULE_CREATE_DIALOG).content(this).layout(formLayout).i18n(i18n)
                 .saveDialogCloseListener(new SaveOnDialogCloseListener()).buildCommonDialogWindow();
@@ -306,7 +306,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
             versionTextField.setValue(swModule.getVersion());
             vendorTextField.setValue(swModule.getVendor());
             descTextArea.setValue(swModule.getDescription());
-            softwareModuleType = new LabelBuilder().name(swModule.getType().getName())
+            softwareModuleType = new LabelBuilderV7().name(swModule.getType().getName())
                     .caption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_SOFTWARE_MODULE_TYPE)).buildLabel();
         });
     }

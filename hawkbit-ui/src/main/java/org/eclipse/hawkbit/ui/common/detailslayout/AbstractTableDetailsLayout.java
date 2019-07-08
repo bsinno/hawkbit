@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 import org.eclipse.hawkbit.ui.common.tagdetails.AbstractTagToken;
@@ -265,7 +265,7 @@ public abstract class AbstractTableDetailsLayout<T extends NamedEntity> extends 
     }
 
     private Label createHeaderCaption() {
-        return new LabelBuilder().name(getDefaultCaption()).buildCaptionLabel();
+        return new LabelBuilderV7().name(getDefaultCaption()).buildCaptionLabel();
     }
 
     /**

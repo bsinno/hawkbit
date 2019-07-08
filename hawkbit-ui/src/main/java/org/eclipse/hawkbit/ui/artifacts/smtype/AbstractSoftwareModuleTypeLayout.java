@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.layouts.AbstractTypeLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -107,8 +107,8 @@ public abstract class AbstractSoftwareModuleTypeLayout extends AbstractTypeLayou
         super.createRequiredComponents();
         singleAssignStr = getI18n().getMessage("label.singleAssign.type");
         multiAssignStr = getI18n().getMessage("label.multiAssign.type");
-        singleAssign = new LabelBuilder().name(singleAssignStr).buildLabel();
-        multiAssign = new LabelBuilder().name(multiAssignStr).buildLabel();
+        singleAssign = new LabelBuilderV7().name(singleAssignStr).buildLabel();
+        multiAssign = new LabelBuilderV7().name(multiAssignStr).buildLabel();
         singleMultiOptionGroup();
     }
 

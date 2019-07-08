@@ -40,13 +40,13 @@ import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.common.builder.ComboBoxBuilder;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterBeanQuery;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
@@ -169,7 +169,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     private HorizontalLayout approvalButtonsLayout;
 
-    private CommonDialogWindow window;
+    private CommonDialogWindowV7 window;
 
     private boolean editRolloutEnabled;
 
@@ -392,22 +392,22 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
 
     }
 
-    CommonDialogWindow getWindow(final Long rolloutId, final boolean copy) {
+    CommonDialogWindowV7 getWindow(final Long rolloutId, final boolean copy) {
         resetComponents();
         window = createWindow();
         populateData(rolloutId, copy);
         return window;
     }
 
-    private CommonDialogWindow createWindow() {
-        return new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
+    private CommonDialogWindowV7 createWindow() {
+        return new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW)
                 .caption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.rollout"))).content(this)
                 .id(UIComponentIdProvider.ROLLOUT_POPUP_ID).layout(this).i18n(i18n)
                 .helpLink(uiProperties.getLinks().getDocumentation().getRolloutView())
                 .saveDialogCloseListener(new SaveOnDialogCloseListener()).buildCommonDialogWindow();
     }
 
-    public CommonDialogWindow getWindow() {
+    public CommonDialogWindowV7 getWindow() {
         resetComponents();
         window = createWindow();
         window.updateAllComponents(noOfGroups);
@@ -527,11 +527,11 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private Label getLabel(final String key) {
-        return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
+        return new LabelBuilderV7().name(i18n.getMessage(key)).buildLabel();
     }
 
     private TextField createTextField(final String in18Key, final String id, final int maxLength) {
-        return new TextFieldBuilder(maxLength).prompt(i18n.getMessage(in18Key)).id(id).buildTextComponent();
+        return new TextFieldBuilderV7(maxLength).prompt(i18n.getMessage(in18Key)).id(id).buildTextComponent();
     }
 
     private TextField createIntegerTextField(final String in18Key, final String id) {
@@ -675,7 +675,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private static Label createCountLabel() {
-        final Label groupSize = new LabelBuilder().visible(false).name("").buildLabel();
+        final Label groupSize = new LabelBuilderV7().visible(false).name("").buildLabel();
         groupSize.addStyleName(ValoTheme.LABEL_TINY + " " + "rollout-target-count-message");
 
         groupSize.setSizeUndefined();
@@ -683,7 +683,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private static TextArea createTargetFilterQuery() {
-        final TextArea filterField = new TextAreaBuilder(TargetFilterQuery.QUERY_MAX_SIZE).style("text-area-style")
+        final TextArea filterField = new TextAreaBuilderV7(TargetFilterQuery.QUERY_MAX_SIZE).style("text-area-style")
                 .id(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_QUERY_FIELD).buildTextComponent();
 
         filterField.setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_QUERY_FIELD);
@@ -844,7 +844,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private static TextArea createDescription() {
-        final TextArea descriptionField = new TextAreaBuilder(Rollout.DESCRIPTION_MAX_SIZE).style("text-area-style")
+        final TextArea descriptionField = new TextAreaBuilderV7(Rollout.DESCRIPTION_MAX_SIZE).style("text-area-style")
                 .id(UIComponentIdProvider.ROLLOUT_DESCRIPTION_ID).buildTextComponent();
         descriptionField.setSizeUndefined();
         return descriptionField;
@@ -912,7 +912,7 @@ public class AddUpdateRolloutWindowLayout extends GridLayout {
     }
 
     private TextField createRolloutNameField() {
-        final TextField rolloutNameField = new TextFieldBuilder(Rollout.NAME_MAX_SIZE)
+        final TextField rolloutNameField = new TextFieldBuilderV7(Rollout.NAME_MAX_SIZE)
                 .prompt(i18n.getMessage("textfield.name")).id(UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID)
                 .required(true, i18n).buildTextComponent();
 

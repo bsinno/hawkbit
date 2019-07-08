@@ -16,8 +16,8 @@ import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
@@ -46,7 +46,7 @@ import com.vaadin.v7.ui.VerticalLayout;
  * Creates a dialog window to select the distribution set for a target filter
  * query.
  */
-public class DistributionSetSelectWindow implements CommonDialogWindow.SaveDialogCloseListener {
+public class DistributionSetSelectWindow implements CommonDialogWindowV7.SaveDialogCloseListener {
 
     private final VaadinMessageSource i18n;
     private final UINotification notification;
@@ -109,7 +109,7 @@ public class DistributionSetSelectWindow implements CommonDialogWindow.SaveDialo
         setInitialControlValues(distributionSet, actionType);
 
         // build window after values are set to view elements
-        final CommonDialogWindow window = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
+        final CommonDialogWindowV7 window = new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW)
                 .caption(i18n.getMessage(UIMessageIdProvider.CAPTION_SELECT_AUTO_ASSIGN_DS)).content(verticalLayout)
                 .layout(verticalLayout).i18n(i18n).saveDialogCloseListener(this).buildCommonDialogWindow();
         window.setId(UIComponentIdProvider.DIST_SET_SELECT_WINDOW_ID);

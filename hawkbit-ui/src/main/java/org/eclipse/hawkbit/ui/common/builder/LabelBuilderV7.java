@@ -17,7 +17,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * Label Builder.
  *
  */
-public class LabelBuilder {
+public class LabelBuilderV7 {
 
     private String caption;
 
@@ -32,7 +32,7 @@ public class LabelBuilder {
      *            the value to set
      * @return builder
      */
-    public LabelBuilder name(final String name) {
+    public LabelBuilderV7 name(final String name) {
         this.name = name;
         return this;
     }
@@ -42,7 +42,7 @@ public class LabelBuilder {
      *            the caption to set
      * @return builder
      */
-    public LabelBuilder caption(final String caption) {
+    public LabelBuilderV7 caption(final String caption) {
         this.caption = caption;
         return this;
     }
@@ -52,7 +52,7 @@ public class LabelBuilder {
      *            the id to set
      * @return builder
      */
-    public LabelBuilder id(final String id) {
+    public LabelBuilderV7 id(final String id) {
         this.id = id;
         return this;
     }
@@ -62,7 +62,7 @@ public class LabelBuilder {
      *            the visible to set
      * @return builder
      */
-    public LabelBuilder visible(final boolean visible) {
+    public LabelBuilderV7 visible(final boolean visible) {
         this.visible = visible;
         return this;
     }

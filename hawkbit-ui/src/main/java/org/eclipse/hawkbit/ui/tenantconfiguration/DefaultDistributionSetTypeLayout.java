@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -74,7 +74,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         hlayout.setSpacing(true);
 
 
-        final Label configurationLabel = new LabelBuilder()
+        final Label configurationLabel = new LabelBuilderV7()
                 .name(i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
         hlayout.addComponent(configurationLabel);
 

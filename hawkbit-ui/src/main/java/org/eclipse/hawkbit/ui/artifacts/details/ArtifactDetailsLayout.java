@@ -24,7 +24,7 @@ import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent.SoftwareModuleEventType;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -163,7 +163,7 @@ public class ArtifactDetailsLayout extends VerticalLayout {
     }
 
     private void createComponents(final String labelSoftwareModule) {
-        titleOfArtifactDetails = new LabelBuilder().id(UIComponentIdProvider.ARTIFACT_DETAILS_HEADER_LABEL_ID)
+        titleOfArtifactDetails = new LabelBuilderV7().id(UIComponentIdProvider.ARTIFACT_DETAILS_HEADER_LABEL_ID)
                 .name(HawkbitCommonUtil.getArtifactoryDetailsLabelId(labelSoftwareModule, i18n)).buildCaptionLabel();
         titleOfArtifactDetails.setContentMode(ContentMode.HTML);
         titleOfArtifactDetails.setSizeFull();

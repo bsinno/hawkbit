@@ -10,8 +10,8 @@ package org.eclipse.hawkbit.ui.common.table;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -99,7 +99,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
     private void createComponents() {
         headerCaption = createHeaderCaption();
-        searchField = new TextFieldBuilder(64).id(getSearchBoxId())
+        searchField = new TextFieldBuilderV7(64).id(getSearchBoxId())
                 .createSearchField(event -> searchBy(event.getText()));
 
         searchResetIcon = createSearchResetIcon();
@@ -217,7 +217,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
     }
 
     private Label createHeaderCaption() {
-        return new LabelBuilder().name(getHeaderCaption()).buildCaptionLabel();
+        return new LabelBuilderV7().name(getHeaderCaption()).buildCaptionLabel();
     }
 
     private SPUIButton createSearchResetIcon() {

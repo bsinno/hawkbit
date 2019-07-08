@@ -8,8 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -22,7 +22,7 @@ import com.vaadin.ui.Window;
 /**
  * Builder for Window.
  */
-public class WindowBuilder {
+public class WindowBuilderV7 {
 
     private String caption;
     private Component content;
@@ -41,7 +41,7 @@ public class WindowBuilder {
      * @param type
      *            window type
      */
-    public WindowBuilder(final String type) {
+    public WindowBuilderV7(final String type) {
         this.type = type;
     }
 
@@ -52,7 +52,7 @@ public class WindowBuilder {
      *            the saveDialogCloseListener
      * @return the window builder
      */
-    public WindowBuilder saveDialogCloseListener(final SaveDialogCloseListener saveDialogCloseListener) {
+    public WindowBuilderV7 saveDialogCloseListener(final SaveDialogCloseListener saveDialogCloseListener) {
         this.saveDialogCloseListener = saveDialogCloseListener;
         return this;
     }
@@ -64,7 +64,7 @@ public class WindowBuilder {
      *            the caption
      * @return the window builder
      */
-    public WindowBuilder caption(final String caption) {
+    public WindowBuilderV7 caption(final String caption) {
         this.caption = caption;
         return this;
     }
@@ -76,7 +76,7 @@ public class WindowBuilder {
      *            the content
      * @return the window builder
      */
-    public WindowBuilder content(final Component content) {
+    public WindowBuilderV7 content(final Component content) {
         this.content = content;
         return this;
     }
@@ -88,7 +88,7 @@ public class WindowBuilder {
      *            the cancelButtonClickListener
      * @return the window builder
      */
-    public WindowBuilder cancelButtonClickListener(final ClickListener cancelButtonClickListener) {
+    public WindowBuilderV7 cancelButtonClickListener(final ClickListener cancelButtonClickListener) {
         this.cancelButtonClickListener = cancelButtonClickListener;
         return this;
     }
@@ -100,7 +100,7 @@ public class WindowBuilder {
      *            the helpLink
      * @return the window builder
      */
-    public WindowBuilder helpLink(final String helpLink) {
+    public WindowBuilderV7 helpLink(final String helpLink) {
         this.helpLink = helpLink;
         return this;
     }
@@ -112,7 +112,7 @@ public class WindowBuilder {
      *            the layout
      * @return the window builder
      */
-    public WindowBuilder layout(final AbstractLayout layout) {
+    public WindowBuilderV7 layout(final AbstractLayout layout) {
         this.layout = layout;
         return this;
     }
@@ -124,7 +124,7 @@ public class WindowBuilder {
      *            the i18n
      * @return the window builder
      */
-    public WindowBuilder i18n(final VaadinMessageSource i18n) {
+    public WindowBuilderV7 i18n(final VaadinMessageSource i18n) {
         this.i18n = i18n;
         return this;
     }
@@ -133,7 +133,7 @@ public class WindowBuilder {
      * @param id
      *            the id to set * @return the window builder
      */
-    public WindowBuilder id(final String id) {
+    public WindowBuilderV7 id(final String id) {
         this.id = id;
         return this;
     }
@@ -143,8 +143,8 @@ public class WindowBuilder {
      *
      * @return the window.
      */
-    public CommonDialogWindow buildCommonDialogWindow() {
-        final CommonDialogWindow window = new CommonDialogWindow(caption, content, helpLink, saveDialogCloseListener,
+    public CommonDialogWindowV7 buildCommonDialogWindow() {
+        final CommonDialogWindowV7 window = new CommonDialogWindowV7(caption, content, helpLink, saveDialogCloseListener,
                 cancelButtonClickListener, layout, i18n);
         decorateWindow(window);
         return window;

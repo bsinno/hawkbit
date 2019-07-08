@@ -19,8 +19,8 @@ import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionBeanQuery;
@@ -196,7 +196,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     }
 
     private TextArea getDescriptionTextArea() {
-        final TextArea description = new TextAreaBuilder(Target.DESCRIPTION_MAX_SIZE)
+        final TextArea description = new TextAreaBuilderV7(Target.DESCRIPTION_MAX_SIZE)
                 .caption(i18n.getMessage("textfield.description")).style("text-area-style")
                 .id(UIComponentIdProvider.BULK_UPLOAD_DESC).buildTextComponent();
         description.setWidth("100%");
@@ -356,7 +356,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     public Window getWindow() {
         managementUIState.setBulkUploadWindowMinimised(false);
 
-        bulkUploadWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption("").content(this)
+        bulkUploadWindow = new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption("").content(this)
                 .buildWindow();
         bulkUploadWindow.addStyleName("bulk-upload-window");
 

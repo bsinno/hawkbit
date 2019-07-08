@@ -69,7 +69,7 @@ import com.vaadin.v7.ui.VerticalLayout;
  * corner and a save and cancel button at the bottom. Is not intended to reuse.
  *
  */
-public class CommonDialogWindow extends Window {
+public class CommonDialogWindowV7 extends Window {
 
     private static final long serialVersionUID = 1L;
 
@@ -117,7 +117,7 @@ public class CommonDialogWindow extends Window {
      * @param i18n
      *            the i18n service
      */
-    public CommonDialogWindow(final String caption, final Component content, final String helpLink,
+    public CommonDialogWindowV7(final String caption, final Component content, final String helpLink,
             final SaveDialogCloseListener closeListener, final ClickListener cancelButtonClickListener,
             final AbstractLayout layout, final VaadinMessageSource i18n) {
         checkNotNull(closeListener);

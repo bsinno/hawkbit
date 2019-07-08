@@ -13,11 +13,11 @@ import java.util.Optional;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -59,7 +59,7 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
     private boolean editTarget;
     private String controllerId;
     private FormLayout formLayout;
-    private CommonDialogWindow window;
+    private CommonDialogWindowV7 window;
 
     private final TargetTable targetTable;
 
@@ -98,16 +98,16 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
     }
 
     private void createRequiredComponents() {
-        controllerIDTextField = new TextFieldBuilder(Target.CONTROLLER_ID_MAX_SIZE)
+        controllerIDTextField = new TextFieldBuilderV7(Target.CONTROLLER_ID_MAX_SIZE)
                 .caption(i18n.getMessage("prompt.target.id")).required(true, i18n)
                 .id(UIComponentIdProvider.TARGET_ADD_CONTROLLER_ID).buildTextComponent();
         controllerIDTextField
                 .addValidator(new RegexpValidator("[.\\S]*", i18n.getMessage("message.target.whitespace.check")));
-        nameTextField = new TextFieldBuilder(Target.NAME_MAX_SIZE).caption(i18n.getMessage("textfield.name"))
+        nameTextField = new TextFieldBuilderV7(Target.NAME_MAX_SIZE).caption(i18n.getMessage("textfield.name"))
                 .id(UIComponentIdProvider.TARGET_ADD_NAME).buildTextComponent();
         nameTextField.setRequired(false);
 
-        descTextArea = new TextAreaBuilder(Target.DESCRIPTION_MAX_SIZE)
+        descTextArea = new TextAreaBuilderV7(Target.DESCRIPTION_MAX_SIZE)
                 .caption(i18n.getMessage("textfield.description")).style("text-area-style")
                 .id(UIComponentIdProvider.TARGET_ADD_DESC).buildTextComponent();
     }
@@ -149,7 +149,7 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
     }
 
     public Window createNewWindow() {
-        window = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
+        window = new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW)
                 .caption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.target"))).content(this)
                 .layout(formLayout).i18n(i18n).saveDialogCloseListener(new SaveOnDialogCloseListener())
                 .buildCommonDialogWindow();

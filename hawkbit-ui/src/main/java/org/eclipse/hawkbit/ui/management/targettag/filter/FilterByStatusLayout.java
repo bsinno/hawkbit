@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
@@ -86,7 +86,7 @@ public class FilterByStatusLayout extends VerticalLayout implements Button.Click
         addStyleName("target-status-filters");
         setMargin(false);
 
-        final Label targetFilterStatusLabel = new LabelBuilder().name(i18n.getMessage("label.filter.by.status"))
+        final Label targetFilterStatusLabel = new LabelBuilderV7().name(i18n.getMessage("label.filter.by.status"))
                 .buildLabel();
 
         targetFilterStatusLabel.addStyleName("target-status-filters-title");
@@ -109,7 +109,7 @@ public class FilterByStatusLayout extends VerticalLayout implements Button.Click
         setComponentAlignment(buttonLayout, Alignment.MIDDLE_LEFT);
 
         final HorizontalLayout overdueLayout = new HorizontalLayout();
-        final Label overdueLabel = new LabelBuilder().name(i18n.getMessage("label.filter.by.overdue")).buildLabel();
+        final Label overdueLabel = new LabelBuilderV7().name(i18n.getMessage("label.filter.by.overdue")).buildLabel();
         overdueLayout.setStyleName("overdue-button-layout");
         overdueLayout.addComponent(overdue);
         overdueLayout.setComponentAlignment(overdue, Alignment.MIDDLE_LEFT);

@@ -9,8 +9,8 @@
 package org.eclipse.hawkbit.ui.filtermanagement;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -86,7 +86,7 @@ public class TargetFilterHeader extends VerticalLayout {
     }
 
     private Label createHeaderCaption() {
-        return new LabelBuilder().name(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM)).buildCaptionLabel();
+        return new LabelBuilderV7().name(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM)).buildCaptionLabel();
     }
 
     private void buildLayout() {
@@ -131,7 +131,7 @@ public class TargetFilterHeader extends VerticalLayout {
     }
 
     private TextField createSearchField() {
-        final TextField campSearchTextField = new TextFieldBuilder(64)
+        final TextField campSearchTextField = new TextFieldBuilderV7(64)
                 .id(UIComponentIdProvider.TARGET_FILTER_SEARCH_TEXT)
                 .createSearchField(event -> searchBy(event.getText()));
         campSearchTextField.setWidth(500.0F, Unit.PIXELS);

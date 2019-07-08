@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.components.ConfigMenuBar;
@@ -165,7 +165,7 @@ public abstract class AbstractFilterHeader extends VerticalLayout {
     }
 
     private Label createHeaderCaption() {
-        return new LabelBuilder().name(getTitle()).buildCaptionLabel();
+        return new LabelBuilderV7().name(getTitle()).buildCaptionLabel();
     }
 
     protected void removeCancelButtonAndAddMenuBar() {

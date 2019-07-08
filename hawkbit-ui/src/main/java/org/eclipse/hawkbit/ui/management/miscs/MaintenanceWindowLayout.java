@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.MaintenanceScheduleHelper;
 import org.eclipse.hawkbit.repository.exception.InvalidMaintenanceScheduleException;
 import org.eclipse.hawkbit.repository.model.Action;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -84,7 +84,7 @@ public class MaintenanceWindowLayout extends VerticalLayout {
      * Text field to specify the schedule.
      */
     private void createMaintenanceScheduleControl() {
-        schedule = new TextFieldBuilder(Action.MAINTENANCE_WINDOW_SCHEDULE_LENGTH)
+        schedule = new TextFieldBuilderV7(Action.MAINTENANCE_WINDOW_SCHEDULE_LENGTH)
                 .id(UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_ID)
                 .caption(i18n.getMessage("caption.maintenancewindow.schedule")).validator(new CronValidator())
                 .prompt("0 0 3 ? * 6").required(true, i18n).buildTextComponent();
@@ -150,7 +150,7 @@ public class MaintenanceWindowLayout extends VerticalLayout {
      * Text field to specify the duration.
      */
     private void createMaintenanceDurationControl() {
-        duration = new TextFieldBuilder(Action.MAINTENANCE_WINDOW_DURATION_LENGTH)
+        duration = new TextFieldBuilderV7(Action.MAINTENANCE_WINDOW_DURATION_LENGTH)
                 .id(UIComponentIdProvider.MAINTENANCE_WINDOW_DURATION_ID)
                 .caption(i18n.getMessage("caption.maintenancewindow.duration")).validator(new DurationValidator())
                 .prompt("hh:mm:ss").required(true, i18n).buildTextComponent();
@@ -217,7 +217,7 @@ public class MaintenanceWindowLayout extends VerticalLayout {
      * Label to translate the cron schedule to human readable format.
      */
     private void createMaintenanceScheduleTranslatorControl() {
-        scheduleTranslator = new LabelBuilder().id(UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_TRANSLATOR_ID)
+        scheduleTranslator = new LabelBuilderV7().id(UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_TRANSLATOR_ID)
                 .name(i18n.getMessage(CRON_VALIDATION_ERROR)).buildLabel();
         scheduleTranslator.addStyleName(ValoTheme.LABEL_TINY);
     }

@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
@@ -64,7 +64,7 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
         gatewaytokenBtn.setIcon(FontAwesome.REFRESH);
         gatewaytokenBtn.addClickListener(event -> generateGatewayToken());
 
-        gatewayTokenkeyLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();
+        gatewayTokenkeyLabel = new LabelBuilderV7().id("gatewaysecuritytokenkey").name("").buildLabel();
         gatewayTokenkeyLabel.addStyleName("gateway-token-label");
 
 

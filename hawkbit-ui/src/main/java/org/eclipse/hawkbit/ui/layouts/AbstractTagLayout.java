@@ -16,12 +16,12 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerConstants;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerLayout;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -84,7 +84,7 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
 
     private final FormLayout formLayout = new FormLayout();
 
-    private CommonDialogWindow window;
+    private CommonDialogWindowV7 window;
 
     private Label colorLabel;
 
@@ -178,14 +178,14 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
     protected abstract void saveEntity();
 
     protected void createRequiredComponents() {
-        colorLabel = new LabelBuilder().name(i18n.getMessage("label.choose.tag.color")).buildLabel();
+        colorLabel = new LabelBuilderV7().name(i18n.getMessage("label.choose.tag.color")).buildLabel();
         colorLabel.addStyleName(SPUIStyleDefinitions.COLOR_LABEL_STYLE);
 
-        tagName = new TextFieldBuilder(getTagNameSize()).caption(i18n.getMessage("textfield.name"))
+        tagName = new TextFieldBuilderV7(getTagNameSize()).caption(i18n.getMessage("textfield.name"))
                 .styleName(ValoTheme.TEXTFIELD_TINY + " " + SPUIDefinitions.TAG_NAME).required(true, i18n)
                 .prompt(i18n.getMessage("textfield.name")).immediate(true).id(getTagNameId()).buildTextComponent();
 
-        tagDesc = new TextAreaBuilder(getTagDescSize()).caption(i18n.getMessage("textfield.description"))
+        tagDesc = new TextAreaBuilderV7(getTagDescSize()).caption(i18n.getMessage("textfield.description"))
                 .styleName(ValoTheme.TEXTFIELD_TINY + " " + SPUIDefinitions.TAG_DESC)
                 .prompt(i18n.getMessage("textfield.description")).id(getTagDescId()).buildTextComponent();
 
@@ -359,8 +359,8 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
      * 
      * @return the created window
      */
-    public CommonDialogWindow createWindow() {
-        window = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption(getWindowCaption()).content(this)
+    public CommonDialogWindowV7 createWindow() {
+        window = new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption(getWindowCaption()).content(this)
                 .cancelButtonClickListener(event -> discard()).layout(mainLayout).i18n(i18n)
                 .saveDialogCloseListener(new SaveOnDialogCloseListener()).buildCommonDialogWindow();
         return window;
@@ -562,7 +562,7 @@ public abstract class AbstractTagLayout<E extends NamedEntity> extends CustomCom
         window.setVisible(Boolean.TRUE);
     }
 
-    protected CommonDialogWindow getWindow() {
+    protected CommonDialogWindowV7 getWindow() {
         return window;
     }
 

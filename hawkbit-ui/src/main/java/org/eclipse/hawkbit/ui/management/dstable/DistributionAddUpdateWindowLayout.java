@@ -22,12 +22,12 @@ import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.common.DistributionSetTypeBeanQuery;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetTable;
@@ -243,7 +243,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
         distsetTypeNameComboBox.setNullSelectionAllowed(false);
         distsetTypeNameComboBox.setId(UIComponentIdProvider.DIST_ADD_DISTSETTYPE);
 
-        descTextArea = new TextAreaBuilder(DistributionSet.DESCRIPTION_MAX_SIZE)
+        descTextArea = new TextAreaBuilderV7(DistributionSet.DESCRIPTION_MAX_SIZE)
                 .caption(i18n.getMessage("textfield.description")).style("text-area-style")
                 .id(UIComponentIdProvider.DIST_ADD_DESC).buildTextComponent();
 
@@ -254,7 +254,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
     }
 
     private TextField createTextField(final String in18Key, final String id, final int maxLength) {
-        return new TextFieldBuilder(maxLength).caption(i18n.getMessage(in18Key)).required(true, i18n).id(id)
+        return new TextFieldBuilderV7(maxLength).caption(i18n.getMessage(in18Key)).required(true, i18n).id(id)
                 .buildTextComponent();
     }
 
@@ -326,7 +326,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
      * 
      * @return window
      */
-    public CommonDialogWindow getWindowForCreateDistributionSet() {
+    public CommonDialogWindowV7 getWindowForCreateDistributionSet() {
         return getWindow(null);
     }
 
@@ -337,7 +337,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
      *            the id of the distribution that should be updated
      * @return window
      */
-    public CommonDialogWindow getWindowForUpdateDistributionSet(final Long editDistId) {
+    public CommonDialogWindowV7 getWindowForUpdateDistributionSet(final Long editDistId) {
         return getWindow(editDistId);
     }
 
@@ -350,7 +350,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
      *            update.
      * @return
      */
-    private CommonDialogWindow getWindow(final Long editDistId) {
+    private CommonDialogWindowV7 getWindow(final Long editDistId) {
 
         final SaveDialogCloseListener saveDialogCloseListener;
         String caption;
@@ -368,7 +368,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
             populateValuesOfDistribution(editDistId);
         }
 
-        return new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption(caption).content(this)
+        return new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption(caption).content(this)
                 .id(UIComponentIdProvider.CREATE_POPUP_ID).layout(formLayout)
                 .i18n(i18n).saveDialogCloseListener(saveDialogCloseListener).buildCommonDialogWindow();
     }

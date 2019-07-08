@@ -24,8 +24,8 @@ import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -111,7 +111,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         actionStatusCombobox.addValueChangeListener(e -> onActionStatusChanged());
         actionStatusCombobox.select(getActionStatusOption());
 
-        actionExpiryInput = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
+        actionExpiryInput = new TextFieldBuilderV7(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         actionExpiryInput.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_EXPIRY);
         actionExpiryInput.setWidth(55, Unit.PIXELS);
         actionExpiryInput.setNullSettingAllowed(false);
@@ -196,7 +196,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
     }
 
     private Label newLabel(final String msgKey) {
-        final Label label = new LabelBuilder().name(i18n.getMessage(msgKey)).buildLabel();
+        final Label label = new LabelBuilderV7().name(i18n.getMessage(msgKey)).buildLabel();
         label.setWidthUndefined();
         return label;
     }

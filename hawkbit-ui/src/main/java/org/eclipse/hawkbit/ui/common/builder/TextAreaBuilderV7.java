@@ -15,7 +15,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * TextArea builder.
  *
  */
-public class TextAreaBuilder extends AbstractTextFieldBuilder<TextAreaBuilder, TextArea> {
+public class TextAreaBuilderV7 extends AbstractTextFieldBuilderV7<TextAreaBuilderV7, TextArea> {
 
     /**
      * Constructor.
@@ -23,7 +23,7 @@ public class TextAreaBuilder extends AbstractTextFieldBuilder<TextAreaBuilder, T
      * @param maxLengthAllowed
      *            for the text area
      */
-    public TextAreaBuilder(final int maxLengthAllowed) {
+    public TextAreaBuilderV7(final int maxLengthAllowed) {
         super(maxLengthAllowed);
         styleName(ValoTheme.TEXTAREA_SMALL);
     }

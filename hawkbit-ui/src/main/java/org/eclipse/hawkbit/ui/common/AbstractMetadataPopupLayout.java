@@ -14,11 +14,11 @@ import java.util.Set;
 import org.eclipse.hawkbit.repository.model.MetaData;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlButtonRenderer;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -80,7 +80,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
     private Button addIcon;
     private Grid metaDataGrid;
     private Label headerCaption;
-    private CommonDialogWindow metadataWindow;
+    private CommonDialogWindowV7 metadataWindow;
 
     private E selectedEntity;
 
@@ -126,12 +126,12 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
      *            entity for which metadata data is displayed
      * @param metaDatakey
      *            metadata key to be selected
-     * @return {@link CommonDialogWindow}
+     * @return {@link CommonDialogWindowV7}
      */
-    public CommonDialogWindow getWindow(final E entity, final String metaDatakey) {
+    public CommonDialogWindowV7 getWindow(final E entity, final String metaDatakey) {
         selectedEntity = entity;
 
-        metadataWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption(getMetadataCaption())
+        metadataWindow = new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption(getMetadataCaption())
                 .content(this).cancelButtonClickListener(event -> onCancel())
                 .id(UIComponentIdProvider.METADATA_POPUP_ID).layout(mainLayout).i18n(i18n)
                 .saveDialogCloseListener(new SaveOnDialogCloseListener()).buildCommonDialogWindow();
@@ -226,7 +226,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
     }
 
     private TextField createKeyTextField() {
-        final TextField keyField = new TextFieldBuilder(MetaData.KEY_MAX_SIZE).caption(i18n.getMessage("textfield.key"))
+        final TextField keyField = new TextFieldBuilderV7(MetaData.KEY_MAX_SIZE).caption(i18n.getMessage("textfield.key"))
                 .required(true, i18n).id(UIComponentIdProvider.METADATA_KEY_FIELD_ID).buildTextComponent();
         keyField.addTextChangeListener(this::onKeyChange);
         keyField.setTextChangeEventMode(TextChangeEventMode.LAZY);
@@ -236,7 +236,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
     }
 
     private TextArea createValueTextField() {
-        valueTextArea = new TextAreaBuilder(MetaData.VALUE_MAX_SIZE).caption(i18n.getMessage("textfield.value"))
+        valueTextArea = new TextAreaBuilderV7(MetaData.VALUE_MAX_SIZE).caption(i18n.getMessage("textfield.value"))
                 .required(true, i18n).id(UIComponentIdProvider.METADATA_VALUE_ID).buildTextComponent();
         valueTextArea.setSizeFull();
         valueTextArea.setHeight(100, Unit.PERCENTAGE);
@@ -320,7 +320,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
     }
 
     private Label createHeaderCaption() {
-        return new LabelBuilder().name(i18n.getMessage("caption.metadata")).buildCaptionLabel();
+        return new LabelBuilderV7().name(i18n.getMessage("caption.metadata")).buildCaptionLabel();
     }
 
     private static IndexedContainer getMetadataContainer() {
@@ -531,7 +531,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
         return keyTextField;
     }
 
-    protected CommonDialogWindow getMetadataWindow() {
+    protected CommonDialogWindowV7 getMetadataWindow() {
         return metadataWindow;
     }
 

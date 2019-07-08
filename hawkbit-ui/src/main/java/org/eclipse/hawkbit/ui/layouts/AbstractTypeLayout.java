@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerConstants;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -103,7 +103,7 @@ public abstract class AbstractTypeLayout<E extends NamedEntity> extends Abstract
     @Override
     protected void createRequiredComponents() {
         super.createRequiredComponents();
-        typeKey = new TextFieldBuilder(getTypeKeySize()).id(getTypeKeyId())
+        typeKey = new TextFieldBuilderV7(getTypeKeySize()).id(getTypeKeyId())
                 .caption(getI18n().getMessage("textfield.key"))
                 .styleName(ValoTheme.TEXTFIELD_TINY + " " + SPUIDefinitions.DIST_SET_TYPE_KEY).required(true, getI18n())
                 .prompt(getI18n().getMessage("textfield.key")).immediate(true).buildTextComponent();
