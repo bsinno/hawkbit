@@ -192,7 +192,7 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
     private Label buildStatusIcon(final ProxyRolloutGroup rolloutGroup) {
         final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rolloutGroup.getStatus()))
                 .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage("label.unknown")));
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
         final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID).append(".")
                 .append(rolloutGroup.getId()).toString();

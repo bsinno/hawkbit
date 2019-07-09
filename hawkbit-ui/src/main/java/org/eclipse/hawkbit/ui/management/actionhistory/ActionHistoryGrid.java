@@ -8,24 +8,23 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.exception.CancelActionNotAllowedException;
-import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
+import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
+import org.eclipse.hawkbit.ui.common.data.mappers.ActionToProxyActionMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.AbstractGridButtonConverter;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.AbstractHtmlLabelConverter;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.GridButtonRenderer;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlLabelRenderer;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
@@ -33,82 +32,58 @@ import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.google.common.collect.Maps;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.GeneratedPropertyContainer;
-import com.vaadin.v7.data.util.PropertyValueGenerator;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 
 /**
  * This grid presents the action history for a selected target.
  */
-public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
-    private static final long serialVersionUID = 4324796883957831443L;
+public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionHistoryGrid.class);
     private static final double FIXED_PIX_MIN = 25;
     private static final double FIXED_PIX_MAX = 32;
 
-    private static final String STATUS_ICON_GREEN = "statusIconGreen";
-    private static final String STATUS_ICON_RED = "statusIconRed";
-    private static final String STATUS_ICON_ORANGE = "statusIconOrange";
-    private static final String STATUS_ICON_PENDING = "statusIconPending";
-    private static final String STATUS_ICON_NEUTRAL = "statusIconNeutral";
-    private static final String STATUS_ICON_ACTIVE = "statusIconActive";
-    private static final String STATUS_ICON_FORCED = "statusIconForced";
-    private static final String STATUS_ICON_DOWNLOAD_ONLY = "statusIconDownloadOnly";
-    private static final String STATUS_ICON_SOFT = "statusIconSoft";
+    private static final String ACTION_ID = "id";
+    private static final String DS_NAME_VERSION_ID = "dsNameVersion";
+    private static final String ROLLOUT_NAME_ID = "rolloutName";
+    private static final String MAINTENANCE_WINDOW_ID = "maintenanceWindow";
+    private static final String LAST_MODIFIED_AT_ID = "lastModifiedAt";
+    private static final String STATUS_ID = "status";
+    private static final String ACTIVE_STATUS_ID = "isActiveDecoration";
+    private static final String TYPE_ID = "type";
+    private static final String TIME_FORCED_ID = "timeForced";
 
-    private static final String VIRT_PROP_TYPE = "type";
-    private static final String VIRT_PROP_TIMEFORCED = "timeForced";
-    private static final String VIRT_PROP_ACTION_CANCEL = "cancel-action";
-    private static final String VIRT_PROP_ACTION_FORCE = "force-action";
-    private static final String VIRT_PROP_ACTION_FORCE_QUIT = "force-quit-action";
-
-    private static final Object[] maxColumnOrder = new Object[] { ProxyAction.PXY_ACTION_IS_ACTIVE_DECO,
-            ProxyAction.PXY_ACTION_ID, ProxyAction.PXY_ACTION_DS_NAME_VERSION, ProxyAction.PXY_ACTION_LAST_MODIFIED_AT,
-            ProxyAction.PXY_ACTION_STATUS, ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW,
-            ProxyAction.PXY_ACTION_ROLLOUT_NAME, VIRT_PROP_TYPE, VIRT_PROP_TIMEFORCED, VIRT_PROP_ACTION_CANCEL,
-            VIRT_PROP_ACTION_FORCE, VIRT_PROP_ACTION_FORCE_QUIT };
-
-    private static final Object[] minColumnOrder = new Object[] { ProxyAction.PXY_ACTION_IS_ACTIVE_DECO,
-            ProxyAction.PXY_ACTION_DS_NAME_VERSION, ProxyAction.PXY_ACTION_LAST_MODIFIED_AT,
-            ProxyAction.PXY_ACTION_STATUS, ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW, VIRT_PROP_TYPE,
-            VIRT_PROP_TIMEFORCED, VIRT_PROP_ACTION_CANCEL, VIRT_PROP_ACTION_FORCE, VIRT_PROP_ACTION_FORCE_QUIT };
-
-    private static final String[] leftAlignedColumns = new String[] {};
-
-    private static final String[] centerAlignedColumns = new String[] { ProxyAction.PXY_ACTION_IS_ACTIVE_DECO,
-            ProxyAction.PXY_ACTION_STATUS, VIRT_PROP_TYPE, ProxyAction.PXY_ACTION_ID, VIRT_PROP_TIMEFORCED };
-
-    private static final String[] rightAlignedColumns = new String[] {};
+    private static final String CANCEL_BUTTON_ID = "cancel-action";
+    private static final String FORCE_BUTTON_ID = "force-action";
+    private static final String FORCE_QUIT_BUTTON_ID = "force-quit-action";
 
     private final transient DeploymentManagement deploymentManagement;
     private final UINotification notification;
     private final ManagementUIState managementUIState;
 
     private Target selectedTarget;
-    private final AlignCellStyleGenerator alignGenerator;
-    private final TooltipGenerator tooltipGenerator;
 
-    private final Map<Action.Status, FontIcon> states;
-    private final Map<IsActiveDecoration, FontIcon> activeStates;
+    private final Map<Status, FontIcon> statusIconMap = new EnumMap<>(Status.class);
+    private final Map<IsActiveDecoration, FontIcon> activeStatusIconMap = new EnumMap<>(IsActiveDecoration.class);
+    private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    private final BeanQueryFactory<ActionBeanQuery> targetQF = new BeanQueryFactory<>(ActionBeanQuery.class);
+    private final ActionDataProvider actionDataProvider;
 
     ActionHistoryGrid(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
             final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
@@ -118,24 +93,91 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
         this.notification = notification;
         this.managementUIState = managementUIState;
 
-        setMaximizeSupport(new ActionHistoryMaximizeSupport());
+        this.actionDataProvider = new ActionDataProvider(deploymentManagement, selectedTarget,
+                new ActionToProxyActionMapper());
+
+        setResizeSupport(new ActionHistoryResizeSupport());
         setSingleSelectionSupport(new SingleSelectionSupport());
 
         if (!managementUIState.isActionHistoryMaximized()) {
             getSingleSelectionSupport().disable();
         }
 
-        setGeneratedPropertySupport(new ActionHistoryGeneratedPropertySupport());
         setDetailsSupport(new DetailsSupport());
 
-        final LabelConfig conf = new LabelConfig();
-        states = conf.createStatusLabelConfig(i18n, UIComponentIdProvider.ACTION_HISTORY_TABLE_STATUS_LABEL_ID);
-        activeStates = conf
-                .createActiveStatusLabelConfig(UIComponentIdProvider.ACTION_HISTORY_TABLE_ACTIVESTATE_LABEL_ID);
-        alignGenerator = new AlignCellStyleGenerator(leftAlignedColumns, centerAlignedColumns, rightAlignedColumns);
-        tooltipGenerator = new TooltipGenerator(i18n);
+        initStatusIconMap();
+        initActiveStatusIconMap();
+        initActionTypeIconMap();
 
         init();
+    }
+
+    private void initStatusIconMap() {
+        statusIconMap.put(Status.FINISHED, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.FINISHED)));
+        statusIconMap.put(Status.SCHEDULED, new FontIcon(VaadinIcons.HOURGLASS_EMPTY,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.SCHEDULED)));
+        statusIconMap.put(Status.RUNNING, new FontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING,
+                getStatusDescription(Status.RUNNING)));
+        statusIconMap.put(Status.RETRIEVED, new FontIcon(VaadinIcons.CHECK_CIRCLE_O,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RETRIEVED)));
+        statusIconMap.put(Status.WARNING, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_ORANGE, getStatusDescription(Status.WARNING)));
+        statusIconMap.put(Status.DOWNLOAD, new FontIcon(VaadinIcons.CLOUD_DOWNLOAD,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.DOWNLOAD)));
+        statusIconMap.put(Status.DOWNLOADED, new FontIcon(VaadinIcons.CLOUD_DOWNLOAD,
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.DOWNLOADED)));
+        statusIconMap.put(Status.CANCELING, new FontIcon(VaadinIcons.CLOSE_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.CANCELING)));
+        statusIconMap.put(Status.CANCELED, new FontIcon(VaadinIcons.CLOSE_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.CANCELED)));
+        statusIconMap.put(Status.ERROR, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(Status.ERROR)));
+    }
+
+    private String getStatusDescription(final Status actionStatus) {
+        return i18n
+                .getMessage(UIMessageIdProvider.TOOLTIP_ACTION_STATUS_PREFIX + actionStatus.toString().toLowerCase());
+    }
+
+    private void initActiveStatusIconMap() {
+        activeStatusIconMap.put(IsActiveDecoration.ACTIVE, new FontIcon(null, SPUIStyleDefinitions.STATUS_ICON_ACTIVE,
+                getActiveStatusDescription(IsActiveDecoration.ACTIVE)));
+        activeStatusIconMap.put(IsActiveDecoration.SCHEDULED, new FontIcon(VaadinIcons.HOURGLASS_EMPTY,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getActiveStatusDescription(IsActiveDecoration.SCHEDULED)));
+        activeStatusIconMap.put(IsActiveDecoration.IN_ACTIVE, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL, getActiveStatusDescription(IsActiveDecoration.IN_ACTIVE)));
+        activeStatusIconMap.put(IsActiveDecoration.IN_ACTIVE_ERROR, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_RED, getActiveStatusDescription(IsActiveDecoration.IN_ACTIVE_ERROR)));
+    }
+
+    private String getActiveStatusDescription(final IsActiveDecoration activeActionStatus) {
+        return i18n.getMessage(
+                UIMessageIdProvider.TOOLTIP_ACTIVE_ACTION_STATUS_PREFIX + activeActionStatus.toString().toLowerCase());
+    }
+
+    private void initActionTypeIconMap() {
+        actionTypeIconMap.put(ActionType.FORCED, new FontIcon(VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
+                i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
+        actionTypeIconMap.put(ActionType.TIMEFORCED,
+                new FontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
+                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
+        actionTypeIconMap.put(ActionType.SOFT, new FontIcon(VaadinIcons.STEP_FORWARD,
+                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
+        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
+                new FontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
+                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        restorePreviousState();
+    }
+
+    @Override
+    protected void setDataProvider() {
+        setDataProvider(actionDataProvider);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -146,12 +188,6 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
         if (mgmtUIEvent == ManagementUIEvent.MIN_ACTION_HISTORY) {
             UI.getCurrent().access(this::createMinimizedContent);
         }
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        restorePreviousState();
     }
 
     /**
@@ -168,140 +204,160 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
     }
 
     @Override
-    protected LazyQueryContainer createContainer() {
-        configureQueryFactory();
-        return new LazyQueryContainer(
-                new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, ProxyAction.PXY_ACTION_ID), targetQF);
-    }
-
-    @Override
-    public void refreshContainer() {
-        configureQueryFactory();
-        super.refreshContainer();
-    }
-
-    protected void configureQueryFactory() {
-        // ADD all the filters to the query config
-        final Map<String, Object> queryConfig = Maps.newHashMapWithExpectedSize(1);
-        queryConfig.put(SPUIDefinitions.ACTIONS_BY_TARGET,
-                selectedTarget != null ? selectedTarget.getControllerId() : null);
-        // Create ActionBeanQuery factory with the query config.
-        targetQF.setQueryConfiguration(queryConfig);
-    }
-
-    @Override
-    protected void addContainerProperties() {
-        final LazyQueryContainer rawCont = getGeneratedPropertySupport().getRawContainer();
-
-        rawCont.addContainerProperty(ProxyAction.PXY_ACTION_IS_ACTIVE_DECO, IsActiveDecoration.class, null, true,
-                false);
-        rawCont.addContainerProperty(ProxyAction.PXY_ACTION, Action.class, null, true, false);
-        rawCont.addContainerProperty(ProxyAction.PXY_ACTION_DS_NAME_VERSION, String.class, null, true, false);
-        rawCont.addContainerProperty(ProxyAction.PXY_ACTION_LAST_MODIFIED_AT, Long.class, null, true, true);
-        rawCont.addContainerProperty(ProxyAction.PXY_ACTION_STATUS, Action.Status.class, null, true, false);
-
-        rawCont.addContainerProperty(ProxyAction.PXY_ACTION_ID, String.class, null, true, true);
-        rawCont.addContainerProperty(ProxyAction.PXY_ACTION_ROLLOUT_NAME, String.class, null, true, true);
-        rawCont.addContainerProperty(ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW, String.class, null, true, false);
-    }
-
-    @Override
     protected String getGridId() {
         return UIComponentIdProvider.ACTION_HISTORY_GRID_ID;
     }
 
     @Override
-    protected void addColumnRenderers() {
-        getColumn(ProxyAction.PXY_ACTION_LAST_MODIFIED_AT).setConverter(new LongToFormattedDateStringConverter());
-        getColumn(ProxyAction.PXY_ACTION_STATUS).setRenderer(new HtmlLabelRenderer(),
-                new HtmlStatusLabelConverter(this::createStatusLabelMetadata));
-        getColumn(ProxyAction.PXY_ACTION_IS_ACTIVE_DECO).setRenderer(new HtmlLabelRenderer(),
-                new HtmlIsActiveLabelConverter(this::createIsActiveLabelMetadata));
-        getColumn(VIRT_PROP_TYPE).setRenderer(new HtmlLabelRenderer(),
-                new HtmlVirtPropLabelConverter(this::createTypeLabelMetadata));
-        getColumn(VIRT_PROP_TIMEFORCED).setRenderer(new HtmlLabelRenderer(),
-                new HtmlVirtPropLabelConverter(this::createTimeForcedLabelMetadata));
-        getColumn(VIRT_PROP_ACTION_CANCEL).setRenderer(
-                new GridButtonRenderer(clickEvent -> confirmAndCancelAction((Long) clickEvent.getItemId())),
-                new ActionGridButtonConverter(this::createCancelButtonMetadata));
-        getColumn(VIRT_PROP_ACTION_FORCE).setRenderer(
-                new GridButtonRenderer(clickEvent -> confirmAndForceAction((Long) clickEvent.getItemId())),
-                new ActionGridButtonConverter(this::createForceButtonMetadata));
-        getColumn(VIRT_PROP_ACTION_FORCE_QUIT).setRenderer(
-                new GridButtonRenderer(clickEvent -> confirmAndForceQuitAction((Long) clickEvent.getItemId())),
-                new ActionGridButtonConverter(this::createForceQuitButtonMetadata));
+    protected void addColumns() {
+        addComponentColumn(this::buildActiveStatusIcon).setId(ACTIVE_STATUS_ID)
+                .setCaption(i18n.getMessage("label.active")).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(true)
+                .setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+
+        addColumn(ProxyAction::getDsNameVersion).setId(DS_NAME_VERSION_ID)
+                .setCaption(i18n.getMessage("distribution.details.header")).setMinimumWidth(107d).setMaximumWidth(500d)
+                .setHidable(true).setHidden(false);
+
+        addColumn(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt(),
+                SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT)).setId(LAST_MODIFIED_AT_ID)
+                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date")).setMinimumWidth(100d)
+                        .setMaximumWidth(130d).setHidable(true).setHidden(false);
+
+        addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
+                .setMinimumWidth(53d).setMaximumWidth(55d).setHidable(true).setHidden(false)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+
+        addColumn(ProxyAction::getMaintenanceWindow).setId(MAINTENANCE_WINDOW_ID)
+                .setCaption(i18n.getMessage("header.maintenancewindow")).setMinimumWidth(150d).setMaximumWidth(200d)
+                .setHidable(true).setHidden(true);
+
+        addComponentColumn(this::buildTypeIcon).setId(TYPE_ID).setMinimumWidth(FIXED_PIX_MIN)
+                .setMaximumWidth(FIXED_PIX_MAX).setHidable(false).setHidden(false)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+
+        addComponentColumn(this::buildTimeforcedIcon).setId(TIME_FORCED_ID).setMinimumWidth(FIXED_PIX_MIN)
+                .setMaximumWidth(FIXED_PIX_MAX).setHidable(false).setHidden(false)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+
+        getDefaultHeaderRow().join(TYPE_ID, TIME_FORCED_ID).setText(i18n.getMessage("label.action.type"));
+
+        addActionColumns();
+
+        addColumn(ProxyAction::getId).setId(ACTION_ID).setCaption(i18n.getMessage("label.action.id"))
+                .setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(100d).setHidable(true).setHidden(true)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+
+        addColumn(ProxyAction::getDsNameVersion).setId(ROLLOUT_NAME_ID)
+                .setCaption(i18n.getMessage("caption.rollout.name")).setMinimumWidth(FIXED_PIX_MIN)
+                .setMaximumWidth(500d).setHidable(true).setHidden(true);
     }
 
-    private FontIcon createCancelButtonMetadata(final Action action) {
-        final boolean isDisabled = !action.isActive() || action.isCancelingOrCanceled()
-                || !permissionChecker.hasUpdateTargetPermission();
-        return new FontIcon(FontAwesome.TIMES, STATUS_ICON_NEUTRAL, i18n.getMessage("message.cancel.action"),
-                UIComponentIdProvider.ACTION_HISTORY_TABLE_CANCEL_ID, isDisabled);
+    private Label buildStatusIcon(final ProxyAction action) {
+        final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(action.getStatus()))
+                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
+
+        final String statusId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_STATUS_LABEL_ID)
+                .append(".").append(action.getId()).toString();
+
+        return buildLabelIcon(statusFontIcon, statusId);
     }
 
-    private FontIcon createForceButtonMetadata(final Action action) {
-        final boolean isDisabled = !action.isActive() || action.isForce() || action.isCancelingOrCanceled()
-                || !permissionChecker.hasUpdateTargetPermission();
-        return new FontIcon(FontAwesome.BOLT, STATUS_ICON_NEUTRAL, i18n.getMessage("message.force.action"),
-                UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_ID, isDisabled);
+    private Label buildActiveStatusIcon(final ProxyAction action) {
+        final FontIcon activeStatusFontIcon = Optional
+                .ofNullable(activeStatusIconMap.get(action.getIsActiveDecoration()))
+                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
+
+        final String activeStatusId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_ACTIVESTATE_LABEL_ID)
+                .append(".").append(action.getId()).toString();
+
+        return buildLabelIcon(activeStatusFontIcon, activeStatusId);
     }
 
-    private FontIcon createForceQuitButtonMetadata(final Action action) {
-        final boolean isDisabled = !action.isActive() || !action.isCancelingOrCanceled()
-                || !permissionChecker.hasUpdateTargetPermission();
-        return new FontIcon(FontAwesome.TIMES, STATUS_ICON_RED, i18n.getMessage("message.forcequit.action"),
-                UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_QUIT_ID, isDisabled);
+    private Label buildTypeIcon(final ProxyAction action) {
+        final FontIcon actionTypeFontIcon = Optional.ofNullable(actionTypeIconMap.get(action.getActionType()))
+                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
+
+        final String actionTypeId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID)
+                .append(".").append(action.getId()).toString();
+
+        return buildLabelIcon(actionTypeFontIcon, actionTypeId);
     }
 
-    private FontIcon createStatusLabelMetadata(final Action.Status status) {
-        return states.get(status);
-    }
-
-    private FontIcon createIsActiveLabelMetadata(final IsActiveDecoration isActiveDeco) {
-        return activeStates.get(isActiveDeco);
-    }
-
-    private FontIcon createTypeLabelMetadata(final Action action) {
-        if (ActionType.FORCED == action.getActionType() || ActionType.TIMEFORCED == action.getActionType()) {
-            return new FontIcon(FontAwesome.BOLT, STATUS_ICON_FORCED,
-                    i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED),
-                    UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID);
+    private Label buildTimeforcedIcon(final ProxyAction action) {
+        if (ActionType.TIMEFORCED != action.getActionType()) {
+            return null;
         }
-        if (ActionType.SOFT == action.getActionType()) {
-            return new FontIcon(FontAwesome.STEP_FORWARD, STATUS_ICON_SOFT,
-                    i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT),
-                    UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID);
+
+        final long currentTimeMillis = System.currentTimeMillis();
+        String style;
+        String description;
+        if (action.isHitAutoForceTime(currentTimeMillis)) {
+            style = SPUIStyleDefinitions.STATUS_ICON_GREEN;
+            final String duration = SPDateTimeUtil.getDurationFormattedString(action.getForcedTime(), currentTimeMillis,
+                    i18n);
+            description = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_SINCE, duration);
+        } else {
+            style = SPUIStyleDefinitions.STATUS_ICON_PENDING;
+            final String duration = SPDateTimeUtil.getDurationFormattedString(currentTimeMillis, action.getForcedTime(),
+                    i18n);
+            description = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_IN, duration);
         }
-        if (ActionType.DOWNLOAD_ONLY == action.getActionType()) {
-            return new FontIcon(FontAwesome.DOWNLOAD, STATUS_ICON_DOWNLOAD_ONLY,
-                    i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY),
-                    UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID);
-        }
-        return null;
+
+        final FontIcon timeforcedFontIcon = new FontIcon(VaadinIcons.TIMER, style, description);
+
+        final String actionTypeId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_TIMEFORCED_LABEL_ID)
+                .append(".").append(action.getId()).toString();
+
+        return buildLabelIcon(timeforcedFontIcon, actionTypeId);
     }
 
-    private FontIcon createTimeForcedLabelMetadata(final Action action) {
-        FontIcon result = null;
+    private void addActionColumns() {
+        addComponentColumn(action -> buildActionButton(clickEvent -> confirmAndCancelAction(action.getId()),
+                VaadinIcons.CLOSE_SMALL, "message.cancel.action", SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_CANCEL_ID + "." + action.getId(),
+                !action.isActive() || action.isCancelingOrCanceled() || !permissionChecker.hasUpdateTargetPermission()))
+                        .setId(CANCEL_BUTTON_ID).setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX)
+                        .setHidable(false).setHidden(false);
 
-        if (ActionType.TIMEFORCED == action.getActionType()) {
-            final long currentTimeMillis = System.currentTimeMillis();
-            String style;
-            String title;
-            if (action.isHitAutoForceTime(currentTimeMillis)) {
-                style = STATUS_ICON_GREEN;
-                final String duration = SPDateTimeUtil.getDurationFormattedString(action.getForcedTime(),
-                        currentTimeMillis, i18n);
-                title = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_SINCE, duration);
-            } else {
-                style = STATUS_ICON_PENDING;
-                final String duration = SPDateTimeUtil.getDurationFormattedString(currentTimeMillis,
-                        action.getForcedTime(), i18n);
-                title = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_IN, duration);
-            }
-            result = new FontIcon(FontAwesome.HISTORY, style, title,
-                    UIComponentIdProvider.ACTION_HISTORY_TABLE_TIMEFORCED_LABEL_ID);
-        }
-        return result;
+        addComponentColumn(action -> buildActionButton(clickEvent -> confirmAndForceAction(action.getId()),
+                VaadinIcons.BOLT, "message.force.action", SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_ID + "." + action.getId(),
+                !action.isActive() || action.isForce() || action.isCancelingOrCanceled()
+                        || !permissionChecker.hasUpdateTargetPermission())).setId(FORCE_BUTTON_ID)
+                                .setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX).setHidable(false)
+                                .setHidden(false);
+
+        addComponentColumn(action -> buildActionButton(clickEvent -> confirmAndForceQuitAction(action.getId()),
+                VaadinIcons.CLOSE_SMALL, "message.forcequit.action", SPUIStyleDefinitions.STATUS_ICON_RED,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_QUIT_ID + "." + action.getId(),
+                !action.isActive() || !action.isCancelingOrCanceled()
+                        || !permissionChecker.hasUpdateTargetPermission())).setId(FORCE_QUIT_BUTTON_ID)
+                                .setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX).setHidable(false)
+                                .setHidden(false);
+
+        getDefaultHeaderRow().join(CANCEL_BUTTON_ID, FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID)
+                .setText(i18n.getMessage("header.action"));
+    }
+
+    private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
+            final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
+        final Button actionButton = new Button();
+
+        actionButton.addClickListener(clickListener);
+        actionButton.setIcon(icon);
+        actionButton.setDescription(i18n.getMessage(descriptionProperty));
+        actionButton.setEnabled(enabled);
+        actionButton.setId(buttonId);
+        actionButton.addStyleName("tiny");
+        actionButton.addStyleName("borderless");
+        actionButton.addStyleName("button-no-border");
+        actionButton.addStyleName("action-type-padding");
+        actionButton.addStyleName(style);
+
+        return actionButton;
     }
 
     /**
@@ -350,7 +406,7 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
                     } else {
                         notification.displayValidationError(i18n.getMessage("message.forcequit.action.failed"));
                     }
-                }, FontAwesome.WARNING, UIComponentIdProvider.CONFIRMATION_POPUP_ID, null);
+                }, VaadinIcons.WARNING, UIComponentIdProvider.CONFIRMATION_POPUP_ID, null);
         UI.getCurrent().addWindow(confirmDialog.getWindow());
 
         confirmDialog.getWindow().bringToFront();
@@ -438,76 +494,13 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
         return false;
     }
 
-    @Override
-    protected void setHiddenColumns() {
-        getColumn(VIRT_PROP_TYPE).setHidable(false);
-        getColumn(VIRT_PROP_TIMEFORCED).setHidable(false);
-        getColumn(VIRT_PROP_ACTION_CANCEL).setHidable(false);
-        getColumn(VIRT_PROP_ACTION_FORCE).setHidable(false);
-        getColumn(VIRT_PROP_ACTION_FORCE_QUIT).setHidable(false);
-
-        getColumn(ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW).setHidden(true);
-        getColumn(ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW).setHidable(true);
-    }
-
-    @Override
-    protected CellDescriptionGenerator getDescriptionGenerator() {
-        return tooltipGenerator;
-    }
-
-    @Override
-    protected void setColumnHeaderNames() {
-        final HeaderRow newHeaderRow = resetHeaderDefaultRow();
-
-        getColumn(ProxyAction.PXY_ACTION_IS_ACTIVE_DECO).setHeaderCaption(i18n.getMessage("label.active"));
-        getColumn(ProxyAction.PXY_ACTION_DS_NAME_VERSION)
-                .setHeaderCaption(i18n.getMessage("distribution.details.header"));
-        getColumn(ProxyAction.PXY_ACTION_LAST_MODIFIED_AT)
-                .setHeaderCaption(i18n.getMessage("header.rolloutgroup.target.date"));
-        getColumn(ProxyAction.PXY_ACTION_STATUS).setHeaderCaption(i18n.getMessage("header.status"));
-        getColumn(ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW)
-                .setHeaderCaption(i18n.getMessage("header.maintenancewindow"));
-
-        newHeaderRow.join(VIRT_PROP_TYPE, VIRT_PROP_TIMEFORCED).setText(i18n.getMessage("label.action.type"));
-        newHeaderRow.join(VIRT_PROP_ACTION_CANCEL, VIRT_PROP_ACTION_FORCE, VIRT_PROP_ACTION_FORCE_QUIT)
-                .setText(i18n.getMessage("header.action"));
-    }
-
-    @Override
-    protected void setColumnExpandRatio() {
-        setColumnsSize(50.0, 50.0, ProxyAction.PXY_ACTION_IS_ACTIVE_DECO);
-        setColumnsSize(107.0, 500.0, ProxyAction.PXY_ACTION_DS_NAME_VERSION);
-        setColumnsSize(100.0, 130.0, ProxyAction.PXY_ACTION_LAST_MODIFIED_AT);
-        setColumnsSize(53.0, 55.0, ProxyAction.PXY_ACTION_STATUS);
-        setColumnsSize(150.0, 200.0, ProxyAction.PXY_ACTION_MAINTENANCE_WINDOW);
-        setColumnsSize(FIXED_PIX_MIN, FIXED_PIX_MIN, VIRT_PROP_TYPE, VIRT_PROP_TIMEFORCED, VIRT_PROP_ACTION_CANCEL,
-                VIRT_PROP_ACTION_FORCE, VIRT_PROP_ACTION_FORCE_QUIT);
-    }
-
-    /**
-     * Conveniently sets min- and max-width for a bunch of columns.
-     *
-     * @param min
-     *            minimum width
-     * @param max
-     *            maximum width
-     * @param columnPropertyIds
-     *            all the columns the min and max should be set for.
-     */
-    private void setColumnsSize(final double min, final double max, final String... columnPropertyIds) {
-        for (final String columnPropertyId : columnPropertyIds) {
-            getColumn(columnPropertyId).setMinimumWidth(min);
-            getColumn(columnPropertyId).setMaximumWidth(max);
-        }
-    }
-
     /**
      * Creates the grid content for maximized-state.
      */
     private void createMaximizedContent() {
         getSingleSelectionSupport().enable();
         getDetailsSupport().populateSelection();
-        getMaximizeSupport().createMaximizedContent();
+        getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
     }
 
@@ -516,15 +509,8 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
      */
     private void createMinimizedContent() {
         getSingleSelectionSupport().disable();
-        getMaximizeSupport().createMinimizedContent();
+        getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
-    }
-
-    @Override
-    protected void setColumnProperties() {
-        clearSortOrder();
-        setColumns(minColumnOrder);
-        alignColumns();
     }
 
     /**
@@ -538,232 +524,50 @@ public class ActionHistoryGrid extends AbstractGrid<LazyQueryContainer> {
     }
 
     /**
-     * Sets the alignment cell-style-generator that handles the alignment for
-     * the grid cells.
+     * Adds support to resize the action history grid.
      */
-    private void alignColumns() {
-        setCellStyleGenerator(alignGenerator);
-    }
+    class ActionHistoryResizeSupport extends AbstractResizeSupport {
 
-    /**
-     * Adds support for virtual properties (aka generated properties)
-     */
-    class ActionHistoryGeneratedPropertySupport extends AbstractGeneratedPropertySupport {
+        private final String[] maxColumnOrder = new String[] { ACTIVE_STATUS_ID, ACTION_ID, DS_NAME_VERSION_ID,
+                LAST_MODIFIED_AT_ID, STATUS_ID, MAINTENANCE_WINDOW_ID, ROLLOUT_NAME_ID, TYPE_ID, TIME_FORCED_ID,
+                CANCEL_BUTTON_ID, FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID };
 
-        @Override
-        public GeneratedPropertyContainer getDecoratedContainer() {
-            return (GeneratedPropertyContainer) getContainerDataSource();
-        }
+        private final String[] minColumnOrder = new String[] { ACTIVE_STATUS_ID, DS_NAME_VERSION_ID,
+                LAST_MODIFIED_AT_ID, STATUS_ID, MAINTENANCE_WINDOW_ID, TYPE_ID, TIME_FORCED_ID, CANCEL_BUTTON_ID,
+                FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID };
 
         @Override
-        public LazyQueryContainer getRawContainer() {
-            return (LazyQueryContainer) (getDecoratedContainer()).getWrappedContainer();
-        }
-
-        @Override
-        protected GeneratedPropertyContainer addGeneratedContainerProperties() {
-            final GeneratedPropertyContainer decoratedContainer = getDecoratedContainer();
-
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_TYPE, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_TIMEFORCED, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_ACTION_CANCEL, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_ACTION_FORCE, new GenericPropertyValueGenerator());
-            decoratedContainer.addGeneratedProperty(VIRT_PROP_ACTION_FORCE_QUIT, new GenericPropertyValueGenerator());
-
-            return decoratedContainer;
-        }
-    }
-
-    /**
-     * Adds support to maximize the grid.
-     */
-    class ActionHistoryMaximizeSupport extends AbstractMaximizeSupport {
-
-        /**
-         * Sets the property-ids available in maximized-state.
-         */
-        @Override
-        protected void setMaximizedColumnProperties() {
+        protected void setMaximizedColumnOrder() {
             clearSortOrder();
-            setColumns(maxColumnOrder);
-            alignColumns();
+            setColumnOrder(maxColumnOrder);
         }
 
         @Override
         protected void setMaximizedHiddenColumns() {
-            getColumn(ProxyAction.PXY_ACTION_ID).setHidden(false);
-            getColumn(ProxyAction.PXY_ACTION_ID).setHidable(true);
-            getColumn(ProxyAction.PXY_ACTION_ROLLOUT_NAME).setHidden(false);
-            getColumn(ProxyAction.PXY_ACTION_ROLLOUT_NAME).setHidable(true);
+            getColumn(ACTION_ID).setHidden(false);
+            getColumn(ROLLOUT_NAME_ID).setHidden(false);
         }
 
-        /**
-         * Sets additional headers for the maximized-state.
-         */
-        @Override
-        protected void setMaximizedHeaders() {
-            getColumn(ProxyAction.PXY_ACTION_ID).setHeaderCaption(i18n.getMessage("label.action.id"));
-            getColumn(ProxyAction.PXY_ACTION_ROLLOUT_NAME).setHeaderCaption(i18n.getMessage("caption.rollout.name"));
-        }
-
-        /**
-         * Sets the expand ratio for the maximized-state.
-         */
         @Override
         protected void setMaximizedColumnExpandRatio() {
-            /* set messages column can expand the rest of the available space */
-            setColumnsSize(50.0, 50.0, ProxyAction.PXY_ACTION_IS_ACTIVE_DECO);
-            setColumnsSize(FIXED_PIX_MIN, 100.0, ProxyAction.PXY_ACTION_ID);
-            setColumnsSize(107.0, 500.0, ProxyAction.PXY_ACTION_DS_NAME_VERSION);
-            setColumnsSize(100.0, 150.0, ProxyAction.PXY_ACTION_LAST_MODIFIED_AT);
-            setColumnsSize(53.0, 55.0, ProxyAction.PXY_ACTION_STATUS);
-            setColumnsSize(FIXED_PIX_MIN, FIXED_PIX_MAX, VIRT_PROP_TYPE, VIRT_PROP_TIMEFORCED, VIRT_PROP_ACTION_CANCEL,
-                    VIRT_PROP_ACTION_FORCE, VIRT_PROP_ACTION_FORCE_QUIT);
-            setColumnsSize(FIXED_PIX_MIN, 500.0, ProxyAction.PXY_ACTION_ROLLOUT_NAME);
-        }
-    }
-
-    /**
-     * Concrete html-label converter that handles IsActiveDecoration enum.
-     */
-    class HtmlIsActiveLabelConverter extends AbstractHtmlLabelConverter<IsActiveDecoration> {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Constructor that sets the appropriate adapter.
-         *
-         * @param adapter
-         *            adapts <code>IsActiveDecoration</code> to
-         *            <code>String</code>
-         */
-        public HtmlIsActiveLabelConverter(final LabelAdapter<IsActiveDecoration> adapter) {
-            addAdapter(adapter);
+            getColumn(LAST_MODIFIED_AT_ID).setMinimumWidth(100d).setMaximumWidth(150d);
         }
 
         @Override
-        public Class<IsActiveDecoration> getModelType() {
-            return IsActiveDecoration.class;
-        }
-    }
-
-    /**
-     * Concrete html-label converter that handles Actions.
-     */
-    class HtmlVirtPropLabelConverter extends AbstractHtmlLabelConverter<Action> {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Constructor that sets the appropriate adapter.
-         *
-         * @param adapter
-         *            adapts <code>Action</code> to <code>String</code>
-         */
-        public HtmlVirtPropLabelConverter(final LabelAdapter<Action> adapter) {
-            addAdapter(adapter);
+        protected void setMinimizedColumnOrder() {
+            clearSortOrder();
+            setColumnOrder(minColumnOrder);
         }
 
         @Override
-        public Class<Action> getModelType() {
-            return Action.class;
-        }
-    }
-
-    /**
-     * Concrete grid-button converter that handles Actions.
-     */
-    class ActionGridButtonConverter extends AbstractGridButtonConverter<Action> {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Constructor that sets the appropriate adapter.
-         *
-         * @param adapter
-         *            adapts <code>Action</code> to <code>StatusFontIcon</code>
-         */
-        public ActionGridButtonConverter(final GridButtonAdapter<Action> adapter) {
-            addAdapter(adapter);
+        protected void setMinimizedHiddenColumns() {
+            getColumn(ACTION_ID).setHidden(true);
+            getColumn(ROLLOUT_NAME_ID).setHidden(true);
         }
 
         @Override
-        public Class<Action> getModelType() {
-            return Action.class;
-        }
-    }
-
-    /**
-     * Generator class responsible to retrieve an Action from the grid data in
-     * order to generate a virtual property.
-     */
-    class GenericPropertyValueGenerator extends PropertyValueGenerator<Action> {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public Action getValue(final Item item, final Object itemId, final Object propertyId) {
-            return (Action) item.getItemProperty(ProxyAction.PXY_ACTION).getValue();
-        }
-
-        @Override
-        public Class<Action> getType() {
-            return Action.class;
-        }
-    }
-
-    /**
-     * Configuration that holds the styling properties for label- and
-     * button-renderers that are included in grid-cells.
-     */
-    public static class LabelConfig {
-
-        /**
-         * Initializes a map with all available status label metadata.
-         *
-         * @param i18n
-         * @param statusLabelId
-         * @return the configured map
-         */
-        public Map<Action.Status, FontIcon> createStatusLabelConfig(final VaadinMessageSource i18n,
-                final String statusLabelId) {
-            final HashMap<Action.Status, FontIcon> stateMap = Maps.newHashMapWithExpectedSize(9);
-            stateMap.put(Action.Status.FINISHED, new FontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_GREEN,
-                    i18n.getMessage("label.finished"), statusLabelId));
-            stateMap.put(Action.Status.ERROR, new FontIcon(FontAwesome.EXCLAMATION_CIRCLE, STATUS_ICON_RED,
-                    i18n.getMessage("label.error"), statusLabelId));
-            stateMap.put(Action.Status.WARNING, new FontIcon(FontAwesome.EXCLAMATION_CIRCLE, STATUS_ICON_ORANGE,
-                    i18n.getMessage("label.warning"), statusLabelId));
-            stateMap.put(Action.Status.RUNNING, new FontIcon(FontAwesome.ADJUST, STATUS_ICON_PENDING,
-                    i18n.getMessage("label.running"), statusLabelId));
-            stateMap.put(Action.Status.CANCELING, new FontIcon(FontAwesome.TIMES_CIRCLE, STATUS_ICON_PENDING,
-                    i18n.getMessage("label.cancelling"), statusLabelId));
-            stateMap.put(Action.Status.CANCELED, new FontIcon(FontAwesome.TIMES_CIRCLE, STATUS_ICON_GREEN,
-                    i18n.getMessage("label.cancelled"), statusLabelId));
-            stateMap.put(Action.Status.RETRIEVED, new FontIcon(FontAwesome.CIRCLE_O, STATUS_ICON_PENDING,
-                    i18n.getMessage("label.retrieved"), statusLabelId));
-            stateMap.put(Action.Status.DOWNLOADED, new FontIcon(FontAwesome.CLOUD_DOWNLOAD, STATUS_ICON_GREEN,
-                    i18n.getMessage("label.downloaded"), statusLabelId));
-            stateMap.put(Action.Status.DOWNLOAD, new FontIcon(FontAwesome.CLOUD_DOWNLOAD, STATUS_ICON_PENDING,
-                    i18n.getMessage("label.download"), statusLabelId));
-            stateMap.put(Action.Status.SCHEDULED, new FontIcon(FontAwesome.HOURGLASS_1, STATUS_ICON_PENDING,
-                    i18n.getMessage("label.scheduled"), statusLabelId));
-            return stateMap;
-        }
-
-        /**
-         * Initializes a map with all available active-state metadata.
-         *
-         * @param activeStateId
-         * @return the configured map
-         */
-        public Map<IsActiveDecoration, FontIcon> createActiveStatusLabelConfig(final String activeStateId) {
-            final HashMap<IsActiveDecoration, FontIcon> activeStateMap = Maps.newHashMapWithExpectedSize(4);
-            activeStateMap.put(IsActiveDecoration.SCHEDULED,
-                    new FontIcon(FontAwesome.HOURGLASS_1, STATUS_ICON_PENDING, "Scheduled", activeStateId));
-            activeStateMap.put(IsActiveDecoration.ACTIVE,
-                    new FontIcon(null, STATUS_ICON_ACTIVE, "Active", activeStateId));
-            activeStateMap.put(IsActiveDecoration.IN_ACTIVE,
-                    new FontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_NEUTRAL, "In-active", activeStateId));
-            activeStateMap.put(IsActiveDecoration.IN_ACTIVE_ERROR,
-                    new FontIcon(FontAwesome.CHECK_CIRCLE, STATUS_ICON_RED, "In-active", activeStateId));
-            return activeStateMap;
+        protected void setMinimizedColumnExpandRatio() {
+            getColumn(LAST_MODIFIED_AT_ID).setMinimumWidth(100d).setMaximumWidth(130d);
         }
     }
 }

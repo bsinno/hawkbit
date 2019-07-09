@@ -183,14 +183,16 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     }
 
     private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED,
-                new FontIcon(VaadinIcons.BOLT, "", i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
+        actionTypeIconMap.put(ActionType.FORCED, new FontIcon(VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
+                i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
         actionTypeIconMap.put(ActionType.TIMEFORCED,
-                new FontIcon(VaadinIcons.TIMER, "", i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
-        actionTypeIconMap.put(ActionType.SOFT,
-                new FontIcon(VaadinIcons.STEP_FORWARD, "", i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
-        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY, new FontIcon(VaadinIcons.DOWNLOAD, "",
-                i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
+                new FontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
+                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
+        actionTypeIconMap.put(ActionType.SOFT, new FontIcon(VaadinIcons.STEP_FORWARD,
+                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
+        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
+                new FontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
+                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
     }
 
     private final void hideColumnsDueToInsufficientPermissions() {
@@ -340,7 +342,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
 
     private Label buildStatusIcon(final ProxyRollout rollout) {
         final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rollout.getStatus())).orElse(new FontIcon(
-                VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE, i18n.getMessage("label.unknown")));
+                VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE, i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
         final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID).append(".")
                 .append(rollout.getId()).toString();
@@ -351,7 +353,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     private Label buildTypeIcon(final ProxyRollout rollout) {
         final FontIcon actionTypeFontIcon = Optional.ofNullable(actionTypeIconMap.get(rollout.getActionType()))
                 .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage("label.unknown")));
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
         final String actionTypeId = new StringBuilder(UIComponentIdProvider.ROLLOUT_ACTION_TYPE_LABEL_ID).append(".")
                 .append(rollout.getId()).toString();

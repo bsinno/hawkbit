@@ -8,60 +8,89 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
-import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.model.Action.Status;
+import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatusMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.customrenderers.renderers.HtmlLabelRenderer;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGrid.LabelConfig;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
+import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.google.common.collect.Maps;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Label;
 
 /**
  * This grid presents the action states for a selected action.
  */
-public class ActionStatusGrid extends AbstractGrid<LazyQueryContainer> {
+public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus> {
     private static final long serialVersionUID = 1L;
 
-    private static final String[] leftAlignedColumns = new String[] { ProxyActionStatus.PXY_AS_CREATED_AT };
+    private static final String STATUS_ID = "status";
+    private static final String CREATED_AT_ID = "createdAt";
 
-    private static final String[] centerAlignedColumns = new String[] { ProxyActionStatus.PXY_AS_STATUS };
+    private final Map<Status, FontIcon> statusIconMap = new EnumMap<>(Status.class);
 
-    private final AlignCellStyleGenerator alignGenerator;
-    private final TooltipGenerator tooltipGenerator;
-
-    private final Map<Action.Status, FontIcon> states;
-
-    private final BeanQueryFactory<ActionStatusBeanQuery> targetQF = new BeanQueryFactory<>(
-            ActionStatusBeanQuery.class);
+    private final ActionStatusDataProvider actionStatusDataProvider;
 
     /**
      * Constructor.
      *
      * @param i18n
      * @param eventBus
+     * @param deploymentManagement
      */
-    protected ActionStatusGrid(final VaadinMessageSource i18n, final UIEventBus eventBus) {
+    protected ActionStatusGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
+            final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus, null);
 
         setSingleSelectionSupport(new SingleSelectionSupport());
         setDetailsSupport(new DetailsSupport());
 
-        final LabelConfig conf = new ActionHistoryGrid.LabelConfig();
-        states = conf.createStatusLabelConfig(i18n, UIComponentIdProvider.ACTION_STATUS_GRID_STATUS_LABEL_ID);
-        alignGenerator = new AlignCellStyleGenerator(leftAlignedColumns, centerAlignedColumns, null);
-        tooltipGenerator = new TooltipGenerator(i18n);
+        this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
+                getDetailsSupport().getMasterDataId(), new ActionStatusToProxyActionStatusMapper());
+
+        initStatusIconMap();
 
         init();
+    }
+
+    private void initStatusIconMap() {
+        statusIconMap.put(Status.FINISHED, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.FINISHED)));
+        statusIconMap.put(Status.SCHEDULED, new FontIcon(VaadinIcons.HOURGLASS_EMPTY,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.SCHEDULED)));
+        statusIconMap.put(Status.RUNNING, new FontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING,
+                getStatusDescription(Status.RUNNING)));
+        statusIconMap.put(Status.RETRIEVED, new FontIcon(VaadinIcons.CHECK_CIRCLE_O,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RETRIEVED)));
+        statusIconMap.put(Status.WARNING, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_ORANGE, getStatusDescription(Status.WARNING)));
+        statusIconMap.put(Status.DOWNLOAD, new FontIcon(VaadinIcons.CLOUD_DOWNLOAD,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.DOWNLOAD)));
+        statusIconMap.put(Status.DOWNLOADED, new FontIcon(VaadinIcons.CLOUD_DOWNLOAD,
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.DOWNLOADED)));
+        statusIconMap.put(Status.CANCELING, new FontIcon(VaadinIcons.CLOSE_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.CANCELING)));
+        statusIconMap.put(Status.CANCELED, new FontIcon(VaadinIcons.CLOSE_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.CANCELED)));
+        statusIconMap.put(Status.ERROR, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(Status.ERROR)));
+    }
+
+    private String getStatusDescription(final Status actionStatus) {
+        return i18n
+                .getMessage(UIMessageIdProvider.TOOLTIP_ACTION_STATUS_PREFIX + actionStatus.toString().toLowerCase());
     }
 
     @Override
@@ -70,97 +99,35 @@ public class ActionStatusGrid extends AbstractGrid<LazyQueryContainer> {
     }
 
     @Override
-    protected LazyQueryContainer createContainer() {
-        configureQueryFactory();
-        return new LazyQueryContainer(
-                new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, ProxyActionStatus.PXY_AS_ID), targetQF);
-    }
-
-    @Override
-    public void refreshContainer() {
-        configureQueryFactory();
-        super.refreshContainer();
-    }
-
-    protected void configureQueryFactory() {
-        // ADD all the filters to the query config
-        final Map<String, Object> queryConfig = Maps.newHashMapWithExpectedSize(1);
-        queryConfig.put(SPUIDefinitions.ACTIONSTATES_BY_ACTION, getDetailsSupport().getMasterDataId());
-        // Create ActionBeanQuery factory with the query config.
-        targetQF.setQueryConfiguration(queryConfig);
-    }
-
-    /**
-     * Gets type-save access to LazyQueryContainer.
-     *
-     * @return LazyQueryContainer
-     */
-    private LazyQueryContainer getLazyQueryContainer() {
-        return (LazyQueryContainer) getContainerDataSource();
-    }
-
-    @Override
-    protected void addContainerProperties() {
-        final LazyQueryContainer lqContainer = getLazyQueryContainer();
-        lqContainer.addContainerProperty(ProxyActionStatus.PXY_AS_CREATED_AT, Long.class, null, true, true);
-        lqContainer.addContainerProperty(ProxyActionStatus.PXY_AS_STATUS, Action.Status.class, null, true, false);
-    }
-
-    @Override
-    protected void setColumnExpandRatio() {
-        getColumn(ProxyActionStatus.PXY_AS_STATUS).setMinimumWidth(53);
-        getColumn(ProxyActionStatus.PXY_AS_STATUS).setMaximumWidth(55);
-        getColumn(ProxyActionStatus.PXY_AS_CREATED_AT).setMinimumWidth(100);
-        getColumn(ProxyActionStatus.PXY_AS_CREATED_AT).setMaximumWidth(400);
-    }
-
-    @Override
-    protected void setColumnHeaderNames() {
-        getColumn(ProxyActionStatus.PXY_AS_STATUS).setHeaderCaption(i18n.getMessage("header.status"));
-        getColumn(ProxyActionStatus.PXY_AS_CREATED_AT)
-                .setHeaderCaption(i18n.getMessage("header.rolloutgroup.target.date"));
-    }
-
-    @Override
     protected String getGridId() {
         return UIComponentIdProvider.ACTION_HISTORY_DETAILS_GRID_ID;
     }
 
     @Override
-    protected void setColumnProperties() {
-        clearSortOrder();
-        setColumns(ProxyActionStatus.PXY_AS_STATUS, ProxyActionStatus.PXY_AS_CREATED_AT);
-        alignColumns();
+    protected void setDataProvider() {
+        setDataProvider(actionStatusDataProvider);
     }
 
     @Override
-    protected void addColumnRenderers() {
-        getColumn(ProxyActionStatus.PXY_AS_STATUS).setRenderer(new HtmlLabelRenderer(),
-                new HtmlStatusLabelConverter(this::createStatusLabelMetadata));
-        getColumn(ProxyActionStatus.PXY_AS_CREATED_AT).setConverter(new LongToFormattedDateStringConverter());
+    protected void addColumns() {
+        addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
+                .setMinimumWidth(53d).setMaximumWidth(53d).setHidable(false).setHidden(false)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+
+        addColumn(actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt(),
+                SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT)).setId(CREATED_AT_ID)
+                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date")).setMinimumWidth(100d)
+                        .setMaximumWidth(400d).setHidable(false).setHidden(false);
     }
 
-    private FontIcon createStatusLabelMetadata(final Action.Status status) {
-        return states.get(status);
-    }
+    private Label buildStatusIcon(final ProxyActionStatus actionStatus) {
+        final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(actionStatus.getStatus()))
+                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
-    @Override
-    protected void setHiddenColumns() {
-        getColumn(ProxyActionStatus.PXY_AS_STATUS).setHidable(false);
-        getColumn(ProxyActionStatus.PXY_AS_CREATED_AT).setHidable(false);
-    }
+        final String statusId = new StringBuilder(UIComponentIdProvider.ACTION_STATUS_GRID_STATUS_LABEL_ID).append(".")
+                .append(actionStatus.getId()).toString();
 
-    /**
-     * Sets the alignment cell-style-generator that handles the alignment for
-     * the grid cells.
-     */
-    private void alignColumns() {
-        setCellStyleGenerator(alignGenerator);
+        return buildLabelIcon(statusFontIcon, statusId);
     }
-
-    @Override
-    protected CellDescriptionGenerator getDescriptionGenerator() {
-        return tooltipGenerator;
-    }
-
 }

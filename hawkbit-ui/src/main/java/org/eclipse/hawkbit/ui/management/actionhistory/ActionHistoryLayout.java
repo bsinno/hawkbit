@@ -13,6 +13,8 @@ import java.util.Optional;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
@@ -36,8 +38,8 @@ import com.vaadin.ui.UI;
 /**
  * Layout responsible for action-history-grid and the corresponding header.
  */
-public class ActionHistoryLayout extends AbstractGridComponentLayout {
-    private static final long serialVersionUID = -3766179797384539821L;
+public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction> {
+    private static final long serialVersionUID = 1L;
 
     private final transient DeploymentManagement deploymentManagement;
     private final UINotification notification;
@@ -121,10 +123,10 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout {
      * the state changes to maximize and hence the dependent grids are updated.
      */
     @Override
-    public void registerDetails(final AbstractGrid<?>.DetailsSupport details) {
+    public void registerDetails(final AbstractGrid<? extends ProxyIdentifiableEntity>.DetailsSupport details) {
         this.details = details;
         getGrid().addSelectionListener(event -> {
-            masterForDetails = (Long) event.getSelected().stream().findFirst().orElse(null);
+            masterForDetails = event.getFirstSelectedItem().map(ProxyAction::getId).orElse(null);
             if (managementUIState.isActionHistoryMaximized()) {
                 details.populateMasterDataAndRecalculateContainer(masterForDetails);
             }

@@ -9,6 +9,8 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.model.Action.ActionType;
+import org.eclipse.hawkbit.repository.model.Action.Status;
 
 /**
  * Proxy for {@link Action}
@@ -16,16 +18,7 @@ import org.eclipse.hawkbit.repository.model.Action;
 public class ProxyAction extends ProxyIdentifiableEntity {
     private static final long serialVersionUID = 1L;
 
-    public static final String PXY_ACTION_STATUS = "status";
-    public static final String PXY_ACTION_IS_ACTIVE = "isActive";
-    public static final String PXY_ACTION_IS_ACTIVE_DECO = "isActiveDecoration";
-    public static final String PXY_ACTION_ID = "id";
-    public static final String PXY_ACTION_DS_NAME_VERSION = "dsNameVersion";
-    public static final String PXY_ACTION = "action";
-    public static final String PXY_ACTION_LAST_MODIFIED_AT = "lastModifiedAt";
-    public static final String PXY_ACTION_ROLLOUT_NAME = "rolloutName";
-    public static final String PXY_ACTION_MAINTENANCE_WINDOW = "maintenanceWindow";
-
+    private ActionType actionType;
     private Action.Status status;
     private boolean isActive;
     private IsActiveDecoration isActiveDecoration;
@@ -33,6 +26,7 @@ public class ProxyAction extends ProxyIdentifiableEntity {
     private Long lastModifiedAt;
     private String rolloutName;
     private String maintenanceWindow;
+    private long forcedTime;
 
     public String getMaintenanceWindow() {
         return maintenanceWindow;
@@ -161,32 +155,81 @@ public class ProxyAction extends ProxyIdentifiableEntity {
         this.rolloutName = rolloutName;
     }
 
+    public ActionType getActionType() {
+        return actionType;
+    }
+
+    public void setActionType(final ActionType actionType) {
+        this.actionType = actionType;
+    }
+
+    public long getForcedTime() {
+        return forcedTime;
+    }
+
+    public void setForcedTime(final long forcedTime) {
+        this.forcedTime = forcedTime;
+    }
+
+    public boolean isHitAutoForceTime(final long hitTimeMillis) {
+        if (ActionType.TIMEFORCED == getActionType()) {
+            return hitTimeMillis >= getForcedTime();
+        }
+        return false;
+    }
+
+    public boolean isCancelingOrCanceled() {
+        return Status.CANCELING == getStatus() || Status.CANCELED == getStatus();
+    }
+
+    public boolean isForce() {
+        switch (getActionType()) {
+        case FORCED:
+            return true;
+        case TIMEFORCED:
+            return isHitAutoForceTime(System.currentTimeMillis());
+        default:
+            return false;
+        }
+    }
+
     /**
      * Pre-calculated decoration value combining
      * <code>ProxyAction#isActive</code> and <code>ProxyAction#getStatus</code>
      * states.
      */
     public enum IsActiveDecoration {
+
         /**
          * Active label decoration type for {@code ProxyAction#isActive()==true}
          */
-        ACTIVE,
+        ACTIVE("active"),
 
         /**
          * Active label decoration type for
          * {@code ProxyAction#isActive()==false}
          */
-        IN_ACTIVE,
+        IN_ACTIVE("inactive"),
 
         /**
          * Active label decoration type for {@code ProxyAction#isActive()==true}
          * AND {@code ProxyAction#getStatus()==Action.Status.ERROR}
          */
-        IN_ACTIVE_ERROR,
+        IN_ACTIVE_ERROR("inactiveerror"),
 
         /**
          * {@code ProxyAction#getStatus()==Action.Status.SCHEDULED}
          */
-        SCHEDULED,
+        SCHEDULED("scheduled");
+
+        private final String msgName;
+
+        IsActiveDecoration(final String msgName) {
+            this.msgName = msgName;
+        }
+
+        public String getName() {
+            return msgName;
+        }
     }
 }

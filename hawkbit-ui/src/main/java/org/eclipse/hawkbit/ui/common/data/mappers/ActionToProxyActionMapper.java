@@ -23,17 +23,19 @@ public class ActionToProxyActionMapper
     public ProxyAction map(final Action action) {
         final ProxyAction proxyAction = new ProxyAction();
 
+        proxyAction.setId(action.getId());
         final String dsNameVersion = action.getDistributionSet().getName() + ":"
                 + action.getDistributionSet().getVersion();
+        proxyAction.setDsNameVersion(dsNameVersion);
+        proxyAction.setActionType(action.getActionType());
         proxyAction.setActive(action.isActive());
         proxyAction.setIsActiveDecoration(buildIsActiveDecoration(action));
-        proxyAction.setDsNameVersion(dsNameVersion);
-        proxyAction.setId(action.getId());
         proxyAction.setLastModifiedAt(action.getLastModifiedAt());
         proxyAction.setRolloutName(action.getRollout() != null ? action.getRollout().getName() : "");
         proxyAction.setStatus(action.getStatus());
         proxyAction
                 .setMaintenanceWindow(action.hasMaintenanceSchedule() ? buildMaintenanceWindowDisplayText(action) : "");
+        proxyAction.setForcedTime(action.getForcedTime());
 
         return proxyAction;
     }

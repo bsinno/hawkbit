@@ -13,15 +13,10 @@ import java.util.Collections;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
-import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.Converter;
-import com.vaadin.data.Result;
-import com.vaadin.data.ValueContext;
 import com.vaadin.data.provider.Query;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Grid;
@@ -40,11 +35,13 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
 public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableContainer {
     private static final long serialVersionUID = 1L;
 
+    protected static final String CENTER_ALIGN = "v-align-center";
+
     protected final VaadinMessageSource i18n;
     protected final transient EventBus.UIEventBus eventBus;
     protected final SpPermissionChecker permissionChecker;
 
-    private transient AbstractMaximizeSupport maximizeSupport;
+    private transient AbstractResizeSupport resizeSupport;
     private transient SingleSelectionSupport singleSelectionSupport;
     private transient DetailsSupport detailsSupport;
 
@@ -113,25 +110,25 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
     protected abstract void addColumns();
 
     /**
-     * Enables maximize-support for the grid by setting a MaximizeSupport
+     * Enables resize support for the grid by setting a ResizeSupport
      * implementation.
      *
-     * @param maximizeSupport
+     * @param resizeSupport
      *            encapsulates behavior for minimize and maximize.
      */
-    protected void setMaximizeSupport(final AbstractMaximizeSupport maximizeSupport) {
-        this.maximizeSupport = maximizeSupport;
+    protected void setResizeSupport(final AbstractResizeSupport resizeSupport) {
+        this.resizeSupport = resizeSupport;
     }
 
     /**
-     * Gets the MaximizeSupport implementation describing behavior for minimize
+     * Gets the ResizeSupport implementation describing behavior for minimize
      * and maximize.
      *
-     * @return maximizeSupport that encapsulates behavior for minimize and
+     * @return resizeSupport that encapsulates behavior for minimize and
      *         maximize.
      */
-    protected AbstractMaximizeSupport getMaximizeSupport() {
-        return maximizeSupport;
+    protected AbstractResizeSupport getResizeSupport() {
+        return resizeSupport;
     }
 
     /**
@@ -140,8 +137,8 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
      * @return <code>true</code> if maximize-support is enabled, otherwise
      *         <code>false</code>
      */
-    protected boolean hasMaximizeSupport() {
-        return maximizeSupport != null;
+    protected boolean hasResizeSupport() {
+        return resizeSupport != null;
     }
 
     /**
@@ -314,15 +311,14 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
      * Via implementations of this support capability an expand-mode is provided
      * that maximizes the grid size.
      */
-    public abstract class AbstractMaximizeSupport {
+    public abstract class AbstractResizeSupport {
 
         /**
          * Renews the content for maximized layout.
          */
         public void createMaximizedContent() {
-            setMaximizedColumnProperties();
+            setMaximizedColumnOrder();
             setMaximizedHiddenColumns();
-            setMaximizedHeaders();
             setMaximizedColumnExpandRatio();
         }
 
@@ -330,23 +326,35 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
          * Renews the content for minimized layout.
          */
         public void createMinimizedContent() {
-            // TODO: implement the column creation for minimized case
+            setMinimizedColumnOrder();
+            setMinimizedHiddenColumns();
+            setMinimizedColumnExpandRatio();
         }
 
         /**
-         * Sets the column properties for maximized-state.
+         * Sets the column order for minimized-state.
          */
-        protected abstract void setMaximizedColumnProperties();
+        protected abstract void setMinimizedColumnOrder();
+
+        /**
+         * Sets the hidden columns for minimized-state.
+         */
+        protected abstract void setMinimizedHiddenColumns();
+
+        /**
+         * Sets column expand ratio for minimized-state.
+         */
+        protected abstract void setMinimizedColumnExpandRatio();
+
+        /**
+         * Sets the column order for maximized-state.
+         */
+        protected abstract void setMaximizedColumnOrder();
 
         /**
          * Sets the hidden columns for maximized-state.
          */
         protected abstract void setMaximizedHiddenColumns();
-
-        /**
-         * Sets additional headers for maximized-state.
-         */
-        protected abstract void setMaximizedHeaders();
 
         /**
          * Sets column expand ratio for maximized-state.
@@ -402,27 +410,6 @@ public abstract class AbstractGrid<T> extends Grid<T> implements RefreshableCont
                 return;
             }
             getSelectionModel().select(null);
-        }
-    }
-
-    // TODO: check if we really need it or is it better to inline it with lambda
-    // expression
-    /**
-     * Converter that gets time-data as input of type <code>Long</code> and
-     * converts to a formatted date string.
-     */
-    public class LongToFormattedDateStringConverter implements Converter<String, Long> {
-        private static final long serialVersionUID = 1247513913478717845L;
-
-        @Override
-        public Result<Long> convertToModel(final String value, final ValueContext context) {
-            // not needed
-            return null;
-        }
-
-        @Override
-        public String convertToPresentation(final Long value, final ValueContext context) {
-            return SPDateTimeUtil.getFormattedDate(value, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT);
         }
     }
 

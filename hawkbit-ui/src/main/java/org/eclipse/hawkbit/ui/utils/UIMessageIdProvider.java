@@ -71,6 +71,8 @@ public final class UIMessageIdProvider {
 
     public static final String LABEL_CREATE_FILTER = "label.create.filter";
 
+    public static final String LABEL_UNKNOWN = "label.unknown";
+
     public static final String LABEL_AUTO_ASSIGNMENT_DESC = "label.auto.assign.description";
 
     public static final String LABEL_AUTO_ASSIGNMENT_ENABLE = "label.auto.assign.enable";
@@ -206,6 +208,8 @@ public final class UIMessageIdProvider {
     public static final String TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX = "tooltip.rollout.group.status.";
 
     public static final String TOOLTIP_ACTION_STATUS_PREFIX = "tooltip.action.status.";
+
+    public static final String TOOLTIP_ACTIVE_ACTION_STATUS_PREFIX = "tooltip.active.action.status.";
 
     /**
      * Private Constructor.

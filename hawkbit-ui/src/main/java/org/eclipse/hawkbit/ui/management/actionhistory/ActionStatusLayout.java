@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
+import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -17,10 +19,11 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Layout responsible for action-states-grid and the corresponding header.
  */
-public class ActionStatusLayout extends AbstractGridComponentLayout {
+public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionStatus> {
     private static final long serialVersionUID = 1L;
 
-    protected final ManagementUIState managementUIState;
+    private final ManagementUIState managementUIState;
+    private final DeploymentManagement deploymentManagement;
 
     /**
      * Constructor.
@@ -30,9 +33,11 @@ public class ActionStatusLayout extends AbstractGridComponentLayout {
      * @param managementUIState
      */
     public ActionStatusLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final ManagementUIState managementUIState) {
+            final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus);
         this.managementUIState = managementUIState;
+        this.deploymentManagement = deploymentManagement;
+
         init();
     }
 
@@ -49,7 +54,7 @@ public class ActionStatusLayout extends AbstractGridComponentLayout {
 
     @Override
     public ActionStatusGrid createGrid() {
-        return new ActionStatusGrid(getI18n(), getEventBus());
+        return new ActionStatusGrid(getI18n(), getEventBus(), deploymentManagement);
     }
 
 }

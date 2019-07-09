@@ -181,6 +181,36 @@ public final class SPUIStyleDefinitions {
     public static final String STATUS_ICON_RED = "statusIconRed";
 
     /**
+     * Status icon style - neutral color.
+     */
+    public static final String STATUS_ICON_NEUTRAL = "statusIconNeutral";
+
+    /**
+     * Status icon style - active color.
+     */
+    public static final String STATUS_ICON_ACTIVE = "statusIconActive";
+
+    /**
+     * Status icon style - forced color.
+     */
+    public static final String STATUS_ICON_FORCED = "statusIconForced";
+
+    /**
+     * Status icon style - time forced color.
+     */
+    public static final String STATUS_ICON_TIME_FORCED = "statusIconTimeForced";
+
+    /**
+     * Status icon style - soft color.
+     */
+    public static final String STATUS_ICON_SOFT = "statusIconSoft";
+
+    /**
+     * Status icon style - download only color.
+     */
+    public static final String STATUS_ICON_DOWNLOAD_ONLY = "statusIconDownloadOnly";
+
+    /**
      * Status icon style - orange color.
      */
     public static final String STATUS_ICON_ORANGE = "statusIconOrange";

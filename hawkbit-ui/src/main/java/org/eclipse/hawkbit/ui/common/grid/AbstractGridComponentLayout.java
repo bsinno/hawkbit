@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -24,7 +25,7 @@ import com.vaadin.ui.VerticalLayout;
  * Abstract grid layout class which builds layout with grid {@link AbstractGrid}
  * and grid header {@link DefaultGridHeader}.
  */
-public abstract class AbstractGridComponentLayout<T> extends VerticalLayout {
+public abstract class AbstractGridComponentLayout<T extends ProxyIdentifiableEntity> extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
@@ -111,9 +112,9 @@ public abstract class AbstractGridComponentLayout<T> extends VerticalLayout {
      *            the details of another grid the selection of this grid should
      *            be registered for as master.
      */
-    public void registerDetails(final AbstractGrid<?>.DetailsSupport details) {
+    public void registerDetails(final AbstractGrid<? extends ProxyIdentifiableEntity>.DetailsSupport details) {
         grid.addSelectionListener(event -> {
-            final Long masterId = (Long) event.getFirstSelectedItem().orElse(null);
+            final Long masterId = event.getFirstSelectedItem().map(ProxyIdentifiableEntity::getId).orElse(null);
             details.populateMasterDataAndRecalculateContainer(masterId);
         });
     }
