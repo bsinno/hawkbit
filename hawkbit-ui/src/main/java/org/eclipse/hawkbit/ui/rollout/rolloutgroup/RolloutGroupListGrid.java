@@ -41,7 +41,7 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 /**
  * Rollout group list grid component.
  */
-public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
+public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -52,8 +52,6 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
     private final RolloutUIState rolloutUIState;
 
     private final Map<RolloutGroupStatus, FontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
-
-    private final RolloutGroupDataProvider rolloutGroupDataProvider;
 
     /**
      * Constructor for RolloutGroupListGrid (Header with breadcrumbs)
@@ -72,10 +70,9 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
     public RolloutGroupListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
             final SpPermissionChecker permissionChecker, final RolloutGroupDataProvider rolloutGroupDataProvider) {
-        super(i18n, eventBus, permissionChecker);
+        super(i18n, eventBus, permissionChecker, rolloutGroupDataProvider.withConfigurableFilter());
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.rolloutUIState = rolloutUIState;
-        this.rolloutGroupDataProvider = rolloutGroupDataProvider;
 
         initStatusIconMap();
 
@@ -103,11 +100,6 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
     @Override
     protected String getGridId() {
         return UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID;
-    }
-
-    @Override
-    protected void setDataProvider() {
-        setDataProvider(rolloutGroupDataProvider);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -143,7 +135,7 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup> {
     }
 
     @Override
-    protected void addColumns() {
+    public void addColumns() {
         addComponentColumn(this::buildRolloutGroupLink).setId(ROLLOUT_GROUP_LINK_ID)
                 .setCaption(i18n.getMessage("header.name")).setMinimumWidth(40).setMaximumWidth(200).setHidable(true);
 

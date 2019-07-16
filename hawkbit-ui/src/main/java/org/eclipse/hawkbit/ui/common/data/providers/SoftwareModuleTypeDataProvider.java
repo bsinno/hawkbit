@@ -24,7 +24,7 @@ import org.springframework.data.domain.Sort.Direction;
  * of {@link SoftwareModuleType} entities from backend and maps them to
  * corresponding {@link ProxyType} entities.
  */
-public class SoftwareModuleTypeDataProvider extends ProxyDataProvider<ProxyType, SoftwareModuleType, String> {
+public class SoftwareModuleTypeDataProvider extends ProxyDataProvider<ProxyType, SoftwareModuleType, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,12 +38,12 @@ public class SoftwareModuleTypeDataProvider extends ProxyDataProvider<ProxyType,
 
     @Override
     protected Optional<Slice<SoftwareModuleType>> loadBackendEntities(final PageRequest pageRequest,
-            final String filter) {
+            final Optional<Void> filter) {
         return Optional.of(softwareModuleTypeManagement.findAll(pageRequest));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         return softwareModuleTypeManagement.count();
     }
 

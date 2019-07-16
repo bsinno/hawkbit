@@ -12,6 +12,7 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusMsgDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.SingleSelectionSupport;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -26,15 +27,11 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * This grid presents the messages for a selected action-status.
  */
-public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage> {
+public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
     private static final long serialVersionUID = 1L;
 
     private static final String MSG_ID = "id";
     private static final String VALUE_ID = "msgValue";
-
-    private final String noMsgText;
-
-    private final ActionStatusMsgDataProvider actionStatusMsgDataProvider;
 
     /**
      * Constructor.
@@ -44,14 +41,10 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage> {
      */
     protected ActionStatusMsgGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final DeploymentManagement deploymentManagement) {
-        super(i18n, eventBus, null);
-        noMsgText = createNoMessageProxy(i18n);
+        super(i18n, eventBus, null, new ActionStatusMsgDataProvider(deploymentManagement, createNoMessageProxy(i18n))
+                .withConfigurableFilter());
 
-        setSingleSelectionSupport(new SingleSelectionSupport());
-        setDetailsSupport(new DetailsSupport());
-
-        actionStatusMsgDataProvider = new ActionStatusMsgDataProvider(deploymentManagement,
-                getDetailsSupport().getMasterDataId(), noMsgText);
+        setSingleSelectionSupport(new SingleSelectionSupport<ProxyMessage>(this));
 
         addStyleName(SPUIStyleDefinitions.ACTION_HISTORY_MESSAGE_GRID);
 
@@ -108,12 +101,7 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage> {
     }
 
     @Override
-    protected void setDataProvider() {
-        setDataProvider(actionStatusMsgDataProvider);
-    }
-
-    @Override
-    protected void addColumns() {
+    public void addColumns() {
         addColumn(ProxyMessage::getId).setId(MSG_ID).setCaption("##").setExpandRatio(0).setHidable(false)
                 .setHidden(false).setStyleGenerator(item -> "v-align-right");
 

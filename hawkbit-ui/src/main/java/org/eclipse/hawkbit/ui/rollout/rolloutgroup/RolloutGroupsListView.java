@@ -18,8 +18,6 @@ import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Grid;
-
 /**
  * Groups List View.
  */
@@ -27,11 +25,8 @@ public class RolloutGroupsListView extends AbstractGridComponentLayout<ProxyRoll
 
     private static final long serialVersionUID = 1L;
 
-    private final SpPermissionChecker permissionChecker;
-    private final RolloutUIState rolloutUIState;
-    private final transient RolloutGroupManagement rolloutGroupManagement;
-
-    private final RolloutGroupDataProvider rolloutGroupDataProvider;
+    private final RolloutGroupsListHeader rolloutGroupsListHeader;
+    private final RolloutGroupListGrid rolloutGroupListGrid;
 
     /**
      * Constructor for RolloutGroupsListView
@@ -51,11 +46,14 @@ public class RolloutGroupsListView extends AbstractGridComponentLayout<ProxyRoll
             final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
             final SpPermissionChecker permissionChecker) {
         super(i18n, eventBus);
-        this.permissionChecker = permissionChecker;
-        this.rolloutUIState = rolloutUIState;
-        this.rolloutGroupManagement = rolloutGroupManagement;
-        this.rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement, rolloutUIState,
-                new RolloutGroupToProxyRolloutGroupMapper());
+
+        final RolloutGroupDataProvider rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement,
+                rolloutUIState, new RolloutGroupToProxyRolloutGroupMapper());
+
+        this.rolloutGroupsListHeader = new RolloutGroupsListHeader(getEventBus(), rolloutUIState, getI18n());
+        this.rolloutGroupListGrid = new RolloutGroupListGrid(getI18n(), getEventBus(), rolloutGroupManagement,
+                rolloutUIState, permissionChecker, rolloutGroupDataProvider);
+
         init();
     }
 
@@ -65,14 +63,12 @@ public class RolloutGroupsListView extends AbstractGridComponentLayout<ProxyRoll
     }
 
     @Override
-    public RolloutGroupsListHeader createGridHeader() {
-        return new RolloutGroupsListHeader(getEventBus(), rolloutUIState, getI18n());
+    public RolloutGroupsListHeader getGridHeader() {
+        return rolloutGroupsListHeader;
     }
 
     @Override
-    public Grid<ProxyRolloutGroup> createGrid() {
-        return new RolloutGroupListGrid(getI18n(), getEventBus(), rolloutGroupManagement, rolloutUIState,
-                permissionChecker, rolloutGroupDataProvider);
+    public RolloutGroupListGrid getGrid() {
+        return rolloutGroupListGrid;
     }
-
 }

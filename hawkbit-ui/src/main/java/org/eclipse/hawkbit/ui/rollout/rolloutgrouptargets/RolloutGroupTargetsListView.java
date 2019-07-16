@@ -18,8 +18,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 
 /**
@@ -30,15 +28,24 @@ public class RolloutGroupTargetsListView extends AbstractGridComponentLayout<Pro
 
     private final RolloutUIState rolloutUIState;
 
-    private final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider;
+    private final RolloutGroupTargetsListHeader rolloutGroupTargetsListHeader;
+    private final RolloutGroupTargetsListGrid rolloutGroupTargetsListGrid;
 
     public RolloutGroupTargetsListView(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final RolloutUIState rolloutUIState, final RolloutGroupManagement rolloutGroupManagement) {
         super(i18n, eventBus);
         this.rolloutUIState = rolloutUIState;
-        this.rolloutGroupTargetsDataProvider = new RolloutGroupTargetsDataProvider(rolloutGroupManagement,
-                rolloutUIState, new TargetWithActionStatusToProxyTargetMapper());
+
+        final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider = new RolloutGroupTargetsDataProvider(
+                rolloutGroupManagement, rolloutUIState, new TargetWithActionStatusToProxyTargetMapper());
+
+        this.rolloutGroupTargetsListHeader = new RolloutGroupTargetsListHeader(getEventBus(), getI18n(),
+                rolloutUIState);
+        this.rolloutGroupTargetsListGrid = new RolloutGroupTargetsListGrid(getI18n(), getEventBus(), rolloutUIState,
+                rolloutGroupTargetsDataProvider);
+
         this.setFooterSupport(new RolloutTargetsCountFooterSupport());
+
         init();
     }
 
@@ -48,14 +55,13 @@ public class RolloutGroupTargetsListView extends AbstractGridComponentLayout<Pro
     }
 
     @Override
-    public AbstractOrderedLayout createGridHeader() {
-        return new RolloutGroupTargetsListHeader(getEventBus(), getI18n(), rolloutUIState);
+    public RolloutGroupTargetsListHeader getGridHeader() {
+        return rolloutGroupTargetsListHeader;
     }
 
     @Override
-    public Grid<ProxyTarget> createGrid() {
-        return new RolloutGroupTargetsListGrid(getI18n(), getEventBus(), rolloutUIState,
-                rolloutGroupTargetsDataProvider);
+    public RolloutGroupTargetsListGrid getGrid() {
+        return rolloutGroupTargetsListGrid;
     }
 
     class RolloutTargetsCountFooterSupport extends AbstractFooterSupport {
@@ -63,7 +69,7 @@ public class RolloutGroupTargetsListView extends AbstractGridComponentLayout<Pro
         @Override
         protected Label getFooterMessageLabel() {
             final RolloutGroupTargetsCountLabelMessage countMessageLabel = new RolloutGroupTargetsCountLabelMessage(
-                    rolloutUIState, (RolloutGroupTargetsListGrid) getGrid(), getI18n(), getEventBus());
+                    rolloutUIState, getGrid(), getI18n(), getEventBus());
             countMessageLabel.setId(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_LABEL);
 
             return countMessageLabel;

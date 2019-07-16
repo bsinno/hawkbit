@@ -24,7 +24,7 @@ import org.springframework.data.domain.Sort.Direction;
  * {@link TargetTag} entities from backend and maps them to corresponding
  * {@link ProxyTag} entities.
  */
-public class TargetTagDataProvider extends ProxyDataProvider<ProxyTag, TargetTag, String> {
+public class TargetTagDataProvider extends ProxyDataProvider<ProxyTag, TargetTag, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,12 +37,13 @@ public class TargetTagDataProvider extends ProxyDataProvider<ProxyTag, TargetTag
     }
 
     @Override
-    protected Optional<Slice<TargetTag>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<TargetTag>> loadBackendEntities(final PageRequest pageRequest,
+            final Optional<Void> filter) {
         return Optional.of(tagManagementService.findAll(pageRequest));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         return tagManagementService.findAll(pageRequest).getTotalElements();
     }
 

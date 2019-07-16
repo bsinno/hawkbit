@@ -28,7 +28,7 @@ import org.springframework.util.StringUtils;
  * {@link ProxyDistributionSet} entities.
  */
 public class DistributionSetManagementStateDataProvider
-        extends ProxyDataProvider<ProxyDistributionSet, DistributionSet, String> {
+        extends ProxyDataProvider<ProxyDistributionSet, DistributionSet, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -44,8 +44,10 @@ public class DistributionSetManagementStateDataProvider
         this.managementUiState = managementUiState;
     }
 
+    // TODO: use filter instead of uiState
     @Override
-    protected Optional<Slice<DistributionSet>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<DistributionSet>> loadBackendEntities(final PageRequest pageRequest,
+            final Optional<Void> filter) {
         final TargetIdName pinnedTarget = getPinnedTargetFromUiState();
         final DistributionSetFilterBuilder distributionSetFilterBuilder = getDistributionSetFilterBuilder(pinnedTarget);
 
@@ -93,7 +95,7 @@ public class DistributionSetManagementStateDataProvider
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         final TargetIdName pinnedTarget = getPinnedTargetFromUiState();
         final DistributionSetFilterBuilder distributionSetFilterBuilder = getDistributionSetFilterBuilder(pinnedTarget);
 

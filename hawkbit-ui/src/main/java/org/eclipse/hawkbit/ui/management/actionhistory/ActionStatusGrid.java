@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatu
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.SingleSelectionSupport;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -33,15 +34,13 @@ import com.vaadin.ui.Label;
 /**
  * This grid presents the action states for a selected action.
  */
-public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus> {
+public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     private static final long serialVersionUID = 1L;
 
     private static final String STATUS_ID = "status";
     private static final String CREATED_AT_ID = "createdAt";
 
     private final Map<Status, FontIcon> statusIconMap = new EnumMap<>(Status.class);
-
-    private final ActionStatusDataProvider actionStatusDataProvider;
 
     /**
      * Constructor.
@@ -52,13 +51,11 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus> {
      */
     protected ActionStatusGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final DeploymentManagement deploymentManagement) {
-        super(i18n, eventBus, null);
+        super(i18n, eventBus, null,
+                new ActionStatusDataProvider(deploymentManagement, new ActionStatusToProxyActionStatusMapper())
+                        .withConfigurableFilter());
 
-        setSingleSelectionSupport(new SingleSelectionSupport());
-        setDetailsSupport(new DetailsSupport());
-
-        this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
-                getDetailsSupport().getMasterDataId(), new ActionStatusToProxyActionStatusMapper());
+        setSingleSelectionSupport(new SingleSelectionSupport<ProxyActionStatus>(this));
 
         initStatusIconMap();
 
@@ -104,12 +101,7 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus> {
     }
 
     @Override
-    protected void setDataProvider() {
-        setDataProvider(actionStatusDataProvider);
-    }
-
-    @Override
-    protected void addColumns() {
+    public void addColumns() {
         addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
                 .setMinimumWidth(53d).setMaximumWidth(53d).setHidable(false).setHidden(false)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);

@@ -24,7 +24,7 @@ import org.springframework.util.StringUtils;
  * {@link Rollout} entities from backend and maps them to corresponding
  * {@link ProxyRollout} entities.
  */
-public class RolloutDataProvider extends ProxyDataProvider<ProxyRollout, Rollout, String> {
+public class RolloutDataProvider extends ProxyDataProvider<ProxyRollout, Rollout, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,15 +39,16 @@ public class RolloutDataProvider extends ProxyDataProvider<ProxyRollout, Rollout
         this.rolloutUIState = rolloutUIState;
     }
 
+    // TODO: use filter instead of uiState
     @Override
-    protected Optional<Slice<Rollout>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<Rollout>> loadBackendEntities(final PageRequest pageRequest, final Optional<Void> filter) {
         return Optional.of(getSearchTextFromUiState()
                 .map(searchText -> rolloutManagement.findByFiltersWithDetailedStatus(pageRequest, searchText, false))
                 .orElseGet(() -> rolloutManagement.findAllWithDetailedStatus(pageRequest, false)));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         return getSearchTextFromUiState().map(rolloutManagement::countByFilters).orElseGet(rolloutManagement::count);
 
     }

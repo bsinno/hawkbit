@@ -24,6 +24,8 @@ import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.SingleSelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
@@ -52,7 +54,7 @@ import com.vaadin.ui.UI;
 /**
  * This grid presents the action history for a selected target.
  */
-public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
+public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionHistoryGrid.class);
@@ -77,33 +79,27 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
     private final UINotification notification;
     private final ManagementUIState managementUIState;
 
-    private Target selectedTarget;
-
     private final Map<Status, FontIcon> statusIconMap = new EnumMap<>(Status.class);
     private final Map<IsActiveDecoration, FontIcon> activeStatusIconMap = new EnumMap<>(IsActiveDecoration.class);
     private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    private final ActionDataProvider actionDataProvider;
+    // TODO: change to ProxyTarget
+    private Target selectedMasterTarget;
 
     ActionHistoryGrid(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
             final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
             final SpPermissionChecker permissionChecker) {
-        super(i18n, eventBus, permissionChecker);
+        super(i18n, eventBus, permissionChecker,
+                new ActionDataProvider(deploymentManagement, new ActionToProxyActionMapper()).withConfigurableFilter());
         this.deploymentManagement = deploymentManagement;
         this.notification = notification;
         this.managementUIState = managementUIState;
 
-        this.actionDataProvider = new ActionDataProvider(deploymentManagement, selectedTarget,
-                new ActionToProxyActionMapper());
-
         setResizeSupport(new ActionHistoryResizeSupport());
-        setSingleSelectionSupport(new SingleSelectionSupport());
-
+        setSingleSelectionSupport(new SingleSelectionSupport<ProxyAction>(this));
         if (!managementUIState.isActionHistoryMaximized()) {
             getSingleSelectionSupport().disable();
         }
-
-        setDetailsSupport(new DetailsSupport());
 
         initStatusIconMap();
         initActiveStatusIconMap();
@@ -175,9 +171,14 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
         restorePreviousState();
     }
 
-    @Override
-    protected void setDataProvider() {
-        setDataProvider(actionDataProvider);
+    /**
+     * Restores the maximized state if the action history was left in
+     * maximized-state and is now re-entered.
+     */
+    private void restorePreviousState() {
+        if (managementUIState.isActionHistoryMaximized()) {
+            createMaximizedContent();
+        }
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -191,16 +192,23 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
     }
 
     /**
-     * Set target as member of this grid (as all presented grid-data is related
-     * to this target) and recalculate grid-data for this target.
-     *
-     * @param selectedTarget
-     *            reference of target
+     * Creates the grid content for maximized-state.
      */
-    public void populateSelectedTarget(final Target selectedTarget) {
-        this.selectedTarget = selectedTarget;
-        getDetailsSupport()
-                .populateMasterDataAndRecalculateContainer(selectedTarget != null ? selectedTarget.getId() : null);
+    private void createMaximizedContent() {
+        getSingleSelectionSupport().enable();
+        // TODO: check if it is needed
+        // getDetailsSupport().populateSelection();
+        getResizeSupport().createMaximizedContent();
+        recalculateColumnWidths();
+    }
+
+    /**
+     * Creates the grid content for normal (minimized) state.
+     */
+    private void createMinimizedContent() {
+        getSingleSelectionSupport().disable();
+        getResizeSupport().createMinimizedContent();
+        recalculateColumnWidths();
     }
 
     @Override
@@ -209,7 +217,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
     }
 
     @Override
-    protected void addColumns() {
+    public void addColumns() {
         addComponentColumn(this::buildActiveStatusIcon).setId(ACTIVE_STATUS_ID)
                 .setCaption(i18n.getMessage("label.active")).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(true)
                 .setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
@@ -376,12 +384,36 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
                         return;
                     }
                     deploymentManagement.forceTargetAction(actionId);
-                    populateAndUpdateTargetDetails(selectedTarget);
+                    updateTargetDetails();
                     notification.displaySuccess(i18n.getMessage("message.force.action.success"));
                 }, UIComponentIdProvider.CONFIRMATION_POPUP_ID);
         UI.getCurrent().addWindow(confirmDialog.getWindow());
 
         confirmDialog.getWindow().bringToFront();
+    }
+
+    private void updateTargetDetails() {
+        // show the updated target action history details
+        refreshContainer();
+        // update the target table and its pinning details
+        updateTargetAndDsTable();
+    }
+
+    private void updateTargetAndDsTable() {
+        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.UPDATED_ENTITY, selectedMasterTarget));
+        updateDistributionTableStyle();
+    }
+
+    /**
+     * Update the colors of Assigned and installed distribution set in Target
+     * Pinning.
+     */
+    private void updateDistributionTableStyle() {
+        managementUIState.getDistributionTableFilters().getPinnedTarget().ifPresent(pinnedTarget -> {
+            if (pinnedTarget.getTargetId().equals(selectedMasterTarget.getId())) {
+                eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
+            }
+        });
     }
 
     /**
@@ -401,7 +433,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
                     }
                     final boolean cancelResult = forceQuitActiveAction(actionId);
                     if (cancelResult) {
-                        populateAndUpdateTargetDetails(selectedTarget);
+                        updateTargetDetails();
                         notification.displaySuccess(i18n.getMessage("message.forcequit.action.success"));
                     } else {
                         notification.displayValidationError(i18n.getMessage("message.forcequit.action.failed"));
@@ -432,7 +464,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
                     }
                     final boolean cancelResult = cancelActiveAction(actionId);
                     if (cancelResult) {
-                        populateAndUpdateTargetDetails(selectedTarget);
+                        updateTargetDetails();
                         notification.displaySuccess(i18n.getMessage("message.cancel.action.success"));
                     } else {
                         notification.displayValidationError(i18n.getMessage("message.cancel.action.failed"));
@@ -440,30 +472,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
                 }, UIComponentIdProvider.CONFIRMATION_POPUP_ID);
         UI.getCurrent().addWindow(confirmDialog.getWindow());
         confirmDialog.getWindow().bringToFront();
-    }
-
-    private void populateAndUpdateTargetDetails(final Target target) {
-        // show the updated target action history details
-        populateSelectedTarget(target);
-        // update the target table and its pinning details
-        updateTargetAndDsTable();
-    }
-
-    private void updateTargetAndDsTable() {
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.UPDATED_ENTITY, selectedTarget));
-        updateDistributionTableStyle();
-    }
-
-    /**
-     * Update the colors of Assigned and installed distribution set in Target
-     * Pinning.
-     */
-    private void updateDistributionTableStyle() {
-        managementUIState.getDistributionTableFilters().getPinnedTarget().ifPresent(pinnedTarget -> {
-            if (pinnedTarget.getTargetId().equals(selectedTarget.getId())) {
-                eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
-            }
-        });
     }
 
     // service call to cancel the active action
@@ -494,39 +502,14 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
         return false;
     }
 
-    /**
-     * Creates the grid content for maximized-state.
-     */
-    private void createMaximizedContent() {
-        getSingleSelectionSupport().enable();
-        getDetailsSupport().populateSelection();
-        getResizeSupport().createMaximizedContent();
-        recalculateColumnWidths();
-    }
-
-    /**
-     * Creates the grid content for normal (minimized) state.
-     */
-    private void createMinimizedContent() {
-        getSingleSelectionSupport().disable();
-        getResizeSupport().createMinimizedContent();
-        recalculateColumnWidths();
-    }
-
-    /**
-     * Restores the maximized state if the action history was left in
-     * maximized-state and is now re-entered.
-     */
-    private void restorePreviousState() {
-        if (managementUIState.isActionHistoryMaximized()) {
-            createMaximizedContent();
-        }
+    public void setSelectedMasterTarget(final Target selectedMasterTarget) {
+        this.selectedMasterTarget = selectedMasterTarget;
     }
 
     /**
      * Adds support to resize the action history grid.
      */
-    class ActionHistoryResizeSupport extends AbstractResizeSupport {
+    class ActionHistoryResizeSupport implements ResizeSupport {
 
         private final String[] maxColumnOrder = new String[] { ACTIVE_STATUS_ID, ACTION_ID, DS_NAME_VERSION_ID,
                 LAST_MODIFIED_AT_ID, STATUS_ID, MAINTENANCE_WINDOW_ID, ROLLOUT_NAME_ID, TYPE_ID, TIME_FORCED_ID,
@@ -537,36 +520,36 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction> {
                 FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID };
 
         @Override
-        protected void setMaximizedColumnOrder() {
+        public void setMaximizedColumnOrder() {
             clearSortOrder();
             setColumnOrder(maxColumnOrder);
         }
 
         @Override
-        protected void setMaximizedHiddenColumns() {
+        public void setMaximizedHiddenColumns() {
             getColumn(ACTION_ID).setHidden(false);
             getColumn(ROLLOUT_NAME_ID).setHidden(false);
         }
 
         @Override
-        protected void setMaximizedColumnExpandRatio() {
+        public void setMaximizedColumnExpandRatio() {
             getColumn(LAST_MODIFIED_AT_ID).setMinimumWidth(100d).setMaximumWidth(150d);
         }
 
         @Override
-        protected void setMinimizedColumnOrder() {
+        public void setMinimizedColumnOrder() {
             clearSortOrder();
             setColumnOrder(minColumnOrder);
         }
 
         @Override
-        protected void setMinimizedHiddenColumns() {
+        public void setMinimizedHiddenColumns() {
             getColumn(ACTION_ID).setHidden(true);
             getColumn(ROLLOUT_NAME_ID).setHidden(true);
         }
 
         @Override
-        protected void setMinimizedColumnExpandRatio() {
+        public void setMinimizedColumnExpandRatio() {
             getColumn(LAST_MODIFIED_AT_ID).setMinimumWidth(100d).setMaximumWidth(130d);
         }
     }

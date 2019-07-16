@@ -26,7 +26,7 @@ import org.springframework.data.domain.Slice;
  * {@link RolloutGroup} entities from backend and maps them to corresponding
  * {@link ProxyRolloutGroup} entities.
  */
-public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGroup, RolloutGroup, String> {
+public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGroup, RolloutGroup, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -51,15 +51,17 @@ public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGrou
         this.rolloutUIState = rolloutUIState;
     }
 
+    // TODO: use filter instead of uiState
     @Override
-    protected Optional<Slice<RolloutGroup>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<RolloutGroup>> loadBackendEntities(final PageRequest pageRequest,
+            final Optional<Void> filter) {
         return rolloutUIState.getRolloutId()
                 .map(rolloutId -> rolloutGroupManagement.findByRolloutWithDetailedStatus(pageRequest, rolloutId));
 
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         final Optional<Long> rolloutId = rolloutUIState.getRolloutId();
         return rolloutId.map(id -> {
             try {

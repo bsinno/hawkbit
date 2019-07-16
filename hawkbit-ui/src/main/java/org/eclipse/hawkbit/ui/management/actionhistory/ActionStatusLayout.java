@@ -9,9 +9,12 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupportIdentifiable;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -22,8 +25,10 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionStatus> {
     private static final long serialVersionUID = 1L;
 
-    private final ManagementUIState managementUIState;
-    private final DeploymentManagement deploymentManagement;
+    private final DefaultGridHeader actionStatusGridHeader;
+    private final ActionStatusGrid actionStatusGrid;
+
+    private final MasterDetailsSupport<ProxyAction, Long> masterDetailsSupport;
 
     /**
      * Constructor.
@@ -35,8 +40,12 @@ public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionS
     public ActionStatusLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus);
-        this.managementUIState = managementUIState;
-        this.deploymentManagement = deploymentManagement;
+
+        this.actionStatusGridHeader = new DefaultGridHeader(managementUIState,
+                getI18n().getMessage("caption.action.states"), getI18n()).init();
+        this.actionStatusGrid = new ActionStatusGrid(getI18n(), getEventBus(), deploymentManagement);
+
+        this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(actionStatusGrid);
 
         init();
     }
@@ -47,14 +56,16 @@ public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionS
     }
 
     @Override
-    public DefaultGridHeader createGridHeader() {
-        return new DefaultGridHeader(managementUIState, getI18n().getMessage("caption.action.states"), getI18n())
-                .init();
+    public DefaultGridHeader getGridHeader() {
+        return actionStatusGridHeader;
     }
 
     @Override
-    public ActionStatusGrid createGrid() {
-        return new ActionStatusGrid(getI18n(), getEventBus(), deploymentManagement);
+    public ActionStatusGrid getGrid() {
+        return actionStatusGrid;
     }
 
+    public MasterDetailsSupport<ProxyAction, Long> getMasterDetailsSupport() {
+        return masterDetailsSupport;
+    }
 }

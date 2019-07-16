@@ -36,15 +36,13 @@ import com.vaadin.ui.Label;
 /**
  * Grid component with targets of rollout group.
  */
-public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget> {
+public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget, Void> {
 
     private static final long serialVersionUID = 1L;
 
     private final RolloutUIState rolloutUIState;
 
     private final Map<Status, FontIcon> statusIconMap = new EnumMap<>(Status.class);
-
-    private final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider;
 
     /**
      * Constructor for RolloutGroupTargetsListGrid
@@ -59,9 +57,8 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget> {
     public RolloutGroupTargetsListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutUIState rolloutUIState,
             final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider) {
-        super(i18n, eventBus, null);
+        super(i18n, eventBus, null, rolloutGroupTargetsDataProvider.withConfigurableFilter());
         this.rolloutUIState = rolloutUIState;
-        this.rolloutGroupTargetsDataProvider = rolloutGroupTargetsDataProvider;
 
         initStatusIconMap();
 
@@ -101,11 +98,6 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget> {
         return UIComponentIdProvider.ROLLOUT_GROUP_TARGETS_LIST_GRID_ID;
     }
 
-    @Override
-    protected void setDataProvider() {
-        setDataProvider(rolloutGroupTargetsDataProvider);
-    }
-
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final RolloutEvent event) {
         if (RolloutEvent.SHOW_ROLLOUT_GROUP_TARGETS != event) {
@@ -117,7 +109,7 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget> {
     }
 
     @Override
-    protected void addColumns() {
+    public void addColumns() {
         addColumn(ProxyTarget::getName).setId(SPUILabelDefinitions.VAR_NAME).setCaption(i18n.getMessage("header.name"))
                 .setMinimumWidth(20).setMaximumWidth(280);
 

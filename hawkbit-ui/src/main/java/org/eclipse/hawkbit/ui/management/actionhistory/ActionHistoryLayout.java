@@ -14,11 +14,10 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader.AbstractHeaderMaximizeSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
@@ -41,16 +40,13 @@ import com.vaadin.ui.UI;
 public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction> {
     private static final long serialVersionUID = 1L;
 
-    private final transient DeploymentManagement deploymentManagement;
-    private final UINotification notification;
     private final ManagementUIState managementUIState;
-
-    private transient AbstractGrid<?>.DetailsSupport details;
-    private Long masterForDetails;
-
     private final String actionHistoryCaption;
 
-    private final SpPermissionChecker permChecker;
+    private final ActionHistoryHeader actionHistoryHeader;
+    private final ActionHistoryGrid actionHistoryGrid;
+
+    private final MasterDetailsSupport<Target, String> masterDetailsSupport;
 
     /**
      * Constructor.
@@ -66,16 +62,24 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
             final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
             final SpPermissionChecker permChecker) {
         super(i18n, eventBus);
-        this.deploymentManagement = deploymentManagement;
-        this.notification = notification;
         this.managementUIState = managementUIState;
-        this.permChecker = permChecker;
-        actionHistoryCaption = getActionHistoryCaption();
-        init();
-    }
+        this.actionHistoryCaption = getActionHistoryCaption(null);
 
-    private final String getActionHistoryCaption() {
-        return getActionHistoryCaption(null);
+        this.actionHistoryHeader = new ActionHistoryHeader(managementUIState).init();
+        this.actionHistoryGrid = new ActionHistoryGrid(getI18n(), deploymentManagement, getEventBus(), notification,
+                managementUIState, permChecker);
+
+        this.masterDetailsSupport = new MasterDetailsSupport<Target, String>(actionHistoryGrid) {
+
+            // TODO: check if Target controllerId could be changed to Id
+            @Override
+            protected String mapMasterItemToDetailsFilter(final Target masterItem) {
+                actionHistoryGrid.setSelectedMasterTarget(masterItem);
+                return masterItem.getControllerId();
+            }
+        };
+
+        init();
     }
 
     private String getActionHistoryCaption(final String targetName) {
@@ -91,16 +95,26 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
     }
 
     @Override
-    public ActionHistoryHeader createGridHeader() {
-        return new ActionHistoryHeader(managementUIState).init();
+    public ActionHistoryHeader getGridHeader() {
+        return actionHistoryHeader;
     }
 
     @Override
-    public ActionHistoryGrid createGrid() {
-        return new ActionHistoryGrid(getI18n(), deploymentManagement, getEventBus(), notification, managementUIState,
-                permChecker);
+    public ActionHistoryGrid getGrid() {
+        return actionHistoryGrid;
     }
 
+    @Override
+    public void registerDetails(final MasterDetailsSupport<ProxyAction, ?> detailsSupport) {
+        getGrid().addSelectionListener(event -> {
+            final ProxyAction selectedAction = event.getFirstSelectedItem().orElse(null);
+            if (managementUIState.isActionHistoryMaximized()) {
+                detailsSupport.masterItemChangedCallback(selectedAction);
+            }
+        });
+    }
+
+    // TODO: check if it can be removed with registerDetails in Deployment View
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final TargetTableEvent targetUIEvent) {
         final Optional<Long> targetId = managementUIState.getLastSelectedTargetId();
@@ -115,45 +129,30 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
     }
 
     /**
-     * Override default registration for selection propagation in order to
-     * interrupt update cascade in minimized state to prevent updates on
-     * invisible action-status-grid and message-grid.
-     * <p>
-     * The master selection is stored and propagation is performed as soon as
-     * the state changes to maximize and hence the dependent grids are updated.
-     */
-    @Override
-    public void registerDetails(final AbstractGrid<? extends ProxyIdentifiableEntity>.DetailsSupport details) {
-        this.details = details;
-        getGrid().addSelectionListener(event -> {
-            masterForDetails = event.getFirstSelectedItem().map(ProxyAction::getId).orElse(null);
-            if (managementUIState.isActionHistoryMaximized()) {
-                details.populateMasterDataAndRecalculateContainer(masterForDetails);
-            }
-        });
-    }
-
-    /**
      * Populate action header and table for the target.
      *
      * @param target
      *            the target
      */
-    public void populateActionHistoryDetails(final Target target) {
+    private void populateActionHistoryDetails(final Target target) {
         if (null != target) {
-            ((ActionHistoryHeader) getHeader()).updateActionHistoryHeader(target.getName());
-            ((ActionHistoryGrid) getGrid()).populateSelectedTarget(target);
+            actionHistoryHeader.updateActionHistoryHeader(target.getName());
+            masterDetailsSupport.masterItemChangedCallback(target);
         } else {
-            ((ActionHistoryHeader) getHeader()).updateActionHistoryHeader(" ");
+            actionHistoryHeader.updateActionHistoryHeader(" ");
         }
     }
 
     /**
      * Populate empty action header and empty table for empty selection.
      */
-    public void populateActionHistoryDetails() {
-        ((ActionHistoryHeader) getHeader()).updateActionHistoryHeader(" ");
-        ((ActionHistoryGrid) getGrid()).populateSelectedTarget(null);
+    private void populateActionHistoryDetails() {
+        actionHistoryHeader.updateActionHistoryHeader(" ");
+        masterDetailsSupport.masterItemChangedCallback(null);
+    }
+
+    public MasterDetailsSupport<Target, String> getMasterDetailsSupport() {
+        return masterDetailsSupport;
     }
 
     /**
@@ -224,7 +223,8 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
 
         @Override
         protected void maximize() {
-            details.populateMasterDataAndRecreateContainer(masterForDetails);
+            // TODO: check if it is needed
+            // details.populateMasterDataAndRecreateContainer(masterForDetails);
             getEventBus().publish(this, ManagementUIEvent.MAX_ACTION_HISTORY);
         }
 
@@ -242,5 +242,4 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
             return abstractGridHeader;
         }
     }
-
 }

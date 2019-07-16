@@ -65,7 +65,7 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 /**
  * Rollout list grid component.
  */
-public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
+public class RolloutListGrid extends AbstractGrid<ProxyRollout, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -103,8 +103,6 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
 
     private final RolloutUIState rolloutUIState;
 
-    private final RolloutDataProvider rolloutDataProvider;
-
     private static final List<RolloutStatus> DELETE_COPY_BUTTON_ENABLED = Arrays.asList(RolloutStatus.CREATING,
             RolloutStatus.PAUSED, RolloutStatus.READY, RolloutStatus.RUNNING, RolloutStatus.STARTING,
             RolloutStatus.STOPPED, RolloutStatus.FINISHED, RolloutStatus.WAITING_FOR_APPROVAL,
@@ -134,13 +132,12 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
             final TenantConfigurationManagement tenantConfigManagement, final RolloutDataProvider rolloutDataProvider,
             final DistributionSetStatelessDataProvider distributionSetDataProvider,
             final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
-        super(i18n, eventBus, permissionChecker);
+        super(i18n, eventBus, permissionChecker, rolloutDataProvider.withConfigurableFilter());
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.tenantConfigManagement = tenantConfigManagement;
         this.uiNotification = uiNotification;
         this.rolloutUIState = rolloutUIState;
-        this.rolloutDataProvider = rolloutDataProvider;
 
         final RolloutWindowDependencies rolloutWindowDependecies = new RolloutWindowDependencies(rolloutManagement,
                 targetManagement, uiNotification, entityFactory, i18n, uiProperties, eventBus,
@@ -221,11 +218,6 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
         return UIComponentIdProvider.ROLLOUT_LIST_GRID_ID;
     }
 
-    @Override
-    protected void setDataProvider() {
-        setDataProvider(rolloutDataProvider);
-    }
-
     /**
      * Handles the RolloutEvent to refresh Grid.
      *
@@ -287,7 +279,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     }
 
     @Override
-    protected void addColumns() {
+    public void addColumns() {
         addComponentColumn(this::buildRolloutLink).setId(ROLLOUT_LINK_ID).setCaption(i18n.getMessage("header.name"))
                 .setMinimumWidth(40d).setMaximumWidth(300d).setHidable(true).setHidden(false);
 
@@ -341,8 +333,9 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout> {
     }
 
     private Label buildStatusIcon(final ProxyRollout rollout) {
-        final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rollout.getStatus())).orElse(new FontIcon(
-                VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE, i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
+        final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rollout.getStatus()))
+                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
         final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID).append(".")
                 .append(rollout.getId()).toString();

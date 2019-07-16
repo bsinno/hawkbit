@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
  * {@link Target} entities from backend and maps them to corresponding
  * {@link ProxyTarget} entities.
  */
-public class TargetManagementStateDataProvider extends ProxyDataProvider<ProxyTarget, Target, String> {
+public class TargetManagementStateDataProvider extends ProxyDataProvider<ProxyTarget, Target, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,8 +45,9 @@ public class TargetManagementStateDataProvider extends ProxyDataProvider<ProxyTa
         this.managementUIState = managementUIState;
     }
 
+    // TODO: use filter instead of uiState
     @Override
-    protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest, final Optional<Void> filter) {
         final Long pinnedDistId = getPinnedDistIdFromUiState();
         final String searchText = getSearchTextFromUiState();
         final Collection<TargetUpdateStatus> status = getTargetUpdateStatusFromUiState();
@@ -76,7 +77,7 @@ public class TargetManagementStateDataProvider extends ProxyDataProvider<ProxyTa
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         final String searchText = getSearchTextFromUiState();
         final Collection<TargetUpdateStatus> status = getTargetUpdateStatusFromUiState();
         final Boolean overdueState = getOverdueStateFromUiState();

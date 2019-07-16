@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -24,17 +24,17 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * Abstract grid layout class which builds layout with grid {@link AbstractGrid}
  * and grid header {@link DefaultGridHeader}.
+ * 
+ * @param <T>
+ *            The container-type used by the grid
  */
-public abstract class AbstractGridComponentLayout<T extends ProxyIdentifiableEntity> extends VerticalLayout {
+public abstract class AbstractGridComponentLayout<T> extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
     private final transient EventBus.UIEventBus eventBus;
 
     private final VaadinMessageSource i18n;
-
-    private AbstractOrderedLayout gridHeader;
-    private Grid<T> grid;
 
     private transient AbstractFooterSupport footerSupport;
 
@@ -53,8 +53,6 @@ public abstract class AbstractGridComponentLayout<T extends ProxyIdentifiableEnt
      * Initializes this layout that presents a header and a grid.
      */
     protected void init() {
-        this.gridHeader = createGridHeader();
-        this.grid = createGrid();
         buildLayout();
         setSizeFull();
         if (doSubscribeToEventBus()) {
@@ -75,6 +73,9 @@ public abstract class AbstractGridComponentLayout<T extends ProxyIdentifiableEnt
      * Layouts header, grid and optional footer.
      */
     protected void buildLayout() {
+        final AbstractOrderedLayout gridHeader = getGridHeader();
+        final Grid<T> grid = getGrid();
+
         setSizeFull();
         setSpacing(true);
         setMargin(false);
@@ -105,52 +106,18 @@ public abstract class AbstractGridComponentLayout<T extends ProxyIdentifiableEnt
     }
 
     /**
-     * Registers the selection of this grid as master for another grid that
-     * displays the details.
-     *
-     * @param details
-     *            the details of another grid the selection of this grid should
-     *            be registered for as master.
-     */
-    public void registerDetails(final AbstractGrid<? extends ProxyIdentifiableEntity>.DetailsSupport details) {
-        grid.addSelectionListener(event -> {
-            final Long masterId = event.getFirstSelectedItem().map(ProxyIdentifiableEntity::getId).orElse(null);
-            details.populateMasterDataAndRecalculateContainer(masterId);
-        });
-    }
-
-    /**
      * Gets the grid instance displayed and owned by the layout.
      *
      * @return grid instance displayed and owned by the layout.
      */
-    public Grid<T> getGrid() {
-        return grid;
-    }
+    public abstract Grid<T> getGrid();
 
     /**
      * Gets the grid-header instance displayed and owned by the layout.
      *
      * @return grid-header instance displayed and owned by the layout.
      */
-    public AbstractOrderedLayout getHeader() {
-        return gridHeader;
-    }
-
-    /**
-     * Creates the grid-header instance the layout is responsible for.
-     *
-     * @return newly created grid-header instance displayed and owned by the
-     *         layout.
-     */
-    public abstract AbstractOrderedLayout createGridHeader();
-
-    /**
-     * Creates the grid instance the layout is responsible for.
-     *
-     * @return newly created grid instance displayed and owned by the layout.
-     */
-    public abstract Grid<T> createGrid();
+    public abstract AbstractOrderedLayout getGridHeader();
 
     /**
      * Enables footer-support for the grid by setting a FooterSupport
@@ -217,4 +184,18 @@ public abstract class AbstractGridComponentLayout<T extends ProxyIdentifiableEnt
         return eventBus;
     }
 
+    /**
+     * Registers the selection of this grid as master for another layout that
+     * displays the details.
+     *
+     * @param detailsSupport
+     *            the details support of another layout the selection of this
+     *            grid should be registered for as master.
+     */
+    public void registerDetails(final MasterDetailsSupport<T, ?> detailsSupport) {
+        getGrid().addSelectionListener(event -> {
+            final T selectedItem = event.getFirstSelectedItem().orElse(null);
+            detailsSupport.masterItemChangedCallback(selectedItem);
+        });
+    }
 }

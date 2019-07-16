@@ -54,7 +54,7 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
     protected Stream<T> fetchFromBackEnd(final Query<T, F> query) {
         final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
-        return getProxyEntities(loadBackendEntities(pageRequest, query.getFilter().orElse(null))).stream();
+        return getProxyEntities(loadBackendEntities(pageRequest, query.getFilter())).stream();
     }
 
     private List<T> getProxyEntities(final Optional<Slice<U>> backendEntities) {
@@ -63,14 +63,14 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
                 .orElse(Collections.emptyList());
     }
 
-    protected abstract Optional<Slice<U>> loadBackendEntities(final PageRequest pageRequest, F filter);
+    protected abstract Optional<Slice<U>> loadBackendEntities(final PageRequest pageRequest, Optional<F> filter);
 
     @Override
     protected int sizeInBackEnd(final Query<T, F> query) {
         final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
 
-        final long size = sizeInBackEnd(pageRequest, query.getFilter().orElse(null));
+        final long size = sizeInBackEnd(pageRequest, query.getFilter());
 
         if (size > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
@@ -79,7 +79,7 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
         return (int) size;
     }
 
-    protected abstract long sizeInBackEnd(final PageRequest pageRequest, F filter);
+    protected abstract long sizeInBackEnd(final PageRequest pageRequest, Optional<F> filter);
 
     @Override
     public Object getId(final T item) {

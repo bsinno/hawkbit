@@ -24,7 +24,7 @@ import org.springframework.data.domain.Sort.Direction;
  * of {@link DistributionSetTag} entities from backend and maps them to
  * corresponding {@link ProxyTag} entities.
  */
-public class DistributionSetTagDataProvider extends ProxyDataProvider<ProxyTag, DistributionSetTag, String> {
+public class DistributionSetTagDataProvider extends ProxyDataProvider<ProxyTag, DistributionSetTag, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,12 +38,12 @@ public class DistributionSetTagDataProvider extends ProxyDataProvider<ProxyTag, 
 
     @Override
     protected Optional<Slice<DistributionSetTag>> loadBackendEntities(final PageRequest pageRequest,
-            final String filter) {
+            final Optional<Void> filter) {
         return Optional.of(distributionSetTagManagement.findAll(pageRequest));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         return distributionSetTagManagement.count();
     }
 

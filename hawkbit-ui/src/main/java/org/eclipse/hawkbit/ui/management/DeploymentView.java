@@ -33,9 +33,7 @@ import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryLayout;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusGrid;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusLayout;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusMsgGrid;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusMsgLayout;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionTableLayout;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagButtons;
@@ -116,7 +114,7 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
 
     private final DeploymentViewMenuItem deploymentViewMenuItem;
 
-    private CountMessageLabel countMessageLabel;
+    private final CountMessageLabel countMessageLabel;
 
     @Autowired
     DeploymentView(final UIEventBus eventBus, final SpPermissionChecker permChecker, final VaadinMessageSource i18n,
@@ -149,24 +147,27 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
             this.targetTagFilterLayout = new TargetTagFilterLayout(i18n, managementUIState,
                     managementViewClientCriterion, permChecker, eventBus, uiNotification, entityFactory,
                     targetFilterQueryManagement, targetTagManagement);
+
             final TargetTable targetTable = new TargetTable(eventBus, i18n, uiNotification, targetManagement,
                     managementUIState, permChecker, managementViewClientCriterion, distributionSetManagement,
                     targetTagManagement, deploymentManagement, configManagement, systemSecurityContext, uiProperties);
+
             this.countMessageLabel = new CountMessageLabel(eventBus, targetManagement, i18n, managementUIState,
                     targetTable);
-
             this.targetTableLayout = new TargetTableLayout(eventBus, targetTable, targetManagement, entityFactory, i18n,
                     uiNotification, managementUIState, managementViewClientCriterion, deploymentManagement,
                     uiProperties, permChecker, targetTagManagement, distributionSetManagement, uiExecutor);
 
-            actionHistoryLayout.registerDetails(((ActionStatusGrid) actionStatusLayout.getGrid()).getDetailsSupport());
-            actionStatusLayout
-                    .registerDetails(((ActionStatusMsgGrid) actionStatusMsgLayout.getGrid()).getDetailsSupport());
+            // TODO:
+            // targetLayout.registerDetails(actionHistoryLayout.getGrid().getMasterDetailsSupport());
+            actionHistoryLayout.registerDetails(actionStatusLayout.getMasterDetailsSupport());
+            actionStatusLayout.registerDetails(actionStatusMsgLayout.getMasterDetailsSupport());
         } else {
             this.actionHistoryLayout = null;
             this.actionStatusLayout = null;
             this.actionStatusMsgLayout = null;
             this.targetTagFilterLayout = null;
+            this.countMessageLabel = null;
             this.targetTableLayout = null;
         }
 

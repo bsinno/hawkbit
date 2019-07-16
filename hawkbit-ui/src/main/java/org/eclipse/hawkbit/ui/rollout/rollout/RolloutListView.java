@@ -31,30 +31,14 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Grid;
-
 /**
  * Rollout list view.
  */
 public class RolloutListView extends AbstractGridComponentLayout<ProxyRollout> {
     private static final long serialVersionUID = 1L;
 
-    private final transient RolloutManagement rolloutManagement;
-    private final transient RolloutGroupManagement rolloutGroupManagement;
-    private final transient TargetManagement targetManagement;
-    private final transient EntityFactory entityFactory;
-    private final transient TargetFilterQueryManagement targetFilterQueryManagement;
-    private final transient QuotaManagement quotaManagement;
-    private final transient TenantConfigurationManagement tenantConfigManagement;
-    private final transient RolloutDataProvider rolloutDataProvider;
-    private final transient DistributionSetStatelessDataProvider distributionSetDataProvider;
-    private final transient TargetFilterQueryDataProvider targetFilterQueryDataProvider;
-
-    private final SpPermissionChecker permissionChecker;
-    private final RolloutUIState rolloutUIState;
-    private final UINotification uiNotification;
-    private final UiProperties uiProperties;
+    private final RolloutListHeader rolloutListHeader;
+    private final RolloutListGrid rolloutListGrid;
 
     public RolloutListView(final SpPermissionChecker permissionChecker, final RolloutUIState rolloutUIState,
             final UIEventBus eventBus, final RolloutManagement rolloutManagement,
@@ -65,23 +49,22 @@ public class RolloutListView extends AbstractGridComponentLayout<ProxyRollout> {
             final TenantConfigurationManagement tenantConfigManagement,
             final DistributionSetManagement distributionSetManagement) {
         super(i18n, eventBus);
-        this.permissionChecker = permissionChecker;
-        this.rolloutUIState = rolloutUIState;
-        this.rolloutManagement = rolloutManagement;
-        this.rolloutGroupManagement = rolloutGroupManagement;
-        this.quotaManagement = quotaManagement;
-        this.targetManagement = targetManagement;
-        this.uiNotification = uiNotification;
-        this.uiProperties = uiProperties;
-        this.entityFactory = entityFactory;
-        this.targetFilterQueryManagement = targetFilterQueryManagement;
-        this.tenantConfigManagement = tenantConfigManagement;
-        this.rolloutDataProvider = new RolloutDataProvider(rolloutManagement, rolloutUIState,
+
+        final RolloutDataProvider rolloutDataProvider = new RolloutDataProvider(rolloutManagement, rolloutUIState,
                 new RolloutToProxyRolloutMapper());
-        this.distributionSetDataProvider = new DistributionSetStatelessDataProvider(distributionSetManagement,
-                new DistributionSetToProxyDistributionMapper());
-        this.targetFilterQueryDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
-                rolloutUIState, new TargetFilterQueryToProxyTargetFilterMapper());
+        final DistributionSetStatelessDataProvider distributionSetDataProvider = new DistributionSetStatelessDataProvider(
+                distributionSetManagement, new DistributionSetToProxyDistributionMapper());
+        final TargetFilterQueryDataProvider targetFilterQueryDataProvider = new TargetFilterQueryDataProvider(
+                targetFilterQueryManagement, rolloutUIState, new TargetFilterQueryToProxyTargetFilterMapper());
+
+        this.rolloutListHeader = new RolloutListHeader(permissionChecker, rolloutUIState, getEventBus(),
+                rolloutManagement, targetManagement, uiNotification, uiProperties, entityFactory, getI18n(),
+                targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, distributionSetDataProvider,
+                targetFilterQueryDataProvider);
+        this.rolloutListGrid = new RolloutListGrid(getI18n(), getEventBus(), rolloutManagement, uiNotification,
+                rolloutUIState, permissionChecker, targetManagement, entityFactory, uiProperties,
+                targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, tenantConfigManagement,
+                rolloutDataProvider, distributionSetDataProvider, targetFilterQueryDataProvider);
 
         init();
     }
@@ -92,18 +75,12 @@ public class RolloutListView extends AbstractGridComponentLayout<ProxyRollout> {
     }
 
     @Override
-    public AbstractOrderedLayout createGridHeader() {
-        return new RolloutListHeader(permissionChecker, rolloutUIState, getEventBus(), rolloutManagement,
-                targetManagement, uiNotification, uiProperties, entityFactory, getI18n(), targetFilterQueryManagement,
-                rolloutGroupManagement, quotaManagement, distributionSetDataProvider, targetFilterQueryDataProvider);
+    public RolloutListHeader getGridHeader() {
+        return rolloutListHeader;
     }
 
     @Override
-    public Grid<ProxyRollout> createGrid() {
-        return new RolloutListGrid(getI18n(), getEventBus(), rolloutManagement, uiNotification, rolloutUIState,
-                permissionChecker, targetManagement, entityFactory, uiProperties, targetFilterQueryManagement,
-                rolloutGroupManagement, quotaManagement, tenantConfigManagement, rolloutDataProvider,
-                distributionSetDataProvider, targetFilterQueryDataProvider);
+    public RolloutListGrid getGrid() {
+        return rolloutListGrid;
     }
-
 }

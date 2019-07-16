@@ -28,7 +28,7 @@ import org.springframework.util.StringUtils;
  * {@link ProxySoftwareModule} entities.
  */
 public class SoftwareModuleArtifactsStateDataProvider
-        extends ProxyDataProvider<ProxySoftwareModule, SoftwareModule, String> {
+        extends ProxyDataProvider<ProxySoftwareModule, SoftwareModule, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,8 +43,10 @@ public class SoftwareModuleArtifactsStateDataProvider
         this.artifactsUiState = artifactsUiState;
     }
 
+    // TODO: use filter instead of uiState
     @Override
-    protected Optional<Slice<SoftwareModule>> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+    protected Optional<Slice<SoftwareModule>> loadBackendEntities(final PageRequest pageRequest,
+            final Optional<Void> filter) {
         final String searchText = getSearchTextFromUiState();
         final Long typeId = getSoftwareModuleTypeIdFromUiState();
 
@@ -65,7 +67,7 @@ public class SoftwareModuleArtifactsStateDataProvider
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         final String searchText = getSearchTextFromUiState();
         final Long typeId = getSoftwareModuleTypeIdFromUiState();
 

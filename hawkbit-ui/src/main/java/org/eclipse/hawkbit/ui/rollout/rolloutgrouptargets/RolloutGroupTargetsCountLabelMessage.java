@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -22,6 +23,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 import com.vaadin.data.provider.Query;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 
 /**
@@ -33,12 +35,12 @@ public class RolloutGroupTargetsCountLabelMessage extends Label {
 
     private final RolloutUIState rolloutUIState;
 
-    private final RolloutGroupTargetsListGrid rolloutGroupTargetsListGrid;
+    private final Grid<ProxyTarget> rolloutGroupTargetsListGrid;
 
     private final VaadinMessageSource i18n;
 
     RolloutGroupTargetsCountLabelMessage(final RolloutUIState rolloutUIState,
-            final RolloutGroupTargetsListGrid rolloutGroupTargetsListGrid, final VaadinMessageSource i18n,
+            final Grid<ProxyTarget> rolloutGroupTargetsListGrid, final VaadinMessageSource i18n,
             final UIEventBus eventBus) {
         this.rolloutUIState = rolloutUIState;
         this.rolloutGroupTargetsListGrid = rolloutGroupTargetsListGrid;

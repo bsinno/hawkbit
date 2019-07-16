@@ -28,7 +28,7 @@ import org.springframework.data.domain.Slice;
  * batch of {@link TargetWithActionStatus} entities from backend and maps them
  * to corresponding {@link ProxyTarget} entities.
  */
-public class RolloutGroupTargetsDataProvider extends ProxyDataProvider<ProxyTarget, TargetWithActionStatus, String> {
+public class RolloutGroupTargetsDataProvider extends ProxyDataProvider<ProxyTarget, TargetWithActionStatus, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,15 +45,16 @@ public class RolloutGroupTargetsDataProvider extends ProxyDataProvider<ProxyTarg
         this.rolloutUIState = rolloutUIState;
     }
 
+    // TODO: use filter instead of uiState
     @Override
     protected Optional<Slice<TargetWithActionStatus>> loadBackendEntities(final PageRequest pageRequest,
-            final String filter) {
+            final Optional<Void> filter) {
         return getRolloutGroupIdFromUiState().map(rolloutGroupId -> rolloutGroupManagement
                 .findAllTargetsOfRolloutGroupWithActionStatus(pageRequest, rolloutGroupId));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         final Optional<Long> rolloutGroupId = getRolloutGroupIdFromUiState();
         final long size = rolloutGroupId.map(id -> {
             try {

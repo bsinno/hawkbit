@@ -32,38 +32,36 @@ import com.vaadin.data.provider.Query;
 /**
  * Data provider for Action message, which dynamically loads a batch of Action
  * messages from backend and maps them to corresponding {@link ProxyMessage}
- * entities.
+ * entities. The filter is used for master-details relationship with
+ * {@link ActionStatus}, using its id.
  */
-public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<ProxyMessage, String> {
+public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<ProxyMessage, Long> {
 
     private static final long serialVersionUID = 1L;
 
     private final Sort defaultSortOrder = new Sort(Direction.DESC, "id");
 
     private final transient DeploymentManagement deploymentManagement;
-    private final Long currentSelectedActionStatusId;
     private final String noMessageText;
 
-    public ActionStatusMsgDataProvider(final DeploymentManagement deploymentManagement,
-            final Long currentSelectedActionStatusId, final String noMessageText) {
+    public ActionStatusMsgDataProvider(final DeploymentManagement deploymentManagement, final String noMessageText) {
         this.deploymentManagement = deploymentManagement;
-        this.currentSelectedActionStatusId = currentSelectedActionStatusId;
         this.noMessageText = noMessageText;
     }
 
     @Override
-    protected Stream<ProxyMessage> fetchFromBackEnd(final Query<ProxyMessage, String> query) {
+    protected Stream<ProxyMessage> fetchFromBackEnd(final Query<ProxyMessage, Long> query) {
         final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
 
-        return loadBackendEntities(pageRequest).map(this::createProxyMessages).orElse(Collections.emptyList()).stream();
+        return loadBackendEntities(pageRequest, query.getFilter()).map(this::createProxyMessages)
+                .orElse(Collections.emptyList()).stream();
     }
 
-    private Optional<Page<String>> loadBackendEntities(final PageRequest pageRequest) {
-        return currentSelectedActionStatusId != null
-                ? Optional.of(
-                        deploymentManagement.findMessagesByActionStatusId(pageRequest, currentSelectedActionStatusId))
-                : Optional.empty();
+    private Optional<Page<String>> loadBackendEntities(final PageRequest pageRequest,
+            final Optional<Long> currentlySelectedActionStatusId) {
+        return currentlySelectedActionStatusId
+                .map(id -> deploymentManagement.findMessagesByActionStatusId(pageRequest, id));
     }
 
     /**
@@ -95,11 +93,11 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
     }
 
     @Override
-    protected int sizeInBackEnd(final Query<ProxyMessage, String> query) {
+    protected int sizeInBackEnd(final Query<ProxyMessage, Long> query) {
         final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
         final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
 
-        final long size = sizeInBackEnd(pageRequest);
+        final long size = sizeInBackEnd(pageRequest, query.getFilter());
 
         if (size > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
@@ -108,11 +106,10 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
         return (int) size;
     }
 
-    private long sizeInBackEnd(final PageRequest pageRequest) {
-        return currentSelectedActionStatusId != null
-                ? deploymentManagement.findMessagesByActionStatusId(pageRequest, currentSelectedActionStatusId)
-                        .getTotalElements()
-                : 0L;
+    private long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> currentlySelectedActionStatusId) {
+        return currentlySelectedActionStatusId
+                .map(id -> deploymentManagement.findMessagesByActionStatusId(pageRequest, id).getTotalElements())
+                .orElse(0L);
     }
 
     @Override

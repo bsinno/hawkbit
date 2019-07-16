@@ -26,7 +26,7 @@ import org.springframework.util.StringUtils;
  * to corresponding {@link ProxyAssignedSoftwareModule} entities.
  */
 public class SoftwareModuleDistributionsStateDataProvider
-        extends ProxyDataProvider<ProxyAssignedSoftwareModule, AssignedSoftwareModule, String> {
+        extends ProxyDataProvider<ProxyAssignedSoftwareModule, AssignedSoftwareModule, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -44,9 +44,10 @@ public class SoftwareModuleDistributionsStateDataProvider
         this.orderByDistId = lastSelectedDistribution;
     }
 
+    // TODO: use filter instead of uiState
     @Override
     protected Optional<Slice<AssignedSoftwareModule>> loadBackendEntities(final PageRequest pageRequest,
-            final String filter) {
+            final Optional<Void> filter) {
         return Optional.of(softwareModuleManagement.findAllOrderBySetAssignmentAndModuleNameAscModuleVersionAsc(
                 pageRequest, orderByDistId, getSearchTextFromUiState(), getSoftwareModuleTypeIdFromUiState()));
     }
@@ -61,7 +62,7 @@ public class SoftwareModuleDistributionsStateDataProvider
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
         final Long typeId = getSoftwareModuleTypeIdFromUiState();
         final String searchText = getSearchTextFromUiState();
 
