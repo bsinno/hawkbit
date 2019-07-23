@@ -59,6 +59,8 @@ public final class UIMessageIdProvider {
 
     public static final String CAPTION_CONFIRM_AUTO_ASSIGN_CONSEQUENCES = "caption.confirm.assign.consequences";
 
+    public static final String CAPTION_ENTITY_ASSIGN_ACTION_CONFIRMBOX = "caption.entity.assign.action.confirmbox";
+
     public static final String CAPTION_CONFIG_CREATE = "caption.config.create";
 
     public static final String CAPTION_CONFIG_EDIT = "caption.config.edit";
@@ -90,6 +92,12 @@ public final class UIMessageIdProvider {
     public static final String MESSAGE_CONFIRM_AUTO_ASSIGN_CONSEQUENCES_NONE = "message.confirm.assign.consequences.none";
 
     public static final String MESSAGE_CONFIRM_AUTO_ASSIGN_CONSEQUENCES_TEXT = "message.confirm.assign.consequences.text";
+
+    public static final String MESSAGE_ASSIGN_TARGET_TO_MULTIPLE_DISTRIBUTIONS = "message.confirm.assign.multiple.entities.multiple.distributions";
+
+    public static final String MESSAGE_CONFIRM_DELETE_ENTITY = "message.confirm.delete.entity";
+
+    public static final String MESSAGE_CONFIRM_ASSIGN_ENTITY = "message.confirm.assign.entity";
 
     public static final String TOOLTIP_OVERDUE = "tooltip.overdue";
 
@@ -138,6 +146,8 @@ public final class UIMessageIdProvider {
     public static final String TOOLTIP_FORCED_ITEM = "tooltip.forced.item";
 
     public static final String TOOLTIP_TARGET_PIN = "tooltip.target.pin";
+
+    public static final String TOOLTIP_TARGET_STATUS_PREFIX = "tooltip.target.status.";
 
     public static final String TOOLTIP_TARGET_STATUS_UNKNOWN = "tooltip.target.status.unknown";
 

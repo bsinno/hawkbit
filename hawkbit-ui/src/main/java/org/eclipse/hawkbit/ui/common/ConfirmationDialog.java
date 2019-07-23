@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common;
 
+import java.util.function.Consumer;
+
 import org.eclipse.hawkbit.ui.common.confirmwindow.layout.ConfirmationTab;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleTiny;
@@ -17,16 +19,16 @@ import org.springframework.util.StringUtils;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
-import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Class for the confirmation dialog which pops up when deleting, assigning...
@@ -36,7 +38,7 @@ public class ConfirmationDialog implements Button.ClickListener {
 
     private static final long serialVersionUID = 1L;
 
-    private transient ConfirmationDialogCallback callback;
+    private transient Consumer<Boolean> callback;
 
     private final Button okButton;
 
@@ -64,8 +66,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      *            the id of the confirmation window
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final ConfirmationDialogCallback callback, final ConfirmationTab tab,
-            final String id) {
+            final String cancelLabel, final Consumer<Boolean> callback, final ConfirmationTab tab, final String id) {
         this(caption, question, okLabel, cancelLabel, callback, null, id, tab);
     }
 
@@ -84,7 +85,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      *            the callback.
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final ConfirmationDialogCallback callback) {
+            final String cancelLabel, final Consumer<Boolean> callback) {
         this(caption, question, okLabel, cancelLabel, callback, null, null, null);
     }
 
@@ -105,7 +106,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      *            the id of the confirmation dialog
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final ConfirmationDialogCallback callback, final String id) {
+            final String cancelLabel, final Consumer<Boolean> callback, final String id) {
         this(caption, question, okLabel, cancelLabel, callback, null, id, null);
     }
 
@@ -129,7 +130,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      *            enclosing window should be mapped to a cancel event.
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final ConfirmationDialogCallback callback, final String id,
+            final String cancelLabel, final Consumer<Boolean> callback, final String id,
             final boolean mapCloseToCancel) {
         this(caption, question, okLabel, cancelLabel, callback, null, id, null, mapCloseToCancel);
     }
@@ -151,7 +152,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      *            the icon of the dialog
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final ConfirmationDialogCallback callback, final Resource icon) {
+            final String cancelLabel, final Consumer<Boolean> callback, final Resource icon) {
         this(caption, question, okLabel, cancelLabel, callback, icon, null, null);
     }
 
@@ -177,7 +178,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      *            action which has to be confirmed, e.g. maintenance window
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final ConfirmationDialogCallback callback, final Resource icon, final String id,
+            final String cancelLabel, final Consumer<Boolean> callback, final Resource icon, final String id,
             final ConfirmationTab tab) {
         this(caption, question, okLabel, cancelLabel, callback, icon, id, tab, false);
 
@@ -208,7 +209,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      *            enclosing window should be mapped to a cancel event.
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final ConfirmationDialogCallback callback, final Resource icon, final String id,
+            final String cancelLabel, final Consumer<Boolean> callback, final Resource icon, final String id,
             final ConfirmationTab tab, final boolean mapCloseToCancel) {
         window = new Window(caption);
         if (!StringUtils.isEmpty(id)) {
@@ -298,25 +299,11 @@ public class ConfirmationDialog implements Button.ClickListener {
             isImplicitClose = true;
             UI.getCurrent().removeWindow(window);
         }
-        callback.response(event.getSource().equals(okButton));
+        callback.accept(event.getSource().equals(okButton));
     }
 
     public Window getWindow() {
         return window;
-    }
-
-    /**
-     * Interface for confirmation dialog callbacks.
-     */
-    @FunctionalInterface
-    public interface ConfirmationDialogCallback {
-        /**
-         * The user response.
-         * 
-         * @param ok
-         *            True if user clicked ok.
-         */
-        void response(boolean ok);
     }
 
     public Button getOkButton() {

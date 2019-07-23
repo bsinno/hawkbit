@@ -71,6 +71,8 @@ public class RolloutGroupTargetsCountLabelMessage extends Label {
     }
 
     private void displayRolloutGroupTargetMessage() {
+        // TODO: what about sortOrders/filters, are they respected here?
+        // Evaluate grid.getDataCommunicator.getDataProviderSize()
         long totalTargetTableEntries = rolloutGroupTargetsListGrid.getDataProvider().size(new Query<>());
 
         if (rolloutUIState.getRolloutGroupTargetsTruncated() != null) {

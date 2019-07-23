@@ -9,10 +9,13 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.event.remote.entity.CancelTargetAssignmentEvent;
 import org.eclipse.hawkbit.repository.exception.CancelActionNotAllowedException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Action.Status;
@@ -25,12 +28,13 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
-import org.eclipse.hawkbit.ui.common.grid.support.SingleSelectionSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.push.CancelTargetAssignmentEventContainer;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -45,6 +49,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
@@ -86,19 +91,25 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     // TODO: change to ProxyTarget
     private Target selectedMasterTarget;
 
+    private final ConfigurableFilterDataProvider<ProxyAction, Void, String> actionDataProvider;
+
     ActionHistoryGrid(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
             final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
             final SpPermissionChecker permissionChecker) {
-        super(i18n, eventBus, permissionChecker,
-                new ActionDataProvider(deploymentManagement, new ActionToProxyActionMapper()).withConfigurableFilter());
+        super(i18n, eventBus, permissionChecker);
+
         this.deploymentManagement = deploymentManagement;
         this.notification = notification;
         this.managementUIState = managementUIState;
+        this.actionDataProvider = new ActionDataProvider(deploymentManagement, new ActionToProxyActionMapper())
+                .withConfigurableFilter();
 
         setResizeSupport(new ActionHistoryResizeSupport());
-        setSingleSelectionSupport(new SingleSelectionSupport<ProxyAction>(this));
-        if (!managementUIState.isActionHistoryMaximized()) {
-            getSingleSelectionSupport().disable();
+        setSelectionSupport(new SelectionSupport<ProxyAction>(this));
+        if (managementUIState.isActionHistoryMaximized()) {
+            getSelectionSupport().enableSingleSelection();
+        } else {
+            getSelectionSupport().disableSelection();
         }
 
         initStatusIconMap();
@@ -106,6 +117,11 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         initActionTypeIconMap();
 
         init();
+    }
+
+    @Override
+    public ConfigurableFilterDataProvider<ProxyAction, Void, String> getFilterDataProvider() {
+        return actionDataProvider;
     }
 
     private void initStatusIconMap() {
@@ -182,6 +198,21 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
+    void onCancelTargetAssignmentEvents(final CancelTargetAssignmentEventContainer eventContainer) {
+        final List<Long> actionIds = eventContainer.getEvents().stream().filter(
+                event -> event.getEntity() != null && event.getEntity().getId().equals(selectedMasterTarget.getId()))
+                .map(CancelTargetAssignmentEvent::getActionId).collect(Collectors.toList());
+
+        if (!actionIds.isEmpty()) {
+            // TODO: Consider updating only corresponding actions with
+            // dataProvider.refreshItem() based on
+            // action ids instead of full refresh (evaluate
+            // getDataCommunicator().getKeyMapper())
+            refreshContainer();
+        }
+    }
+
+    @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final ManagementUIEvent mgmtUIEvent) {
         if (mgmtUIEvent == ManagementUIEvent.MAX_ACTION_HISTORY) {
             UI.getCurrent().access(this::createMaximizedContent);
@@ -195,7 +226,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
      * Creates the grid content for maximized-state.
      */
     private void createMaximizedContent() {
-        getSingleSelectionSupport().enable();
+        getSelectionSupport().enableSingleSelection();
         // TODO: check if it is needed
         // getDetailsSupport().populateSelection();
         getResizeSupport().createMaximizedContent();
@@ -206,7 +237,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
      * Creates the grid content for normal (minimized) state.
      */
     private void createMinimizedContent() {
-        getSingleSelectionSupport().disable();
+        getSelectionSupport().disableSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
     }

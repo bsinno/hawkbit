@@ -15,22 +15,21 @@ import org.eclipse.hawkbit.repository.FilterParams;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
+import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link Target}, which dynamically loads a batch of
  * {@link Target} entities from backend and maps them to corresponding
  * {@link ProxyTarget} entities.
  */
-public class TargetManagementStateDataProvider extends ProxyDataProvider<ProxyTarget, Target, Void> {
+public class TargetManagementStateDataProvider
+        extends ProxyDataProvider<ProxyTarget, Target, TargetManagementFilterParams> {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,108 +44,71 @@ public class TargetManagementStateDataProvider extends ProxyDataProvider<ProxyTa
         this.managementUIState = managementUIState;
     }
 
-    // TODO: use filter instead of uiState
     @Override
-    protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest, final Optional<Void> filter) {
-        final Long pinnedDistId = getPinnedDistIdFromUiState();
-        final String searchText = getSearchTextFromUiState();
-        final Collection<TargetUpdateStatus> status = getTargetUpdateStatusFromUiState();
-        final Boolean overdueState = getOverdueStateFromUiState();
-        final Long distributionId = getDistributionIdFromUiState();
-        final Boolean noTagClicked = isNoTagClickedFromUiState();
-        final String[] targetTags = getTargetTagsFromUiState();
-        final Long targetFilterQueryId = getTargetFilterQueryIdFromUiState();
-
-        final boolean isTagSelected = targetTags != null || noTagClicked;
-        final boolean isOverdueFilterEnabled = Boolean.TRUE.equals(overdueState);
-        final boolean isFilterSelected = isTagSelected || isOverdueFilterEnabled;
-        final boolean isAnyFilterSelected = isFilterSelected || !CollectionUtils.isEmpty(status)
-                || distributionId != null || !StringUtils.isEmpty(searchText);
-
-        if (pinnedDistId != null) {
-            return Optional.of(targetManagement.findByFilterOrderByLinkedDistributionSet(pageRequest, pinnedDistId,
-                    new FilterParams(status, overdueState, searchText, distributionId, noTagClicked, targetTags)));
-        } else if (targetFilterQueryId != null) {
-            return Optional.of(targetManagement.findByTargetFilterQuery(pageRequest, targetFilterQueryId));
-        } else if (!isAnyFilterSelected) {
+    protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest,
+            final Optional<TargetManagementFilterParams> filter) {
+        if (!filter.isPresent()) {
             return Optional.of(targetManagement.findAll(pageRequest));
-        } else {
-            return Optional.of(targetManagement.findByFilters(pageRequest,
-                    new FilterParams(status, overdueState, searchText, distributionId, noTagClicked, targetTags)));
         }
+
+        return filter.map(filterParams -> {
+            final Long pinnedDistId = filterParams.getPinnedDistId();
+            final String searchText = filterParams.getSearchText();
+            final Collection<TargetUpdateStatus> targetUpdateStatusList = filterParams.getTargetUpdateStatusList();
+            final Boolean overdueState = filterParams.getOverdueState();
+            final Long distributionId = filterParams.getDistributionId();
+            final Boolean noTagClicked = filterParams.getNoTagClicked();
+            final String[] targetTags = filterParams.getTargetTags();
+            final Long targetFilterQueryId = filterParams.getTargetFilterQueryId();
+
+            if (pinnedDistId != null) {
+                return targetManagement.findByFilterOrderByLinkedDistributionSet(pageRequest, pinnedDistId,
+                        new FilterParams(targetUpdateStatusList, overdueState, searchText, distributionId, noTagClicked,
+                                targetTags));
+            } else if (targetFilterQueryId != null) {
+                return targetManagement.findByTargetFilterQuery(pageRequest, targetFilterQueryId);
+            } else if (filterParams.isAnyFilterSelected()) {
+                return targetManagement.findByFilters(pageRequest, new FilterParams(targetUpdateStatusList,
+                        overdueState, searchText, distributionId, noTagClicked, targetTags));
+            } else {
+                return targetManagement.findAll(pageRequest);
+            }
+        });
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
-        final String searchText = getSearchTextFromUiState();
-        final Collection<TargetUpdateStatus> status = getTargetUpdateStatusFromUiState();
-        final Boolean overdueState = getOverdueStateFromUiState();
-        final Long distributionId = getDistributionIdFromUiState();
-        final Boolean noTagClicked = isNoTagClickedFromUiState();
-        final String[] targetTags = getTargetTagsFromUiState();
-        final Long targetFilterQueryId = getTargetFilterQueryIdFromUiState();
-
-        final boolean isTagSelected = targetTags != null || noTagClicked;
-        final boolean isOverdueFilterEnabled = Boolean.TRUE.equals(overdueState);
-        final boolean isFilterSelected = isTagSelected || isOverdueFilterEnabled;
-        final boolean isAnyFilterSelected = isFilterSelected || !CollectionUtils.isEmpty(status)
-                || distributionId != null || !StringUtils.isEmpty(searchText);
-
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<TargetManagementFilterParams> filter) {
         final long totSize = targetManagement.count();
-        long size;
 
-        if (targetFilterQueryId != null) {
-            size = targetManagement.countByTargetFilterQuery(targetFilterQueryId);
-        } else if (!isAnyFilterSelected) {
-            size = totSize;
-        } else {
-            size = targetManagement.countByFilters(status, overdueState, searchText, distributionId, noTagClicked,
-                    targetTags);
-        }
+        return filter.map(filterParams -> {
+            final String searchText = filterParams.getSearchText();
+            final Collection<TargetUpdateStatus> targetUpdateStatusList = filterParams.getTargetUpdateStatusList();
+            final Boolean overdueState = filterParams.getOverdueState();
+            final Long distributionId = filterParams.getDistributionId();
+            final Boolean noTagClicked = filterParams.getNoTagClicked();
+            final String[] targetTags = filterParams.getTargetTags();
+            final Long targetFilterQueryId = filterParams.getTargetFilterQueryId();
 
-        managementUIState.setTargetsCountAll(totSize);
-        if (size > SPUIDefinitions.MAX_TABLE_ENTRIES) {
-            managementUIState.setTargetsTruncated(size - SPUIDefinitions.MAX_TABLE_ENTRIES);
-            size = SPUIDefinitions.MAX_TABLE_ENTRIES;
-        } else {
-            managementUIState.setTargetsTruncated(null);
-        }
+            long size;
 
-        return size;
-    }
+            if (targetFilterQueryId != null) {
+                size = targetManagement.countByTargetFilterQuery(targetFilterQueryId);
+            } else if (filterParams.isAnyFilterSelected()) {
+                size = targetManagement.countByFilters(targetUpdateStatusList, overdueState, searchText, distributionId,
+                        noTagClicked, targetTags);
+            } else {
+                size = totSize;
+            }
 
-    private String getSearchTextFromUiState() {
-        return managementUIState.getTargetTableFilters().getSearchText()
-                .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
-                .orElse(null);
-    }
+            managementUIState.setTargetsCountAll(totSize);
+            if (size > SPUIDefinitions.MAX_TABLE_ENTRIES) {
+                managementUIState.setTargetsTruncated(size - SPUIDefinitions.MAX_TABLE_ENTRIES);
+                size = SPUIDefinitions.MAX_TABLE_ENTRIES;
+            } else {
+                managementUIState.setTargetsTruncated(null);
+            }
 
-    private Long getPinnedDistIdFromUiState() {
-        return managementUIState.getTargetTableFilters().getPinnedDistId().orElse(null);
-    }
-
-    private Long getTargetFilterQueryIdFromUiState() {
-        return managementUIState.getTargetTableFilters().getTargetFilterQuery().orElse(null);
-    }
-
-    private String[] getTargetTagsFromUiState() {
-        return managementUIState.getTargetTableFilters().getClickedTargetTags().stream().toArray(String[]::new);
-    }
-
-    private Boolean isNoTagClickedFromUiState() {
-        return managementUIState.getTargetTableFilters().isNoTagSelected();
-    }
-
-    private Long getDistributionIdFromUiState() {
-        return managementUIState.getTargetTableFilters().getDistributionSet().map(DistributionSetIdName::getId)
-                .orElse(null);
-    }
-
-    private Boolean getOverdueStateFromUiState() {
-        return managementUIState.getTargetTableFilters().isOverdueFilterEnabled();
-    }
-
-    private Collection<TargetUpdateStatus> getTargetUpdateStatusFromUiState() {
-        return managementUIState.getTargetTableFilters().getClickedStatusTargetTags();
+            return size;
+        }).orElse(totSize);
     }
 }

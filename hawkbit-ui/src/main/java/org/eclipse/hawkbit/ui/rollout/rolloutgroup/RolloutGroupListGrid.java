@@ -33,6 +33,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
@@ -53,6 +54,8 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup, Void> 
 
     private final Map<RolloutGroupStatus, FontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
 
+    private final ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Void> rolloutGroupDataProvider;
+
     /**
      * Constructor for RolloutGroupListGrid (Header with breadcrumbs)
      * 
@@ -70,13 +73,19 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup, Void> 
     public RolloutGroupListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
             final SpPermissionChecker permissionChecker, final RolloutGroupDataProvider rolloutGroupDataProvider) {
-        super(i18n, eventBus, permissionChecker, rolloutGroupDataProvider.withConfigurableFilter());
+        super(i18n, eventBus, permissionChecker);
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.rolloutUIState = rolloutUIState;
+        this.rolloutGroupDataProvider = rolloutGroupDataProvider.withConfigurableFilter();
 
         initStatusIconMap();
 
         init();
+    }
+
+    @Override
+    public ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Void> getFilterDataProvider() {
+        return rolloutGroupDataProvider;
     }
 
     private void initStatusIconMap() {

@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.common.grid;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
-import org.eclipse.hawkbit.ui.common.grid.support.SingleSelectionSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -42,10 +42,8 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
     protected final transient EventBus.UIEventBus eventBus;
     protected final SpPermissionChecker permissionChecker;
 
-    private final ConfigurableFilterDataProvider<T, Void, F> filterDataProvider;
-
     private transient ResizeSupport resizeSupport;
-    private transient SingleSelectionSupport<T> singleSelectionSupport;
+    private transient SelectionSupport<T> selectionSupport;
 
     /**
      * Constructor.
@@ -56,13 +54,10 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
      * @param filterDataProvider
      */
     protected AbstractGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker,
-            final ConfigurableFilterDataProvider<T, Void, F> filterDataProvider) {
+            final SpPermissionChecker permissionChecker) {
         this.i18n = i18n;
         this.eventBus = eventBus;
         this.permissionChecker = permissionChecker;
-
-        this.filterDataProvider = filterDataProvider;
     }
 
     /**
@@ -75,7 +70,7 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
     protected void init() {
         setSizeFull();
         setId(getGridId());
-        if (!hasSingleSelectionSupport()) {
+        if (!hasSelectionSupport()) {
             setSelectionMode(SelectionMode.NONE);
         }
         setColumnReorderingAllowed(true);
@@ -95,13 +90,13 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
         return true;
     }
 
-    // TODO: check if it is needed
+    // TODO: check if it is needed or could be called directly
     /**
      * Refresh the container.
      */
     @Override
     public void refreshContainer() {
-        getDataProvider().refreshAll();
+        getFilterDataProvider().refreshAll();
     }
 
     /**
@@ -143,35 +138,34 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
     }
 
     /**
-     * Enables single-selection-support for the grid by setting
-     * SingleSelectionSupport configuration.
+     * Enables selection-support for the grid by setting SelectionSupport
+     * configuration.
      *
-     * @param singleSelectionSupport
-     *            encapsulates behavior for single-selection and offers some
-     *            convenient functionality.
+     * @param SelectionSupport
+     *            encapsulates behavior for selection and offers some convenient
+     *            functionality.
      */
-    protected void setSingleSelectionSupport(final SingleSelectionSupport<T> singleSelectionSupport) {
-        this.singleSelectionSupport = singleSelectionSupport;
+    protected void setSelectionSupport(final SelectionSupport<T> selectionSupport) {
+        this.selectionSupport = selectionSupport;
     }
 
     /**
-     * Gets the SingleSelectionSupport implementation configuring
-     * single-selection.
+     * Gets the SelectionSupport implementation configuring selection.
      *
-     * @return singleSelectionSupport that configures single-selection.
+     * @return selectionSupport that configures selection.
      */
-    public SingleSelectionSupport<T> getSingleSelectionSupport() {
-        return singleSelectionSupport;
+    public SelectionSupport<T> getSelectionSupport() {
+        return selectionSupport;
     }
 
     /**
-     * Checks whether single-selection-support is enabled.
+     * Checks whether selection-support is enabled.
      *
-     * @return <code>true</code> if single-selection-support is enabled,
-     *         otherwise <code>false</code>
+     * @return <code>true</code> if selection-support is enabled, otherwise
+     *         <code>false</code>
      */
-    public boolean hasSingleSelectionSupport() {
-        return singleSelectionSupport != null;
+    public boolean hasSelectionSupport() {
+        return selectionSupport != null;
     }
 
     /**
@@ -180,9 +174,7 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
      *
      * @return {@link ConfigurableFilterDataProvider} wrapper of dataprovider.
      */
-    public ConfigurableFilterDataProvider<T, Void, F> getFilterDataProvider() {
-        return filterDataProvider;
-    }
+    public abstract ConfigurableFilterDataProvider<T, Void, F> getFilterDataProvider();
 
     /**
      * Gets id of the grid.

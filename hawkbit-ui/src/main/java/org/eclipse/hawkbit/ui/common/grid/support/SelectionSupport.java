@@ -8,11 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
-import java.util.Collections;
-
-import com.vaadin.data.provider.Query;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.components.grid.MultiSelectionModel;
+import com.vaadin.ui.components.grid.NoSelectionModel;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
 
 /**
@@ -21,20 +20,22 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
  * @param <T>
  *            The item-type used by the grid
  */
-public class SingleSelectionSupport<T> {
+public class SelectionSupport<T> {
     final Grid<T> grid;
 
-    public SingleSelectionSupport(final Grid<T> grid) {
+    public SelectionSupport(final Grid<T> grid) {
         this.grid = grid;
-
-        enable();
     }
 
-    public final void enable() {
+    public final void enableMultiSelection() {
+        grid.setSelectionMode(SelectionMode.MULTI);
+    }
+
+    public final void enableSingleSelection() {
         grid.setSelectionMode(SelectionMode.SINGLE);
     }
 
-    public final void disable() {
+    public final void disableSelection() {
         grid.setSelectionMode(SelectionMode.NONE);
     }
 
@@ -42,32 +43,48 @@ public class SingleSelectionSupport<T> {
      * Selects the first row if available and enabled.
      */
     public void selectFirstRow() {
-        if (!isSingleSelectionModel()) {
+        if (isNoSelectionModel()) {
             return;
         }
 
-        final int size = grid.getDataProvider().size(new Query<>());
+        final int size = grid.getDataCommunicator().getDataProviderSize();
         if (size > 0) {
-            final T firstItem = grid.getDataProvider().fetch(new Query<>(0, 1, Collections.emptyList(), null, null))
-                    .findFirst().orElse(null);
+            final T firstItem = grid.getDataCommunicator().fetchItemsWithRange(0, 1).get(0);
             grid.getDataProvider().refreshItem(firstItem);
-            grid.getSelectionModel().select(firstItem);
+            grid.select(firstItem);
         } else {
-            grid.getSelectionModel().select(null);
+            grid.deselectAll();
         }
     }
 
-    private boolean isSingleSelectionModel() {
+    public void selectAll() {
+        if (!isMultiSelectionModel()) {
+            return;
+        }
+
+        grid.asMultiSelect().selectAll();
+    }
+
+    public boolean isMultiSelectionModel() {
+        return grid.getSelectionModel() instanceof MultiSelectionModel;
+    }
+
+    public boolean isSingleSelectionModel() {
         return grid.getSelectionModel() instanceof SingleSelectionModel;
+    }
+
+    public boolean isNoSelectionModel() {
+        return grid.getSelectionModel() instanceof NoSelectionModel;
     }
 
     /**
      * Clears the selection.
      */
     public void clearSelection() {
-        if (!isSingleSelectionModel()) {
+        if (isNoSelectionModel()) {
             return;
         }
-        grid.getSelectionModel().select(null);
+
+        grid.deselectAll();
     }
 }

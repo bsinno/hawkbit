@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatu
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.common.grid.support.SingleSelectionSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -28,6 +28,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
 
@@ -42,6 +43,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
 
     private final Map<Status, FontIcon> statusIconMap = new EnumMap<>(Status.class);
 
+    private final ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> actionStatusDataProvider;
+
     /**
      * Constructor.
      *
@@ -51,15 +54,22 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
      */
     protected ActionStatusGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final DeploymentManagement deploymentManagement) {
-        super(i18n, eventBus, null,
-                new ActionStatusDataProvider(deploymentManagement, new ActionStatusToProxyActionStatusMapper())
-                        .withConfigurableFilter());
+        super(i18n, eventBus, null);
 
-        setSingleSelectionSupport(new SingleSelectionSupport<ProxyActionStatus>(this));
+        this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
+                new ActionStatusToProxyActionStatusMapper()).withConfigurableFilter();
+
+        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this));
+        getSelectionSupport().enableSingleSelection();
 
         initStatusIconMap();
 
         init();
+    }
+
+    @Override
+    public ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> getFilterDataProvider() {
+        return actionStatusDataProvider;
     }
 
     private void initStatusIconMap() {

@@ -54,6 +54,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
@@ -123,6 +124,8 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout, Void> {
     private final Map<RolloutStatus, FontIcon> statusIconMap = new EnumMap<>(RolloutStatus.class);
     private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
+    private final ConfigurableFilterDataProvider<ProxyRollout, Void, Void> rolloutDataProvider;
+
     RolloutListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutManagement rolloutManagement, final UINotification uiNotification,
             final RolloutUIState rolloutUIState, final SpPermissionChecker permissionChecker,
@@ -132,12 +135,13 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout, Void> {
             final TenantConfigurationManagement tenantConfigManagement, final RolloutDataProvider rolloutDataProvider,
             final DistributionSetStatelessDataProvider distributionSetDataProvider,
             final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
-        super(i18n, eventBus, permissionChecker, rolloutDataProvider.withConfigurableFilter());
+        super(i18n, eventBus, permissionChecker);
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.tenantConfigManagement = tenantConfigManagement;
         this.uiNotification = uiNotification;
         this.rolloutUIState = rolloutUIState;
+        this.rolloutDataProvider = rolloutDataProvider.withConfigurableFilter();
 
         final RolloutWindowDependencies rolloutWindowDependecies = new RolloutWindowDependencies(rolloutManagement,
                 targetManagement, uiNotification, entityFactory, i18n, uiProperties, eventBus,
@@ -150,6 +154,11 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout, Void> {
 
         init();
         hideColumnsDueToInsufficientPermissions();
+    }
+
+    @Override
+    public ConfigurableFilterDataProvider<ProxyRollout, Void, Void> getFilterDataProvider() {
+        return rolloutDataProvider;
     }
 
     private void initStatusIconMap() {

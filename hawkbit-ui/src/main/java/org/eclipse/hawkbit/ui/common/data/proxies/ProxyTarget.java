@@ -32,8 +32,10 @@ public class ProxyTarget extends ProxyNamedEntity {
 
     private TargetUpdateStatus updateStatus = TargetUpdateStatus.UNKNOWN;
 
+    // TODO: check if it can be substituted by id
     private DistributionSet installedDistributionSet;
 
+    // TODO: check if it can be substituted by id
     private DistributionSet assignedDistributionSet;
 
     private String assignedDistNameVersion;

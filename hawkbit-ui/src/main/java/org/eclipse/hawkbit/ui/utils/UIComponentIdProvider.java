@@ -52,6 +52,10 @@ public final class UIComponentIdProvider {
      */
     public static final String TARGET_PIN_ICON = "target.pin.icon.";
     /**
+     * ID-Targ.DELETE.
+     */
+    public static final String TARGET_DELET_ICON = "target.delete.icon.";
+    /**
      * Target search text id.
      */
     public static final String TARGET_TEXT_FIELD = "target.search.textfield";
@@ -271,6 +275,16 @@ public final class UIComponentIdProvider {
      * Action history table status label Id.
      */
     public static final String ACTION_HISTORY_TABLE_STATUS_LABEL_ID = "action.history.table.statusId";
+
+    /**
+     * Target table status label Id.
+     */
+    public static final String TARGET_TABLE_STATUS_LABEL_ID = "target.table.statusId";
+
+    /**
+     * Target table polling status label Id.
+     */
+    public static final String TARGET_TABLE_POLLING_STATUS_LABEL_ID = "target.table.poll.statusId";
 
     /**
      * Action history table active-state label Id.

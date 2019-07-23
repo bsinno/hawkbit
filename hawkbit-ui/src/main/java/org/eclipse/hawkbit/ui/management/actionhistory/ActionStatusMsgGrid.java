@@ -12,13 +12,14 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusMsgDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.common.grid.support.SingleSelectionSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.data.provider.Query;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TextArea;
@@ -33,6 +34,8 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
     private static final String MSG_ID = "id";
     private static final String VALUE_ID = "msgValue";
 
+    private final ConfigurableFilterDataProvider<ProxyMessage, Void, Long> actionStatusMsgDataProvider;
+
     /**
      * Constructor.
      *
@@ -41,10 +44,13 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
      */
     protected ActionStatusMsgGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final DeploymentManagement deploymentManagement) {
-        super(i18n, eventBus, null, new ActionStatusMsgDataProvider(deploymentManagement, createNoMessageProxy(i18n))
-                .withConfigurableFilter());
+        super(i18n, eventBus, null);
 
-        setSingleSelectionSupport(new SingleSelectionSupport<ProxyMessage>(this));
+        this.actionStatusMsgDataProvider = new ActionStatusMsgDataProvider(deploymentManagement,
+                createNoMessageProxy(i18n)).withConfigurableFilter();
+
+        setSelectionSupport(new SelectionSupport<ProxyMessage>(this));
+        getSelectionSupport().enableSingleSelection();
 
         addStyleName(SPUIStyleDefinitions.ACTION_HISTORY_MESSAGE_GRID);
 
@@ -56,6 +62,11 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
         });
 
         init();
+    }
+
+    @Override
+    public ConfigurableFilterDataProvider<ProxyMessage, Void, Long> getFilterDataProvider() {
+        return actionStatusMsgDataProvider;
     }
 
     private Component generateDetails(final ProxyMessage msg) {
@@ -81,6 +92,9 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
 
     @Override
     public void refreshContainer() {
+        // TODO: what about sortOrders/filters, are they respected here, should
+        // we also set the limit? Evaluate
+        // grid.getDataCommunicator.fetchItemsWithRange(0,grid.getDataCommunicator.getDataProviderSize());
         getDataProvider().fetch(new Query<>()).forEach(msg -> setDetailsVisible(msg, false));
         super.refreshContainer();
     }
