@@ -33,7 +33,7 @@ public class TargetManagementFilterParams {
      * 
      * @param pinnedDistId
      * @param searchText
-     * @param targetUpdatestatusList
+     * @param targetUpdateStatusList
      * @param overdueState
      * @param distributionId
      * @param noTagClicked

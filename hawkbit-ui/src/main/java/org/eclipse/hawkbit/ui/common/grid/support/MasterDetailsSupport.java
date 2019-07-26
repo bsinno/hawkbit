@@ -46,16 +46,16 @@ public abstract class MasterDetailsSupport<T, F> {
 
     // TODO: check if it really belongs here, or rather to abstract grid
     private void adaptSelection(final F filter) {
-        if (!grid.hasSingleSelectionSupport()) {
+        if (!grid.hasSelectionSupport()) {
             return;
         }
 
         if (filter == null) {
-            grid.getSingleSelectionSupport().clearSelection();
+            grid.getSelectionSupport().clearSelection();
             return;
         }
 
-        grid.getSingleSelectionSupport().selectFirstRow();
+        grid.getSelectionSupport().selectFirstRow();
     }
 
     /**

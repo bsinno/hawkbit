@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.table;
 
+import org.vaadin.spring.events.Event;
 import org.vaadin.spring.events.EventBusListenerMethodFilter;
 
 /**
@@ -17,16 +18,16 @@ import org.vaadin.spring.events.EventBusListenerMethodFilter;
  */
 public abstract class AbstractBaseViewFilter implements EventBusListenerMethodFilter {
 
+    // TODO: check if it is working
     @Override
-    public boolean filter(final Object payload) {
-
-        if (!(payload instanceof BaseUIEvent)) {
+    public boolean filter(final Event<?> event) {
+        if (!(event.getPayload() instanceof BaseUIEvent)) {
             return false;
         }
 
-        final BaseUIEvent event = (BaseUIEvent) payload;
+        final BaseUIEvent baseUiEvent = (BaseUIEvent) event.getPayload();
 
-        return getOriginView().equals(event.getSource());
+        return getOriginView().equals(baseUiEvent.getSource());
     }
 
     protected abstract Class<?> getOriginView();

@@ -52,9 +52,17 @@ public final class UIComponentIdProvider {
      */
     public static final String TARGET_PIN_ICON = "target.pin.icon.";
     /**
+     * ID-Targ.PIN.
+     */
+    public static final String DIST_PIN_ICON = "dist.pin.icon.";
+    /**
      * ID-Targ.DELETE.
      */
     public static final String TARGET_DELET_ICON = "target.delete.icon.";
+    /**
+     * ID-Targ.DELETE.
+     */
+    public static final String DIST_DELET_ICON = "dist.delete.icon.";
     /**
      * Target search text id.
      */
@@ -125,11 +133,6 @@ public final class UIComponentIdProvider {
      * ID for Distribution Tag ComboBox
      */
     public static final String DIST_TAG_COMBO = "dist.tag.combo";
-    /**
-     * ID-Dist.PIN.
-     */
-    public static final String DIST_PIN_BUTTON = "dist.pin.button";
-
     /**
      * ID for menubar for configuring distribution set tags
      */

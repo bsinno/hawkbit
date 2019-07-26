@@ -95,6 +95,8 @@ public final class UIMessageIdProvider {
 
     public static final String MESSAGE_ASSIGN_TARGET_TO_MULTIPLE_DISTRIBUTIONS = "message.confirm.assign.multiple.entities.multiple.distributions";
 
+    public static final String MESSAGE_CONFIRM_ASSIGN_MULTIPLE_ENTITIES = "message.confirm.assign.multiple.entities";
+
     public static final String MESSAGE_CONFIRM_DELETE_ENTITY = "message.confirm.delete.entity";
 
     public static final String MESSAGE_CONFIRM_ASSIGN_ENTITY = "message.confirm.assign.entity";

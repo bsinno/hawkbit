@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.utils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -18,23 +17,13 @@ import org.eclipse.hawkbit.repository.model.AssignmentResult;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.repository.model.PollStatus;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
-import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.UiProperties.Localization;
-import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.springframework.util.StringUtils;
-import org.vaadin.addons.lazyquerycontainer.AbstractBeanQuery;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.Table;
 import com.vaadin.ui.UI;
+import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.v7.ui.Label;
 
 /**
  * Common util class.
@@ -320,51 +309,6 @@ public final class HawkbitCommonUtil {
     }
 
     /**
-     * Create a lazy query container for the given query bean factory with empty
-     * configurations.
-     *
-     * @param queryFactory
-     *            is reference of {@link BeanQueryFactory<? extends
-     *            AbstractBeanQuery>} on which lazy container should create.
-     * @return instance of {@link LazyQueryContainer}.
-     */
-    public static LazyQueryContainer createLazyQueryContainer(
-            final BeanQueryFactory<? extends AbstractBeanQuery<?>> queryFactory) {
-        queryFactory.setQueryConfiguration(Collections.emptyMap());
-        return new LazyQueryContainer(new LazyQueryDefinition(true, 20, SPUILabelDefinitions.VAR_NAME), queryFactory);
-    }
-
-    /**
-     * Create lazy query container for DS type.
-     *
-     * @param queryFactory
-     * @return LazyQueryContainer
-     */
-    public static LazyQueryContainer createDSLazyQueryContainer(
-            final BeanQueryFactory<? extends AbstractBeanQuery<?>> queryFactory) {
-        queryFactory.setQueryConfiguration(Collections.emptyMap());
-        return new LazyQueryContainer(new LazyQueryDefinition(true, 20, "tagIdName"), queryFactory);
-    }
-
-    /**
-     * Set distribution table column properties.
-     *
-     * @param container
-     *            table container
-     */
-    public static void getDsTableColumnProperties(final Container container) {
-        final LazyQueryContainer lqc = (LazyQueryContainer) container;
-        lqc.addContainerProperty(SPUILabelDefinitions.VAR_ID, Long.class, null, false, false);
-        lqc.addContainerProperty(SPUILabelDefinitions.VAR_DESC, String.class, "", false, true);
-        lqc.addContainerProperty(SPUILabelDefinitions.VAR_VERSION, String.class, null, false, false);
-        lqc.addContainerProperty(SPUILabelDefinitions.VAR_NAME, String.class, null, false, true);
-        lqc.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_BY, String.class, null, false, true);
-        lqc.addContainerProperty(SPUILabelDefinitions.VAR_LAST_MODIFIED_BY, String.class, null, false, true);
-        lqc.addContainerProperty(SPUILabelDefinitions.VAR_CREATED_DATE, String.class, null, false, true);
-        lqc.addContainerProperty(SPUILabelDefinitions.VAR_LAST_MODIFIED_DATE, String.class, null, false, true);
-    }
-
-    /**
      * Reset the software module table rows highlight css.
      *
      * @return javascript to rest software module table rows highlight css.
@@ -422,36 +366,6 @@ public final class HawkbitCommonUtil {
     }
 
     /**
-     * Apply style for status label in target table.
-     *
-     * @param targetTable
-     *            target table
-     * @param pinBtn
-     *            pin button used for status display and pin on mouse over
-     * @param itemId
-     *            id of the tabel row
-     */
-    public static void applyStatusLblStyle(final Table targetTable, final Button pinBtn, final Object itemId) {
-        final Item item = targetTable.getItem(itemId);
-        if (item != null) {
-            final TargetUpdateStatus updateStatus = (TargetUpdateStatus) item
-                    .getItemProperty(SPUILabelDefinitions.VAR_TARGET_STATUS).getValue();
-            pinBtn.removeStyleName("statusIconRed statusIconBlue statusIconGreen statusIconYellow statusIconLightBlue");
-            if (updateStatus == TargetUpdateStatus.ERROR) {
-                pinBtn.addStyleName(SPUIStyleDefinitions.STATUS_ICON_RED);
-            } else if (updateStatus == TargetUpdateStatus.UNKNOWN) {
-                pinBtn.addStyleName(SPUIStyleDefinitions.STATUS_ICON_BLUE);
-            } else if (updateStatus == TargetUpdateStatus.IN_SYNC) {
-                pinBtn.addStyleName(SPUIStyleDefinitions.STATUS_ICON_GREEN);
-            } else if (updateStatus == TargetUpdateStatus.PENDING) {
-                pinBtn.addStyleName(SPUIStyleDefinitions.STATUS_ICON_YELLOW);
-            } else if (updateStatus == TargetUpdateStatus.REGISTERED) {
-                pinBtn.addStyleName(SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE);
-            }
-        }
-    }
-
-    /**
      * Formats the finished percentage of a rollout group into a string with one
      * digit after comma.
      *
@@ -502,21 +416,6 @@ public final class HawkbitCommonUtil {
             val.append("style:").append(style).append(",");
         }
         return val.append("id:").append(id).toString();
-    }
-
-    /**
-     * Receive the code point of a given StatusFontIcon.
-     *
-     * @param statusFontIcon
-     *            the status font icon
-     * @return the code point of the StatusFontIcon
-     */
-    public static String getCodePoint(final FontIcon statusFontIcon) {
-        if (statusFontIcon == null) {
-            return null;
-        }
-        return statusFontIcon.getFontIcon() != null ? Integer.toString(statusFontIcon.getFontIcon().getCodepoint())
-                : null;
     }
 
     /**

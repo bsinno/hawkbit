@@ -60,7 +60,7 @@ public class ManagementUIState implements ManagementEntityState, Serializable {
 
     private boolean dsTableMaximized;
 
-    private Long lastSelectedDsIdName;
+    private transient Optional<Long> lastSelectedDsIdName = Optional.empty();
 
     private Set<Long> selectedDsIdName = Collections.emptySet();
 
@@ -197,13 +197,13 @@ public class ManagementUIState implements ManagementEntityState, Serializable {
         this.dsTableMaximized = isDsTableMaximized;
     }
 
-    public Long getLastSelectedDsIdName() {
+    public Optional<Long> getLastSelectedDsIdName() {
         return lastSelectedDsIdName;
     }
 
     @Override
     public void setLastSelectedEntityId(final Long value) {
-        this.lastSelectedDsIdName = value;
+        this.lastSelectedDsIdName = Optional.ofNullable(value);
     }
 
     @Override
