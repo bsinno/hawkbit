@@ -106,7 +106,7 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     }
 
     @Override
-    protected String getGridId() {
+    public String getGridId() {
         return UIComponentIdProvider.ACTION_HISTORY_DETAILS_GRID_ID;
     }
 

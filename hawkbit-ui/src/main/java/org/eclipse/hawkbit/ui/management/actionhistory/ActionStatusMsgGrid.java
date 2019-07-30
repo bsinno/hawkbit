@@ -100,7 +100,7 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
     }
 
     @Override
-    protected String getGridId() {
+    public String getGridId() {
         return UIComponentIdProvider.ACTION_HISTORY_MESSAGE_GRID_ID;
     }
 

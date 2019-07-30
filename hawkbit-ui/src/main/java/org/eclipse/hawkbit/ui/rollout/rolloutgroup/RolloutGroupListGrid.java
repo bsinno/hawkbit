@@ -107,7 +107,7 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup, Void> 
     }
 
     @Override
-    protected String getGridId() {
+    public String getGridId() {
         return UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID;
     }
 

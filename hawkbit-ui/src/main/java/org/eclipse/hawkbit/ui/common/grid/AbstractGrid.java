@@ -180,7 +180,7 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
      *
      * @return id of the grid
      */
-    protected abstract String getGridId();
+    public abstract String getGridId();
 
     // TODO: check if it is needed
     /**

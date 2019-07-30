@@ -176,7 +176,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     @Override
-    protected String getGridId() {
+    public String getGridId() {
         return UIComponentIdProvider.TARGET_TABLE_ID;
     }
 

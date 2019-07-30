@@ -243,7 +243,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     @Override
-    protected String getGridId() {
+    public String getGridId() {
         return UIComponentIdProvider.ACTION_HISTORY_GRID_ID;
     }
 
