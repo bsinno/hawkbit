@@ -10,8 +10,13 @@ package org.eclipse.hawkbit.ui.common.grid.support;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Button;
 
@@ -20,20 +25,32 @@ import com.vaadin.ui.Button;
  * 
  * @param <T>
  *            The item-type used by the grid
- * @param <F>
- *            The item-type identifier used by the UI state
  */
-public abstract class PinSupport<T, F> {
+public class PinSupport<T extends ProxyIdentifiableEntity> {
     private static final String PINNED_STYLE = "itemPinned";
     private static final String STATUS_PIN_TOGGLE = "statusPinToggle";
 
-    public abstract void styleRowOnPinning();
+    private final Runnable restoreRowStyleCallback;
+    private final Supplier<Optional<Long>> getPinnedItemIdFromUiStateCallback;
+    private final Consumer<T> setPinnedItemIdInUiStateCallback;
+    private final UIEventBus eventBus;
+    private final PinUnpinEvent pinEvent;
+    private final PinUnpinEvent unPinEvent;
 
-    public abstract void restoreRowStyle();
+    public PinSupport(final UIEventBus eventBus, final PinUnpinEvent pinEvent, final PinUnpinEvent unPinEvent,
+            final Runnable restoreRowStyleCallback, final Supplier<Optional<Long>> getPinnedItemIdFromUiStateCallback,
+            final Consumer<T> setPinnedItemIdInUiStateCallback) {
+        this.eventBus = eventBus;
+        this.pinEvent = pinEvent;
+        this.unPinEvent = unPinEvent;
+        this.restoreRowStyleCallback = restoreRowStyleCallback;
+        this.getPinnedItemIdFromUiStateCallback = getPinnedItemIdFromUiStateCallback;
+        this.setPinnedItemIdInUiStateCallback = setPinnedItemIdInUiStateCallback;
+    }
 
     // TODO: consider changing assignedDistItemId to assignedDistItemIds list
     // (in multi-assignment scenario)
-    protected String getRowStyleForPinning(final Long assignedDistributionSetId, final Long installedDistributionSetId,
+    public String getRowStyleForPinning(final Long assignedDistributionSetId, final Long installedDistributionSetId,
             final Long pinnedDistributionSetId) {
         if (pinnedDistributionSetId == null) {
             return null;
@@ -56,43 +73,45 @@ public abstract class PinSupport<T, F> {
     }
 
     private boolean isPinned(final T item) {
-        return getPinnedItemIdFromUiState().map(id -> id.equals(getPinnedItemIdFromItem(item))).orElse(false);
+        return getPinnedItemIdFromUiStateCallback.get().map(id -> id.equals(item.getId())).orElse(false);
     }
-
-    public abstract Optional<F> getPinnedItemIdFromUiState();
-
-    protected abstract F getPinnedItemIdFromItem(final T item);
 
     private void pinItem(final Button pinBtn) {
         publishPinItem();
-        restoreRowStyle();
+        restoreRowStyleCallback.run();
         pinBtn.addStyleName(PINNED_STYLE);
     }
 
-    protected abstract void publishPinItem();
+    private void publishPinItem() {
+        // TODO: check if the sender is correct or should we use grid
+        // component here
+        eventBus.publish(this, pinEvent);
+    }
+
+    private void publishUnPinItem() {
+        // TODO: check if the sender is correct or should we use grid
+        // component here
+        eventBus.publish(this, unPinEvent);
+    }
 
     public void pinItemListener(final T item, final Button clickedButton) {
         if (isPinned(item)) {
             unPinItem(clickedButton);
-            setPinnedItemIdInUiState(null);
+            setPinnedItemIdInUiStateCallback.accept(null);
         } else {
             pinItem(clickedButton);
-            setPinnedItemIdInUiState(getPinnedItemIdFromItem(item));
+            setPinnedItemIdInUiStateCallback.accept(item);
         }
     }
-
-    public abstract void setPinnedItemIdInUiState(final F pinnedItemId);
 
     private void unPinItem(final Button pinBtn) {
         publishUnPinItem();
         pinBtn.removeStyleName(PINNED_STYLE);
     }
 
-    protected abstract void publishUnPinItem();
-
     public void unPinItemAfterDeletion(final Long pinnedItemId, final Collection<Long> deletedItemIds) {
         if (deletedItemIds.contains(pinnedItemId)) {
-            setPinnedItemIdInUiState(null);
+            setPinnedItemIdInUiStateCallback.accept(null);
             publishUnPinItem();
         }
     }

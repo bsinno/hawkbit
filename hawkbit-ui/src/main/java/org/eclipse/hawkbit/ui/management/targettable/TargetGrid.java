@@ -128,7 +128,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> targetDataProvider;
     private final TargetToProxyTargetMapper targetToProxyTargetMapper;
-    private final TargetPinSupport pinSupport;
+    private final PinSupport<ProxyTarget> pinSupport;
     private final DeleteSupport<ProxyTarget> targetDeleteSupport;
 
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
@@ -162,7 +162,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         } else {
             getSelectionSupport().enableMultiSelection();
         }
-        this.pinSupport = new TargetPinSupport();
+        this.pinSupport = new PinSupport<>(eventBus, PinUnpinEvent.PIN_TARGET, PinUnpinEvent.UNPIN_TARGET,
+                () -> setStyleGenerator(item -> null), this::getPinnedTargetIdFromUiState,
+                this::setPinnedTargetIdInUiState);
         this.targetDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("target.details.header"),
                 permChecker, notification, this::targetIdsDeletionCallback);
 
@@ -183,6 +185,15 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         return targetDataProvider;
     }
 
+    private Optional<Long> getPinnedTargetIdFromUiState() {
+        return managementUIState.getDistributionTableFilters().getPinnedTarget().map(TargetIdName::getTargetId);
+    }
+
+    private void setPinnedTargetIdInUiState(final ProxyTarget target) {
+        managementUIState.getDistributionTableFilters()
+                .setPinnedTarget(target != null ? new TargetIdName(target.getId(), target.getControllerId()) : null);
+    }
+
     private void targetIdsDeletionCallback(final Collection<Long> targetsToBeDeletedIds) {
         targetManagement.delete(targetsToBeDeletedIds);
 
@@ -190,8 +201,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         // dataprovider refreshAll anyway after receiving the event
         eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.REMOVE_ENTITY, targetsToBeDeletedIds));
 
-        pinSupport.getPinnedItemIdFromUiState().ifPresent(pinnedTargetId -> pinSupport
-                .unPinItemAfterDeletion(pinnedTargetId.getTargetId(), targetsToBeDeletedIds));
+        getPinnedTargetIdFromUiState()
+                .ifPresent(pinnedTargetId -> pinSupport.unPinItemAfterDeletion(pinnedTargetId, targetsToBeDeletedIds));
         managementUIState.getSelectedTargetId().clear();
     }
 
@@ -247,13 +258,14 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         UI.getCurrent().access(() -> {
             if (pinUnpinEvent == PinUnpinEvent.PIN_DISTRIBUTION) {
                 /* if distribution set is pinned, unpin target if pinned */
-                pinSupport.setPinnedItemIdInUiState(null);
+                setPinnedTargetIdInUiState(null);
                 refreshFilter();
                 // TODO: check if refreshFilter() should be called at the end
-                pinSupport.styleRowOnPinning();
+                setStyleGenerator(item -> pinSupport.getRowStyleForPinning(item.getAssignedDistributionSet().getId(),
+                        item.getInstalledDistributionSet().getId(), getPinnedDistIdFromUiState()));
             } else if (pinUnpinEvent == PinUnpinEvent.UNPIN_DISTRIBUTION) {
                 refreshFilter();
-                pinSupport.restoreRowStyle();
+                setStyleGenerator(item -> null);
             }
         });
     }
@@ -724,52 +736,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         @Override
         public void setMinimizedColumnExpandRatio() {
-        }
-    }
-
-    /**
-     * Adds support to pin the targets in grid.
-     */
-    class TargetPinSupport extends PinSupport<ProxyTarget, TargetIdName> {
-
-        @Override
-        public void styleRowOnPinning() {
-            setStyleGenerator(item -> getRowStyleForPinning(item.getAssignedDistributionSet().getId(),
-                    item.getInstalledDistributionSet().getId(), getPinnedDistIdFromUiState()));
-        }
-
-        @Override
-        public void restoreRowStyle() {
-            setStyleGenerator(item -> null);
-        }
-
-        @Override
-        public Optional<TargetIdName> getPinnedItemIdFromUiState() {
-            return managementUIState.getDistributionTableFilters().getPinnedTarget();
-        }
-
-        @Override
-        public void setPinnedItemIdInUiState(final TargetIdName pinnedItemId) {
-            managementUIState.getDistributionTableFilters().setPinnedTarget(pinnedItemId);
-        }
-
-        @Override
-        protected TargetIdName getPinnedItemIdFromItem(final ProxyTarget item) {
-            return new TargetIdName(item.getId(), item.getControllerId());
-        }
-
-        @Override
-        protected void publishPinItem() {
-            // TODO: check if the sender is correct or should we use grid
-            // component here
-            eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
-        }
-
-        @Override
-        protected void publishUnPinItem() {
-            // TODO: check if the sender is correct or should we use grid
-            // component here
-            eventBus.publish(this, PinUnpinEvent.UNPIN_TARGET);
         }
     }
 }

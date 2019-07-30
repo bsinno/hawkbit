@@ -113,7 +113,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     private final ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsManagementFilterParams> dsDataProvider;
     private final DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
-    private final DistributionPinSupport pinSupport;
+    private final PinSupport<ProxyDistributionSet> pinSupport;
     private final DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
 
     DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
@@ -145,13 +145,22 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         } else {
             getSelectionSupport().enableMultiSelection();
         }
-        this.pinSupport = new DistributionPinSupport();
+        this.pinSupport = new PinSupport<>(eventBus, PinUnpinEvent.PIN_DISTRIBUTION, PinUnpinEvent.UNPIN_DISTRIBUTION,
+                () -> setStyleGenerator(item -> null), this::getPinnedDsIdFromUiState, this::setPinnedDsIdInUiState);
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
                 permissionChecker, notification, this::dsIdsDeletionCallback);
 
         init();
 
         addDragAndDrop();
+    }
+
+    private Optional<Long> getPinnedDsIdFromUiState() {
+        return managementUIState.getTargetTableFilters().getPinnedDistId();
+    }
+
+    private void setPinnedDsIdInUiState(final ProxyDistributionSet ds) {
+        managementUIState.getTargetTableFilters().setPinnedDistId(ds != null ? ds.getId() : null);
     }
 
     private void dsIdsDeletionCallback(final Collection<Long> dsToBeDeletedIds) {
@@ -161,7 +170,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         // dataprovider refreshAll anyway after receiving the event
         eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.REMOVE_ENTITY, dsToBeDeletedIds));
 
-        pinSupport.getPinnedItemIdFromUiState()
+        getPinnedDsIdFromUiState()
                 .ifPresent(pinnedDsId -> pinSupport.unPinItemAfterDeletion(pinnedDsId, dsToBeDeletedIds));
         managementUIState.getSelectedDsIdName().clear();
     }
@@ -299,15 +308,34 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         UI.getCurrent().access(() -> {
             if (pinUnpinEvent == PinUnpinEvent.PIN_TARGET) {
                 /* if target is pinned, unpin distribution set if pinned */
-                pinSupport.setPinnedItemIdInUiState(null);
+                setPinnedDsIdInUiState(null);
                 refreshFilter();
                 // TODO: check if refreshFilter() shuld be called after
-                pinSupport.styleRowOnPinning();
+                styleDsRowOnPinning();
             } else if (pinUnpinEvent == PinUnpinEvent.UNPIN_TARGET) {
                 refreshFilter();
-                pinSupport.restoreRowStyle();
+                setStyleGenerator(item -> null);
             }
         });
+    }
+
+    private void styleDsRowOnPinning() {
+        // TODO: check if it would be better to store the ProxyTarget in Ui
+        // state or extend TargetIdName with installedDs and assignedDs in order
+        // not to perform database calls
+        final TargetIdName pinnedTargetIdName = getPinnedTargetFromUiState();
+
+        if (pinnedTargetIdName == null || pinnedTargetIdName.getControllerId() == null) {
+            return;
+        }
+
+        final String pinnedTargetControllerId = pinnedTargetIdName.getControllerId();
+        final Long installedDistId = deploymentManagement.getInstalledDistributionSet(pinnedTargetControllerId)
+                .map(DistributionSet::getId).orElse(null);
+        final Long assignedDistId = deploymentManagement.getAssignedDistributionSet(pinnedTargetControllerId)
+                .map(DistributionSet::getId).orElse(null);
+
+        setStyleGenerator(item -> pinSupport.getRowStyleForPinning(assignedDistId, installedDistId, item.getId()));
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -654,59 +682,6 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
         @Override
         public void setMinimizedColumnExpandRatio() {
-        }
-    }
-
-    /**
-     * Adds support to pin the distribution sets in grid.
-     */
-    class DistributionPinSupport extends PinSupport<ProxyDistributionSet, Long> {
-
-        @Override
-        public void styleRowOnPinning() {
-            // TODO: consider using ProxyTarget instead of parsing the database
-            managementUIState.getDistributionTableFilters().getPinnedTarget().map(TargetIdName::getControllerId)
-                    .ifPresent(controllerId -> {
-                        final Long installedDistId = deploymentManagement.getInstalledDistributionSet(controllerId)
-                                .map(DistributionSet::getId).orElse(null);
-                        final Long assignedDistId = deploymentManagement.getAssignedDistributionSet(controllerId)
-                                .map(DistributionSet::getId).orElse(null);
-                        setStyleGenerator(item -> getRowStyleForPinning(assignedDistId, installedDistId, item.getId()));
-                    });
-        }
-
-        @Override
-        public void restoreRowStyle() {
-            setStyleGenerator(item -> null);
-        }
-
-        @Override
-        public Optional<Long> getPinnedItemIdFromUiState() {
-            return managementUIState.getTargetTableFilters().getPinnedDistId();
-        }
-
-        @Override
-        public void setPinnedItemIdInUiState(final Long pinnedItemId) {
-            managementUIState.getTargetTableFilters().setPinnedDistId(pinnedItemId);
-        }
-
-        @Override
-        protected Long getPinnedItemIdFromItem(final ProxyDistributionSet item) {
-            return item.getId();
-        }
-
-        @Override
-        protected void publishPinItem() {
-            // TODO: check if the sender is correct or should we use grid
-            // component here
-            eventBus.publish(this, PinUnpinEvent.PIN_DISTRIBUTION);
-        }
-
-        @Override
-        protected void publishUnPinItem() {
-            // TODO: check if the sender is correct or should we use grid
-            // component here
-            eventBus.publish(this, PinUnpinEvent.UNPIN_DISTRIBUTION);
         }
     }
 }
