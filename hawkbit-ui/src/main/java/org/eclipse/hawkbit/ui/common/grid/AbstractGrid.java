@@ -14,7 +14,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
@@ -39,7 +38,7 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
     protected static final String CENTER_ALIGN = "v-align-center";
 
     protected final VaadinMessageSource i18n;
-    protected final transient EventBus.UIEventBus eventBus;
+    protected final transient UIEventBus eventBus;
     protected final SpPermissionChecker permissionChecker;
 
     private transient ResizeSupport resizeSupport;

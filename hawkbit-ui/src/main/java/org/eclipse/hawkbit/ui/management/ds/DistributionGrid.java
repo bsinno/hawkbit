@@ -42,6 +42,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
@@ -104,9 +105,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     private final transient UINotification notification;
     private final UiProperties uiProperties;
 
-    // TODO: Remove all of this after restructuring if possible
-    private boolean distPinned;
-    private Button distributionPinnedBtn;
+    // TODO: Remove after restructuring if possible
     private ConfirmationDialog confirmAssignDialog;
 
     private final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout;
@@ -115,6 +114,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     private final ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsManagementFilterParams> dsDataProvider;
     private final DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
     private final DistributionPinSupport pinSupport;
+    private final DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
 
     DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -146,10 +146,24 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             getSelectionSupport().enableMultiSelection();
         }
         this.pinSupport = new DistributionPinSupport();
+        this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
+                permissionChecker, notification, this::dsIdsDeletionCallback);
 
         init();
 
         addDragAndDrop();
+    }
+
+    private void dsIdsDeletionCallback(final Collection<Long> dsToBeDeletedIds) {
+        distributionSetManagement.delete(dsToBeDeletedIds);
+
+        // TODO: should we really pass the dsToBeDeletedIds? We call
+        // dataprovider refreshAll anyway after receiving the event
+        eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.REMOVE_ENTITY, dsToBeDeletedIds));
+
+        pinSupport.getPinnedItemIdFromUiState()
+                .ifPresent(pinnedDsId -> pinSupport.unPinItemAfterDeletion(pinnedDsId, dsToBeDeletedIds));
+        managementUIState.getSelectedDsIdName().clear();
     }
 
     @Override
@@ -179,7 +193,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     private void deselectIncompleteDs(final Stream<DistributionSetUpdatedEvent> dsEntityUpdateEventStream) {
         if (dsEntityUpdateEventStream.filter(event -> !event.isComplete()).map(DistributionSetUpdatedEvent::getEntityId)
-                .anyMatch(id -> id.equals(managementUIState.getLastSelectedDsIdName()))) {
+                .anyMatch(this::isLastSelectedDs)) {
+            // TODO: consider renaming it to setLastSelectedDsIdName
             managementUIState.setLastSelectedEntityId(null);
         }
     }
@@ -342,11 +357,12 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             return pinSupport.buildPinActionButton(pinBtn, ds);
         }).setId(DS_PIN_BUTTON_ID).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
 
-        addComponentColumn(ds -> buildActionButton(clickEvent -> openConfirmationWindowDeleteAction(ds),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(), hasDeletePermission()))
-                        .setId(DS_DELETE_BUTTON_ID).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false)
-                        .setHidden(false);
+        addComponentColumn(
+                ds -> buildActionButton(clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds),
+                        VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                        UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
+                        distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
+                                .setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
 
         getDefaultHeaderRow().join(DS_PIN_BUTTON_ID, DS_DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
     }
@@ -367,84 +383,6 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         actionButton.addStyleName(style);
 
         return actionButton;
-    }
-
-    private void openConfirmationWindowDeleteAction(final ProxyDistributionSet clickedDs) {
-        final Set<ProxyDistributionSet> distSetsToBeDeleted = getEntitiesForDeletion(clickedDs);
-
-        final String entityType = i18n.getMessage("distribution.details.header");
-        final String confirmationCaption = i18n.getMessage("caption.entity.delete.action.confirmbox", entityType);
-        final String confirmationQuestion = createConfirmationQuestionForDeletion(distSetsToBeDeleted, entityType);
-        final ConfirmationDialog confirmDeleteDialog = createConfirmationWindowForDeletion(distSetsToBeDeleted,
-                confirmationCaption, confirmationQuestion, entityType);
-
-        UI.getCurrent().addWindow(confirmDeleteDialog.getWindow());
-        confirmDeleteDialog.getWindow().bringToFront();
-    }
-
-    private Set<ProxyDistributionSet> getEntitiesForDeletion(final ProxyDistributionSet clickedDs) {
-        final Set<ProxyDistributionSet> selectedDistSets = getSelectedItems();
-
-        // only clicked ds should be deleted if it is not part of the
-        // selection
-        if (selectedDistSets.contains(clickedDs)) {
-            return selectedDistSets;
-        } else {
-            getSelectionSupport().clearSelection();
-            select(clickedDs);
-
-            return Collections.singleton(clickedDs);
-        }
-    }
-
-    private String createConfirmationQuestionForDeletion(final Set<ProxyDistributionSet> distSetsToBeDeleted,
-            final String entityType) {
-        if (distSetsToBeDeleted.size() == 1) {
-            return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY, entityType.toLowerCase(),
-                    distSetsToBeDeleted.iterator().next().getName(), "");
-        } else {
-            return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY, distSetsToBeDeleted.size(),
-                    entityType, "s");
-        }
-    }
-
-    private ConfirmationDialog createConfirmationWindowForDeletion(final Set<ProxyDistributionSet> distSetsToBeDeleted,
-            final String confirmationCaption, final String confirmationQuestion, final String entityType) {
-        return new ConfirmationDialog(confirmationCaption, confirmationQuestion,
-                i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
-                ok -> {
-                    if (ok) {
-                        handleOkDelete(distSetsToBeDeleted, entityType);
-                    }
-                });
-    }
-
-    private void handleOkDelete(final Set<ProxyDistributionSet> distSetsToBeDeleted, final String entityType) {
-        final Collection<Long> distSetsToBeDeletedIds = distSetsToBeDeleted.stream().map(ProxyDistributionSet::getId)
-                .collect(Collectors.toList());
-        distributionSetManagement.delete(distSetsToBeDeletedIds);
-
-        // TODO: should we really pass the targetsToBeDeletedIds? We call
-        // dataprovider refreshAll anyway
-        eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.REMOVE_ENTITY, distSetsToBeDeletedIds));
-
-        notification.displaySuccess(
-                i18n.getMessage("message.delete.success", distSetsToBeDeletedIds.size() + " " + entityType + "(s)"));
-
-        managementUIState.getTargetTableFilters().getPinnedDistId().ifPresent(this::unPinDeletedDS);
-        managementUIState.getSelectedDsIdName().clear();
-    }
-
-    private void unPinDeletedDS(final Long pinnedDsId) {
-        final Set<Long> deletedDsIds = managementUIState.getSelectedDsIdName();
-        if (deletedDsIds.contains(pinnedDsId)) {
-            managementUIState.getTargetTableFilters().setPinnedDistId(null);
-            eventBus.publish(this, PinUnpinEvent.UNPIN_DISTRIBUTION);
-        }
-    }
-
-    private boolean hasDeletePermission() {
-        return permissionChecker.hasDeleteRepositoryPermission() || permissionChecker.hasDeleteTargetPermission();
     }
 
     private Set<Long> getItemIdsToSelectFromUiState() {
@@ -743,7 +681,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         }
 
         @Override
-        protected Optional<Long> getPinnedItemIdFromUiState() {
+        public Optional<Long> getPinnedItemIdFromUiState() {
             return managementUIState.getTargetTableFilters().getPinnedDistId();
         }
 

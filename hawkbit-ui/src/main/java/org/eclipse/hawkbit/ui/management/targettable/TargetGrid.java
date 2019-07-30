@@ -47,6 +47,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
@@ -128,6 +129,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> targetDataProvider;
     private final TargetToProxyTargetMapper targetToProxyTargetMapper;
     private final TargetPinSupport pinSupport;
+    private final DeleteSupport<ProxyTarget> targetDeleteSupport;
 
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final ManagementUIState managementUIState,
@@ -161,6 +163,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             getSelectionSupport().enableMultiSelection();
         }
         this.pinSupport = new TargetPinSupport();
+        this.targetDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("target.details.header"),
+                permChecker, notification, this::targetIdsDeletionCallback);
 
         initTargetStatusIconMap();
 
@@ -177,6 +181,18 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     @Override
     public ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> getFilterDataProvider() {
         return targetDataProvider;
+    }
+
+    private void targetIdsDeletionCallback(final Collection<Long> targetsToBeDeletedIds) {
+        targetManagement.delete(targetsToBeDeletedIds);
+
+        // TODO: should we really pass the targetsToBeDeletedIds? We call
+        // dataprovider refreshAll anyway after receiving the event
+        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.REMOVE_ENTITY, targetsToBeDeletedIds));
+
+        pinSupport.getPinnedItemIdFromUiState().ifPresent(pinnedTargetId -> pinSupport
+                .unPinItemAfterDeletion(pinnedTargetId.getTargetId(), targetsToBeDeletedIds));
+        managementUIState.getSelectedTargetId().clear();
     }
 
     // TODO: check if icons are correct
@@ -447,11 +463,12 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             return pinSupport.buildPinActionButton(pinBtn, target);
         }).setId(TARGET_PIN_BUTTON_ID).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
 
-        addComponentColumn(target -> buildActionButton(clickEvent -> openConfirmationWindowDeleteAction(target),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(), hasDeletePermission()))
-                        .setId(TARGET_DELETE_BUTTON_ID).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false)
-                        .setHidden(false);
+        addComponentColumn(target -> buildActionButton(
+                clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target), VaadinIcons.TRASH,
+                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(),
+                targetDeleteSupport.hasDeletePermission())).setId(TARGET_DELETE_BUTTON_ID).setMinimumWidth(50d)
+                        .setMaximumWidth(50d).setHidable(false).setHidden(false);
 
         getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
@@ -473,83 +490,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         actionButton.addStyleName(style);
 
         return actionButton;
-    }
-
-    private void openConfirmationWindowDeleteAction(final ProxyTarget clickedTarget) {
-        final Set<ProxyTarget> targetsToBeDeleted = getEntitiesForDeletion(clickedTarget);
-
-        final String entityType = i18n.getMessage("caption.target");
-        final String confirmationCaption = i18n.getMessage("caption.entity.delete.action.confirmbox", entityType);
-        final String confirmationQuestion = createConfirmationQuestionForDeletion(targetsToBeDeleted, entityType);
-        final ConfirmationDialog confirmDeleteDialog = createConfirmationWindowForDeletion(targetsToBeDeleted,
-                confirmationCaption, confirmationQuestion, entityType);
-
-        UI.getCurrent().addWindow(confirmDeleteDialog.getWindow());
-        confirmDeleteDialog.getWindow().bringToFront();
-    }
-
-    private Set<ProxyTarget> getEntitiesForDeletion(final ProxyTarget clickedTarget) {
-        final Set<ProxyTarget> selectedTargets = getSelectedItems();
-
-        // only clicked target should be deleted if it is not part of the
-        // selection
-        if (selectedTargets.contains(clickedTarget)) {
-            return selectedTargets;
-        } else {
-            getSelectionSupport().clearSelection();
-            select(clickedTarget);
-
-            return Collections.singleton(clickedTarget);
-        }
-    }
-
-    private String createConfirmationQuestionForDeletion(final Set<ProxyTarget> targetsToBeDeleted,
-            final String entityType) {
-        if (targetsToBeDeleted.size() == 1) {
-            return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY, entityType.toLowerCase(),
-                    targetsToBeDeleted.iterator().next().getName(), "");
-        } else {
-            return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY, targetsToBeDeleted.size(),
-                    entityType, "s");
-        }
-    }
-
-    private ConfirmationDialog createConfirmationWindowForDeletion(final Set<ProxyTarget> targetsToBeDeleted,
-            final String confirmationCaption, final String confirmationQuestion, final String entityType) {
-        return new ConfirmationDialog(confirmationCaption, confirmationQuestion,
-                i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
-                ok -> {
-                    if (ok) {
-                        handleOkDelete(targetsToBeDeleted, entityType);
-                    }
-                });
-    }
-
-    private void handleOkDelete(final Set<ProxyTarget> targetsToBeDeleted, final String entityType) {
-        final Collection<Long> targetsToBeDeletedIds = targetsToBeDeleted.stream().map(ProxyTarget::getId)
-                .collect(Collectors.toList());
-        targetManagement.delete(targetsToBeDeletedIds);
-
-        // TODO: should we really pass the targetsToBeDeletedIds? We call
-        // dataprovider refreshAll anyway
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.REMOVE_ENTITY, targetsToBeDeletedIds));
-        notification.displaySuccess(
-                i18n.getMessage("message.delete.success", targetsToBeDeleted.size() + " " + entityType + "(s)"));
-
-        managementUIState.getDistributionTableFilters().getPinnedTarget().ifPresent(this::unPinDeletedTarget);
-        managementUIState.getSelectedTargetId().clear();
-    }
-
-    private void unPinDeletedTarget(final TargetIdName pinnedTarget) {
-        final Set<Long> deletedTargetIds = managementUIState.getSelectedTargetId();
-        if (deletedTargetIds.contains(pinnedTarget.getTargetId())) {
-            managementUIState.getDistributionTableFilters().setPinnedTarget(null);
-            eventBus.publish(this, PinUnpinEvent.UNPIN_TARGET);
-        }
-    }
-
-    private boolean hasDeletePermission() {
-        return permissionChecker.hasDeleteRepositoryPermission() || permissionChecker.hasDeleteTargetPermission();
     }
 
     @Override
@@ -804,7 +744,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         }
 
         @Override
-        protected Optional<TargetIdName> getPinnedItemIdFromUiState() {
+        public Optional<TargetIdName> getPinnedItemIdFromUiState() {
             return managementUIState.getDistributionTableFilters().getPinnedTarget();
         }
 

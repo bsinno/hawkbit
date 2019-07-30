@@ -8,8 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
+import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
@@ -59,7 +59,7 @@ public abstract class PinSupport<T, F> {
         return getPinnedItemIdFromUiState().map(id -> id.equals(getPinnedItemIdFromItem(item))).orElse(false);
     }
 
-    protected abstract Optional<F> getPinnedItemIdFromUiState();
+    public abstract Optional<F> getPinnedItemIdFromUiState();
 
     protected abstract F getPinnedItemIdFromItem(final T item);
 
@@ -90,7 +90,7 @@ public abstract class PinSupport<T, F> {
 
     protected abstract void publishUnPinItem();
 
-    public void unPinDeletedItems(final Long pinnedItemId, final Set<Long> deletedItemIds) {
+    public void unPinItemAfterDeletion(final Long pinnedItemId, final Collection<Long> deletedItemIds) {
         if (deletedItemIds.contains(pinnedItemId)) {
             setPinnedItemIdInUiState(null);
             publishUnPinItem();
