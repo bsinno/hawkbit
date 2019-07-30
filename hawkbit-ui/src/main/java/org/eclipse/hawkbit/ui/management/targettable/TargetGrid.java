@@ -47,6 +47,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
@@ -65,7 +66,6 @@ import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.TargetUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -97,8 +97,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private static final Logger LOG = LoggerFactory.getLogger(TargetGrid.class);
 
-    private static final String TARGET_PINNED_STYLE = "targetPinned";
-
     private static final String TARGET_STATUS_ID = "targetStatus";
     private static final String TARGET_NAME_ID = "targetName";
     private static final String TARGET_POLLING_STATUS_ID = "targetPolling";
@@ -122,15 +120,14 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout;
     private final MaintenanceWindowLayout maintenanceWindowLayout;
 
-    // TODO: Remove all of this after restructuring if possible
-    private Button targetPinnedBtn;
-    private boolean targetPinned;
+    // TODO: Remove after restructuring if possible
     private ConfirmationDialog confirmAssignDialog;
 
     private final Map<TargetUpdateStatus, FontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> targetDataProvider;
     private final TargetToProxyTargetMapper targetToProxyTargetMapper;
+    private final TargetPinSupport pinSupport;
 
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final ManagementUIState managementUIState,
@@ -163,6 +160,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         } else {
             getSelectionSupport().enableMultiSelection();
         }
+        this.pinSupport = new TargetPinSupport();
 
         initTargetStatusIconMap();
 
@@ -232,35 +230,16 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     void onEvent(final PinUnpinEvent pinUnpinEvent) {
         UI.getCurrent().access(() -> {
             if (pinUnpinEvent == PinUnpinEvent.PIN_DISTRIBUTION) {
+                /* if distribution set is pinned, unpin target if pinned */
+                pinSupport.setPinnedItemIdInUiState(null);
                 refreshFilter();
-                styleTargetRowOnPinning();
+                // TODO: check if refreshFilter() should be called at the end
+                pinSupport.styleRowOnPinning();
             } else if (pinUnpinEvent == PinUnpinEvent.UNPIN_DISTRIBUTION) {
                 refreshFilter();
-                restoreTargetRowStyle();
+                pinSupport.restoreRowStyle();
             }
         });
-    }
-
-    private void styleTargetRowOnPinning() {
-        setStyleGenerator(item -> getTargetRowStyleForPinning(item.getAssignedDistributionSet().getId(),
-                item.getInstalledDistributionSet().getId()));
-    }
-
-    private String getTargetRowStyleForPinning(final Long assignedDistributionSetId,
-            final Long installedDistributionSetId) {
-        return managementUIState.getTargetTableFilters().getPinnedDistId().map(distPinned -> {
-            if (distPinned.equals(installedDistributionSetId)) {
-                return SPUIDefinitions.HIGHLIGHT_GREEN;
-            }
-            if (distPinned.equals(assignedDistributionSetId)) {
-                return SPUIDefinitions.HIGHLIGHT_ORANGE;
-            }
-            return null;
-        }).orElse(null);
-    }
-
-    private void restoreTargetRowStyle() {
-        setStyleGenerator(item -> null);
     }
 
     private void refreshFilter() {
@@ -460,10 +439,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void addActionColumns() {
-        addComponentColumn(target -> buildPinActionButton(target, event -> pinTargetListener(target, event.getButton()),
-                VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true)).setId(TARGET_PIN_BUTTON_ID)
-                        .setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
+        addComponentColumn(target -> {
+            final Button pinBtn = buildActionButton(event -> pinSupport.pinItemListener(target, event.getButton()),
+                    VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                    UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true);
+
+            return pinSupport.buildPinActionButton(pinBtn, target);
+        }).setId(TARGET_PIN_BUTTON_ID).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
 
         addComponentColumn(target -> buildActionButton(clickEvent -> openConfirmationWindowDeleteAction(target),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
@@ -473,23 +455,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
-    }
-
-    private Button buildPinActionButton(final ProxyTarget target, final ClickListener clickListener,
-            final VaadinIcons icon, final String descriptionProperty, final String style, final String buttonId,
-            final boolean enabled) {
-        final Button pinBtn = buildActionButton(clickListener, icon, descriptionProperty, style, buttonId, enabled);
-        final TargetIdName pinnedTarget = new TargetIdName(target.getId(), target.getControllerId());
-
-        if (isPinned(pinnedTarget)) {
-            pinBtn.addStyleName(TARGET_PINNED_STYLE);
-            targetPinned = Boolean.TRUE;
-            targetPinnedBtn = pinBtn;
-            eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
-        }
-        pinBtn.addStyleName(SPUIStyleDefinitions.TARGET_STATUS_PIN_TOGGLE);
-
-        return pinBtn;
     }
 
     private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
@@ -508,58 +473,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         actionButton.addStyleName(style);
 
         return actionButton;
-    }
-
-    private boolean isPinned(final TargetIdName target) {
-        return managementUIState.getDistributionTableFilters().getPinnedTarget()
-                .map(pinnedTarget -> pinnedTarget.equals(target)).orElse(false);
-    }
-
-    private void pinTargetListener(final ProxyTarget target, final Button clickedButton) {
-        targetPinnedBtn = clickedButton;
-        final TargetIdName pinnedTarget = new TargetIdName(target.getId(), target.getControllerId());
-
-        checkifAlreadyPinned(pinnedTarget);
-        if (targetPinned) {
-            pinTarget();
-        } else {
-            unPinTarget();
-        }
-    }
-
-    private void checkifAlreadyPinned(final TargetIdName newPinnedTargetItemId) {
-        final TargetIdName oldPinnedTargetItemId = managementUIState.getDistributionTableFilters().getPinnedTarget()
-                .orElse(null);
-
-        if (oldPinnedTargetItemId == null) {
-            targetPinned = !targetPinned;
-            managementUIState.getDistributionTableFilters().setPinnedTarget(newPinnedTargetItemId);
-        } else if (oldPinnedTargetItemId.equals(newPinnedTargetItemId)) {
-            targetPinned = Boolean.FALSE;
-        } else {
-            targetPinned = true;
-            managementUIState.getDistributionTableFilters().setPinnedTarget(newPinnedTargetItemId);
-            if (targetPinnedBtn != null) {
-                targetPinnedBtn.removeStyleName(TARGET_PINNED_STYLE);
-            }
-        }
-    }
-
-    private void pinTarget() {
-        /* if distribution set is pinned ,unpin target if pinned */
-        managementUIState.getTargetTableFilters().setPinnedDistId(null);
-        /* on unpin of target dist table should refresh Dist table restyle */
-        eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
-
-        restoreTargetRowStyle();
-        targetPinnedBtn.addStyleName(TARGET_PINNED_STYLE);
-        targetPinned = Boolean.FALSE;
-    }
-
-    private void unPinTarget() {
-        managementUIState.getDistributionTableFilters().setPinnedTarget(null);
-        eventBus.publish(this, PinUnpinEvent.UNPIN_TARGET);
-        targetPinnedBtn.removeStyleName(TARGET_PINNED_STYLE);
     }
 
     private void openConfirmationWindowDeleteAction(final ProxyTarget clickedTarget) {
@@ -871,6 +784,52 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         @Override
         public void setMinimizedColumnExpandRatio() {
+        }
+    }
+
+    /**
+     * Adds support to pin the targets in grid.
+     */
+    class TargetPinSupport extends PinSupport<ProxyTarget, TargetIdName> {
+
+        @Override
+        public void styleRowOnPinning() {
+            setStyleGenerator(item -> getRowStyleForPinning(item.getAssignedDistributionSet().getId(),
+                    item.getInstalledDistributionSet().getId(), getPinnedDistIdFromUiState()));
+        }
+
+        @Override
+        public void restoreRowStyle() {
+            setStyleGenerator(item -> null);
+        }
+
+        @Override
+        protected Optional<TargetIdName> getPinnedItemIdFromUiState() {
+            return managementUIState.getDistributionTableFilters().getPinnedTarget();
+        }
+
+        @Override
+        public void setPinnedItemIdInUiState(final TargetIdName pinnedItemId) {
+            managementUIState.getDistributionTableFilters().setPinnedTarget(pinnedItemId);
+        }
+
+        @Override
+        protected TargetIdName getPinnedItemIdFromItem(final ProxyTarget item) {
+            return new TargetIdName(item.getId(), item.getControllerId());
+        }
+
+        @Override
+        protected void publishPinItem() {
+            // TODO: check if the sender is correct or should we use grid
+            // component here
+            eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
+        }
+
+        @Override
+        protected void publishUnPinItem() {
+            // TODO: check if the sender is correct or should we use grid
+            // component here
+            eventBus.publish(this, PinUnpinEvent.UNPIN_TARGET);
         }
     }
 }

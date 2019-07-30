@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -41,6 +42,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
@@ -55,7 +57,6 @@ import org.eclipse.hawkbit.ui.management.miscs.MaintenanceWindowLayout;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.DistributionSetUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -85,8 +86,6 @@ import com.vaadin.ui.components.grid.GridDropTarget;
 public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManagementFilterParams> {
     private static final long serialVersionUID = 1L;
 
-    private static final String DS_PINNED_STYLE = "dsPinned";
-
     private static final String DS_NAME_ID = "dsName";
     private static final String DS_VERSION_ID = "dsVersion";
     private static final String DS_CREATED_BY_ID = "dsCreatedBy";
@@ -115,6 +114,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     private final ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsManagementFilterParams> dsDataProvider;
     private final DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
+    private final DistributionPinSupport pinSupport;
 
     DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -145,6 +145,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         } else {
             getSelectionSupport().enableMultiSelection();
         }
+        this.pinSupport = new DistributionPinSupport();
 
         init();
 
@@ -282,47 +283,16 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     void onEvent(final PinUnpinEvent pinUnpinEvent) {
         UI.getCurrent().access(() -> {
             if (pinUnpinEvent == PinUnpinEvent.PIN_TARGET) {
+                /* if target is pinned, unpin distribution set if pinned */
+                pinSupport.setPinnedItemIdInUiState(null);
                 refreshFilter();
-                styleDistributionRowOnPinning();
+                // TODO: check if refreshFilter() shuld be called after
+                pinSupport.styleRowOnPinning();
             } else if (pinUnpinEvent == PinUnpinEvent.UNPIN_TARGET) {
                 refreshFilter();
-                restoreDistributionRowStyle();
+                pinSupport.restoreRowStyle();
             }
         });
-    }
-
-    // TODO: consider using ProxyTarget instead of parsing the database
-    private void styleDistributionRowOnPinning() {
-        managementUIState.getDistributionTableFilters().getPinnedTarget().map(TargetIdName::getControllerId)
-                .ifPresent(controllerId -> {
-                    final Long installedDistId = deploymentManagement.getInstalledDistributionSet(controllerId)
-                            .map(DistributionSet::getId).orElse(null);
-                    final Long assignedDistId = deploymentManagement.getAssignedDistributionSet(controllerId)
-                            .map(DistributionSet::getId).orElse(null);
-                    stylePinnedDistributionRow(installedDistId, assignedDistId);
-                });
-    }
-
-    private void stylePinnedDistributionRow(final Long installedDistItemId, final Long assignedDistItemId) {
-        setStyleGenerator(item -> getPinnedDistributionRowStyle(installedDistItemId, assignedDistItemId, item.getId()));
-    }
-
-    // TODO: consider changing assignedDistItemId to assignedDistItemIds list
-    // (in multi-assignment scenario)
-    private String getPinnedDistributionRowStyle(final Long installedDistItemId, final Long assignedDistItemId,
-            final Long dsId) {
-        if (dsId.equals(installedDistItemId)) {
-            return SPUIDefinitions.HIGHLIGHT_GREEN;
-        }
-        if (dsId.equals(assignedDistItemId)) {
-            return SPUIDefinitions.HIGHLIGHT_ORANGE;
-        }
-
-        return null;
-    }
-
-    private void restoreDistributionRowStyle() {
-        setStyleGenerator(item -> null);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -363,12 +333,14 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     private void addActionColumns() {
-        // addPinClickListener
-        addComponentColumn(ds -> buildPinActionButton(ds.getId(),
-                event -> pinDistributionSetListener(ds.getId(), event.getButton()), VaadinIcons.PIN,
-                UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(), true)).setId(DS_PIN_BUTTON_ID)
-                        .setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
+        addComponentColumn(ds -> {
+            final Button pinBtn = buildActionButton(event -> pinSupport.pinItemListener(ds, event.getButton()),
+                    VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN,
+                    SPUIStyleDefinitions.STATUS_ICON_NEUTRAL, UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(),
+                    true);
+
+            return pinSupport.buildPinActionButton(pinBtn, ds);
+        }).setId(DS_PIN_BUTTON_ID).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
 
         addComponentColumn(ds -> buildActionButton(clickEvent -> openConfirmationWindowDeleteAction(ds),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
@@ -377,22 +349,6 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
                         .setHidden(false);
 
         getDefaultHeaderRow().join(DS_PIN_BUTTON_ID, DS_DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
-    }
-
-    // TODO: check styles
-    private Button buildPinActionButton(final Long dsId, final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
-        final Button pinBtn = buildActionButton(clickListener, icon, descriptionProperty, style, buttonId, enabled);
-
-        if (isPinned(dsId)) {
-            pinBtn.addStyleName(DS_PINNED_STYLE);
-            distPinned = Boolean.TRUE;
-            distributionPinnedBtn = pinBtn;
-            eventBus.publish(this, PinUnpinEvent.PIN_DISTRIBUTION);
-        }
-        pinBtn.addStyleName(SPUIStyleDefinitions.DIST_PIN_BLUE);
-
-        return pinBtn;
     }
 
     private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
@@ -411,54 +367,6 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         actionButton.addStyleName(style);
 
         return actionButton;
-    }
-
-    private boolean isPinned(final Long dsId) {
-        return managementUIState.getTargetTableFilters().getPinnedDistId().map(pinnedDsId -> pinnedDsId.equals(dsId))
-                .orElse(false);
-    }
-
-    private void pinDistributionSetListener(final Long dsId, final Button clickedButton) {
-        distributionPinnedBtn = clickedButton;
-
-        checkifAlreadyPinned(dsId);
-        if (distPinned) {
-            pinDistribution();
-        } else {
-            unPinDistribution();
-        }
-    }
-
-    private void checkifAlreadyPinned(final Long newPinnedDsItemId) {
-        final Long oldPinnedDistId = managementUIState.getTargetTableFilters().getPinnedDistId().orElse(null);
-
-        if (oldPinnedDistId == null) {
-            distPinned = !distPinned;
-            managementUIState.getTargetTableFilters().setPinnedDistId(newPinnedDsItemId);
-        } else if (oldPinnedDistId.equals(newPinnedDsItemId)) {
-            distPinned = false;
-        } else {
-            distPinned = true;
-            managementUIState.getTargetTableFilters().setPinnedDistId(newPinnedDsItemId);
-            if (distributionPinnedBtn != null) {
-                distributionPinnedBtn.removeStyleName(DS_PINNED_STYLE);
-            }
-        }
-    }
-
-    private void pinDistribution() {
-        managementUIState.getDistributionTableFilters().setPinnedTarget(null);
-        eventBus.publish(this, PinUnpinEvent.PIN_DISTRIBUTION);
-
-        restoreDistributionRowStyle();
-        distributionPinnedBtn.addStyleName(DS_PINNED_STYLE);
-        distPinned = false;
-    }
-
-    private void unPinDistribution() {
-        managementUIState.getTargetTableFilters().setPinnedDistId(null);
-        eventBus.publish(this, PinUnpinEvent.UNPIN_DISTRIBUTION);
-        distributionPinnedBtn.removeStyleName(DS_PINNED_STYLE);
     }
 
     private void openConfirmationWindowDeleteAction(final ProxyDistributionSet clickedDs) {
@@ -808,6 +716,59 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
         @Override
         public void setMinimizedColumnExpandRatio() {
+        }
+    }
+
+    /**
+     * Adds support to pin the distribution sets in grid.
+     */
+    class DistributionPinSupport extends PinSupport<ProxyDistributionSet, Long> {
+
+        @Override
+        public void styleRowOnPinning() {
+            // TODO: consider using ProxyTarget instead of parsing the database
+            managementUIState.getDistributionTableFilters().getPinnedTarget().map(TargetIdName::getControllerId)
+                    .ifPresent(controllerId -> {
+                        final Long installedDistId = deploymentManagement.getInstalledDistributionSet(controllerId)
+                                .map(DistributionSet::getId).orElse(null);
+                        final Long assignedDistId = deploymentManagement.getAssignedDistributionSet(controllerId)
+                                .map(DistributionSet::getId).orElse(null);
+                        setStyleGenerator(item -> getRowStyleForPinning(assignedDistId, installedDistId, item.getId()));
+                    });
+        }
+
+        @Override
+        public void restoreRowStyle() {
+            setStyleGenerator(item -> null);
+        }
+
+        @Override
+        protected Optional<Long> getPinnedItemIdFromUiState() {
+            return managementUIState.getTargetTableFilters().getPinnedDistId();
+        }
+
+        @Override
+        public void setPinnedItemIdInUiState(final Long pinnedItemId) {
+            managementUIState.getTargetTableFilters().setPinnedDistId(pinnedItemId);
+        }
+
+        @Override
+        protected Long getPinnedItemIdFromItem(final ProxyDistributionSet item) {
+            return item.getId();
+        }
+
+        @Override
+        protected void publishPinItem() {
+            // TODO: check if the sender is correct or should we use grid
+            // component here
+            eventBus.publish(this, PinUnpinEvent.PIN_DISTRIBUTION);
+        }
+
+        @Override
+        protected void publishUnPinItem() {
+            // TODO: check if the sender is correct or should we use grid
+            // component here
+            eventBus.publish(this, PinUnpinEvent.UNPIN_DISTRIBUTION);
         }
     }
 }

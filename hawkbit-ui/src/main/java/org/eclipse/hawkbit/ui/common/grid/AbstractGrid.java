@@ -197,6 +197,7 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
         return newHeaderRow;
     }
 
+    // TODO move to GridComponentBuilder
     protected Label buildLabelIcon(final FontIcon fontIcon, final String id) {
         final String fontIconHtml = fontIcon.getIcon() != null ? fontIcon.getIcon().getHtml() : "<span></span>";
 
