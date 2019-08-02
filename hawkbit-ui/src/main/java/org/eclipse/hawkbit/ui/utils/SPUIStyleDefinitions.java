@@ -151,6 +151,10 @@ public final class SPUIStyleDefinitions {
      */
     public static final String ROLLOUT_ACTION_TYPE_LAYOUT = "rollout-action-type-layout";
     /**
+     * Rollout action type layout style.
+     */
+    public static final String ASSIGNMENT_ACTION_TYPE_LAYOUT = "assignment-action-type-layout";
+    /**
      * Rollout save option group style.
      */
     public static final String ROLLOUT_OPTION_GROUP = "rollout-option-group";

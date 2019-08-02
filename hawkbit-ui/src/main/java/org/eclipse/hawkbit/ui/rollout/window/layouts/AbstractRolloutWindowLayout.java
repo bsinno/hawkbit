@@ -34,6 +34,7 @@ public abstract class AbstractRolloutWindowLayout extends GridLayout {
         this.dependencies = dependencies;
         this.proxyRolloutBinder = new Binder<>();
         this.componentBuilder = new RolloutWindowLayoutComponentBuilder(dependencies);
+
         initLayout();
     }
 

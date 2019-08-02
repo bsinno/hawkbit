@@ -97,9 +97,13 @@ public final class UIMessageIdProvider {
 
     public static final String MESSAGE_CONFIRM_ASSIGN_MULTIPLE_ENTITIES = "message.confirm.assign.multiple.entities";
 
+    public static final String MESSAGE_CONFIRM_ASSIGN_MULTIPLE_ENTITIES_TO_ENTITY = "message.confirm.assign.multiple.entities.to.entity";
+
     public static final String MESSAGE_CONFIRM_DELETE_ENTITY = "message.confirm.delete.entity";
 
     public static final String MESSAGE_CONFIRM_ASSIGN_ENTITY = "message.confirm.assign.entity";
+
+    public static final String CRON_VALIDATION_ERROR = "message.maintenancewindow.schedule.validation.error";
 
     public static final String TOOLTIP_OVERDUE = "tooltip.overdue";
 

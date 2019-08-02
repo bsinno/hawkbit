@@ -10,16 +10,19 @@ package org.eclipse.hawkbit.ui.utils;
 
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.eclipse.hawkbit.repository.model.BaseEntity;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Maps;
 import com.vaadin.server.WebBrowser;
-import org.springframework.util.StringUtils;
 
 /**
  * Common Util to get date/time related information.
@@ -43,14 +46,14 @@ public final class SPDateTimeUtil {
 
     }
 
-
     /**
      * Set fixed UI timezone
      *
      * @param fixedTimeZoneProperty
-     *      time zone e.g. Europe/Berlin. If time zone is unknown, it will default to GMT
+     *            time zone e.g. Europe/Berlin. If time zone is unknown, it will
+     *            default to GMT
      */
-    public static void initializeFixedTimeZoneProperty(String fixedTimeZoneProperty) {
+    public static void initializeFixedTimeZoneProperty(final String fixedTimeZoneProperty) {
         SPDateTimeUtil.fixedTimeZoneProperty = fixedTimeZoneProperty;
     }
 
@@ -60,7 +63,6 @@ public final class SPDateTimeUtil {
      * @return TimeZone
      */
     public static TimeZone getBrowserTimeZone() {
-
 
         if (!StringUtils.isEmpty(fixedTimeZoneProperty)) {
             return TimeZone.getTimeZone(fixedTimeZoneProperty);
@@ -204,6 +206,22 @@ public final class SPDateTimeUtil {
         }
         return formattedDuration.toString();
 
+    }
+
+    /**
+     * Get list of all time zone offsets supported.
+     */
+    public static List<String> getAllTimeZoneOffsetIds() {
+        return ZoneId.getAvailableZoneIds().stream()
+                .map(id -> ZonedDateTime.now(ZoneId.of(id)).getOffset().getId().replace("Z", "+00:00")).distinct()
+                .sorted().collect(Collectors.toList());
+    }
+
+    /**
+     * Get time zone of the browser client to be used as default.
+     */
+    public static String getClientTimeZoneOffsetId() {
+        return ZonedDateTime.now(getTimeZoneId(getBrowserTimeZone())).getOffset().getId().replaceAll("Z", "+00:00");
     }
 
     /**

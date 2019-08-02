@@ -499,5 +499,4 @@ public final class HawkbitCommonUtil {
         ui.getReconnectDialogConfiguration()
                 .setDialogText(i18n.getMessage(UIMessageIdProvider.VAADIN_SYSTEM_TRYINGRECONNECT));
     }
-
 }

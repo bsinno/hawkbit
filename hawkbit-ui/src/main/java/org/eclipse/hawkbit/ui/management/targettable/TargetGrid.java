@@ -8,52 +8,43 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumMap;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
-import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
-import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Target;
-import org.eclipse.hawkbit.repository.model.TargetTagAssignmentResult;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
-import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
-import org.eclipse.hawkbit.ui.management.TargetAssignmentOperations;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
@@ -61,19 +52,15 @@ import org.eclipse.hawkbit.ui.management.event.TargetAddUpdateWindowEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
-import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
-import org.eclipse.hawkbit.ui.management.miscs.MaintenanceWindowLayout;
+import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.TargetUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -81,13 +68,10 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.components.grid.GridDragSource;
-import com.vaadin.ui.components.grid.GridDropTarget;
 
 /**
  * Concrete implementation of Target grid which is displayed on the Deployment
@@ -95,8 +79,6 @@ import com.vaadin.ui.components.grid.GridDropTarget;
  */
 public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilterParams> {
     private static final long serialVersionUID = 1L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(TargetGrid.class);
 
     private static final String TARGET_STATUS_ID = "targetStatus";
     private static final String TARGET_NAME_ID = "targetName";
@@ -109,20 +91,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private static final String TARGET_PIN_BUTTON_ID = "targetPinButton";
     private static final String TARGET_DELETE_BUTTON_ID = "targetDeleteButton";
 
-    private final transient TargetManagement targetManagement;
-    private final transient DistributionSetManagement distributionSetManagement;
-    private final transient DeploymentManagement deploymentManagement;
-    private final transient TenantConfigurationManagement configManagement;
-    private final transient SystemSecurityContext systemSecurityContext;
-    private final transient UINotification notification;
-
     private final ManagementUIState managementUIState;
-    private final UiProperties uiProperties;
-    private final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout;
-    private final MaintenanceWindowLayout maintenanceWindowLayout;
-
-    // TODO: Remove after restructuring if possible
-    private ConfirmationDialog confirmAssignDialog;
+    private final transient TargetManagement targetManagement;
 
     private final Map<TargetUpdateStatus, FontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
@@ -130,6 +100,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final TargetToProxyTargetMapper targetToProxyTargetMapper;
     private final PinSupport<ProxyTarget> pinSupport;
     private final DeleteSupport<ProxyTarget> targetDeleteSupport;
+    private final DragAndDropSupport<ProxyTarget> dragAndDropSupport;
 
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final ManagementUIState managementUIState,
@@ -139,16 +110,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             final SystemSecurityContext systemSecurityContext, final UiProperties uiProperties) {
         super(i18n, eventBus, permChecker);
 
-        this.targetManagement = targetManagement;
         this.managementUIState = managementUIState;
-        this.distributionSetManagement = distributionSetManagement;
-        this.deploymentManagement = deploymentManagement;
-        this.configManagement = configManagement;
-        this.uiProperties = uiProperties;
-        this.actionTypeOptionGroupLayout = new ActionTypeOptionGroupAssignmentLayout(i18n);
-        this.maintenanceWindowLayout = new MaintenanceWindowLayout(i18n);
-        this.systemSecurityContext = systemSecurityContext;
-        this.notification = notification;
+        this.targetManagement = targetManagement;
 
         this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n, deploymentManagement,
                 managementUIState.getTargetTableFilters());
@@ -156,23 +119,40 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 targetToProxyTargetMapper).withConfigurableFilter();
 
         setResizeSupport(new TargetResizeSupport());
+
         setSelectionSupport(new SelectionSupport<ProxyTarget>(this));
         if (managementUIState.isTargetTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
             getSelectionSupport().enableMultiSelection();
         }
+
         this.pinSupport = new PinSupport<>(eventBus, PinUnpinEvent.PIN_TARGET, PinUnpinEvent.UNPIN_TARGET,
                 () -> setStyleGenerator(item -> null), this::getPinnedTargetIdFromUiState,
                 this::setPinnedTargetIdInUiState);
+
         this.targetDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("target.details.header"),
                 permChecker, notification, this::targetIdsDeletionCallback);
+
+        final Map<String, AssignmentSupport<?, ProxyTarget>> sourceTargetAssignmentStrategies = new HashMap<>();
+
+        final DeploymentAssignmentWindowController assignmentController = new DeploymentAssignmentWindowController(i18n,
+                uiProperties, managementUIState, eventBus, notification, deploymentManagement);
+        final DistributionSetsToTargetAssignmentSupport distributionsToTargetAssignment = new DistributionSetsToTargetAssignmentSupport(
+                notification, i18n, assignmentController, systemSecurityContext, configManagement);
+        final TargetTagsToTargetAssignmentSupport targetTagsToTargetAssignment = new TargetTagsToTargetAssignmentSupport(
+                notification, i18n, targetManagement, managementUIState, eventBus);
+
+        sourceTargetAssignmentStrategies.put(UIComponentIdProvider.DIST_TABLE_ID, distributionsToTargetAssignment);
+        sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToTargetAssignment);
+
+        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, permChecker,
+                sourceTargetAssignmentStrategies);
+        this.dragAndDropSupport.addDragAndDrop();
 
         initTargetStatusIconMap();
 
         init();
-
-        addDragAndDrop();
     }
 
     @Override
@@ -369,6 +349,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final SaveActionWindowEvent event) {
         if (event == SaveActionWindowEvent.SAVED_ASSIGNMENTS) {
+            // TODO: should we not call refreshFilter() here?
             refreshContainer();
         }
     }
@@ -510,174 +491,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         // TODO: check if we really need to send this event here (in order to
         // update count label another approach could be used)
         eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.REFRESH_TARGETS));
-    }
-
-    private void addDragAndDrop() {
-        addDragSource();
-        addDragTarget();
-    }
-
-    public void addDragSource() {
-        final GridDragSource<ProxyTarget> dragSource = new GridDragSource<>(this);
-
-        dragSource.setDataTransferData("source_id", getGridId());
-        dragSource.addGridDragStartListener(event -> dragSource.setDragData(event.getDraggedItems()));
-
-        dragSource.addGridDragEndListener(event -> {
-            if (event.isCanceled()) {
-                notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
-            }
-        });
-    }
-
-    public void addDragTarget() {
-        final GridDropTarget<ProxyTarget> dropTarget = new GridDropTarget<>(this, DropMode.ON_TOP);
-
-        dropTarget.addGridDropListener(event -> {
-            final String sourceId = event.getDataTransferData("source_id").orElse("");
-            final ProxyTarget dropTargetItem = event.getDropTargetRow().orElse(null);
-
-            if (!isDropValid(sourceId, dropTargetItem)) {
-                return;
-            }
-
-            event.getDragSourceExtension().ifPresent(source -> {
-                if (source instanceof GridDragSource) {
-                    if (sourceId.equals(UIComponentIdProvider.DIST_TABLE_ID)) {
-                        final List<ProxyDistributionSet> distributionSetsToAssign = (List<ProxyDistributionSet>) source
-                                .getDragData();
-                        assignDistributionSetsToTarget(distributionSetsToAssign, dropTargetItem);
-                    } else if (sourceId.equals(UIComponentIdProvider.TARGET_TAG_TABLE_ID)) {
-                        final List<ProxyTag> targetTagsToAssign = (List<ProxyTag>) source.getDragData();
-                        assignTagsToTarget(targetTagsToAssign, dropTargetItem);
-                    } else {
-                        notification.displayValidationError(
-                                i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
-                    }
-                }
-            });
-        });
-    }
-
-    private boolean isDropValid(final String sourceId, final ProxyTarget dropTargetItem) {
-        final List<String> allowedSourceIds = Arrays.asList(UIComponentIdProvider.DIST_TABLE_ID,
-                UIComponentIdProvider.TARGET_TAG_TABLE_ID);
-
-        if (!allowedSourceIds.contains(sourceId) || dropTargetItem == null) {
-            notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
-            return false;
-        }
-
-        if (!permissionChecker.hasUpdateTargetPermission()) {
-            notification.displayValidationError(
-                    i18n.getMessage("message.permission.insufficient", Arrays.asList(SpPermission.UPDATE_TARGET)));
-            return false;
-        }
-
-        return true;
-    }
-
-    private void assignDistributionSetsToTarget(final List<ProxyDistributionSet> distributionSetsToAssign,
-            final ProxyTarget dropTargetItem) {
-        if (distributionSetsToAssign.isEmpty()) {
-            notification.displayValidationError(i18n.getMessage("message.action.did.not.work"));
-            return;
-        }
-
-        final List<ProxyDistributionSet> filteredDistributionSets = isMultiAssignmentEnabled()
-                ? distributionSetsToAssign
-                : Collections.singletonList(distributionSetsToAssign.get(0));
-
-        // TODO: check if needed
-        // selectDraggedEntities(source, dsIds);
-        // selectDroppedEntities(targetId);
-
-        openConfirmationWindowForAssignments(dropTargetItem, filteredDistributionSets);
-    }
-
-    private boolean isMultiAssignmentEnabled() {
-        return systemSecurityContext.runAsSystem(() -> configManagement
-                .getConfigurationValue(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED, Boolean.class).getValue());
-    }
-
-    private void openConfirmationWindowForAssignments(final ProxyTarget dropTargetItem,
-            final List<ProxyDistributionSet> distributionSetsToAssign) {
-        final String confirmationMessage = getConfirmationMessageForAssignments(dropTargetItem,
-                distributionSetsToAssign);
-        final String caption = i18n.getMessage(UIMessageIdProvider.CAPTION_ENTITY_ASSIGN_ACTION_CONFIRMBOX);
-        final String okLabel = i18n.getMessage(UIMessageIdProvider.BUTTON_OK);
-        final String cancelLabel = i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL);
-
-        // TODO: use ProxyEntities directly by modifying the
-        // saveAllAssignments() method
-        final Target targetToAssign = targetManagement.get(dropTargetItem.getId())
-                .orElseThrow(() -> new EntityNotFoundException(Target.class, dropTargetItem.getControllerId()));
-        final List<DistributionSet> distributionSets = distributionSetManagement
-                .get(distributionSetsToAssign.stream().map(ProxyDistributionSet::getId).collect(Collectors.toList()));
-
-        // TODO: don't use confirmDialog class member variable here
-        confirmAssignDialog = new ConfirmationDialog(caption, confirmationMessage, okLabel, cancelLabel, ok -> {
-            if (ok && TargetAssignmentOperations.isMaintenanceWindowValid(maintenanceWindowLayout, notification)) {
-                TargetAssignmentOperations.saveAllAssignments(Collections.singletonList(targetToAssign),
-                        distributionSets, managementUIState, actionTypeOptionGroupLayout, maintenanceWindowLayout,
-                        deploymentManagement, notification, eventBus, i18n, this);
-            }
-        }, TargetAssignmentOperations.createAssignmentTab(actionTypeOptionGroupLayout, maintenanceWindowLayout,
-                saveButtonToggle(), i18n, uiProperties),
-                UIComponentIdProvider.DIST_SET_TO_TARGET_ASSIGNMENT_CONFIRM_ID);
-
-        UI.getCurrent().addWindow(confirmAssignDialog.getWindow());
-        confirmAssignDialog.getWindow().bringToFront();
-    }
-
-    private String getConfirmationMessageForAssignments(final ProxyTarget dropTargetItem,
-            final List<ProxyDistributionSet> distributionSetsToAssign) {
-        final String entityType = i18n.getMessage("caption.target");
-        final String targetName = dropTargetItem.getName();
-        final int dsCount = distributionSetsToAssign.size();
-        if (dsCount > 1) {
-            return i18n.getMessage(UIMessageIdProvider.MESSAGE_ASSIGN_TARGET_TO_MULTIPLE_DISTRIBUTIONS, dsCount,
-                    entityType, targetName);
-        }
-        return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_ASSIGN_ENTITY,
-                distributionSetsToAssign.get(0).getName(), entityType, targetName);
-    }
-
-    private Consumer<Boolean> saveButtonToggle() {
-        return isEnabled -> confirmAssignDialog.getOkButton().setEnabled(isEnabled);
-    }
-
-    // TODO: Implement multi-tag assignment
-    // (TargetManagement(toggleTagAssignment), createAssignmentMessage, etc.)
-    private void assignTagsToTarget(final List<ProxyTag> targetTagsToAssign, final ProxyTarget dropTargetItem) {
-        if (targetTagsToAssign.isEmpty()) {
-            notification.displayValidationError(i18n.getMessage("message.action.did.not.work"));
-            return;
-        }
-
-        if (isNoTagAssigned(targetTagsToAssign)) {
-            notification.displayValidationError(
-                    i18n.getMessage("message.tag.cannot.be.assigned", i18n.getMessage("label.no.tag.assigned")));
-            return;
-        }
-
-        // TODO: fix (we are taking first tag because multi-tag assignment is
-        // not supported)
-        final String tagName = targetTagsToAssign.get(0).getName();
-        final TargetTagAssignmentResult tagsAssignmentResult = targetManagement
-                .toggleTagAssignment(Collections.singletonList(dropTargetItem.getControllerId()), tagName);
-
-        notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
-
-        final List<String> tagsClickedList = managementUIState.getTargetTableFilters().getClickedTargetTags();
-        if (tagsAssignmentResult.getUnassigned() > 0 && !tagsClickedList.isEmpty()) {
-            refreshFilter();
-        }
-    }
-
-    private boolean isNoTagAssigned(final List<ProxyTag> targetTagsToAssign) {
-        return targetTagsToAssign.stream().anyMatch(
-                targetTag -> targetTag.getName().equals(i18n.getMessage(UIMessageIdProvider.CAPTION_TARGET_TAG)));
     }
 
     /**

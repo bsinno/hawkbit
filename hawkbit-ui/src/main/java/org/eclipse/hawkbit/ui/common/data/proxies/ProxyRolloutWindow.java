@@ -11,12 +11,9 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 import java.io.Serializable;
 
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
-import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.Rollout.ApprovalDecision;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder.ERROR_THRESHOLD_OPTIONS;
-
-import com.vaadin.icons.VaadinIcons;
 
 /**
  * Proxy entity representing rollout popup window bean.
@@ -44,21 +41,6 @@ public class ProxyRolloutWindow implements Serializable {
     private ERROR_THRESHOLD_OPTIONS errorThresholdOption;
 
     public ProxyRolloutWindow() {
-    }
-
-    public ProxyRolloutWindow(final Rollout rollout) {
-        id = rollout.getId();
-        name = rollout.getName();
-        description = rollout.getDescription();
-        actionType = rollout.getActionType();
-        startAt = rollout.getStartAt();
-        forcedTime = rollout.getForcedTime() > 0 ? rollout.getForcedTime() : null;
-        totalTargets = rollout.getTotalTargets();
-        distributionSetId = rollout.getDistributionSet().getId();
-        targetFilterQuery = rollout.getTargetFilterQuery();
-        numberOfGroups = rollout.getRolloutGroupsCreated() > 0 ? rollout.getRolloutGroupsCreated() : null;
-        status = rollout.getStatus();
-        approvalRemark = rollout.getApprovalRemark();
     }
 
     public ProxyRolloutWindow(final ProxyRollout rollout) {
@@ -97,10 +79,6 @@ public class ProxyRolloutWindow implements Serializable {
      */
     public void setNumberOfGroups(final Integer numberOfGroups) {
         this.numberOfGroups = numberOfGroups;
-    }
-
-    public String getAction() {
-        return VaadinIcons.SPINNER.getHtml();
     }
 
     public Long getId() {

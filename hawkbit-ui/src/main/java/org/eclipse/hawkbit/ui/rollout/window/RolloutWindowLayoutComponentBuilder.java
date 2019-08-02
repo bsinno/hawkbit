@@ -93,6 +93,7 @@ public final class RolloutWindowLayoutComponentBuilder {
                 .id(UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID).buildTextComponent();
         rolloutName.setSizeUndefined();
 
+        // TODO: use i18n for all the required fields messages
         binder.forField(rolloutName).asRequired("You must provide rollout name").bind(ProxyRolloutWindow::getName,
                 ProxyRolloutWindow::setName);
 
@@ -191,6 +192,7 @@ public final class RolloutWindowLayoutComponentBuilder {
             final Binder<ProxyRolloutWindow> binder) {
         final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout = new ActionTypeOptionGroupAssignmentLayout(
                 dependencies.getI18n());
+        // TODO: check if it is needed
         actionTypeOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ROLLOUT_ACTION_TYPE_LAYOUT);
 
         binder.forField(actionTypeOptionGroupLayout.getActionTypeOptionGroup()).bind(ProxyRolloutWindow::getActionType,
@@ -262,9 +264,8 @@ public final class RolloutWindowLayoutComponentBuilder {
         return autoStartOptionGroupLayout;
     }
 
-    private TextField createTextField(final String in18Key, final String id, final int maxLength) {
-        return new TextFieldBuilder(maxLength).prompt(dependencies.getI18n().getMessage(in18Key)).id(id)
-                .buildTextComponent();
+    private TextField createTextField(final String prompt, final String id, final int maxLength) {
+        return new TextFieldBuilder(maxLength).prompt(prompt).id(id).buildTextComponent();
     }
 
     private int getGroupSize(final Long totalTargets, final Integer numberOfGroups) {
@@ -327,7 +328,7 @@ public final class RolloutWindowLayoutComponentBuilder {
 
     public Entry<TextField, Binding<ProxyRolloutWindow, Integer>> createNoOfGroupsField(
             final Binder<ProxyRolloutWindow> binder) {
-        final TextField noOfGroups = createTextField("prompt.number.of.groups",
+        final TextField noOfGroups = createTextField(dependencies.getI18n().getMessage("prompt.number.of.groups"),
                 UIComponentIdProvider.ROLLOUT_NO_OF_GROUPS_ID, 32);
         noOfGroups.setSizeUndefined();
         noOfGroups.setMaxLength(3);
@@ -363,7 +364,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     private TextField createTriggerThreshold(final Binder<ProxyRolloutWindow> binder) {
-        final TextField triggerThreshold = createTextField("prompt.tigger.threshold",
+        final TextField triggerThreshold = createTextField(dependencies.getI18n().getMessage("prompt.tigger.threshold"),
                 UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID, 32);
         triggerThreshold.setSizeUndefined();
 
@@ -382,7 +383,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     public TextField createErrorThreshold(final Binder<ProxyRolloutWindow> binder) {
-        final TextField errorThreshold = createTextField("prompt.error.threshold",
+        final TextField errorThreshold = createTextField(dependencies.getI18n().getMessage("prompt.error.threshold"),
                 UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID, 32);
         errorThreshold.setSizeUndefined();
         errorThreshold.setMaxLength(7);
@@ -493,7 +494,8 @@ public final class RolloutWindowLayoutComponentBuilder {
         binder.forField(approveButtonsGroup).bind(ProxyRolloutWindow::getApprovalDecision,
                 ProxyRolloutWindow::setApprovalDecision);
 
-        final TextField approvalRemarkField = createTextField("label.approval.remark",
+        final TextField approvalRemarkField = createTextField(
+                dependencies.getI18n().getMessage("label.approval.remark"),
                 UIComponentIdProvider.ROLLOUT_APPROVAL_REMARK_FIELD_ID, Rollout.APPROVAL_REMARK_MAX_SIZE);
         approvalRemarkField.setWidth(100.0F, Unit.PERCENTAGE);
 

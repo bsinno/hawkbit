@@ -26,7 +26,8 @@ import org.springframework.util.StringUtils;
  * of {@link TargetFilterQuery} entities from backend and maps them to
  * corresponding {@link ProxyTargetFilterQuery} entities.
  */
-public class TargetFilterQueryDataProvider extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, Void> {
+public class TargetFilterQueryDataProvider
+        extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -44,14 +45,14 @@ public class TargetFilterQueryDataProvider extends ProxyDataProvider<ProxyTarget
     // TODO: use filter instead of uiState
     @Override
     protected Optional<Slice<TargetFilterQuery>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Void> filter) {
+            final Optional<String> filter) {
         return Optional.of(getSearchTextFromUiState()
                 .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText))
                 .orElseGet(() -> targetFilterQueryManagement.findAll(pageRequest)));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
         return getSearchTextFromUiState()
                 .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText).getTotalElements())
                 .orElseGet(() -> targetFilterQueryManagement.findAll(pageRequest).getTotalElements());

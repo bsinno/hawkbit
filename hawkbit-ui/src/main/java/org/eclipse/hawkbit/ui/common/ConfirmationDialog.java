@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.common;
 
 import java.util.function.Consumer;
 
-import org.eclipse.hawkbit.ui.common.confirmwindow.layout.ConfirmationTab;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleTiny;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -22,6 +21,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
@@ -66,7 +66,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      *            the id of the confirmation window
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final Consumer<Boolean> callback, final ConfirmationTab tab, final String id) {
+            final String cancelLabel, final Consumer<Boolean> callback, final Component tab, final String id) {
         this(caption, question, okLabel, cancelLabel, callback, null, id, tab);
     }
 
@@ -179,7 +179,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
             final String cancelLabel, final Consumer<Boolean> callback, final Resource icon, final String id,
-            final ConfirmationTab tab) {
+            final Component tab) {
         this(caption, question, okLabel, cancelLabel, callback, icon, id, tab, false);
 
     }
@@ -210,7 +210,7 @@ public class ConfirmationDialog implements Button.ClickListener {
      */
     public ConfirmationDialog(final String caption, final String question, final String okLabel,
             final String cancelLabel, final Consumer<Boolean> callback, final Resource icon, final String id,
-            final ConfirmationTab tab, final boolean mapCloseToCancel) {
+            final Component tab, final boolean mapCloseToCancel) {
         window = new Window(caption);
         if (!StringUtils.isEmpty(id)) {
             window.setId(id);
@@ -300,6 +300,10 @@ public class ConfirmationDialog implements Button.ClickListener {
             UI.getCurrent().removeWindow(window);
         }
         callback.accept(event.getSource().equals(okButton));
+    }
+
+    public void setOkButtonEnabled(final boolean enabled) {
+        okButton.setEnabled(enabled);
     }
 
     public Window getWindow() {

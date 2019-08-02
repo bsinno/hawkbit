@@ -200,7 +200,8 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
     @Override
     public void enter(final ViewChangeEvent event) {
         if (permChecker.hasReadRepositoryPermission()) {
-            distributionTableLayout.getDistributionTable().selectEntity(managementUIState.getLastSelectedDsIdName());
+            distributionTableLayout.getDistributionTable()
+                    .selectEntity(managementUIState.getLastSelectedDsIdName().orElse(null));
         }
     }
 
