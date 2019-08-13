@@ -33,8 +33,8 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
+import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.VerticalLayout;
 
 /**
@@ -50,7 +50,7 @@ public class FilterManagementView extends VerticalLayout implements View {
 
     private final TargetFilterHeader targetFilterHeader;
 
-    private final TargetFilterTable targetFilterTable;
+    private final TargetFilterGrid targetFilterGrid;
 
     private final CreateOrUpdateFilterHeader createNewFilterHeader;
 
@@ -69,7 +69,7 @@ public class FilterManagementView extends VerticalLayout implements View {
             final UINotification notification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final AutoCompleteTextFieldComponent queryTextField, final TargetManagement targetManagement) {
         this.targetFilterHeader = new TargetFilterHeader(eventBus, filterManagementUIState, permissionChecker, i18n);
-        this.targetFilterTable = new TargetFilterTable(i18n, notification, eventBus, filterManagementUIState,
+        this.targetFilterGrid = new TargetFilterGrid(i18n, notification, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, targetManagement, permissionChecker);
         this.createNewFilterHeader = new CreateOrUpdateFilterHeader(i18n, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, permissionChecker, notification, uiProperties, entityFactory,
@@ -159,9 +159,9 @@ public class FilterManagementView extends VerticalLayout implements View {
         tableListViewLayout.setStyleName("table-layout");
         tableListViewLayout.addComponent(targetFilterHeader);
         tableListViewLayout.setComponentAlignment(targetFilterHeader, Alignment.TOP_CENTER);
-        tableListViewLayout.addComponent(targetFilterTable);
-        tableListViewLayout.setComponentAlignment(targetFilterTable, Alignment.TOP_CENTER);
-        tableListViewLayout.setExpandRatio(targetFilterTable, 1.0F);
+        tableListViewLayout.addComponent(targetFilterGrid);
+        tableListViewLayout.setComponentAlignment(targetFilterGrid, Alignment.TOP_CENTER);
+        tableListViewLayout.setExpandRatio(targetFilterGrid, 1.0F);
         addComponent(tableListViewLayout);
     }
 

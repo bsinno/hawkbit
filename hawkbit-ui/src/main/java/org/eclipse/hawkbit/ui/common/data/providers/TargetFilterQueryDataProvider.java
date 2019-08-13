@@ -12,9 +12,9 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.data.filters.SearchTextFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -27,40 +27,41 @@ import org.springframework.util.StringUtils;
  * corresponding {@link ProxyTargetFilterQuery} entities.
  */
 public class TargetFilterQueryDataProvider
-        extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, String> {
+        extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, SearchTextFilterParams> {
 
     private static final long serialVersionUID = 1L;
 
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
-    private final RolloutUIState rolloutUIState;
 
     public TargetFilterQueryDataProvider(final TargetFilterQueryManagement targetFilterQueryManagement,
-            final RolloutUIState rolloutUIState, final TargetFilterQueryToProxyTargetFilterMapper entityMapper) {
+            final TargetFilterQueryToProxyTargetFilterMapper entityMapper) {
         super(entityMapper, new Sort(Direction.ASC, "name"));
 
         this.targetFilterQueryManagement = targetFilterQueryManagement;
-        this.rolloutUIState = rolloutUIState;
     }
 
-    // TODO: use filter instead of uiState
     @Override
     protected Optional<Slice<TargetFilterQuery>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> filter) {
-        return Optional.of(getSearchTextFromUiState()
-                .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText))
-                .orElseGet(() -> targetFilterQueryManagement.findAll(pageRequest)));
+            final Optional<SearchTextFilterParams> filter) {
+        if (!filter.isPresent()) {
+            return Optional.of(targetFilterQueryManagement.findAll(pageRequest));
+        }
+
+        return filter.map(filterParams -> targetFilterQueryManagement.findByName(pageRequest,
+                getFormattedSearchString(filterParams.getSearchText())));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-        return getSearchTextFromUiState()
-                .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText).getTotalElements())
-                .orElseGet(() -> targetFilterQueryManagement.findAll(pageRequest).getTotalElements());
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<SearchTextFilterParams> filter) {
+
+        return filter.map(filterParams -> targetFilterQueryManagement
+                .findByName(pageRequest, getFormattedSearchString(filterParams.getSearchText())).getTotalElements())
+                .orElseGet(() -> targetFilterQueryManagement.count());
     }
 
-    private Optional<String> getSearchTextFromUiState() {
-        return rolloutUIState.getSearchText().filter(searchText -> !StringUtils.isEmpty(searchText))
-                .map(value -> String.format("%%%s%%", value));
+    // TODO is this really needed???
+    private String getFormattedSearchString(final String searchString) {
+        return StringUtils.isEmpty(searchString) ? "" : String.format("%%%s%%", searchString);
     }
 
 }

@@ -54,8 +54,9 @@ public class RolloutListView extends AbstractGridComponentLayout<ProxyRollout> {
                 new RolloutToProxyRolloutMapper());
         final DistributionSetStatelessDataProvider distributionSetDataProvider = new DistributionSetStatelessDataProvider(
                 distributionSetManagement, new DistributionSetToProxyDistributionMapper());
+        // TODO update DataProvider filter with search text
         final TargetFilterQueryDataProvider targetFilterQueryDataProvider = new TargetFilterQueryDataProvider(
-                targetFilterQueryManagement, rolloutUIState, new TargetFilterQueryToProxyTargetFilterMapper());
+                targetFilterQueryManagement, new TargetFilterQueryToProxyTargetFilterMapper());
 
         this.rolloutListHeader = new RolloutListHeader(permissionChecker, rolloutUIState, getEventBus(),
                 rolloutManagement, targetManagement, uiNotification, uiProperties, entityFactory, getI18n(),
