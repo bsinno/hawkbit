@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
@@ -33,7 +33,7 @@ public class FilterManagementUIState implements Serializable {
 
     private boolean editViewDisplayed;
 
-    private TargetFilterQuery targetFilterQuery;
+    private ProxyTargetFilterQuery targetFilterQuery;
 
     private Long targetsTruncated;
 
@@ -121,7 +121,7 @@ public class FilterManagementUIState implements Serializable {
     /**
      * @return the tfQuery
      */
-    public Optional<TargetFilterQuery> getTfQuery() {
+    public Optional<ProxyTargetFilterQuery> getTfQuery() {
         return Optional.ofNullable(targetFilterQuery);
     }
 
@@ -129,7 +129,7 @@ public class FilterManagementUIState implements Serializable {
      * @param tfQuery
      *            the tfQuery to set
      */
-    public void setTfQuery(final TargetFilterQuery tfQuery) {
+    public void setTfQuery(final ProxyTargetFilterQuery tfQuery) {
         this.targetFilterQuery = tfQuery;
     }
 

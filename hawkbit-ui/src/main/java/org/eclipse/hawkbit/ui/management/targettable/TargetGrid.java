@@ -350,6 +350,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     void onEvent(final SaveActionWindowEvent event) {
         if (event == SaveActionWindowEvent.SAVED_ASSIGNMENTS) {
             // TODO: should we not call refreshFilter() here?
+            // should we wrap it into UI.getCurrent().access()?
             refreshContainer();
         }
     }

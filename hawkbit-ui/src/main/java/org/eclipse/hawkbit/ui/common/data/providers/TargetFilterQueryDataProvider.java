@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link TargetFilterQuery}, which dynamically loads a batch
@@ -47,21 +46,15 @@ public class TargetFilterQueryDataProvider
             return Optional.of(targetFilterQueryManagement.findAll(pageRequest));
         }
 
-        return filter.map(filterParams -> targetFilterQueryManagement.findByName(pageRequest,
-                getFormattedSearchString(filterParams.getSearchText())));
+        return filter
+                .map(filterParams -> targetFilterQueryManagement.findByName(pageRequest, filterParams.getSearchText()));
     }
 
     @Override
     protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<SearchTextFilterParams> filter) {
 
         return filter.map(filterParams -> targetFilterQueryManagement
-                .findByName(pageRequest, getFormattedSearchString(filterParams.getSearchText())).getTotalElements())
-                .orElseGet(() -> targetFilterQueryManagement.count());
+                .findByName(pageRequest, filterParams.getSearchText()).getTotalElements())
+                .orElseGet(targetFilterQueryManagement::count);
     }
-
-    // TODO is this really needed???
-    private String getFormattedSearchString(final String searchString) {
-        return StringUtils.isEmpty(searchString) ? "" : String.format("%%%s%%", searchString);
-    }
-
 }

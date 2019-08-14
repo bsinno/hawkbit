@@ -9,6 +9,9 @@
 package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
@@ -22,11 +25,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
+import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -40,10 +41,9 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Concrete implementation of TargetFilter grid which is displayed on the
@@ -58,26 +58,19 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
     private static final String FILTER_CREATED_DATE_ID = "filterCreatedDate";
     private static final String FILTER_MODIFIED_BY_ID = "filterModifiedBy";
     private static final String FILTER_MODIFIED_DATE_ID = "filterModifiedDate";
-    private static final String FILTER_AUTOASSIGNMENT_ID = "filterAutoAssignment";
+    private static final String FILTER_AUTOASSIGNMENT_TYPE_ID = "filterAutoAssignmentType";
+    private static final String FILTER_AUTOASSIGNMENT_DS_ID = "filterAutoAssignmentDs";
     private static final String FILTER_DELETE_BUTTON_ID = "filterDeleteButton";
 
-    private final VaadinMessageSource i18n;
-
     private final UINotification notification;
-
-    private final transient UIEventBus eventBus;
-
     private final FilterManagementUIState filterManagementUIState;
-
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
-
     private final transient TargetManagement targetManagement;
 
-    private final SpPermissionChecker permChecker;
-
-    private final DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
+    private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
     private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, SearchTextFilterParams> targetFilterDataProvider;
+    private final DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
 
     public TargetFilterGrid(final VaadinMessageSource i18n, final UINotification notification,
             final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
@@ -85,34 +78,53 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
             final SpPermissionChecker permChecker) {
         super(i18n, eventBus, permChecker);
 
-        this.i18n = i18n;
         this.notification = notification;
-        this.eventBus = eventBus;
         this.filterManagementUIState = filterManagementUIState;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.targetManagement = targetManagement;
-        this.permChecker = permChecker;
-
-        this.targetFilterDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.filter.custom"),
-                permChecker, notification, this::targetFilterIdsDeletionCallback);
 
         this.targetFilterDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
                 new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
 
-        setStyleName("sp-table");
-        setSizeFull();
-        setHeight(100.0F, Unit.PERCENTAGE);
-        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        addStyleName(ValoTheme.TABLE_SMALL);
-        setId(UIComponentIdProvider.TARGET_FILTER_TABLE_ID);
-        eventBus.subscribe(this);
+        this.targetFilterDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.filter.custom"),
+                permChecker, notification, this::targetFilterIdsDeletionCallback);
 
+        initActionTypeIconMap();
         init();
+
+        // TODO: check if relevant or should be defined in AbstractGrid
+        // setStyleName("sp-table");
+        // setHeight(100.0F, Unit.PERCENTAGE);
+        // addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
+        // addStyleName(ValoTheme.TABLE_SMALL);
     }
 
     @Override
     public String getGridId() {
         return UIComponentIdProvider.TARGET_FILTER_TABLE_ID;
+    }
+
+    @Override
+    public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, SearchTextFilterParams> getFilterDataProvider() {
+        return targetFilterDataProvider;
+    }
+
+    private void targetFilterIdsDeletionCallback(final Collection<Long> targetFilterIdsToBeDeleted) {
+        targetFilterIdsToBeDeleted.forEach(targetFilterQueryManagement::delete);
+    }
+
+    // TODO: remove duplication with ActionHistoryGrid
+    private void initActionTypeIconMap() {
+        actionTypeIconMap.put(ActionType.FORCED, new FontIcon(VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
+                i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
+        actionTypeIconMap.put(ActionType.TIMEFORCED,
+                new FontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
+                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
+        actionTypeIconMap.put(ActionType.SOFT, new FontIcon(VaadinIcons.STEP_FORWARD,
+                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
+        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
+                new FontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
+                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -125,13 +137,22 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
         }
     }
 
+    private void refreshFilter() {
+        final SearchTextFilterParams filterParams = new SearchTextFilterParams(getSearchTextFromUiState());
+        getFilterDataProvider().setFilter(filterParams);
+    }
+
+    private String getSearchTextFromUiState() {
+        return filterManagementUIState.getCustomFilterSearchText()
+                .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
+                .orElse(null);
+    }
+
     @Override
     public void addColumns() {
 
-        addComponentColumn(targetFilter -> buildLinkButton(this::onClickOfDetailButton,
-                UIMessageIdProvider.TOOLTIP_UPDATE_CUSTOM_FILTER, getDetailLinkId(targetFilter.getName()),
-                targetFilter.getName(), targetFilter, true)).setId(FILTER_NAME_ID)
-                        .setCaption(i18n.getMessage("header.name")).setExpandRatio(2);
+        addComponentColumn(this::buildFilterLink).setId(FILTER_NAME_ID).setCaption(i18n.getMessage("header.name"))
+                .setExpandRatio(2);
 
         addColumn(ProxyTargetFilterQuery::getCreatedBy).setId(FILTER_CREATED_BY_ID)
                 .setCaption(i18n.getMessage("header.createdBy")).setExpandRatio(1);
@@ -145,9 +166,14 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
         addColumn(ProxyTargetFilterQuery::getModifiedDate).setId(FILTER_MODIFIED_DATE_ID)
                 .setCaption(i18n.getMessage("header.modifiedDate")).setExpandRatio(2);
 
-        addComponentColumn(targetFilter -> customFilterDistributionSetButton(targetFilter))
-                .setId(FILTER_AUTOASSIGNMENT_ID).setCaption(i18n.getMessage("header.auto.assignment.ds"))
-                .setExpandRatio(1);
+        addComponentColumn(this::buildTypeIcon).setId(FILTER_AUTOASSIGNMENT_TYPE_ID)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+
+        addComponentColumn(this::buildAutoAssignmentLink).setId(FILTER_AUTOASSIGNMENT_DS_ID)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+
+        getDefaultHeaderRow().join(FILTER_AUTOASSIGNMENT_TYPE_ID, FILTER_AUTOASSIGNMENT_DS_ID)
+                .setText(i18n.getMessage("header.auto.assignment.ds"));
 
         addComponentColumn(targetFilter -> buildActionButton(
                 clickEvent -> targetFilterDeleteSupport.openConfirmationWindowDeleteAction(targetFilter),
@@ -157,7 +183,85 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
                         .setCaption(i18n.getMessage("header.delete")).setExpandRatio(1);
     }
 
-    // TODO move to AbstractGrid or GridUtils
+    private Button buildFilterLink(final ProxyTargetFilterQuery targetFilter) {
+        final String filterLinkCaption = targetFilter.getName();
+        final String filterLinkDescription = i18n.getMessage(UIMessageIdProvider.TOOLTIP_UPDATE_CUSTOM_FILTER);
+        final String filterLinkId = new StringBuilder(UIComponentIdProvider.CUSTOM_FILTER_DETAIL_LINK).append('.')
+                .append(targetFilter.getId()).toString();
+
+        return buildLink(clickEvent -> onClickOfFilterName(targetFilter), filterLinkCaption, filterLinkDescription,
+                filterLinkId, true);
+    }
+
+    // TODO: remove duplication with RolloutGrid and buildActionButton()
+    private Button buildLink(final ClickListener clickListener, final String caption, final String description,
+            final String buttonId, final boolean enabled) {
+        final Button link = new Button();
+
+        link.addClickListener(clickListener);
+        link.setCaption(caption);
+        link.setDescription(description);
+        link.setEnabled(enabled);
+        link.setId(buttonId);
+        link.addStyleName("borderless");
+        link.addStyleName("small");
+        link.addStyleName("on-focus-no-border");
+        link.addStyleName("link");
+
+        return link;
+    }
+
+    private void onClickOfFilterName(final ProxyTargetFilterQuery targetFilter) {
+        filterManagementUIState.setFilterQueryValue(targetFilter.getQuery());
+        filterManagementUIState.setTfQuery(targetFilter);
+        filterManagementUIState.setEditViewDisplayed(true);
+        eventBus.publish(this, CustomFilterUIEvent.TARGET_FILTER_DETAIL_VIEW);
+    }
+
+    // TODO: remove duplication with ActionHistoryGrid
+    private Label buildTypeIcon(final ProxyTargetFilterQuery targetFilter) {
+        final FontIcon actionTypeFontIcon = Optional
+                .ofNullable(actionTypeIconMap.get(targetFilter.getAutoAssignActionType()))
+                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
+
+        final String actionTypeId = new StringBuilder(UIComponentIdProvider.TARGET_FILTER_TABLE_TYPE_LABEL_ID)
+                .append(".").append(targetFilter.getId()).toString();
+
+        return buildLabelIcon(actionTypeFontIcon, actionTypeId);
+    }
+
+    // TODO: remove duplication
+    private Button buildAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
+        final ProxyDistributionSet autoAssignDistributionSet = targetFilter.getAutoAssignDistributionSet();
+
+        final String autoAssignmenLinkCaption = autoAssignDistributionSet != null
+                ? autoAssignDistributionSet.getNameVersion()
+                : i18n.getMessage(UIMessageIdProvider.BUTTON_NO_AUTO_ASSIGNMENT);
+
+        final String autoAssignmenLinkDescription = i18n
+                .getMessage(UIMessageIdProvider.BUTTON_AUTO_ASSIGNMENT_DESCRIPTION);
+
+        final String autoAssignmenLinkId = new StringBuilder("distSetButton").append('.').append(targetFilter.getId())
+                .toString();
+
+        return buildLink(clickEvent -> onClickOfAutoAssignmentLink(targetFilter.getId()), autoAssignmenLinkCaption,
+                autoAssignmenLinkDescription, autoAssignmenLinkId, true);
+
+    }
+
+    private void onClickOfAutoAssignmentLink(final Long targetFilterId) {
+        if (permissionChecker.hasReadRepositoryPermission()) {
+            final DistributionSetSelectWindow dsSelectWindow = new DistributionSetSelectWindow(i18n, eventBus,
+                    notification, targetManagement, targetFilterQueryManagement);
+            dsSelectWindow.showForTargetFilter(targetFilterId);
+        } else {
+            notification.displayValidationError(
+                    i18n.getMessage("message.permission.insufficient", SpPermission.READ_REPOSITORY));
+        }
+    }
+
+    // TODO: remove duplication with other Grids
     private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
             final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
         final Button actionButton = new Button();
@@ -175,113 +279,4 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
 
         return actionButton;
     }
-
-    // TODO move to AbstractGrid or GridUtils
-    private Button buildLinkButton(final ClickListener clickListener, final String descriptionMessageId,
-            final String buttonId, final String buttonName, final Object data, final boolean enabled) {
-        final Button actionButton = SPUIComponentProvider.getButton(buttonId, buttonName,
-                i18n.getMessage(descriptionMessageId), null, false, null, SPUIButtonStyleNoBorder.class);
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setEnabled(enabled);
-        actionButton.addStyleName(ValoTheme.LINK_SMALL + " " + "on-focus-no-border link");
-        actionButton.setData(data);
-
-        return actionButton;
-    }
-
-    // TODO move to AbstractGrid or GridUtils
-    private Button buildLinkButton(final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionMessageId, final String buttonId, final String buttonName, final Object data,
-            final boolean enabled) {
-        final Button actionButton = SPUIComponentProvider.getButton(buttonId, buttonName,
-                i18n.getMessage(descriptionMessageId), null, false, null, SPUIButtonStyleNoBorderWithIcon.class);
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setEnabled(enabled);
-        actionButton.addStyleName(ValoTheme.LINK_SMALL + " " + "on-focus-no-border link");
-        actionButton.setData(data);
-        actionButton.setIcon(icon);
-
-        return actionButton;
-    }
-
-    private Button customFilterDistributionSetButton(final ProxyTargetFilterQuery targetFilter) {
-        final ProxyDistributionSet autoAssignDistributionSet = targetFilter.getAutoAssignDistributionSet();
-        final ActionType actionType = targetFilter.getAutoAssignActionType();
-
-        final String buttonId = "distSetButton";
-        Button updateButton;
-        if (autoAssignDistributionSet == null) {
-            updateButton = buildLinkButton(this::onClickOfDistributionSetButton,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_AUTO_ASSIGNMENT_DESCRIPTION), buttonId,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_NO_AUTO_ASSIGNMENT), targetFilter, true);
-        } else if (actionType == ActionType.FORCED) {
-            updateButton = buildLinkButton(this::onClickOfDistributionSetButton, VaadinIcons.BOLT,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_AUTO_ASSIGNMENT_DESCRIPTION), buttonId,
-                    autoAssignDistributionSet.getNameVersion(), targetFilter, true);
-            updateButton.setSizeUndefined();
-        } else {
-            updateButton = buildLinkButton(this::onClickOfDistributionSetButton,
-                    i18n.getMessage(UIMessageIdProvider.BUTTON_AUTO_ASSIGNMENT_DESCRIPTION), buttonId,
-                    autoAssignDistributionSet.getNameVersion(), targetFilter, true);
-            updateButton.setSizeUndefined();
-        }
-
-        return updateButton;
-    }
-
-    @Override
-    public void refreshContainer() {
-        super.refreshContainer();
-    }
-
-    private void refreshFilter() {
-        final SearchTextFilterParams filterParams = new SearchTextFilterParams(getSearchTextFromUiState());
-        getFilterDataProvider().setFilter(filterParams);
-    }
-
-    private String getSearchTextFromUiState() {
-        return filterManagementUIState.getCustomFilterSearchText()
-                .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
-                .orElse(null);
-    }
-
-    private void onClickOfDistributionSetButton(final ClickEvent event) {
-        final ProxyTargetFilterQuery targetFilter = (ProxyTargetFilterQuery) event.getButton().getData();
-
-        if (permChecker.hasReadRepositoryPermission()) {
-            final DistributionSetSelectWindow dsSelectWindow = new DistributionSetSelectWindow(i18n, eventBus,
-                    notification, targetManagement, targetFilterQueryManagement);
-            dsSelectWindow.showForTargetFilter(targetFilter.getId());
-        } else {
-            notification.displayValidationError(
-                    i18n.getMessage("message.permission.insufficient", SpPermission.READ_REPOSITORY));
-        }
-    }
-
-    private void onClickOfDetailButton(final ClickEvent event) {
-        final String targetFilterName = (String) ((Button) event.getComponent()).getData();
-        targetFilterQueryManagement.getByName(targetFilterName).ifPresent(targetFilterQuery -> {
-            filterManagementUIState.setFilterQueryValue(targetFilterQuery.getQuery());
-            filterManagementUIState.setTfQuery(targetFilterQuery);
-            filterManagementUIState.setEditViewDisplayed(true);
-            eventBus.publish(this, CustomFilterUIEvent.TARGET_FILTER_DETAIL_VIEW);
-        });
-    }
-
-    private static String getDetailLinkId(final String filterName) {
-        return new StringBuilder(UIComponentIdProvider.CUSTOM_FILTER_DETAIL_LINK).append('.').append(filterName)
-                .toString();
-    }
-
-    private void targetFilterIdsDeletionCallback(final Collection<Long> targetFilterIdsToBeDeleted) {
-        targetFilterIdsToBeDeleted.forEach(id -> targetFilterQueryManagement.delete(id));
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, SearchTextFilterParams> getFilterDataProvider() {
-        return null;
-    }
-
 }

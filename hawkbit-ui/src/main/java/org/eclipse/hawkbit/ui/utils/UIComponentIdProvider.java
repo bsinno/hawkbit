@@ -899,6 +899,11 @@ public final class UIComponentIdProvider {
     public static final String TARGET_FILTER_TABLE_ID = "target.query.filter.table.Id";
 
     /**
+     * Target filter table forced label Id.
+     */
+    public static final String TARGET_FILTER_TABLE_TYPE_LABEL_ID = "target.query.filter.table.typeId";
+
+    /**
      * create or update target filter query - name label id.
      */
     public static final String TARGET_FILTER_QUERY_NAME_LABEL_ID = "target.filter.name.label.id";

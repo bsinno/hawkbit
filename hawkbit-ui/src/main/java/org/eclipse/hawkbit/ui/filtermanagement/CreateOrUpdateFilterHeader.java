@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
@@ -18,6 +16,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
+import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -35,19 +34,19 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.event.FieldEvents.BlurListener;
-import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Link;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
-import com.vaadin.ui.Link;
 import com.vaadin.v7.ui.TextField;
-import com.vaadin.ui.UI;
 import com.vaadin.v7.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * A Vaadin layout for create or update the target filter.
@@ -379,19 +378,17 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
     }
 
     private void updateCustomFilter() {
-        final Optional<TargetFilterQuery> tfQuery = filterManagementUIState.getTfQuery();
-        if (!tfQuery.isPresent()) {
-            return;
-        }
-        final TargetFilterQuery targetFilterQuery = tfQuery.get();
-        final TargetFilterQuery updatedTargetFilter = targetFilterQueryManagement
-                .update(entityFactory.targetFilterQuery().update(targetFilterQuery.getId())
-                        .name(nameTextField.getValue()).query(queryTextField.getValue()));
-        filterManagementUIState.setTfQuery(updatedTargetFilter);
-        oldFilterName = nameTextField.getValue();
-        oldFilterQuery = queryTextField.getValue();
-        notification.displaySuccess(i18n.getMessage("message.update.filter.success"));
-        eventBus.publish(this, CustomFilterUIEvent.UPDATED_TARGET_FILTER_QUERY);
+        filterManagementUIState.getTfQuery().ifPresent(targetFilterQuery -> {
+            final TargetFilterQuery updatedTargetFilter = targetFilterQueryManagement
+                    .update(entityFactory.targetFilterQuery().update(targetFilterQuery.getId())
+                            .name(nameTextField.getValue()).query(queryTextField.getValue()));
+            filterManagementUIState
+                    .setTfQuery(new TargetFilterQueryToProxyTargetFilterMapper().map(updatedTargetFilter));
+            oldFilterName = nameTextField.getValue();
+            oldFilterQuery = queryTextField.getValue();
+            notification.displaySuccess(i18n.getMessage("message.update.filter.success"));
+            eventBus.publish(this, CustomFilterUIEvent.UPDATED_TARGET_FILTER_QUERY);
+        });
     }
 
     private boolean hasSavePermission() {
