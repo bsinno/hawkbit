@@ -336,11 +336,23 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final ManagementUIEvent managementUIEvent) {
         UI.getCurrent().access(() -> {
-            if (managementUIEvent == ManagementUIEvent.UNASSIGN_TARGET_TAG
-                    || managementUIEvent == ManagementUIEvent.ASSIGN_TARGET_TAG) {
+            if (tableIsFilteredByTagsAndTagWasUnassignedFromTarget(managementUIEvent)
+                    || tableIsFilteredByNoTagAndTagWasAssignedToTarget(managementUIEvent)) {
                 refreshFilter();
             }
         });
+    }
+
+    private boolean tableIsFilteredByTagsAndTagWasUnassignedFromTarget(final ManagementUIEvent managementUIEvent) {
+        return managementUIEvent == ManagementUIEvent.UNASSIGN_TARGET_TAG && isFilteredByTags();
+    }
+
+    private boolean isFilteredByTags() {
+        return !managementUIState.getTargetTableFilters().getClickedTargetTags().isEmpty();
+    }
+
+    private boolean tableIsFilteredByNoTagAndTagWasAssignedToTarget(final ManagementUIEvent managementUIEvent) {
+        return managementUIEvent == ManagementUIEvent.ASSIGN_TARGET_TAG && isNoTagClickedFromUiState();
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

@@ -158,7 +158,7 @@ public abstract class AbstractTableDetailsLayout<T extends ProxyNamedEntity> ext
         if (getSelectedBaseEntity() == null) {
             return;
         }
-        getTagsLayout().addComponent(tagToken.getTokenField());
+        getTagsLayout().addComponent(tagToken.getTagPanel());
     }
 
     protected void populateLog() {

@@ -207,14 +207,6 @@
          <artifactId>vaadin-compatibility-themes</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.vaadin.addons.lazyquerycontainer</groupId>
-         <artifactId>vaadin-lazyquerycontainer</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.vaadin.addons</groupId>
-         <artifactId>tokenfield</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.vaadin.alump.distributionbar</groupId>
          <artifactId>dbar-addon</artifactId>
       </dependency>

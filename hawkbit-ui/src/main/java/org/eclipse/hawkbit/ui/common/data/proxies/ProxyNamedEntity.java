@@ -25,6 +25,9 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity {
     private String createdDate;
     private String modifiedDate;
 
+    private Long createdAt;
+    private Long lastModifiedAt;
+
     public String getCreatedDate() {
         return createdDate;
     }
@@ -79,5 +82,21 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity {
 
     public void setLastModifiedBy(final String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Long getLastModifiedAt() {
+        return lastModifiedAt;
+    }
+
+    public void setLastModifiedAt(Long lastModifiedAt) {
+        this.lastModifiedAt = lastModifiedAt;
     }
 }

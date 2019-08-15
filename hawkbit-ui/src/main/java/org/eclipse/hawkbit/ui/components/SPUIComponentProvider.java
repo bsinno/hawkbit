@@ -10,9 +10,9 @@ package org.eclipse.hawkbit.ui.components;
 
 import java.util.Map;
 
-import org.eclipse.hawkbit.repository.model.BaseEntity;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonDecorator;
 import org.eclipse.hawkbit.ui.decorators.SPUIComboBoxDecorator;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -24,16 +24,16 @@ import org.springframework.util.StringUtils;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
-import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
-import com.vaadin.v7.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Util class to get the Vaadin UI components for the SP-OS main UI. Factory
@@ -221,22 +221,7 @@ public final class SPUIComponentProvider {
     }
 
     /**
-     * Create label which represents the {@link BaseEntity#getCreatedBy()} by
-     * user name
-     *
-     * @param i18n
-     *            the i18n
-     * @param baseEntity
-     *            the entity
-     * @return the label
-     */
-    public static Label createCreatedByLabel(final VaadinMessageSource i18n, final BaseEntity baseEntity) {
-        return createUsernameLabel(i18n.getMessage("label.created.by"),
-                baseEntity == null ? "" : baseEntity.getCreatedBy());
-    }
-
-    /**
-     * Create label which represents the {@link BaseEntity#getLastModifiedBy()}
+     * Create label which represents the {@link ProxyNamedEntity#getCreatedBy()}
      * by user name
      *
      * @param i18n
@@ -245,7 +230,22 @@ public final class SPUIComponentProvider {
      *            the entity
      * @return the label
      */
-    public static Label createLastModifiedByLabel(final VaadinMessageSource i18n, final BaseEntity baseEntity) {
+    public static Label createCreatedByLabel(final VaadinMessageSource i18n, final ProxyNamedEntity baseEntity) {
+        return createUsernameLabel(i18n.getMessage("label.created.by"),
+                baseEntity == null ? "" : baseEntity.getCreatedBy());
+    }
+
+    /**
+     * Create label which represents the
+     * {@link ProxyNamedEntity#getLastModifiedBy()} by user name
+     *
+     * @param i18n
+     *            the i18n
+     * @param baseEntity
+     *            the entity
+     * @return the label
+     */
+    public static Label createLastModifiedByLabel(final VaadinMessageSource i18n, final ProxyNamedEntity baseEntity) {
         return createUsernameLabel(i18n.getMessage("label.modified.by"),
                 baseEntity == null ? "" : baseEntity.getLastModifiedBy());
     }

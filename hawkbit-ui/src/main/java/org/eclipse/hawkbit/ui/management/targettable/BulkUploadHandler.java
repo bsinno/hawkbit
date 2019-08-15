@@ -23,7 +23,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -33,7 +32,9 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.exception.EntityAlreadyExistsException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
-import org.eclipse.hawkbit.ui.common.tagdetails.AbstractTagToken.TagData;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.tagdetails.TagData;
 import org.eclipse.hawkbit.ui.components.HawkbitErrorNotificationMessage;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
@@ -52,13 +53,13 @@ import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.UI;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.ProgressBar;
 import com.vaadin.v7.ui.TextArea;
-import com.vaadin.ui.UI;
 import com.vaadin.v7.ui.Upload;
 import com.vaadin.v7.ui.Upload.FailedEvent;
 import com.vaadin.v7.ui.Upload.FailedListener;
@@ -82,7 +83,7 @@ public class BulkUploadHandler extends CustomComponent
     private final transient TargetManagement targetManagement;
     private final transient TargetTagManagement tagManagement;
 
-    private final ComboBox comboBox;
+    private final ComboBox<ProxyDistributionSet> comboBox;
     private final TextArea descTextArea;
     private final VaadinMessageSource i18n;
     private final transient DeploymentManagement deploymentManagement;
@@ -287,7 +288,7 @@ public class BulkUploadHandler extends CustomComponent
             String dsAssignmentFailedMsg = null;
             String tagAssignmentFailedMsg = null;
             if (ifTargetsCreatedSuccessfully()) {
-                if (ifTagsSelected()) {
+                if (targetBulkTokenTags.isTagSelectedForAssignment()) {
                     tagAssignmentFailedMsg = tagAssignment();
                 }
                 if (ifDsSelected()) {
@@ -302,7 +303,7 @@ public class BulkUploadHandler extends CustomComponent
             final long forcedTimeStamp = new Date().getTime();
             final TargetBulkUpload targetBulkUpload = managementUIState.getTargetTableFilters().getBulkUpload();
             final List<String> targetsList = targetBulkUpload.getTargetsCreated();
-            final Long dsSelected = (Long) comboBox.getValue();
+            final Long dsSelected = comboBox.getSelectedItem().map(ProxyIdentifiableEntity::getId).orElse(null);
             if (!distributionSetManagement.get(dsSelected).isPresent()) {
                 return i18n.getMessage("message.bulk.upload.assignment.failed");
             }
@@ -312,9 +313,8 @@ public class BulkUploadHandler extends CustomComponent
         }
 
         private String tagAssignment() {
-            final Map<Long, TagData> tokensSelected = targetBulkTokenTags.getTokensAdded();
             final List<String> deletedTags = new ArrayList<>();
-            for (final TagData tagData : tokensSelected.values()) {
+            for (final TagData tagData : targetBulkTokenTags.getSelectedTagsForAssignment()) {
                 if (!tagManagement.get(tagData.getId()).isPresent()) {
                     deletedTags.add(tagData.getName());
                 } else {
@@ -330,10 +330,6 @@ public class BulkUploadHandler extends CustomComponent
                 return i18n.getMessage("message.bulk.upload.tag.assignment.failed", deletedTags.get(0));
             }
             return i18n.getMessage("message.bulk.upload.tag.assignments.failed");
-        }
-
-        private boolean ifTagsSelected() {
-            return targetBulkTokenTags.getTokenField().getValue() != null;
         }
 
         private boolean ifDsSelected() {
@@ -375,6 +371,7 @@ public class BulkUploadHandler extends CustomComponent
 
             } catch (final EntityAlreadyExistsException ex) {
                 // Targets that exist already are simply ignored
+                LOG.info("Entity {} - {} already exists and will be ignored", newControllerId, name);
             }
         }
     }

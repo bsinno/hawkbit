@@ -151,8 +151,6 @@
       <vaadin.spring.version>3.1.1</vaadin.spring.version>
       <vaadin.spring.addon.version>2.0.0.RELEASE</vaadin.spring.addon.version>
       <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
-      <vaadin.addon.vaadin-lazyquerycontainer.version>7.6.1.3</vaadin.addon.vaadin-lazyquerycontainer.version>
-      <vaadin.addon.tokenfield.version>7.0.1</vaadin.addon.tokenfield.version>
       <vaadin.addon.dbar-addon.version>2.0.0</vaadin.addon.dbar-addon.version>
       <vaadin.gwt-api.version>1.3.0</vaadin.gwt-api.version>
       <!-- Vaadin versions - END -->
@@ -569,30 +567,6 @@
                   <artifactId>vaadin-spring</artifactId>
                </exclusion>
             </exclusions>
-         </dependency>
-         <dependency>
-            <groupId>org.vaadin.addons.lazyquerycontainer</groupId>
-            <artifactId>vaadin-lazyquerycontainer</artifactId>
-            <version>${vaadin.addon.vaadin-lazyquerycontainer.version}</version>
-            <exclusions>
-               <exclusion>
-                  <groupId>org.eclipse.persistence</groupId>
-                  <artifactId>javax.persistence</artifactId>
-               </exclusion>
-               <exclusion>
-                  <groupId>com.vaadin</groupId>
-                  <artifactId>vaadin-compatibility-client-compiled</artifactId>
-               </exclusion>
-               <exclusion>
-                  <groupId>com.vaadin</groupId>
-                  <artifactId>vaadin-compatibility-themes</artifactId>
-               </exclusion>
-            </exclusions>
-         </dependency>
-         <dependency>
-            <groupId>org.vaadin.addons</groupId>
-            <artifactId>tokenfield</artifactId>
-            <version>${vaadin.addon.tokenfield.version}</version>
          </dependency>
          <dependency>
             <groupId>org.vaadin.alump.distributionbar</groupId>

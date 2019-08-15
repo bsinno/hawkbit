@@ -18,7 +18,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.eclipse.hawkbit.repository.model.BaseEntity;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Maps;
@@ -120,7 +120,7 @@ public final class SPDateTimeUtil {
      *            the entity
      * @return String formatted date
      */
-    public static String formatCreatedAt(final BaseEntity baseEntity) {
+    public static String formatCreatedAt(final ProxyNamedEntity baseEntity) {
         if (baseEntity == null) {
             return "";
         }
@@ -134,7 +134,7 @@ public final class SPDateTimeUtil {
      *            the entity
      * @return String formatted date
      */
-    public static String formatLastModifiedAt(final BaseEntity baseEntity) {
+    public static String formatLastModifiedAt(final ProxyNamedEntity baseEntity) {
         if (baseEntity == null) {
             return "";
         }
@@ -150,7 +150,7 @@ public final class SPDateTimeUtil {
      *            pattern how to format the date (cp. {@code SimpleDateFormat})
      * @return String formatted date
      */
-    public static String formatLastModifiedAt(final BaseEntity baseEntity, final String datePattern) {
+    public static String formatLastModifiedAt(final ProxyNamedEntity baseEntity, final String datePattern) {
         if (baseEntity == null) {
             return "";
         }

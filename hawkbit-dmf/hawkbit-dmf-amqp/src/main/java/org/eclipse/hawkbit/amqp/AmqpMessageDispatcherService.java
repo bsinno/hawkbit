@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.api.ApiType;
@@ -64,8 +65,6 @@ import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.CollectionUtils;
-
-import com.google.common.collect.Maps;
 
 /**
  * {@link AmqpMessageDispatcherService} create all outgoing AMQP messages and
@@ -137,7 +136,7 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
      */
     @EventListener(classes = TargetAssignDistributionSetEvent.class)
     protected void targetAssignDistributionSet(final TargetAssignDistributionSetEvent assignedEvent) {
-        if (isNotFromSelf(assignedEvent)) {
+        if (!shouldBeProcessed(assignedEvent)) {
             return;
         }
 
@@ -162,17 +161,17 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
      *            the Multi-Action event to be processed
      */
     @EventListener(classes = MultiActionEvent.class)
-    protected void onMultiAction(final MultiActionEvent e) {
-        if (isNotFromSelf(e)) {
+    protected void onMultiAction(final MultiActionEvent multiActionEvent) {
+        if (!shouldBeProcessed(multiActionEvent)) {
             return;
         }
-        LOG.debug("MultiActionEvent received for {}", e.getControllerIds());
-        sendMultiActionRequestMessages(e.getTenant(), e.getControllerIds());
+        LOG.debug("MultiActionEvent received for {}", multiActionEvent.getControllerIds());
+        sendMultiActionRequestMessages(multiActionEvent.getTenant(), multiActionEvent.getControllerIds());
     }
 
-    protected void sendMultiActionRequestMessages(final String tenant, final List<String> controllerIds) {
+    private void sendMultiActionRequestMessages(final String tenant, final List<String> controllerIds) {
 
-        final Map<Long, Map<SoftwareModule, List<SoftwareModuleMetadata>>> softwareModuleMetadata = new HashMap<>();
+        final Map<SoftwareModule, List<SoftwareModuleMetadata>> softwareModuleMetadata = new HashMap<>();
         targetManagement.getByControllerID(controllerIds).stream()
                 .filter(target -> IpUtil.isAmqpUri(target.getAddress())).forEach(target -> {
 
@@ -180,14 +179,13 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
                             .findActiveActionsByTarget(PageRequest.of(0, MAX_ACTION_COUNT), target.getControllerId())
                             .getContent();
 
-                    activeActions.forEach(action -> {
-                        final DistributionSet distributionSet = action.getDistributionSet();
-                        softwareModuleMetadata.computeIfAbsent(distributionSet.getId(),
-                                id -> getSoftwareModulesWithMetadata(distributionSet));
-                    });
+                    activeActions.forEach(action -> action.getDistributionSet().getModules().forEach(
+                            module -> softwareModuleMetadata.computeIfAbsent(module, this::getSoftwareModuleMetadata)));
 
                     if (!activeActions.isEmpty()) {
-                        sendMultiActionRequestToTarget(tenant, target, activeActions, softwareModuleMetadata);
+                        sendMultiActionRequestToTarget(tenant, target, activeActions,
+                                action -> action.getDistributionSet().getModules().stream()
+                                        .collect(Collectors.toMap(m -> m, softwareModuleMetadata::get)));
                     }
 
                 });
@@ -195,7 +193,7 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
     }
 
     protected void sendMultiActionRequestToTarget(final String tenant, final Target target, final List<Action> actions,
-            final Map<Long, Map<SoftwareModule, List<SoftwareModuleMetadata>>> softwareModulesPerDistributionSet) {
+            final Function<Action, Map<SoftwareModule, List<SoftwareModuleMetadata>>> getSoftwareModuleMetaData) {
 
         final URI targetAdress = target.getAddress();
         if (!IpUtil.isAmqpUri(targetAdress) || CollectionUtils.isEmpty(actions)) {
@@ -205,7 +203,7 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
         final DmfMultiActionRequest multiActionRequest = new DmfMultiActionRequest();
         actions.forEach(action -> {
             final DmfActionRequest actionRequest = createDmfActionRequest(target, action,
-                    softwareModulesPerDistributionSet.get(action.getDistributionSet().getId()));
+                    getSoftwareModuleMetaData.apply(action));
             multiActionRequest.addElement(getEventTypeForAction(action), actionRequest);
         });
 
@@ -286,12 +284,19 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
      */
     @EventListener(classes = CancelTargetAssignmentEvent.class)
     protected void targetCancelAssignmentToDistributionSet(final CancelTargetAssignmentEvent cancelEvent) {
-        if (isNotFromSelf(cancelEvent)) {
+        if (!shouldBeProcessed(cancelEvent)) {
             return;
         }
 
-        sendCancelMessageToTarget(cancelEvent.getTenant(), cancelEvent.getEntity().getControllerId(),
-                cancelEvent.getActionId(), cancelEvent.getEntity().getAddress());
+        final Target target = cancelEvent.getEntity();
+        if (target != null) {
+            sendCancelMessageToTarget(cancelEvent.getTenant(), target.getControllerId(), cancelEvent.getActionId(),
+                    target.getAddress());
+        } else {
+            LOG.warn(
+                    "Cannot process the received CancelTargetAssignmentEvent with action ID {} because the referenced target with ID {} does no longer exist.",
+                    cancelEvent.getActionId(), cancelEvent.getEntityId());
+        }
     }
 
     /**
@@ -304,7 +309,7 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
      */
     @EventListener(classes = TargetDeletedEvent.class)
     protected void targetDelete(final TargetDeletedEvent deleteEvent) {
-        if (isNotFromSelf(deleteEvent)) {
+        if (!shouldBeProcessed(deleteEvent)) {
             return;
         }
         sendDeleteMessage(deleteEvent.getTenant(), deleteEvent.getControllerId(), deleteEvent.getTargetAddress());
@@ -354,7 +359,7 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
                 IpUtil.createAmqpUri(virtualHost, ping.getMessageProperties().getReplyTo()));
     }
 
-    protected void sendDeleteMessage(final String tenant, final String controllerId, final String targetAddress) {
+    private void sendDeleteMessage(final String tenant, final String controllerId, final String targetAddress) {
 
         if (!hasValidAddress(targetAddress)) {
             return;
@@ -368,8 +373,12 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
         return targetAddress != null && IpUtil.isAmqpUri(URI.create(targetAddress));
     }
 
-    private boolean isNotFromSelf(final RemoteApplicationEvent event) {
-        return serviceMatcher != null && !serviceMatcher.isFromSelf(event);
+    protected boolean shouldBeProcessed(final RemoteApplicationEvent event) {
+        return isFromSelf(event);
+    }
+
+    private boolean isFromSelf(final RemoteApplicationEvent event) {
+        return serviceMatcher == null || serviceMatcher.isFromSelf(event);
     }
 
     protected void sendCancelMessageToTarget(final String tenant, final String controllerId, final Long actionId,
@@ -388,7 +397,7 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
 
     }
 
-    protected void sendUpdateAttributesMessageToTarget(final String tenant, final String controllerId,
+    private void sendUpdateAttributesMessageToTarget(final String tenant, final String controllerId,
             final String targetAddress) {
         if (!hasValidAddress(targetAddress)) {
             return;
@@ -471,15 +480,12 @@ public class AmqpMessageDispatcherService extends BaseAmqpService {
 
     private Map<SoftwareModule, List<SoftwareModuleMetadata>> getSoftwareModulesWithMetadata(
             final DistributionSet distributionSet) {
-        final Map<SoftwareModule, List<SoftwareModuleMetadata>> moduleMetadata = Maps
-                .newHashMapWithExpectedSize(distributionSet.getModules().size());
-        distributionSet.getModules()
-                .forEach(
-                        module -> moduleMetadata.put(module,
-                                softwareModuleManagement.findMetaDataBySoftwareModuleIdAndTargetVisible(
-                                        PageRequest.of(0, RepositoryConstants.MAX_META_DATA_COUNT), module.getId())
-                                        .getContent()));
-        return moduleMetadata;
+        return distributionSet.getModules().stream().collect(Collectors.toMap(m -> m, this::getSoftwareModuleMetadata));
+    }
+
+    private List<SoftwareModuleMetadata> getSoftwareModuleMetadata(final SoftwareModule module) {
+        return softwareModuleManagement.findMetaDataBySoftwareModuleIdAndTargetVisible(
+                PageRequest.of(0, RepositoryConstants.MAX_META_DATA_COUNT), module.getId()).getContent();
     }
 
 }

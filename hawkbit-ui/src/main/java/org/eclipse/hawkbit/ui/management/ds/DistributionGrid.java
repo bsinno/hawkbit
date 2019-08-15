@@ -238,7 +238,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     private List<String> getDistributionTagsFromUiState() {
-        return managementUIState.getDistributionTableFilters().getDistSetTags();
+        return managementUIState.getDistributionTableFilters().getClickedDistSetTags();
     }
 
     private TargetIdName getPinnedTargetFromUiState() {
@@ -330,11 +330,23 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final ManagementUIEvent managementUIEvent) {
         UI.getCurrent().access(() -> {
-            if (managementUIEvent == ManagementUIEvent.UNASSIGN_DISTRIBUTION_TAG
-                    || managementUIEvent == ManagementUIEvent.ASSIGN_DISTRIBUTION_TAG) {
+            if (tableIsFilteredByTagsAndTagWasUnassignedFromDistSet(managementUIEvent)
+                    || tableIsFilteredByNoTagAndTagWasAssignedToDistSet(managementUIEvent)) {
                 refreshFilter();
             }
         });
+    }
+
+    private boolean isFilteredByTags() {
+        return !managementUIState.getDistributionTableFilters().getClickedDistSetTags().isEmpty();
+    }
+
+    private boolean tableIsFilteredByTagsAndTagWasUnassignedFromDistSet(final ManagementUIEvent managementUIEvent) {
+        return managementUIEvent == ManagementUIEvent.UNASSIGN_DISTRIBUTION_TAG && isFilteredByTags();
+    }
+
+    private boolean tableIsFilteredByNoTagAndTagWasAssignedToDistSet(final ManagementUIEvent managementUIEvent) {
+        return managementUIEvent == ManagementUIEvent.ASSIGN_DISTRIBUTION_TAG && isNoTagClickedFromUiState();
     }
 
     @Override

@@ -11,13 +11,8 @@
 -->
 <module>
 	<inherits name="com.vaadin.DefaultWidgetSet" />
-    
 
     <inherits name="org.eclipse.hawkbit.ui.AppWidgetSet" />
-
-    
-
-    <inherits name="org.vaadin.tokenfield.TokenfieldWidgetset" />
 
     <inherits name="org.eclipse.hawkbit.ui.customrenderers.CustomRendererWidgetSet" />
 

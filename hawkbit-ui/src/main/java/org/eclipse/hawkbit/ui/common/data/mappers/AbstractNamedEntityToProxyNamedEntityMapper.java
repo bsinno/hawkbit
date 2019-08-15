@@ -23,7 +23,9 @@ public abstract class AbstractNamedEntityToProxyNamedEntityMapper<T extends Prox
         proxyNamedEntity.setId(namedEntity.getId());
         proxyNamedEntity.setName(namedEntity.getName());
         proxyNamedEntity.setDescription(namedEntity.getDescription());
+        proxyNamedEntity.setCreatedAt(namedEntity.getCreatedAt());
         proxyNamedEntity.setCreatedDate(SPDateTimeUtil.getFormattedDate(namedEntity.getCreatedAt()));
+        proxyNamedEntity.setLastModifiedAt(namedEntity.getLastModifiedAt());
         proxyNamedEntity.setModifiedDate(SPDateTimeUtil.getFormattedDate(namedEntity.getLastModifiedAt()));
         proxyNamedEntity.setCreatedBy(UserDetailsFormatter.loadAndFormatCreatedBy(namedEntity));
         proxyNamedEntity.setLastModifiedBy(UserDetailsFormatter.loadAndFormatLastModifiedBy(namedEntity));

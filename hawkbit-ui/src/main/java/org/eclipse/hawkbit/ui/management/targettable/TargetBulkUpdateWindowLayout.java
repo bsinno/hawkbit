@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -21,48 +20,46 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionBeanQuery;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadPopupEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.state.TargetBulkUpload;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.tokenfield.TokenField;
 
-import com.google.common.collect.Maps;
-import com.vaadin.v7.data.Container;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.Link;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.TextArea;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.ProgressBar;
+import com.vaadin.v7.ui.TextArea;
+import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Bulk target upload layout.
  */
 public class TargetBulkUpdateWindowLayout extends CustomComponent {
+    private static final long serialVersionUID = -6659290471705262389L;
+
     private final VaadinMessageSource i18n;
 
     private final transient TargetManagement targetManagement;
@@ -83,10 +80,9 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private final UiProperties uiproperties;
 
-    private static final long serialVersionUID = -6659290471705262389L;
     private VerticalLayout tokenVerticalLayout;
     private TextArea descTextArea;
-    private ComboBox dsNamecomboBox;
+    private ComboBox<ProxyDistributionSet> dsNamecomboBox;
     private BulkUploadHandler bulkUploader;
     private VerticalLayout mainLayout;
     private ProgressBar progressBar;
@@ -96,6 +92,8 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     private Label windowCaption;
     private Button minimizeButton;
     private Button closeButton;
+
+    private final DistributionSetStatelessDataProvider dsComboDataProvider;
 
     TargetBulkUpdateWindowLayout(final VaadinMessageSource i18n, final TargetManagement targetManagement,
             final UIEventBus eventBus, final ManagementUIState managementUIState,
@@ -115,6 +113,8 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         this.distributionSetManagement = distributionSetManagement;
         this.entityFactory = entityFactory;
         this.uiExecutor = uiExecutor;
+        this.dsComboDataProvider = new DistributionSetStatelessDataProvider(distributionSetManagement,
+                new DistributionSetToProxyDistributionMapper());
 
         createRequiredComponents();
         buildLayout();
@@ -124,7 +124,8 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     protected void onStartOfUpload() {
         final TargetBulkUpload targetBulkUpload = managementUIState.getTargetTableFilters().getBulkUpload();
-        targetBulkUpload.setDsNameAndVersion((Long) dsNamecomboBox.getValue());
+        targetBulkUpload
+                .setDsNameAndVersion(dsNamecomboBox.getSelectedItem().map(ProxyIdentifiableEntity::getId).orElse(null));
         targetBulkUpload.setDescription(descTextArea.getValue());
         targetBulkUpload.setProgressBarCurrentValue(0F);
         targetBulkUpload.setFailedUploadCount(0);
@@ -204,26 +205,26 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     }
 
     private ComboBox getDsComboField() {
-        final Container container = createContainer();
-        final ComboBox dsComboBox = SPUIComponentProvider.getComboBox(i18n.getMessage("bulkupload.ds.name"), "", null,
-                null, false, "", i18n.getMessage("bulkupload.ds.name"));
-        dsComboBox.setSizeUndefined();
-        dsComboBox.addStyleName(SPUIDefinitions.BULK_UPLOD_DS_COMBO_STYLE);
+        final ComboBox<ProxyDistributionSet> dsCombo = new com.vaadin.ui.ComboBox<>(
+                i18n.getMessage("bulkupload.ds.name"));
+        dsCombo.setId(UIComponentIdProvider.BULK_UPLOAD_DS_COMBO);
+        dsCombo.setDescription(i18n.getMessage("bulkupload.ds.name"));
+        dsCombo.setSizeUndefined();
+        dsCombo.setWidth("100%");
+        dsCombo.addStyleName(SPUIDefinitions.BULK_UPLOD_DS_COMBO_STYLE);
+        dsCombo.setItemCaptionGenerator(ProxyDistributionSet::getNameVersion);
+        dsCombo.setPageLength(7);
+        dsCombo.setDataProvider(dsComboDataProvider);
 
-        dsComboBox.setFilteringMode(FilteringMode.STARTSWITH);
-        dsComboBox.setPageLength(7);
-        dsComboBox.setContainerDataSource(container);
-        dsComboBox.setItemCaptionPropertyId(SPUILabelDefinitions.VAR_NAME_VERSION);
-        dsComboBox.setId(UIComponentIdProvider.BULK_UPLOAD_DS_COMBO);
-        dsComboBox.setWidth("100%");
-        return dsComboBox;
+        return dsCombo;
     }
 
     private VerticalLayout getTokenFieldLayout() {
-        final TokenField tokenField = targetBulkTokenTags.getTokenField();
+        final TagPanelLayout tagPanelLayout = targetBulkTokenTags.getTagPanel();
+        tagPanelLayout.setMargin(false);
         final VerticalLayout tokenLayout = SPUIComponentProvider.getDetailTabLayout();
         tokenLayout.addStyleName("bulk-target-tags-layout");
-        tokenLayout.addComponent(tokenField);
+        tokenLayout.addComponent(tagPanelLayout);
         tokenLayout.setSpacing(false);
         tokenLayout.setMargin(false);
         tokenLayout.setSizeFull();
@@ -236,26 +237,6 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         clearPreviousSessionData();
         bulkUploadWindow.close();
         eventBus.publish(this, BulkUploadPopupEvent.CLOSED);
-    }
-
-    /**
-     * @return
-     */
-    private Container createContainer() {
-
-        final Map<String, Object> queryConfiguration = Maps.newHashMapWithExpectedSize(2);
-
-        queryConfiguration.put(SPUIDefinitions.FILTER_BY_NO_TAG,
-                managementUIState.getDistributionTableFilters().isNoTagSelected());
-
-        queryConfiguration.put(SPUIDefinitions.FILTER_BY_TAG,
-                managementUIState.getDistributionTableFilters().getDistSetTags());
-
-        final BeanQueryFactory<DistributionBeanQuery> distributionQF = new BeanQueryFactory<>(
-                DistributionBeanQuery.class);
-        distributionQF.setQueryConfiguration(queryConfiguration);
-        return new LazyQueryContainer(
-                new LazyQueryDefinition(true, SPUIDefinitions.PAGE_SIZE, SPUILabelDefinitions.VAR_ID), distributionQF);
     }
 
     private void buildLayout() {
@@ -286,8 +267,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     public void resetComponents() {
         dsNamecomboBox.clear();
         descTextArea.clear();
-        targetBulkTokenTags.getTokenField().clear();
-        targetBulkTokenTags.populateContainer();
+        targetBulkTokenTags.initializeTags();
         progressBar.setValue(0F);
         progressBar.setVisible(false);
         managementUIState.getTargetTableFilters().getBulkUpload().setProgressBarCurrentValue(0F);
@@ -308,12 +288,15 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
      * Restore the target bulk upload layout field values.
      */
     public void restoreComponentsValue() {
-        targetBulkTokenTags.populateContainer();
         final TargetBulkUpload targetBulkUpload = managementUIState.getTargetTableFilters().getBulkUpload();
         progressBar.setValue(targetBulkUpload.getProgressBarCurrentValue());
-        dsNamecomboBox.setValue(targetBulkUpload.getDsNameAndVersion());
+
+        final ProxyDistributionSet selectedDs = new ProxyDistributionSet();
+        selectedDs.setId(targetBulkUpload.getDsNameAndVersion());
+        dsNamecomboBox.setValue(selectedDs);
+
         descTextArea.setValue(targetBulkUpload.getDescription());
-        targetBulkTokenTags.addAlreadySelectedTags();
+        targetBulkTokenTags.initializeTags();
 
         if (targetBulkUpload.getProgressBarCurrentValue() >= 1) {
             targetsCountLabel.setVisible(true);
@@ -360,11 +343,9 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
                 .buildWindow();
         bulkUploadWindow.addStyleName("bulk-upload-window");
 
-        if (managementUIState.getTargetTableFilters().getBulkUpload().getProgressBarCurrentValue() <= 0) {
-            bulkUploader.getUpload().setEnabled(true);
-        } else {
-            bulkUploader.getUpload().setEnabled(false);
-        }
+        bulkUploader.getUpload().setEnabled(
+                managementUIState.getTargetTableFilters().getBulkUpload().getProgressBarCurrentValue() <= 0);
+
         return bulkUploadWindow;
     }
 
@@ -384,7 +365,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     /**
      * @return the dsNamecomboBox
      */
-    public ComboBox getDsNamecomboBox() {
+    public ComboBox<ProxyDistributionSet> getDsNamecomboBox() {
         return dsNamecomboBox;
     }
 

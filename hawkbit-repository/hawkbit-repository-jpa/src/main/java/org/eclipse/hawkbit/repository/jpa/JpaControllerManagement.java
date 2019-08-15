@@ -36,6 +36,8 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import org.eclipse.hawkbit.repository.ControllerManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
@@ -74,14 +76,13 @@ import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleMetadata;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
+import org.eclipse.hawkbit.repository.model.helper.EventPublisherHolder;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.bus.BusProperties;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -109,7 +110,7 @@ import com.google.common.collect.Sets;
 @Transactional(readOnly = true)
 @Validated
 public class JpaControllerManagement implements ControllerManagement {
-    private static final Logger LOG = LoggerFactory.getLogger(ControllerManagement.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JpaControllerManagement.class);
 
     private final BlockingDeque<TargetPoll> queue;
 
@@ -141,10 +142,7 @@ public class JpaControllerManagement implements ControllerManagement {
     private EntityFactory entityFactory;
 
     @Autowired
-    private ApplicationEventPublisher eventPublisher;
-
-    @Autowired
-    private BusProperties bus;
+    private EventPublisherHolder eventPublisherHolder;
 
     @Autowired
     private AfterTransactionCommitExecutor afterCommit;
@@ -373,6 +371,11 @@ public class JpaControllerManagement implements ControllerManagement {
     }
 
     @Override
+    public List<Action> getActiveActionsByExternalRef(@NotNull final List<String> externalRefs) {
+        return actionRepository.findByExternalRefInAndActive(externalRefs, true);
+    }
+
+    @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(include = ConcurrencyFailureException.class, exclude = EntityAlreadyExistsException.class, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public Target findOrRegisterTargetIfItDoesNotExist(final String controllerId, final URI address) {
@@ -384,22 +387,15 @@ public class JpaControllerManagement implements ControllerManagement {
     }
 
     private Target createTarget(final String controllerId, final URI address) {
-        try {
-            final Target result = targetRepository.save((JpaTarget) entityFactory.target().create()
-                    .controllerId(controllerId).description("Plug and Play target: " + controllerId).name(controllerId)
-                    .status(TargetUpdateStatus.REGISTERED).lastTargetQuery(System.currentTimeMillis())
-                    .address(Optional.ofNullable(address).map(URI::toString).orElse(null)).build());
+        final Target result = targetRepository.save((JpaTarget) entityFactory.target().create()
+                .controllerId(controllerId).description("Plug and Play target: " + controllerId).name(controllerId)
+                .status(TargetUpdateStatus.REGISTERED).lastTargetQuery(System.currentTimeMillis())
+                .address(Optional.ofNullable(address).map(URI::toString).orElse(null)).build());
 
-            afterCommit.afterCommit(() -> eventPublisher.publishEvent(new TargetPollEvent(result, bus.getId())));
+        afterCommit.afterCommit(() -> eventPublisherHolder.getEventPublisher()
+                .publishEvent(new TargetPollEvent(result, eventPublisherHolder.getApplicationId())));
 
-            return result;
-        } catch (final EntityAlreadyExistsException e) {
-            LOG.warn(
-                    "Caught an EntityAlreadyExistsException while creating non existing target "
-                            + "[controllerId:{}, address:{}, tenant: {}]",
-                    controllerId, address, tenantAware.getCurrentTenant());
-            throw e;
-        }
+        return result;
     }
 
     /**
@@ -446,8 +442,8 @@ public class JpaControllerManagement implements ControllerManagement {
 
         pollChunks.forEach(chunk -> {
             setLastTargetQuery(tenant, System.currentTimeMillis(), chunk);
-            chunk.forEach(controllerId -> afterCommit.afterCommit(
-                    () -> eventPublisher.publishEvent(new TargetPollEvent(controllerId, tenant, bus.getId()))));
+            chunk.forEach(controllerId -> afterCommit.afterCommit(() -> eventPublisherHolder.getEventPublisher()
+                    .publishEvent(new TargetPollEvent(controllerId, tenant, eventPublisherHolder.getApplicationId()))));
         });
 
         return null;
@@ -501,7 +497,8 @@ public class JpaControllerManagement implements ControllerManagement {
             toUpdate.setAddress(address.toString());
             toUpdate.setLastTargetQuery(System.currentTimeMillis());
 
-            afterCommit.afterCommit(() -> eventPublisher.publishEvent(new TargetPollEvent(toUpdate, bus.getId())));
+            afterCommit.afterCommit(() -> eventPublisherHolder.getEventPublisher()
+                    .publishEvent(new TargetPollEvent(toUpdate, eventPublisherHolder.getApplicationId())));
 
             return targetRepository.save(toUpdate);
         }
@@ -671,9 +668,10 @@ public class JpaControllerManagement implements ControllerManagement {
 
         target.setRequestControllerAttributes(true);
 
-        eventPublisher.publishEvent(new TargetAttributesRequestedEvent(tenantAware.getCurrentTenant(), target.getId(),
-                target.getControllerId(), target.getAddress() != null ? target.getAddress().toString() : null,
-                JpaTarget.class.getName(), bus.getId()));
+        eventPublisherHolder.getEventPublisher()
+                .publishEvent(new TargetAttributesRequestedEvent(tenantAware.getCurrentTenant(), target.getId(),
+                        target.getControllerId(), target.getAddress() != null ? target.getAddress().toString() : null,
+                        JpaTarget.class.getName(), eventPublisherHolder.getApplicationId()));
     }
 
     private void handleErrorOnAction(final JpaAction mergedAction, final JpaTarget mergedTarget) {
@@ -1042,9 +1040,14 @@ public class JpaControllerManagement implements ControllerManagement {
         }
     }
 
+    @Override
+    public void updateActionExternalRef(final long actionId, @NotEmpty final String externalRef) {
+        actionRepository.updateExternalRef(actionId, externalRef);
+    }
+
     private void cancelAssignDistributionSetEvent(final JpaTarget target, final Long actionId) {
-        afterCommit.afterCommit(
-                () -> eventPublisher.publishEvent(new CancelTargetAssignmentEvent(target, actionId, bus.getId())));
+        afterCommit.afterCommit(() -> eventPublisherHolder.getEventPublisher().publishEvent(
+                new CancelTargetAssignmentEvent(target, actionId, eventPublisherHolder.getApplicationId())));
     }
 
     // for testing
