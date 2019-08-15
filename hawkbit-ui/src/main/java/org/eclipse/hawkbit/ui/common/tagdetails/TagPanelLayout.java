@@ -91,7 +91,7 @@ public class TagPanelLayout extends VerticalLayout {
     public void removeAssignedTag(final TagData tagData) {
         // the un-assigned tag is now assignable
         assignableTagsComboBox.addAssignableTag(tagData);
-        // remove ot from the assigned tags
+        // remove it from the assigned tags
         assignedTagField.removeTag(tagData);
     }
 
@@ -108,12 +108,12 @@ public class TagPanelLayout extends VerticalLayout {
     /**
      * Informs the panel that a tag was deleted.
      * 
-     * @param tagData
-     *            the {@link TagData}
+     * @param tagId
+     *            the tag Id
      */
-    void tagDeleted(final TagData tagData) {
-        assignableTagsComboBox.removeAssignableTag(tagData);
-        assignedTagField.removeTag(tagData);
+    void tagDeleted(final Long tagId) {
+        assignableTagsComboBox.removeAssignableTag(tagId);
+        assignedTagField.removeTag(tagId);
     }
 
     /**
@@ -129,7 +129,7 @@ public class TagPanelLayout extends VerticalLayout {
          * @param tagData
          *            the tag that should be assigned.
          */
-        void assignTagCallback(TagData tagData);
+        void assignTag(TagData tagData);
 
         /**
          * User triggers a tag unassignment.
@@ -137,7 +137,7 @@ public class TagPanelLayout extends VerticalLayout {
          * @param tagData
          *            the tag that should be unassigned.
          */
-        void unassignTagCallback(TagData tagData);
+        void unassignTag(TagData tagData);
     }
 
     /**
@@ -167,7 +167,7 @@ public class TagPanelLayout extends VerticalLayout {
      * 
      * @return {@link List} with tags.
      */
-    public List<String> getAssignedTags() {
+    public List<TagData> getAssignedTags() {
         return assignedTagField.getTags();
     }
 }

@@ -48,7 +48,7 @@ public class TargetTagToken extends AbstractTargetTagToken<ProxyTarget> {
     }
 
     @Override
-    protected void assignTag(final TagData tagData) {
+    public void assignTag(final TagData tagData) {
         final List<Target> assignedTargets = targetManagement.assignTag(Arrays.asList(selectedEntity.getControllerId()),
                 tagData.getId());
         if (checkAssignmentResult(assignedTargets, selectedEntity.getId())) {
@@ -60,7 +60,7 @@ public class TargetTagToken extends AbstractTargetTagToken<ProxyTarget> {
     }
 
     @Override
-    protected void unassignTag(final TagData tagData) {
+    public void unassignTag(final TagData tagData) {
         final Target unassignedTarget = targetManagement.unAssignTag(selectedEntity.getControllerId(), tagData.getId());
         if (checkUnassignmentResult(unassignedTarget, selectedEntity.getId())) {
             uinotification.displaySuccess(

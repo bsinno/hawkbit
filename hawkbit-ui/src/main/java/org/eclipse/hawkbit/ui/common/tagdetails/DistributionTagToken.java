@@ -57,7 +57,7 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
     }
 
     @Override
-    protected void assignTag(final TagData tagData) {
+    public void assignTag(final TagData tagData) {
         final List<DistributionSet> assignedDistributionSets = distributionSetManagement
                 .assignTag(Sets.newHashSet(selectedEntity.getId()), tagData.getId());
         if (checkAssignmentResult(assignedDistributionSets, managementUIState.getLastSelectedDsIdName().orElse(null))) {
@@ -69,7 +69,7 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
     }
 
     @Override
-    protected void unassignTag(final TagData tagData) {
+    public void unassignTag(final TagData tagData) {
         final DistributionSet unAssignedDistributionSet = distributionSetManagement.unAssignTag(selectedEntity.getId(),
                 tagData.getId());
         if (checkUnassignmentResult(unAssignedDistributionSet,

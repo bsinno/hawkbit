@@ -8,9 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.tagdetails;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Target;
@@ -24,8 +26,6 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
@@ -39,7 +39,9 @@ public class TagListField extends CssLayout {
 
     private static final long serialVersionUID = 1L;
 
-    private final transient Map<String, Button> tagButtons = Maps.newTreeMap(Ordering.natural());
+    // TODO: check if the order is preserved as before
+    private final transient Map<TagData, Button> tagButtons = new TreeMap<>(
+            Comparator.comparing(TagData::getName, String.CASE_INSENSITIVE_ORDER));
     private final transient Set<TagAssignmentListener> listeners = Sets.newConcurrentHashSet();
     private final VaadinMessageSource i18n;
     private final boolean readOnlyMode;
@@ -68,7 +70,7 @@ public class TagListField extends CssLayout {
 
         assignedTags.forEach(tag -> {
             final Button tagButton = createButton(tag);
-            tagButtons.put(tag.getName(), tagButton);
+            tagButtons.put(tag, tagButton);
         });
 
         addTagButtonsAsComponents();
@@ -81,18 +83,18 @@ public class TagListField extends CssLayout {
      * @param tagColor
      */
     void addTag(final TagData tagData) {
-        if (!tagButtons.containsKey(tagData.getName())) {
+        if (!tagButtons.containsKey(tagData)) {
             removeAllComponents();
 
             final Button tagButton = createButton(tagData);
-            tagButtons.put(tagData.getName(), tagButton);
+            tagButtons.put(tagData, tagButton);
 
             addTagButtonsAsComponents();
         }
     }
 
     private void addTagButtonsAsComponents() {
-        tagButtons.keySet().forEach(sortedTagName -> addComponent(tagButtons.get(sortedTagName)));
+        tagButtons.values().forEach(this::addComponent);
     }
 
     private Button createButton(final TagData tagData) {
@@ -118,14 +120,24 @@ public class TagListField extends CssLayout {
     /**
      * Removes a tag from the field.
      * 
-     * @param tagName
+     * @param tagData
      */
     void removeTag(final TagData tagData) {
-        final Button button = tagButtons.get(tagData.getName());
+        final Button button = tagButtons.get(tagData);
         if (button != null) {
-            tagButtons.remove(tagData.getName());
+            tagButtons.remove(tagData);
             removeComponent(button);
         }
+    }
+
+    /**
+     * Removes a tag from the field.
+     * 
+     * @param tagData
+     */
+    void removeTag(final Long tagId) {
+        tagButtons.keySet().stream().filter(tagData -> tagData.getId().equals(tagId)).findAny()
+                .ifPresent(this::removeTag);
     }
 
     /**
@@ -157,7 +169,7 @@ public class TagListField extends CssLayout {
     }
 
     private void notifyListenersTagAssignmentRemoved(final TagData tagData) {
-        listeners.forEach(listener -> listener.unassignTagCallback(tagData));
+        listeners.forEach(listener -> listener.unassignTag(tagData));
     }
 
     /**
@@ -165,7 +177,7 @@ public class TagListField extends CssLayout {
      * 
      * @return a {@link List} with tags
      */
-    List<String> getTags() {
+    List<TagData> getTags() {
         return Lists.newArrayList(tagButtons.keySet());
     }
 }

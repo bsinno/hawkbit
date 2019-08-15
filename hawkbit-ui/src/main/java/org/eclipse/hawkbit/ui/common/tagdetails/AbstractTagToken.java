@@ -10,8 +10,6 @@ package org.eclipse.hawkbit.ui.common.tagdetails;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -42,8 +40,6 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements Se
     private static final long serialVersionUID = 6599386705285184783L;
 
     protected TagPanelLayout tagPanelLayout;
-
-    protected final transient Map<Long, TagData> tagDetailsById = new ConcurrentHashMap<>();
 
     protected SpPermissionChecker checker;
 
@@ -99,46 +95,16 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements Se
     }
 
     protected void repopulateTags() {
-        tagDetailsById.clear();
-
-        final List<TagData> allAssignableTags = getAllTags();
-        allAssignableTags.forEach(tagData -> {
-            tagDetailsById.put(tagData.getId(), tagData);
-        });
-        tagPanelLayout.initializeTags(allAssignableTags, getAssignedTags());
+        tagPanelLayout.initializeTags(getAllTags(), getAssignedTags());
     }
 
     protected void tagCreated(final TagData tagData) {
-        tagDetailsById.put(tagData.getId(), tagData);
-
         tagPanelLayout.tagCreated(tagData);
     }
 
-    protected void tagDeleted(final Long id) {
-        final TagData tagData = tagDetailsById.get(id);
-        if (tagData != null) {
-            tagPanelLayout.tagDeleted(tagData);
-            tagDetailsById.remove(id);
-        }
+    protected void tagDeleted(final Long tagId) {
+        tagPanelLayout.tagDeleted(tagId);
     }
-
-    @Override
-    public void assignTagCallback(final TagData tagData) {
-        if (tagData != null && tagDetailsById.containsKey(tagData.getId())) {
-            assignTag(tagData);
-        }
-    }
-
-    @Override
-    public void unassignTagCallback(final TagData tagData) {
-        if (tagData != null && tagDetailsById.containsKey(tagData.getId())) {
-            unassignTag(tagData);
-        }
-    }
-
-    protected abstract void assignTag(final TagData tagData);
-
-    protected abstract void unassignTag(final TagData tagData);
 
     protected boolean checkAssignmentResult(final List<? extends Identifiable<Long>> assignedEntities,
             final Long expectedAssignedEntityId) {

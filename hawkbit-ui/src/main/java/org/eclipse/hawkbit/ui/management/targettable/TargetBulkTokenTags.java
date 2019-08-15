@@ -37,13 +37,13 @@ public class TargetBulkTokenTags extends AbstractTargetTagToken<ProxyTarget> {
     }
 
     @Override
-    protected void assignTag(final TagData tagData) {
+    public void assignTag(final TagData tagData) {
         managementUIState.getTargetTableFilters().getBulkUpload().getAssignedTagNames().add(tagData.getName());
         tagPanelLayout.setAssignedTag(tagData);
     }
 
     @Override
-    protected void unassignTag(final TagData tagData) {
+    public void unassignTag(final TagData tagData) {
         managementUIState.getTargetTableFilters().getBulkUpload().getAssignedTagNames().remove(tagData.getName());
         tagPanelLayout.removeAssignedTag(tagData);
     }
@@ -79,6 +79,6 @@ public class TargetBulkTokenTags extends AbstractTargetTagToken<ProxyTarget> {
     }
 
     public List<TagData> getSelectedTagsForAssignment() {
-        return tagPanelLayout.getAssignedTags().stream().map(tagDetailsByName::get).collect(Collectors.toList());
+        return tagPanelLayout.getAssignedTags();
     }
 }

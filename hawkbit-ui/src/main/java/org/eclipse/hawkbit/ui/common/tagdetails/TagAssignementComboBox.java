@@ -125,6 +125,17 @@ public class TagAssignementComboBox extends HorizontalLayout {
     /**
      * Removes an assignable tag from the combobox.
      * 
+     * @param tagId
+     *            the tag Id of the Tag that should be removed.
+     */
+    void removeAssignableTag(final Long tagId) {
+        allAssignableTags.stream().filter(tag -> tag.getId().equals(tagId)).findAny()
+                .ifPresent(this::removeAssignableTag);
+    }
+
+    /**
+     * Removes an assignable tag from the combobox.
+     * 
      * @param tagData
      *            the {@link TagData} of the Tag that should be removed.
      */
@@ -153,6 +164,6 @@ public class TagAssignementComboBox extends HorizontalLayout {
     }
 
     private void notifyListenersTagAssigned(final TagData tagData) {
-        listeners.forEach(listener -> listener.assignTagCallback(tagData));
+        listeners.forEach(listener -> listener.assignTag(tagData));
     }
 }
