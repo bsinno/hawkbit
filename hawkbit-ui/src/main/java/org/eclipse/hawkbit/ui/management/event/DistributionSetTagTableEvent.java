@@ -10,14 +10,14 @@ package org.eclipse.hawkbit.ui.management.event;
 
 import java.util.Collection;
 
-import org.eclipse.hawkbit.repository.model.DistributionSetTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 
 /**
  * Event for distribution set tag table
  */
-public class DistributionSetTagTableEvent extends BaseUIEntityEvent<DistributionSetTag> {
+public class DistributionSetTagTableEvent extends BaseUIEntityEvent<ProxyTag> {
 
     /**
      * Constructor
@@ -27,7 +27,7 @@ public class DistributionSetTagTableEvent extends BaseUIEntityEvent<Distribution
      * @param entity
      *            the entity.
      */
-    public DistributionSetTagTableEvent(final BaseEntityEventType eventType, final DistributionSetTag entity) {
+    public DistributionSetTagTableEvent(final BaseEntityEventType eventType, final ProxyTag entity) {
         super(eventType, entity);
     }
 
@@ -40,7 +40,7 @@ public class DistributionSetTagTableEvent extends BaseUIEntityEvent<Distribution
      *            the entity ids
      */
     public DistributionSetTagTableEvent(final BaseEntityEventType eventType, final Collection<Long> entityIds) {
-        super(eventType, entityIds, DistributionSetTag.class);
+        super(eventType, entityIds, ProxyTag.class);
     }
 
 }

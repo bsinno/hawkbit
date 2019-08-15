@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
@@ -42,7 +41,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.DsTagsToDistributio
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
@@ -93,12 +91,11 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     private final DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
     private final DragAndDropSupport<ProxyDistributionSet> dragAndDropSupport;
 
-    DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
+    public DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final ManagementUIState managementUIState,
-            final ManagementViewClientCriterion managementViewClientCriterion, final TargetManagement targetManagement,
+            final ManagementUIState managementUIState, final TargetManagement targetManagement,
             final DistributionSetManagement distributionSetManagement, final DeploymentManagement deploymentManagement,
-            final TargetTagManagement targetTagManagement, final UiProperties uiProperties) {
+            final UiProperties uiProperties) {
         super(i18n, eventBus, permissionChecker);
 
         this.managementUIState = managementUIState;
@@ -202,8 +199,9 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     private void publishDsSelectedEntityForRefresh(
             final Stream<? extends RemoteEntityEvent<DistributionSet>> dsEntityEventStream) {
         dsEntityEventStream.filter(event -> isLastSelectedDs(event.getEntityId())).filter(Objects::nonNull).findAny()
-                .ifPresent(event -> eventBus.publish(this,
-                        new DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY, event.getEntity())));
+                .ifPresent(
+                        event -> eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY,
+                                distributionSetToProxyDistributionMapper.map(event.getEntity()))));
     }
 
     private boolean isLastSelectedDs(final Long dsId) {
@@ -288,9 +286,9 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
      * @param updatedDs
      *            as reference
      */
-    public void updateDistributionSet(final DistributionSet updatedDs) {
+    public void updateDistributionSet(final ProxyDistributionSet updatedDs) {
         if (updatedDs != null) {
-            getDataProvider().refreshItem(distributionSetToProxyDistributionMapper.map(updatedDs));
+            getDataProvider().refreshItem(updatedDs);
         }
     }
 

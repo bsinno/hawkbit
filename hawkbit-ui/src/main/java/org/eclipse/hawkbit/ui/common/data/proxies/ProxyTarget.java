@@ -46,6 +46,8 @@ public class ProxyTarget extends ProxyNamedEntity {
 
     private Status status;
 
+    private String securityToken;
+
     public String getAssignedDistNameVersion() {
         return assignedDistNameVersion;
     }
@@ -132,6 +134,14 @@ public class ProxyTarget extends ProxyNamedEntity {
 
     public void setStatus(final Status status) {
         this.status = status;
+    }
+
+    public String getSecurityToken() {
+        return securityToken;
+    }
+
+    public void setSecurityToken(String securityToken) {
+        this.securityToken = securityToken;
     }
 
 }

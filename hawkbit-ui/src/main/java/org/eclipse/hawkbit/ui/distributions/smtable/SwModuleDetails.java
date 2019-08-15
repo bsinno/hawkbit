@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractSoftwareModuleDetails;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -94,7 +95,7 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
         return artifactDetailsButton;
     }
 
-    private void showArtifactDetailsWindow(final SoftwareModule softwareModule) {
+    private void showArtifactDetailsWindow(final ProxySoftwareModule softwareModule) {
         final Window artifactDtlsWindow = new Window();
         artifactDtlsWindow.setCaption(HawkbitCommonUtil
                 .getArtifactoryDetailsLabelId(softwareModule.getName() + "." + softwareModule.getVersion(), getI18n()));
@@ -129,7 +130,7 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
     }
 
     @Override
-    protected void populateData(final SoftwareModule selectedBaseEntity) {
+    protected void populateData(final ProxySoftwareModule selectedBaseEntity) {
         super.populateData(selectedBaseEntity);
         artifactDetailsButton.setEnabled(selectedBaseEntity != null);
     }

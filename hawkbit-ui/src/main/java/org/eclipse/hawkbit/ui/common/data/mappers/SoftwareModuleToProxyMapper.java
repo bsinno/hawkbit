@@ -30,6 +30,7 @@ public class SoftwareModuleToProxyMapper
                 softwareModule.getVersion());
         proxySoftwareModule.setNameAndVersion(swNameVersion);
         proxySoftwareModule.setVendor(softwareModule.getVendor());
+        proxySoftwareModule.setType(softwareModule.getType());
 
         return proxySoftwareModule;
     }

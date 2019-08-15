@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.model.Target;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.management.targettable.TargetMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -54,7 +54,7 @@ public class TargetMetadataDetailsLayout extends AbstractMetadataDetailsLayout {
      *
      * @param target
      */
-    public void populateMetadata(final Target target) {
+    public void populateMetadata(final ProxyTarget target) {
         removeAllItems();
         if (target == null) {
             return;

@@ -14,11 +14,12 @@ import java.util.Map;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent.SoftwareModuleEventType;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractDistributionSetDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsTable;
 import org.eclipse.hawkbit.ui.common.detailslayout.TargetFilterQueryDetailsTable;
@@ -33,10 +34,10 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.UI;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
-import com.vaadin.ui.UI;
 import com.vaadin.v7.ui.VerticalLayout;
 
 /**
@@ -100,7 +101,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
     }
 
     @SuppressWarnings("unchecked")
-    private void updateSoftwareModule(final SoftwareModule module) {
+    private void updateSoftwareModule(final ProxySoftwareModule module) {
         if (assignedSWModule == null) {
             assignedSWModule = new HashMap<>();
         }
@@ -176,7 +177,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
                 && getSelectedBaseEntity() != null) {
             clearAssignments();
             getDistributionSetManagement().getWithDetails(getSelectedBaseEntityId()).ifPresent(set -> {
-                setSelectedBaseEntity(set);
+                setSelectedBaseEntity(new DistributionSetToProxyDistributionMapper().map(set));
                 UI.getCurrent().access(this::populateModule);
             });
         }

@@ -13,9 +13,11 @@ import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -23,17 +25,16 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Abstract class which contains common code for Software Module Details
  *
  */
-public abstract class AbstractSoftwareModuleDetails
-        extends AbstractNamedVersionedEntityTableDetailsLayout<SoftwareModule> {
+public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetailsLayout<ProxySoftwareModule> {
 
     private static final long serialVersionUID = 1L;
 
@@ -116,6 +117,12 @@ public abstract class AbstractSoftwareModuleDetails
     protected void showMetadata(final ClickEvent event) {
         softwareModuleManagement.get(getSelectedBaseEntityId())
                 .ifPresent(swmodule -> UI.getCurrent().addWindow(swMetadataPopupLayout.getWindow(swmodule, null)));
+    }
+
+    @Override
+    protected String getName() {
+        return HawkbitCommonUtil.getFormattedNameVersion(getSelectedBaseEntity().getName(),
+                getSelectedBaseEntity().getVersion());
     }
 
     protected void updateSoftwareModuleDetailsLayout(final String type, final String vendor, final String maxAssign) {

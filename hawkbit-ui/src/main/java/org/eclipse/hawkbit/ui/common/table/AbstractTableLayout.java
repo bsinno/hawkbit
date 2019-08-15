@@ -8,7 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.common.table;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractTableDetailsLayout;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.utils.ShortCutModifierUtils;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -18,8 +20,8 @@ import com.vaadin.event.Action.Handler;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Panel;
-import com.vaadin.v7.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Parent class for table layout.
@@ -28,27 +30,30 @@ import com.vaadin.ui.themes.ValoTheme;
  * @param <T>
  *            type of the concrete table
  */
-public abstract class AbstractTableLayout<T extends AbstractTable<?>> extends VerticalLayout {
+public abstract class AbstractTableLayout<T extends ProxyNamedEntity> extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
     private AbstractTableHeader tableHeader;
 
-    private T table;
+    private AbstractGrid<T, ?> grid;
 
-    private AbstractTableDetailsLayout<?> detailsLayout;
+    private AbstractTableDetailsLayout<T> detailsLayout;
 
     private VaadinMessageSource i18n;
 
-    protected void init(final VaadinMessageSource i18n, final AbstractTableHeader tableHeader, final T table,
-            final AbstractTableDetailsLayout<?> detailsLayout) {
+    protected void init(final VaadinMessageSource i18n, final AbstractTableHeader tableHeader,
+            final AbstractGrid<T, ?> grid, final AbstractTableDetailsLayout<T> detailsLayout) {
         this.i18n = i18n;
         this.tableHeader = tableHeader;
-        this.table = table;
+        this.grid = grid;
         this.detailsLayout = detailsLayout;
         buildLayout();
 
-        table.selectRow();
+        // TODO: check if it is correct
+        if (grid.hasSelectionSupport()) {
+            grid.getSelectionSupport().selectFirstRow();
+        }
     }
 
     private void buildLayout() {
@@ -69,16 +74,16 @@ public abstract class AbstractTableLayout<T extends AbstractTable<?>> extends Ve
             final Panel tablePanel = new Panel();
             tablePanel.setStyleName("table-panel");
             tablePanel.setHeight(100.0F, Unit.PERCENTAGE);
-            tablePanel.setContent(table);
+            tablePanel.setContent(grid);
             tablePanel.addActionHandler(getShortCutKeysHandler(i18n));
             tablePanel.addStyleName(ValoTheme.PANEL_BORDERLESS);
             tableHeaderLayout.addComponent(tablePanel);
             tableHeaderLayout.setComponentAlignment(tablePanel, Alignment.TOP_CENTER);
             tableHeaderLayout.setExpandRatio(tablePanel, 1.0F);
         } else {
-            tableHeaderLayout.addComponent(table);
-            tableHeaderLayout.setComponentAlignment(table, Alignment.TOP_CENTER);
-            tableHeaderLayout.setExpandRatio(table, 1.0F);
+            tableHeaderLayout.addComponent(grid);
+            tableHeaderLayout.setComponentAlignment(grid, Alignment.TOP_CENTER);
+            tableHeaderLayout.setExpandRatio(grid, 1.0F);
         }
 
         addComponent(tableHeaderLayout);
@@ -116,7 +121,7 @@ public abstract class AbstractTableLayout<T extends AbstractTable<?>> extends Ve
     }
 
     public RefreshableContainer getTable() {
-        return table;
+        return grid;
     }
 
     private final class TableShortCutHandler implements Handler {
@@ -138,7 +143,7 @@ public abstract class AbstractTableLayout<T extends AbstractTable<?>> extends Ve
             if (!selectAllAction.equals(action)) {
                 return;
             }
-            table.selectAll();
+            grid.getSelectionSupport().selectAll();
             publishEvent();
         }
 

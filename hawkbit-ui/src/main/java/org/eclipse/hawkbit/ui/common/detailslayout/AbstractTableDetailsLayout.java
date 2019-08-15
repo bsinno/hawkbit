@@ -8,9 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
-import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 import org.eclipse.hawkbit.ui.common.tagdetails.AbstractTagToken;
@@ -26,13 +26,13 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.UI;
+import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 /**
@@ -40,7 +40,7 @@ import com.vaadin.v7.ui.VerticalLayout;
  *
  * @param <T>
  */
-public abstract class AbstractTableDetailsLayout<T extends NamedEntity> extends VerticalLayout {
+public abstract class AbstractTableDetailsLayout<T extends ProxyNamedEntity> extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 

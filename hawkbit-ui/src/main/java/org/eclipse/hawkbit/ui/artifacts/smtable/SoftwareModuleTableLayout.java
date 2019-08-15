@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.AbstractTableLayout;
 import org.eclipse.hawkbit.ui.dd.criteria.UploadViewClientCriterion;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
@@ -23,7 +24,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Software module table layout. (Upload Management)
  */
-public class SoftwareModuleTableLayout extends AbstractTableLayout<SoftwareModuleTable> {
+public class SoftwareModuleTableLayout extends AbstractTableLayout<ProxySoftwareModule> {
 
     private static final long serialVersionUID = 1L;
 

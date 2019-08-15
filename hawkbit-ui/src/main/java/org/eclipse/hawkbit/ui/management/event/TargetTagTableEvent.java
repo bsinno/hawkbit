@@ -10,14 +10,14 @@ package org.eclipse.hawkbit.ui.management.event;
 
 import java.util.Collection;
 
-import org.eclipse.hawkbit.repository.model.TargetTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 
 /**
  * Event for target tag table
  */
-public class TargetTagTableEvent extends BaseUIEntityEvent<TargetTag> {
+public class TargetTagTableEvent extends BaseUIEntityEvent<ProxyTag> {
 
     /**
      * Constructor
@@ -27,7 +27,7 @@ public class TargetTagTableEvent extends BaseUIEntityEvent<TargetTag> {
      * @param entity
      *            the created entity.
      */
-    public TargetTagTableEvent(final BaseEntityEventType eventType, final TargetTag entity) {
+    public TargetTagTableEvent(final BaseEntityEventType eventType, final ProxyTag entity) {
         super(eventType, entity);
     }
 
@@ -40,7 +40,7 @@ public class TargetTagTableEvent extends BaseUIEntityEvent<TargetTag> {
      *            the entity ids
      */
     public TargetTagTableEvent(final BaseEntityEventType eventType, final Collection<Long> entityIds) {
-        super(eventType, entityIds, TargetTag.class);
+        super(eventType, entityIds, ProxyTag.class);
     }
 
 }

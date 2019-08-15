@@ -25,6 +25,7 @@ import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent.SoftwareModule
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -46,19 +47,19 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.google.common.collect.Maps;
-import com.vaadin.v7.data.Container;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.Table;
 import com.vaadin.v7.ui.Table.ColumnGenerator;
 import com.vaadin.v7.ui.Table.TableDragMode;
-import com.vaadin.ui.UI;
 import com.vaadin.v7.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Display the details of the artifacts for a selected software module.
@@ -341,7 +342,6 @@ public class ArtifactDetailsLayout extends VerticalLayout {
         final Table detailsTable = new Table();
         detailsTable.addStyleName("sp-table");
 
-
         detailsTable.setSizeFull();
 
         detailsTable.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_DETAILS_TABLE);
@@ -415,7 +415,7 @@ public class ArtifactDetailsLayout extends VerticalLayout {
      * @param softwareModule
      *            software module
      */
-    public void populateArtifactDetails(final SoftwareModule softwareModule) {
+    public void populateArtifactDetails(final ProxySoftwareModule softwareModule) {
         if (softwareModule == null) {
             populateArtifactDetails(null, null);
         } else {

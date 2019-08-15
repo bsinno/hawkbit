@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.AbstractNotificationView;
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
@@ -43,7 +44,7 @@ import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.state.DistributionTableFilters;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.targettable.TargetTable;
+import org.eclipse.hawkbit.ui.management.targettable.TargetGrid;
 import org.eclipse.hawkbit.ui.management.targettable.TargetTableLayout;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayout;
 import org.eclipse.hawkbit.ui.menu.DashboardMenuItem;
@@ -148,13 +149,14 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
                     managementViewClientCriterion, permChecker, eventBus, uiNotification, entityFactory,
                     targetFilterQueryManagement, targetTagManagement);
 
-            final TargetTable targetTable = new TargetTable(eventBus, i18n, uiNotification, targetManagement,
-                    managementUIState, permChecker, managementViewClientCriterion, distributionSetManagement,
-                    targetTagManagement, deploymentManagement, configManagement, systemSecurityContext, uiProperties);
+            final TargetGrid targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement,
+                    managementUIState, permChecker, deploymentManagement, configManagement, systemSecurityContext,
+                    uiProperties);
 
             this.countMessageLabel = new CountMessageLabel(eventBus, targetManagement, i18n, managementUIState,
-                    targetTable);
-            this.targetTableLayout = new TargetTableLayout(eventBus, targetTable, targetManagement, entityFactory, i18n,
+                    targetGrid.getDataCommunicator());
+
+            this.targetTableLayout = new TargetTableLayout(eventBus, targetGrid, targetManagement, entityFactory, i18n,
                     uiNotification, managementUIState, managementViewClientCriterion, deploymentManagement,
                     uiProperties, permChecker, targetTagManagement, distributionSetManagement, uiExecutor);
 
@@ -200,8 +202,12 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
     @Override
     public void enter(final ViewChangeEvent event) {
         if (permChecker.hasReadRepositoryPermission()) {
-            distributionTableLayout.getDistributionTable()
-                    .selectEntity(managementUIState.getLastSelectedDsIdName().orElse(null));
+            managementUIState.getLastSelectedDsIdName().ifPresent(lastSeletedDsId -> {
+                final ProxyDistributionSet dsToSelect = new ProxyDistributionSet();
+                dsToSelect.setId(lastSeletedDsId);
+
+                distributionTableLayout.getDistributionGrid().select(dsToSelect);
+            });
         }
     }
 

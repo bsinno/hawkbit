@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractTableDetailsLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.TargetMetadataDetailsLayout;
 import org.eclipse.hawkbit.ui.common.tagdetails.TargetTagToken;
@@ -37,22 +38,22 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.TextField;
-import com.vaadin.ui.UI;
 import com.vaadin.v7.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Target details layout which is shown on the Deployment View.
  */
-public class TargetDetails extends AbstractTableDetailsLayout<Target> {
+public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
 
     private static final long serialVersionUID = 1L;
 
@@ -78,13 +79,12 @@ public class TargetDetails extends AbstractTableDetailsLayout<Target> {
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
             final UINotification uiNotification, final TargetTagManagement tagManagement,
             final TargetManagement targetManagement, final TargetMetadataPopupLayout targetMetadataPopupLayout,
-            final DeploymentManagement deploymentManagement, final EntityFactory entityFactory,
-            final TargetTable targetTable) {
+            final DeploymentManagement deploymentManagement, final EntityFactory entityFactory) {
         super(i18n, eventBus, permissionChecker, managementUIState);
         this.targetTagToken = new TargetTagToken(permissionChecker, i18n, uiNotification, eventBus, managementUIState,
                 tagManagement, targetManagement);
         this.targetAddUpdateWindowLayout = new TargetAddUpdateWindowLayout(i18n, targetManagement, eventBus,
-                uiNotification, entityFactory, targetTable);
+                uiNotification, entityFactory);
         this.uiNotification = uiNotification;
         this.targetManagement = targetManagement;
         this.deploymentManagement = deploymentManagement;

@@ -13,9 +13,11 @@ import java.util.Set;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
-import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -31,16 +33,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus;
 
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.Table;
 import com.vaadin.v7.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Software module details table.
@@ -142,7 +144,7 @@ public class SoftwareModuleDetailsTable extends Table {
      * 
      * @param distributionSet
      */
-    public void populateModule(final DistributionSet distributionSet) {
+    public void populateModule(final ProxyDistributionSet distributionSet) {
         removeAllItems();
         if (distributionSet != null) {
             if (isUnassignSoftModAllowed && permissionChecker.hasUpdateRepositoryPermission()) {
@@ -173,8 +175,8 @@ public class SoftwareModuleDetailsTable extends Table {
     }
 
     private void setSwModuleProperties(final SoftwareModuleType swModType, final Boolean isMandatory,
-            final DistributionSet distributionSet) {
-        final Set<SoftwareModule> alreadyAssignedSwModules = distributionSet.getModules();
+            final ProxyDistributionSet distributionSet) {
+        final Set<ProxySoftwareModule> alreadyAssignedSwModules = distributionSet.getModules();
         final Item saveTblitem = getContainerDataSource().addItem(swModType.getName());
         final Label mandatoryLabel = createMandatoryLabel(isMandatory);
         final Label typeName = HawkbitCommonUtil.getFormatedLabel(swModType.getName());
@@ -186,9 +188,9 @@ public class SoftwareModuleDetailsTable extends Table {
         saveTblitem.getItemProperty(SOFT_MODULE).setValue(verticalLayout);
     }
 
-    private void unassignSW(final ClickEvent event, final DistributionSet distributionSet,
-            final Set<SoftwareModule> alreadyAssignedSwModules) {
-        final SoftwareModule unAssignedSw = getSoftwareModule(event.getButton().getId(), alreadyAssignedSwModules);
+    private void unassignSW(final ClickEvent event, final ProxyDistributionSet distributionSet,
+            final Set<ProxySoftwareModule> alreadyAssignedSwModules) {
+        final ProxySoftwareModule unAssignedSw = getSoftwareModule(event.getButton().getId(), alreadyAssignedSwModules);
         if (distributionSetManagement.isInUse(distributionSet.getId())) {
             uiNotification.displayValidationError(i18n.getMessage("message.error.notification.ds.target.assigned",
                     distributionSet.getName(), distributionSet.getVersion()));
@@ -196,15 +198,16 @@ public class SoftwareModuleDetailsTable extends Table {
             final DistributionSet newDistributionSet = distributionSetManagement
                     .unassignSoftwareModule(distributionSet.getId(), unAssignedSw.getId());
             manageDistUIState.setLastSelectedEntityId(newDistributionSet.getId());
-            eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY, newDistributionSet));
+            eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY,
+                    new DistributionSetToProxyDistributionMapper().map(newDistributionSet)));
             eventBus.publish(this, DistributionsUIEvent.ORDER_BY_DISTRIBUTION);
             uiNotification.displaySuccess(i18n.getMessage("message.sw.unassigned", unAssignedSw.getName()));
         }
     }
 
-    private static boolean isSoftModAvaiableForSoftType(final Set<SoftwareModule> swModulesSet,
+    private static boolean isSoftModAvaiableForSoftType(final Set<ProxySoftwareModule> swModulesSet,
             final SoftwareModuleType swModType) {
-        for (final SoftwareModule sw : swModulesSet) {
+        for (final ProxySoftwareModule sw : swModulesSet) {
             if (swModType.getName().equals(sw.getType().getName())) {
                 return true;
             }
@@ -215,9 +218,9 @@ public class SoftwareModuleDetailsTable extends Table {
     }
 
     private VerticalLayout createSoftModuleLayout(final SoftwareModuleType swModType,
-            final DistributionSet distributionSet, final Set<SoftwareModule> alreadyAssignedSwModules) {
+            final ProxyDistributionSet distributionSet, final Set<ProxySoftwareModule> alreadyAssignedSwModules) {
         final VerticalLayout verticalLayout = new VerticalLayout();
-        for (final SoftwareModule sw : alreadyAssignedSwModules) {
+        for (final ProxySoftwareModule sw : alreadyAssignedSwModules) {
             if (swModType.getKey().equals(sw.getType().getKey())) {
                 final HorizontalLayout horizontalLayout = new HorizontalLayout();
                 horizontalLayout.setSizeFull();
@@ -250,9 +253,9 @@ public class SoftwareModuleDetailsTable extends Table {
      * @param alreadyAssignedSwModules
      * @return
      */
-    protected SoftwareModule getSoftwareModule(final String softwareModule,
-            final Set<SoftwareModule> alreadyAssignedSwModules) {
-        for (final SoftwareModule sw : alreadyAssignedSwModules) {
+    protected ProxySoftwareModule getSoftwareModule(final String softwareModule,
+            final Set<ProxySoftwareModule> alreadyAssignedSwModules) {
+        for (final ProxySoftwareModule sw : alreadyAssignedSwModules) {
             if (softwareModule.equals(sw.getName())) {
                 return sw;
             }

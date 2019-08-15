@@ -17,12 +17,14 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.tagdetails.DistributionTagToken;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -31,17 +33,16 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Abstract class which contains common code for Distribution Set Details
  *
  */
-public abstract class AbstractDistributionSetDetails
-        extends AbstractNamedVersionedEntityTableDetailsLayout<DistributionSet> {
+public abstract class AbstractDistributionSetDetails extends AbstractTableDetailsLayout<ProxyDistributionSet> {
 
     private static final long serialVersionUID = 1L;
 
@@ -140,6 +141,12 @@ public abstract class AbstractDistributionSetDetails
             return;
         }
         UI.getCurrent().addWindow(dsMetadataPopupLayout.getWindow(ds.get(), null));
+    }
+
+    @Override
+    protected String getName() {
+        return HawkbitCommonUtil.getFormattedNameVersion(getSelectedBaseEntity().getName(),
+                getSelectedBaseEntity().getVersion());
     }
 
     private final void addDetailsTab() {

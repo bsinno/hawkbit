@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.table.AbstractTableLayout;
 import org.eclipse.hawkbit.ui.dd.criteria.DistributionsViewClientCriterion;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
@@ -29,7 +30,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * DistributionSet table layout.
  */
-public class DistributionSetTableLayout extends AbstractTableLayout<DistributionSetTable> {
+public class DistributionSetTableLayout extends AbstractTableLayout<ProxyDistributionSet> {
 
     private static final long serialVersionUID = 1L;
 

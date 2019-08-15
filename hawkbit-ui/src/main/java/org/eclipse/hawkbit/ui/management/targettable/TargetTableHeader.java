@@ -52,12 +52,12 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.Table;
-import com.vaadin.v7.ui.Table.TableTransferable;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.Table.TableTransferable;
 
 /**
  * Target table header layout.
@@ -84,12 +84,12 @@ public class TargetTableHeader extends AbstractTableHeader {
             final DeploymentManagement deploymentManagement, final UiProperties uiproperties,
             final EntityFactory entityFactory, final UINotification uiNotification,
             final TargetTagManagement tagManagement, final DistributionSetManagement distributionSetManagement,
-            final Executor uiExecutor, final TargetTable targetTable) {
+            final Executor uiExecutor) {
         super(i18n, permChecker, eventBus, managementUIState, null, null);
         this.notification = notification;
         this.managementViewClientCriterion = managementViewClientCriterion;
         this.targetAddUpdateWindow = new TargetAddUpdateWindowLayout(i18n, targetManagement, eventBus, uiNotification,
-                entityFactory, targetTable);
+                entityFactory);
         this.targetBulkUpdateWindow = new TargetBulkUpdateWindowLayout(i18n, targetManagement, eventBus,
                 managementUIState, deploymentManagement, uiproperties, permChecker, uiNotification, tagManagement,
                 distributionSetManagement, entityFactory, uiExecutor);
