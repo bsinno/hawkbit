@@ -8,10 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
-import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.management.state.TargetTableFilters;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -22,14 +20,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 public class TargetToProxyTargetMapper extends AbstractNamedEntityToProxyNamedEntityMapper<ProxyTarget, Target> {
 
     private final transient VaadinMessageSource i18n;
-    private final transient DeploymentManagement deploymentManagement;
-    private final TargetTableFilters managementUIState;
 
-    public TargetToProxyTargetMapper(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
-            final TargetTableFilters managementUIState) {
+    public TargetToProxyTargetMapper(final VaadinMessageSource i18n) {
         this.i18n = i18n;
-        this.deploymentManagement = deploymentManagement;
-        this.managementUIState = managementUIState;
     }
 
     @Override
@@ -45,20 +38,6 @@ public class TargetToProxyTargetMapper extends AbstractNamedEntityToProxyNamedEn
         proxyTarget.setUpdateStatus(target.getUpdateStatus());
         proxyTarget.setPollStatusToolTip(HawkbitCommonUtil.getPollStatusToolTip(target.getPollStatus(), i18n));
 
-        if (getPinnedDistIdFromUiState() == null) {
-            proxyTarget.setInstalledDistributionSet(null);
-            proxyTarget.setAssignedDistributionSet(null);
-        } else {
-            deploymentManagement.getAssignedDistributionSet(target.getControllerId())
-                    .ifPresent(proxyTarget::setAssignedDistributionSet);
-            deploymentManagement.getInstalledDistributionSet(target.getControllerId())
-                    .ifPresent(proxyTarget::setInstalledDistributionSet);
-        }
-
         return proxyTarget;
-    }
-
-    private Long getPinnedDistIdFromUiState() {
-        return managementUIState.getPinnedDistId().orElse(null);
     }
 }

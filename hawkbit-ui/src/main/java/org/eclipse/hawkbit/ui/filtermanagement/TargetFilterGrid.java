@@ -105,6 +105,11 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
     }
 
     @Override
+    protected boolean doSubscribeToEventBus() {
+        return true;
+    }
+
+    @Override
     public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, SearchTextFilterParams> getFilterDataProvider() {
         return targetFilterDataProvider;
     }

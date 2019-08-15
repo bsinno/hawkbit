@@ -93,6 +93,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private final ManagementUIState managementUIState;
     private final transient TargetManagement targetManagement;
+    private final transient DeploymentManagement deploymentManagement;
 
     private final Map<TargetUpdateStatus, FontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
@@ -112,9 +113,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         this.managementUIState = managementUIState;
         this.targetManagement = targetManagement;
+        this.deploymentManagement = deploymentManagement;
 
-        this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n, deploymentManagement,
-                managementUIState.getTargetTableFilters());
+        this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n);
         this.targetDataProvider = new TargetManagementStateDataProvider(targetManagement, managementUIState,
                 targetToProxyTargetMapper).withConfigurableFilter();
 
@@ -324,7 +325,19 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      */
     public void updateTarget(final Target updatedTarget) {
         if (updatedTarget != null) {
-            getDataProvider().refreshItem(targetToProxyTargetMapper.map(updatedTarget));
+            final ProxyTarget targetToBeUpdated = targetToProxyTargetMapper.map(updatedTarget);
+
+            if (getPinnedDistIdFromUiState() == null) {
+                targetToBeUpdated.setInstalledDistributionSet(null);
+                targetToBeUpdated.setAssignedDistributionSet(null);
+            } else {
+                deploymentManagement.getAssignedDistributionSet(updatedTarget.getControllerId())
+                        .ifPresent(targetToBeUpdated::setAssignedDistributionSet);
+                deploymentManagement.getInstalledDistributionSet(updatedTarget.getControllerId())
+                        .ifPresent(targetToBeUpdated::setInstalledDistributionSet);
+            }
+
+            getDataProvider().refreshItem(targetToBeUpdated);
         }
     }
 
