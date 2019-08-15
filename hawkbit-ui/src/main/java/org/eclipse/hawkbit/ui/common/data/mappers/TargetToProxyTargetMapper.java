@@ -37,6 +37,7 @@ public class TargetToProxyTargetMapper extends AbstractNamedEntityToProxyNamedEn
         proxyTarget.setLastTargetQuery(target.getLastTargetQuery());
         proxyTarget.setUpdateStatus(target.getUpdateStatus());
         proxyTarget.setPollStatusToolTip(HawkbitCommonUtil.getPollStatusToolTip(target.getPollStatus(), i18n));
+        proxyTarget.setSecurityToken(target.getSecurityToken());
 
         return proxyTarget;
     }

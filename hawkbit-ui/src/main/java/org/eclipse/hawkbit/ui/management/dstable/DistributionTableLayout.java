@@ -20,9 +20,11 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.table.AbstractTableLayout;
 import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
+import org.eclipse.hawkbit.ui.management.ds.DistributionGrid;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -31,11 +33,11 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Distribution Set table layout which is shown on the Distribution View
  */
-public class DistributionTableLayout extends AbstractTableLayout<DistributionTable> {
+public class DistributionTableLayout extends AbstractTableLayout<ProxyDistributionSet> {
 
     private static final long serialVersionUID = 1L;
 
-    private final DistributionTable distributionTable;
+    private final DistributionGrid distributionGrid;
 
     public DistributionTableLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
@@ -55,19 +57,18 @@ public class DistributionTableLayout extends AbstractTableLayout<DistributionTab
         final DsMetadataPopupLayout dsMetadataPopupLayout = new DsMetadataPopupLayout(i18n, notification, eventBus,
                 distributionSetManagement, entityFactory, permissionChecker);
 
-        this.distributionTable = new DistributionTable(eventBus, i18n, permissionChecker, notification,
-                managementUIState, managementViewClientCriterion, targetManagement, distributionSetManagement,
-                deploymentManagement, targetTagManagement, uiProperties);
+        this.distributionGrid = new DistributionGrid(eventBus, i18n, permissionChecker, notification, managementUIState,
+                targetManagement, distributionSetManagement, deploymentManagement, uiProperties);
 
         super.init(i18n, new DistributionTableHeader(i18n, permissionChecker, eventBus, managementUIState),
-                distributionTable,
+                distributionGrid,
                 new DistributionDetails(i18n, eventBus, permissionChecker, managementUIState, distributionSetManagement,
                         dsMetadataPopupLayout, notification, distributionSetTagManagement,
                         distributionAddUpdateWindowLayout, configManagement, systemSecurityContext));
     }
 
-    public DistributionTable getDistributionTable() {
-        return distributionTable;
+    public DistributionGrid getDistributionGrid() {
+        return distributionGrid;
     }
 
 }

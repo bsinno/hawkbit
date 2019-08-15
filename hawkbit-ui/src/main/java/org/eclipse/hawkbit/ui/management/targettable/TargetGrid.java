@@ -105,10 +105,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final ManagementUIState managementUIState,
-            final SpPermissionChecker permChecker, final ManagementViewClientCriterion managementViewClientCriterion,
-            final DistributionSetManagement distributionSetManagement, final TargetTagManagement tagManagement,
-            final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,
-            final SystemSecurityContext systemSecurityContext, final UiProperties uiProperties) {
+            final SpPermissionChecker permChecker, final DeploymentManagement deploymentManagement,
+            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
+            final UiProperties uiProperties) {
         super(i18n, eventBus, permChecker);
 
         this.managementUIState = managementUIState;
@@ -225,8 +224,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private void publishTargetSelectedEntityForRefresh(
             final Stream<? extends RemoteEntityEvent<Target>> targetEntityEventStream) {
         targetEntityEventStream.filter(event -> isLastSelectedTarget(event.getEntityId())).filter(Objects::nonNull)
-                .findAny().ifPresent(event -> eventBus.publish(this,
-                        new TargetTableEvent(BaseEntityEventType.SELECTED_ENTITY, event.getEntity())));
+                .findAny()
+                .ifPresent(event -> eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.SELECTED_ENTITY,
+                        targetToProxyTargetMapper.map(event.getEntity()))));
     }
 
     private boolean isLastSelectedTarget(final Long targetId) {
@@ -323,21 +323,19 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      * @param updatedTarget
      *            as reference
      */
-    public void updateTarget(final Target updatedTarget) {
+    public void updateTarget(final ProxyTarget updatedTarget) {
         if (updatedTarget != null) {
-            final ProxyTarget targetToBeUpdated = targetToProxyTargetMapper.map(updatedTarget);
-
             if (getPinnedDistIdFromUiState() == null) {
-                targetToBeUpdated.setInstalledDistributionSet(null);
-                targetToBeUpdated.setAssignedDistributionSet(null);
+                updatedTarget.setInstalledDistributionSet(null);
+                updatedTarget.setAssignedDistributionSet(null);
             } else {
                 deploymentManagement.getAssignedDistributionSet(updatedTarget.getControllerId())
-                        .ifPresent(targetToBeUpdated::setAssignedDistributionSet);
+                        .ifPresent(updatedTarget::setAssignedDistributionSet);
                 deploymentManagement.getInstalledDistributionSet(updatedTarget.getControllerId())
-                        .ifPresent(targetToBeUpdated::setInstalledDistributionSet);
+                        .ifPresent(updatedTarget::setInstalledDistributionSet);
             }
 
-            getDataProvider().refreshItem(targetToBeUpdated);
+            getDataProvider().refreshItem(updatedTarget);
         }
     }
 
@@ -379,6 +377,11 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         } else if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
                 || BaseEntityEventType.REMOVE_ENTITY == event.getEventType()) {
             UI.getCurrent().access(this::refreshContainer);
+
+            // TODO: check selection/deselection, refactor if neccessary
+            if (BaseEntityEventType.ADD_ENTITY == event.getEventType()) {
+                select(event.getEntity());
+            }
         }
     }
 

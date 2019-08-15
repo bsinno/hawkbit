@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.management.event;
 
 import java.util.Collection;
 
-import org.eclipse.hawkbit.repository.model.Target;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 
@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
  * Class which contains the TenantAwareEvent when selecting all entries of the
  * target table
  */
-public class TargetTableEvent extends BaseUIEntityEvent<Target> {
+public class TargetTableEvent extends BaseUIEntityEvent<ProxyTarget> {
 
     /**
      * Target table components events.
@@ -48,7 +48,7 @@ public class TargetTableEvent extends BaseUIEntityEvent<Target> {
      * @param entity
      *            the entity
      */
-    public TargetTableEvent(final BaseEntityEventType eventType, final Target entity) {
+    public TargetTableEvent(final BaseEntityEventType eventType, final ProxyTarget entity) {
         super(eventType, entity);
     }
 
@@ -61,7 +61,7 @@ public class TargetTableEvent extends BaseUIEntityEvent<Target> {
      *            the entity ids
      */
     public TargetTableEvent(final BaseEntityEventType eventType, final Collection<Long> entityIds) {
-        super(eventType, entityIds, Target.class);
+        super(eventType, entityIds, ProxyTarget.class);
     }
 
     /**

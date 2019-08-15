@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 import java.security.SecureRandom;
 
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 
 /**
  * Proxy for {@link SoftwareModule} to display details in Software modules
@@ -27,6 +28,9 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
     private Long swId;
 
     private String vendor;
+
+    // TODO: can ProxyType be used here?
+    private SoftwareModuleType type;
 
     /**
      * Default constructor.
@@ -57,5 +61,13 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
 
     public void setNameAndVersion(final String nameAndVersion) {
         this.nameAndVersion = nameAndVersion;
+    }
+
+    public SoftwareModuleType getType() {
+        return type;
+    }
+
+    public void setType(SoftwareModuleType type) {
+        this.type = type;
     }
 }

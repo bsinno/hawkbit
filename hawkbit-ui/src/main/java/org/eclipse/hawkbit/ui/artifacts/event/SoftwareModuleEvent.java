@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 
@@ -19,7 +20,7 @@ import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
  * TenantAwareEvent to represent software add, update or delete.
  *
  */
-public class SoftwareModuleEvent extends BaseUIEntityEvent<SoftwareModule> {
+public class SoftwareModuleEvent extends BaseUIEntityEvent<ProxySoftwareModule> {
 
     /**
      * Software module events in the Upload UI.
@@ -49,7 +50,7 @@ public class SoftwareModuleEvent extends BaseUIEntityEvent<SoftwareModule> {
      * @param softwareModule
      *            the module
      */
-    public SoftwareModuleEvent(final BaseEntityEventType entityEventType, final SoftwareModule softwareModule) {
+    public SoftwareModuleEvent(final BaseEntityEventType entityEventType, final ProxySoftwareModule softwareModule) {
         super(entityEventType, softwareModule);
     }
 
@@ -62,7 +63,7 @@ public class SoftwareModuleEvent extends BaseUIEntityEvent<SoftwareModule> {
      *            the entity ids
      */
     public SoftwareModuleEvent(final BaseEntityEventType eventType, final Collection<Long> entityIds) {
-        super(eventType, entityIds, SoftwareModule.class);
+        super(eventType, entityIds, ProxySoftwareModule.class);
     }
 
     /**
@@ -74,7 +75,7 @@ public class SoftwareModuleEvent extends BaseUIEntityEvent<SoftwareModule> {
      *            the module
      */
     public SoftwareModuleEvent(final SoftwareModuleEventType softwareModuleEventType,
-            final SoftwareModule softwareModule) {
+            final ProxySoftwareModule softwareModule) {
         super(null, softwareModule);
         this.softwareModuleEventType = softwareModuleEventType;
     }
@@ -88,7 +89,7 @@ public class SoftwareModuleEvent extends BaseUIEntityEvent<SoftwareModule> {
      *            the id of the {@link SoftwareModule}
      */
     public SoftwareModuleEvent(final SoftwareModuleEventType softwareModuleEventType, final long softwareModuleId) {
-        super(null, Arrays.asList(softwareModuleId), SoftwareModule.class);
+        super(null, Arrays.asList(softwareModuleId), ProxySoftwareModule.class);
         this.softwareModuleEventType = softwareModuleEventType;
     }
 

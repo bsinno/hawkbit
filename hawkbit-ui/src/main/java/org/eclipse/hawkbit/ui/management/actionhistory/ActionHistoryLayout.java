@@ -11,9 +11,9 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
-import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader.AbstractHeaderMaximizeSupport;
@@ -46,7 +46,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
     private final ActionHistoryHeader actionHistoryHeader;
     private final ActionHistoryGrid actionHistoryGrid;
 
-    private final MasterDetailsSupport<Target, String> masterDetailsSupport;
+    private final MasterDetailsSupport<ProxyTarget, String> masterDetailsSupport;
 
     /**
      * Constructor.
@@ -69,11 +69,11 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
         this.actionHistoryGrid = new ActionHistoryGrid(getI18n(), deploymentManagement, getEventBus(), notification,
                 managementUIState, permChecker);
 
-        this.masterDetailsSupport = new MasterDetailsSupport<Target, String>(actionHistoryGrid) {
+        this.masterDetailsSupport = new MasterDetailsSupport<ProxyTarget, String>(actionHistoryGrid) {
 
             // TODO: check if Target controllerId could be changed to Id
             @Override
-            protected String mapMasterItemToDetailsFilter(final Target masterItem) {
+            protected String mapMasterItemToDetailsFilter(final ProxyTarget masterItem) {
                 actionHistoryGrid.setSelectedMasterTarget(masterItem);
                 return masterItem.getControllerId();
             }
@@ -134,7 +134,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
      * @param target
      *            the target
      */
-    private void populateActionHistoryDetails(final Target target) {
+    private void populateActionHistoryDetails(final ProxyTarget target) {
         if (null != target) {
             actionHistoryHeader.updateActionHistoryHeader(target.getName());
             masterDetailsSupport.masterItemChangedCallback(target);
@@ -151,7 +151,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
         masterDetailsSupport.masterItemChangedCallback(null);
     }
 
-    public MasterDetailsSupport<Target, String> getMasterDetailsSupport() {
+    public MasterDetailsSupport<ProxyTarget, String> getMasterDetailsSupport() {
         return masterDetailsSupport;
     }
 

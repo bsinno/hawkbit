@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.event;
 
-import org.eclipse.hawkbit.repository.model.Target;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 
@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
  *
  *
  */
-public class TargetAddUpdateWindowEvent extends BaseUIEntityEvent<Target> {
+public class TargetAddUpdateWindowEvent extends BaseUIEntityEvent<ProxyTarget> {
 
     /**
      * Constructor.
@@ -28,7 +28,7 @@ public class TargetAddUpdateWindowEvent extends BaseUIEntityEvent<Target> {
      * @param entity
      *            the entity
      */
-    public TargetAddUpdateWindowEvent(final BaseEntityEventType eventType, final Target entity) {
+    public TargetAddUpdateWindowEvent(final BaseEntityEventType eventType, final ProxyTarget entity) {
         super(eventType, entity);
     }
 

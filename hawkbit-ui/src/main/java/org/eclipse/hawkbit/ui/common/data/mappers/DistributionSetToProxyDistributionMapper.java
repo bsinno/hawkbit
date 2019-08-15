@@ -8,9 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
+import java.util.stream.Collectors;
+
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Maps {@link DistributionSet} entities, fetched from backend, to the
@@ -30,6 +33,20 @@ public class DistributionSetToProxyDistributionMapper
         proxyDistribution.setNameVersion(
                 HawkbitCommonUtil.getFormattedNameVersion(distributionSet.getName(), distributionSet.getVersion()));
         proxyDistribution.setIsComplete(distributionSet.isComplete());
+        proxyDistribution.setType(distributionSet.getType());
+        proxyDistribution.setRequiredMigrationStep(distributionSet.isRequiredMigrationStep());
+
+        // TODO: check if really needed
+        if (!CollectionUtils.isEmpty(distributionSet.getModules())) {
+            proxyDistribution.setModules(distributionSet.getModules().stream()
+                    .map(sm -> new SoftwareModuleToProxyMapper().map(sm)).collect(Collectors.toSet()));
+        }
+
+        // TODO: check if really needed
+        if (!CollectionUtils.isEmpty(distributionSet.getAutoAssignFilters())) {
+            proxyDistribution.setAutoAssignFilters(distributionSet.getAutoAssignFilters().stream()
+                    .map(tf -> new TargetFilterQueryToProxyTargetFilterMapper().map(tf)).collect(Collectors.toList()));
+        }
 
         return proxyDistribution;
     }

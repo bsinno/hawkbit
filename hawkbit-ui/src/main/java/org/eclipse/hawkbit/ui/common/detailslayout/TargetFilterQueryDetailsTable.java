@@ -10,16 +10,16 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.List;
 
-import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.data.Container;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.v7.ui.Table;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * DistributionSet TargetFilterQuery table
@@ -45,7 +45,7 @@ public class TargetFilterQueryDetailsTable extends Table {
      * @param distributionSet
      *            the selected distribution set
      */
-    public void populateTableByDistributionSet(final DistributionSet distributionSet) {
+    public void populateTableByDistributionSet(final ProxyDistributionSet distributionSet) {
         removeAllItems();
         if (distributionSet == null) {
             return;

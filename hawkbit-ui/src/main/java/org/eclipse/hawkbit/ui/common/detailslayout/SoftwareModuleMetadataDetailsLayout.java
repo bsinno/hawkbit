@@ -11,8 +11,8 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleMetadata;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -57,7 +57,7 @@ public class SoftwareModuleMetadataDetailsLayout extends AbstractMetadataDetails
      * 
      * @param swModule
      */
-    public void populateSMMetadata(final SoftwareModule swModule) {
+    public void populateSMMetadata(final ProxySoftwareModule swModule) {
         removeAllItems();
         if (null == swModule) {
             return;

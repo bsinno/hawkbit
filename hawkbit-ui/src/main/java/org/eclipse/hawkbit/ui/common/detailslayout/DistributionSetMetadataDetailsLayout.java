@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
-import org.eclipse.hawkbit.repository.model.DistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -55,7 +55,7 @@ public class DistributionSetMetadataDetailsLayout extends AbstractMetadataDetail
      *
      * @param distributionSet
      */
-    public void populateDSMetadata(final DistributionSet distributionSet) {
+    public void populateDSMetadata(final ProxyDistributionSet distributionSet) {
         removeAllItems();
         if (null == distributionSet) {
             return;

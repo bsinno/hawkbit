@@ -28,13 +28,12 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.google.common.collect.Sets;
-import com.vaadin.v7.data.validator.RegexpValidator;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Window;
+import com.vaadin.v7.data.validator.RegexpValidator;
 import com.vaadin.v7.ui.TextArea;
 import com.vaadin.v7.ui.TextField;
-import com.vaadin.ui.Window;
 
 /**
  * Add and Update Target.
@@ -61,17 +60,13 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
     private FormLayout formLayout;
     private CommonDialogWindowV7 window;
 
-    private final TargetTable targetTable;
-
     TargetAddUpdateWindowLayout(final VaadinMessageSource i18n, final TargetManagement targetManagement,
-            final UIEventBus eventBus, final UINotification uINotification, final EntityFactory entityFactory,
-            final TargetTable targetTable) {
+            final UIEventBus eventBus, final UINotification uINotification, final EntityFactory entityFactory) {
         this.i18n = i18n;
         this.targetManagement = targetManagement;
         this.eventBus = eventBus;
         this.uINotification = uINotification;
         this.entityFactory = entityFactory;
-        this.targetTable = targetTable;
         createRequiredComponents();
         buildLayout();
         setCompositionRoot(formLayout);
@@ -145,7 +140,6 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
 
         eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.ADD_ENTITY, newTarget));
         uINotification.displaySuccess(i18n.getMessage("message.save.success", newTarget.getName()));
-        targetTable.setValue(Sets.newHashSet(newTarget.getId()));
     }
 
     public Window createNewWindow() {

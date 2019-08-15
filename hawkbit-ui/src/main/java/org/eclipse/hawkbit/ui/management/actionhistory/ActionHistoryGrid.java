@@ -19,13 +19,13 @@ import org.eclipse.hawkbit.repository.event.remote.entity.CancelTargetAssignment
 import org.eclipse.hawkbit.repository.exception.CancelActionNotAllowedException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Action.Status;
-import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionToProxyActionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
@@ -88,8 +88,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private final Map<IsActiveDecoration, FontIcon> activeStatusIconMap = new EnumMap<>(IsActiveDecoration.class);
     private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    // TODO: change to ProxyTarget
-    private Target selectedMasterTarget;
+    private ProxyTarget selectedMasterTarget;
 
     private final ConfigurableFilterDataProvider<ProxyAction, Void, String> actionDataProvider;
 
@@ -533,7 +532,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         return false;
     }
 
-    public void setSelectedMasterTarget(final Target selectedMasterTarget) {
+    public void setSelectedMasterTarget(final ProxyTarget selectedMasterTarget) {
         this.selectedMasterTarget = selectedMasterTarget;
     }
 

@@ -13,7 +13,7 @@ import java.util.Collection;
 
 import org.eclipse.hawkbit.repository.event.TenantAwareEvent;
 import org.eclipse.hawkbit.repository.event.remote.RemoteIdEvent;
-import org.eclipse.hawkbit.repository.model.BaseEntity;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  *
  * * @param <T> entity class
  */
-public class BaseUIEntityEvent<T extends BaseEntity> {
+public class BaseUIEntityEvent<T extends ProxyIdentifiableEntity> {
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseUIEntityEvent.class);
 
@@ -32,7 +32,7 @@ public class BaseUIEntityEvent<T extends BaseEntity> {
 
     private final Collection<Long> entityIds;
 
-    private Class<?> entityClass;
+    private Class<? extends ProxyIdentifiableEntity> entityClass;
 
     /**
      * Base entity event
@@ -63,7 +63,7 @@ public class BaseUIEntityEvent<T extends BaseEntity> {
      *            the entityClass
      */
     public BaseUIEntityEvent(final BaseEntityEventType eventType, final Collection<Long> entityIds,
-            final Class<? extends BaseEntity> class1) {
+            final Class<? extends ProxyIdentifiableEntity> class1) {
         this.eventType = eventType;
         this.entityIds = entityIds;
         this.entityClass = class1;
@@ -96,6 +96,7 @@ public class BaseUIEntityEvent<T extends BaseEntity> {
         final RemoteIdEvent remoteIdEvent = (RemoteIdEvent) tenantAwareEvent;
         try {
             final Class<?> remoteEntityClass = Class.forName(remoteIdEvent.getEntityClass());
+            // TODO: check if it is still working
             return entityClass.isAssignableFrom(remoteEntityClass) && entityIds.contains(remoteIdEvent.getEntityId());
         } catch (final ClassNotFoundException e) {
             LOG.error("Entity Class of remoteIdEvent cannot be found", e);

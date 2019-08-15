@@ -22,6 +22,8 @@ import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
 /**
  * Data provider for {@link Target}, which dynamically loads a batch of
@@ -38,7 +40,7 @@ public class TargetManagementStateDataProvider
 
     public TargetManagementStateDataProvider(final TargetManagement targetManagement,
             final ManagementUIState managementUIState, final TargetToProxyTargetMapper entityMapper) {
-        super(entityMapper);
+        super(entityMapper, new Sort(Direction.DESC, "lastModifiedAt"));
 
         this.targetManagement = targetManagement;
         this.managementUIState = managementUIState;

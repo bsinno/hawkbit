@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.AbstractTableLayout;
 import org.eclipse.hawkbit.ui.dd.criteria.DistributionsViewClientCriterion;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
@@ -26,7 +27,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Implementation of software module Layout on the Distribution View
  */
-public class SwModuleTableLayout extends AbstractTableLayout<SwModuleTable> {
+public class SwModuleTableLayout extends AbstractTableLayout<ProxySoftwareModule> {
 
     private static final long serialVersionUID = 1L;
 

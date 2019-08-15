@@ -13,13 +13,13 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.state.TargetTableFilters;
-import org.eclipse.hawkbit.ui.management.targettable.TargetTable;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -29,6 +29,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.data.provider.DataCommunicator;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.v7.ui.Label;
@@ -47,7 +48,7 @@ public class CountMessageLabel extends Label {
 
     private final ManagementUIState managementUIState;
 
-    private final TargetTable targetTable;
+    private final DataCommunicator<ProxyTarget> targetGridDataCommunicator;
 
     /**
      * Constructor
@@ -60,15 +61,16 @@ public class CountMessageLabel extends Label {
      *            I18N
      * @param managementUIState
      *            ManagementUIState
-     * @param targetTable
-     *            TargetTable
+     * @param targetGridDataCommunicator
+     *            TargetGrid data communicator
      */
     public CountMessageLabel(final UIEventBus eventBus, final TargetManagement targetManagement,
-            final VaadinMessageSource i18n, final ManagementUIState managementUIState, final TargetTable targetTable) {
+            final VaadinMessageSource i18n, final ManagementUIState managementUIState,
+            final DataCommunicator<ProxyTarget> targetGridDataCommunicator) {
         this.targetManagement = targetManagement;
         this.i18n = i18n;
         this.managementUIState = managementUIState;
-        this.targetTable = targetTable;
+        this.targetGridDataCommunicator = targetGridDataCommunicator;
 
         applyStyle();
         eventBus.subscribe(this);
@@ -126,9 +128,10 @@ public class CountMessageLabel extends Label {
             message.append(HawkbitCommonUtil.SP_STRING_PIPE);
             message.append(i18n.getMessage("label.filter.targets"));
             if (managementUIState.getTargetsTruncated() != null) {
-                message.append(targetTable.size() + managementUIState.getTargetsTruncated());
+                message.append(
+                        targetGridDataCommunicator.getDataProviderSize() + managementUIState.getTargetsTruncated());
             } else {
-                message.append(targetTable.size());
+                message.append(targetGridDataCommunicator.getDataProviderSize());
             }
             message.append(HawkbitCommonUtil.SP_STRING_PIPE);
             final String status = i18n.getMessage("label.filter.status");
@@ -154,8 +157,8 @@ public class CountMessageLabel extends Label {
             message.append(filterMesage);
         }
 
-        if ((targetTable.size() + Optional.ofNullable(managementUIState.getTargetsTruncated())
-                .orElse(0L)) > SPUIDefinitions.MAX_TABLE_ENTRIES) {
+        if ((targetGridDataCommunicator.getDataProviderSize() + Optional
+                .ofNullable(managementUIState.getTargetsTruncated()).orElse(0L)) > SPUIDefinitions.MAX_TABLE_ENTRIES) {
             message.append(HawkbitCommonUtil.SP_STRING_PIPE);
             message.append(i18n.getMessage("label.filter.shown"));
             message.append(SPUIDefinitions.MAX_TABLE_ENTRIES);
