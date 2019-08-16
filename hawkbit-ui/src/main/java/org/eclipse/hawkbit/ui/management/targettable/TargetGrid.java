@@ -18,7 +18,9 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
 import org.eclipse.hawkbit.repository.model.Target;
@@ -42,6 +44,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
+import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
@@ -90,6 +93,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private final ManagementUIState managementUIState;
     private final transient TargetManagement targetManagement;
+    private final transient DeploymentManagement deploymentManagement;
 
     private final Map<TargetUpdateStatus, FontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
@@ -108,9 +112,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         this.managementUIState = managementUIState;
         this.targetManagement = targetManagement;
+        this.deploymentManagement = deploymentManagement;
 
-        this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n, deploymentManagement,
-                managementUIState.getTargetTableFilters());
+        this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n);
         this.targetDataProvider = new TargetManagementStateDataProvider(targetManagement, managementUIState,
                 targetToProxyTargetMapper).withConfigurableFilter();
 
@@ -321,6 +325,16 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      */
     public void updateTarget(final ProxyTarget updatedTarget) {
         if (updatedTarget != null) {
+            if (getPinnedDistIdFromUiState() == null) {
+                updatedTarget.setInstalledDistributionSet(null);
+                updatedTarget.setAssignedDistributionSet(null);
+            } else {
+                deploymentManagement.getAssignedDistributionSet(updatedTarget.getControllerId())
+                        .ifPresent(updatedTarget::setAssignedDistributionSet);
+                deploymentManagement.getInstalledDistributionSet(updatedTarget.getControllerId())
+                        .ifPresent(updatedTarget::setInstalledDistributionSet);
+            }
+
             getDataProvider().refreshItem(updatedTarget);
         }
     }

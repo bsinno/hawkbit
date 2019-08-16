@@ -54,7 +54,7 @@ public class FilterManagementView extends VerticalLayout implements View {
 
     private final CreateOrUpdateFilterHeader createNewFilterHeader;
 
-    private final CreateOrUpdateFilterTable createNewFilterTable;
+    private final CreateOrUpdateFilterGrid createNewFilterGrid;
 
     private final FilterManagementUIState filterManagementUIState;
 
@@ -74,7 +74,8 @@ public class FilterManagementView extends VerticalLayout implements View {
         this.createNewFilterHeader = new CreateOrUpdateFilterHeader(i18n, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, permissionChecker, notification, uiProperties, entityFactory,
                 queryTextField);
-        this.createNewFilterTable = new CreateOrUpdateFilterTable(i18n, eventBus, filterManagementUIState);
+        this.createNewFilterGrid = new CreateOrUpdateFilterGrid(i18n, eventBus, targetManagement,
+                filterManagementUIState);
         this.filterManagementUIState = filterManagementUIState;
         this.targetFilterCountMessageLabel = new TargetFilterCountMessageLabel(filterManagementUIState, i18n, eventBus);
         this.eventBus = eventBus;
@@ -136,9 +137,9 @@ public class FilterManagementView extends VerticalLayout implements View {
         tableHeaderLayout.setStyleName("table-layout");
         tableHeaderLayout.addComponent(createNewFilterHeader);
         tableHeaderLayout.setComponentAlignment(createNewFilterHeader, Alignment.TOP_CENTER);
-        tableHeaderLayout.addComponent(createNewFilterTable);
-        tableHeaderLayout.setComponentAlignment(createNewFilterTable, Alignment.TOP_CENTER);
-        tableHeaderLayout.setExpandRatio(createNewFilterTable, 1.0F);
+        tableHeaderLayout.addComponent(createNewFilterGrid);
+        tableHeaderLayout.setComponentAlignment(createNewFilterGrid, Alignment.TOP_CENTER);
+        tableHeaderLayout.setExpandRatio(createNewFilterGrid, 1.0F);
 
         addComponent(tableHeaderLayout);
         setComponentAlignment(tableHeaderLayout, Alignment.TOP_CENTER);
