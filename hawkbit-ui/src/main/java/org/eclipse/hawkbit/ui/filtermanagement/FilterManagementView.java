@@ -54,7 +54,7 @@ public class FilterManagementView extends VerticalLayout implements View {
 
     private final CreateOrUpdateFilterHeader createNewFilterHeader;
 
-    private final CreateOrUpdateFilterGrid createNewFilterGrid;
+    private final CreateOrUpdateFilterTargetGrid createNewFilterTargetGrid;
 
     private final FilterManagementUIState filterManagementUIState;
 
@@ -74,7 +74,7 @@ public class FilterManagementView extends VerticalLayout implements View {
         this.createNewFilterHeader = new CreateOrUpdateFilterHeader(i18n, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, permissionChecker, notification, uiProperties, entityFactory,
                 queryTextField);
-        this.createNewFilterGrid = new CreateOrUpdateFilterGrid(i18n, eventBus, targetManagement,
+        this.createNewFilterTargetGrid = new CreateOrUpdateFilterTargetGrid(i18n, eventBus, targetManagement,
                 filterManagementUIState);
         this.filterManagementUIState = filterManagementUIState;
         this.targetFilterCountMessageLabel = new TargetFilterCountMessageLabel(filterManagementUIState, i18n, eventBus);
@@ -137,9 +137,9 @@ public class FilterManagementView extends VerticalLayout implements View {
         tableHeaderLayout.setStyleName("table-layout");
         tableHeaderLayout.addComponent(createNewFilterHeader);
         tableHeaderLayout.setComponentAlignment(createNewFilterHeader, Alignment.TOP_CENTER);
-        tableHeaderLayout.addComponent(createNewFilterGrid);
-        tableHeaderLayout.setComponentAlignment(createNewFilterGrid, Alignment.TOP_CENTER);
-        tableHeaderLayout.setExpandRatio(createNewFilterGrid, 1.0F);
+        tableHeaderLayout.addComponent(createNewFilterTargetGrid);
+        tableHeaderLayout.setComponentAlignment(createNewFilterTargetGrid, Alignment.TOP_CENTER);
+        tableHeaderLayout.setExpandRatio(createNewFilterTargetGrid, 1.0F);
 
         addComponent(tableHeaderLayout);
         setComponentAlignment(tableHeaderLayout, Alignment.TOP_CENTER);

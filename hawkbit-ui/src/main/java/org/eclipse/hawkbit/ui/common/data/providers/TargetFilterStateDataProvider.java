@@ -12,20 +12,20 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
+import org.eclipse.hawkbit.ui.common.data.filters.SearchTextFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link Target}, which dynamically loads a batch of
  * {@link Target} entities from backend and maps them to corresponding
  * {@link ProxyTarget} entities.
  */
-public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget, Target, Void> {
+public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget, Target, SearchTextFilterParams> {
 
     private static final long serialVersionUID = 1L;
 
@@ -40,28 +40,15 @@ public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget
         this.filterManagementUIState = filterManagementUIState;
     }
 
-    // TODO: use filter instead of uiState
     @Override
-    protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest, final Optional<Void> filter) {
-        final String filterQuery = getFilterQueryFromUiState();
-
-        if (!StringUtils.isEmpty(filterQuery)) {
-            return Optional.of(targetManagement.findByRsql(pageRequest, filterQuery));
-        } else {
-            return Optional.of(targetManagement.findAll(pageRequest));
-        }
+    protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest,
+            final Optional<SearchTextFilterParams> filter) {
+        return filter.map(filterParams -> targetManagement.findByRsql(pageRequest, filterParams.getSearchText()));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
-        final String filterQuery = getFilterQueryFromUiState();
-        long size = 0;
-
-        if (!StringUtils.isEmpty(filterQuery)) {
-            size = targetManagement.countByRsql(filterQuery);
-        } else {
-            size = targetManagement.count();
-        }
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<SearchTextFilterParams> filter) {
+        long size = filter.map(filterParams -> targetManagement.countByRsql(filterParams.getSearchText())).orElse(0L);
 
         filterManagementUIState.setTargetsCountAll(size);
         if (size > SPUIDefinitions.MAX_TABLE_ENTRIES) {
@@ -72,9 +59,5 @@ public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget
         }
 
         return size;
-    }
-
-    private String getFilterQueryFromUiState() {
-        return filterManagementUIState.getFilterQueryValue();
     }
 }

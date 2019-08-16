@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.filters.SearchTextFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
-import org.eclipse.hawkbit.ui.common.data.providers.TargetDataProviderForTargetFilterSearchQuery;
+import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
@@ -39,7 +39,7 @@ import com.vaadin.ui.UI;
 /**
  * Shows the targets as a result of the executed filter query.
  */
-public class CreateOrUpdateFilterGrid extends AbstractGrid<ProxyTarget, SearchTextFilterParams> {
+public class CreateOrUpdateFilterTargetGrid extends AbstractGrid<ProxyTarget, SearchTextFilterParams> {
 
     private static final long serialVersionUID = 1L;
 
@@ -53,17 +53,17 @@ public class CreateOrUpdateFilterGrid extends AbstractGrid<ProxyTarget, SearchTe
 
     private final FilterManagementUIState filterManagementUIState;
 
-    private final ConfigurableFilterDataProvider<ProxyTarget, Void, SearchTextFilterParams> targetDataProvider;
-
     private final Map<TargetUpdateStatus, FontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
-    CreateOrUpdateFilterGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    private final ConfigurableFilterDataProvider<ProxyTarget, Void, SearchTextFilterParams> targetDataProvider;
+
+    CreateOrUpdateFilterTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final TargetManagement targetManagement, final FilterManagementUIState filterManagementUIState) {
         super(i18n, eventBus);
 
         this.filterManagementUIState = filterManagementUIState;
 
-        targetDataProvider = new TargetDataProviderForTargetFilterSearchQuery(targetManagement, filterManagementUIState,
+        targetDataProvider = new TargetFilterStateDataProvider(targetManagement, filterManagementUIState,
                 new TargetToProxyTargetMapper(i18n)).withConfigurableFilter();
 
         // TODO: check if relevant or should be defined in AbstractGrid
@@ -81,65 +81,8 @@ public class CreateOrUpdateFilterGrid extends AbstractGrid<ProxyTarget, SearchTe
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return true;
-    }
-
-    @Override
     public String getGridId() {
         return UIComponentIdProvider.CUSTOM_FILTER_TARGET_TABLE_ID;
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final CustomFilterUIEvent custFUIEvent) {
-        if (custFUIEvent == CustomFilterUIEvent.TARGET_DETAILS_VIEW
-                || custFUIEvent == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK) {
-            UI.getCurrent().access(this::refreshContainer);
-        } else if (custFUIEvent == CustomFilterUIEvent.FILTER_TARGET_BY_QUERY) {
-            UI.getCurrent().access(this::onQuery);
-        }
-    }
-
-    private void restoreOnLoad() {
-        if (filterManagementUIState.isCreateFilterViewDisplayed()) {
-            filterManagementUIState.setFilterQueryValue(null);
-        } else {
-            filterManagementUIState.getTfQuery()
-                    .ifPresent(value -> filterManagementUIState.setFilterQueryValue(value.getQuery()));
-        }
-    }
-
-    @Override
-    public void addColumns() {
-        addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setExpandRatio(2);
-
-        addColumn(ProxyTarget::getName).setId(TARGET_CREATED_BY_ID).setCaption(i18n.getMessage("header.createdBy"));
-
-        addColumn(ProxyTarget::getName).setId(TARGET_CREATED_DATE_ID).setCaption(i18n.getMessage("header.createdDate"));
-
-        addColumn(ProxyTarget::getName).setId(TARGET_MODIFIED_BY_ID).setCaption(i18n.getMessage("header.modifiedBy"))
-                .setHidable(true).setHidden(true);
-
-        addColumn(ProxyTarget::getName).setId(TARGET_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
-
-        addColumn(ProxyTarget::getName).setId(TARGET_DESCRIPTION_ID).setCaption(i18n.getMessage("header.description"));
-
-        addColumn(ProxyTarget::getName).setId(TARGET_STATUS_ID);
-        addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID).setMinimumWidth(50d)
-                .setCaption(i18n.getMessage("header.status")).setMaximumWidth(50d).setHidable(false).setHidden(false)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildTargetStatusIcon(final ProxyTarget target) {
-        final FontIcon targetStatusFontIcon = Optional.ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
-                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String targetStatusId = new StringBuilder(TARGET_STATUS_ID).append(".").append(target.getId()).toString();
-
-        return buildLabelIcon(targetStatusFontIcon, targetStatusId);
     }
 
     @Override
@@ -147,11 +90,13 @@ public class CreateOrUpdateFilterGrid extends AbstractGrid<ProxyTarget, SearchTe
         return targetDataProvider;
     }
 
-    private void refreshFilter() {
-        final String filterQuery = filterManagementUIState.getFilterQueryValue();
-        if (!StringUtils.isEmpty(filterQuery)) {
-            final SearchTextFilterParams filterParams = new SearchTextFilterParams(filterQuery);
-            getFilterDataProvider().setFilter(filterParams);
+    // TODO: check if we should also refresh dataprovider filter
+    private void restoreOnLoad() {
+        if (filterManagementUIState.isCreateFilterViewDisplayed()) {
+            filterManagementUIState.setFilterQueryValue(null);
+        } else {
+            filterManagementUIState.getTfQuery()
+                    .ifPresent(value -> filterManagementUIState.setFilterQueryValue(value.getQuery()));
         }
     }
 
@@ -177,8 +122,60 @@ public class CreateOrUpdateFilterGrid extends AbstractGrid<ProxyTarget, SearchTe
                 .getMessage(UIMessageIdProvider.TOOLTIP_TARGET_STATUS_PREFIX + targetStatus.toString().toLowerCase());
     }
 
-    private void onQuery() {
-        refreshFilter();
-        eventBus.publish(this, CustomFilterUIEvent.UPDATE_TARGET_FILTER_SEARCH_ICON);
+    @EventBusListenerMethod(scope = EventScope.UI)
+    void onEvent(final CustomFilterUIEvent custFUIEvent) {
+        if (custFUIEvent == CustomFilterUIEvent.TARGET_DETAILS_VIEW
+                || custFUIEvent == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK) {
+            UI.getCurrent().access(this::refreshContainer);
+        } else if (custFUIEvent == CustomFilterUIEvent.FILTER_TARGET_BY_QUERY) {
+            UI.getCurrent().access(() -> {
+                refreshFilter();
+                eventBus.publish(this, CustomFilterUIEvent.UPDATE_TARGET_FILTER_SEARCH_ICON);
+            });
+        }
+    }
+
+    private void refreshFilter() {
+        final String filterQuery = filterManagementUIState.getFilterQueryValue();
+
+        if (!StringUtils.isEmpty(filterQuery)) {
+            final SearchTextFilterParams filterParams = new SearchTextFilterParams(filterQuery);
+            getFilterDataProvider().setFilter(filterParams);
+        } else {
+            // TODO: check if it is needed
+            getFilterDataProvider().setFilter(null);
+        }
+    }
+
+    @Override
+    public void addColumns() {
+        addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"))
+                .setExpandRatio(2);
+
+        addColumn(ProxyTarget::getName).setId(TARGET_CREATED_BY_ID).setCaption(i18n.getMessage("header.createdBy"));
+
+        addColumn(ProxyTarget::getName).setId(TARGET_CREATED_DATE_ID).setCaption(i18n.getMessage("header.createdDate"));
+
+        addColumn(ProxyTarget::getName).setId(TARGET_MODIFIED_BY_ID).setCaption(i18n.getMessage("header.modifiedBy"))
+                .setHidable(true).setHidden(true);
+
+        addColumn(ProxyTarget::getName).setId(TARGET_MODIFIED_DATE_ID)
+                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
+
+        addColumn(ProxyTarget::getName).setId(TARGET_DESCRIPTION_ID).setCaption(i18n.getMessage("header.description"));
+
+        addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID)
+                .setCaption(i18n.getMessage("header.status")).setMinimumWidth(50d).setMaximumWidth(50d)
+                .setHidable(false).setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+    }
+
+    private Label buildTargetStatusIcon(final ProxyTarget target) {
+        final FontIcon targetStatusFontIcon = Optional.ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
+                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
+
+        final String targetStatusId = new StringBuilder(TARGET_STATUS_ID).append(".").append(target.getId()).toString();
+
+        return buildLabelIcon(targetStatusFontIcon, targetStatusId);
     }
 }

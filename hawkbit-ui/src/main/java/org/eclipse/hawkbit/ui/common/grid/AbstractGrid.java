@@ -51,7 +51,7 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
      * @param eventBus
      */
     protected AbstractGrid(final VaadinMessageSource i18n, final UIEventBus eventBus) {
-        this(i18n, eventBus, null)
+        this(i18n, eventBus, null);
     }
 
     /**
