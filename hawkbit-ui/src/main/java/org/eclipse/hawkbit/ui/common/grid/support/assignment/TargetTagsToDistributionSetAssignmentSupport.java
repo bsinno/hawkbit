@@ -43,7 +43,8 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
 
     // TODO: remove duplication with TargetTagsToTargetAssignmentSupport
     @Override
-    protected List<ProxyTag> getFilteredSourceItems(final List<ProxyTag> sourceItemsToAssign) {
+    protected List<ProxyTag> getFilteredSourceItems(final List<ProxyTag> sourceItemsToAssign,
+            final ProxyDistributionSet targetItem) {
         if (isNoTagAssigned(sourceItemsToAssign)) {
             notification.displayValidationError(
                     i18n.getMessage("message.tag.cannot.be.assigned", i18n.getMessage("label.no.tag.assigned")));
@@ -57,6 +58,11 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
     private boolean isNoTagAssigned(final List<ProxyTag> targetTagsToAssign) {
         return targetTagsToAssign.stream()
                 .anyMatch(targetTag -> targetTag.getName().equals(i18n.getMessage("label.no.tag.assigned")));
+    }
+
+    @Override
+    public List<String> getMissingPermissionsForDrop() {
+        return targetsToDistributionSetAssignmentSupport.getMissingPermissionsForDrop();
     }
 
     @Override

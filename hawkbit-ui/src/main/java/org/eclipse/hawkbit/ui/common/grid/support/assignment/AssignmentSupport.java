@@ -54,7 +54,7 @@ public abstract class AssignmentSupport<S, T> {
         // selectDraggedEntities(source, sourceItemsToAssign);
         // selectDroppedEntities(targetItem);
 
-        final List<S> filteredSourceItems = getFilteredSourceItems(sourceItemsToAssign);
+        final List<S> filteredSourceItems = getFilteredSourceItems(sourceItemsToAssign, targetItem);
         if (filteredSourceItems.isEmpty()) {
             // TODO: consider implementing stack notifications, otherwise
             // notifications coming from getFilteredSourceItems method will be
@@ -67,9 +67,15 @@ public abstract class AssignmentSupport<S, T> {
     }
 
     // can be overriden in child classes in order to filter source items list
-    protected List<S> getFilteredSourceItems(final List<S> sourceItemsToAssign) {
+    protected List<S> getFilteredSourceItems(final List<S> sourceItemsToAssign, final T targetItem) {
         return sourceItemsToAssign;
     }
+
+    protected final List<S> getFilteredSourceItems(final List<S> sourceItemsToAssign) {
+        return getFilteredSourceItems(sourceItemsToAssign, null);
+    }
+
+    public abstract List<String> getMissingPermissionsForDrop();
 
     protected abstract void performAssignment(final List<S> sourceItemsToAssign, final T targetItem);
 }

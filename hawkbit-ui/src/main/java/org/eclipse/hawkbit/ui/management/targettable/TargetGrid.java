@@ -18,9 +18,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
-import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
 import org.eclipse.hawkbit.repository.model.Target;
@@ -44,7 +42,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
@@ -139,15 +136,14 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         final DeploymentAssignmentWindowController assignmentController = new DeploymentAssignmentWindowController(i18n,
                 uiProperties, managementUIState, eventBus, notification, deploymentManagement);
         final DistributionSetsToTargetAssignmentSupport distributionsToTargetAssignment = new DistributionSetsToTargetAssignmentSupport(
-                notification, i18n, assignmentController, systemSecurityContext, configManagement);
+                notification, i18n, systemSecurityContext, configManagement, permChecker, assignmentController);
         final TargetTagsToTargetAssignmentSupport targetTagsToTargetAssignment = new TargetTagsToTargetAssignmentSupport(
                 notification, i18n, targetManagement, managementUIState, eventBus);
 
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.DIST_TABLE_ID, distributionsToTargetAssignment);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToTargetAssignment);
 
-        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, permChecker,
-                sourceTargetAssignmentStrategies);
+        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies);
         this.dragAndDropSupport.addDragAndDrop();
 
         initTargetStatusIconMap();
@@ -372,9 +368,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final SaveActionWindowEvent event) {
         if (event == SaveActionWindowEvent.SAVED_ASSIGNMENTS) {
-            // TODO: should we not call refreshFilter() here?
-            // should we wrap it into UI.getCurrent().access()?
-            refreshContainer();
+            // TODO: is it sufficient to call refreshContainer?
+            UI.getCurrent().access(this::refreshFilter);
         }
     }
 

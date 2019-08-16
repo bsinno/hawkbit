@@ -93,9 +93,14 @@ public final class UIComponentIdProvider {
     public static final String NO_TAG_TARGET = "no.tag.target";
 
     /**
-     * ID-Dist. on deployment and distribution view
+     * ID-Dist. on deployment view
      */
     public static final String DIST_TABLE_ID = "dist.tableId";
+
+    /**
+     * ID-Dist. on distribution view
+     */
+    public static final String DIST_SET_TABLE_ID = "distSet.tableId";
 
     /**
      * ID-Dist.Name.
@@ -158,6 +163,11 @@ public final class UIComponentIdProvider {
      * ID - soft.module.vendor.
      */
     public static final String SOFT_MODULE_VENDOR = "soft.module.vendor";
+
+    /**
+     * ID-Dist for Software Module Table within Distributions View.
+     */
+    public static final String SOFTWARE_MODULE_TABLE = "swModule.table";
 
     /**
      * ID for menubar for configuring software module types
@@ -400,7 +410,7 @@ public final class UIComponentIdProvider {
      */
     public static final String UPLOAD_FILE_DELETE_ICON = "upload.file.delete.button";
     /**
-     * ID-Dist.
+     * ID-Dist for Software Module Table within Upload View.
      */
     public static final String UPLOAD_SOFTWARE_MODULE_TABLE = "upload.swModule.table";
 

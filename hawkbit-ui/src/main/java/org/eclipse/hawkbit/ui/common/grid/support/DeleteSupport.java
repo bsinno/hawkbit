@@ -106,6 +106,9 @@ public class DeleteSupport<T extends ProxyNamedEntity> {
 
         notification.displaySuccess(
                 i18n.getMessage("message.delete.success", itemsToBeDeletedIds.size() + " " + entityType + "(s)"));
+
+        // TODO: should we call eventBus.publish(this,
+        // SaveActionWindowEvent.DELETED_DISTRIBUTIONS); here?
     }
 
     public boolean hasDeletePermission() {

@@ -10,11 +10,11 @@ package org.eclipse.hawkbit.ui.common.data.filters;
 
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetManagementStateDataProvider;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 
 /**
- * Filter params for {@link TargetManagementStateDataProvider}.
+ * Filter params for {@link DistributionSetManagementStateDataProvider}.
  */
 public class DsManagementFilterParams {
     private final String searchText;

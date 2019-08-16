@@ -12,8 +12,6 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
-import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -32,33 +30,27 @@ import com.vaadin.ui.UI;
  */
 public abstract class DeploymentAssignmentSupport<S extends ProxyNamedEntity, T extends ProxyNamedEntity>
         extends AssignmentSupport<S, T> {
-    protected final DeploymentAssignmentWindowController assignmentController;
 
-    protected DeploymentAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final DeploymentAssignmentWindowController assignmentController) {
+    protected DeploymentAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n) {
         super(notification, i18n);
-
-        this.assignmentController = assignmentController;
     }
 
-    // similar to RolloutWindowBuilder
-    protected void openConfirmationWindowForAssignments(final List<S> sourceItemsToAssign, final T targetItem,
+    protected ConfirmationDialog openConfirmationWindowForAssignments(final List<String> sourceItemNames,
+            final String targetItemName, final Component content, final boolean canWindowSave,
             final Runnable assignmentExecutor) {
-        assignmentController.populateWithData();
-
-        final String confirmationMessage = getConfirmationMessageForAssignments(sourceItemsToAssign, targetItem);
-        final ConfirmationDialog confirmAssignDialog = createConfirmationWindow(confirmationMessage,
-                assignmentController.getLayout(), assignmentExecutor);
-
-        assignmentController.getLayout().addValidationListener(confirmAssignDialog::setOkButtonEnabled);
+        final String confirmationMessage = getConfirmationMessageForAssignments(sourceItemNames, targetItemName);
+        final ConfirmationDialog confirmAssignDialog = createConfirmationWindow(confirmationMessage, content,
+                canWindowSave, assignmentExecutor);
 
         UI.getCurrent().addWindow(confirmAssignDialog.getWindow());
         confirmAssignDialog.getWindow().bringToFront();
+
+        return confirmAssignDialog;
     }
 
-    private String getConfirmationMessageForAssignments(final List<S> sourceItemsToAssign, final T targetItem) {
-        final int sourceItemsToAssignCount = sourceItemsToAssign.size();
-        final String targetItemName = targetItem.getName();
+    private String getConfirmationMessageForAssignments(final List<String> sourceItemNames,
+            final String targetItemName) {
+        final int sourceItemsToAssignCount = sourceItemNames.size();
 
         if (sourceItemsToAssignCount > 1) {
             return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_ASSIGN_MULTIPLE_ENTITIES_TO_ENTITY,
@@ -66,23 +58,25 @@ public abstract class DeploymentAssignmentSupport<S extends ProxyNamedEntity, T 
         }
 
         return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_ASSIGN_MULTIPLE_ENTITIES_TO_ENTITY,
-                sourceEntityType(), sourceItemsToAssign.get(0).getName(), targetEntityType(), targetItemName);
+                sourceEntityType(), sourceItemNames.get(0), targetEntityType(), targetItemName);
     }
 
     private ConfirmationDialog createConfirmationWindow(final String confirmationMessage, final Component content,
-            final Runnable assignmentExecutor) {
+            final boolean canWindowSave, final Runnable assignmentExecutor) {
         final String caption = i18n.getMessage(UIMessageIdProvider.CAPTION_ENTITY_ASSIGN_ACTION_CONFIRMBOX);
         final String okLabelCaption = i18n.getMessage(UIMessageIdProvider.BUTTON_OK);
         final String cancelLabelCaption = i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL);
 
         return new ConfirmationDialog(caption, confirmationMessage, okLabelCaption, cancelLabelCaption, ok -> {
-            if (ok && assignmentController.isMaintenanceWindowValid()) {
+            if (ok && canWindowSave) {
                 assignmentExecutor.run();
             }
-        }, content, UIComponentIdProvider.DIST_SET_TO_TARGET_ASSIGNMENT_CONFIRM_ID);
+        }, content, confirmationWindowId());
     }
 
     protected abstract String sourceEntityType();
 
     protected abstract String targetEntityType();
+
+    protected abstract String confirmationWindowId();
 }

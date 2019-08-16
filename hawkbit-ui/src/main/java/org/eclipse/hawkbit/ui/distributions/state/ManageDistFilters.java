@@ -29,8 +29,6 @@ public class ManageDistFilters implements Serializable {
 
     private String searchText;
 
-    private List<String> distSetTags = new ArrayList<>();
-
     private List<String> clickedDistSetTags = new ArrayList<>();
 
     private DistributionSetType clickedDistSetType;
@@ -41,14 +39,6 @@ public class ManageDistFilters implements Serializable {
 
     public void setClickedDistSetType(final DistributionSetType clickedDistSetType) {
         this.clickedDistSetType = clickedDistSetType;
-    }
-
-    public List<String> getDistSetTags() {
-        return distSetTags;
-    }
-
-    public void setDistSetTags(final List<String> distSetTags) {
-        this.distSetTags = distSetTags;
     }
 
     public List<String> getClickedDistSetTags() {

@@ -14,13 +14,11 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter.DistributionSetFilterBuilder;
-import org.eclipse.hawkbit.repository.model.DistributionSetType;
+import org.eclipse.hawkbit.ui.common.data.filters.DsDistributionsFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistFilters;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link DistributionSet}, which dynamically loads a batch of
@@ -28,56 +26,37 @@ import org.springframework.util.StringUtils;
  * {@link ProxyDistributionSet} entities.
  */
 public class DistributionSetDistributionsStateDataProvider
-        extends ProxyDataProvider<ProxyDistributionSet, DistributionSet, Void> {
+        extends ProxyDataProvider<ProxyDistributionSet, DistributionSet, DsDistributionsFilterParams> {
 
     private static final long serialVersionUID = 1L;
 
     private final transient DistributionSetManagement distributionSetManagement;
-    private final ManageDistFilters distributionsUiState;
 
     public DistributionSetDistributionsStateDataProvider(final DistributionSetManagement distributionSetManagement,
-            final ManageDistFilters distributionsUiState, final DistributionSetToProxyDistributionMapper entityMapper) {
+            final DistributionSetToProxyDistributionMapper entityMapper) {
         super(entityMapper);
 
         this.distributionSetManagement = distributionSetManagement;
-        this.distributionsUiState = distributionsUiState;
     }
 
-    // TODO: use filter instead of uiState
     @Override
     protected Optional<Slice<DistributionSet>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Void> filter) {
-        return Optional
-                .of(distributionSetManagement.findByDistributionSetFilter(pageRequest, getDistributionSetFilter()));
+            final Optional<DsDistributionsFilterParams> filter) {
+        return Optional.of(
+                distributionSetManagement.findByDistributionSetFilter(pageRequest, getDistributionSetFilter(filter)));
     }
 
-    private DistributionSetFilter getDistributionSetFilter() {
-        final String searchText = getSearchTextFromUiState();
-        final DistributionSetType distributionSetType = getDistributionSetTypeFromUiState();
-
-        final DistributionSetFilterBuilder distributionSetFilterBuilder = new DistributionSetFilterBuilder()
-                .setIsDeleted(false);
-
-        if (!StringUtils.isEmpty(searchText) || distributionSetType != null) {
-            distributionSetFilterBuilder.setSearchText(searchText).setSelectDSWithNoTag(false)
-                    .setType(distributionSetType);
-        }
-
-        return distributionSetFilterBuilder.build();
-    }
-
-    private String getSearchTextFromUiState() {
-        return distributionsUiState.getSearchText().filter(searchText -> !StringUtils.isEmpty(searchText))
-                .map(value -> String.format("%%%s%%", value)).orElse(null);
-    }
-
-    private DistributionSetType getDistributionSetTypeFromUiState() {
-        return distributionsUiState.getClickedDistSetType();
+    private DistributionSetFilter getDistributionSetFilter(final Optional<DsDistributionsFilterParams> filter) {
+        return filter
+                .map(filterParams -> new DistributionSetFilterBuilder().setIsDeleted(false)
+                        .setSearchText(filterParams.getSearchText()).setSelectDSWithNoTag(false)
+                        .setType(filterParams.getClickedDistSetType()))
+                .orElse(new DistributionSetFilterBuilder().setIsDeleted(false)).build();
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
-        return distributionSetManagement.findByDistributionSetFilter(pageRequest, getDistributionSetFilter())
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<DsDistributionsFilterParams> filter) {
+        return distributionSetManagement.findByDistributionSetFilter(pageRequest, getDistributionSetFilter(filter))
                 .getTotalElements();
     }
 

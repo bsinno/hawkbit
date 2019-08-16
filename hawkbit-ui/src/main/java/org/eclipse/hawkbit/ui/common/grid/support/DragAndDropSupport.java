@@ -8,16 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hawkbit.im.authentication.SpPermission;
-import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 
 import com.cronutils.utils.StringUtils;
 import com.vaadin.shared.ui.grid.DropMode;
@@ -34,17 +33,14 @@ public class DragAndDropSupport<T> {
     private final AbstractGrid<T, ?> grid;
     private final VaadinMessageSource i18n;
     private final UINotification notification;
-    private final SpPermissionChecker permissionChecker;
-    // TODO: would it be better to use chain of responsibility pattern?
     private final Map<String, AssignmentSupport<?, T>> sourceTargetAssignmentStrategies;
 
     public DragAndDropSupport(final AbstractGrid<T, ?> grid, final VaadinMessageSource i18n,
-            final UINotification notification, final SpPermissionChecker permissionChecker,
+            final UINotification notification,
             final Map<String, AssignmentSupport<?, T>> sourceTargetAssignmentStrategies) {
         this.grid = grid;
         this.i18n = i18n;
         this.notification = notification;
-        this.permissionChecker = permissionChecker;
         this.sourceTargetAssignmentStrategies = sourceTargetAssignmentStrategies;
     }
 
@@ -61,10 +57,13 @@ public class DragAndDropSupport<T> {
 
         dragSource.addGridDragEndListener(event -> {
             if (event.isCanceled()) {
-                // TODO: extract to method
-                notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
+                showActionNotAllowedNotification();
             }
         });
+    }
+
+    private void showActionNotAllowedNotification() {
+        notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
     }
 
     public void addDropTarget() {
@@ -73,36 +72,34 @@ public class DragAndDropSupport<T> {
         dropTarget.addGridDropListener(event -> {
             final String sourceId = event.getDataTransferData("source_id").orElse("");
             final T dropTargetItem = event.getDropTargetRow().orElse(null);
+            final AssignmentSupport<?, T> assignmentStrategy = sourceTargetAssignmentStrategies.get(sourceId);
 
-            if (!isDropValid(sourceId, dropTargetItem)) {
+            if (!isDropValid(sourceId, dropTargetItem, assignmentStrategy)) {
                 return;
             }
 
             event.getDragSourceExtension().ifPresent(source -> {
                 if (source instanceof GridDragSource) {
-                    final AssignmentSupport<?, T> assignmentStrategy = sourceTargetAssignmentStrategies.get(sourceId);
-                    if (assignmentStrategy != null) {
-                        assignmentStrategy.assignSourceItemsToTargetItem(source.getDragData(), dropTargetItem);
-                    } else {
-                        notification.displayValidationError(
-                                i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
-                    }
+                    assignmentStrategy.assignSourceItemsToTargetItem(source.getDragData(), dropTargetItem);
+                } else {
+                    showActionNotAllowedNotification();
                 }
             });
         });
     }
 
-    private boolean isDropValid(final String sourceId, final T dropTargetItem) {
+    private boolean isDropValid(final String sourceId, final T dropTargetItem,
+            final AssignmentSupport<?, T> assignmentStrategy) {
         if (StringUtils.isEmpty(sourceId) || !sourceTargetAssignmentStrategies.keySet().contains(sourceId)
-                || dropTargetItem == null) {
-            notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
+                || dropTargetItem == null || assignmentStrategy == null) {
+            showActionNotAllowedNotification();
             return false;
         }
 
-        // TODO: check if it influences tags assignment
-        if (!permissionChecker.hasUpdateTargetPermission()) {
-            notification.displayValidationError(
-                    i18n.getMessage("message.permission.insufficient", Arrays.asList(SpPermission.UPDATE_TARGET)));
+        final List<String> requiredPermissions = assignmentStrategy.getMissingPermissionsForDrop();
+        if (!CollectionUtils.isEmpty(requiredPermissions)) {
+            notification
+                    .displayValidationError(i18n.getMessage("message.permission.insufficient", requiredPermissions));
             return false;
         }
 
