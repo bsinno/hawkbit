@@ -64,6 +64,10 @@ public final class UIComponentIdProvider {
      */
     public static final String DIST_DELET_ICON = "dist.delete.icon.";
     /**
+     * ID-Targ.DELETE.
+     */
+    public static final String SM_DELET_ICON = "sm.delete.icon.";
+    /**
      * Target search text id.
      */
     public static final String TARGET_TEXT_FIELD = "target.search.textfield";

@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.filters.DsDistributionsFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetDistributionsStateDataProvider;
@@ -34,6 +33,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.SwModulesToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
+import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
@@ -84,7 +84,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     public DistributionSetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final ManageDistUIState manageDistUIState, final TargetManagement targetManagement,
-            final DistributionSetManagement distributionSetManagement, final UiProperties uiProperties) {
+            final DistributionSetManagement distributionSetManagement) {
         super(i18n, eventBus, permissionChecker);
 
         this.manageDistUIState = manageDistUIState;
@@ -117,6 +117,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         this.dragAndDropSupport.addDropTarget();
 
         initIsCompleteStyleGenerator();
+        initSelectionListener();
         init();
     }
 
@@ -137,6 +138,12 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
     private void initIsCompleteStyleGenerator() {
         setStyleGenerator(ds -> ds.getIsComplete() ? null : SPUIDefinitions.DISABLE_DISTRIBUTION);
+    }
+
+    private void initSelectionListener() {
+        // TODO: do we need it, or can we provide selection callback? Should we
+        // set the selected Ds for event?
+        addSelectionListener(selectedDs -> eventBus.publish(this, DistributionsUIEvent.ORDER_BY_DISTRIBUTION));
     }
 
     @Override
