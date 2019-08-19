@@ -27,6 +27,8 @@ import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.AbstractNotificationView;
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
@@ -145,11 +147,21 @@ public class DistributionsView extends AbstractNotificationView implements Brows
 
     @Override
     public void enter(final ViewChangeEvent event) {
-        softwareModuleTableLayout.getSwModuleTable()
-                .selectEntity(manageDistUIState.getLastSelectedSoftwareModule().orElse(null));
+        if (permChecker.hasReadRepositoryPermission()) {
+            manageDistUIState.getLastSelectedSoftwareModule().ifPresent(lastSeletedSmId -> {
+                final ProxySoftwareModule smToSelect = new ProxySoftwareModule();
+                smToSelect.setId(lastSeletedSmId);
 
-        distributionTableLayout.getDistributionSetTable()
-                .selectEntity(manageDistUIState.getLastSelectedDistribution().orElse(null));
+                softwareModuleTableLayout.getSwModuleGrid().select(smToSelect);
+            });
+
+            manageDistUIState.getLastSelectedDistribution().ifPresent(lastSeletedDsId -> {
+                final ProxyDistributionSet dsToSelect = new ProxyDistributionSet();
+                dsToSelect.setId(lastSeletedDsId);
+
+                distributionTableLayout.getDistributionSetGrid().select(dsToSelect);
+            });
+        }
     }
 
     @Override

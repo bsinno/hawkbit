@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListene
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
+import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -127,7 +128,8 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
         /* display success msg */
         uINotification.displaySuccess(i18n.getMessage("message.update.success", target.getName()));
         // publishing through event bus
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.UPDATED_ENTITY, target));
+        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.UPDATED_ENTITY,
+                new TargetToProxyTargetMapper(i18n).map(target)));
     }
 
     private void addNewTarget() {
@@ -138,7 +140,8 @@ public class TargetAddUpdateWindowLayout extends CustomComponent {
         final Target newTarget = targetManagement.create(
                 entityFactory.target().create().controllerId(newControllerId).name(newName).description(newDesc));
 
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.ADD_ENTITY, newTarget));
+        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.ADD_ENTITY,
+                new TargetToProxyTargetMapper(i18n).map(newTarget)));
         uINotification.displaySuccess(i18n.getMessage("message.save.success", newTarget.getName()));
     }
 

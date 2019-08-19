@@ -392,13 +392,13 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             return pinSupport.buildPinActionButton(pinBtn, ds);
         }).setId(DS_PIN_BUTTON_ID).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
 
-        addComponentColumn(
-                ds -> buildActionButton(clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds),
-                        VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                        UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
-                        distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
-                                .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d)
-                                .setMaximumWidth(50d).setHidable(false).setHidden(false);
+        addComponentColumn(ds -> buildActionButton(
+                clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds, ds.getNameVersion()),
+                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
+                distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
+                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d).setMaximumWidth(50d)
+                        .setHidable(false).setHidden(false);
 
         getDefaultHeaderRow().join(DS_PIN_BUTTON_ID, DS_DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
     }

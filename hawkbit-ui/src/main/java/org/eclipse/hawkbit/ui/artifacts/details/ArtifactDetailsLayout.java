@@ -8,105 +8,48 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.details;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
-import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModule;
+import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent.SoftwareModuleEventType;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyArtifact;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
+import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader.AbstractHeaderMaximizeSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupportIdentifiable;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.components.SPUIButton;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
-import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.google.common.collect.Maps;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.themes.ValoTheme;
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.Table;
-import com.vaadin.v7.ui.Table.ColumnGenerator;
-import com.vaadin.v7.ui.Table.TableDragMode;
-import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Display the details of the artifacts for a selected software module.
  */
-public class ArtifactDetailsLayout extends VerticalLayout {
+public class ArtifactDetailsLayout extends AbstractGridComponentLayout<ProxyArtifact> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String PROVIDED_FILE_NAME = "filename";
-
-    private static final String LAST_MODIFIED_DATE = "lastModifiedAt";
-
-    private static final String CREATE_MODIFIED_DATE_UPLOAD = "Created/Modified Date";
-
-    private static final String ACTION = "action";
-
-    private static final String CREATED_DATE = "createdAt";
-
-    private static final String SIZE = "size";
-
-    private static final String SHA1HASH = "sha1Hash";
-
-    private static final String MD5HASH = "md5Hash";
-
-    private final VaadinMessageSource i18n;
-
-    private final transient EventBus.UIEventBus eventBus;
-
     private final ArtifactUploadState artifactUploadState;
+    private final String artifactDetailsCaption;
 
-    private final UINotification uINotification;
+    private final ArtifactDetailsHeader artifactDetailsHeader;
+    private final ArtifactDetailsGrid artifactDetailsGrid;
 
-    private Label titleOfArtifactDetails;
-
-    private SPUIButton maxMinButton;
-
-    private Table artifactDetailsTable;
-
-    private Table maxArtifactDetailsTable;
-
-    private boolean fullWindowMode;
-
-    private boolean readOnly;
-
-    private final transient ArtifactManagement artifactManagement;
-
-    private final transient SoftwareModuleManagement softwareModuleManagement;
+    private final MasterDetailsSupport<ProxySoftwareModule, Long> masterDetailsSupport;
 
     /**
      * Constructor for ArtifactDetailsLayout
@@ -117,404 +60,174 @@ public class ArtifactDetailsLayout extends VerticalLayout {
      *            UIEventBus
      * @param artifactUploadState
      *            ArtifactUploadState
-     * @param uINotification
+     * @param notification
      *            UINotification
      * @param artifactManagement
      *            ArtifactManagement
-     * @param softwareManagement
-     *            SoftwareManagement
      */
     public ArtifactDetailsLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final ArtifactUploadState artifactUploadState, final UINotification uINotification,
-            final ArtifactManagement artifactManagement, final SoftwareModuleManagement softwareManagement) {
-        this.i18n = i18n;
-        this.eventBus = eventBus;
+            final ArtifactUploadState artifactUploadState, final UINotification notification,
+            final ArtifactManagement artifactManagement, final SpPermissionChecker permChecker) {
+        super(i18n, eventBus);
+
         this.artifactUploadState = artifactUploadState;
-        this.uINotification = uINotification;
-        this.artifactManagement = artifactManagement;
-        this.softwareModuleManagement = softwareManagement;
+        this.artifactDetailsCaption = getArtifactDetailsCaption(null);
 
-        final Optional<SoftwareModule> selectedSoftwareModule = findSelectedSoftwareModule();
+        this.artifactDetailsHeader = new ArtifactDetailsHeader().init();
+        this.artifactDetailsGrid = new ArtifactDetailsGrid(eventBus, i18n, permChecker, notification,
+                artifactManagement);
 
-        String labelSoftwareModule = "";
-        if (selectedSoftwareModule.isPresent()) {
-            labelSoftwareModule = HawkbitCommonUtil.getFormattedNameVersion(selectedSoftwareModule.get().getName(),
-                    selectedSoftwareModule.get().getVersion());
-        }
-        createComponents(labelSoftwareModule);
-        buildLayout();
-        eventBus.subscribe(this);
+        this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(artifactDetailsGrid);
 
-        if (selectedSoftwareModule.isPresent()) {
-            populateArtifactDetails(selectedSoftwareModule.get().getId(), labelSoftwareModule);
-        }
-
-        if (isMaximized()) {
-            maximizedArtifactDetailsView();
-        }
+        init();
     }
 
-    private Optional<SoftwareModule> findSelectedSoftwareModule() {
-        final Optional<Long> selectedBaseSwModuleId = artifactUploadState.getSelectedBaseSwModuleId();
-
-        if (selectedBaseSwModuleId.isPresent()) {
-            return softwareModuleManagement.get(selectedBaseSwModuleId.get());
-        }
-        return Optional.empty();
-    }
-
-    private void createComponents(final String labelSoftwareModule) {
-        titleOfArtifactDetails = new LabelBuilderV7().id(UIComponentIdProvider.ARTIFACT_DETAILS_HEADER_LABEL_ID)
-                .name(HawkbitCommonUtil.getArtifactoryDetailsLabelId(labelSoftwareModule, i18n)).buildCaptionLabel();
-        titleOfArtifactDetails.setContentMode(ContentMode.HTML);
-        titleOfArtifactDetails.setSizeFull();
-
-        maxMinButton = createMaxMinButton();
-
-        artifactDetailsTable = createArtifactDetailsTable();
-
-        artifactDetailsTable.setContainerDataSource(createArtifactLazyQueryContainer());
-        addGeneratedColumn(artifactDetailsTable);
-        if (!readOnly) {
-            addGeneratedColumnButton(artifactDetailsTable);
-        }
-        setTableColumnDetails(artifactDetailsTable);
-    }
-
-    private SPUIButton createMaxMinButton() {
-        final SPUIButton button = (SPUIButton) SPUIComponentProvider.getButton(SPUIDefinitions.EXPAND_ACTION_HISTORY,
-                "", i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, true, FontAwesome.EXPAND,
-                SPUIButtonStyleNoBorder.class);
-        button.addClickListener(event -> maxArtifactDetails());
-        return button;
-
-    }
-
-    private void buildLayout() {
-        final HorizontalLayout header = new HorizontalLayout();
-        header.addStyleName("artifact-details-header");
-        header.addStyleName("bordered-layout");
-        header.addStyleName("no-border-bottom");
-        header.setSpacing(false);
-        header.setMargin(false);
-        header.setSizeFull();
-        header.setHeightUndefined();
-
-        header.addComponents(titleOfArtifactDetails, maxMinButton);
-        header.setComponentAlignment(titleOfArtifactDetails, Alignment.TOP_LEFT);
-        header.setComponentAlignment(maxMinButton, Alignment.TOP_RIGHT);
-        header.setExpandRatio(titleOfArtifactDetails, 1.0F);
-
-        setSizeFull();
-
-        addStyleName("artifact-table");
-        addStyleName("table-layout");
-        addComponent(header);
-        setComponentAlignment(header, Alignment.MIDDLE_CENTER);
-        addComponent(artifactDetailsTable);
-        setComponentAlignment(artifactDetailsTable, Alignment.MIDDLE_CENTER);
-        setExpandRatio(artifactDetailsTable, 1.0F);
-    }
-
-    private Container createArtifactLazyQueryContainer() {
-        return getArtifactLazyQueryContainer(Collections.emptyMap());
-    }
-
-    private LazyQueryContainer getArtifactLazyQueryContainer(final Map<String, Object> queryConfig) {
-
-        final BeanQueryFactory<ArtifactBeanQuery> artifactQF = new BeanQueryFactory<>(ArtifactBeanQuery.class);
-        artifactQF.setQueryConfiguration(queryConfig);
-        final LazyQueryContainer artifactCont = new LazyQueryContainer(new LazyQueryDefinition(true, 10, "id"),
-                artifactQF);
-        addArtifactTableProperties(artifactCont);
-        return artifactCont;
-    }
-
-    private void addArtifactTableProperties(final LazyQueryContainer artifactCont) {
-        artifactCont.addContainerProperty(PROVIDED_FILE_NAME, Label.class, "", false, false);
-        artifactCont.addContainerProperty(SIZE, Long.class, null, false, false);
-        artifactCont.addContainerProperty(SHA1HASH, String.class, null, false, false);
-        artifactCont.addContainerProperty(MD5HASH, String.class, null, false, false);
-        artifactCont.addContainerProperty(CREATED_DATE, Date.class, null, false, false);
-        artifactCont.addContainerProperty(LAST_MODIFIED_DATE, Date.class, null, false, false);
-        if (!readOnly) {
-            artifactCont.addContainerProperty(ACTION, Label.class, null, false, false);
-        }
-    }
-
-    private static void addGeneratedColumn(final Table table) {
-        table.addGeneratedColumn(CREATE_MODIFIED_DATE_UPLOAD, new ColumnGenerator() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public String generateCell(final Table source, final Object itemId, final Object columnId) {
-                final Long createdDate = (Long) table.getContainerDataSource().getItem(itemId)
-                        .getItemProperty(CREATED_DATE).getValue();
-                final Long modifiedDATE = (Long) table.getContainerDataSource().getItem(itemId)
-                        .getItemProperty(LAST_MODIFIED_DATE).getValue();
-                if (modifiedDATE != null) {
-                    return SPDateTimeUtil.getFormattedDate(modifiedDATE);
-                }
-                return SPDateTimeUtil.getFormattedDate(createdDate);
-            }
-        });
-    }
-
-    private void addGeneratedColumnButton(final Table table) {
-        table.addGeneratedColumn(ACTION, new ColumnGenerator() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Button generateCell(final Table source, final Object itemId, final Object columnId) {
-                final String fileName = (String) table.getContainerDataSource().getItem(itemId)
-                        .getItemProperty(PROVIDED_FILE_NAME).getValue();
-                final Button deleteIcon = SPUIComponentProvider.getButton(
-                        fileName + "-" + UIComponentIdProvider.UPLOAD_FILE_DELETE_ICON, "",
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_DISCARD), ValoTheme.BUTTON_TINY + " " + "blueicon",
-                        true, FontAwesome.TRASH_O, SPUIButtonStyleNoBorder.class);
-                deleteIcon.setData(itemId);
-                deleteIcon.addClickListener(event -> confirmAndDeleteArtifact((Long) itemId, fileName));
-                return deleteIcon;
-            }
-        });
-
-    }
-
-    private void confirmAndDeleteArtifact(final Long id, final String fileName) {
-        final ConfirmationDialog confirmDialog = new ConfirmationDialog(
-                i18n.getMessage("caption.delete.artifact.confirmbox"),
-                i18n.getMessage("message.delete.artifact", fileName), i18n.getMessage(UIMessageIdProvider.BUTTON_OK),
-                i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), ok -> {
-                    if (ok) {
-                        artifactManagement.delete(id);
-                        uINotification.displaySuccess(i18n.getMessage("message.artifact.deleted", fileName));
-                        final Optional<SoftwareModule> softwareModule = findSelectedSoftwareModule();
-                        populateArtifactDetails(softwareModule.orElse(null));
-                    }
-                });
-        UI.getCurrent().addWindow(confirmDialog.getWindow());
-        confirmDialog.getWindow().bringToFront();
-    }
-
-    private void setTableColumnDetails(final Table table) {
-
-        table.setColumnHeader(PROVIDED_FILE_NAME, i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_FILENAME));
-        table.setColumnHeader(SIZE, i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_FILESIZE_BYTES));
-        if (fullWindowMode) {
-            table.setColumnHeader(SHA1HASH, i18n.getMessage("upload.sha1"));
-            table.setColumnHeader(MD5HASH, i18n.getMessage("upload.md5"));
-        }
-        table.setColumnHeader(CREATE_MODIFIED_DATE_UPLOAD, i18n.getMessage("upload.last.modified.date"));
-        if (!readOnly) {
-            table.setColumnHeader(ACTION, i18n.getMessage(UIMessageIdProvider.MESSAGE_UPLOAD_ACTION));
-        }
-
-        table.setColumnExpandRatio(PROVIDED_FILE_NAME, 3.5F);
-        table.setColumnExpandRatio(SIZE, 2F);
-        if (fullWindowMode) {
-            table.setColumnExpandRatio(SHA1HASH, 2.8F);
-            table.setColumnExpandRatio(MD5HASH, 2.4F);
-        }
-        table.setColumnExpandRatio(CREATE_MODIFIED_DATE_UPLOAD, 3F);
-        if (!readOnly) {
-            table.setColumnExpandRatio(ACTION, 2.5F);
-        }
-
-        table.setVisibleColumns(getVisbleColumns().toArray());
-    }
-
-    private List<Object> getVisbleColumns() {
-        final List<Object> visibileColumn = new ArrayList<>();
-        visibileColumn.add(PROVIDED_FILE_NAME);
-        visibileColumn.add(SIZE);
-        if (fullWindowMode) {
-            visibileColumn.add(SHA1HASH);
-            visibileColumn.add(MD5HASH);
-        }
-        visibileColumn.add(CREATE_MODIFIED_DATE_UPLOAD);
-        if (!readOnly) {
-            visibileColumn.add(ACTION);
-        }
-        return visibileColumn;
-    }
-
-    private static Table createArtifactDetailsTable() {
-        final Table detailsTable = new Table();
-        detailsTable.addStyleName("sp-table");
-
-        detailsTable.setSizeFull();
-
-        detailsTable.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_DETAILS_TABLE);
-        detailsTable.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        detailsTable.addStyleName(ValoTheme.TABLE_SMALL);
-        return detailsTable;
-    }
-
-    /**
-     * will be used by button click listener of action history expand icon.
-     */
-    private void maxArtifactDetails() {
-        final Boolean flag = (Boolean) maxMinButton.getData();
-        if (flag == null || Boolean.FALSE.equals(flag)) {
-            // Clicked on max Button
-            maximizedArtifactDetailsView();
+    private String getArtifactDetailsCaption(final String swModuleNameVersion) {
+        final String caption;
+        if (StringUtils.hasText(swModuleNameVersion)) {
+            caption = getI18n().getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF,
+                    HawkbitCommonUtil.getBoldHTMLText(swModuleNameVersion));
         } else {
-            minimizedArtifactDetailsView();
+            caption = getI18n().getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS);
         }
+
+        return HawkbitCommonUtil.getCaptionText(caption);
     }
 
-    private void minimizedArtifactDetailsView() {
-        fullWindowMode = Boolean.FALSE;
-        showMaxIcon();
-        setTableColumnDetails(artifactDetailsTable);
-        createArtifactDetailsMinView();
-
+    @Override
+    public ArtifactDetailsHeader getGridHeader() {
+        return artifactDetailsHeader;
     }
 
-    private void maximizedArtifactDetailsView() {
-        fullWindowMode = Boolean.TRUE;
-        showMinIcon();
-        setTableColumnDetails(artifactDetailsTable);
-        createArtifactDetailsMaxView();
+    @Override
+    public ArtifactDetailsGrid getGrid() {
+        return artifactDetailsGrid;
     }
 
-    /**
-     * Create Max artifact details Table.
-     */
-    public void createMaxArtifactDetailsTable() {
-        maxArtifactDetailsTable = createArtifactDetailsTable();
-        maxArtifactDetailsTable.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_DETAILS_TABLE_MAX);
-        maxArtifactDetailsTable.setContainerDataSource(artifactDetailsTable.getContainerDataSource());
-        addGeneratedColumn(maxArtifactDetailsTable);
-        if (!readOnly) {
-            addGeneratedColumnButton(maxArtifactDetailsTable);
-        }
-        setTableColumnDetails(maxArtifactDetailsTable);
-    }
-
-    private void createArtifactDetailsMaxView() {
-
-        artifactDetailsTable.setValue(null);
-        artifactDetailsTable.setSelectable(false);
-        artifactDetailsTable.setMultiSelect(false);
-        artifactDetailsTable.setDragMode(TableDragMode.NONE);
-        artifactDetailsTable.setColumnCollapsingAllowed(true);
-        artifactUploadState.setArtifactDetailsMaximized(Boolean.TRUE);
-        eventBus.publish(this, ArtifactDetailsEvent.MAXIMIZED);
-    }
-
-    private void createArtifactDetailsMinView() {
-        artifactUploadState.setArtifactDetailsMaximized(Boolean.FALSE);
-        artifactDetailsTable.setColumnCollapsingAllowed(false);
-        eventBus.publish(this, ArtifactDetailsEvent.MINIMIZED);
-    }
-
-    /**
-     * Populate artifact details.
-     *
-     * @param softwareModule
-     *            software module
-     */
-    public void populateArtifactDetails(final ProxySoftwareModule softwareModule) {
-        if (softwareModule == null) {
-            populateArtifactDetails(null, null);
-        } else {
-            populateArtifactDetails(softwareModule.getId(),
-                    HawkbitCommonUtil.getFormattedNameVersion(softwareModule.getName(), softwareModule.getVersion()));
-        }
-    }
-
-    private void populateArtifactDetails(final Long baseSwModuleId, final String swModuleName) {
-        if (!readOnly) {
-            if (StringUtils.isEmpty(swModuleName)) {
-                setTitleOfLayoutHeader();
-            } else {
-                titleOfArtifactDetails.setValue(HawkbitCommonUtil.getArtifactoryDetailsLabelId(swModuleName, i18n));
-                titleOfArtifactDetails.setContentMode(ContentMode.HTML);
-            }
-        }
-        final Map<String, Object> queryConfiguration;
-        if (baseSwModuleId != null) {
-            queryConfiguration = Maps.newHashMapWithExpectedSize(1);
-            queryConfiguration.put(SPUIDefinitions.BY_BASE_SOFTWARE_MODULE, baseSwModuleId);
-        } else {
-            queryConfiguration = Collections.emptyMap();
-        }
-        final LazyQueryContainer artifactContainer = getArtifactLazyQueryContainer(queryConfiguration);
-        artifactDetailsTable.setContainerDataSource(artifactContainer);
-        if (fullWindowMode && maxArtifactDetailsTable != null) {
-            maxArtifactDetailsTable.setContainerDataSource(artifactContainer);
-        }
-        setTableColumnDetails(artifactDetailsTable);
-    }
-
-    /**
-     * Set title of artifact details header layout.
-     */
-    private void setTitleOfLayoutHeader() {
-        titleOfArtifactDetails.setValue(HawkbitCommonUtil.getArtifactoryDetailsLabelId("", i18n));
-        titleOfArtifactDetails.setContentMode(ContentMode.HTML);
-    }
-
+    // TODO: check if it can be removed with registerDetails in
+    // UploadArtifactView
     @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent softwareModuleEvent) {
-        if (softwareModuleEvent.getEventType() == BaseEntityEventType.SELECTED_ENTITY) {
-            UI.getCurrent().access(() -> {
-                if (softwareModuleEvent.getEntity() != null) {
-                    populateArtifactDetails(softwareModuleEvent.getEntity());
-                } else {
-                    populateArtifactDetails(null, null);
-                }
-            });
-        }
-        if (isArtifactChangedEvent(softwareModuleEvent) && areEntityIdsNotEmpty(softwareModuleEvent)) {
-            UI.getCurrent().access(() -> findSelectedSoftwareModule().ifPresent(selectedSoftwareModule -> {
-                if (hasSelectedSoftwareModuleChanged(softwareModuleEvent.getEntityIds(), selectedSoftwareModule)) {
-                    populateArtifactDetails(selectedSoftwareModule);
-                }
-            }));
+    void onEvent(final SoftwareModuleEvent swModuleUIEvent) {
+        final Optional<Long> swModuleId = artifactUploadState.getSelectedBaseSwModuleId();
+
+        if (BaseEntityEventType.SELECTED_ENTITY == swModuleUIEvent.getEventType()
+                || SoftwareModuleEventType.ARTIFACTS_CHANGED == swModuleUIEvent.getSoftwareModuleEventType()) {
+            UI.getCurrent().access(() -> populateArtifactDetails(swModuleUIEvent.getEntity()));
+        } else if (BaseEntityEventType.REMOVE_ENTITY == swModuleUIEvent.getEventType() && swModuleId.isPresent()
+                && swModuleUIEvent.getEntityIds().contains(swModuleId.get())) {
+            UI.getCurrent().access(() -> populateArtifactDetails(null));
         }
     }
 
-    private static boolean areEntityIdsNotEmpty(final SoftwareModuleEvent softwareModuleEvent) {
-        return softwareModuleEvent.getEntityIds() != null && !softwareModuleEvent.getEntityIds().isEmpty();
+    /**
+     * Populate artifact details header and grid for the software module.
+     *
+     * @param target
+     *            the target
+     */
+    private void populateArtifactDetails(final ProxySoftwareModule swModule) {
+        if (swModule != null) {
+            artifactDetailsHeader.updateArtifactDetailsHeader(swModule.getNameAndVersion());
+            masterDetailsSupport.masterItemChangedCallback(swModule);
+        } else {
+            artifactDetailsHeader.updateArtifactDetailsHeader(" ");
+            masterDetailsSupport.masterItemChangedCallback(null);
+        }
     }
 
-    private static boolean isArtifactChangedEvent(final SoftwareModuleEvent softwareModuleEvent) {
-        return softwareModuleEvent.getSoftwareModuleEventType() == SoftwareModuleEventType.ARTIFACTS_CHANGED;
+    public MasterDetailsSupport<ProxySoftwareModule, Long> getMasterDetailsSupport() {
+        return masterDetailsSupport;
     }
 
-    private static boolean hasSelectedSoftwareModuleChanged(final Collection<Long> changedSoftwareModuleIds,
-            final SoftwareModule selectedSoftwareModule) {
-        return changedSoftwareModuleIds.stream().anyMatch(smId -> selectedSoftwareModule.getId().equals(smId));
+    /**
+     * Header for ArtifactDetails with maximize-support.
+     */
+    class ArtifactDetailsHeader extends DefaultGridHeader {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Constructor.
+         *
+         * @param managementUIState
+         */
+        ArtifactDetailsHeader() {
+            super(artifactDetailsCaption, getI18n());
+
+            this.setHeaderMaximizeSupport(
+                    new ArtifactDetailsHeaderMaxSupport(this, SPUIDefinitions.EXPAND_ARTIFACT_DETAILS));
+        }
+
+        /**
+         * Initializes the header.
+         */
+        @Override
+        public ArtifactDetailsHeader init() {
+            super.init();
+            addStyleName("artifact-details-header");
+            restorePreviousState();
+            return this;
+        }
+
+        /**
+         * Updates header with target name.
+         *
+         * @param swModuleNameVersion
+         *            name and version of the software module
+         */
+        public void updateArtifactDetailsHeader(final String swModuleNameVersion) {
+            updateTitle(getArtifactDetailsCaption(swModuleNameVersion));
+        }
+
+        /**
+         * Restores the previous min-max state.
+         */
+        private void restorePreviousState() {
+            if (hasHeaderMaximizeSupport() && artifactUploadState.isArtifactDetailsMaximized()) {
+                getHeaderMaximizeSupport().showMinIcon();
+            }
+        }
     }
 
-    public Table getArtifactDetailsTable() {
-        return artifactDetailsTable;
-    }
+    /**
+     * Min-max support for header.
+     */
+    class ArtifactDetailsHeaderMaxSupport extends AbstractHeaderMaximizeSupport {
 
-    public Table getMaxArtifactDetailsTable() {
-        return maxArtifactDetailsTable;
-    }
+        private final DefaultGridHeader abstractGridHeader;
 
-    public void setFullWindowMode(final boolean fullWindowMode) {
-        this.fullWindowMode = fullWindowMode;
-    }
+        /**
+         * Constructor.
+         *
+         * @param abstractGridHeader
+         * @param maximizeButtonId
+         */
+        protected ArtifactDetailsHeaderMaxSupport(final DefaultGridHeader abstractGridHeader,
+                final String maximizeButtonId) {
+            abstractGridHeader.super(maximizeButtonId);
+            this.abstractGridHeader = abstractGridHeader;
+        }
 
-    private void showMinIcon() {
-        maxMinButton.toggleIcon(FontAwesome.COMPRESS);
-        maxMinButton.setData(Boolean.TRUE);
-        maxMinButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MINIMIZE));
-    }
+        @Override
+        protected void maximize() {
+            // TODO: check if it is needed
+            // details.populateMasterDataAndRecreateContainer(masterForDetails);
+            getEventBus().publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MAXIMIZED));
+            artifactUploadState.setArtifactDetailsMaximized(true);
+        }
 
-    private void showMaxIcon() {
-        maxMinButton.toggleIcon(FontAwesome.EXPAND);
-        maxMinButton.setData(Boolean.FALSE);
-        maxMinButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE));
-    }
+        @Override
+        protected void minimize() {
+            getEventBus().publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MINIMIZED));
+            artifactUploadState.setArtifactDetailsMaximized(false);
+        }
 
-    private boolean isMaximized() {
-        return artifactUploadState.isArtifactDetailsMaximized();
+        /**
+         * Gets the grid header the maximize support is for.
+         *
+         * @return grid header
+         */
+        protected DefaultGridHeader getGridHeader() {
+            return abstractGridHeader;
+        }
     }
-
 }

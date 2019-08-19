@@ -12,7 +12,6 @@ import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -30,8 +29,6 @@ import com.vaadin.ui.VerticalLayout;
 public class DefaultGridHeader extends VerticalLayout {
     private static final long serialVersionUID = 1921798400953670917L;
 
-    private final ManagementUIState managementUIState;
-
     private final String titleText;
     private Label title;
     private HorizontalLayout titleLayout;
@@ -41,22 +38,17 @@ public class DefaultGridHeader extends VerticalLayout {
 
     /**
      * Constructor.
-     *
-     * @param managementUIState
      */
-    public DefaultGridHeader(final ManagementUIState managementUIState, final VaadinMessageSource i18n) {
-        this(managementUIState, "", i18n);
+    public DefaultGridHeader(final VaadinMessageSource i18n) {
+        this("", i18n);
     }
 
     /**
      * Constructor.
      *
-     * @param managementUIState
      * @param titleText
      */
-    public DefaultGridHeader(final ManagementUIState managementUIState, final String titleText,
-            final VaadinMessageSource i18n) {
-        this.managementUIState = managementUIState;
+    public DefaultGridHeader(final String titleText, final VaadinMessageSource i18n) {
         this.titleText = titleText;
         this.i18n = i18n;
     }
@@ -117,7 +109,7 @@ public class DefaultGridHeader extends VerticalLayout {
         addComponent(titleLayout);
         setComponentAlignment(titleLayout, Alignment.TOP_LEFT);
         setWidth(100, Unit.PERCENTAGE);
-        addStyleName("action-history-header");
+
         addStyleName("bordered-layout");
         addStyleName("no-border-bottom");
     }
@@ -192,12 +184,10 @@ public class DefaultGridHeader extends VerticalLayout {
                 // Clicked on max Icon
                 showMinIcon();
                 maximize();
-                managementUIState.setActionHistoryMaximized(true);
             } else {
                 // Clicked on min icon
                 showMaxIcon();
                 minimize();
-                managementUIState.setActionHistoryMaximized(false);
             }
         }
 

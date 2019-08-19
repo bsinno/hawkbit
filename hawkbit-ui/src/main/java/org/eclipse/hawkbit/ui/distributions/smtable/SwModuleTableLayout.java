@@ -31,7 +31,7 @@ public class SwModuleTableLayout extends AbstractTableLayout<ProxySoftwareModule
 
     private static final long serialVersionUID = 1L;
 
-    private final SwModuleTable swModuleTable;
+    private final SwModuleGrid swModuleGrid;
 
     public SwModuleTableLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
@@ -43,23 +43,22 @@ public class SwModuleTableLayout extends AbstractTableLayout<ProxySoftwareModule
         final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification, eventBus,
                 softwareModuleManagement, entityFactory, permChecker);
 
-        this.swModuleTable = new SwModuleTable(eventBus, i18n, uiNotification, manageDistUIState,
-                softwareModuleManagement, distributionsViewClientCriterion, permChecker);
+        this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, manageDistUIState,
+                softwareModuleManagement);
 
         final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow = new SoftwareModuleAddUpdateWindow(i18n,
-                uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory,
-                swModuleTable);
+                uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory);
         final ArtifactDetailsLayout artifactDetailsLayout = new ArtifactDetailsLayout(i18n, eventBus,
-                artifactUploadState, uiNotification, artifactManagement, softwareModuleManagement);
+                artifactUploadState, uiNotification, artifactManagement, permChecker);
 
         super.init(i18n,
                 new SwModuleTableHeader(i18n, permChecker, eventBus, manageDistUIState, softwareModuleAddUpdateWindow),
-                swModuleTable, new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,
+                swModuleGrid, new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,
                         manageDistUIState, softwareModuleManagement, swMetadataPopupLayout, artifactDetailsLayout));
     }
 
-    public SwModuleTable getSwModuleTable() {
-        return swModuleTable;
+    public SwModuleGrid getSwModuleGrid() {
+        return swModuleGrid;
     }
 
 }

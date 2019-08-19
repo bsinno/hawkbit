@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterButtons;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayout;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.dd.criteria.UploadViewClientCriterion;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -97,7 +98,7 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
                 eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory,
                 uploadViewClientCriterion);
         this.artifactDetailsLayout = new ArtifactDetailsLayout(i18n, eventBus, artifactUploadState, uiNotification,
-                artifactManagement, softwareModuleManagement);
+                artifactManagement, permChecker);
         final SMTypeFilterButtons smTypeFilterButtons = new SMTypeFilterButtons(eventBus, artifactUploadState,
                 uploadViewClientCriterion, softwareModuleTypeManagement, i18n, entityFactory, permChecker,
                 uiNotification);
@@ -105,6 +106,9 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
                 entityFactory, uiNotification, softwareModuleTypeManagement, smTypeFilterButtons);
         this.dropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, uiNotification, artifactUploadState,
                 multipartConfigElement, softwareModuleManagement, artifactManagement);
+
+        // TODO: when smTableLayout extends AbstractGridComponentLayout
+        // smTableLayout.registerDetails(artifactDetailsLayout.getMasterDetailsSupport());
     }
 
     @PostConstruct
@@ -133,9 +137,9 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final ArtifactDetailsEvent event) {
-        if (event == ArtifactDetailsEvent.MINIMIZED) {
+        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
             minimizeArtifactoryDetails();
-        } else if (event == ArtifactDetailsEvent.MAXIMIZED) {
+        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
             maximizeArtifactoryDetails();
         }
     }
@@ -247,8 +251,14 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
 
     @Override
     public void enter(final ViewChangeEvent event) {
-        smTableLayout.getSoftwareModuleTable()
-                .selectEntity(artifactUploadState.getSelectedBaseSwModuleId().orElse(null));
+        if (permChecker.hasReadRepositoryPermission()) {
+            artifactUploadState.getSelectedBaseSwModuleId().ifPresent(lastSeletedSmId -> {
+                final ProxySoftwareModule smToSelect = new ProxySoftwareModule();
+                smToSelect.setId(lastSeletedSmId);
+
+                smTableLayout.getSoftwareModuleGrid().select(smToSelect);
+            });
+        }
         dropAreaLayout.getUploadButtonLayout().restoreState();
     }
 

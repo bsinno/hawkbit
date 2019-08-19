@@ -28,7 +28,7 @@ public class SoftwareModuleTableLayout extends AbstractTableLayout<ProxySoftware
 
     private static final long serialVersionUID = 1L;
 
-    private final SoftwareModuleTable softwareModuleTable;
+    private final SoftwareModuleGrid softwareModuleGrid;
 
     public SoftwareModuleTableLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final ArtifactUploadState artifactUploadState, final UINotification uiNotification,
@@ -38,23 +38,22 @@ public class SoftwareModuleTableLayout extends AbstractTableLayout<ProxySoftware
 
         final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification, eventBus,
                 softwareModuleManagement, entityFactory, permChecker);
-        this.softwareModuleTable = new SoftwareModuleTable(eventBus, i18n, uiNotification, artifactUploadState,
-                softwareModuleManagement, uploadViewClientCriterion, permChecker);
+        this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
+                artifactUploadState, softwareModuleManagement);
 
         final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow = new SoftwareModuleAddUpdateWindow(i18n,
-                uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory,
-                softwareModuleTable);
+                uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory);
 
         super.init(i18n,
                 new SoftwareModuleTableHeader(i18n, permChecker, eventBus, artifactUploadState,
                         softwareModuleAddUpdateWindow),
-                softwareModuleTable,
+                softwareModuleGrid,
                 new SoftwareModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,
                         artifactUploadState, softwareModuleManagement, swMetadataPopupLayout));
     }
 
-    public SoftwareModuleTable getSoftwareModuleTable() {
-        return softwareModuleTable;
+    public SoftwareModuleGrid getSoftwareModuleGrid() {
+        return softwareModuleGrid;
     }
 
 }

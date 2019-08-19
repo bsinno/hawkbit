@@ -309,8 +309,8 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
 
     private void addActionColumns() {
         addComponentColumn(sm -> buildActionButton(
-                clickEvent -> swModuleDeleteSupport.openConfirmationWindowDeleteAction(sm), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                clickEvent -> swModuleDeleteSupport.openConfirmationWindowDeleteAction(sm, sm.getNameAndVersion()),
+                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(), swModuleDeleteSupport.hasDeletePermission()))
                         .setId(SM_DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete"))
                         .setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
@@ -335,7 +335,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     }
 
     /**
-     * Adds support to resize the DistributionSet grid.
+     * Adds support to resize the SwModuleGrid grid.
      */
     class SwModuleResizeSupport implements ResizeSupport {
 

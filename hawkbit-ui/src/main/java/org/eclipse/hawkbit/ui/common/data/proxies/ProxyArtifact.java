@@ -19,7 +19,9 @@ public class ProxyArtifact extends ProxyIdentifiableEntity {
     private String filename;
     private String md5Hash;
     private String sha1Hash;
+    private String sha256Hash;
     private long size;
+    private String modifiedDate;
 
     public String getFilename() {
         return filename;
@@ -51,6 +53,22 @@ public class ProxyArtifact extends ProxyIdentifiableEntity {
 
     public void setSize(final long size) {
         this.size = size;
+    }
+
+    public String getSha256Hash() {
+        return sha256Hash;
+    }
+
+    public void setSha256Hash(final String sha256Hash) {
+        this.sha256Hash = sha256Hash;
+    }
+
+    public String getModifiedDate() {
+        return modifiedDate;
+    }
+
+    public void setModifiedDate(final String modifiedDate) {
+        this.modifiedDate = modifiedDate;
     }
 
 }

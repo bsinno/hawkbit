@@ -481,8 +481,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         }).setId(TARGET_PIN_BUTTON_ID).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
 
         addComponentColumn(target -> buildActionButton(
-                clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target, target.getName()),
+                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(),
                 targetDeleteSupport.hasDeletePermission())).setId(TARGET_DELETE_BUTTON_ID).setMinimumWidth(50d)
                         .setMaximumWidth(50d).setHidable(false).setHidden(false);

@@ -25,7 +25,7 @@ import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
-import org.eclipse.hawkbit.ui.common.table.AbstractTable;
+import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -39,14 +39,13 @@ import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.google.common.collect.Sets;
-import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.TextArea;
 import com.vaadin.v7.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Generates window for Software module add or update.
@@ -83,8 +82,6 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
 
     private FormLayout formLayout;
 
-    private final AbstractTable<SoftwareModule> softwareModuleTable;
-
     private Label softwareModuleType;
 
     /**
@@ -105,15 +102,13 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
      */
     public SoftwareModuleAddUpdateWindow(final VaadinMessageSource i18n, final UINotification uiNotifcation,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
-            final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
-            final AbstractTable<SoftwareModule> softwareModuleTable) {
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory) {
         this.i18n = i18n;
         this.uiNotifcation = uiNotifcation;
         this.eventBus = eventBus;
         this.softwareModuleManagement = softwareModuleManagement;
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
         this.entityFactory = entityFactory;
-        this.softwareModuleTable = softwareModuleTable;
 
         createRequiredComponents();
     }
@@ -149,10 +144,10 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
                     .type(softwareModuleTypeByName).name(name).version(version).description(description).vendor(vendor);
 
             final SoftwareModule newSoftwareModule = softwareModuleManagement.create(softwareModule);
-            eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.ADD_ENTITY, newSoftwareModule));
+            eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.ADD_ENTITY,
+                    new SoftwareModuleToProxyMapper().map(newSoftwareModule)));
             uiNotifcation.displaySuccess(i18n.getMessage("message.save.success",
                     newSoftwareModule.getName() + ":" + newSoftwareModule.getVersion()));
-            softwareModuleTable.setValue(Sets.newHashSet(newSoftwareModule.getId()));
         }
 
         private boolean isDuplicate() {
@@ -181,7 +176,8 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
                 uiNotifcation.displaySuccess(i18n.getMessage("message.save.success",
                         newSWModule.getName() + ":" + newSWModule.getVersion()));
 
-                eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.UPDATED_ENTITY, newSWModule));
+                eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.UPDATED_ENTITY,
+                        new SoftwareModuleToProxyMapper().map(newSWModule)));
             }
         }
 

@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -31,7 +30,7 @@ import com.vaadin.ui.UI;
  * @param <T>
  *            The item-type used by the grid
  */
-public class DeleteSupport<T extends ProxyNamedEntity> {
+public class DeleteSupport<T extends ProxyIdentifiableEntity> {
     private final AbstractGrid<T, ?> grid;
     private final VaadinMessageSource i18n;
     private final String entityType;
@@ -50,11 +49,12 @@ public class DeleteSupport<T extends ProxyNamedEntity> {
         this.itemIdsDeletionCallback = itemIdsDeletionCallback;
     }
 
-    public void openConfirmationWindowDeleteAction(final T clickedItem) {
+    public void openConfirmationWindowDeleteAction(final T clickedItem, final String clickedItemName) {
         final Set<T> itemsToBeDeleted = getItemsForDeletion(clickedItem);
 
         final String confirmationCaption = i18n.getMessage("caption.entity.delete.action.confirmbox", entityType);
-        final String confirmationQuestion = createConfirmationQuestionForDeletion(itemsToBeDeleted);
+        final String confirmationQuestion = createConfirmationQuestionForDeletion(itemsToBeDeleted.size(),
+                clickedItemName);
         final ConfirmationDialog confirmDeleteDialog = createConfirmationWindowForDeletion(itemsToBeDeleted,
                 confirmationCaption, confirmationQuestion);
 
@@ -77,13 +77,13 @@ public class DeleteSupport<T extends ProxyNamedEntity> {
         }
     }
 
-    private String createConfirmationQuestionForDeletion(final Set<T> itemsToBeDeleted) {
-        if (itemsToBeDeleted.size() == 1) {
+    private String createConfirmationQuestionForDeletion(final int itemsToBeDeletedSize, final String clickedItemName) {
+        if (itemsToBeDeletedSize == 1) {
             return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY, entityType.toLowerCase(),
-                    itemsToBeDeleted.iterator().next().getName(), "");
+                    clickedItemName, "");
         } else {
-            return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY, itemsToBeDeleted.size(),
-                    entityType, "s");
+            return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY, itemsToBeDeletedSize, entityType,
+                    "s");
         }
     }
 

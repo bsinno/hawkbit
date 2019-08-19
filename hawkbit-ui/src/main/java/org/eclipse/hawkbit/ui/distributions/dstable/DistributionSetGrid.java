@@ -305,13 +305,13 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     }
 
     private void addActionColumns() {
-        addComponentColumn(
-                ds -> buildActionButton(clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds),
-                        VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                        UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
-                        distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
-                                .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d)
-                                .setMaximumWidth(50d).setHidable(false).setHidden(false);
+        addComponentColumn(ds -> buildActionButton(
+                clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds, ds.getNameVersion()),
+                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
+                distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
+                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d).setMaximumWidth(50d)
+                        .setHidable(false).setHidden(false);
     }
 
     private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,

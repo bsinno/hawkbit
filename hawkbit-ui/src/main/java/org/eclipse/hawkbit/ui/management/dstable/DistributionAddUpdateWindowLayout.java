@@ -28,9 +28,9 @@ import org.eclipse.hawkbit.ui.common.DistributionSetTypeBeanQuery;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetTable;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
@@ -44,14 +44,13 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.google.common.collect.Sets;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.TextArea;
 import com.vaadin.v7.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * WindowContent for adding/editing a Distribution
@@ -69,8 +68,6 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
     private final transient EntityFactory entityFactory;
     private final transient TenantConfigurationManagement tenantConfigurationManagement;
     private final transient SystemSecurityContext systemSecurityContext;
-
-    private final DistributionSetTable distributionSetTable;
 
     private TextField distNameTextField;
     private TextField distVersionTextField;
@@ -105,8 +102,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
     public DistributionAddUpdateWindowLayout(final VaadinMessageSource i18n, final UINotification notificationMessage,
             final UIEventBus eventBus, final DistributionSetManagement distributionSetManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final SystemManagement systemManagement,
-            final EntityFactory entityFactory, final DistributionSetTable distributionSetTable,
-            final TenantConfigurationManagement tenantConfigurationManagement,
+            final EntityFactory entityFactory, final TenantConfigurationManagement tenantConfigurationManagement,
             final SystemSecurityContext systemSecurityContext) {
         this.i18n = i18n;
         this.notificationMessage = notificationMessage;
@@ -115,7 +111,6 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
         this.distributionSetTypeManagement = distributionSetTypeManagement;
         this.systemManagement = systemManagement;
         this.entityFactory = entityFactory;
-        this.distributionSetTable = distributionSetTable;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.systemSecurityContext = systemSecurityContext;
         createRequiredComponents();
@@ -148,7 +143,8 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
                 notificationMessage.displaySuccess(
                         i18n.getMessage("message.new.dist.save.success", currentDS.getName(), currentDS.getVersion()));
                 // update table row+details layout
-                eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.UPDATED_ENTITY, currentDS));
+                eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.UPDATED_ENTITY,
+                        new DistributionSetToProxyDistributionMapper().map(currentDS)));
             });
         }
 
@@ -178,10 +174,10 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
                     .create(entityFactory.distributionSet().create().name(name).version(version).description(desc)
                             .type(distributionSetType).requiredMigrationStep(isMigStepReq));
 
-            eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.ADD_ENTITY, newDist));
+            eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.ADD_ENTITY,
+                    new DistributionSetToProxyDistributionMapper().map(newDist)));
             notificationMessage.displaySuccess(
                     i18n.getMessage("message.new.dist.save.success", newDist.getName(), newDist.getVersion()));
-            distributionSetTable.setValue(Sets.newHashSet(newDist.getId()));
         }
 
         @Override
@@ -369,8 +365,8 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
         }
 
         return new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption(caption).content(this)
-                .id(UIComponentIdProvider.CREATE_POPUP_ID).layout(formLayout)
-                .i18n(i18n).saveDialogCloseListener(saveDialogCloseListener).buildCommonDialogWindow();
+                .id(UIComponentIdProvider.CREATE_POPUP_ID).layout(formLayout).i18n(i18n)
+                .saveDialogCloseListener(saveDialogCloseListener).buildCommonDialogWindow();
     }
 
     /**

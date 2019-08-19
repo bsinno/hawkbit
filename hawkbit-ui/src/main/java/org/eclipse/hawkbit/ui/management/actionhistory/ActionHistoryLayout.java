@@ -62,10 +62,11 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
             final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
             final SpPermissionChecker permChecker) {
         super(i18n, eventBus);
+
         this.managementUIState = managementUIState;
         this.actionHistoryCaption = getActionHistoryCaption(null);
 
-        this.actionHistoryHeader = new ActionHistoryHeader(managementUIState).init();
+        this.actionHistoryHeader = new ActionHistoryHeader().init();
         this.actionHistoryGrid = new ActionHistoryGrid(getI18n(), deploymentManagement, getEventBus(), notification,
                 managementUIState, permChecker);
 
@@ -118,6 +119,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final TargetTableEvent targetUIEvent) {
         final Optional<Long> targetId = managementUIState.getLastSelectedTargetId();
+
         if (BaseEntityEventType.SELECTED_ENTITY == targetUIEvent.getEventType()) {
             setData(getI18n().getMessage(UIMessageIdProvider.MESSAGE_DATA_AVAILABLE));
             UI.getCurrent().access(() -> populateActionHistoryDetails(targetUIEvent.getEntity()));
@@ -135,7 +137,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
      *            the target
      */
     private void populateActionHistoryDetails(final ProxyTarget target) {
-        if (null != target) {
+        if (target != null) {
             actionHistoryHeader.updateActionHistoryHeader(target.getName());
             masterDetailsSupport.masterItemChangedCallback(target);
         } else {
@@ -166,8 +168,9 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
          *
          * @param managementUIState
          */
-        ActionHistoryHeader(final ManagementUIState managementUIState) {
-            super(managementUIState, actionHistoryCaption, getI18n());
+        ActionHistoryHeader() {
+            super(actionHistoryCaption, getI18n());
+
             this.setHeaderMaximizeSupport(
                     new ActionHistoryHeaderMaxSupport(this, SPUIDefinitions.EXPAND_ACTION_HISTORY));
         }
@@ -178,6 +181,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
         @Override
         public ActionHistoryHeader init() {
             super.init();
+            addStyleName("action-history-header");
             restorePreviousState();
             return this;
         }
@@ -226,11 +230,13 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
             // TODO: check if it is needed
             // details.populateMasterDataAndRecreateContainer(masterForDetails);
             getEventBus().publish(this, ManagementUIEvent.MAX_ACTION_HISTORY);
+            managementUIState.setActionHistoryMaximized(true);
         }
 
         @Override
         protected void minimize() {
             getEventBus().publish(this, ManagementUIEvent.MIN_ACTION_HISTORY);
+            managementUIState.setActionHistoryMaximized(false);
         }
 
         /**

@@ -35,7 +35,7 @@ public class DistributionSetTableLayout extends AbstractTableLayout<ProxyDistrib
 
     private static final long serialVersionUID = 1L;
 
-    private final DistributionSetTable distributionSetTable;
+    private final DistributionSetGrid distributionSetGrid;
 
     public DistributionSetTableLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
@@ -48,13 +48,12 @@ public class DistributionSetTableLayout extends AbstractTableLayout<ProxyDistrib
             final SystemManagement systemManagement, final TenantConfigurationManagement configManagement,
             final SystemSecurityContext systemSecurityContext) {
 
-        this.distributionSetTable = new DistributionSetTable(eventBus, i18n, uiNotification, permissionChecker,
-                manageDistUIState, distributionSetManagement, softwareManagement, distributionsViewClientCriterion,
-                targetManagement);
+        this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
+                manageDistUIState, targetManagement, distributionSetManagement);
 
         final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout = new DistributionAddUpdateWindowLayout(
                 i18n, uiNotification, eventBus, distributionSetManagement, distributionSetTypeManagement,
-                systemManagement, entityFactory, distributionSetTable, configManagement, systemSecurityContext);
+                systemManagement, entityFactory, configManagement, systemSecurityContext);
 
         final DsMetadataPopupLayout popupLayout = new DsMetadataPopupLayout(i18n, uiNotification, eventBus,
                 distributionSetManagement, entityFactory, permissionChecker);
@@ -62,14 +61,14 @@ public class DistributionSetTableLayout extends AbstractTableLayout<ProxyDistrib
         super.init(i18n,
                 new DistributionSetTableHeader(
                         i18n, permissionChecker, eventBus, manageDistUIState, distributionAddUpdateWindowLayout),
-                distributionSetTable,
+                distributionSetGrid,
                 new DistributionSetDetails(i18n, eventBus, permissionChecker, manageDistUIState, managementUIState,
                         distributionAddUpdateWindowLayout, distributionSetManagement, uiNotification,
                         distributionSetTagManagement, popupLayout, configManagement, systemSecurityContext));
     }
 
-    public DistributionSetTable getDistributionSetTable() {
-        return distributionSetTable;
+    public DistributionSetGrid getDistributionSetGrid() {
+        return distributionSetGrid;
     }
 
 }

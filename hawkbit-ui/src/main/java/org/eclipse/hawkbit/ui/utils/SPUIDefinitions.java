@@ -217,6 +217,10 @@ public final class SPUIDefinitions {
      */
     public static final String EXPAND_ACTION_HISTORY = "expand.action.history";
     /**
+     * Expand action history.
+     */
+    public static final String EXPAND_ARTIFACT_DETAILS = "expand.artifact.details";
+    /**
      * Filter by distribution key.
      */
     public static final String ORDER_BY_DISTRIBUTION = "OrderByDistribution";

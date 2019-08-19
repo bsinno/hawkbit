@@ -176,7 +176,8 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
                 .setText(i18n.getMessage("header.auto.assignment.ds"));
 
         addComponentColumn(targetFilter -> buildActionButton(
-                clickEvent -> targetFilterDeleteSupport.openConfirmationWindowDeleteAction(targetFilter),
+                clickEvent -> targetFilterDeleteSupport.openConfirmationWindowDeleteAction(targetFilter,
+                        targetFilter.getName()),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON + "." + targetFilter.getId(),
                 targetFilterDeleteSupport.hasDeletePermission())).setId(FILTER_DELETE_BUTTON_ID)

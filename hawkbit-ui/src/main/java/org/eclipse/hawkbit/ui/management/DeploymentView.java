@@ -161,7 +161,7 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
                     uiProperties, permChecker, targetTagManagement, distributionSetManagement, uiExecutor);
 
             // TODO:
-            // targetLayout.registerDetails(actionHistoryLayout.getGrid().getMasterDetailsSupport());
+            // targetLayout.registerDetails(actionHistoryLayout.getMasterDetailsSupport());
             actionHistoryLayout.registerDetails(actionStatusLayout.getMasterDetailsSupport());
             actionStatusLayout.registerDetails(actionStatusMsgLayout.getMasterDetailsSupport());
         } else {
