@@ -32,6 +32,8 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
     // TODO: can ProxyType be used here?
     private SoftwareModuleType type;
 
+    private boolean assigned;
+
     /**
      * Default constructor.
      */
@@ -67,7 +69,15 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
         return type;
     }
 
-    public void setType(SoftwareModuleType type) {
+    public void setType(final SoftwareModuleType type) {
         this.type = type;
+    }
+
+    public boolean isAssigned() {
+        return assigned;
+    }
+
+    public void setAssigned(boolean assigned) {
+        this.assigned = assigned;
     }
 }

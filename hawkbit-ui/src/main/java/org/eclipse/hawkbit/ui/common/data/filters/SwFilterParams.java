@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsS
 /**
  * Filter params for {@link SoftwareModuleDistributionsStateDataProvider}.
  */
-public class SwDistributionsFilterParams {
+public class SwFilterParams {
     private final String searchText;
     private final Long softwareModuleTypeId;
     private final Long lastSelectedDistributionId;
@@ -25,7 +25,7 @@ public class SwDistributionsFilterParams {
      * @param softwareModuleTypeId
      * @param lastSelectedDistributionId
      */
-    public SwDistributionsFilterParams(final String searchText, final Long softwareModuleTypeId,
+    public SwFilterParams(final String searchText, final Long softwareModuleTypeId,
             final Long lastSelectedDistributionId) {
         this.searchText = searchText;
         this.softwareModuleTypeId = softwareModuleTypeId;

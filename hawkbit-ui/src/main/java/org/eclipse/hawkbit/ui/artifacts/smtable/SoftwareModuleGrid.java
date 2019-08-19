@@ -6,35 +6,30 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.distributions.smtable;
+package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
-import org.eclipse.hawkbit.repository.model.AssignedSoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
+import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
+import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
-import org.eclipse.hawkbit.ui.common.data.mappers.AssignedSoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
-import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsStateDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleArtifactsStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
-import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
-import org.eclipse.hawkbit.ui.distributions.event.SaveActionWindowEvent;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -42,7 +37,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.eclipse.hawkbit.ui.view.filter.OnlyEventsFromDistributionsViewFilter;
+import org.eclipse.hawkbit.ui.view.filter.OnlyEventsFromUploadArtifactViewFilter;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -54,10 +49,11 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.UI;
 
+//TODO: remove duplication with SwModuleGrid
 /**
- * Software Module grid which is shown on the Distributions View.
+ * Software Module grid which is shown on the Upload View.
  */
-public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterParams> {
+public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterParams> {
     private static final long serialVersionUID = 1L;
 
     private static final String SM_NAME_ID = "smName";
@@ -70,31 +66,31 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     private static final String SM_VENDOR_ID = "smDescription";
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
 
-    private final ManageDistUIState manageDistUIState;
+    private final ArtifactUploadState uploadUIState;
+    private final UINotification notification;
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
     private final ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> swModuleDataProvider;
-    private final AssignedSoftwareModuleToProxyMapper assignedSoftwareModuleToProxyMapper;
+    private final SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
     private final DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
-    private final DragAndDropSupport<ProxySoftwareModule> dragAndDropSupport;
 
-    public SwModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
+    public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final ManageDistUIState manageDistUIState, final SoftwareModuleManagement softwareModuleManagement) {
+            final ArtifactUploadState uploadUIState, final SoftwareModuleManagement softwareModuleManagement) {
         super(i18n, eventBus, permissionChecker);
 
-        this.manageDistUIState = manageDistUIState;
+        this.uploadUIState = uploadUIState;
+        this.notification = notification;
         this.softwareModuleManagement = softwareModuleManagement;
 
-        this.assignedSoftwareModuleToProxyMapper = new AssignedSoftwareModuleToProxyMapper(
-                new SoftwareModuleToProxyMapper());
-        this.swModuleDataProvider = new SoftwareModuleDistributionsStateDataProvider(softwareModuleManagement,
-                assignedSoftwareModuleToProxyMapper).withConfigurableFilter();
+        this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
+        this.swModuleDataProvider = new SoftwareModuleArtifactsStateDataProvider(softwareModuleManagement,
+                softwareModuleToProxyMapper).withConfigurableFilter();
 
         setResizeSupport(new SwModuleResizeSupport());
 
         setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this));
-        if (manageDistUIState.isSwModuleTableMaximized()) {
+        if (uploadUIState.isSwModuleTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
             getSelectionSupport().enableMultiSelection();
@@ -103,25 +99,38 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.software.module"),
                 permissionChecker, notification, this::swModuleIdsDeletionCallback);
 
-        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap());
-        this.dragAndDropSupport.addDragSource();
-
         init();
     }
 
     private void swModuleIdsDeletionCallback(final Collection<Long> swModuleToBeDeletedIds) {
+        if (isUploadInProgressForSoftwareModule(swModuleToBeDeletedIds)) {
+            notification.displayValidationError(i18n.getMessage("message.error.swModule.notDeleted"));
+            return;
+        }
+
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
 
         // TODO: should we really pass the swModuleToBeDeletedIds? We call
         // dataprovider refreshAll anyway after receiving the event
         eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.REMOVE_ENTITY, swModuleToBeDeletedIds));
 
-        manageDistUIState.getSelectedSoftwareModules().clear();
+        uploadUIState.getSelectedSoftwareModules().clear();
+
+        eventBus.publish(this, UploadArtifactUIEvent.DELETED_ALL_SOFTWARE);
+    }
+
+    private boolean isUploadInProgressForSoftwareModule(final Collection<Long> swModuleToBeDeletedIds) {
+        for (final Long id : swModuleToBeDeletedIds) {
+            if (uploadUIState.isUploadInProgressForSelectedSoftwareModule(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public String getGridId() {
-        return UIComponentIdProvider.SOFTWARE_MODULE_TABLE;
+        return UIComponentIdProvider.UPLOAD_SOFTWARE_MODULE_TABLE;
     }
 
     @Override
@@ -144,17 +153,14 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
 
     private void publishSmSelectedEntityForRefresh(
             final Stream<? extends RemoteEntityEvent<SoftwareModule>> smEntityEventStream) {
-        // TODO: check if we should work with AssignedSoftwareModule here
-        // directly from the event
         smEntityEventStream.filter(event -> isLastSelectedSm(event.getEntityId())).filter(Objects::nonNull).findAny()
-                .ifPresent(event -> eventBus.publish(this,
-                        new SoftwareModuleEvent(BaseEntityEventType.SELECTED_ENTITY, assignedSoftwareModuleToProxyMapper
-                                .map(new AssignedSoftwareModule(event.getEntity(), false)))));
+                .ifPresent(event -> eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.SELECTED_ENTITY,
+                        softwareModuleToProxyMapper.map(event.getEntity()))));
     }
 
     private boolean isLastSelectedSm(final Long swModuleId) {
-        return manageDistUIState.getLastSelectedSoftwareModule()
-                .map(lastSelectedSmId -> lastSelectedSmId.equals(swModuleId)).orElse(false);
+        return uploadUIState.getSelectedBaseSwModuleId().map(lastSelectedSmId -> lastSelectedSmId.equals(swModuleId))
+                .orElse(false);
     }
 
     /**
@@ -163,61 +169,27 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
      * @param filterEvent
      *            as instance of {@link RefreshDistributionTableByFilterEvent}
      */
-    @EventBusListenerMethod(scope = EventScope.UI, filter = OnlyEventsFromDistributionsViewFilter.class)
+    @EventBusListenerMethod(scope = EventScope.UI, filter = OnlyEventsFromUploadArtifactViewFilter.class)
     void onEvent(final RefreshSoftwareModuleByFilterEvent filterEvent) {
-        UI.getCurrent().access(() -> {
-            refreshFilter();
-            styleRowOnDistSelection();
-        });
-    }
-
-    private void styleRowOnDistSelection() {
-        setStyleGenerator(sm -> {
-            // TODO: do something with color: {background-color:" + color + "
-            // !important;background-image:none !important }
-            // final String color = sm.getType().getColour() != null ?
-            // sm.getType().getColour() :
-            // SPUIDefinitions.DEFAULT_COLOR;
-            // https://vaadin.com/docs/v8/framework/articles/DynamicallyInjectingCSS.html
-
-            if (sm.isAssigned()) {
-                return "distribution-upload-type-" + sm.getType().getId();
-            }
-
-            return null;
-        });
+        UI.getCurrent().access(this::refreshFilter);
     }
 
     private void refreshFilter() {
         final SwFilterParams filterParams = new SwFilterParams(getSearchTextFromUiState(),
-                getSwModuleTypeIdFromUiState(), getLastSelectedDistributionIdFromUiState());
+                getSwModuleTypeIdFromUiState(), null);
 
         getFilterDataProvider().setFilter(filterParams);
     }
 
     private String getSearchTextFromUiState() {
-        return manageDistUIState.getSoftwareModuleFilters().getSearchText()
+        return uploadUIState.getSoftwareModuleFilters().getSearchText()
                 .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
                 .orElse(null);
     }
 
     private Long getSwModuleTypeIdFromUiState() {
-        return manageDistUIState.getSoftwareModuleFilters().getSoftwareModuleType().map(SoftwareModuleType::getId)
+        return uploadUIState.getSoftwareModuleFilters().getSoftwareModuleType().map(SoftwareModuleType::getId)
                 .orElse(null);
-    }
-
-    private Long getLastSelectedDistributionIdFromUiState() {
-        return manageDistUIState.getLastSelectedDistribution().orElse(null);
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SaveActionWindowEvent event) {
-        // TODO: should we also check
-        // SaveActionWindowEvent.SAVED_ASSIGNMENTS event?
-        // TODO: is it sufficient to call refreshContainer?
-        if (event == SaveActionWindowEvent.DELETE_ALL_SOFWARE) {
-            UI.getCurrent().access(this::refreshFilter);
-        }
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -263,18 +235,18 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
      */
     public void updateSwModule(final ProxySoftwareModule updatedSwModule) {
         if (updatedSwModule != null) {
+            // TODO: fix casting (will not work) - use
+            // ProxyAssignedSoftwareModule directly
+            // in event
             getDataProvider().refreshItem(updatedSwModule);
         }
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionsUIEvent event) {
-        UI.getCurrent().access(() -> {
-            if (event == DistributionsUIEvent.ORDER_BY_DISTRIBUTION) {
-                refreshFilter();
-                styleRowOnDistSelection();
-            }
-        });
+    void onEvent(final UploadArtifactUIEvent event) {
+        if (event == UploadArtifactUIEvent.DELETED_ALL_SOFTWARE) {
+            UI.getCurrent().access(this::refreshFilter);
+        }
     }
 
     @Override

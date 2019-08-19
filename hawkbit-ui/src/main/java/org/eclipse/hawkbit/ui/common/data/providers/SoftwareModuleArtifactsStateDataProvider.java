@@ -12,8 +12,7 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
-import org.eclipse.hawkbit.ui.artifacts.state.SoftwareModuleFilters;
+import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.springframework.data.domain.PageRequest;
@@ -28,54 +27,50 @@ import org.springframework.util.StringUtils;
  * {@link ProxySoftwareModule} entities.
  */
 public class SoftwareModuleArtifactsStateDataProvider
-        extends ProxyDataProvider<ProxySoftwareModule, SoftwareModule, Void> {
+        extends ProxyDataProvider<ProxySoftwareModule, SoftwareModule, SwFilterParams> {
 
     private static final long serialVersionUID = 1L;
 
     private final transient SoftwareModuleManagement softwareModuleManagement;
-    private final SoftwareModuleFilters artifactsUiState;
 
     public SoftwareModuleArtifactsStateDataProvider(final SoftwareModuleManagement softwareModuleManagement,
-            final SoftwareModuleFilters artifactsUiState, final SoftwareModuleToProxyMapper entityMapper) {
+            final SoftwareModuleToProxyMapper entityMapper) {
         super(entityMapper, new Sort(Direction.ASC, "name", "version"));
 
         this.softwareModuleManagement = softwareModuleManagement;
-        this.artifactsUiState = artifactsUiState;
     }
 
-    // TODO: use filter instead of uiState
     @Override
     protected Optional<Slice<SoftwareModule>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Void> filter) {
-        final String searchText = getSearchTextFromUiState();
-        final Long typeId = getSoftwareModuleTypeIdFromUiState();
-
-        if (typeId == null && StringUtils.isEmpty(searchText)) {
+            final Optional<SwFilterParams> filter) {
+        if (!filter.isPresent()) {
             return Optional.of(softwareModuleManagement.findAll(pageRequest));
-        } else {
-            return Optional.of(softwareModuleManagement.findByTextAndType(pageRequest, searchText, typeId));
         }
-    }
 
-    private String getSearchTextFromUiState() {
-        return artifactsUiState.getSearchText().filter(searchText -> !StringUtils.isEmpty(searchText))
-                .map(value -> String.format("%%%s%%", value)).orElse(null);
-    }
+        return filter.map(filterParams -> {
+            final String searchText = filterParams.getSearchText();
+            final Long typeId = filterParams.getSoftwareModuleTypeId();
 
-    private Long getSoftwareModuleTypeIdFromUiState() {
-        return artifactsUiState.getSoftwareModuleType().map(SoftwareModuleType::getId).orElse(null);
+            if (typeId == null && StringUtils.isEmpty(searchText)) {
+                return softwareModuleManagement.findAll(pageRequest);
+            } else {
+                return softwareModuleManagement.findByTextAndType(pageRequest, searchText, typeId);
+            }
+        });
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
-        final String searchText = getSearchTextFromUiState();
-        final Long typeId = getSoftwareModuleTypeIdFromUiState();
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<SwFilterParams> filter) {
+        return filter.map(filterParams -> {
+            final Long typeId = filterParams.getSoftwareModuleTypeId();
+            final String searchText = filterParams.getSearchText();
 
-        if (typeId == null && StringUtils.isEmpty(searchText)) {
-            return softwareModuleManagement.count();
-        } else {
-            return softwareModuleManagement.countByTextAndType(searchText, typeId);
-        }
+            if (typeId == null && StringUtils.isEmpty(searchText)) {
+                return softwareModuleManagement.count();
+            } else {
+                return softwareModuleManagement.countByTextAndType(searchText, typeId);
+            }
+        }).orElse(softwareModuleManagement.count());
     }
 
 }
