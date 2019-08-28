@@ -55,7 +55,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
     private final UINotification uiNotification;
     private final DsMetadataPopupLayout dsMetadataPopupLayout;
     private final DistributionTagToken distributionTagToken;
-    private final SoftwareModuleDetailsTable softwareModuleDetailsTable;
+    private final SoftwareModuleDetailsGrid softwareModuleDetailsGrid;
 
     private VerticalLayout softwareModuleTab;
 
@@ -65,7 +65,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
             final DistributionSetManagement distributionSetManagement,
             final DsMetadataPopupLayout dsMetadataPopupLayout, final UINotification uiNotification,
             final DistributionSetTagManagement distributionSetTagManagement,
-            final SoftwareModuleDetailsTable softwareModuleDetailsTable,
+            final SoftwareModuleDetailsGrid softwareModuleDetailsGrid,
             final TenantConfigurationManagement tenantConfigurationManagement,
             final SystemSecurityContext systemSecurityContext) {
         super(i18n, eventBus, permissionChecker, managementUIState);
@@ -75,7 +75,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
         this.dsMetadataPopupLayout = dsMetadataPopupLayout;
         this.distributionTagToken = new DistributionTagToken(permissionChecker, i18n, uiNotification, eventBus,
                 managementUIState, distributionSetTagManagement, distributionSetManagement);
-        this.softwareModuleDetailsTable = softwareModuleDetailsTable;
+        this.softwareModuleDetailsGrid = softwareModuleDetailsGrid;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.systemSecurityContext = systemSecurityContext;
 
@@ -168,13 +168,13 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
     }
 
     protected void populateModule() {
-        softwareModuleDetailsTable.populateModule(getSelectedBaseEntity());
+        softwareModuleDetailsGrid.populateModule(getSelectedBaseEntity());
     }
 
     private final void createSoftwareModuleTab() {
         this.softwareModuleTab = createTabLayout();
         softwareModuleTab.setSizeFull();
-        softwareModuleTab.addComponent(softwareModuleDetailsTable);
+        softwareModuleTab.addComponent(softwareModuleDetailsGrid);
     }
 
     private void updateDistributionSetDetailsLayout(final String type, final Boolean isMigrationRequired) {
@@ -209,8 +209,8 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
                 : getI18n().getMessage("label.no");
     }
 
-    protected SoftwareModuleDetailsTable getSoftwareModuleTable() {
-        return softwareModuleDetailsTable;
+    protected SoftwareModuleDetailsGrid getSoftwareModuleGrid() {
+        return softwareModuleDetailsGrid;
     }
 
     protected DistributionAddUpdateWindowLayout getDistributionAddUpdateWindowLayout() {

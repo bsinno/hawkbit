@@ -24,7 +24,7 @@ import org.springframework.data.domain.Sort.Direction;
  * batch of {@link DistributionSetType} entities from backend and maps them to
  * corresponding {@link ProxyType} entities.
  */
-public class DistributionSetTypeDataProvider extends ProxyDataProvider<ProxyType, DistributionSetType, Void> {
+public class DistributionSetTypeDataProvider extends ProxyDataProvider<ProxyType, DistributionSetType, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,12 +38,12 @@ public class DistributionSetTypeDataProvider extends ProxyDataProvider<ProxyType
 
     @Override
     protected Optional<Slice<DistributionSetType>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Void> filter) {
+            final Optional<String> filter) {
         return Optional.of(distributionSetTypeManagement.findAll(pageRequest));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
         return distributionSetTypeManagement.count();
     }
 

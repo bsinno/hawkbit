@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.management.dstable;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -28,26 +27,25 @@ import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.TextArea;
 import com.vaadin.v7.ui.TextField;
 
@@ -67,12 +65,14 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
     private final transient EntityFactory entityFactory;
     private final transient TenantConfigurationManagement tenantConfigurationManagement;
     private final transient SystemSecurityContext systemSecurityContext;
+    private final transient DistributionSetTypeDataProvider dsTypeComboDataProvider;
+    private final transient TypeToProxyTypeMapper<DistributionSetType> mapper;
 
     private TextField distNameTextField;
     private TextField distVersionTextField;
     private TextArea descTextArea;
     private CheckBox reqMigStepCheckbox;
-    private ComboBox distsetTypeNameComboBox;
+    private ComboBox<ProxyType> distsetTypeNameComboBox;
 
     private FormLayout formLayout;
 
@@ -93,8 +93,6 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
      *            SystemManagement
      * @param entityFactory
      *            EntityFactory
-     * @param distributionSetTable
-     *            DistributionSetTable
      * @param tenantConfigurationManagement
      *            TenantConfigurationManagement
      */
@@ -112,6 +110,10 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
         this.entityFactory = entityFactory;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.systemSecurityContext = systemSecurityContext;
+
+        this.mapper = new TypeToProxyTypeMapper<>();
+        this.dsTypeComboDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement, mapper);
+
         createRequiredComponents();
         buildLayout();
     }
@@ -133,18 +135,15 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
                 return;
             }
             final boolean isMigStepReq = reqMigStepCheckbox.getValue();
-            final Long distSetTypeId = (Long) distsetTypeNameComboBox.getValue();
 
-            distributionSetTypeManagement.get(distSetTypeId).ifPresent(type -> {
-                final DistributionSet currentDS = distributionSetManagement.update(entityFactory.distributionSet()
-                        .update(editDistId).name(distNameTextField.getValue()).description(descTextArea.getValue())
-                        .version(distVersionTextField.getValue()).requiredMigrationStep(isMigStepReq));
-                notificationMessage.displaySuccess(
-                        i18n.getMessage("message.new.dist.save.success", currentDS.getName(), currentDS.getVersion()));
-                // update table row+details layout
-                eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.UPDATED_ENTITY,
-                        new DistributionSetToProxyDistributionMapper().map(currentDS)));
-            });
+            final DistributionSet currentDS = distributionSetManagement.update(entityFactory.distributionSet()
+                    .update(editDistId).name(distNameTextField.getValue()).description(descTextArea.getValue())
+                    .version(distVersionTextField.getValue()).requiredMigrationStep(isMigStepReq));
+            notificationMessage.displaySuccess(
+                    i18n.getMessage("message.new.dist.save.success", currentDS.getName(), currentDS.getVersion()));
+            // update table row+details layout
+            eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.UPDATED_ENTITY,
+                    new DistributionSetToProxyDistributionMapper().map(currentDS)));
         }
 
         @Override
@@ -163,7 +162,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
         public void saveOrUpdate() {
             final String name = distNameTextField.getValue();
             final String version = distVersionTextField.getValue();
-            final Long distSetTypeId = (Long) distsetTypeNameComboBox.getValue();
+            final Long distSetTypeId = distsetTypeNameComboBox.getValue().getId();
             final String desc = descTextArea.getValue();
             final boolean isMigStepReq = reqMigStepCheckbox.getValue();
 
@@ -232,11 +231,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
         distVersionTextField = createTextField("textfield.version", UIComponentIdProvider.DIST_ADD_VERSION,
                 DistributionSet.VERSION_MAX_SIZE);
 
-        distsetTypeNameComboBox = SPUIComponentProvider.getComboBox(i18n.getMessage("label.combobox.type"), "", null,
-                "", false, "", i18n.getMessage("label.combobox.type"));
-
-        distsetTypeNameComboBox.setNullSelectionAllowed(false);
-        distsetTypeNameComboBox.setId(UIComponentIdProvider.DIST_ADD_DISTSETTYPE);
+        distsetTypeNameComboBox = initDsTypeCombo();
 
         descTextArea = new TextAreaBuilderV7(DistributionSet.DESCRIPTION_MAX_SIZE)
                 .caption(i18n.getMessage("textfield.description")).style("text-area-style")
@@ -248,27 +243,20 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
         reqMigStepCheckbox.setId(UIComponentIdProvider.DIST_ADD_MIGRATION_CHECK);
     }
 
+    private ComboBox<ProxyType> initDsTypeCombo() {
+        final ComboBox<ProxyType> combo = new ComboBox<>(i18n.getMessage("label.combobox.type"));
+
+        combo.setId(UIComponentIdProvider.DIST_ADD_DISTSETTYPE);
+        combo.setDescription(i18n.getMessage("label.combobox.type"));
+        combo.setItemCaptionGenerator(ProxyType::getName);
+        combo.setDataProvider(dsTypeComboDataProvider);
+
+        return combo;
+    }
+
     private TextField createTextField(final String in18Key, final String id, final int maxLength) {
         return new TextFieldBuilderV7(maxLength).caption(i18n.getMessage(in18Key)).required(true, i18n).id(id)
                 .buildTextComponent();
-    }
-
-    /**
-     * Get the LazyQueryContainer instance for DistributionSetTypes.
-     *
-     * @return
-     */
-    private static LazyQueryContainer getDistSetTypeLazyQueryContainer() {
-        final BeanQueryFactory<DistributionSetTypeBeanQuery> dtQF = new BeanQueryFactory<>(
-                DistributionSetTypeBeanQuery.class);
-        dtQF.setQueryConfiguration(Collections.emptyMap());
-
-        final LazyQueryContainer disttypeContainer = new LazyQueryContainer(
-                new LazyQueryDefinition(true, SPUIDefinitions.DIST_TYPE_SIZE, SPUILabelDefinitions.VAR_ID), dtQF);
-
-        disttypeContainer.addContainerProperty(SPUILabelDefinitions.VAR_NAME, String.class, "", true, true);
-
-        return disttypeContainer;
     }
 
     private DistributionSetType getDefaultDistributionSetType() {
@@ -300,20 +288,14 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
     private void populateValuesOfDistribution(final Long editDistId) {
 
         final Optional<DistributionSet> distSet = distributionSetManagement.getWithDetails(editDistId);
-        if (!distSet.isPresent()) {
-            return;
-        }
-
-        distNameTextField.setValue(distSet.get().getName());
-        distVersionTextField.setValue(distSet.get().getVersion());
-        if (distSet.get().getType().isDeleted()) {
-            distsetTypeNameComboBox.addItem(distSet.get().getType().getId());
-        }
-        distsetTypeNameComboBox.setValue(distSet.get().getType().getId());
-        distsetTypeNameComboBox.setEnabled(false);
-
-        reqMigStepCheckbox.setValue(distSet.get().isRequiredMigrationStep());
-        descTextArea.setValue(distSet.get().getDescription());
+        distSet.ifPresent(ds -> {
+            distNameTextField.setValue(ds.getName());
+            distVersionTextField.setValue(ds.getVersion());
+            distsetTypeNameComboBox.setSelectedItem(mapper.map(ds.getType()));
+            distsetTypeNameComboBox.setEnabled(false);
+            reqMigStepCheckbox.setValue(ds.isRequiredMigrationStep());
+            descTextArea.setValue(ds.getDescription());
+        });
     }
 
     /**
@@ -351,7 +333,7 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
         String caption;
 
         resetComponents();
-        populateDistSetTypeNameCombo();
+        distsetTypeNameComboBox.setSelectedItem(mapper.map(getDefaultDistributionSetType()));
 
         if (editDistId == null) {
             saveDialogCloseListener = new CreateOnCloseDialogListener();
@@ -367,14 +349,4 @@ public class DistributionAddUpdateWindowLayout extends CustomComponent {
                 .id(UIComponentIdProvider.CREATE_POPUP_ID).layout(formLayout).i18n(i18n)
                 .saveDialogCloseListener(saveDialogCloseListener).buildCommonDialogWindow();
     }
-
-    /**
-     * Populate DistributionSet Type name combo.
-     */
-    private void populateDistSetTypeNameCombo() {
-        distsetTypeNameComboBox.setContainerDataSource(getDistSetTypeLazyQueryContainer());
-        distsetTypeNameComboBox.setItemCaptionPropertyId(SPUILabelDefinitions.VAR_NAME);
-        distsetTypeNameComboBox.setValue(getDefaultDistributionSetType().getId());
-    }
-
 }

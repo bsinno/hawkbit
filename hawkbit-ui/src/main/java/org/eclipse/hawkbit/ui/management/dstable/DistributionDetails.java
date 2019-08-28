@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractDistributionSetDetails;
-import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsTable;
+import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsGrid;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -38,14 +38,14 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
             final SystemSecurityContext systemSecurityContext) {
         super(i18n, eventBus, permissionChecker, managementUIState, distributionAddUpdateWindowLayout,
                 distributionSetManagement, dsMetadataPopupLayout, uiNotification, distributionSetTagManagement,
-                createSoftwareModuleDetailsTable(i18n, permissionChecker, uiNotification),
-                tenantConfigurationManagement, systemSecurityContext);
+                createSoftwareModuleDetailsGrid(i18n, permissionChecker, uiNotification), tenantConfigurationManagement,
+                systemSecurityContext);
         restoreState();
     }
 
-    private static final SoftwareModuleDetailsTable createSoftwareModuleDetailsTable(final VaadinMessageSource i18n,
+    private static final SoftwareModuleDetailsGrid createSoftwareModuleDetailsGrid(final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification uiNotification) {
-        return new SoftwareModuleDetailsTable(i18n, false, permissionChecker, null, null, null, uiNotification);
+        return new SoftwareModuleDetailsGrid(i18n, false, permissionChecker, null, null, null, uiNotification);
     }
 
     @Override

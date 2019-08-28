@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
@@ -67,10 +68,11 @@ public class FilterManagementView extends VerticalLayout implements View {
             final FilterManagementUIState filterManagementUIState,
             final TargetFilterQueryManagement targetFilterQueryManagement, final SpPermissionChecker permissionChecker,
             final UINotification notification, final UiProperties uiProperties, final EntityFactory entityFactory,
-            final AutoCompleteTextFieldComponent queryTextField, final TargetManagement targetManagement) {
+            final AutoCompleteTextFieldComponent queryTextField, final TargetManagement targetManagement,
+            final DistributionSetManagement distributionSetManagement) {
         this.targetFilterHeader = new TargetFilterHeader(eventBus, filterManagementUIState, permissionChecker, i18n);
         this.targetFilterGrid = new TargetFilterGrid(i18n, notification, eventBus, filterManagementUIState,
-                targetFilterQueryManagement, targetManagement, permissionChecker);
+                targetFilterQueryManagement, targetManagement, distributionSetManagement, permissionChecker);
         this.createNewFilterHeader = new CreateOrUpdateFilterHeader(i18n, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, permissionChecker, notification, uiProperties, entityFactory,
                 queryTextField);

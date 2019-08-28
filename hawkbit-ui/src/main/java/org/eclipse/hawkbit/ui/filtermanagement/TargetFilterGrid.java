@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
+import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
@@ -65,6 +66,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     private final FilterManagementUIState filterManagementUIState;
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
     private final transient TargetManagement targetManagement;
+    private final transient DistributionSetManagement distributionSetManagement;
 
     private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
@@ -74,13 +76,14 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     public TargetFilterGrid(final VaadinMessageSource i18n, final UINotification notification,
             final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
             final TargetFilterQueryManagement targetFilterQueryManagement, final TargetManagement targetManagement,
-            final SpPermissionChecker permChecker) {
+            final DistributionSetManagement distributionSetManagement, final SpPermissionChecker permChecker) {
         super(i18n, eventBus, permChecker);
 
         this.notification = notification;
         this.filterManagementUIState = filterManagementUIState;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.targetManagement = targetManagement;
+        this.distributionSetManagement = distributionSetManagement;
 
         this.targetFilterDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
                 new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
@@ -252,7 +255,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     private void onClickOfAutoAssignmentLink(final Long targetFilterId) {
         if (permissionChecker.hasReadRepositoryPermission()) {
             final DistributionSetSelectWindow dsSelectWindow = new DistributionSetSelectWindow(i18n, eventBus,
-                    notification, targetManagement, targetFilterQueryManagement);
+                    targetManagement, targetFilterQueryManagement, distributionSetManagement);
             dsSelectWindow.showForTargetFilter(targetFilterId);
         } else {
             notification.displayValidationError(

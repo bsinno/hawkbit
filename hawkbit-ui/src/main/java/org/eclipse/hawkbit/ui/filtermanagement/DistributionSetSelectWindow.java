@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.function.Consumer;
 
+import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
@@ -18,15 +19,16 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAutoAssignmentLayout;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
-import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -35,9 +37,10 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
-import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
@@ -49,24 +52,27 @@ import com.vaadin.v7.ui.VerticalLayout;
 public class DistributionSetSelectWindow implements CommonDialogWindowV7.SaveDialogCloseListener {
 
     private final VaadinMessageSource i18n;
-    private final UINotification notification;
     private final EventBus.UIEventBus eventBus;
     private final TargetManagement targetManagement;
     private final TargetFilterQueryManagement targetFilterQueryManagement;
+    private final DistributionSetStatelessDataProvider autoDsComboDataProvider;
+    private final DistributionSetToProxyDistributionMapper mapper;
 
     private CheckBox checkBox;
     private ActionTypeOptionGroupAutoAssignmentLayout actionTypeOptionGroupLayout;
-    private DistributionSetSelectComboBox dsCombo;
+    private ComboBox<ProxyDistributionSet> autoDsCombo;
     private Long tfqId;
 
     DistributionSetSelectWindow(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final UINotification notification, final TargetManagement targetManagement,
-            final TargetFilterQueryManagement targetFilterQueryManagement) {
+            final TargetManagement targetManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
+            final DistributionSetManagement distributionSetManagement) {
         this.i18n = i18n;
-        this.notification = notification;
         this.eventBus = eventBus;
         this.targetManagement = targetManagement;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
+
+        this.mapper = new DistributionSetToProxyDistributionMapper();
+        this.autoDsComboDataProvider = new DistributionSetStatelessDataProvider(distributionSetManagement, mapper);
     }
 
     private VerticalLayout initView() {
@@ -75,19 +81,31 @@ public class DistributionSetSelectWindow implements CommonDialogWindowV7.SaveDia
         checkBox = new CheckBox(i18n.getMessage(UIMessageIdProvider.LABEL_AUTO_ASSIGNMENT_ENABLE));
         checkBox.setId(UIComponentIdProvider.DIST_SET_SELECT_ENABLE_ID);
 
-        checkBox.addValueChangeListener(
-                event -> switchAutoAssignmentInputsVisibility((boolean) event.getProperty().getValue()));
+        checkBox.addValueChangeListener(event -> switchAutoAssignmentInputsVisibility(event.getValue()));
 
         actionTypeOptionGroupLayout = new ActionTypeOptionGroupAutoAssignmentLayout(i18n);
-        dsCombo = new DistributionSetSelectComboBox(i18n);
+        autoDsCombo = initAutoDsCombo();
 
         final VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.addComponent(label);
         verticalLayout.addComponent(checkBox);
         verticalLayout.addComponent(actionTypeOptionGroupLayout);
-        verticalLayout.addComponent(dsCombo);
+        verticalLayout.addComponent(autoDsCombo);
 
         return verticalLayout;
+    }
+
+    private ComboBox<ProxyDistributionSet> initAutoDsCombo() {
+        final ComboBox<ProxyDistributionSet> combo = new ComboBox<>(
+                i18n.getMessage(UIMessageIdProvider.HEADER_DISTRIBUTION_SET));
+
+        combo.setId(UIComponentIdProvider.DIST_SET_SELECT_COMBO_ID);
+        combo.setSizeFull();
+        combo.setReadOnly(true);
+        combo.setItemCaptionGenerator(ProxyDistributionSet::getNameVersion);
+        combo.setDataProvider(autoDsComboDataProvider);
+
+        return combo;
     }
 
     /**
@@ -127,27 +145,16 @@ public class DistributionSetSelectWindow implements CommonDialogWindowV7.SaveDia
         actionTypeOptionGroupLayout.getActionTypeOptionGroup().setSelectedItem(actionTypeToSet);
 
         if (distributionSet != null) {
-            final String initialFilterString = HawkbitCommonUtil.getFormattedNameVersion(distributionSet.getName(),
-                    distributionSet.getVersion());
-            final int filteredSize = dsCombo.setInitialValueFilter(initialFilterString);
-
-            if (filteredSize <= 0) {
-                notification.displayValidationError(
-                        i18n.getMessage(UIMessageIdProvider.MESSAGE_SELECTED_DS_NOT_FOUND, initialFilterString));
-                dsCombo.refreshContainer();
-                dsCombo.setValue(null);
-                return;
-            }
+            // TODO: check if we need to apply filter before
+            autoDsCombo.setSelectedItem(mapper.map(distributionSet));
         }
-        dsCombo.setValue(distributionSet != null ? distributionSet.getId() : null);
     }
 
     private void switchAutoAssignmentInputsVisibility(final boolean autoAssignmentEnabled) {
         actionTypeOptionGroupLayout.setVisible(autoAssignmentEnabled);
 
-        dsCombo.setVisible(autoAssignmentEnabled);
-        dsCombo.setEnabled(autoAssignmentEnabled);
-        dsCombo.setRequired(autoAssignmentEnabled);
+        autoDsCombo.setVisible(autoAssignmentEnabled);
+        autoDsCombo.setEnabled(autoAssignmentEnabled);
     }
 
     /**
@@ -165,7 +172,7 @@ public class DistributionSetSelectWindow implements CommonDialogWindowV7.SaveDia
     }
 
     private boolean isAutoAssignmentEnabledAndDistributionSetSelected() {
-        return checkBox.getValue() && dsCombo.getValue() != null;
+        return checkBox.getValue() && autoDsCombo.getValue() != null;
     }
 
     private boolean isAutoAssignmentDisabled() {
@@ -178,9 +185,9 @@ public class DistributionSetSelectWindow implements CommonDialogWindowV7.SaveDia
      */
     @Override
     public void saveOrUpdate() {
-        if (checkBox.getValue() && dsCombo.getValue() != null) {
+        if (checkBox.getValue() && autoDsCombo.getValue() != null) {
             final ActionType autoAssignActionType = actionTypeOptionGroupLayout.getActionTypeOptionGroup().getValue();
-            updateTargetFilterQueryDS(tfqId, (Long) dsCombo.getValue(), autoAssignActionType);
+            updateTargetFilterQueryDS(tfqId, autoDsCombo.getValue().getId(), autoAssignActionType);
         } else if (!checkBox.getValue()) {
             updateTargetFilterQueryDS(tfqId, null, null);
         }
