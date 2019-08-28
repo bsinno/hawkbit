@@ -23,9 +23,8 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.ui.CheckBox;
 import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.v7.ui.Grid;
 import com.vaadin.v7.ui.VerticalLayout;
 
@@ -110,22 +109,14 @@ public class SwMetadataPopupLayout
         final CheckBox checkBox = new CheckBox();
         checkBox.setId(UIComponentIdProvider.METADATA_TARGET_VISIBLE_ID);
         checkBox.setCaption(i18n.getMessage("metadata.targetvisible"));
-        checkBox.addValueChangeListener(this::onCheckBoxChange);
+        checkBox.addValueChangeListener(event -> {
+            if (hasCreatePermission() || hasUpdatePermission()) {
+                getMetadataWindow().setSaveButtonEnabled(
+                        !getValueTextArea().getValue().isEmpty() && !getKeyTextField().getValue().isEmpty());
+            }
+        });
 
         return checkBox;
-    }
-
-    // Exception for squid:S1172 - parameter defined by Vaadin
-    @SuppressWarnings("squid:S1172")
-    private void onCheckBoxChange(final ValueChangeEvent event) {
-        if (hasCreatePermission() || hasUpdatePermission()) {
-            if (!getValueTextArea().getValue().isEmpty() && !getKeyTextField().getValue().isEmpty()) {
-                getMetadataWindow().setSaveButtonEnabled(true);
-            } else {
-                getMetadataWindow().setSaveButtonEnabled(false);
-            }
-        }
-
     }
 
     @Override

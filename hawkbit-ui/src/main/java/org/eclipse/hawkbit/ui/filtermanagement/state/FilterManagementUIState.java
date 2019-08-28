@@ -81,8 +81,8 @@ public class FilterManagementUIState implements Serializable {
     }
 
     /**
-     * @param rsqlSearch
-     *            the rsqlSearch to set
+     * @param filterQueryValue
+     *            the filterQueryValue to set
      */
     public void setFilterQueryValue(final String filterQueryValue) {
         this.filterQueryValue = filterQueryValue;

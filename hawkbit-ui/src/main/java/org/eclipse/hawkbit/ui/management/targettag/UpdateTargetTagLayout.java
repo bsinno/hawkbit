@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.model.TargetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerConstants;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.layouts.UpdateTag;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
@@ -91,8 +92,9 @@ public class UpdateTargetTagLayout extends AbstractTargetTagLayout implements Up
                 .description(getTagDesc().getValue())
                 .colour(ColorPickerHelper.getColorPickedString(getColorPickerLayout().getSelPreview()));
 
-        getTargetTagManagement().update(update);
-        getEventBus().publish(this, new TargetTagTableEvent(BaseEntityEventType.UPDATED_ENTITY, (TargetTag) targetObj));
+        final TargetTag updatedTargetTag = getTargetTagManagement().update(update);
+        getEventBus().publish(this, new TargetTagTableEvent(BaseEntityEventType.UPDATED_ENTITY,
+                new TagToProxyTagMapper<>().map(updatedTargetTag)));
         getUiNotification().displaySuccess(getI18n().getMessage("message.update.success", targetObj.getName()));
     }
 

@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.model.Tag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerConstants;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.layouts.UpdateTag;
 import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
@@ -91,10 +92,10 @@ public class UpdateDistributionSetTagLayout extends AbstractDistributionSetTagLa
         final TagUpdate update = getEntityFactory().tag().update(targetObj.getId()).name(getTagName().getValue())
                 .description(getTagDesc().getValue())
                 .colour(ColorPickerHelper.getColorPickedString(getColorPickerLayout().getSelPreview()));
-        getDistributionSetTagManagement().update(update);
-        getEventBus().publish(this,
-                new DistributionSetTagTableEvent(BaseEntityEventType.UPDATED_ENTITY, (DistributionSetTag) targetObj));
-        getUiNotification().displaySuccess(getI18n().getMessage("message.update.success", targetObj.getName()));
+        final DistributionSetTag updatedDistTag = getDistributionSetTagManagement().update(update);
+        getEventBus().publish(this, new DistributionSetTagTableEvent(BaseEntityEventType.UPDATED_ENTITY,
+                new TagToProxyTagMapper<>().map(updatedDistTag)));
+        getUiNotification().displaySuccess(getI18n().getMessage("message.update.success", updatedDistTag.getName()));
     }
 
     @Override

@@ -122,10 +122,10 @@ public class ArtifactDetailsLayout extends AbstractGridComponentLayout<ProxyArti
     /**
      * Populate artifact details header and grid for the software module.
      *
-     * @param target
-     *            the target
+     * @param swModule
+     *            the Software Module
      */
-    private void populateArtifactDetails(final ProxySoftwareModule swModule) {
+    public void populateArtifactDetails(final ProxySoftwareModule swModule) {
         if (swModule != null) {
             artifactDetailsHeader.updateArtifactDetailsHeader(swModule.getNameAndVersion());
             masterDetailsSupport.masterItemChangedCallback(swModule);

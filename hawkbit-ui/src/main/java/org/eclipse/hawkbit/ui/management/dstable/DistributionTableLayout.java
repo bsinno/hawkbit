@@ -52,7 +52,7 @@ public class DistributionTableLayout extends AbstractTableLayout<ProxyDistributi
 
         final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout = new DistributionAddUpdateWindowLayout(
                 i18n, notification, eventBus, distributionSetManagement, distributionSetTypeManagement,
-                systemManagement, entityFactory, null, configManagement, systemSecurityContext);
+                systemManagement, entityFactory, null, systemSecurityContext);
 
         final DsMetadataPopupLayout dsMetadataPopupLayout = new DsMetadataPopupLayout(i18n, notification, eventBus,
                 distributionSetManagement, entityFactory, permissionChecker);

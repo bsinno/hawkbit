@@ -19,13 +19,7 @@
    <inherits name="org.vaadin.alump.distributionbar.gwt.DistributionBarWidgetset" />
 
    <inherits name="org.eclipse.hawkbit.ui.AppWidgetSet" />
-
    
-
-   
-
-   <inherits name="org.eclipse.hawkbit.ui.customrenderers.CustomRendererWidgetSet" />
-
    <!--add logging module -->
    <inherits name="com.google.gwt.logging.Logging" />
    <!--To change the default logLevel -->

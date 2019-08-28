@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.repository.model.TargetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerConstants;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -61,7 +62,8 @@ public class CreateTargetTagLayout extends AbstractTargetTagLayout {
 
             final TargetTag newTargetTag = getTargetTagManagement().create(getEntityFactory().tag().create()
                     .name(getTagName().getValue()).description(getTagDesc().getValue()).colour(colour));
-            getEventBus().publish(this, new TargetTagTableEvent(BaseEntityEventType.ADD_ENTITY, newTargetTag));
+            getEventBus().publish(this, new TargetTagTableEvent(BaseEntityEventType.ADD_ENTITY,
+                    new TagToProxyTagMapper<>().map(newTargetTag)));
             displaySuccess(newTargetTag.getName());
         } else {
             displayValidationError(getI18n().getMessage(getMessageErrorMissingTagname()));

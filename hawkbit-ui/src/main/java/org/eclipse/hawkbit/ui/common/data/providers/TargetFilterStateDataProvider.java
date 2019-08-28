@@ -12,7 +12,6 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
-import org.eclipse.hawkbit.ui.common.data.filters.SearchTextFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
@@ -25,7 +24,7 @@ import org.springframework.data.domain.Slice;
  * {@link Target} entities from backend and maps them to corresponding
  * {@link ProxyTarget} entities.
  */
-public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget, Target, SearchTextFilterParams> {
+public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget, Target, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,13 +41,13 @@ public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget
 
     @Override
     protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<SearchTextFilterParams> filter) {
-        return filter.map(filterParams -> targetManagement.findByRsql(pageRequest, filterParams.getSearchText()));
+            final Optional<String> filter) {
+        return filter.map(searchText -> targetManagement.findByRsql(pageRequest, searchText));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<SearchTextFilterParams> filter) {
-        long size = filter.map(filterParams -> targetManagement.countByRsql(filterParams.getSearchText())).orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
+        long size = filter.map(searchText -> targetManagement.countByRsql(searchText)).orElse(0L);
 
         filterManagementUIState.setTargetsCountAll(size);
         if (size > SPUIDefinitions.MAX_TABLE_ENTRIES) {

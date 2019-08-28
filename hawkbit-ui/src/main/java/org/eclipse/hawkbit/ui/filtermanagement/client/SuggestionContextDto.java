@@ -28,8 +28,6 @@ public class SuggestionContextDto implements Serializable {
     /**
      * Constructor.
      * 
-     * @param rsqlQuery
-     *            the original RSQL based query the suggestions based on
      * @param cursorPosition
      *            the current cursor position
      * @param suggestions

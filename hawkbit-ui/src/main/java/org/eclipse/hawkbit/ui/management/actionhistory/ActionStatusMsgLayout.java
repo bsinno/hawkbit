@@ -43,7 +43,7 @@ public class ActionStatusMsgLayout extends AbstractGridComponentLayout<ProxyMess
             final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus);
 
-        this.actionStatusMsgHeader = new DefaultGridHeader(managementUIState,
+        this.actionStatusMsgHeader = new DefaultGridHeader(
                 getI18n().getMessage(UIMessageIdProvider.CAPTION_ACTION_MESSAGES), getI18n()).init();
         this.actionStatusMsgGrid = new ActionStatusMsgGrid(getI18n(), getEventBus(), deploymentManagement);
 

@@ -12,7 +12,6 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.data.filters.SearchTextFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +25,7 @@ import org.springframework.data.domain.Sort.Direction;
  * corresponding {@link ProxyTargetFilterQuery} entities.
  */
 public class TargetFilterQueryDataProvider
-        extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, SearchTextFilterParams> {
+        extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,20 +40,19 @@ public class TargetFilterQueryDataProvider
 
     @Override
     protected Optional<Slice<TargetFilterQuery>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<SearchTextFilterParams> filter) {
+            final Optional<String> filter) {
         if (!filter.isPresent()) {
             return Optional.of(targetFilterQueryManagement.findAll(pageRequest));
         }
 
-        return filter
-                .map(filterParams -> targetFilterQueryManagement.findByName(pageRequest, filterParams.getSearchText()));
+        return filter.map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<SearchTextFilterParams> filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
 
-        return filter.map(filterParams -> targetFilterQueryManagement
-                .findByName(pageRequest, filterParams.getSearchText()).getTotalElements())
+        return filter
+                .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText).getTotalElements())
                 .orElseGet(targetFilterQueryManagement::count);
     }
 }

@@ -20,8 +20,8 @@ import com.vaadin.client.ComponentConnector;
 import com.vaadin.client.ServerConnector;
 import com.vaadin.client.extensions.AbstractExtensionConnector;
 import com.vaadin.client.ui.VOverlay;
-import com.vaadin.v7.client.ui.VTextField;
 import com.vaadin.shared.ui.Connect;
+import com.vaadin.v7.client.ui.VTextField;
 
 /**
  * Connector for the AutoCompleteTextField which automatically listens to
@@ -43,7 +43,7 @@ public class AutoCompleteTextFieldConnector extends AbstractExtensionConnector {
 
     private final TextFieldSuggestionBoxServerRpc rpc = getRpcProxy(TextFieldSuggestionBoxServerRpc.class);
 
-    private final transient VOverlay panel = new VOverlay(true, false, true);
+    private final transient VOverlay panel = new VOverlay(true, false);
 
     @Override
     protected void init() {

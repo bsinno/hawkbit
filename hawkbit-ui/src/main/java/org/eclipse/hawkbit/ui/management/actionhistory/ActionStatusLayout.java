@@ -41,8 +41,8 @@ public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionS
             final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus);
 
-        this.actionStatusGridHeader = new DefaultGridHeader(managementUIState,
-                getI18n().getMessage("caption.action.states"), getI18n()).init();
+        this.actionStatusGridHeader = new DefaultGridHeader(getI18n().getMessage("caption.action.states"), getI18n())
+                .init();
         this.actionStatusGrid = new ActionStatusGrid(getI18n(), getEventBus(), deploymentManagement);
 
         this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(actionStatusGrid);

@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerConstants;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -65,7 +66,8 @@ public class CreateDistributionSetTagLayout extends AbstractDistributionSetTagLa
             }
             final DistributionSetTag newDistTag = getDistributionSetTagManagement().create(getEntityFactory().tag()
                     .create().name(getTagName().getValue()).description(getTagDesc().getValue()).colour(colour));
-            getEventBus().publish(this, new DistributionSetTagTableEvent(BaseEntityEventType.ADD_ENTITY, newDistTag));
+            getEventBus().publish(this, new DistributionSetTagTableEvent(BaseEntityEventType.ADD_ENTITY,
+                    new TagToProxyTagMapper<>().map(newDistTag)));
             displaySuccess(newDistTag.getName());
         } else {
             displayValidationError(getI18n().getMessage(getMessageErrorMissingTagname()));

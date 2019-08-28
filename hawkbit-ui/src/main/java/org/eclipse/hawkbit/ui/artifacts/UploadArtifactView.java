@@ -115,7 +115,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     void init() {
         buildLayout();
         restoreState();
-        checkNoDataAvaialble();
         eventBus.subscribe(this);
         Page.getCurrent().addBrowserWindowResizeListener(this);
         showOrHideFilterButtons(Page.getCurrent().getBrowserWindowWidth());
@@ -226,12 +225,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     private void addOtherComponents() {
         mainLayout.setColumnExpandRatio(1, 0.5F);
         mainLayout.setColumnExpandRatio(2, 0.5F);
-    }
-
-    private void checkNoDataAvaialble() {
-        if (artifactUploadState.isNoDataAvilableSoftwareModule()) {
-            uiNotification.displayValidationError(i18n.getMessage("message.no.data"));
-        }
     }
 
     @Override

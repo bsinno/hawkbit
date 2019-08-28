@@ -12,9 +12,11 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsLayout;
+import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractSoftwareModuleDetails;
+import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
@@ -46,6 +48,8 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
 
     private Button artifactDetailsButton;
 
+    private final UIEventBus eventBus;
+
     SwModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker,
             final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow,
@@ -55,6 +59,8 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
                 softwareModuleAddUpdateWindow);
         this.manageDistUIState = manageDistUIState;
         this.artifactDetailsLayout = artifactDetailsLayout;
+        this.eventBus = eventBus;
+
         restoreState();
     }
 
@@ -107,23 +113,30 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
         artifactDtlsWindow.setModal(true);
         artifactDtlsWindow.addStyleName(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
 
-        artifactDetailsLayout.setFullWindowMode(false);
+        // TODO: check if neccessary
+        // artifactDetailsLayout.setFullWindowMode(false);
+
         artifactDetailsLayout.populateArtifactDetails(softwareModule);
-        artifactDetailsLayout.getArtifactDetailsTable().setWidth(700, Unit.PIXELS);
-        artifactDetailsLayout.getArtifactDetailsTable().setHeight(500, Unit.PIXELS);
-        artifactDtlsWindow.setContent(artifactDetailsLayout.getArtifactDetailsTable());
+        artifactDetailsLayout.getGrid().setWidth(700, Unit.PIXELS);
+        artifactDetailsLayout.getGrid().setHeight(500, Unit.PIXELS);
+        artifactDtlsWindow.setContent(artifactDetailsLayout.getGrid());
 
         artifactDtlsWindow.addWindowModeChangeListener(event -> {
             if (event.getWindowMode() == WindowMode.MAXIMIZED) {
                 artifactDtlsWindow.setSizeFull();
-                artifactDetailsLayout.setFullWindowMode(true);
-                artifactDetailsLayout.createMaxArtifactDetailsTable();
-                artifactDetailsLayout.getMaxArtifactDetailsTable().setWidth(100, Unit.PERCENTAGE);
-                artifactDetailsLayout.getMaxArtifactDetailsTable().setHeight(100, Unit.PERCENTAGE);
-                artifactDtlsWindow.setContent(artifactDetailsLayout.getMaxArtifactDetailsTable());
+
+                // TODO: check if neccessary
+                // artifactDetailsLayout.setFullWindowMode(true);
+
+                // TODO: check if it works
+                eventBus.publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MAXIMIZED));
+
+                artifactDetailsLayout.getGrid().setWidth(100, Unit.PERCENTAGE);
+                artifactDetailsLayout.getGrid().setHeight(100, Unit.PERCENTAGE);
+                artifactDtlsWindow.setContent(artifactDetailsLayout.getGrid());
             } else {
                 artifactDtlsWindow.setSizeUndefined();
-                artifactDtlsWindow.setContent(artifactDetailsLayout.getArtifactDetailsTable());
+                artifactDtlsWindow.setContent(artifactDetailsLayout.getGrid());
             }
         });
         UI.getCurrent().addWindow(artifactDtlsWindow);

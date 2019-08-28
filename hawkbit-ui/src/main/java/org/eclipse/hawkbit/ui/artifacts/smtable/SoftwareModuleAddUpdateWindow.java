@@ -20,29 +20,27 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.SoftwareModuleTypeBeanQuery;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.TextArea;
 import com.vaadin.v7.ui.TextField;
@@ -72,7 +70,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
 
     private TextField vendorTextField;
 
-    private ComboBox typeComboBox;
+    private ComboBox<ProxyType> typeComboBox;
 
     private TextArea descTextArea;
 
@@ -136,7 +134,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
             final String version = versionTextField.getValue();
             final String vendor = vendorTextField.getValue();
             final String description = descTextArea.getValue();
-            final String type = typeComboBox.getValue() != null ? typeComboBox.getValue().toString() : null;
+            final String type = typeComboBox.getSelectedItem().map(ProxyType::getName).orElse(null);
 
             final SoftwareModuleType softwareModuleTypeByName = softwareModuleTypeManagement.getByName(type)
                     .orElseThrow(() -> new EntityNotFoundException(SoftwareModuleType.class, type));
@@ -153,7 +151,7 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
         private boolean isDuplicate() {
             final String name = nameTextField.getValue();
             final String version = versionTextField.getValue();
-            final String type = typeComboBox.getValue() != null ? typeComboBox.getValue().toString() : null;
+            final String type = typeComboBox.getSelectedItem().map(ProxyType::getName).orElse(null);
 
             final Optional<Long> moduleType = softwareModuleTypeManagement.getByName(type)
                     .map(SoftwareModuleType::getId);
@@ -204,7 +202,6 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
     public CommonDialogWindowV7 createUpdateSoftwareModuleWindow(final Long baseSwModuleId) {
         this.baseSwModuleId = baseSwModuleId;
         resetComponents();
-        populateTypeNameCombo();
         populateValuesOfSwModule();
         return createWindow();
     }
@@ -225,24 +222,20 @@ public class SoftwareModuleAddUpdateWindow extends CustomComponent {
                 .caption(i18n.getMessage("textfield.description")).style("text-area-style")
                 .id(UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION).buildTextComponent();
 
-        typeComboBox = SPUIComponentProvider.getComboBox(
-                i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_SOFTWARE_MODULE_TYPE), "", null, null, true, null,
-                i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_SOFTWARE_MODULE_TYPE));
+        typeComboBox = new ComboBox<>(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_SOFTWARE_MODULE_TYPE));
+        typeComboBox.setDescription(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_SOFTWARE_MODULE_TYPE));
         typeComboBox.setId(UIComponentIdProvider.SW_MODULE_TYPE);
-        typeComboBox.setStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE + " " + ValoTheme.COMBOBOX_TINY);
-        typeComboBox.setNewItemsAllowed(Boolean.FALSE);
+        typeComboBox.addStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE);
+        typeComboBox.addStyleName(ValoTheme.COMBOBOX_TINY);
+        typeComboBox.setItemCaptionGenerator(ProxyType::getName);
 
+        typeComboBox.setDataProvider(
+                new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, new TypeToProxyTypeMapper<>()));
     }
 
     private TextField createTextField(final String in18Key, final String id, final int maxLength) {
         return new TextFieldBuilderV7(maxLength).caption(i18n.getMessage(in18Key)).required(true, i18n).id(id)
                 .buildTextComponent();
-    }
-
-    private void populateTypeNameCombo() {
-        typeComboBox.setContainerDataSource(
-                HawkbitCommonUtil.createLazyQueryContainer(new BeanQueryFactory<>(SoftwareModuleTypeBeanQuery.class)));
-        typeComboBox.setItemCaptionPropertyId(SPUILabelDefinitions.VAR_NAME);
     }
 
     private void resetComponents() {

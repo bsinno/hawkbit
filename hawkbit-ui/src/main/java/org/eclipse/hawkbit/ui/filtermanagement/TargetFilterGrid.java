@@ -18,7 +18,6 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.filters.SearchTextFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
@@ -49,7 +48,7 @@ import com.vaadin.ui.UI;
  * Concrete implementation of TargetFilter grid which is displayed on the
  * Filtermanagement View.
  */
-public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, SearchTextFilterParams> {
+public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -69,7 +68,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
 
     private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, SearchTextFilterParams> targetFilterDataProvider;
+    private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> targetFilterDataProvider;
     private final DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
 
     public TargetFilterGrid(final VaadinMessageSource i18n, final UINotification notification,
@@ -105,7 +104,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
     }
 
     @Override
-    public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, SearchTextFilterParams> getFilterDataProvider() {
+    public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> getFilterDataProvider() {
         return targetFilterDataProvider;
     }
 
@@ -138,8 +137,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Searc
     }
 
     private void refreshFilter() {
-        final SearchTextFilterParams filterParams = new SearchTextFilterParams(getSearchTextFromUiState());
-        getFilterDataProvider().setFilter(filterParams);
+        getFilterDataProvider().setFilter(getSearchTextFromUiState());
     }
 
     private String getSearchTextFromUiState() {

@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
-import org.eclipse.hawkbit.ui.common.data.filters.SearchTextFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
@@ -39,7 +38,7 @@ import com.vaadin.ui.UI;
 /**
  * Shows the targets as a result of the executed filter query.
  */
-public class CreateOrUpdateFilterTargetGrid extends AbstractGrid<ProxyTarget, SearchTextFilterParams> {
+public class CreateOrUpdateFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -55,7 +54,7 @@ public class CreateOrUpdateFilterTargetGrid extends AbstractGrid<ProxyTarget, Se
 
     private final Map<TargetUpdateStatus, FontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
-    private final ConfigurableFilterDataProvider<ProxyTarget, Void, SearchTextFilterParams> targetDataProvider;
+    private final ConfigurableFilterDataProvider<ProxyTarget, Void, String> targetDataProvider;
 
     CreateOrUpdateFilterTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final TargetManagement targetManagement, final FilterManagementUIState filterManagementUIState) {
@@ -86,7 +85,7 @@ public class CreateOrUpdateFilterTargetGrid extends AbstractGrid<ProxyTarget, Se
     }
 
     @Override
-    public ConfigurableFilterDataProvider<ProxyTarget, Void, SearchTextFilterParams> getFilterDataProvider() {
+    public ConfigurableFilterDataProvider<ProxyTarget, Void, String> getFilterDataProvider() {
         return targetDataProvider;
     }
 
@@ -139,8 +138,7 @@ public class CreateOrUpdateFilterTargetGrid extends AbstractGrid<ProxyTarget, Se
         final String filterQuery = filterManagementUIState.getFilterQueryValue();
 
         if (!StringUtils.isEmpty(filterQuery)) {
-            final SearchTextFilterParams filterParams = new SearchTextFilterParams(filterQuery);
-            getFilterDataProvider().setFilter(filterParams);
+            getFilterDataProvider().setFilter(filterQuery);
         } else {
             // TODO: check if it is needed
             getFilterDataProvider().setFilter(null);

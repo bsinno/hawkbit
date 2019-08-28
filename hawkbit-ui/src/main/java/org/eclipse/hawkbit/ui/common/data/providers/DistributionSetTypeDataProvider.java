@@ -12,7 +12,7 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
-import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeTagMapper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -31,7 +31,7 @@ public class DistributionSetTypeDataProvider extends ProxyDataProvider<ProxyType
     private final transient DistributionSetTypeManagement distributionSetTypeManagement;
 
     public DistributionSetTypeDataProvider(final DistributionSetTypeManagement distributionSetTypeManagement,
-            final TypeToProxyTypeTagMapper<DistributionSetType> mapper) {
+            final TypeToProxyTypeMapper<DistributionSetType> mapper) {
         super(mapper, new Sort(Direction.ASC, "name"));
         this.distributionSetTypeManagement = distributionSetTypeManagement;
     }

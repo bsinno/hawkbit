@@ -24,7 +24,6 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.DistributionSetTypeBeanQuery;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
