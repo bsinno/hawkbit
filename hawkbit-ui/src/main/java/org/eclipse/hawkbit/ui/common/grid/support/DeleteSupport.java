@@ -12,16 +12,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.UI;
 
 /**
@@ -30,33 +28,36 @@ import com.vaadin.ui.UI;
  * @param <T>
  *            The item-type used by the grid
  */
-public class DeleteSupport<T extends ProxyIdentifiableEntity> {
-    private final AbstractGrid<T, ?> grid;
+public class DeleteSupport<T> {
+    private final Grid<T> grid;
     private final VaadinMessageSource i18n;
     private final String entityType;
     private final SpPermissionChecker permissionChecker;
     private final UINotification notification;
-    private final Consumer<Collection<Long>> itemIdsDeletionCallback;
+    private final Consumer<Collection<T>> itemsDeletionCallback;
 
-    public DeleteSupport(final AbstractGrid<T, ?> grid, final VaadinMessageSource i18n, final String entityType,
+    public DeleteSupport(final Grid<T> grid, final VaadinMessageSource i18n, final String entityType,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final Consumer<Collection<Long>> itemIdsDeletionCallback) {
+            final Consumer<Collection<T>> itemsDeletionCallback) {
         this.grid = grid;
         this.i18n = i18n;
         this.entityType = entityType;
         this.permissionChecker = permissionChecker;
         this.notification = notification;
-        this.itemIdsDeletionCallback = itemIdsDeletionCallback;
+        this.itemsDeletionCallback = itemsDeletionCallback;
     }
 
     public void openConfirmationWindowDeleteAction(final T clickedItem, final String clickedItemName) {
         final Set<T> itemsToBeDeleted = getItemsForDeletion(clickedItem);
+        final int itemsToBeDeletedSize = itemsToBeDeleted.size();
 
         final String confirmationCaption = i18n.getMessage("caption.entity.delete.action.confirmbox", entityType);
-        final String confirmationQuestion = createConfirmationQuestionForDeletion(itemsToBeDeleted.size(),
+        final String confirmationQuestion = createDeletionText(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY,
+                itemsToBeDeletedSize, clickedItemName);
+        final String successNotificationText = createDeletionText("message.delete.success", itemsToBeDeletedSize,
                 clickedItemName);
         final ConfirmationDialog confirmDeleteDialog = createConfirmationWindowForDeletion(itemsToBeDeleted,
-                confirmationCaption, confirmationQuestion);
+                confirmationCaption, confirmationQuestion, successNotificationText);
 
         UI.getCurrent().addWindow(confirmDeleteDialog.getWindow());
         confirmDeleteDialog.getWindow().bringToFront();
@@ -70,47 +71,44 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
         if (selectedItems.contains(clickedItem)) {
             return selectedItems;
         } else {
-            grid.getSelectionSupport().clearSelection();
+            grid.deselectAll();
             grid.select(clickedItem);
 
             return Collections.singleton(clickedItem);
         }
     }
 
-    private String createConfirmationQuestionForDeletion(final int itemsToBeDeletedSize, final String clickedItemName) {
+    private String createDeletionText(final String messageId, final int itemsToBeDeletedSize,
+            final String clickedItemName) {
         if (itemsToBeDeletedSize == 1) {
-            return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY, entityType.toLowerCase(),
-                    clickedItemName, "");
+            return i18n.getMessage(messageId, entityType.toLowerCase(), clickedItemName, "");
         } else {
-            return i18n.getMessage(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY, itemsToBeDeletedSize, entityType,
-                    "s");
+            return i18n.getMessage(messageId, itemsToBeDeletedSize, entityType, "s");
         }
     }
 
     private ConfirmationDialog createConfirmationWindowForDeletion(final Set<T> itemsToBeDeleted,
-            final String confirmationCaption, final String confirmationQuestion) {
+            final String confirmationCaption, final String confirmationQuestion, final String successNotificationText) {
         return new ConfirmationDialog(confirmationCaption, confirmationQuestion,
                 i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
                 ok -> {
                     if (ok) {
-                        handleOkDelete(itemsToBeDeleted);
+                        handleOkDelete(itemsToBeDeleted, successNotificationText);
                     }
                 });
     }
 
-    private void handleOkDelete(final Set<T> itemsToBeDeleted) {
-        final Collection<Long> itemsToBeDeletedIds = itemsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
-                .collect(Collectors.toList());
+    private void handleOkDelete(final Set<T> itemsToBeDeleted, final String successNotificationText) {
+        // TODO: should we catch the exception here?
+        itemsDeletionCallback.accept(itemsToBeDeleted);
 
-        itemIdsDeletionCallback.accept(itemsToBeDeletedIds);
-
-        notification.displaySuccess(
-                i18n.getMessage("message.delete.success", itemsToBeDeletedIds.size() + " " + entityType + "(s)"));
+        notification.displaySuccess(successNotificationText);
 
         // TODO: should we call eventBus.publish(this,
         // SaveActionWindowEvent.DELETED_DISTRIBUTIONS); here?
     }
 
+    // TODO: check if it should be passed as a parameter
     public boolean hasDeletePermission() {
         return permissionChecker.hasDeleteRepositoryPermission() || permissionChecker.hasDeleteTargetPermission();
     }

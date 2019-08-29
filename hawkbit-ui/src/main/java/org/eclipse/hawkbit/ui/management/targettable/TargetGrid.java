@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -29,6 +30,7 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
@@ -129,7 +131,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 this::setPinnedTargetIdInUiState);
 
         this.targetDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("target.details.header"),
-                permChecker, notification, this::targetIdsDeletionCallback);
+                permChecker, notification, this::targetsDeletionCallback);
 
         final Map<String, AssignmentSupport<?, ProxyTarget>> sourceTargetAssignmentStrategies = new HashMap<>();
 
@@ -170,15 +172,17 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 .setPinnedTarget(target != null ? new TargetIdName(target.getId(), target.getControllerId()) : null);
     }
 
-    private void targetIdsDeletionCallback(final Collection<Long> targetsToBeDeletedIds) {
-        targetManagement.delete(targetsToBeDeletedIds);
+    private void targetsDeletionCallback(final Collection<ProxyTarget> targetsToBeDeleted) {
+        final Collection<Long> targetToBeDeletedIds = targetsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
+                .collect(Collectors.toList());
+        targetManagement.delete(targetToBeDeletedIds);
 
         // TODO: should we really pass the targetsToBeDeletedIds? We call
         // dataprovider refreshAll anyway after receiving the event
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.REMOVE_ENTITY, targetsToBeDeletedIds));
+        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.REMOVE_ENTITY, targetToBeDeletedIds));
 
         getPinnedTargetIdFromUiState()
-                .ifPresent(pinnedTargetId -> pinSupport.unPinItemAfterDeletion(pinnedTargetId, targetsToBeDeletedIds));
+                .ifPresent(pinnedTargetId -> pinSupport.unPinItemAfterDeletion(pinnedTargetId, targetToBeDeletedIds));
         managementUIState.getSelectedTargetId().clear();
     }
 

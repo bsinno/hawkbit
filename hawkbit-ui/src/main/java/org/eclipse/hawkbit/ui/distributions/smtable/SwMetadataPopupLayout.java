@@ -16,7 +16,10 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleMetadata;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.AbstractMetadataPopupLayoutVersioned;
+import org.eclipse.hawkbit.ui.common.AbstractMetadataPopupLayout;
+import org.eclipse.hawkbit.ui.common.MetaDataGrid;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -24,19 +27,16 @@ import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.CheckBox;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.ui.Grid;
 import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Pop up layout to display software module metadata.
  */
-public class SwMetadataPopupLayout
-        extends AbstractMetadataPopupLayoutVersioned<SoftwareModule, SoftwareModuleMetadata> {
+public class SwMetadataPopupLayout extends AbstractMetadataPopupLayout<SoftwareModule, SoftwareModuleMetadata> {
 
     private static final long serialVersionUID = 1L;
 
-    protected static final String TARGET_VISIBLE = "targetVisible";
+    protected static final String TARGET_VISIBLE_ID = "targetVisible";
 
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
@@ -49,6 +49,12 @@ public class SwMetadataPopupLayout
         super(i18n, uiNotification, eventBus, permChecker);
         this.softwareModuleManagement = softwareManagement;
         this.entityFactory = entityFactory;
+    }
+
+    @Override
+    protected String getElementTitle() {
+        return HawkbitCommonUtil.getFormattedNameVersion(getSelectedEntity().getName(),
+                getSelectedEntity().getVersion());
     }
 
     @Override
@@ -82,11 +88,13 @@ public class SwMetadataPopupLayout
     }
 
     @Override
-    protected Grid createMetadataGrid() {
-        final Grid metadataGrid = super.createMetadataGrid();
-        metadataGrid.getContainerDataSource().addContainerProperty(TARGET_VISIBLE, Boolean.class, Boolean.FALSE);
-        metadataGrid.getColumn(TARGET_VISIBLE).setHeaderCaption(i18n.getMessage("metadata.targetvisible"));
-        metadataGrid.getColumn(TARGET_VISIBLE).setHidden(true);
+    protected MetaDataGrid createMetaDataGrid() {
+        final MetaDataGrid metadataGrid = super.createMetaDataGrid();
+        metadataGrid.addColumn(ProxyMetaData::isTargetVisible).setId(TARGET_VISIBLE_ID)
+                .setCaption(i18n.getMessage("metadata.targetvisible")).setHidden(true);
+        metadataGrid.setColumnOrder(MetaDataGrid.META_DATA_KEY_ID, MetaDataGrid.META_DATA_VALUE_ID, TARGET_VISIBLE_ID,
+                MetaDataGrid.META_DATA_DELETE_BUTTON_ID);
+
         return metadataGrid;
     }
 
@@ -134,32 +142,31 @@ public class SwMetadataPopupLayout
     }
 
     @Override
-    protected Item popualateKeyValue(final Object metadataCompositeKey) {
-        final Item item = super.popualateKeyValue(metadataCompositeKey);
+    protected void populateKeyValue(final ProxyMetaData selectedMetaDataItem) {
+        super.populateKeyValue(selectedMetaDataItem);
 
-        if (item != null) {
-            targetVisibleField.setValue((Boolean) item.getItemProperty(TARGET_VISIBLE).getValue());
-            if (hasUpdatePermission()) {
-                targetVisibleField.setEnabled(true);
-            }
+        targetVisibleField.setValue(selectedMetaDataItem.isTargetVisible());
+        if (hasUpdatePermission()) {
+            targetVisibleField.setEnabled(true);
         }
-
-        return item;
     }
 
     @Override
-    protected Item updateItemInGrid(final String key) {
-        final Item item = super.updateItemInGrid(key);
-        item.getItemProperty(TARGET_VISIBLE).setValue(targetVisibleField.getValue());
+    protected ProxyMetaData updateItemInGrid(final String key) {
+        final ProxyMetaData metaDataitem = super.updateItemInGrid(key);
+        metaDataitem.setTargetVisible(targetVisibleField.getValue());
+        // TODO: should we call refreshItem here?
 
-        return item;
+        return metaDataitem;
     }
 
     @Override
-    protected Item addItemToGrid(final SoftwareModuleMetadata metaData) {
-        final Item item = super.addItemToGrid(metaData);
-        item.getItemProperty(TARGET_VISIBLE).setValue(metaData.isTargetVisible());
-        return item;
+    protected ProxyMetaData addItemToGrid(final SoftwareModuleMetadata metaData) {
+        final ProxyMetaData newMetaDataitem = super.addItemToGrid(metaData);
+        newMetaDataitem.setTargetVisible(metaData.isTargetVisible());
+        // TODO: should we call refreshAll here?
+
+        return newMetaDataitem;
     }
 
     @Override

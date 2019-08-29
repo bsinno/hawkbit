@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -25,6 +26,7 @@ import org.eclipse.hawkbit.ui.common.data.filters.DsDistributionsFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetDistributionsStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
@@ -104,7 +106,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         }
 
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
-                permissionChecker, notification, this::dsIdsDeletionCallback);
+                permissionChecker, notification, this::setsDeletionCallback);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
 
@@ -121,7 +123,9 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         init();
     }
 
-    private void dsIdsDeletionCallback(final Collection<Long> dsToBeDeletedIds) {
+    private void setsDeletionCallback(final Collection<ProxyDistributionSet> setsToBeDeleted) {
+        final Collection<Long> dsToBeDeletedIds = setsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
+                .collect(Collectors.toList());
         distributionSetManagement.delete(dsToBeDeletedIds);
 
         // TODO: should we really pass the dsToBeDeletedIds? We call

@@ -60,17 +60,21 @@ public final class UIComponentIdProvider {
      */
     public static final String TARGET_DELET_ICON = "target.delete.icon.";
     /**
-     * ID-Targ.DELETE.
+     * ID-Dist.DELETE.
      */
     public static final String DIST_DELET_ICON = "dist.delete.icon.";
     /**
-     * ID-Targ.DELETE.
+     * ID-Sm.DELETE.
      */
     public static final String SM_DELET_ICON = "sm.delete.icon.";
     /**
-     * ID-Targ.DELETE.
+     * ID-Artifact.DELETE.
      */
     public static final String ARTIFACT_DELET_ICON = "artifact.delete.icon.";
+    /**
+     * ID-MetaData.DELETE.
+     */
+    public static final String META_DATA_DELET_ICON = "meta.data.delete.icon.";
     /**
      * Target search text id.
      */

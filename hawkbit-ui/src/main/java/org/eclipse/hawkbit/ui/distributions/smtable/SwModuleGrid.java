@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.smtable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
@@ -25,6 +26,7 @@ import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.AssignedSoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsStateDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -101,7 +103,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         }
 
         this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.software.module"),
-                permissionChecker, notification, this::swModuleIdsDeletionCallback);
+                permissionChecker, notification, this::swModulesDeletionCallback);
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap());
         this.dragAndDropSupport.addDragSource();
@@ -109,7 +111,9 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         init();
     }
 
-    private void swModuleIdsDeletionCallback(final Collection<Long> swModuleToBeDeletedIds) {
+    private void swModulesDeletionCallback(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
+        final Collection<Long> swModuleToBeDeletedIds = swModulesToBeDeleted.stream()
+                .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
 
         // TODO: should we really pass the swModuleToBeDeletedIds? We call

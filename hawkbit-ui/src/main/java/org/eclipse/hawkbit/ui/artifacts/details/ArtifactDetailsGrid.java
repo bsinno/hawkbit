@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.artifacts.details;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -16,6 +17,7 @@ import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.common.data.mappers.ArtifactToProxyArtifactMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ArtifactDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyArtifact;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
@@ -72,15 +74,17 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         setSelectionMode(SelectionMode.NONE);
 
         this.artifactDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("artifact.details.header"),
-                permissionChecker, notification, this::artifactIdsDeletionCallback);
+                permissionChecker, notification, this::artifactsDeletionCallback);
 
         init();
     }
 
-    private void artifactIdsDeletionCallback(final Collection<Long> artifactToBeDeletedIds) {
+    private void artifactsDeletionCallback(final Collection<ProxyArtifact> artifactsToBeDeleted) {
+        final Collection<Long> artifactToBeDeletedIds = artifactsToBeDeleted.stream()
+                .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         artifactToBeDeletedIds.forEach(artifactManagement::delete);
 
-        // TODO: should we really pass the artifactToBeDeletedIds? We call
+        // TODO: should we really pass the artifactsToBeDeleted? We call
         // dataprovider refreshAll anyway after receiving the event
         eventBus.publish(this, new ArtifactDetailsEvent(BaseEntityEventType.REMOVE_ENTITY, artifactToBeDeletedIds));
     }

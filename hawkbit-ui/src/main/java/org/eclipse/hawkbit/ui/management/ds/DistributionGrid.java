@@ -9,16 +9,15 @@
 package org.eclipse.hawkbit.ui.management.ds;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
@@ -31,6 +30,7 @@ import org.eclipse.hawkbit.ui.common.data.filters.DsManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetManagementStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -121,7 +121,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
                 () -> setStyleGenerator(item -> null), this::getPinnedDsIdFromUiState, this::setPinnedDsIdInUiState);
 
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
-                permissionChecker, notification, this::dsIdsDeletionCallback);
+                permissionChecker, notification, this::setsDeletionCallback);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
 
@@ -152,7 +152,9 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         managementUIState.getTargetTableFilters().setPinnedDistId(ds != null ? ds.getId() : null);
     }
 
-    private void dsIdsDeletionCallback(final Collection<Long> dsToBeDeletedIds) {
+    private void setsDeletionCallback(final Collection<ProxyDistributionSet> setsToBeDeleted) {
+        final Collection<Long> dsToBeDeletedIds = setsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
+                .collect(Collectors.toList());
         distributionSetManagement.delete(dsToBeDeletedIds);
 
         // TODO: should we really pass the dsToBeDeletedIds? We call
@@ -162,11 +164,6 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         getPinnedDsIdFromUiState()
                 .ifPresent(pinnedDsId -> pinSupport.unPinItemAfterDeletion(pinnedDsId, dsToBeDeletedIds));
         managementUIState.getSelectedDsIdName().clear();
-    }
-
-    private List<String> getMissingPermissionsForDrop() {
-        return permissionChecker.hasUpdateTargetPermission() ? Collections.emptyList()
-                : Collections.singletonList(SpPermission.UPDATE_TARGET);
     }
 
     @Override

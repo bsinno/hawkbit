@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
@@ -24,6 +25,7 @@ import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleArtifactsStateDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -97,12 +99,14 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
 
         this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.software.module"),
-                permissionChecker, notification, this::swModuleIdsDeletionCallback);
+                permissionChecker, notification, this::swModulesDeletionCallback);
 
         init();
     }
 
-    private void swModuleIdsDeletionCallback(final Collection<Long> swModuleToBeDeletedIds) {
+    private void swModulesDeletionCallback(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
+        final Collection<Long> swModuleToBeDeletedIds = swModulesToBeDeleted.stream()
+                .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         if (isUploadInProgressForSoftwareModule(swModuleToBeDeletedIds)) {
             notification.displayValidationError(i18n.getMessage("message.error.swModule.notDeleted"));
             return;

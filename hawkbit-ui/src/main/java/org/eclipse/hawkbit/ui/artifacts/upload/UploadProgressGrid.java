@@ -27,6 +27,9 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.renderers.ProgressBarRenderer;
 
+/**
+ * Grid for Upload Progress pop up info window.
+ */
 public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
     private static final long serialVersionUID = 1L;
 
