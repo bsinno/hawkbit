@@ -233,6 +233,8 @@ public final class UIMessageIdProvider {
 
     public static final String TOOLTIP_ACTIVE_ACTION_STATUS_PREFIX = "tooltip.active.action.status.";
 
+    public static final String TOOLTIP_UPLOAD_STATUS_PREFIX = "tooltip.upload.status.";
+
     /**
      * Private Constructor.
      */

@@ -77,14 +77,14 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
     @Override
     protected void populateDetailsWidget() {
         populateDetails();
-        populateModule();
+        populateSmDetails();
         populateTags(getDistributionTagToken());
         populateMetadataDetails();
         populateTargetFilterQueries();
     }
 
     protected void populateTargetFilterQueries() {
-        tfqDetailsGrid.populateTableByDistributionSet(getSelectedBaseEntity());
+        tfqDetailsGrid.populateGrid(getSelectedBaseEntity());
     }
 
     @Override
@@ -98,7 +98,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
             // TODO: check if it works
             getDistributionSetManagement().getWithDetails(getSelectedBaseEntityId()).ifPresent(set -> {
                 setSelectedBaseEntity(new DistributionSetToProxyDistributionMapper().map(set));
-                UI.getCurrent().access(this::populateModule);
+                UI.getCurrent().access(this::populateSmDetails);
             });
         }
     }
@@ -110,7 +110,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
                 && getSelectedBaseEntity() != null) {
             getDistributionSetManagement().getWithDetails(getSelectedBaseEntityId()).ifPresent(set -> {
                 setSelectedBaseEntity(new DistributionSetToProxyDistributionMapper().map(set));
-                UI.getCurrent().access(this::populateModule);
+                UI.getCurrent().access(this::populateSmDetails);
             });
         }
     }

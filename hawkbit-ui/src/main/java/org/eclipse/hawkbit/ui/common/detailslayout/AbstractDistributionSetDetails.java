@@ -167,8 +167,8 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
         }
     }
 
-    protected void populateModule() {
-        softwareModuleDetailsGrid.populateModule(getSelectedBaseEntity());
+    protected void populateSmDetails() {
+        softwareModuleDetailsGrid.populateGrid(getSelectedBaseEntity());
     }
 
     private final void createSoftwareModuleTab() {

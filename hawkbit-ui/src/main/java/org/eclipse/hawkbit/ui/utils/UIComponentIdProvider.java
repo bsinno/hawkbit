@@ -442,6 +442,11 @@ public final class UIComponentIdProvider {
     public static final String UPLOAD_ERROR_REASON = "upload-error-reason";
 
     /**
+     * Upload popup status label Id.
+     */
+    public static final String UPLOAD_STATUS_LABEL_ID = "upload.statusId";
+
+    /**
      * Upload - software module search text id.
      */
     public static final String SW_MODULE_SEARCH_TEXT_FIELD = "swmodule.search.textfield";

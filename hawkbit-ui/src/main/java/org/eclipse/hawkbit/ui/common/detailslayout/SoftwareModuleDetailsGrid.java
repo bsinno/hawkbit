@@ -104,6 +104,10 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         // same as height of other tabs in details tabsheet
         setHeight(116, Unit.PIXELS);
 
+        addColumns();
+    }
+
+    private void addColumns() {
         addComponentColumn(this::buildIsMandatoryLabel).setId(SOFT_TYPE_MANDATORY_ID);
         addColumn(ProxySoftwareModuleDetails::getTypeName).setId(SOFT_TYPE_NAME_ID);
 
@@ -200,7 +204,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
      * 
      * @param distributionSet
      */
-    public void populateModule(final ProxyDistributionSet distributionSet) {
+    public void populateGrid(final ProxyDistributionSet distributionSet) {
         if (distributionSet == null) {
             setItems(Collections.emptyList());
             return;

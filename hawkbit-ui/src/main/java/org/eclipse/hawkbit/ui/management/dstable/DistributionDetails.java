@@ -55,7 +55,7 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
 
     @Override
     protected void populateDetailsWidget() {
-        populateModule();
+        populateSmDetails();
         populateDetails();
         populateTags(getDistributionTagToken());
         populateMetadataDetails();

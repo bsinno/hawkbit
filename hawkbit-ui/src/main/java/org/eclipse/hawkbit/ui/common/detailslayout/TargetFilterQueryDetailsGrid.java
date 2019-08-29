@@ -44,7 +44,7 @@ public class TargetFilterQueryDetailsGrid extends Grid<ProxyTargetFilterQuery> {
      * @param distributionSet
      *            the selected distribution set
      */
-    public void populateTableByDistributionSet(final ProxyDistributionSet distributionSet) {
+    public void populateGrid(final ProxyDistributionSet distributionSet) {
         if (distributionSet == null) {
             setItems(Collections.emptyList());
             return;
@@ -65,6 +65,10 @@ public class TargetFilterQueryDetailsGrid extends Grid<ProxyTargetFilterQuery> {
         // same as height of other tabs in details tabsheet
         setHeight(116, Unit.PIXELS);
 
+        addColumns();
+    }
+
+    private void addColumns() {
         addColumn(ProxyTargetFilterQuery::getName).setId(TFQ_NAME_ID)
                 .setCaption(i18n.getMessage("header.target.filter.name")).setExpandRatio(2);
         addColumn(ProxyTargetFilterQuery::getQuery).setId(TFQ_QUERY_ID)
