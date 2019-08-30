@@ -8,16 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
-import java.util.List;
-
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleMetadata;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.util.CollectionUtils;
 
 import com.vaadin.ui.UI;
 
@@ -58,16 +54,16 @@ public class SoftwareModuleMetadataDetailsLayout extends AbstractMetadataDetails
      * @param swModule
      */
     public void populateSMMetadata(final ProxySoftwareModule swModule) {
-        removeAllItems();
-        if (null == swModule) {
+        if (swModule == null) {
+            metaDataList.clear();
+            // TODO: should we call refreshAll here?
             return;
         }
         selectedSWModuleId = swModule.getId();
-        final List<SoftwareModuleMetadata> swMetadataList = softwareModuleManagement
-                .findMetaDataBySoftwareModuleId(PageRequest.of(0, MAX_METADATA_QUERY), selectedSWModuleId).getContent();
-        if (!CollectionUtils.isEmpty(swMetadataList)) {
-            swMetadataList.forEach(this::setMetadataProperties);
-        }
+        softwareModuleManagement
+                .findMetaDataBySoftwareModuleId(PageRequest.of(0, MAX_METADATA_QUERY), selectedSWModuleId).getContent()
+                .forEach(this::addMetaDataToList);
+        // TODO: should we call refreshAll here?
     }
 
     @Override

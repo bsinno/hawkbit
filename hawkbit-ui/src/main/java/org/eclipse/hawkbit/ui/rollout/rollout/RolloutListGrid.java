@@ -54,6 +54,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.cronutils.utils.StringUtils;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
@@ -436,7 +437,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout, Void> {
         rolloutLink.addStyleName("link");
         rolloutLink.setCaption(rollout.getName());
         // this is to allow the button to disappear, if the text is null
-        rolloutLink.setVisible(rollout.getName() != null);
+        rolloutLink.setVisible(!StringUtils.isEmpty(rollout.getName()));
 
         /*
          * checking Rollout Status for applying button style. If Rollout status

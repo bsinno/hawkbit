@@ -56,14 +56,16 @@ public class DistributionSetMetadataDetailsLayout extends AbstractMetadataDetail
      * @param distributionSet
      */
     public void populateDSMetadata(final ProxyDistributionSet distributionSet) {
-        removeAllItems();
-        if (null == distributionSet) {
+        if (distributionSet == null) {
+            metaDataList.clear();
+            // TODO: should we call refreshAll here?
             return;
         }
         selectedDistSetId = distributionSet.getId();
-        final PageRequest pageRequest = PageRequest.of(0, MAX_METADATA_QUERY);
-        distributionSetManagement.findMetaDataByDistributionSetId(pageRequest, selectedDistSetId).getContent()
-                .forEach(this::setMetadataProperties);
+        distributionSetManagement
+                .findMetaDataByDistributionSetId(PageRequest.of(0, MAX_METADATA_QUERY), selectedDistSetId).getContent()
+                .forEach(this::addMetaDataToList);
+        // TODO: should we call refreshAll here?
     }
 
     @Override

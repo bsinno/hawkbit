@@ -8,90 +8,89 @@
  */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.model.MetaData;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.IndexedContainer;
+import com.cronutils.utils.StringUtils;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.Table;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Abstract metadata tab for entities.
  *
  */
-public abstract class AbstractMetadataDetailsLayout extends Table {
+public abstract class AbstractMetadataDetailsLayout extends Grid<ProxyMetaData> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String METADATA_KEY = "Key";
+    private static final String METADATA_KEY_ID = "Key";
 
     protected static final int MAX_METADATA_QUERY = 500;
+    protected final List<ProxyMetaData> metaDataList;
 
     private final VaadinMessageSource i18n;
 
     protected AbstractMetadataDetailsLayout(final VaadinMessageSource i18n) {
         this.i18n = i18n;
-        createMetadataTable();
+        metaDataList = new ArrayList<>();
 
-        addCustomGeneratedColumns();
+        init();
     }
 
-    private VaadinMessageSource getI18n() {
-        return i18n;
-    }
-
-    private void createMetadataTable() {
+    private void init() {
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        setSelectable(false);
-
-        setContainerDataSource(getContainer());
-        setColumnHeaderMode(ColumnHeaderMode.EXPLICIT);
-        addTableHeader();
+        setSelectionMode(SelectionMode.NONE);
         setSizeFull();
         // same as height of other tabs in details tabsheet
         setHeight(116, Unit.PIXELS);
+
+        addColumns();
     }
 
-    private IndexedContainer getContainer() {
-        final IndexedContainer container = new IndexedContainer();
-        container.addContainerProperty(METADATA_KEY, String.class, "");
-        setColumnExpandRatio(METADATA_KEY, 0.7F);
-        setColumnAlignment(METADATA_KEY, Align.LEFT);
-
-        return container;
+    private void addColumns() {
+        addComponentColumn(this::buildKeyLink).setId(METADATA_KEY_ID).setCaption(i18n.getMessage("header.key"))
+                .setExpandRatio(7);
     }
 
-    private void addTableHeader() {
-        setColumnHeader(METADATA_KEY, getI18n().getMessage("header.key"));
-    }
+    // TODO: remove duplication with RolloutListGrid
+    private Button buildKeyLink(final ProxyMetaData metaData) {
+        final String metaDataKey = metaData.getKey();
+        final Button metaDataKeyLink = new Button();
 
-    protected void setMetadataProperties(final MetaData dsMetadata) {
-        final Item item = getContainerDataSource().addItem(dsMetadata.getKey());
-        item.getItemProperty(METADATA_KEY).setValue(dsMetadata.getKey());
+        metaDataKeyLink.setId(getDetailLinkId(metaDataKey));
+        metaDataKeyLink.addStyleName("borderless");
+        metaDataKeyLink.addStyleName("small");
+        metaDataKeyLink.addStyleName("on-focus-no-border");
+        metaDataKeyLink.addStyleName("link");
+        metaDataKeyLink.setCaption(metaDataKey);
+        // TODO: use i18n here
+        metaDataKeyLink.setDescription("View " + metaDataKey + "  Metadata details");
+        // this is to allow the button to disappear, if the text is null
+        metaDataKeyLink.setVisible(!StringUtils.isEmpty(metaDataKey));
 
-    }
+        metaDataKeyLink.addClickListener(event -> showMetadataDetails(metaDataKey));
 
-    private void addCustomGeneratedColumns() {
-        addGeneratedColumn(METADATA_KEY, (source, itemId, columnId) -> customMetadataDetailButton((String) itemId));
-    }
-
-    private Button customMetadataDetailButton(final String metadataKey) {
-        final Button viewIcon = SPUIComponentProvider.getButton(getDetailLinkId(metadataKey), metadataKey,
-                "View " + metadataKey + "  Metadata details", null, false, null, SPUIButtonStyleNoBorder.class);
-        viewIcon.setData(metadataKey);
-        viewIcon.addStyleName(ValoTheme.BUTTON_TINY + " " + ValoTheme.BUTTON_LINK + " " + "on-focus-no-border link"
-                + " " + "text-style");
-        viewIcon.addClickListener(event -> showMetadataDetails(metadataKey));
-        return viewIcon;
+        return metaDataKeyLink;
     }
 
     protected abstract String getDetailLinkId(final String name);
 
     protected abstract void showMetadataDetails(final String metadataKey);
+
+    protected void addMetaDataToList(final MetaData metaData) {
+        final ProxyMetaData metaDataItem = new ProxyMetaData();
+
+        metaDataItem.setEntityId(metaData.getEntityId());
+        metaDataItem.setKey(metaData.getKey());
+        metaDataItem.setValue(metaData.getValue());
+
+        metaDataList.add(metaDataItem);
+    }
 
 }

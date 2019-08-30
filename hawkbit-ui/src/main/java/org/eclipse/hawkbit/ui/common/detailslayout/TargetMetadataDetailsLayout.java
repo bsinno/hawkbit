@@ -46,7 +46,6 @@ public class TargetMetadataDetailsLayout extends AbstractMetadataDetailsLayout {
         super(i18n);
         this.targetManagement = targetManagement;
         this.targetMetadataPopupLayout = targetMetadataPopupLayout;
-
     }
 
     /**
@@ -55,13 +54,15 @@ public class TargetMetadataDetailsLayout extends AbstractMetadataDetailsLayout {
      * @param target
      */
     public void populateMetadata(final ProxyTarget target) {
-        removeAllItems();
         if (target == null) {
+            metaDataList.clear();
+            // TODO: should we call refreshAll here?
             return;
         }
         selectedTargetId = target.getId();
         targetManagement.findMetaDataByControllerId(PageRequest.of(0, MAX_METADATA_QUERY), target.getControllerId())
-                .getContent().forEach(this::setMetadataProperties);
+                .getContent().forEach(this::addMetaDataToList);
+        // TODO: should we call refreshAll here?
     }
 
     @Override
