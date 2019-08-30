@@ -8,57 +8,47 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.util.StringUtils;
+import org.springframework.util.CollectionUtils;
 
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.ui.AbstractSelect.ItemDescriptionGenerator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.ui.Component;
 import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Table;
 import com.vaadin.v7.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
- * Layout for the software modules select tables for managing Distribution Set
+ * Layout for the software modules select grids for managing Distribution Set
  * Types on the Distributions View.
  */
 public class DistributionSetTypeSoftwareModuleSelectLayout extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String DIST_TYPE_DESCRIPTION = "description";
-
-    private static final String DIST_TYPE_MANDATORY = "mandatory";
-
-    private static final String STAR = " * ";
-
-    private static final String DIST_TYPE_NAME = "name";
+    // TODO: consider using lazy loading with dataprovider
+    private static final int MAX_SM_TYPE_QUERY = 1000;
 
     private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
 
-    private Table selectedTable;
+    private SmTypeSelectedGrid selectedGrid;
 
-    private Table sourceTable;
+    private SmTypeSourceGrid sourceGrid;
 
-    private IndexedContainer selectedTableContainer;
+    private List<ProxyType> selectedGridTypesList;
 
-    private IndexedContainer sourceTableContainer;
+    private List<ProxyType> sourceGridTypesList;
 
     private HorizontalLayout distTypeSelectLayout;
 
@@ -90,242 +80,125 @@ public class DistributionSetTypeSoftwareModuleSelectLayout extends VerticalLayou
         twinColumnLayout.setSizeFull();
         twinColumnLayout.setWidth("400px");
 
-        buildSourceTable();
-        buildSelectedTable();
-
         final VerticalLayout selectButtonLayout = new VerticalLayout();
         final Button selectButton = SPUIComponentProvider.getButton(UIComponentIdProvider.SELECT_DIST_TYPE, "", "",
                 "arrow-button", true, FontAwesome.FORWARD, SPUIButtonStyleNoBorder.class);
-        selectButton.addClickListener(event -> addSMType());
+        selectButton.addClickListener(event -> addSmTypeToSelectedGrid());
         final Button unSelectButton = SPUIComponentProvider.getButton("unselect-dist-type", "", "", "arrow-button",
                 true, FontAwesome.BACKWARD, SPUIButtonStyleNoBorder.class);
-        unSelectButton.addClickListener(event -> removeSMType());
+        unSelectButton.addClickListener(event -> removeSmTypeFromSelectedGrid());
         selectButtonLayout.addComponent(selectButton);
         selectButtonLayout.addComponent(unSelectButton);
         selectButtonLayout.setComponentAlignment(selectButton, Alignment.MIDDLE_CENTER);
         selectButtonLayout.setComponentAlignment(unSelectButton, Alignment.MIDDLE_CENTER);
 
-        twinColumnLayout.addComponent(sourceTable);
+        sourceGrid = buildSourceGrid();
+        selectedGrid = buildSelectedGrid();
+
+        twinColumnLayout.addComponent(sourceGrid);
         twinColumnLayout.addComponent(selectButtonLayout);
-        twinColumnLayout.addComponent(selectedTable);
-        twinColumnLayout.setComponentAlignment(sourceTable, Alignment.MIDDLE_LEFT);
+        twinColumnLayout.addComponent(selectedGrid);
+        twinColumnLayout.setComponentAlignment(sourceGrid, Alignment.MIDDLE_LEFT);
         twinColumnLayout.setComponentAlignment(selectButtonLayout, Alignment.MIDDLE_CENTER);
-        twinColumnLayout.setComponentAlignment(selectedTable, Alignment.MIDDLE_RIGHT);
-        twinColumnLayout.setExpandRatio(sourceTable, 0.45F);
+        twinColumnLayout.setComponentAlignment(selectedGrid, Alignment.MIDDLE_RIGHT);
+        twinColumnLayout.setExpandRatio(sourceGrid, 0.45F);
         twinColumnLayout.setExpandRatio(selectButtonLayout, 0.07F);
-        twinColumnLayout.setExpandRatio(selectedTable, 0.48F);
-        sourceTable.setVisibleColumns(DIST_TYPE_NAME);
+        twinColumnLayout.setExpandRatio(selectedGrid, 0.48F);
+
         return twinColumnLayout;
     }
 
-    private void buildSelectedTable() {
-        selectedTable = new Table();
-        selectedTable.setId(SPUIDefinitions.TWIN_TABLE_SELECTED_ID);
-        selectedTable.setSelectable(true);
-        selectedTable.setMultiSelect(true);
-        selectedTable.setSortEnabled(false);
-        selectedTable.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        selectedTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        selectedTable.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        selectedTable.addStyleName(ValoTheme.TABLE_SMALL);
-        selectedTable.addStyleName("dist_type_twin-table");
-        selectedTable.setSizeFull();
-        createSelectedTableContainer();
-        selectedTable.setContainerDataSource(selectedTableContainer);
-        addTooltTipToSelectedTable();
+    private SmTypeSourceGrid buildSourceGrid() {
+        final SmTypeSourceGrid grid = new SmTypeSourceGrid(i18n);
+        populateSmTypeSourceGrid();
+        grid.setItems(sourceGridTypesList);
 
-        selectedTable.setVisibleColumns(DIST_TYPE_NAME, DIST_TYPE_MANDATORY);
-        selectedTable.setColumnHeaders(i18n.getMessage("header.dist.twintable.selected"), STAR);
-        selectedTable.setColumnExpandRatio(DIST_TYPE_NAME, 0.75F);
-        selectedTable.setColumnExpandRatio(DIST_TYPE_MANDATORY, 0.25F);
-        selectedTable.setRequired(true);
-    }
-
-    private void addTooltTipToSelectedTable() {
-        selectedTable.setItemDescriptionGenerator(new ItemDescriptionGenerator() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public String generateDescription(final Component source, final Object itemId, final Object propertyId) {
-                final Item item = selectedTable.getItem(itemId);
-                final String description = (String) (item.getItemProperty(DIST_TYPE_DESCRIPTION).getValue());
-                if (DIST_TYPE_NAME.equals(propertyId) && !StringUtils.isEmpty(description)) {
-                    return i18n.getMessage("label.description") + description;
-                } else if (DIST_TYPE_MANDATORY.equals(propertyId)) {
-                    return i18n.getMessage(UIMessageIdProvider.TOOLTIP_CHECK_FOR_MANDATORY);
-                }
-                return null;
-            }
-        });
-    }
-
-    private void buildSourceTable() {
-        sourceTable = new Table();
-        sourceTable.setId(SPUIDefinitions.TWIN_TABLE_SOURCE_ID);
-        sourceTable.setSelectable(true);
-        sourceTable.setMultiSelect(true);
-        sourceTable.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        sourceTable.addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        sourceTable.addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        sourceTable.addStyleName(ValoTheme.TABLE_SMALL);
-
-        sourceTable.setSizeFull();
-        sourceTable.addStyleName("dist_type_twin-table");
-        sourceTable.setSortEnabled(false);
-        sourceTableContainer = new IndexedContainer();
-        sourceTableContainer.addContainerProperty(DIST_TYPE_NAME, String.class, "");
-        sourceTableContainer.addContainerProperty(DIST_TYPE_DESCRIPTION, String.class, "");
-        sourceTable.setContainerDataSource(sourceTableContainer);
-
-        sourceTable.setVisibleColumns(DIST_TYPE_NAME);
-        sourceTable.setColumnHeaders(i18n.getMessage("header.dist.twintable.available"));
-        sourceTable.setColumnExpandRatio(DIST_TYPE_NAME, 1.0F);
-        createSourceTableData();
-        addTooltip();
-        sourceTable.select(sourceTable.firstItemId());
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void createSourceTableData() {
-        sourceTableContainer.removeAllItems();
-        final Iterable<SoftwareModuleType> moduleTypeBeans = softwareModuleTypeManagement
-                .findAll(PageRequest.of(0, 1000));
-        Item saveTblitem;
-        for (final SoftwareModuleType swTypeTag : moduleTypeBeans) {
-            saveTblitem = sourceTableContainer.addItem(swTypeTag.getId());
-            saveTblitem.getItemProperty(DIST_TYPE_NAME).setValue(swTypeTag.getName());
-            saveTblitem.getItemProperty(DIST_TYPE_DESCRIPTION).setValue(swTypeTag.getDescription());
+        if (!CollectionUtils.isEmpty(sourceGridTypesList)) {
+            grid.select(sourceGridTypesList.get(0));
         }
+
+        return grid;
     }
 
-    protected void addTooltip() {
-        sourceTable.setItemDescriptionGenerator(new ItemDescriptionGenerator() {
-            private static final long serialVersionUID = 1L;
+    private void populateSmTypeSourceGrid() {
+        if (sourceGridTypesList == null) {
+            sourceGridTypesList = new ArrayList<>();
+        } else {
+            sourceGridTypesList.clear();
+        }
 
-            @Override
-            public String generateDescription(final Component source, final Object itemId, final Object propertyId) {
-                final Item item = sourceTable.getItem(itemId);
-                final String description = (String) item.getItemProperty(DIST_TYPE_DESCRIPTION).getValue();
-                if (DIST_TYPE_NAME.equals(propertyId) && !StringUtils.isEmpty(description)) {
-                    return i18n.getMessage("label.description") + description;
-                }
-                return null;
-            }
-        });
+        softwareModuleTypeManagement.findAll(PageRequest.of(0, MAX_SM_TYPE_QUERY))
+                .forEach(smType -> sourceGridTypesList.add(mapSmTypeToProxy(smType)));
     }
 
-    protected void createSelectedTableContainer() {
-        selectedTableContainer = new IndexedContainer();
-        selectedTableContainer.addContainerProperty(DIST_TYPE_NAME, String.class, "");
-        selectedTableContainer.addContainerProperty(DIST_TYPE_DESCRIPTION, String.class, "");
-        selectedTableContainer.addContainerProperty(DIST_TYPE_MANDATORY, CheckBox.class, null);
+    public static ProxyType mapSmTypeToProxy(final SoftwareModuleType smType) {
+        final ProxyType smTypeItem = new ProxyType();
+
+        smTypeItem.setId(smType.getId());
+        smTypeItem.setName(smType.getName());
+        smTypeItem.setKey(smType.getKey());
+        smTypeItem.setDescription(smType.getDescription());
+
+        return smTypeItem;
     }
 
-    @SuppressWarnings("unchecked")
-    private void addSMType() {
-        final Set<Long> selectedIds = (Set<Long>) sourceTable.getValue();
-        if (selectedIds == null) {
+    private SmTypeSelectedGrid buildSelectedGrid() {
+        final SmTypeSelectedGrid grid = new SmTypeSelectedGrid(i18n);
+        selectedGridTypesList = new ArrayList<>();
+        grid.setItems(selectedGridTypesList);
+
+        return grid;
+    }
+
+    private void addSmTypeToSelectedGrid() {
+        final Set<ProxyType> selectedSourceSmTypes = sourceGrid.getSelectedItems();
+        if (CollectionUtils.isEmpty(selectedSourceSmTypes)) {
             return;
         }
-        for (final Long id : selectedIds) {
-            addTargetTableData(id);
+
+        for (final ProxyType selectedSourceSmType : selectedSourceSmTypes) {
+            selectedGridTypesList.add(selectedSourceSmType);
+            sourceGridTypesList.remove(selectedSourceSmType);
+            // TODO: should we call refreshAll on both grids here?
         }
     }
 
-    private void addTargetTableData(final Long selectedId) {
-        getSelectedTableItemData(selectedId);
-        sourceTable.removeItem(selectedId);
-    }
-
-    @SuppressWarnings("unchecked")
-    private void getSelectedTableItemData(final Long id) {
-        Item saveTblitem;
-        if (selectedTableContainer != null) {
-            saveTblitem = selectedTableContainer.addItem(id);
-            saveTblitem.getItemProperty(DIST_TYPE_NAME).setValue(
-                    sourceTable.getContainerDataSource().getItem(id).getItemProperty(DIST_TYPE_NAME).getValue());
-            final CheckBox mandatoryCheckBox = new CheckBox();
-            saveTblitem.getItemProperty(DIST_TYPE_MANDATORY).setValue(mandatoryCheckBox);
-            saveTblitem.getItemProperty(DIST_TYPE_DESCRIPTION).setValue(
-                    sourceTable.getContainerDataSource().getItem(id).getItemProperty(DIST_TYPE_DESCRIPTION).getValue());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void addSourceTableData(final Long selectedId) {
-        if (sourceTableContainer != null) {
-            Item saveTblitem;
-            saveTblitem = sourceTableContainer.addItem(selectedId);
-            saveTblitem.getItemProperty(DIST_TYPE_NAME).setValue(selectedTable.getContainerDataSource()
-                    .getItem(selectedId).getItemProperty(DIST_TYPE_NAME).getValue());
-            saveTblitem.getItemProperty(DIST_TYPE_DESCRIPTION).setValue(selectedTable.getContainerDataSource()
-                    .getItem(selectedId).getItemProperty(DIST_TYPE_DESCRIPTION).getValue());
-        }
-    }
-
-    private void removeSMType() {
-        @SuppressWarnings("unchecked")
-        final Set<Long> selectedIds = (Set<Long>) selectedTable.getValue();
-        if (selectedIds == null) {
+    private void removeSmTypeFromSelectedGrid() {
+        final Set<ProxyType> selectedSelectedSmTypes = selectedGrid.getSelectedItems();
+        if (CollectionUtils.isEmpty(selectedSelectedSmTypes)) {
             return;
         }
-        for (final Long id : selectedIds) {
-            addSourceTableData(id);
-            selectedTable.removeItem(id);
+
+        for (final ProxyType selectedSelectedSmType : selectedSelectedSmTypes) {
+            selectedGridTypesList.remove(selectedSelectedSmType);
+            sourceGridTypesList.add(selectedSelectedSmType);
+            // TODO: should we call refreshAll on both grids here?
         }
     }
 
-    public Table getSelectedTable() {
-        return selectedTable;
+    public SmTypeSelectedGrid getSelectedGrid() {
+        return selectedGrid;
     }
 
-    public static String getDistTypeMandatory() {
-        return DIST_TYPE_MANDATORY;
+    public List<ProxyType> getSourceGridTypesList() {
+        return sourceGridTypesList;
     }
 
-    public static String getDistTypeDescription() {
-        return DIST_TYPE_DESCRIPTION;
-    }
-
-    public static String getDistTypeName() {
-        return DIST_TYPE_NAME;
-    }
-
-    public Table getSourceTable() {
-        return sourceTable;
-    }
-
-    public IndexedContainer getSourceTableContainer() {
-        return sourceTableContainer;
-    }
-
-    protected static boolean isMandatoryModuleType(final Item item) {
-        final CheckBox mandatoryCheckBox = (CheckBox) item.getItemProperty(getDistTypeMandatory()).getValue();
-        return mandatoryCheckBox.getValue();
-    }
-
-    public IndexedContainer getSelectedTableContainer() {
-        return selectedTableContainer;
-    }
-
-    protected static boolean isOptionalModuleType(final Item item) {
-        return !isMandatoryModuleType(item);
+    public List<ProxyType> getSelectedGridTypesList() {
+        return selectedGridTypesList;
     }
 
     public HorizontalLayout getDistTypeSelectLayout() {
         return distTypeSelectLayout;
     }
 
-    public void setDistTypeSelectLayout(final HorizontalLayout distTypeSelectLayout) {
-        this.distTypeSelectLayout = distTypeSelectLayout;
-    }
-
     /**
      * Resets the tables for selecting the software modules
      */
     public void reset() {
-        selectedTableContainer.removeAllItems();
-        createSourceTableData();
+        selectedGrid.setItems(Collections.emptyList());
+        populateSmTypeSourceGrid();
+        // TODO: should we call refreshAll on SourceGrid here?
     }
 
 }

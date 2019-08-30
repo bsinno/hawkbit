@@ -59,7 +59,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
 
     private final TargetTagToken targetTagToken;
 
-    private final TargetMetadataDetailsLayout targetMetadataTable;
+    private final TargetMetadataDetailsLayout targetMetadataLayout;
 
     private final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout;
 
@@ -89,7 +89,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
         this.targetManagement = targetManagement;
         this.deploymentManagement = deploymentManagement;
         this.targetMetadataPopupLayout = targetMetadataPopupLayout;
-        this.targetMetadataTable = new TargetMetadataDetailsLayout(i18n, targetManagement, targetMetadataPopupLayout);
+        this.targetMetadataLayout = new TargetMetadataDetailsLayout(i18n, targetManagement, targetMetadataPopupLayout);
         addDetailsTab();
         restoreState();
     }
@@ -107,7 +107,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
         getDetailsTab().addTab(createInstalledDistLayout(), getI18n().getMessage("header.target.installed"), null);
         getDetailsTab().addTab(getTagsLayout(), getI18n().getMessage("caption.tags.tab"), null);
         getDetailsTab().addTab(getLogLayout(), getI18n().getMessage("caption.logs.tab"), null);
-        getDetailsTab().addTab(targetMetadataTable, getI18n().getMessage("caption.metadata"), null);
+        getDetailsTab().addTab(targetMetadataLayout, getI18n().getMessage("caption.metadata"), null);
     }
 
     private Component createInstalledDistLayout() {
@@ -345,7 +345,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
 
     @Override
     protected void populateMetadataDetails() {
-        targetMetadataTable.populateMetadata(getSelectedBaseEntity());
+        targetMetadataLayout.populateMetadata(getSelectedBaseEntity());
     }
 
     @Override

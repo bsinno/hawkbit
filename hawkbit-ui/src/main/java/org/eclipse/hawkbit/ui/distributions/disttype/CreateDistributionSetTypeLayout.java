@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionSetTypeEvent;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionSetTypeEvent.DistributionSetTypeEnum;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -68,25 +69,20 @@ public class CreateDistributionSetTypeLayout extends AbstractDistributionSetType
         createNewDistributionSetType();
     }
 
-    @SuppressWarnings("unchecked")
     private void createNewDistributionSetType() {
 
         final String colorPicked = ColorPickerHelper.getColorPickedString(getColorPickerLayout().getSelPreview());
         final String typeNameValue = getTagName().getValue();
         final String typeKeyValue = getTypeKey().getValue();
         final String typeDescValue = getTagDesc().getValue();
-        final List<Long> itemIds = (List<Long>) getTwinTables().getSelectedTable().getItemIds();
+        final List<ProxyType> selectedSmTypes = getTwinTables().getSelectedGridTypesList();
 
-        if (typeNameValue != null && typeKeyValue != null && !CollectionUtils.isEmpty(itemIds)) {
-            final List<Long> mandatory = itemIds.stream()
-                    .filter(itemId -> DistributionSetTypeSoftwareModuleSelectLayout
-                            .isMandatoryModuleType(getTwinTables().getSelectedTable().getItem(itemId)))
+        if (typeNameValue != null && typeKeyValue != null && !CollectionUtils.isEmpty(selectedSmTypes)) {
+            final List<Long> mandatory = selectedSmTypes.stream().filter(ProxyType::isMandatory).map(ProxyType::getId)
                     .collect(Collectors.toList());
 
-            final List<Long> optional = itemIds.stream()
-                    .filter(itemId -> DistributionSetTypeSoftwareModuleSelectLayout
-                            .isOptionalModuleType(getTwinTables().getSelectedTable().getItem(itemId)))
-                    .collect(Collectors.toList());
+            final List<Long> optional = selectedSmTypes.stream().filter(selectedSmType -> !selectedSmType.isMandatory())
+                    .map(ProxyType::getId).collect(Collectors.toList());
 
             final DistributionSetType newDistType = getDistributionSetTypeManagement()
                     .create(getEntityFactory().distributionSetType().create().key(typeKeyValue).name(typeNameValue)

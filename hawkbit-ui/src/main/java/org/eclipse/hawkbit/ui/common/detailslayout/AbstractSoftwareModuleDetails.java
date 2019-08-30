@@ -38,7 +38,7 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
 
     private static final long serialVersionUID = 1L;
 
-    private final SoftwareModuleMetadataDetailsLayout swmMetadataTable;
+    private final SoftwareModuleMetadataDetailsLayout swmMetadataLayout;
 
     private final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow;
 
@@ -55,7 +55,7 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
         this.softwareModuleManagement = softwareManagement;
         this.swMetadataPopupLayout = swMetadataPopupLayout;
 
-        swmMetadataTable = new SoftwareModuleMetadataDetailsLayout(getI18n(), softwareManagement,
+        swmMetadataLayout = new SoftwareModuleMetadataDetailsLayout(getI18n(), softwareManagement,
                 swMetadataPopupLayout);
 
         addDetailsTab();
@@ -70,12 +70,12 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
         getDetailsTab().addTab(getDetailsLayout(), getI18n().getMessage("caption.tab.details"), null);
         getDetailsTab().addTab(getDescriptionLayout(), getI18n().getMessage("caption.tab.description"), null);
         getDetailsTab().addTab(getLogLayout(), getI18n().getMessage("caption.logs.tab"), null);
-        getDetailsTab().addTab(swmMetadataTable, getI18n().getMessage("caption.metadata"), null);
+        getDetailsTab().addTab(swmMetadataLayout, getI18n().getMessage("caption.metadata"), null);
     }
 
     @Override
     protected void populateMetadataDetails() {
-        swmMetadataTable.populateSMMetadata(getSelectedBaseEntity());
+        swmMetadataLayout.populateSMMetadata(getSelectedBaseEntity());
     }
 
     @Override

@@ -23,6 +23,8 @@ public class ProxyType extends ProxyNamedEntity {
 
     private boolean deleted;
 
+    private boolean mandatory;
+
     public String getKey() {
         return key;
     }
@@ -45,6 +47,14 @@ public class ProxyType extends ProxyNamedEntity {
 
     public void setDeleted(final boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public boolean isMandatory() {
+        return mandatory;
+    }
+
+    public void setMandatory(boolean mandatory) {
+        this.mandatory = mandatory;
     }
 
 }

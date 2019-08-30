@@ -51,7 +51,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
     private final transient SystemSecurityContext systemSecurityContext;
 
     private final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout;
-    private final DistributionSetMetadataDetailsLayout dsMetadataTable;
+    private final DistributionSetMetadataDetailsLayout dsMetadataLayout;
     private final UINotification uiNotification;
     private final DsMetadataPopupLayout dsMetadataPopupLayout;
     private final DistributionTagToken distributionTagToken;
@@ -79,7 +79,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
         this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.systemSecurityContext = systemSecurityContext;
 
-        dsMetadataTable = new DistributionSetMetadataDetailsLayout(i18n, distributionSetManagement,
+        dsMetadataLayout = new DistributionSetMetadataDetailsLayout(i18n, distributionSetManagement,
                 dsMetadataPopupLayout);
         createSoftwareModuleTab();
         addDetailsTab();
@@ -125,7 +125,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
 
     @Override
     protected void populateMetadataDetails() {
-        dsMetadataTable.populateDSMetadata(getSelectedBaseEntity());
+        dsMetadataLayout.populateDSMetadata(getSelectedBaseEntity());
     }
 
     @Override
@@ -155,7 +155,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
         getDetailsTab().addTab(softwareModuleTab, getI18n().getMessage("caption.softwares.distdetail.tab"), null);
         getDetailsTab().addTab(getTagsLayout(), getI18n().getMessage("caption.tags.tab"), null);
         getDetailsTab().addTab(getLogLayout(), getI18n().getMessage("caption.logs.tab"), null);
-        getDetailsTab().addTab(dsMetadataTable, getI18n().getMessage("caption.metadata"), null);
+        getDetailsTab().addTab(dsMetadataLayout, getI18n().getMessage("caption.metadata"), null);
     }
 
     protected void populateDetails() {

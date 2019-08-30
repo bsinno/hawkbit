@@ -22,6 +22,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionSetTypeEvent;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionSetTypeEvent.DistributionSetTypeEnum;
 import org.eclipse.hawkbit.ui.layouts.UpdateTag;
@@ -30,9 +31,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.IndexedContainer;
-import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.ui.Window.CloseListener;
 
 /**
@@ -47,8 +45,6 @@ public class UpdateDistributionSetTypeLayout extends AbstractDistributionSetType
     private final transient DistributionSetManagement distributionSetManagement;
 
     private final String selectedTypeName;
-
-    private IndexedContainer originalSelectedTableContainer;
 
     private final CloseListener closeListener;
 
@@ -120,8 +116,7 @@ public class UpdateDistributionSetTypeLayout extends AbstractDistributionSetType
 
     @Override
     public void setTagDetails(final String selectedEntity) {
-        getTwinTables().createSourceTableData();
-        getTwinTables().getSelectedTable().getContainerDataSource().removeAllItems();
+        getTwinTables().reset();
         final Optional<DistributionSetType> selectedDistSetType = getDistributionSetTypeManagement()
                 .getByName(selectedEntity);
         selectedDistSetType.ifPresent(selectedType -> {
@@ -130,17 +125,19 @@ public class UpdateDistributionSetTypeLayout extends AbstractDistributionSetType
             getTypeKey().setValue(selectedType.getKey());
             if (distributionSetManagement.countByTypeId(selectedType.getId()) <= 0) {
                 getTwinTables().getDistTypeSelectLayout().setEnabled(true);
-                getTwinTables().getSelectedTable().setEnabled(true);
+                getTwinTables().getSelectedGrid().setEnabled(true);
             } else {
                 getUiNotification().displayValidationError(
                         selectedType.getName() + "  " + getI18n().getMessage("message.error.dist.set.type.update"));
                 getTwinTables().getDistTypeSelectLayout().setEnabled(false);
-                getTwinTables().getSelectedTable().setEnabled(false);
+                getTwinTables().getSelectedGrid().setEnabled(false);
             }
 
-            createOriginalSelectedTableContainer();
-            selectedType.getOptionalModuleTypes().forEach(swModuleType -> addTargetTableForUpdate(swModuleType, false));
-            selectedType.getMandatoryModuleTypes().forEach(swModuleType -> addTargetTableForUpdate(swModuleType, true));
+            selectedType.getOptionalModuleTypes()
+                    .forEach(optionalSmType -> addSmTypeToSelectedGrid(optionalSmType, false));
+            selectedType.getMandatoryModuleTypes()
+                    .forEach(mandatorySmType -> addSmTypeToSelectedGrid(mandatorySmType, true));
+            // TODO: should we call refreshAll for both grids here?
             setColorPickerComponentsColor(selectedType.getColour());
         });
 
@@ -148,54 +145,27 @@ public class UpdateDistributionSetTypeLayout extends AbstractDistributionSetType
         getWindow().setOrginaleValues();
     }
 
-    private void createOriginalSelectedTableContainer() {
-        originalSelectedTableContainer = new IndexedContainer();
-        originalSelectedTableContainer.addContainerProperty(
-                DistributionSetTypeSoftwareModuleSelectLayout.getDistTypeName(), String.class, "");
-        originalSelectedTableContainer.addContainerProperty(
-                DistributionSetTypeSoftwareModuleSelectLayout.getDistTypeDescription(), String.class, "");
-        originalSelectedTableContainer.addContainerProperty(
-                DistributionSetTypeSoftwareModuleSelectLayout.getDistTypeMandatory(), CheckBox.class, null);
+    private void addSmTypeToSelectedGrid(final SoftwareModuleType swModuleType, final boolean mandatory) {
+        final ProxyType smTypeItem = DistributionSetTypeSoftwareModuleSelectLayout.mapSmTypeToProxy(swModuleType);
+        smTypeItem.setMandatory(mandatory);
+        getTwinTables().getSelectedGridTypesList().add(smTypeItem);
+        getTwinTables().getSourceGridTypesList().remove(smTypeItem);
     }
 
-    @SuppressWarnings("unchecked")
-    private void addTargetTableForUpdate(final SoftwareModuleType swModuleType, final boolean mandatory) {
-        if (getTwinTables().getSelectedTableContainer() == null) {
-            return;
-        }
-        final Item saveTblitem = getTwinTables().getSelectedTableContainer().addItem(swModuleType.getId());
-        getTwinTables().getSourceTable().removeItem(swModuleType.getId());
-        saveTblitem.getItemProperty(DistributionSetTypeSoftwareModuleSelectLayout.getDistTypeName())
-                .setValue(swModuleType.getName());
-        final CheckBox mandatoryCheckbox = new CheckBox("", mandatory);
-        mandatoryCheckbox.setId(swModuleType.getName());
-        saveTblitem.getItemProperty(DistributionSetTypeSoftwareModuleSelectLayout.getDistTypeMandatory())
-                .setValue(mandatoryCheckbox);
-
-        final Item originalItem = originalSelectedTableContainer.addItem(swModuleType.getId());
-        originalItem.getItemProperty(DistributionSetTypeSoftwareModuleSelectLayout.getDistTypeName())
-                .setValue(swModuleType.getName());
-        originalItem.getItemProperty(DistributionSetTypeSoftwareModuleSelectLayout.getDistTypeMandatory())
-                .setValue(mandatoryCheckbox);
-
-        getWindow().updateAllComponents(mandatoryCheckbox);
-    }
-
-    @SuppressWarnings("unchecked")
     private void updateDistributionSetType(final DistributionSetType existingType) {
-        final List<Long> itemIds = (List<Long>) getTwinTables().getSelectedTable().getItemIds();
+        final List<ProxyType> selectedSmTypes = getTwinTables().getSelectedGridTypesList();
         final DistributionSetTypeUpdate update = getEntityFactory().distributionSetType().update(existingType.getId())
                 .description(getTagDesc().getValue())
                 .colour(ColorPickerHelper.getColorPickedString(getColorPickerLayout().getSelPreview()));
-        if (distributionSetManagement.countByTypeId(existingType.getId()) <= 0 && !CollectionUtils.isEmpty(itemIds)) {
-            update.mandatory(itemIds.stream()
-                    .filter(itemId -> DistributionSetTypeSoftwareModuleSelectLayout
-                            .isMandatoryModuleType(getTwinTables().getSelectedTable().getItem(itemId)))
-                    .collect(Collectors.toList()))
-                    .optional(itemIds.stream()
-                            .filter(itemId -> DistributionSetTypeSoftwareModuleSelectLayout
-                                    .isOptionalModuleType(getTwinTables().getSelectedTable().getItem(itemId)))
-                            .collect(Collectors.toList()));
+        if (distributionSetManagement.countByTypeId(existingType.getId()) <= 0
+                && !CollectionUtils.isEmpty(selectedSmTypes)) {
+            final List<Long> mandatory = selectedSmTypes.stream().filter(ProxyType::isMandatory).map(ProxyType::getId)
+                    .collect(Collectors.toList());
+
+            final List<Long> optional = selectedSmTypes.stream().filter(selectedSmType -> !selectedSmType.isMandatory())
+                    .map(ProxyType::getId).collect(Collectors.toList());
+
+            update.mandatory(mandatory).optional(optional);
         }
 
         final DistributionSetType updateDistSetType = getDistributionSetTypeManagement().update(update);
