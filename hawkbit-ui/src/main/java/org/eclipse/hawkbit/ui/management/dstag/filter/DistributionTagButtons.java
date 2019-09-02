@@ -8,101 +8,132 @@
  */
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.model.DistributionSetTag;
-import org.eclipse.hawkbit.repository.model.Tag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTagDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.DistributionSetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
+import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTagAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.management.dstag.UpdateDistributionSetTagLayout;
 import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
-import org.eclipse.hawkbit.ui.management.event.DistributionTagDropEvent;
 import org.eclipse.hawkbit.ui.management.state.DistributionTableFilters;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.tag.TagIdName;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Item;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 
 /**
  * Class for defining the tag buttons of the distribution sets on the Deployment
  * View.
  */
-public class DistributionTagButtons extends AbstractFilterButtons {
+public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag> {
 
     private static final long serialVersionUID = 1L;
 
-    private final DistributionTagDropEvent spDistTagDropEvent;
-
     private final ManagementUIState managementUIState;
-
-    private final transient EntityFactory entityFactory;
-
+    private final UINotification uiNotification;
     private final SpPermissionChecker permChecker;
 
-    private final UINotification uiNotification;
-
+    private final transient EntityFactory entityFactory;
     private final transient DistributionSetTagManagement distributionSetTagManagement;
+    private final transient DistributionTagButtonClick distributionTagButtonClickBehaviour;
+
+    private final ConfigurableFilterDataProvider<ProxyTag, Void, Void> dsTagDataProvider;
+    private final DragAndDropSupport<ProxyTag> dragAndDropSupport;
 
     public DistributionTagButtons(final UIEventBus eventBus, final ManagementUIState managementUIState,
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
             final SpPermissionChecker permChecker, final DistributionTableFilters distFilterParameters,
-            final DistributionSetManagement distributionSetManagement,
             final ManagementViewClientCriterion managementViewClientCriterion,
-            final DistributionSetTagManagement distributionSetTagManagement) {
-        super(eventBus, new DistributionTagButtonClick(eventBus, managementUIState), i18n);
-        this.spDistTagDropEvent = new DistributionTagDropEvent(i18n, uiNotification, permChecker, distFilterParameters,
-                distributionSetManagement, eventBus, managementViewClientCriterion);
+            final DistributionSetTagManagement distributionSetTagManagement,
+            final DistributionSetManagement distributionSetManagement) {
+        super(eventBus, i18n, uiNotification);
+
         this.managementUIState = managementUIState;
-        this.entityFactory = entityFactory;
-        this.permChecker = permChecker;
         this.uiNotification = uiNotification;
+        this.permChecker = permChecker;
+        this.entityFactory = entityFactory;
         this.distributionSetTagManagement = distributionSetTagManagement;
 
-        if (permChecker.hasReadRepositoryPermission()) {
-            addNewTag(entityFactory.tag().create().name(getNoTagLabel()).build());
-        }
+        this.distributionTagButtonClickBehaviour = new DistributionTagButtonClick(eventBus, managementUIState);
+        this.dsTagDataProvider = new DistributionSetTagDataProvider(distributionSetTagManagement,
+                new TagToProxyTagMapper<DistributionSetTag>()).withConfigurableFilter();
+
+        final DistributionSetsToTagAssignmentSupport distributionSetsToTagAssignment = new DistributionSetsToTagAssignmentSupport(
+                uiNotification, i18n, distributionSetManagement, managementUIState, eventBus, permChecker);
+
+        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, uiNotification,
+                Collections.singletonMap(UIComponentIdProvider.DIST_TABLE_ID, distributionSetsToTagAssignment));
+        this.dragAndDropSupport.addDragAndDrop();
+
+        init();
     }
 
-    @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
+    // TODO: should we unsubscribe from events here?
 
     @Override
-    protected String getButtonsTableId() {
+    public String getGridId() {
         return UIComponentIdProvider.DISTRIBUTION_TAG_TABLE_ID;
     }
 
     @Override
-    protected LazyQueryContainer createButtonsLazyQueryContainer() {
-        final BeanQueryFactory<DistributionTagBeanQuery> tagQF = new BeanQueryFactory<>(DistributionTagBeanQuery.class);
-        tagQF.setQueryConfiguration(Collections.emptyMap());
-        return HawkbitCommonUtil.createDSLazyQueryContainer(new BeanQueryFactory<>(DistributionTagBeanQuery.class));
+    public ConfigurableFilterDataProvider<ProxyTag, Void, Void> getFilterDataProvider() {
+        return dsTagDataProvider;
     }
 
     @Override
-    protected String getButtonWrapperData() {
-        return getI18n().getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG);
+    protected String getFilterButtonsType() {
+        return i18n.getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG);
+    }
+
+    @Override
+    protected AbstractFilterButtonClickBehaviour<ProxyTag> getFilterButtonClickBehaviour() {
+        return distributionTagButtonClickBehaviour;
+    }
+
+    @Override
+    protected void deleteFilterButtons(final Collection<ProxyTag> filterButtonsToDelete) {
+        // TODO: we do not allow multiple deletion yet
+        final ProxyTag dsTagToDelete = filterButtonsToDelete.iterator().next();
+        final String dsTagToDeleteName = dsTagToDelete.getName();
+
+        if (managementUIState.getDistributionTableFilters().getClickedDistSetTags().contains(dsTagToDeleteName)) {
+            uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", dsTagToDeleteName));
+        } else {
+            distributionSetTagManagement.delete(dsTagToDeleteName);
+            eventBus.publish(this, new DistributionSetTagTableEvent(BaseEntityEventType.REMOVE_ENTITY, dsTagToDelete));
+            // TODO: check if it is needed
+            hideActionColumns();
+            eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+        }
+    }
+
+    @Override
+    protected void editButtonClickListener(final ProxyTag clickedFilter) {
+        new UpdateDistributionSetTagLayout(i18n, distributionSetTagManagement, entityFactory, eventBus, permChecker,
+                uiNotification, clickedFilter.getName(), closeEvent -> {
+                    // TODO: check if it is needed
+                    hideActionColumns();
+                    eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+                });
     }
 
     @Override
@@ -112,75 +143,7 @@ public class DistributionTagButtons extends AbstractFilterButtons {
     }
 
     @Override
-    protected boolean isNoTagStateSelected() {
-        return managementUIState.getDistributionTableFilters().isNoTagSelected();
-    }
-
-    @Override
-    protected String createButtonId(final String name) {
-        if (getNoTagLabel().equals(name)) {
-            return UIComponentIdProvider.NO_TAG_DISTRIBUTION_SET;
-        }
-        return name;
-    }
-
-    @Override
-    protected DropHandler getFilterButtonDropHandler() {
-        return spDistTagDropEvent;
-    }
-
-    @Override
-    protected String getButttonWrapperIdPrefix() {
+    protected String getFilterButtonIdPrefix() {
         return SPUIDefinitions.DISTRIBUTION_TAG_ID_PREFIXS;
-    }
-
-    private void addNewTag(final Tag daTag) {
-        final LazyQueryContainer targetTagContainer = (LazyQueryContainer) getContainerDataSource();
-        final Object addItem = targetTagContainer.addItem();
-        final Item item = targetTagContainer.getItem(addItem);
-
-        item.getItemProperty(SPUILabelDefinitions.VAR_ID).setValue(daTag.getId());
-        item.getItemProperty(SPUILabelDefinitions.VAR_NAME).setValue(daTag.getName());
-        item.getItemProperty(SPUILabelDefinitions.VAR_DESC).setValue(daTag.getDescription());
-        item.getItemProperty(SPUILabelDefinitions.VAR_COLOR).setValue(daTag.getColour());
-        item.getItemProperty("tagIdName").setValue(new TagIdName(daTag.getName(), daTag.getId()));
-    }
-
-    @Override
-    public void refreshTable() {
-        ((LazyQueryContainer) getContainerDataSource()).refresh();
-        removeGeneratedColumn(FILTER_BUTTON_COLUMN);
-        removeUpdateAndDeleteColumn();
-        addNewTag(entityFactory.tag().create().name(getNoTagLabel()).build());
-        addColumn();
-    }
-
-    @Override
-    protected void addEditButtonClickListener(final ClickEvent event) {
-        new UpdateDistributionSetTagLayout(getI18n(), distributionSetTagManagement, entityFactory, getEventBus(),
-                permChecker, uiNotification, getEntityId(event), getCloseListenerForEditAndDeleteTag(
-                        new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR)));
-    }
-
-    @Override
-    protected void addDeleteButtonClickListener(final ClickEvent event) {
-        openConfirmationWindowForDeletion(getEntityId(event),
-                getI18n().getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG),
-                new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
-    }
-
-    @Override
-    protected void deleteEntity(final String entityToDelete) {
-        final Optional<DistributionSetTag> tagToDelete = distributionSetTagManagement.getByName(entityToDelete);
-        tagToDelete.ifPresent(tag -> {
-            if (managementUIState.getDistributionTableFilters().getClickedDistSetTags().contains(entityToDelete)) {
-                uiNotification.displayValidationError(getI18n().getMessage("message.tag.delete", entityToDelete));
-                removeUpdateAndDeleteColumn();
-            } else {
-                distributionSetTagManagement.delete(entityToDelete);
-                getEventBus().publish(this, new DistributionSetTagTableEvent(BaseEntityEventType.REMOVE_ENTITY, tag));
-                uiNotification.displaySuccess(getI18n().getMessage("message.delete.success", entityToDelete));
-            }
-        });
     }
 }

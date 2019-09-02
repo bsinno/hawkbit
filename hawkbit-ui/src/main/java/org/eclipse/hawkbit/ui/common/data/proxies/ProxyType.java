@@ -13,13 +13,11 @@ import org.eclipse.hawkbit.repository.model.Type;
 /**
  * Proxy for {@link Type}.
  */
-public class ProxyType extends ProxyNamedEntity {
+public class ProxyType extends ProxyFilterButton {
 
     private static final long serialVersionUID = 1L;
 
     private String key;
-
-    private String colour;
 
     private boolean deleted;
 
@@ -31,14 +29,6 @@ public class ProxyType extends ProxyNamedEntity {
 
     public void setKey(final String key) {
         this.key = key;
-    }
-
-    public String getColour() {
-        return colour;
-    }
-
-    public void setColour(final String colour) {
-        this.colour = colour;
     }
 
     public boolean isDeleted() {
@@ -53,7 +43,7 @@ public class ProxyType extends ProxyNamedEntity {
         return mandatory;
     }
 
-    public void setMandatory(boolean mandatory) {
+    public void setMandatory(final boolean mandatory) {
         this.mandatory = mandatory;
     }
 

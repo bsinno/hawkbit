@@ -34,23 +34,6 @@ public abstract class TagsAssignmentSupport<T, R extends NamedEntity> extends As
     }
 
     @Override
-    protected List<ProxyTag> getFilteredSourceItems(final List<ProxyTag> sourceItemsToAssign, final T targetItem) {
-        if (isNoTagAssigned(sourceItemsToAssign)) {
-            notification.displayValidationError(
-                    i18n.getMessage("message.tag.cannot.be.assigned", i18n.getMessage("label.no.tag.assigned")));
-            return Collections.emptyList();
-        }
-
-        return sourceItemsToAssign;
-    }
-
-    // TODO: check if it is a valid check
-    private boolean isNoTagAssigned(final List<ProxyTag> targetTagsToAssign) {
-        return targetTagsToAssign.stream()
-                .anyMatch(targetTag -> targetTag.getName().equals(i18n.getMessage("label.no.tag.assigned")));
-    }
-
-    @Override
     public List<String> getMissingPermissionsForDrop() {
         return Collections.emptyList();
     }

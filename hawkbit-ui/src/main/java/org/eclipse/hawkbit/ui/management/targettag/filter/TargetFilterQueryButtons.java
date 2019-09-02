@@ -48,6 +48,7 @@ public class TargetFilterQueryButtons extends Grid<ProxyTargetFilterQuery> {
                 new TargetFilterQueryToProxyTargetFilterMapper());
 
         init();
+        eventBus.subscribe(this);
     }
 
     /**
@@ -71,8 +72,6 @@ public class TargetFilterQueryButtons extends Grid<ProxyTargetFilterQuery> {
         setDataProvider(tfqDataProvider);
 
         addColumns();
-
-        eventBus.subscribe(this);
     }
 
     private void addColumns() {

@@ -135,6 +135,8 @@ public final class UIMessageIdProvider {
 
     public static final String TOOLTIP_CLICK_TO_REMOVE = "tooltip.click.to.remove";
 
+    public static final String TOOLTIP_CLICK_TO_FILTER = "tooltip.click.to.filter";
+
     public static final String TOOLTIP_BULK_UPLOAD = "tooltip.bulkUpload";
 
     public static final String TOOLTIP_CONFIGURE = "tooltip.configure";
