@@ -10,17 +10,16 @@ package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Button;
-
 /**
  * Single button click behaviour of filter buttons layout.
  */
-public class DistSMTypeFilterButtonClick extends AbstractFilterSingleButtonClick {
+public class DistSMTypeFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyType> {
 
     private static final long serialVersionUID = -4166632002904286983L;
 
@@ -38,14 +37,14 @@ public class DistSMTypeFilterButtonClick extends AbstractFilterSingleButtonClick
     }
 
     @Override
-    protected void filterUnClicked(final Button clickedButton) {
+    protected void filterUnClicked(final ProxyType clickedFilter) {
         manageDistUIState.getSoftwareModuleFilters().setSoftwareModuleType(null);
         eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
     }
 
     @Override
-    protected void filterClicked(final Button clickedButton) {
-        softwareModuleTypeManagement.getByName(clickedButton.getData().toString()).ifPresent(smType -> {
+    protected void filterClicked(final ProxyType clickedFilter) {
+        softwareModuleTypeManagement.getByName(clickedFilter.getName()).ifPresent(smType -> {
             manageDistUIState.getSoftwareModuleFilters().setSoftwareModuleType(smType);
             eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
         });

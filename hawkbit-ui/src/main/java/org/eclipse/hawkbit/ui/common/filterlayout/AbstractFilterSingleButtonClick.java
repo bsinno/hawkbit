@@ -11,37 +11,37 @@ package org.eclipse.hawkbit.ui.common.filterlayout;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 
 /**
  * Abstract Single button click behaviour of filter buttons layout.
- *
+ * 
+ * @param <T>
+ *            The type of the Filter Button
  */
-public abstract class AbstractFilterSingleButtonClick extends AbstractFilterButtonClickBehaviour {
+public abstract class AbstractFilterSingleButtonClick<T> extends AbstractFilterButtonClickBehaviour<T> {
 
     private static final long serialVersionUID = 478874092615793581L;
 
     private Button alreadyClickedButton;
 
     @Override
-    protected void processFilterButtonClick(final ClickEvent event) {
-        final Button clickedButton = (Button) event.getComponent();
+    public void processFilterButtonClick(final Button clickedButton, final T clickedFilter) {
         if (isButtonUnClicked(clickedButton)) {
             /* If same button clicked */
             clickedButton.removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
             alreadyClickedButton = null;
-            filterUnClicked(clickedButton);
+            filterUnClicked(clickedFilter);
         } else if (alreadyClickedButton != null) {
             /* If button clicked and some other button is already clicked */
             alreadyClickedButton.removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
             clickedButton.addStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
             alreadyClickedButton = clickedButton;
-            filterClicked(clickedButton);
+            filterClicked(clickedFilter);
         } else {
             /* If button clicked and not other button is clicked currently */
             clickedButton.addStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
             alreadyClickedButton = clickedButton;
-            filterClicked(clickedButton);
+            filterClicked(clickedFilter);
         }
     }
 

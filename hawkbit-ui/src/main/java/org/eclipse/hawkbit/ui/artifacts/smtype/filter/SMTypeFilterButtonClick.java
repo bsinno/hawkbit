@@ -11,17 +11,16 @@ package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.ui.Button;
 
 /**
  * Single button click behavior of filter buttons layout for software module
  * table on the Upload view.
  */
-public class SMTypeFilterButtonClick extends AbstractFilterSingleButtonClick {
+public class SMTypeFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyType> {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,14 +38,14 @@ public class SMTypeFilterButtonClick extends AbstractFilterSingleButtonClick {
     }
 
     @Override
-    protected void filterUnClicked(final Button clickedButton) {
+    protected void filterUnClicked(final ProxyType clickedFilter) {
         artifactUploadState.getSoftwareModuleFilters().setSoftwareModuleType(null);
         eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
     }
 
     @Override
-    protected void filterClicked(final Button clickedButton) {
-        softwareModuleTypeManagement.getByName(clickedButton.getData().toString()).ifPresent(softwareModuleType -> {
+    protected void filterClicked(final ProxyType clickedFilter) {
+        softwareModuleTypeManagement.getByName(clickedFilter.getName()).ifPresent(softwareModuleType -> {
             artifactUploadState.getSoftwareModuleFilters().setSoftwareModuleType(softwareModuleType);
             eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
         });

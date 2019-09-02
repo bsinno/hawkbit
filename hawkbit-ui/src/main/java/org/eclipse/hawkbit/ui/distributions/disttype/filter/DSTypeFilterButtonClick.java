@@ -9,18 +9,17 @@
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Button;
-
 /**
  * Single button click behaviour of filter buttons layout.
  */
-public class DSTypeFilterButtonClick extends AbstractFilterSingleButtonClick {
+public class DSTypeFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyType> {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,14 +37,14 @@ public class DSTypeFilterButtonClick extends AbstractFilterSingleButtonClick {
     }
 
     @Override
-    protected void filterUnClicked(final Button clickedButton) {
+    protected void filterUnClicked(final ProxyType clickedFilter) {
         manageDistUIState.getManageDistFilters().setClickedDistSetType(null);
         eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
     }
 
     @Override
-    protected void filterClicked(final Button clickedButton) {
-        distributionSetTypeManagement.getByName(clickedButton.getData().toString())
+    protected void filterClicked(final ProxyType clickedFilter) {
+        distributionSetTypeManagement.getByName(clickedFilter.getName())
                 .ifPresent(manageDistUIState.getManageDistFilters()::setClickedDistSetType);
         eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
     }

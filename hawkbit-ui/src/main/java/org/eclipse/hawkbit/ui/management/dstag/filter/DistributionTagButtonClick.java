@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterMultiButtonClick;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -15,13 +16,11 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Button;
-
 /**
  * Abstract class for button click behavior of the distribution set's tag
  * buttons. Filters the distribution sets according to the active tags.
  */
-public class DistributionTagButtonClick extends AbstractFilterMultiButtonClick {
+public class DistributionTagButtonClick extends AbstractFilterMultiButtonClick<ProxyTag> {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,21 +34,23 @@ public class DistributionTagButtonClick extends AbstractFilterMultiButtonClick {
     }
 
     @Override
-    protected void filterUnClicked(final Button clickedButton) {
-        if (clickedButton.getData().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
+    protected void filterUnClicked(final ProxyTag clickedFilter) {
+        // TODO: check if it works (adapt as needed)
+        if (clickedFilter.getName().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
             managementUIState.getDistributionTableFilters().setNoTagSelected(false);
         } else {
-            managementUIState.getDistributionTableFilters().getClickedDistSetTags().remove(clickedButton.getId());
+            managementUIState.getDistributionTableFilters().getClickedDistSetTags().remove(clickedFilter.getName());
         }
         eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
     }
 
     @Override
-    protected void filterClicked(final Button clickedButton) {
-        if (clickedButton.getData().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
+    protected void filterClicked(final ProxyTag clickedFilter) {
+        // TODO: check if it works (adapt as needed)
+        if (clickedFilter.getName().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
             managementUIState.getDistributionTableFilters().setNoTagSelected(true);
         } else {
-            managementUIState.getDistributionTableFilters().getClickedDistSetTags().add(clickedButton.getId());
+            managementUIState.getDistributionTableFilters().getClickedDistSetTags().add(clickedFilter.getName());
         }
         eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
     }

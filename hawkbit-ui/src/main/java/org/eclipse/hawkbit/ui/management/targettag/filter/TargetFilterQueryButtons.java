@@ -8,47 +8,46 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterBeanQuery;
+import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.v7.data.Item;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.Table;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Target filter query{#link {@link TargetFilterQuery} buttons layout.
  */
-public class TargetFilterQueryButtons extends Table {
-    private static final long serialVersionUID = 9188095103191937850L;
-    protected static final String FILTER_BUTTON_COLUMN = "filterButton";
+public class TargetFilterQueryButtons extends Grid<ProxyTargetFilterQuery> {
+    private static final long serialVersionUID = 1L;
+    protected static final String FILTER_BUTTON_COLUMN_ID = "filterButton";
 
     private final ManagementUIState managementUIState;
+    private final transient EventBus.UIEventBus eventBus;
+    private final transient TargetFilterQueryDataProvider tfqDataProvider;
+    private final CustomTargetTagFilterButtonClick customTargetTagFilterButtonClick;
 
-    private transient EventBus.UIEventBus eventBus;
-
-    private CustomTargetTagFilterButtonClick customTargetTagFilterButtonClick;
-
-    TargetFilterQueryButtons(final ManagementUIState managementUIState, final UIEventBus eventBus) {
+    TargetFilterQueryButtons(final ManagementUIState managementUIState, final UIEventBus eventBus,
+            final TargetFilterQueryManagement targetFilterQueryManagement) {
         this.managementUIState = managementUIState;
         this.eventBus = eventBus;
+        this.customTargetTagFilterButtonClick = new CustomTargetTagFilterButtonClick(eventBus, managementUIState,
+                targetFilterQueryManagement);
+
+        this.tfqDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
+                new TargetFilterQueryToProxyTargetFilterMapper());
+
+        init();
     }
 
     /**
@@ -56,91 +55,53 @@ public class TargetFilterQueryButtons extends Table {
      * 
      * @param filterButtonClickBehaviour
      */
-    void init(final CustomTargetTagFilterButtonClick filterButtonClickBehaviour) {
-        this.customTargetTagFilterButtonClick = filterButtonClickBehaviour;
-        createTable();
-        eventBus.subscribe(this);
-    }
+    private void init() {
+        setId(UIComponentIdProvider.CUSTOM_TARGET_TAG_TABLE_ID);
 
-    private void createTable() {
-
-        setId(getButtonsTableId());
-        setStyleName("type-button-layout");
-        setStyle();
-        setContainerDataSource(createButtonsLazyQueryContainer());
-        addTableProperties();
-        addColumn();
-        setTableVisibleColumns();
-        setDragMode(TableDragMode.NONE);
-        setSelectable(false);
-        setSizeFull();
-
-    }
-
-    protected String getButtonsTableId() {
-        return UIComponentIdProvider.CUSTOM_TARGET_TAG_TABLE_ID;
-    }
-
-    private void setStyle() {
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_BORDERLESS);
         addStyleName(ValoTheme.TABLE_COMPACT);
+        setStyleName("type-button-layout");
+        setSizeFull();
+
+        setSelectionMode(SelectionMode.NONE);
+
+        setDataProvider(tfqDataProvider);
+
+        addColumns();
+
+        eventBus.subscribe(this);
     }
 
-    protected LazyQueryContainer createButtonsLazyQueryContainer() {
-        final BeanQueryFactory<TargetFilterBeanQuery> queryFactory = new BeanQueryFactory<>(
-                TargetFilterBeanQuery.class);
-        queryFactory.setQueryConfiguration(Collections.emptyMap());
-        return new LazyQueryContainer(new LazyQueryDefinition(true, 20, "id"), queryFactory);
+    private void addColumns() {
+        addComponentColumn(this::buildTfqButton).setId(FILTER_BUTTON_COLUMN_ID);
     }
 
-    private void addTableProperties() {
-        final LazyQueryContainer container = (LazyQueryContainer) getContainerDataSource();
-        container.addContainerProperty(SPUILabelDefinitions.VAR_ID, Long.class, null, true, true);
-        container.addContainerProperty(SPUILabelDefinitions.VAR_NAME, String.class, null, true, true);
-    }
+    private Button buildTfqButton(final ProxyTargetFilterQuery filterQuery) {
+        final Button tfqButton = new Button(filterQuery.getName());
 
-    protected void addColumn() {
-        addGeneratedColumn(FILTER_BUTTON_COLUMN, (source, itemId, columnId) -> addGeneratedCell(itemId));
-    }
+        tfqButton.setDescription(filterQuery.getName());
+        tfqButton.addStyleName("generatedColumnPadding");
+        tfqButton.addStyleName("button-no-border");
+        tfqButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+        tfqButton.addStyleName("button-tag-no-border");
+        tfqButton.addStyleName("custom-filter-button");
+        tfqButton.setId("customFilter." + filterQuery.getId());
 
-    private Button addGeneratedCell(final Object itemId) {
-        final Item item = getItem(itemId);
-        final Long id = (Long) item.getItemProperty(SPUILabelDefinitions.VAR_ID).getValue();
-        final String name = (String) item.getItemProperty(SPUILabelDefinitions.VAR_NAME).getValue();
-        final Button typeButton = createFilterButton(id, name, itemId);
+        tfqButton.addClickListener(
+                event -> customTargetTagFilterButtonClick.processFilterButtonClick(event.getButton(), filterQuery));
 
-        if (isClickedByDefault(id)) {
-            customTargetTagFilterButtonClick.setDefaultButtonClicked(typeButton);
+        if (isClickedByDefault(filterQuery.getId())) {
+            customTargetTagFilterButtonClick.setDefaultButtonClicked(tfqButton);
         }
-        return typeButton;
+
+        return tfqButton;
     }
 
     private boolean isClickedByDefault(final Long id) {
         return managementUIState.getTargetTableFilters().getTargetFilterQuery().map(q -> q.equals(id)).orElse(false);
-    }
-
-    private Button createFilterButton(final Long id, final String name, final Object itemId) {
-        final Button button = SPUIComponentProvider.getButton("", name, name, "", false, null,
-                SPUITagButtonStyle.class);
-        button.addStyleName("custom-filter-button");
-        button.setId(name);
-        if (id != null) {
-            button.setCaption(name);
-        }
-        button.setDescription(name);
-        button.setData(itemId);
-        button.addClickListener(event -> customTargetTagFilterButtonClick.processButtonClick(event));
-        return button;
-    }
-
-    private void setTableVisibleColumns() {
-        final List<Object> columnIds = new ArrayList<>();
-        columnIds.add(FILTER_BUTTON_COLUMN);
-        setVisibleColumns(columnIds.toArray());
-        setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

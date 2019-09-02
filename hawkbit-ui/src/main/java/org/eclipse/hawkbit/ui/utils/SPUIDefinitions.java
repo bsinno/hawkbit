@@ -313,7 +313,7 @@ public final class SPUIDefinitions {
     public static final String DEFAULT_COLOR = "rgb(44,151,32)";
 
     /**
-     * Id f "NO TAG" button.
+     * Id of "NO TAG" button.
      */
     public static final String NO_TAG_BUTTON_ID = "no_tag_button";
 

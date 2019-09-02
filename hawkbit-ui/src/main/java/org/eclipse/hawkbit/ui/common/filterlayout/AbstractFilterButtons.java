@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
-import static org.eclipse.hawkbit.ui.utils.SPUIDefinitions.NO_TAG_BUTTON_ID;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,22 +29,27 @@ import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.v7.data.Item;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.DragAndDropWrapper;
 import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
-import com.vaadin.v7.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.CloseListener;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.ui.Table;
+import com.vaadin.v7.ui.Table.ColumnHeaderMode;
+import com.vaadin.v7.ui.Table.TableDragMode;
 
 /**
  * Parent class for filter button layout.
+ * 
+ * @param <T>
+ *            The type of the Filter Button
  */
 public abstract class AbstractFilterButtons extends Table {
 
@@ -54,7 +57,7 @@ public abstract class AbstractFilterButtons extends Table {
 
     protected static final String DEFAULT_GREEN = "rgb(44,151,32)";
 
-    protected static final String FILTER_BUTTON_COLUMN = "filterButton";
+    protected static final String FILTER_BUTTON_COLUMN_ID = "filterButton";
 
     private final transient EventBus.UIEventBus eventBus;
 

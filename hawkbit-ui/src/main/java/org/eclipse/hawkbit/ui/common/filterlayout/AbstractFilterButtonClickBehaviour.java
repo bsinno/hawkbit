@@ -14,25 +14,29 @@ import com.vaadin.ui.Button;
 
 /**
  * Abstract button click behaviour of filter buttons layout.
+ * 
+ * @param <T>
+ *            The type of the Filter Button
  */
-public abstract class AbstractFilterButtonClickBehaviour implements Serializable {
+public abstract class AbstractFilterButtonClickBehaviour<T> implements Serializable {
 
     private static final long serialVersionUID = 5486557136906648322L;
 
     /**
-     * @param event
+     * @param clickedButton
+     * @param clickedFilter
      */
-    protected abstract void processFilterButtonClick(Button.ClickEvent event);
+    public abstract void processFilterButtonClick(final Button clickedButton, final T clickedFilter);
 
     /**
-     * @param clickedButton
+     * @param clickedFilter
      */
-    protected abstract void filterUnClicked(final Button clickedButton);
+    protected abstract void filterUnClicked(final T clickedFilter);
 
     /**
-     * @param clickedButton
+     * @param clickedFilter
      */
-    protected abstract void filterClicked(final Button clickedButton);
+    protected abstract void filterClicked(final T clickedFilter);
 
     /**
      * 

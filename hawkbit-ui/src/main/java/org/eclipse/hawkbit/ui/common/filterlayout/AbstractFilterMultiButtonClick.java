@@ -14,29 +14,30 @@ import java.util.Set;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 
 /**
  * Abstract class for button click behavior. It is possible to click multiple
  * buttons.
+ * 
+ * @param <T>
+ *            The type of the Filter Button
  */
-public abstract class AbstractFilterMultiButtonClick extends AbstractFilterButtonClickBehaviour {
+public abstract class AbstractFilterMultiButtonClick<T> extends AbstractFilterButtonClickBehaviour<T> {
 
     private static final long serialVersionUID = 1L;
     protected final transient Set<Button> alreadyClickedButtons = new HashSet<>();
 
     @Override
-    public void processFilterButtonClick(final ClickEvent event) {
-        final Button clickedButton = (Button) event.getComponent();
+    public void processFilterButtonClick(final Button clickedButton, final T clickedFilter) {
         if (isButtonUnClicked(clickedButton)) {
             /* If same button clicked */
             clickedButton.removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
             alreadyClickedButtons.remove(clickedButton);
-            filterUnClicked(clickedButton);
+            filterUnClicked(clickedFilter);
         } else {
             clickedButton.addStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
             alreadyClickedButtons.add(clickedButton);
-            filterClicked(clickedButton);
+            filterClicked(clickedFilter);
         }
     }
 

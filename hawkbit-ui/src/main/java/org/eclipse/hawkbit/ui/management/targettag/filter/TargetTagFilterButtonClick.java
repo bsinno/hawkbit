@@ -8,8 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
-import java.io.Serializable;
-
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterMultiButtonClick;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -23,7 +22,7 @@ import com.vaadin.ui.Button;
 /**
  * Multi button click behaviour of filter buttons layout.
  */
-public class TargetTagFilterButtonClick extends AbstractFilterMultiButtonClick implements Serializable {
+public class TargetTagFilterButtonClick extends AbstractFilterMultiButtonClick<ProxyTag> {
 
     private static final long serialVersionUID = -6173433602055291533L;
 
@@ -37,16 +36,17 @@ public class TargetTagFilterButtonClick extends AbstractFilterMultiButtonClick i
     }
 
     @Override
-    protected void filterUnClicked(final Button clickedButton) {
-        if (clickedButton.getData().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
+    protected void filterUnClicked(final ProxyTag clickedFilter) {
+        // TODO: check if it works (adapt as needed)
+        if (clickedFilter.getName().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
             if (managementUIState.getTargetTableFilters().isNoTagSelected()) {
                 managementUIState.getTargetTableFilters().setNoTagSelected(false);
                 eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
             }
         } else {
             if (null != managementUIState.getTargetTableFilters().getClickedTargetTags() && managementUIState
-                    .getTargetTableFilters().getClickedTargetTags().contains(clickedButton.getId())) {
-                managementUIState.getTargetTableFilters().getClickedTargetTags().remove(clickedButton.getId());
+                    .getTargetTableFilters().getClickedTargetTags().contains(clickedFilter.getName())) {
+                managementUIState.getTargetTableFilters().getClickedTargetTags().remove(clickedFilter.getName());
                 eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
             }
 
@@ -54,12 +54,13 @@ public class TargetTagFilterButtonClick extends AbstractFilterMultiButtonClick i
     }
 
     @Override
-    protected void filterClicked(final Button clickedButton) {
-        if (clickedButton.getData().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
+    protected void filterClicked(final ProxyTag clickedFilter) {
+        // TODO: check if it works (adapt as needed)
+        if (clickedFilter.getName().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
             managementUIState.getTargetTableFilters().setNoTagSelected(true);
             eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
         } else {
-            managementUIState.getTargetTableFilters().getClickedTargetTags().add(clickedButton.getId());
+            managementUIState.getTargetTableFilters().getClickedTargetTags().add(clickedFilter.getName());
             eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
         }
     }

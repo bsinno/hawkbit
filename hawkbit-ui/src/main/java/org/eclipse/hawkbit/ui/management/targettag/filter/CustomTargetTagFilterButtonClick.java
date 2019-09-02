@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -17,13 +18,12 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 
 /**
  * Single button click behaviour of custom target filter buttons layout.
  *
  */
-public class CustomTargetTagFilterButtonClick extends AbstractFilterSingleButtonClick {
+public class CustomTargetTagFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyTargetFilterQuery> {
 
     private static final long serialVersionUID = 1L;
 
@@ -51,21 +51,18 @@ public class CustomTargetTagFilterButtonClick extends AbstractFilterSingleButton
     }
 
     @Override
-    protected void filterUnClicked(final Button clickedButton) {
+    protected void filterUnClicked(final ProxyTargetFilterQuery clickedFilter) {
         this.managementUIState.getTargetTableFilters().setTargetFilterQuery(null);
         this.eventBus.publish(this, TargetFilterEvent.REMOVE_FILTER_BY_TARGET_FILTER_QUERY);
     }
 
     @Override
-    protected void filterClicked(final Button clickedButton) {
-        targetFilterQueryManagement.get((Long) clickedButton.getData()).ifPresent(targetFilterQuery -> {
+    protected void filterClicked(final ProxyTargetFilterQuery clickedFilter) {
+        // TODO: check if we need to make the database call here
+        targetFilterQueryManagement.get(clickedFilter.getId()).ifPresent(targetFilterQuery -> {
             this.managementUIState.getTargetTableFilters().setTargetFilterQuery(targetFilterQuery.getId());
             this.eventBus.publish(this, TargetFilterEvent.FILTER_BY_TARGET_FILTER_QUERY);
         });
-    }
-
-    protected void processButtonClick(final ClickEvent event) {
-        processFilterButtonClick(event);
     }
 
     protected void clearAppliedTargetFilterQuery() {
