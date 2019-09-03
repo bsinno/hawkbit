@@ -50,7 +50,7 @@ public abstract class AbstractFilterSingleButtonClick<T> extends AbstractFilterB
     }
 
     @Override
-    protected void setDefaultClickedButton(final Button button) {
+    public void setDefaultClickedButton(final Button button) {
         alreadyClickedButton = button;
         if (button != null) {
             button.addStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);

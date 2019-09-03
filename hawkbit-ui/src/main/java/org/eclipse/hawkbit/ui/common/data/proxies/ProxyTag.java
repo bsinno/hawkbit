@@ -21,6 +21,8 @@ public class ProxyTag extends ProxyFilterButton {
     private static final long serialVersionUID = 1L;
 
     private TagIdName tagIdName;
+    // TODO: check if dummy 'ProxyNoTag extends ProxyTag' class is better
+    private boolean isNoTag;
 
     /**
      * Proxy tag constructor.
@@ -28,6 +30,7 @@ public class ProxyTag extends ProxyFilterButton {
     public ProxyTag() {
         final Integer generatedIntId = new SecureRandom().nextInt(Integer.MAX_VALUE) - Integer.MAX_VALUE;
         tagIdName = new TagIdName(generatedIntId.toString(), null);
+        isNoTag = false;
     }
 
     public TagIdName getTagIdName() {
@@ -36,5 +39,13 @@ public class ProxyTag extends ProxyFilterButton {
 
     public void setTagIdName(final TagIdName tagIdName) {
         this.tagIdName = tagIdName;
+    }
+
+    public boolean isNoTag() {
+        return isNoTag;
+    }
+
+    public void setNoTag(final boolean isNoTag) {
+        this.isNoTag = isNoTag;
     }
 }

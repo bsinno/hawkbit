@@ -13,14 +13,17 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.event.TargetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.components.ConfigMenuBar;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
+import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.targettag.CreateTargetTagLayout;
+import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -133,6 +136,7 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
             targetTagTableLayout.addComponent(menu);
             targetTagTableLayout.setComponentAlignment(menu, Alignment.TOP_RIGHT);
         }
+        targetTagTableLayout.addComponent(buildNoTagButton());
         targetTagTableLayout.addComponent(filterByButtons);
         targetTagTableLayout.setComponentAlignment(filterByButtons, Alignment.MIDDLE_CENTER);
         targetTagTableLayout.setId(UIComponentIdProvider.TARGET_TAG_DROP_AREA_ID);
@@ -145,6 +149,26 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
         simpleFilterTab.setSizeFull();
         simpleFilterTab.addStyleName(SPUIStyleDefinitions.SIMPLE_FILTER_HEADER);
         return simpleFilterTab;
+    }
+
+    private Button buildNoTagButton() {
+        final Button noTagButton = SPUIComponentProvider.getButton(
+                SPUIDefinitions.TARGET_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
+                i18n.getMessage(UIMessageIdProvider.LABEL_NO_TAG),
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
+                SPUITagButtonStyle.class);
+
+        final ProxyTag dummyNoTag = new ProxyTag();
+        dummyNoTag.setNoTag(true);
+
+        noTagButton.addClickListener(event -> filterByButtons.getFilterButtonClickBehaviour()
+                .processFilterButtonClick(event.getButton(), dummyNoTag));
+
+        if (managementUIState.getTargetTableFilters().isNoTagSelected()) {
+            filterByButtons.getFilterButtonClickBehaviour().setDefaultClickedButton(noTagButton);
+        }
+
+        return noTagButton;
     }
 
     private Component getComplexFilterTab() {

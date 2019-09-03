@@ -37,7 +37,6 @@ import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryLayout;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusLayout;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusMsgLayout;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionTableLayout;
-import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagButtons;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayout;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
@@ -173,11 +172,8 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         }
 
         if (permChecker.hasReadRepositoryPermission()) {
-            final DistributionTagButtons distributionTagButtons = new DistributionTagButtons(eventBus,
-                    managementUIState, entityFactory, i18n, uiNotification, permChecker, distributionSetTagManagement,
-                    distributionSetManagement);
             this.distributionTagLayout = new DistributionTagLayout(eventBus, managementUIState, i18n, permChecker,
-                    distributionSetTagManagement, entityFactory, uiNotification, distributionTagButtons);
+                    distributionSetTagManagement, entityFactory, uiNotification, distributionSetManagement);
             this.distributionTableLayout = new DistributionTableLayout(i18n, eventBus, permChecker, managementUIState,
                     distributionSetManagement, distributionSetTypeManagement, managementViewClientCriterion,
                     entityFactory, uiNotification, distributionSetTagManagement, targetTagManagement, systemManagement,

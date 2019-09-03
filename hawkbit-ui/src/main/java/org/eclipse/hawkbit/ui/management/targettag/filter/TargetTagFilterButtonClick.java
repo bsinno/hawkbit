@@ -12,7 +12,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterMultiButtonClick;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -38,7 +37,7 @@ public class TargetTagFilterButtonClick extends AbstractFilterMultiButtonClick<P
     @Override
     protected void filterUnClicked(final ProxyTag clickedFilter) {
         // TODO: check if it works (adapt as needed)
-        if (clickedFilter.getName().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
+        if (clickedFilter.isNoTag()) {
             if (managementUIState.getTargetTableFilters().isNoTagSelected()) {
                 managementUIState.getTargetTableFilters().setNoTagSelected(false);
                 eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
@@ -49,14 +48,13 @@ public class TargetTagFilterButtonClick extends AbstractFilterMultiButtonClick<P
                 managementUIState.getTargetTableFilters().getClickedTargetTags().remove(clickedFilter.getName());
                 eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
             }
-
         }
     }
 
     @Override
     protected void filterClicked(final ProxyTag clickedFilter) {
         // TODO: check if it works (adapt as needed)
-        if (clickedFilter.getName().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
+        if (clickedFilter.isNoTag()) {
             managementUIState.getTargetTableFilters().setNoTagSelected(true);
             eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
         } else {

@@ -13,12 +13,15 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
+
+import com.vaadin.ui.Component;
 
 /**
  * Software module type filter buttons layout.
@@ -28,6 +31,9 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     private static final long serialVersionUID = 1L;
 
     private final ArtifactUploadState artifactUploadState;
+
+    private final SMTypeFilterHeader smTypeFilterHeader;
+    private final SMTypeFilterButtons sMTypeFilterButtons;
 
     /**
      * Constructor
@@ -46,17 +52,30 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
      *            UINotification
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
-     * @param sMTypeFilterButtons
-     *            SMTypeFilterButtons
      */
     public SMTypeFilterLayout(final ArtifactUploadState artifactUploadState, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final UIEventBus eventBus, final EntityFactory entityFactory,
-            final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
-            final SMTypeFilterButtons sMTypeFilterButtons) {
-        super(new SMTypeFilterHeader(i18n, permChecker, eventBus, artifactUploadState, entityFactory, uiNotification,
-                softwareModuleTypeManagement, sMTypeFilterButtons), sMTypeFilterButtons, eventBus);
+            final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
         this.artifactUploadState = artifactUploadState;
+
+        this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, artifactUploadState, softwareModuleTypeManagement,
+                i18n, entityFactory, permChecker, uiNotification);
+        this.smTypeFilterHeader = new SMTypeFilterHeader(i18n, permChecker, eventBus, artifactUploadState,
+                entityFactory, uiNotification, softwareModuleTypeManagement, sMTypeFilterButtons);
+
+        buildLayout();
+
         restoreState();
+    }
+
+    @Override
+    protected AbstractFilterHeader getFilterHeader() {
+        return smTypeFilterHeader;
+    }
+
+    @Override
+    protected Component getFilterButtons() {
+        return sMTypeFilterButtons;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -70,8 +89,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    public Boolean onLoadIsTypeFilterIsClosed() {
+    public Boolean isTypeFilterClosedOnLoad() {
         return artifactUploadState.isSwTypeFilterClosed();
     }
-
 }

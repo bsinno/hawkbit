@@ -8,10 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
+import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
+import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
@@ -21,6 +24,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.Component;
+
 /**
  * Distribution Set Type filter buttons layout.
  */
@@ -29,6 +34,9 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     private static final long serialVersionUID = 1L;
 
     private final ManageDistUIState manageDistUIState;
+
+    private final DSTypeFilterHeader dsTypeFilterHeader;
+    private final DSTypeFilterButtons dSTypeFilterButtons;
 
     /**
      * Constructor
@@ -49,19 +57,33 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
      *            SoftwareModuleTypeManagement
      * @param distributionSetTypeManagement
      *            DistributionSetTypeManagement
-     * @param dSTypeFilterButtons
-     *            DSTypeFilterButtons
      */
     public DSTypeFilterLayout(final ManageDistUIState manageDistUIState, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final UIEventBus eventBus, final EntityFactory entityFactory,
             final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement,
-            final DSTypeFilterButtons dSTypeFilterButtons) {
-        super(new DSTypeFilterHeader(i18n, permChecker, eventBus, manageDistUIState, entityFactory, uiNotification,
-                softwareModuleTypeManagement, distributionSetTypeManagement, dSTypeFilterButtons), dSTypeFilterButtons,
-                eventBus);
+            final DistributionSetManagement distributionSetManagement, final SystemManagement systemManagement) {
         this.manageDistUIState = manageDistUIState;
+
+        this.dSTypeFilterButtons = new DSTypeFilterButtons(eventBus, manageDistUIState, distributionSetTypeManagement,
+                i18n, entityFactory, permChecker, uiNotification, softwareModuleTypeManagement,
+                distributionSetManagement, systemManagement);
+        this.dsTypeFilterHeader = new DSTypeFilterHeader(i18n, permChecker, eventBus, manageDistUIState, entityFactory,
+                uiNotification, softwareModuleTypeManagement, distributionSetTypeManagement, dSTypeFilterButtons);
+
+        buildLayout();
+
         restoreState();
+    }
+
+    @Override
+    protected AbstractFilterHeader getFilterHeader() {
+        return dsTypeFilterHeader;
+    }
+
+    @Override
+    protected Component getFilterButtons() {
+        return dSTypeFilterButtons;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -75,8 +97,7 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    public Boolean onLoadIsTypeFilterIsClosed() {
+    public Boolean isTypeFilterClosedOnLoad() {
         return manageDistUIState.isDistTypeFilterClosed();
     }
-
 }

@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
@@ -20,6 +21,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.Component;
+
 /**
  * Software Module Type filter layout.
  */
@@ -28,6 +31,9 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     private static final long serialVersionUID = 1L;
 
     private final ManageDistUIState manageDistUIState;
+
+    private final DistSMTypeFilterHeader distSMTypeFilterHeader;
+    private final DistSMTypeFilterButtons filterButtons;
 
     /**
      * Constructor
@@ -46,19 +52,32 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
      *            UINotification
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
-     * @param filterButtons
-     *            DistSMTypeFilterButtons
      */
     public DistSMTypeFilterLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final ManageDistUIState manageDistUIState,
             final EntityFactory entityFactory, final UINotification uiNotification,
-            final SoftwareModuleTypeManagement softwareModuleTypeManagement,
-            final DistSMTypeFilterButtons filterButtons) {
-        super(new DistSMTypeFilterHeader(i18n, permChecker, eventBus, manageDistUIState, entityFactory, uiNotification,
-                softwareModuleTypeManagement, filterButtons), filterButtons, eventBus);
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
         this.manageDistUIState = manageDistUIState;
+
+        this.filterButtons = new DistSMTypeFilterButtons(eventBus, manageDistUIState, softwareModuleTypeManagement,
+                i18n, entityFactory, permChecker, uiNotification);
+        this.distSMTypeFilterHeader = new DistSMTypeFilterHeader(i18n, permChecker, eventBus, manageDistUIState,
+                entityFactory, uiNotification, softwareModuleTypeManagement, filterButtons);
+
+        buildLayout();
+
         restoreState();
         eventBus.subscribe(this);
+    }
+
+    @Override
+    protected AbstractFilterHeader getFilterHeader() {
+        return distSMTypeFilterHeader;
+    }
+
+    @Override
+    protected Component getFilterButtons() {
+        return filterButtons;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -72,8 +91,7 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    public Boolean onLoadIsTypeFilterIsClosed() {
+    public Boolean isTypeFilterClosedOnLoad() {
         return manageDistUIState.isSwTypeFilterClosed();
     }
-
 }

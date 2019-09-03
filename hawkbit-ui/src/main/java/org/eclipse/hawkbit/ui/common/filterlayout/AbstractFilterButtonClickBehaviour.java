@@ -42,5 +42,5 @@ public abstract class AbstractFilterButtonClickBehaviour<T> implements Serializa
      * 
      * @param button
      */
-    protected abstract void setDefaultClickedButton(final Button button);
+    public abstract void setDefaultClickedButton(final Button button);
 }

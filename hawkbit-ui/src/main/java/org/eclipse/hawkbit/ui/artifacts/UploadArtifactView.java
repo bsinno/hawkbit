@@ -22,7 +22,6 @@ import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsLayout;
 import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleTableLayout;
-import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterButtons;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayout;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
@@ -99,10 +98,8 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
                 uploadViewClientCriterion);
         this.artifactDetailsLayout = new ArtifactDetailsLayout(i18n, eventBus, artifactUploadState, uiNotification,
                 artifactManagement, permChecker);
-        final SMTypeFilterButtons smTypeFilterButtons = new SMTypeFilterButtons(eventBus, artifactUploadState,
-                softwareModuleTypeManagement, i18n, entityFactory, permChecker, uiNotification);
         this.filterByTypeLayout = new SMTypeFilterLayout(artifactUploadState, i18n, permChecker, eventBus,
-                entityFactory, uiNotification, softwareModuleTypeManagement, smTypeFilterButtons);
+                entityFactory, uiNotification, softwareModuleTypeManagement);
         this.dropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, uiNotification, artifactUploadState,
                 multipartConfigElement, softwareModuleManagement, artifactManagement);
 

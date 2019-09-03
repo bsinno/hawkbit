@@ -12,7 +12,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterMultiButtonClick;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -36,7 +35,7 @@ public class DistributionTagButtonClick extends AbstractFilterMultiButtonClick<P
     @Override
     protected void filterUnClicked(final ProxyTag clickedFilter) {
         // TODO: check if it works (adapt as needed)
-        if (clickedFilter.getName().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
+        if (clickedFilter.isNoTag()) {
             managementUIState.getDistributionTableFilters().setNoTagSelected(false);
         } else {
             managementUIState.getDistributionTableFilters().getClickedDistSetTags().remove(clickedFilter.getName());
@@ -47,7 +46,7 @@ public class DistributionTagButtonClick extends AbstractFilterMultiButtonClick<P
     @Override
     protected void filterClicked(final ProxyTag clickedFilter) {
         // TODO: check if it works (adapt as needed)
-        if (clickedFilter.getName().equals(SPUIDefinitions.NO_TAG_BUTTON_ID)) {
+        if (clickedFilter.isNoTag()) {
             managementUIState.getDistributionTableFilters().setNoTagSelected(true);
         } else {
             managementUIState.getDistributionTableFilters().getClickedDistSetTags().add(clickedFilter.getName());

@@ -8,21 +8,32 @@
  */
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
+import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.DistributionSetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
+import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
+
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Layout for Distribution Tags
@@ -32,7 +43,12 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
 
     private static final long serialVersionUID = 1L;
 
+    private final VaadinMessageSource i18n;
     private final ManagementUIState managementUIState;
+    private final UIEventBus eventBus;
+
+    private final DistributionTagFilterHeader distributionTagFilterHeader;
+    private final DistributionTagButtons distributionTagButtons;
 
     /**
      * Constructor
@@ -51,21 +67,60 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
      *            EntityFactory
      * @param uiNotification
      *            UINotification
-     * @param distributionTagButtons
-     *            DistributionTagButtons
      */
     public DistributionTagLayout(final UIEventBus eventBus, final ManagementUIState managementUIState,
             final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final DistributionSetTagManagement distributionSetTagManagement, final EntityFactory entityFactory,
-            final UINotification uiNotification, final DistributionTagButtons distributionTagButtons) {
-
-        super(new DistributionTagFilterHeader(i18n, managementUIState, permChecker, eventBus,
-                distributionSetTagManagement, entityFactory, uiNotification, distributionTagButtons),
-                distributionTagButtons, eventBus);
+            final UINotification uiNotification, final DistributionSetManagement distributionSetManagement) {
+        this.i18n = i18n;
         this.managementUIState = managementUIState;
+        this.eventBus = eventBus;
+
+        this.distributionTagButtons = new DistributionTagButtons(eventBus, managementUIState, entityFactory, i18n,
+                uiNotification, permChecker, distributionSetTagManagement, distributionSetManagement);
+        this.distributionTagFilterHeader = new DistributionTagFilterHeader(i18n, managementUIState, permChecker,
+                eventBus, distributionSetTagManagement, entityFactory, uiNotification, distributionTagButtons);
+
+        buildLayout();
 
         restoreState();
         eventBus.subscribe(this);
+    }
+
+    @Override
+    protected AbstractFilterHeader getFilterHeader() {
+        return distributionTagFilterHeader;
+    }
+
+    @Override
+    protected Component getFilterButtons() {
+        final VerticalLayout filterButtonsLayout = new VerticalLayout();
+
+        filterButtonsLayout.addComponent(buildNoTagButton());
+        filterButtonsLayout.addComponent(distributionTagButtons);
+
+        return filterButtonsLayout;
+    }
+
+    // TODO: remove duplication with MultipleTargetFilter
+    private Button buildNoTagButton() {
+        final Button noTagButton = SPUIComponentProvider.getButton(
+                SPUIDefinitions.DISTRIBUTION_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
+                i18n.getMessage(UIMessageIdProvider.LABEL_NO_TAG),
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
+                SPUITagButtonStyle.class);
+
+        final ProxyTag dummyNoTag = new ProxyTag();
+        dummyNoTag.setNoTag(true);
+
+        noTagButton.addClickListener(event -> distributionTagButtons.getFilterButtonClickBehaviour()
+                .processFilterButtonClick(event.getButton(), dummyNoTag));
+
+        if (managementUIState.getDistributionTableFilters().isNoTagSelected()) {
+            distributionTagButtons.getFilterButtonClickBehaviour().setDefaultClickedButton(noTagButton);
+        }
+
+        return noTagButton;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -83,17 +138,16 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
     @EventBusListenerMethod(scope = EventScope.UI)
     void onDistributionSetTagTableEvent(final DistributionSetTagTableEvent distributionSetTagTableEvent) {
         refreshContainer();
-        getEventBus().publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+        eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
     }
 
     @Override
-    public Boolean onLoadIsTypeFilterIsClosed() {
+    public Boolean isTypeFilterClosedOnLoad() {
         return managementUIState.isDistTagFilterClosed();
     }
 
     @Override
     public void refreshContainer() {
-        getFilterButtons().refreshContainer();
+        distributionTagButtons.refreshContainer();
     }
-
 }

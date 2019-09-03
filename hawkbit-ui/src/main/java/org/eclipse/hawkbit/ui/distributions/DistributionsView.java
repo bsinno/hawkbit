@@ -34,11 +34,9 @@ import org.eclipse.hawkbit.ui.components.AbstractNotificationView;
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.dd.criteria.DistributionsViewClientCriterion;
-import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterButtons;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetTableLayout;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleTableLayout;
-import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterButtons;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
@@ -110,16 +108,15 @@ public class DistributionsView extends AbstractNotificationView implements Brows
             final DistributionsViewMenuItem distributionsViewMenuItem,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext) {
         super(eventBus, notificationUnreadButton);
+
         this.permChecker = permChecker;
         this.i18n = i18n;
         this.uiNotification = uiNotification;
         this.manageDistUIState = manageDistUIState;
-        final DSTypeFilterButtons dsTypeFilterButtons = new DSTypeFilterButtons(eventBus, manageDistUIState,
-                distributionSetTypeManagement, i18n, entityFactory, permChecker, uiNotification,
-                softwareModuleTypeManagement, distributionSetManagement, systemManagement);
+
         this.filterByDSTypeLayout = new DSTypeFilterLayout(manageDistUIState, i18n, permChecker, eventBus,
                 entityFactory, uiNotification, softwareModuleTypeManagement, distributionSetTypeManagement,
-                dsTypeFilterButtons);
+                distributionSetManagement, systemManagement);
         this.distributionTableLayout = new DistributionSetTableLayout(i18n, eventBus, permChecker, managementUIState,
                 manageDistUIState, softwareModuleManagement, distributionSetManagement, distributionSetTypeManagement,
                 targetManagement, entityFactory, uiNotification, distributionSetTagManagement,
@@ -128,10 +125,8 @@ public class DistributionsView extends AbstractNotificationView implements Brows
                 softwareModuleManagement, softwareModuleTypeManagement, entityFactory, manageDistUIState, permChecker,
                 distributionsViewClientCriterion, artifactUploadState, artifactManagement);
 
-        final DistSMTypeFilterButtons distSmTypeFilterButtons = new DistSMTypeFilterButtons(eventBus, manageDistUIState,
-                softwareModuleTypeManagement, i18n, entityFactory, permChecker, uiNotification);
         this.filterBySMTypeLayout = new DistSMTypeFilterLayout(eventBus, i18n, permChecker, manageDistUIState,
-                entityFactory, uiNotification, softwareModuleTypeManagement, distSmTypeFilterButtons);
+                entityFactory, uiNotification, softwareModuleTypeManagement);
         this.distributionsViewMenuItem = distributionsViewMenuItem;
     }
 

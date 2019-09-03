@@ -9,9 +9,9 @@
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Component;
 import com.vaadin.v7.ui.VerticalLayout;
 
 /**
@@ -21,27 +21,15 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
-    private final AbstractFilterHeader filterHeader;
-
-    private final AbstractFilterButtons filterButtons;
-
-    private final transient UIEventBus eventBus;
-
-    protected AbstractFilterLayout(final AbstractFilterHeader filterHeader, final AbstractFilterButtons filterButtons,
-            final UIEventBus eventBus) {
-        this.filterHeader = filterHeader;
-        this.filterButtons = filterButtons;
-        this.eventBus = eventBus;
-        buildLayout();
-        eventBus.subscribe(this);
-    }
-
-    private void buildLayout() {
+    protected void buildLayout() {
         setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH, Unit.PIXELS);
         setStyleName("filter-btns-main-layout");
         setHeight(100.0F, Unit.PERCENTAGE);
         setSpacing(false);
         setMargin(false);
+
+        final Component filterHeader = getFilterHeader();
+        final Component filterButtons = getFilterButtons();
 
         addComponents(filterHeader, filterButtons);
 
@@ -52,28 +40,20 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
     }
 
     protected void restoreState() {
-        if (onLoadIsTypeFilterIsClosed()) {
+        if (isTypeFilterClosedOnLoad()) {
             setVisible(false);
         }
     }
 
-    protected AbstractFilterButtons getFilterButtons() {
-        return filterButtons;
-    }
+    protected abstract AbstractFilterHeader getFilterHeader();
 
-    protected AbstractFilterHeader getFilterHeader() {
-        return filterHeader;
-    }
+    // we use Component here due to NO TAG button
+    protected abstract Component getFilterButtons();
 
     /**
-     * On load, software module type filter is cloaed.
+     * Check if filter layout should be closed on load.
      * 
-     * @return true if filter is cleaned before.
+     * @return true if filter should be initially closed.
      */
-    public abstract Boolean onLoadIsTypeFilterIsClosed();
-
-    public UIEventBus getEventBus() {
-        return eventBus;
-    }
-
+    public abstract Boolean isTypeFilterClosedOnLoad();
 }
