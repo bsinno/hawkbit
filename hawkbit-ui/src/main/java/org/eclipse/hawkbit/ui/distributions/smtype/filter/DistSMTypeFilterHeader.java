@@ -97,7 +97,7 @@ public class DistSMTypeFilterHeader extends AbstractFilterHeader {
     @Override
     protected Command getDeleteButtonCommand() {
         return command -> {
-            filterButtons.addDeleteColumn();
+            filterButtons.showDeleteColumn();
             getEventBus().publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
@@ -105,7 +105,7 @@ public class DistSMTypeFilterHeader extends AbstractFilterHeader {
     @Override
     protected Command getUpdateButtonCommand() {
         return command -> {
-            filterButtons.addUpdateColumn();
+            filterButtons.showEditColumn();
             getEventBus().publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
@@ -113,7 +113,7 @@ public class DistSMTypeFilterHeader extends AbstractFilterHeader {
     @Override
     protected void cancelUpdateOrDeleteTag(final ClickEvent event) {
         super.cancelUpdateOrDeleteTag(event);
-        filterButtons.removeUpdateAndDeleteColumn();
+        filterButtons.hideActionColumns();
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

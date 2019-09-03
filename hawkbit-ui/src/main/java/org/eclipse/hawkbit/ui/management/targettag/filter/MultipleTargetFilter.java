@@ -10,13 +10,13 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
+import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.event.TargetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.components.ConfigMenuBar;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -39,8 +39,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
-import com.vaadin.v7.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Target filter tabsheet with 'simple' and 'complex' filter options.
@@ -54,8 +54,6 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
     private final TargetFilterQueryButtons targetFilterQueryButtonsTab;
 
     private final FilterByStatusLayout filterByStatusFooter;
-
-    private final CustomTargetTagFilterButtonClick customTargetTagFilterButtonClick;
 
     private final SpPermissionChecker permChecker;
 
@@ -80,16 +78,14 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
     private Button cancelTagButton;
 
     MultipleTargetFilter(final SpPermissionChecker permChecker, final ManagementUIState managementUIState,
-            final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final ManagementViewClientCriterion managementViewClientCriterion, final UINotification notification,
+            final VaadinMessageSource i18n, final UIEventBus eventBus, final UINotification notification,
             final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
-            final TargetTagManagement targetTagManagement) {
-        this.filterByButtons = new TargetTagFilterButtons(eventBus, managementUIState, managementViewClientCriterion,
-                i18n, notification, permChecker, entityFactory, targetTagManagement);
-        this.targetFilterQueryButtonsTab = new TargetFilterQueryButtons(managementUIState, eventBus);
-        this.filterByStatusFooter = new FilterByStatusLayout(i18n, eventBus, managementUIState);
-        this.customTargetTagFilterButtonClick = new CustomTargetTagFilterButtonClick(eventBus, managementUIState,
+            final TargetTagManagement targetTagManagement, final TargetManagement targetManagement) {
+        this.filterByButtons = new TargetTagFilterButtons(eventBus, managementUIState, i18n, notification, permChecker,
+                entityFactory, targetTagManagement, targetManagement);
+        this.targetFilterQueryButtonsTab = new TargetFilterQueryButtons(managementUIState, eventBus,
                 targetFilterQueryManagement);
+        this.filterByStatusFooter = new FilterByStatusLayout(i18n, eventBus, managementUIState);
         this.permChecker = permChecker;
         this.managementUIState = managementUIState;
         this.i18n = i18n;
@@ -105,7 +101,6 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
         filterByStatusFooter.init();
 
         filterByButtons.addStyleName(SPUIStyleDefinitions.NO_TOP_BORDER);
-        targetFilterQueryButtonsTab.init(customTargetTagFilterButtonClick);
         menu = new ConfigMenuBar(permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
                 permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
                 getDeleteButtonCommand(), UIComponentIdProvider.TARGET_MENU_BAR_ID, i18n);
@@ -175,14 +170,14 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
 
     protected Command getDeleteButtonCommand() {
         return command -> {
-            filterByButtons.addDeleteColumn();
+            filterByButtons.showDeleteColumn();
             eventBus.publish(this, new TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
 
     protected Command getUpdateButtonCommand() {
         return command -> {
-            filterByButtons.addUpdateColumn();
+            filterByButtons.showEditColumn();
             eventBus.publish(this, new TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
@@ -213,7 +208,7 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
         targetTagTableLayout.removeComponent(cancelTagButton);
         targetTagTableLayout.addComponent(menu, 0);
         targetTagTableLayout.setComponentAlignment(menu, Alignment.TOP_RIGHT);
-        filterByButtons.removeUpdateAndDeleteColumn();
+        filterByButtons.hideActionColumns();
     }
 
     @SuppressWarnings("squid:S1172")

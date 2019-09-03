@@ -32,8 +32,10 @@ import com.vaadin.ui.themes.ValoTheme;
  * 
  * @param <T>
  *            The type of the Filter Button
+ * @param <F>
+ *            The filter-type used by the grid
  */
-public abstract class AbstractFilterButtons<T extends ProxyFilterButton> extends AbstractGrid<T, Void> {
+public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> extends AbstractGrid<T, F> {
     private static final long serialVersionUID = 1L;
 
     protected static final String DEFAULT_GREEN = "rgb(44,151,32)";
@@ -169,5 +171,13 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton> extends
     public void hideActionColumns() {
         getColumn(FILTER_BUTTON_EDIT_ID).setHidden(true);
         getColumn(FILTER_BUTTON_DELETE_ID).setHidden(true);
+    }
+
+    public void showDeleteColumn() {
+        getColumn(FILTER_BUTTON_DELETE_ID).setHidden(false);
+    }
+
+    public void showEditColumn() {
+        getColumn(FILTER_BUTTON_EDIT_ID).setHidden(false);
     }
 }

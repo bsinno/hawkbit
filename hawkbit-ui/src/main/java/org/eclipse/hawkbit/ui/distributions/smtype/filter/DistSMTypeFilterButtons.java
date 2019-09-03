@@ -8,13 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 
-import static org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent.SoftwareModuleTypeEnum.ADD_SOFTWARE_MODULE_TYPE;
-import static org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent.SoftwareModuleTypeEnum.UPDATE_SOFTWARE_MODULE_TYPE;
-import static org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions.VAR_NAME;
-import static org.eclipse.hawkbit.ui.utils.UIComponentIdProvider.SW_MODULE_TYPE_TABLE_ID;
-
-import java.util.Collections;
-import java.util.Optional;
+import java.util.Collection;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
@@ -23,47 +17,41 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent.SoftwareModuleTypeEnum;
 import org.eclipse.hawkbit.ui.artifacts.smtype.UpdateSoftwareModuleTypeLayout;
-import org.eclipse.hawkbit.ui.common.SoftwareModuleTypeBeanQuery;
+import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.event.SoftwareModuleTypeFilterHeaderEvent;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
-import org.eclipse.hawkbit.ui.dd.criteria.DistributionsViewClientCriterion;
 import org.eclipse.hawkbit.ui.distributions.event.SaveActionWindowEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.addons.lazyquerycontainer.BeanQueryFactory;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryContainer;
-import org.vaadin.addons.lazyquerycontainer.LazyQueryDefinition;
+import org.springframework.hateoas.Identifiable;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 
 /**
  * Software Module Type filter buttons.
  */
-public class DistSMTypeFilterButtons extends AbstractFilterButtons {
-
+public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String> {
     private static final long serialVersionUID = 1L;
 
     private final ManageDistUIState manageDistUIState;
-
-    private final DistributionsViewClientCriterion distributionsViewClientCriterion;
-
-    private final transient EntityFactory entityFactory;
-
+    private final UINotification uiNotification;
     private final SpPermissionChecker permChecker;
 
-    private final UINotification uiNotification;
-
+    private final transient EntityFactory entityFactory;
     private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
+    private final transient DistSMTypeFilterButtonClick distSMTypeFilterButtonClickBehaviour;
+
+    private final ConfigurableFilterDataProvider<ProxyType, Void, String> distSMTypeDataProvider;
 
     /**
      * Constructor
@@ -72,8 +60,6 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons {
      *            UIEventBus
      * @param manageDistUIState
      *            ManageDistUIState
-     * @param distributionsViewClientCriterion
-     *            DistributionsViewClientCriterion
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
      * @param i18n
@@ -86,36 +72,72 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons {
      *            UINotification
      */
     public DistSMTypeFilterButtons(final UIEventBus eventBus, final ManageDistUIState manageDistUIState,
-            final DistributionsViewClientCriterion distributionsViewClientCriterion,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final VaadinMessageSource i18n,
             final EntityFactory entityFactory, final SpPermissionChecker permChecker,
             final UINotification uiNotification) {
-        super(eventBus, new DistSMTypeFilterButtonClick(eventBus, manageDistUIState, softwareModuleTypeManagement),
-                i18n);
+        super(eventBus, i18n, uiNotification);
+
         this.manageDistUIState = manageDistUIState;
-        this.distributionsViewClientCriterion = distributionsViewClientCriterion;
-        this.entityFactory = entityFactory;
-        this.permChecker = permChecker;
         this.uiNotification = uiNotification;
+        this.permChecker = permChecker;
+        this.entityFactory = entityFactory;
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
+
+        this.distSMTypeFilterButtonClickBehaviour = new DistSMTypeFilterButtonClick(eventBus, manageDistUIState,
+                softwareModuleTypeManagement);
+        this.distSMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement,
+                new TypeToProxyTypeMapper<SoftwareModuleType>()).withConfigurableFilter();
     }
 
     @Override
-    protected String getButtonsTableId() {
-        return SW_MODULE_TYPE_TABLE_ID;
+    public String getGridId() {
+        return UIComponentIdProvider.SW_MODULE_TYPE_TABLE_ID;
     }
 
     @Override
-    protected LazyQueryContainer createButtonsLazyQueryContainer() {
-        final BeanQueryFactory<SoftwareModuleTypeBeanQuery> typeQF = new BeanQueryFactory<>(
-                SoftwareModuleTypeBeanQuery.class);
-        typeQF.setQueryConfiguration(Collections.emptyMap());
-        return new LazyQueryContainer(new LazyQueryDefinition(true, 20, VAR_NAME), typeQF);
+    public ConfigurableFilterDataProvider<ProxyType, Void, String> getFilterDataProvider() {
+        return distSMTypeDataProvider;
     }
 
     @Override
-    protected String getButtonWrapperData() {
-        return null;
+    protected String getFilterButtonsType() {
+        return i18n.getMessage("caption.entity.software.module.type");
+    }
+
+    @Override
+    protected AbstractFilterButtonClickBehaviour<ProxyType> getFilterButtonClickBehaviour() {
+        return distSMTypeFilterButtonClickBehaviour;
+    }
+
+    @Override
+    protected void deleteFilterButtons(final Collection<ProxyType> filterButtonsToDelete) {
+        // TODO: we do not allow multiple deletion yet
+        final ProxyType distSMTypeToDelete = filterButtonsToDelete.iterator().next();
+        final String distSMTypeToDeleteName = distSMTypeToDelete.getName();
+        final Long distSMTypeToDeleteId = distSMTypeToDelete.getId();
+
+        final Long clickedDistSMTypeId = manageDistUIState.getSoftwareModuleFilters().getSoftwareModuleType()
+                .map(Identifiable::getId).orElse(null);
+
+        if (clickedDistSMTypeId != null && clickedDistSMTypeId.equals(distSMTypeToDeleteId)) {
+            uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", distSMTypeToDeleteName));
+        } else {
+            softwareModuleTypeManagement.delete(distSMTypeToDeleteId);
+            eventBus.publish(this, SaveActionWindowEvent.SAVED_DELETE_SW_MODULE_TYPES);
+            // TODO: check if it is needed
+            hideActionColumns();
+            eventBus.publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+        }
+    }
+
+    @Override
+    protected void editButtonClickListener(final ProxyType clickedFilter) {
+        new UpdateSoftwareModuleTypeLayout(i18n, entityFactory, eventBus, permChecker, uiNotification,
+                softwareModuleTypeManagement, clickedFilter.getName(), closeEvent -> {
+                    // TODO: check if it is needed
+                    hideActionColumns();
+                    eventBus.publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+                });
     }
 
     @Override
@@ -125,40 +147,17 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons {
     }
 
     @Override
-    protected String createButtonId(final String name) {
-        return UIComponentIdProvider.SM_TYPE_FILTER_BTN_ID + name;
-    }
-
-    @Override
-    protected DropHandler getFilterButtonDropHandler() {
-
-        return new DropHandler() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AcceptCriterion getAcceptCriterion() {
-                return distributionsViewClientCriterion;
-            }
-
-            @Override
-            public void drop(final DragAndDropEvent event) {
-                /* Not required */
-            }
-        };
-    }
-
-    @Override
-    protected String getButttonWrapperIdPrefix() {
+    protected String getFilterButtonIdPrefix() {
         return SPUIDefinitions.SOFTWARE_MODULE_TAG_ID_PREFIXS;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final SoftwareModuleTypeEvent event) {
         if (isCreateOrUpdate(event) && event.getSoftwareModuleType() != null) {
-            refreshTable();
+            refreshContainer();
         }
         if (isUpdate(event)) {
-            getEventBus().publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+            eventBus.publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
         }
     }
 
@@ -167,43 +166,14 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons {
     }
 
     private static boolean isCreateOrUpdate(final SoftwareModuleTypeEvent event) {
-        return event.getSoftwareModuleTypeEnum() == ADD_SOFTWARE_MODULE_TYPE
-                || event.getSoftwareModuleTypeEnum() == UPDATE_SOFTWARE_MODULE_TYPE;
+        return event.getSoftwareModuleTypeEnum() == SoftwareModuleTypeEnum.ADD_SOFTWARE_MODULE_TYPE
+                || event.getSoftwareModuleTypeEnum() == SoftwareModuleTypeEnum.UPDATE_SOFTWARE_MODULE_TYPE;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final SaveActionWindowEvent event) {
         if (event == SaveActionWindowEvent.SAVED_DELETE_SW_MODULE_TYPES) {
-            refreshTable();
+            refreshContainer();
         }
-    }
-
-    @Override
-    protected void addEditButtonClickListener(final ClickEvent event) {
-        new UpdateSoftwareModuleTypeLayout(getI18n(), entityFactory, getEventBus(), permChecker, uiNotification,
-                softwareModuleTypeManagement, getEntityId(event), getCloseListenerForEditAndDeleteTag(
-                        new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR)));
-    }
-
-    @Override
-    protected void addDeleteButtonClickListener(final ClickEvent event) {
-        openConfirmationWindowForDeletion(getEntityId(event),
-                getI18n().getMessage("caption.entity.software.module.type"),
-                new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
-    }
-
-    @Override
-    protected void deleteEntity(final String entityToDelete) {
-        final Optional<SoftwareModuleType> swmTypeToDelete = softwareModuleTypeManagement.getByName(entityToDelete);
-        swmTypeToDelete.ifPresent(tag -> {
-            if (manageDistUIState.getSoftwareModuleFilters().getSoftwareModuleType().equals(swmTypeToDelete)) {
-                uiNotification.displayValidationError(getI18n().getMessage("message.tag.delete", entityToDelete));
-                removeUpdateAndDeleteColumn();
-            } else {
-                softwareModuleTypeManagement.delete(swmTypeToDelete.get().getId());
-                getEventBus().publish(this, SaveActionWindowEvent.SAVED_DELETE_SW_MODULE_TYPES);
-                uiNotification.displaySuccess(getI18n().getMessage("message.delete.success", entityToDelete));
-            }
-        });
     }
 }

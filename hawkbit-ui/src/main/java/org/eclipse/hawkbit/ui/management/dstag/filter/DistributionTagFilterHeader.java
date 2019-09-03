@@ -97,7 +97,7 @@ public class DistributionTagFilterHeader extends AbstractFilterHeader {
     @Override
     protected Command getDeleteButtonCommand() {
         return command -> {
-            distributionTagButtons.addDeleteColumn();
+            distributionTagButtons.showDeleteColumn();
             getEventBus().publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
@@ -105,7 +105,7 @@ public class DistributionTagFilterHeader extends AbstractFilterHeader {
     @Override
     protected Command getUpdateButtonCommand() {
         return command -> {
-            distributionTagButtons.addUpdateColumn();
+            distributionTagButtons.showEditColumn();
             getEventBus().publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
@@ -113,7 +113,7 @@ public class DistributionTagFilterHeader extends AbstractFilterHeader {
     @Override
     protected void cancelUpdateOrDeleteTag(final ClickEvent event) {
         super.cancelUpdateOrDeleteTag(event);
-        distributionTagButtons.removeUpdateAndDeleteColumn();
+        distributionTagButtons.hideActionColumns();
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

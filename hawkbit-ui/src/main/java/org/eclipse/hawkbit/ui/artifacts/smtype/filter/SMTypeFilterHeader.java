@@ -97,7 +97,7 @@ public class SMTypeFilterHeader extends AbstractFilterHeader {
     @Override
     protected Command getDeleteButtonCommand() {
         return command -> {
-            smTypeFilterButtons.addDeleteColumn();
+            smTypeFilterButtons.showDeleteColumn();
             getEventBus().publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
@@ -105,7 +105,7 @@ public class SMTypeFilterHeader extends AbstractFilterHeader {
     @Override
     protected Command getUpdateButtonCommand() {
         return command -> {
-            smTypeFilterButtons.addUpdateColumn();
+            smTypeFilterButtons.showEditColumn();
             getEventBus().publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
@@ -113,7 +113,7 @@ public class SMTypeFilterHeader extends AbstractFilterHeader {
     @Override
     protected void cancelUpdateOrDeleteTag(final ClickEvent event) {
         super.cancelUpdateOrDeleteTag(event);
-        smTypeFilterButtons.removeUpdateAndDeleteColumn();
+        smTypeFilterButtons.hideActionColumns();
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

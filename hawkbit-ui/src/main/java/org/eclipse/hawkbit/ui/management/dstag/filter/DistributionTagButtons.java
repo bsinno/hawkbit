@@ -26,10 +26,8 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTagAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.management.dstag.UpdateDistributionSetTagLayout;
 import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
-import org.eclipse.hawkbit.ui.management.state.DistributionTableFilters;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -44,7 +42,7 @@ import com.vaadin.data.provider.ConfigurableFilterDataProvider;
  * Class for defining the tag buttons of the distribution sets on the Deployment
  * View.
  */
-public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag> {
+public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -61,9 +59,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag> {
 
     public DistributionTagButtons(final UIEventBus eventBus, final ManagementUIState managementUIState,
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
-            final SpPermissionChecker permChecker, final DistributionTableFilters distFilterParameters,
-            final ManagementViewClientCriterion managementViewClientCriterion,
-            final DistributionSetTagManagement distributionSetTagManagement,
+            final SpPermissionChecker permChecker, final DistributionSetTagManagement distributionSetTagManagement,
             final DistributionSetManagement distributionSetManagement) {
         super(eventBus, i18n, uiNotification);
 

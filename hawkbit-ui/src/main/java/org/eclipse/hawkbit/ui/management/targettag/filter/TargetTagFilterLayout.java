@@ -10,12 +10,12 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
+import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.event.TargetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
-import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -41,8 +41,6 @@ public class TargetTagFilterLayout extends AbstractTargetTagFilterLayout impleme
      *            VaadinMessageSource
      * @param managementUIState
      *            ManagementUIState
-     * @param managementViewClientCriterion
-     *            ManagementViewClientCriterion
      * @param permChecker
      *            SpPermissionChecker
      * @param eventBus
@@ -57,13 +55,12 @@ public class TargetTagFilterLayout extends AbstractTargetTagFilterLayout impleme
      *            TargetTagManagement
      */
     public TargetTagFilterLayout(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
-            final ManagementViewClientCriterion managementViewClientCriterion, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final UINotification notification, final EntityFactory entityFactory,
-            final TargetFilterQueryManagement targetFilterQueryManagement,
-            final TargetTagManagement targetTagManagement) {
+            final SpPermissionChecker permChecker, final UIEventBus eventBus, final UINotification notification,
+            final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
+            final TargetTagManagement targetTagManagement, final TargetManagement targetManagement) {
         super(new TargetTagFilterHeader(i18n, managementUIState, permChecker, eventBus),
-                new MultipleTargetFilter(permChecker, managementUIState, i18n, eventBus, managementViewClientCriterion,
-                        notification, entityFactory, targetFilterQueryManagement, targetTagManagement),
+                new MultipleTargetFilter(permChecker, managementUIState, i18n, eventBus, notification, entityFactory,
+                        targetFilterQueryManagement, targetTagManagement, targetManagement),
                 managementUIState);
         this.eventBus = eventBus;
         eventBus.subscribe(this);
@@ -92,6 +89,6 @@ public class TargetTagFilterLayout extends AbstractTargetTagFilterLayout impleme
 
     @Override
     public void refreshContainer() {
-        getMultipleFilterTabs().getFilterByButtons().refreshTable();
+        getMultipleFilterTabs().getFilterByButtons().refreshContainer();
     }
 }

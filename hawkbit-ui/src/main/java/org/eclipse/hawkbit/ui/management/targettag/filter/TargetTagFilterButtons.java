@@ -26,7 +26,6 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToTagAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -45,7 +44,7 @@ import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 /**
  * Target Tag filter buttons table.
  */
-public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag> {
+public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void> {
     private static final long serialVersionUID = 1L;
 
     private final ManagementUIState managementUIState;
@@ -60,9 +59,9 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag> {
     private final DragAndDropSupport<ProxyTag> dragAndDropSupport;
 
     TargetTagFilterButtons(final UIEventBus eventBus, final ManagementUIState managementUIState,
-            final ManagementViewClientCriterion managementViewClientCriterion, final VaadinMessageSource i18n,
-            final UINotification notification, final SpPermissionChecker permChecker, final EntityFactory entityFactory,
-            final TargetTagManagement targetTagManagement, final TargetManagement targetManagement) {
+            final VaadinMessageSource i18n, final UINotification notification, final SpPermissionChecker permChecker,
+            final EntityFactory entityFactory, final TargetTagManagement targetTagManagement,
+            final TargetManagement targetManagement) {
         super(eventBus, i18n, notification);
 
         this.managementUIState = managementUIState;

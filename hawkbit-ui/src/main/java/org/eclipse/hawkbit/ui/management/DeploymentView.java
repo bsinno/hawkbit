@@ -145,9 +145,8 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
             this.actionStatusLayout = new ActionStatusLayout(i18n, eventBus, managementUIState, deploymentManagement);
             this.actionStatusMsgLayout = new ActionStatusMsgLayout(i18n, eventBus, managementUIState,
                     deploymentManagement);
-            this.targetTagFilterLayout = new TargetTagFilterLayout(i18n, managementUIState,
-                    managementViewClientCriterion, permChecker, eventBus, uiNotification, entityFactory,
-                    targetFilterQueryManagement, targetTagManagement);
+            this.targetTagFilterLayout = new TargetTagFilterLayout(i18n, managementUIState, permChecker, eventBus,
+                    uiNotification, entityFactory, targetFilterQueryManagement, targetTagManagement, targetManagement);
 
             final TargetGrid targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement,
                     managementUIState, permChecker, deploymentManagement, configManagement, systemSecurityContext,
@@ -175,8 +174,8 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
 
         if (permChecker.hasReadRepositoryPermission()) {
             final DistributionTagButtons distributionTagButtons = new DistributionTagButtons(eventBus,
-                    managementUIState, entityFactory, i18n, uiNotification, permChecker, distFilterParameters,
-                    distributionSetManagement, managementViewClientCriterion, distributionSetTagManagement);
+                    managementUIState, entityFactory, i18n, uiNotification, permChecker, distributionSetTagManagement,
+                    distributionSetManagement);
             this.distributionTagLayout = new DistributionTagLayout(eventBus, managementUIState, i18n, permChecker,
                     distributionSetTagManagement, entityFactory, uiNotification, distributionTagButtons);
             this.distributionTableLayout = new DistributionTableLayout(i18n, eventBus, permChecker, managementUIState,

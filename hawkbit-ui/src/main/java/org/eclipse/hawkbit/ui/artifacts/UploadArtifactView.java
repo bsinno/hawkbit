@@ -100,8 +100,7 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         this.artifactDetailsLayout = new ArtifactDetailsLayout(i18n, eventBus, artifactUploadState, uiNotification,
                 artifactManagement, permChecker);
         final SMTypeFilterButtons smTypeFilterButtons = new SMTypeFilterButtons(eventBus, artifactUploadState,
-                uploadViewClientCriterion, softwareModuleTypeManagement, i18n, entityFactory, permChecker,
-                uiNotification);
+                softwareModuleTypeManagement, i18n, entityFactory, permChecker, uiNotification);
         this.filterByTypeLayout = new SMTypeFilterLayout(artifactUploadState, i18n, permChecker, eventBus,
                 entityFactory, uiNotification, softwareModuleTypeManagement, smTypeFilterButtons);
         this.dropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, uiNotification, artifactUploadState,

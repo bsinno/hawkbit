@@ -115,8 +115,8 @@ public class DistributionsView extends AbstractNotificationView implements Brows
         this.uiNotification = uiNotification;
         this.manageDistUIState = manageDistUIState;
         final DSTypeFilterButtons dsTypeFilterButtons = new DSTypeFilterButtons(eventBus, manageDistUIState,
-                distributionsViewClientCriterion, distributionSetTypeManagement, i18n, entityFactory, permChecker,
-                uiNotification, softwareModuleTypeManagement, distributionSetManagement, systemManagement);
+                distributionSetTypeManagement, i18n, entityFactory, permChecker, uiNotification,
+                softwareModuleTypeManagement, distributionSetManagement, systemManagement);
         this.filterByDSTypeLayout = new DSTypeFilterLayout(manageDistUIState, i18n, permChecker, eventBus,
                 entityFactory, uiNotification, softwareModuleTypeManagement, distributionSetTypeManagement,
                 dsTypeFilterButtons);
@@ -129,8 +129,7 @@ public class DistributionsView extends AbstractNotificationView implements Brows
                 distributionsViewClientCriterion, artifactUploadState, artifactManagement);
 
         final DistSMTypeFilterButtons distSmTypeFilterButtons = new DistSMTypeFilterButtons(eventBus, manageDistUIState,
-                distributionsViewClientCriterion, softwareModuleTypeManagement, i18n, entityFactory, permChecker,
-                uiNotification);
+                softwareModuleTypeManagement, i18n, entityFactory, permChecker, uiNotification);
         this.filterBySMTypeLayout = new DistSMTypeFilterLayout(eventBus, i18n, permChecker, manageDistUIState,
                 entityFactory, uiNotification, softwareModuleTypeManagement, distSmTypeFilterButtons);
         this.distributionsViewMenuItem = distributionsViewMenuItem;
