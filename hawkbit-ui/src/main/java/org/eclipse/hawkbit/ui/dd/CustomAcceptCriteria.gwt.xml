@@ -14,7 +14,8 @@
 
    <inherits name="com.google.gwt.logging.Logging" />
 
-   <inherits name="com.vaadin.DefaultWidgetSet" />
+   <!-- <inherits name="com.vaadin.DefaultWidgetSet" /> -->
+   <inherits name="com.vaadin.v7.Vaadin7WidgetSet" />
 
    <inherits name="org.vaadin.alump.distributionbar.gwt.DistributionBarWidgetset" />
 
@@ -26,5 +27,4 @@
    <set-property name="gwt.logging.logLevel" value="SEVERE" />
    <!--To enable logging -->
    <set-property name="gwt.logging.enabled" value="TRUE" />
-
 </module>

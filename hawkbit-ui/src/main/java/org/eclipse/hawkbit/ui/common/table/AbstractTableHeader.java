@@ -25,12 +25,10 @@ import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.event.dd.DropHandler;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.DragAndDropWrapper;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.TextField;
@@ -60,8 +58,6 @@ public abstract class AbstractTableHeader extends VerticalLayout {
     private Button addIcon;
 
     private SPUIButton maxMinIcon;
-
-    private HorizontalLayout filterDroppedInfo;
 
     private Button bulkUploadIcon;
 
@@ -185,35 +181,8 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
         addComponent(titleFilterIconsLayout);
 
-        final HorizontalLayout dropHintDropFilterLayout = new HorizontalLayout();
-        dropHintDropFilterLayout.addStyleName("filter-drop-hint-layout");
-        dropHintDropFilterLayout.setWidth(100, Unit.PERCENTAGE);
-        if (isDropFilterRequired()) {
-            filterDroppedInfo = new HorizontalLayout();
-
-            filterDroppedInfo.setStyleName("target-dist-filter-info");
-            filterDroppedInfo.setHeightUndefined();
-            filterDroppedInfo.setSizeUndefined();
-            displayFilterDropedInfoOnLoad();
-            final DragAndDropWrapper dropFilterLayout = new DragAndDropWrapper(filterDroppedInfo);
-            dropFilterLayout.setId(getDropFilterId());
-            dropFilterLayout.setDropHandler(getDropFilterHandler());
-
-            dropHintDropFilterLayout.addComponent(dropFilterLayout);
-            dropHintDropFilterLayout.setComponentAlignment(dropFilterLayout, Alignment.TOP_CENTER);
-            dropHintDropFilterLayout.setExpandRatio(dropFilterLayout, 1.0F);
-        }
-        addComponent(dropHintDropFilterLayout);
-        setComponentAlignment(dropHintDropFilterLayout, Alignment.TOP_CENTER);
         addStyleName("bordered-layout");
         addStyleName("no-border-bottom");
-    }
-
-    /**
-     * to be overridden by concrete implementation.
-     */
-    protected void displayFilterDropedInfoOnLoad() {
-        filterDroppedInfo.removeAllComponents();
     }
 
     private Label createHeaderCaption() {
@@ -351,10 +320,6 @@ public abstract class AbstractTableHeader extends VerticalLayout {
         showFilterButtonLayout.setVisible(isVisible);
     }
 
-    protected HorizontalLayout getFilterDroppedInfo() {
-        return filterDroppedInfo;
-    }
-
     protected void enableBulkUpload() {
         bulkUploadIcon.setEnabled(true);
     }
@@ -384,47 +349,6 @@ public abstract class AbstractTableHeader extends VerticalLayout {
     protected void reEnableSearch() {
         searchResetIcon.setEnabled(true);
     }
-
-    /**
-     * Get the Id value of the drop filter in the table header.
-     * 
-     * @return Id of the drop filter if filter is displayed, otherwise returns
-     *         null.
-     */
-    protected abstract String getDropFilterId();
-
-    /**
-     * Get style of the filter Icon.
-     * 
-     * @return style of the filter Icon
-     */
-    protected abstract String getFilterIconStyle();
-
-    /**
-     * Get the Id value of the drop filter wrapper in the table header.
-     * 
-     * @return Id of the drop filter if filter is displayed, otherwise returns
-     *         null.
-     */
-    protected abstract String getDropFilterWrapperId();
-
-    protected abstract DropHandler getDropFilterHandler();
-
-    /**
-     * Check if drop hits required to display and user has permissions for that.
-     * 
-     * @return true if drop hits should be displayed and user has permission,
-     *         otherwise false.
-     */
-    protected abstract boolean isDropHintRequired();
-
-    /**
-     * Check if drop filter is required.
-     * 
-     * @return true if drop filter is required to display, otherwise return
-     *         false.
-     */
-    protected abstract boolean isDropFilterRequired();
 
     /**
      * Checks if the creation of a new item is allowed. Default is true.

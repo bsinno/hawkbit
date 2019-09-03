@@ -87,11 +87,4 @@ public class SoftwareModuleTableHeader extends AbstractSoftwareModuleTableHeader
         getArtifactUploadState().getSoftwareModuleFilters().setSearchText(newSearchText);
         eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
     }
-
-    @Override
-    protected boolean isDropHintRequired() {
-        /* No dropping on software module table header in Upload View */
-        return false;
-    }
-
 }

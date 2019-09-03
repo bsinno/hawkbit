@@ -10,12 +10,12 @@
 
 -->
 <module>
-    <inherits name="com.vaadin.DefaultWidgetSet"/>
+    <!-- <inherits name="com.vaadin.DefaultWidgetSet"/> -->
+    <inherits name="com.vaadin.v7.Vaadin7WidgetSet" />
 
     <inherits name="org.eclipse.hawkbit.ui.AppWidgetSet"/>
 
     <inherits name="org.vaadin.alump.distributionbar.gwt.DistributionBarWidgetset"/>
 
     <inherits name="com.github.gwtd3.D3"/>
-
 </module>

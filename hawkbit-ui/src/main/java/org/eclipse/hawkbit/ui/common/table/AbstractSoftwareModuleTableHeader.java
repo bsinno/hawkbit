@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.event.dd.DropHandler;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
@@ -109,35 +108,4 @@ public abstract class AbstractSoftwareModuleTableHeader extends AbstractTableHea
     protected boolean isBulkUploadInProgress() {
         return false;
     }
-
-    @Override
-    protected String getDropFilterId() {
-        return null;
-    }
-
-    @Override
-    protected String getFilterIconStyle() {
-        return null;
-    }
-
-    @Override
-    protected String getDropFilterWrapperId() {
-        return null;
-    }
-
-    @Override
-    protected DropHandler getDropFilterHandler() {
-        return null;
-    }
-
-    @Override
-    protected boolean isDropFilterRequired() {
-        return false;
-    }
-
-    @Override
-    protected boolean isDropHintRequired() {
-        return false;
-    }
-
 }

@@ -16,7 +16,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.event.dd.DropHandler;
 import com.vaadin.ui.Button.ClickEvent;
 
 /**
@@ -55,11 +54,6 @@ public abstract class AbstractDistributionSetTableHeader extends AbstractTableHe
     }
 
     @Override
-    protected boolean isDropHintRequired() {
-        return true;
-    }
-
-    @Override
     protected boolean hasCreatePermission() {
         return permChecker.hasCreateRepositoryPermission();
     }
@@ -94,30 +88,4 @@ public abstract class AbstractDistributionSetTableHeader extends AbstractTableHe
     protected boolean isBulkUploadInProgress() {
         return false;
     }
-
-    @Override
-    protected String getDropFilterId() {
-        return null;
-    }
-
-    @Override
-    protected String getFilterIconStyle() {
-        return null;
-    }
-
-    @Override
-    protected String getDropFilterWrapperId() {
-        return null;
-    }
-
-    @Override
-    protected DropHandler getDropFilterHandler() {
-        return null;
-    }
-
-    @Override
-    protected boolean isDropFilterRequired() {
-        return false;
-    }
-
 }

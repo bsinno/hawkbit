@@ -51,9 +51,8 @@ public class TargetTableLayout extends AbstractTableLayout<ProxyTarget> {
                 uiNotification, tagManagement, targetManagement, targetMetadataPopupLayout, deploymentManagement,
                 entityFactory);
         final TargetTableHeader targetTableHeader = new TargetTableHeader(i18n, permissionChecker, eventBus,
-                uiNotification, managementUIState, managementViewClientCriterion, targetManagement,
-                deploymentManagement, uiProperties, entityFactory, uiNotification, tagManagement,
-                distributionSetManagement, uiExecutor);
+                uiNotification, managementUIState, targetManagement, deploymentManagement, uiProperties, entityFactory,
+                uiNotification, tagManagement, distributionSetManagement, uiExecutor);
 
         super.init(i18n, targetTableHeader, targetGrid, targetDetails);
     }

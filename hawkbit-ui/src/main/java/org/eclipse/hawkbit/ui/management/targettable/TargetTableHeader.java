@@ -8,8 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -20,12 +20,11 @@ import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
-import org.eclipse.hawkbit.ui.common.table.AbstractTable;
 import org.eclipse.hawkbit.ui.common.table.AbstractTableHeader;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadPopupEvent;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
@@ -40,24 +39,21 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
+import com.cronutils.utils.StringUtils;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.dnd.DropTargetExtension;
 import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.Table;
-import com.vaadin.v7.ui.Table.TableTransferable;
 
 /**
  * Target table header layout.
@@ -68,11 +64,11 @@ public class TargetTableHeader extends AbstractTableHeader {
 
     private final UINotification notification;
 
-    private final ManagementViewClientCriterion managementViewClientCriterion;
-
     private final TargetAddUpdateWindowLayout targetAddUpdateWindow;
 
     private final TargetBulkUpdateWindowLayout targetBulkUpdateWindow;
+
+    private final HorizontalLayout distributionSetFilterDropArea;
 
     private boolean isComplexFilterViewDisplayed;
 
@@ -80,21 +76,137 @@ public class TargetTableHeader extends AbstractTableHeader {
 
     TargetTableHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
             final UINotification notification, final ManagementUIState managementUIState,
-            final ManagementViewClientCriterion managementViewClientCriterion, final TargetManagement targetManagement,
-            final DeploymentManagement deploymentManagement, final UiProperties uiproperties,
-            final EntityFactory entityFactory, final UINotification uiNotification,
+            final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
+            final UiProperties uiproperties, final EntityFactory entityFactory, final UINotification uiNotification,
             final TargetTagManagement tagManagement, final DistributionSetManagement distributionSetManagement,
             final Executor uiExecutor) {
         super(i18n, permChecker, eventBus, managementUIState, null, null);
+
         this.notification = notification;
-        this.managementViewClientCriterion = managementViewClientCriterion;
+        this.distributionSetManagement = distributionSetManagement;
+
         this.targetAddUpdateWindow = new TargetAddUpdateWindowLayout(i18n, targetManagement, eventBus, uiNotification,
                 entityFactory);
         this.targetBulkUpdateWindow = new TargetBulkUpdateWindowLayout(i18n, targetManagement, eventBus,
                 managementUIState, deploymentManagement, uiproperties, permChecker, uiNotification, tagManagement,
                 distributionSetManagement, entityFactory, uiExecutor);
-        this.distributionSetManagement = distributionSetManagement;
+
+        this.distributionSetFilterDropArea = buildDistributionSetFilterDropArea();
+        addDistributionSetFilterDropArea();
+
         onLoadRestoreState();
+    }
+
+    private HorizontalLayout buildDistributionSetFilterDropArea() {
+        final HorizontalLayout dropArea = new HorizontalLayout();
+
+        dropArea.setId(UIComponentIdProvider.TARGET_DROP_FILTER_ICON);
+        dropArea.setStyleName("target-dist-filter-info");
+        dropArea.setHeightUndefined();
+        dropArea.setSizeUndefined();
+
+        return dropArea;
+    }
+
+    private void addDistributionSetFilterDropArea() {
+        final HorizontalLayout dropHintDropFilterLayout = new HorizontalLayout();
+
+        dropHintDropFilterLayout.addStyleName("filter-drop-hint-layout");
+        dropHintDropFilterLayout.setWidth(100, Unit.PERCENTAGE);
+
+        // TODO: check if it works
+        final DropTargetExtension<HorizontalLayout> dropTarget = new DropTargetExtension<>(
+                distributionSetFilterDropArea);
+        dropTarget.addDropListener(event -> {
+            final String sourceId = event.getDataTransferData("source_id").orElse("");
+            final Object sourceDragData = event.getDragData().orElse(null);
+
+            if (!isDropValid(sourceId, sourceDragData)) {
+                return;
+            }
+
+            if (sourceDragData instanceof List) {
+                filterByDroppedDistSets((List<ProxyDistributionSet>) sourceDragData);
+            } else {
+                notification.displayValidationError(i18n.getMessage("message.action.did.not.work"));
+            }
+        });
+
+        getManagementUIState().getTargetTableFilters().getDistributionSet()
+                .ifPresent(this::addDsFilterDropAreaTextField);
+        dropHintDropFilterLayout.addComponent(distributionSetFilterDropArea);
+        dropHintDropFilterLayout.setComponentAlignment(distributionSetFilterDropArea, Alignment.TOP_CENTER);
+        dropHintDropFilterLayout.setExpandRatio(distributionSetFilterDropArea, 1.0F);
+
+        addComponent(dropHintDropFilterLayout);
+        setComponentAlignment(dropHintDropFilterLayout, Alignment.TOP_CENTER);
+    }
+
+    private boolean isDropValid(final String sourceId, final Object sourceDragData) {
+        // TODO: adapt message for isComplexFilterViewDisplayed case (e.g.
+        // "Filter by DS is not allowed while Custom Filter is active")
+        if (StringUtils.isEmpty(sourceId) || !sourceId.equals(UIComponentIdProvider.DIST_TABLE_ID)
+                || isComplexFilterViewDisplayed || sourceDragData == null) {
+            notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
+            return false;
+        }
+
+        return true;
+    }
+
+    private void filterByDroppedDistSets(final List<ProxyDistributionSet> droppedDistSets) {
+        if (droppedDistSets.size() != 1) {
+            notification.displayValidationError(i18n.getMessage("message.onlyone.distribution.dropallowed"));
+            return;
+        }
+
+        final Long droppedDistSetId = droppedDistSets.get(0).getId();
+        final Optional<DistributionSet> distributionSet = distributionSetManagement.get(droppedDistSetId);
+        if (!distributionSet.isPresent()) {
+            notification.displayWarning(i18n.getMessage("distributionset.not.exists"));
+            return;
+        }
+        final DistributionSetIdName distributionSetIdName = new DistributionSetIdName(distributionSet.get());
+        getManagementUIState().getTargetTableFilters().setDistributionSet(distributionSetIdName);
+
+        addDsFilterDropAreaTextField(distributionSetIdName);
+    }
+
+    private void addDsFilterDropAreaTextField(final DistributionSetIdName distributionSetIdName) {
+        final Button filterLabelClose = SPUIComponentProvider.getButton("drop.filter.close", "", "", "", true,
+                FontAwesome.TIMES_CIRCLE, SPUIButtonStyleNoBorder.class);
+        filterLabelClose.addClickListener(clickEvent -> closeFilterByDistribution());
+
+        final Label filteredDistLabel = new Label();
+        filteredDistLabel.setStyleName(ValoTheme.LABEL_COLORED + " " + ValoTheme.LABEL_SMALL);
+        String name = HawkbitCommonUtil.getDistributionNameAndVersion(distributionSetIdName.getName(),
+                distributionSetIdName.getVersion());
+        if (name.length() > SPUITargetDefinitions.DISTRIBUTION_NAME_MAX_LENGTH_ALLOWED) {
+            name = new StringBuilder(name.substring(0, SPUITargetDefinitions.DISTRIBUTION_NAME_LENGTH_ON_FILTER))
+                    .append("...").toString();
+        }
+        filteredDistLabel.setValue(name);
+        filteredDistLabel.setSizeUndefined();
+
+        distributionSetFilterDropArea.removeAllComponents();
+        distributionSetFilterDropArea.setSizeFull();
+        distributionSetFilterDropArea.addComponent(filteredDistLabel);
+        distributionSetFilterDropArea.addComponent(filterLabelClose);
+        distributionSetFilterDropArea.setExpandRatio(filteredDistLabel, 1.0F);
+
+        eventBus.publish(this, TargetFilterEvent.FILTER_BY_DISTRIBUTION);
+    }
+
+    private void closeFilterByDistribution() {
+
+        /* Remove filter by distribution information. */
+        distributionSetFilterDropArea.removeAllComponents();
+        distributionSetFilterDropArea.setSizeUndefined();
+        /* Remove distribution Id from target filter parameters */
+        getManagementUIState().getTargetTableFilters().setDistributionSet(null);
+
+        /* Reload the table */
+        eventBus.publish(this, TargetFilterEvent.REMOVE_FILTER_BY_DISTRIBUTION);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -197,28 +309,8 @@ public class TargetTableHeader extends AbstractTableHeader {
     }
 
     @Override
-    protected String getDropFilterId() {
-        return UIComponentIdProvider.TARGET_DROP_FILTER_ICON;
-    }
-
-    @Override
-    protected String getDropFilterWrapperId() {
-        return UIComponentIdProvider.TARGET_FILTER_WRAPPER_ID;
-    }
-
-    @Override
     protected boolean hasCreatePermission() {
         return permChecker.hasCreateTargetPermission();
-    }
-
-    @Override
-    protected boolean isDropHintRequired() {
-        return Boolean.TRUE;
-    }
-
-    @Override
-    protected boolean isDropFilterRequired() {
-        return Boolean.TRUE;
     }
 
     @Override
@@ -304,131 +396,9 @@ public class TargetTableHeader extends AbstractTableHeader {
     }
 
     @Override
-    protected DropHandler getDropFilterHandler() {
-        return new DropHandler() {
-            /**
-             *
-             */
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void drop(final DragAndDropEvent event) {
-                filterByDroppedDist(event);
-            }
-
-            @Override
-            public AcceptCriterion getAcceptCriterion() {
-                return managementViewClientCriterion;
-            }
-
-        };
-    }
-
-    private void filterByDroppedDist(final DragAndDropEvent event) {
-        if (doValidations(event)) {
-            final TableTransferable tableTransferable = (TableTransferable) event.getTransferable();
-            final Table source = tableTransferable.getSourceComponent();
-            if (!UIComponentIdProvider.DIST_TABLE_ID.equals(source.getId())) {
-                return;
-            }
-            final Set<Long> distributionIdSet = getDropppedDistributionDetails(tableTransferable);
-            if (CollectionUtils.isEmpty(distributionIdSet)) {
-                return;
-            }
-            final Long distributionSetId = distributionIdSet.iterator().next();
-            final Optional<DistributionSet> distributionSet = distributionSetManagement.get(distributionSetId);
-            if (!distributionSet.isPresent()) {
-                notification.displayWarning(i18n.getMessage("distributionset.not.exists"));
-                return;
-            }
-            final DistributionSetIdName distributionSetIdName = new DistributionSetIdName(distributionSet.get());
-            getManagementUIState().getTargetTableFilters().setDistributionSet(distributionSetIdName);
-            addFilterTextField(distributionSetIdName);
-        }
-    }
-
-    /**
-     * Validation for drag event.
-     *
-     * @param dragEvent
-     * @return
-     */
-    private Boolean doValidations(final DragAndDropEvent dragEvent) {
-        final Component compsource = dragEvent.getTransferable().getSourceComponent();
-        Boolean isValid = Boolean.TRUE;
-        if (compsource instanceof Table && !isComplexFilterViewDisplayed) {
-            final TableTransferable transferable = (TableTransferable) dragEvent.getTransferable();
-            final Table source = transferable.getSourceComponent();
-
-            if (!source.getId().equals(UIComponentIdProvider.DIST_TABLE_ID)) {
-                notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
-                isValid = Boolean.FALSE;
-            } else {
-                if (getDropppedDistributionDetails(transferable).size() > 1) {
-                    notification.displayValidationError(i18n.getMessage("message.onlyone.distribution.dropallowed"));
-                    isValid = Boolean.FALSE;
-                }
-            }
-        } else {
-            notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
-            isValid = Boolean.FALSE;
-        }
-        return isValid;
-    }
-
-    private static Set<Long> getDropppedDistributionDetails(final TableTransferable transferable) {
-        final AbstractTable<?> distTable = (AbstractTable<?>) transferable.getSourceComponent();
-        return distTable.getSelectedEntitiesByTransferable(transferable);
-    }
-
-    private void addFilterTextField(final DistributionSetIdName distributionSetIdName) {
-        final Button filterLabelClose = SPUIComponentProvider.getButton("drop.filter.close", "", "", "", true,
-                FontAwesome.TIMES_CIRCLE, SPUIButtonStyleNoBorder.class);
-        filterLabelClose.addClickListener(clickEvent -> closeFilterByDistribution());
-        final Label filteredDistLabel = new Label();
-        filteredDistLabel.setStyleName(ValoTheme.LABEL_COLORED + " " + ValoTheme.LABEL_SMALL);
-        String name = HawkbitCommonUtil.getDistributionNameAndVersion(distributionSetIdName.getName(),
-                distributionSetIdName.getVersion());
-        if (name.length() > SPUITargetDefinitions.DISTRIBUTION_NAME_MAX_LENGTH_ALLOWED) {
-            name = new StringBuilder(name.substring(0, SPUITargetDefinitions.DISTRIBUTION_NAME_LENGTH_ON_FILTER))
-                    .append("...").toString();
-        }
-        filteredDistLabel.setValue(name);
-        filteredDistLabel.setSizeUndefined();
-        getFilterDroppedInfo().removeAllComponents();
-        getFilterDroppedInfo().setSizeFull();
-        getFilterDroppedInfo().addComponent(filteredDistLabel);
-        getFilterDroppedInfo().addComponent(filterLabelClose);
-        getFilterDroppedInfo().setExpandRatio(filteredDistLabel, 1.0F);
-        eventBus.publish(this, TargetFilterEvent.FILTER_BY_DISTRIBUTION);
-    }
-
-    private void closeFilterByDistribution() {
-
-        /* Remove filter by distribution information. */
-        getFilterDroppedInfo().removeAllComponents();
-        getFilterDroppedInfo().setSizeUndefined();
-        /* Remove distribution Id from target filter parameters */
-        getManagementUIState().getTargetTableFilters().setDistributionSet(null);
-
-        /* Reload the table */
-        eventBus.publish(this, TargetFilterEvent.REMOVE_FILTER_BY_DISTRIBUTION);
-    }
-
-    @Override
-    protected void displayFilterDropedInfoOnLoad() {
-        getManagementUIState().getTargetTableFilters().getDistributionSet().ifPresent(this::addFilterTextField);
-    }
-
-    @Override
     protected boolean isBulkUploadInProgress() {
         return getManagementUIState().getTargetTableFilters().getBulkUpload().getSucessfulUploadCount() != 0
                 || getManagementUIState().getTargetTableFilters().getBulkUpload().getFailedUploadCount() != 0;
-    }
-
-    @Override
-    protected String getFilterIconStyle() {
-        return null;
     }
 
     @Override
