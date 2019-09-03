@@ -52,7 +52,7 @@ public class DragAndDropSupport<T> {
     public void addDragSource() {
         final GridDragSource<T> dragSource = new GridDragSource<>(grid);
 
-        dragSource.setDataTransferData("source_id", grid.getId());
+        dragSource.setDataTransferData("source_id", grid.getGridId());
         dragSource.addGridDragStartListener(event -> dragSource.setDragData(event.getDraggedItems()));
 
         dragSource.addGridDragEndListener(event -> {

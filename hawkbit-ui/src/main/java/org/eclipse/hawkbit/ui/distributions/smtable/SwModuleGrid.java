@@ -69,7 +69,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     private static final String SM_MODIFIED_BY_ID = "smModifiedBy";
     private static final String SM_MODIFIED_DATE_ID = "smModifiedDate";
     private static final String SM_DESC_ID = "smDescription";
-    private static final String SM_VENDOR_ID = "smDescription";
+    private static final String SM_VENDOR_ID = "smVendor";
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
 
     private final ManageDistUIState manageDistUIState;

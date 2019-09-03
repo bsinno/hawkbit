@@ -105,16 +105,6 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
         return actionHistoryGrid;
     }
 
-    @Override
-    public void registerDetails(final MasterDetailsSupport<ProxyAction, ?> detailsSupport) {
-        getGrid().addSelectionListener(event -> {
-            final ProxyAction selectedAction = event.getFirstSelectedItem().orElse(null);
-            if (managementUIState.isActionHistoryMaximized()) {
-                detailsSupport.masterItemChangedCallback(selectedAction);
-            }
-        });
-    }
-
     // TODO: check if it can be removed with registerDetails in Deployment View
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final TargetTableEvent targetUIEvent) {

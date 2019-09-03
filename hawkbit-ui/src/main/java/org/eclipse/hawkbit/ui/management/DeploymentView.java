@@ -160,8 +160,6 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
 
             // TODO:
             // targetLayout.registerDetails(actionHistoryLayout.getMasterDetailsSupport());
-            actionHistoryLayout.registerDetails(actionStatusLayout.getMasterDetailsSupport());
-            actionStatusLayout.registerDetails(actionStatusMsgLayout.getMasterDetailsSupport());
         } else {
             this.actionHistoryLayout = null;
             this.actionStatusLayout = null;
@@ -357,6 +355,11 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         mainLayout.setColumnExpandRatio(1, 0.18F);
         mainLayout.setColumnExpandRatio(2, 0.27F);
         mainLayout.setComponentAlignment(actionHistoryLayout, Alignment.TOP_LEFT);
+
+        // TODO: we register details here because ActionHistoryGrid allows
+        // selection only in maximized mode
+        actionHistoryLayout.registerDetails(actionStatusLayout.getMasterDetailsSupport());
+        actionStatusLayout.registerDetails(actionStatusMsgLayout.getMasterDetailsSupport());
     }
 
     private void minimizeTargetTable() {
