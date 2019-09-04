@@ -28,7 +28,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.TextField;
@@ -47,6 +46,8 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
     protected transient EventBus.UIEventBus eventBus;
 
+    protected HorizontalLayout titleFilterIconsLayout;
+
     private Label headerCaption;
 
     private TextField searchField;
@@ -58,8 +59,6 @@ public abstract class AbstractTableHeader extends VerticalLayout {
     private Button addIcon;
 
     private SPUIButton maxMinIcon;
-
-    private Button bulkUploadIcon;
 
     private final ManagementUIState managementUIState;
 
@@ -102,8 +101,6 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
         addIcon = createAddIcon();
 
-        bulkUploadIcon = createBulkUploadIcon();
-
         showFilterButtonLayout = createShowFilterButtonLayout();
         // Not visible by default.
         showFilterButtonLayout.setVisible(false);
@@ -132,7 +129,7 @@ public abstract class AbstractTableHeader extends VerticalLayout {
              * If table is maximized display the minimize icon.
              */
             showMinIcon();
-            hideAddAndUploadIcon();
+            hideAddIcon();
         }
 
         if (onLoadIsShowFilterButtonDisplayed()) {
@@ -142,24 +139,18 @@ public abstract class AbstractTableHeader extends VerticalLayout {
              */
             setFilterButtonsIconVisible(true);
         }
-        if (isBulkUploadInProgress()) {
-            disableBulkUpload();
-        }
-
     }
 
-    private void hideAddAndUploadIcon() {
+    private void hideAddIcon() {
         addIcon.setVisible(false);
-        bulkUploadIcon.setVisible(false);
     }
 
-    private void showAddAndUploadIcon() {
+    private void showAddIcon() {
         addIcon.setVisible(true);
-        bulkUploadIcon.setVisible(true);
     }
 
     private void buildLayout() {
-        final HorizontalLayout titleFilterIconsLayout = createHeaderFilterIconLayout();
+        titleFilterIconsLayout = createHeaderFilterIconLayout();
 
         titleFilterIconsLayout.addComponents(headerCaption, searchField, searchResetIcon, showFilterButtonLayout);
         titleFilterIconsLayout.setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
@@ -169,10 +160,6 @@ public abstract class AbstractTableHeader extends VerticalLayout {
         if (hasCreatePermission() && isAddNewItemAllowed()) {
             titleFilterIconsLayout.addComponent(addIcon);
             titleFilterIconsLayout.setComponentAlignment(addIcon, Alignment.TOP_RIGHT);
-        }
-        if (hasCreatePermission() && isBulkUploadAllowed()) {
-            titleFilterIconsLayout.addComponent(bulkUploadIcon);
-            titleFilterIconsLayout.setComponentAlignment(bulkUploadIcon, Alignment.TOP_RIGHT);
         }
         titleFilterIconsLayout.addComponent(maxMinIcon);
         titleFilterIconsLayout.setComponentAlignment(maxMinIcon, Alignment.TOP_RIGHT);
@@ -203,14 +190,6 @@ public abstract class AbstractTableHeader extends VerticalLayout {
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_ADD), null, false, FontAwesome.PLUS,
                 SPUIButtonStyleNoBorder.class);
         button.addClickListener(this::addNewItem);
-        return button;
-    }
-
-    private Button createBulkUploadIcon() {
-        final Button button = SPUIComponentProvider.getButton(getBulkUploadIconId(), "",
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_BULK_UPLOAD), null, false, FontAwesome.UPLOAD,
-                SPUIButtonStyleNoBorder.class);
-        button.addClickListener(this::bulkUpload);
         return button;
     }
 
@@ -278,13 +257,13 @@ public abstract class AbstractTableHeader extends VerticalLayout {
 
     private void maximizedTableView() {
         showMinIcon();
-        hideAddAndUploadIcon();
+        hideAddIcon();
         maximizeTable();
     }
 
     private void minimizeTableView() {
         showMaxIcon();
-        showAddAndUploadIcon();
+        showAddIcon();
         minimizeTable();
     }
 
@@ -320,14 +299,6 @@ public abstract class AbstractTableHeader extends VerticalLayout {
         showFilterButtonLayout.setVisible(isVisible);
     }
 
-    protected void enableBulkUpload() {
-        bulkUploadIcon.setEnabled(true);
-    }
-
-    protected void disableBulkUpload() {
-        bulkUploadIcon.setEnabled(false);
-    }
-
     /**
      * Resets search text and closed search field when complex filters are
      * applied.
@@ -357,35 +328,6 @@ public abstract class AbstractTableHeader extends VerticalLayout {
      *         false.
      */
     protected abstract Boolean isAddNewItemAllowed();
-
-    /**
-     * Get Id of bulk upload Icon.
-     * 
-     * @return String of bulk upload Icon.
-     */
-    protected abstract String getBulkUploadIconId();
-
-    /**
-     * Gets the flag if bulk upload is allowed. Default is false
-     * 
-     * @return true if bulk upload is allowed, otherwise returns false.
-     */
-    protected abstract Boolean isBulkUploadAllowed();
-
-    /**
-     * Checks if bulk upload is in progress. Default is false.
-     * 
-     * @return true if bulk upload is in progress, otherwise returns false.
-     */
-    protected abstract boolean isBulkUploadInProgress();
-
-    /**
-     * Performs the bulk upload
-     * 
-     * @param event
-     *            Event of type ClickEvent
-     */
-    protected abstract void bulkUpload(final ClickEvent event);
 
     /**
      * Get the title of the table.

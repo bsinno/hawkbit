@@ -74,6 +74,8 @@ public class TargetTableHeader extends AbstractTableHeader {
 
     private final transient DistributionSetManagement distributionSetManagement;
 
+    private final Button bulkUploadIcon;
+
     TargetTableHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
             final UINotification notification, final ManagementUIState managementUIState,
             final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
@@ -91,10 +93,25 @@ public class TargetTableHeader extends AbstractTableHeader {
                 managementUIState, deploymentManagement, uiproperties, permChecker, uiNotification, tagManagement,
                 distributionSetManagement, entityFactory, uiExecutor);
 
+        this.bulkUploadIcon = createBulkUploadIcon();
+        // TODO: fix after headers unification
+        if (hasCreatePermission()) {
+            titleFilterIconsLayout.addComponent(bulkUploadIcon, titleFilterIconsLayout.getComponentCount() - 1);
+            titleFilterIconsLayout.setComponentAlignment(bulkUploadIcon, Alignment.TOP_RIGHT);
+        }
+
         this.distributionSetFilterDropArea = buildDistributionSetFilterDropArea();
         addDistributionSetFilterDropArea();
 
         onLoadRestoreState();
+    }
+
+    private Button createBulkUploadIcon() {
+        final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.TARGET_TBL_BULK_UPLOAD_ICON_ID, "",
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_BULK_UPLOAD), null, false, FontAwesome.UPLOAD,
+                SPUIButtonStyleNoBorder.class);
+        button.addClickListener(this::bulkUpload);
+        return button;
     }
 
     private HorizontalLayout buildDistributionSetFilterDropArea() {
@@ -228,7 +245,7 @@ public class TargetTableHeader extends AbstractTableHeader {
             targetBulkUpdateWindow.restoreComponentsValue();
             openBulkUploadWindow();
         } else if (BulkUploadPopupEvent.CLOSED == event) {
-            UI.getCurrent().access(this::enableBulkUpload);
+            UI.getCurrent().access(() -> bulkUploadIcon.setEnabled(true));
         }
     }
 
@@ -252,7 +269,7 @@ public class TargetTableHeader extends AbstractTableHeader {
     }
 
     private void onStartOfBulkUpload() {
-        disableBulkUpload();
+        bulkUploadIcon.setEnabled(false);
         targetBulkUpdateWindow.onStartOfUpload();
     }
 
@@ -264,6 +281,14 @@ public class TargetTableHeader extends AbstractTableHeader {
     private void onLoadRestoreState() {
         if (getManagementUIState().isCustomFilterSelected()) {
             onSimpleFilterReset();
+        }
+
+        if (isBulkUploadInProgress()) {
+            bulkUploadIcon.setEnabled(false);
+        }
+
+        if (onLoadIsTableMaximized()) {
+            bulkUploadIcon.setVisible(false);
         }
     }
 
@@ -296,11 +321,6 @@ public class TargetTableHeader extends AbstractTableHeader {
     @Override
     protected String getAddIconId() {
         return UIComponentIdProvider.TARGET_TBL_ADD_ICON_ID;
-    }
-
-    @Override
-    protected String getBulkUploadIconId() {
-        return UIComponentIdProvider.TARGET_TBL_BULK_UPLOAD_ICON_ID;
     }
 
     @Override
@@ -343,12 +363,14 @@ public class TargetTableHeader extends AbstractTableHeader {
 
     @Override
     public void maximizeTable() {
+        bulkUploadIcon.setVisible(false);
         getManagementUIState().setTargetTableMaximized(Boolean.TRUE);
         eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.MAXIMIZED));
     }
 
     @Override
     public void minimizeTable() {
+        bulkUploadIcon.setVisible(true);
         getManagementUIState().setTargetTableMaximized(Boolean.FALSE);
         eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.MINIMIZED));
     }
@@ -378,8 +400,7 @@ public class TargetTableHeader extends AbstractTableHeader {
         addTargetWindow.setVisible(Boolean.TRUE);
     }
 
-    @Override
-    protected void bulkUpload(final ClickEvent event) {
+    private void bulkUpload(final ClickEvent event) {
         targetBulkUpdateWindow.resetComponents();
         openBulkUploadWindow();
     }
@@ -390,13 +411,7 @@ public class TargetTableHeader extends AbstractTableHeader {
         bulkUploadTargetWindow.setVisible(true);
     }
 
-    @Override
-    protected Boolean isBulkUploadAllowed() {
-        return Boolean.TRUE;
-    }
-
-    @Override
-    protected boolean isBulkUploadInProgress() {
+    private boolean isBulkUploadInProgress() {
         return getManagementUIState().getTargetTableFilters().getBulkUpload().getSucessfulUploadCount() != 0
                 || getManagementUIState().getTargetTableFilters().getBulkUpload().getFailedUploadCount() != 0;
     }

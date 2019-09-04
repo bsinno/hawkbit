@@ -87,25 +87,4 @@ public abstract class AbstractSoftwareModuleTableHeader extends AbstractTableHea
     protected boolean hasCreatePermission() {
         return permChecker.hasCreateRepositoryPermission();
     }
-
-    @Override
-    protected String getBulkUploadIconId() {
-        return null;
-    }
-
-    @Override
-    protected Boolean isBulkUploadAllowed() {
-        return Boolean.FALSE;
-    }
-
-    @Override
-    protected void bulkUpload(final ClickEvent event) {
-        // No implementation as no bulk upload is supported except for
-        // targetTable.
-    }
-
-    @Override
-    protected boolean isBulkUploadInProgress() {
-        return false;
-    }
 }

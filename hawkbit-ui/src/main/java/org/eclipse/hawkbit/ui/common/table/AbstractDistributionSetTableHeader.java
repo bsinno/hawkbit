@@ -16,8 +16,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Button.ClickEvent;
-
 /**
  * Abstract class which contains common method implementations for the header of
  * Distribution Set Table elements
@@ -66,26 +64,5 @@ public abstract class AbstractDistributionSetTableHeader extends AbstractTableHe
     @Override
     protected String getMaxMinIconId() {
         return UIComponentIdProvider.DS_MAX_MIN_TABLE_ICON;
-    }
-
-    @Override
-    protected String getBulkUploadIconId() {
-        return null;
-    }
-
-    @Override
-    protected Boolean isBulkUploadAllowed() {
-        return Boolean.FALSE;
-    }
-
-    @Override
-    protected void bulkUpload(final ClickEvent event) {
-        // No implementation as no bulk upload is supported except for
-        // targetTable.
-    }
-
-    @Override
-    protected boolean isBulkUploadInProgress() {
-        return false;
     }
 }
