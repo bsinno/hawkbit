@@ -12,6 +12,7 @@
   //Tag widget header height adjusted to match table header heights
   .filter-btns-header-layout {
     padding-bottom: 14px;
+    border-bottom: 1px solid $widget-border-color;
   }
 
   //Tag layout style
@@ -29,7 +30,10 @@
   //Tag table -  additional style
   .type-button-layout {
     background: $widget-bg;
-    border-top: 1px solid $widget-border-color;
+
+    .v-grid-tablewrapper {
+      border: none;
+    }
 
     .v-table-table {
       box-shadow: none !important;

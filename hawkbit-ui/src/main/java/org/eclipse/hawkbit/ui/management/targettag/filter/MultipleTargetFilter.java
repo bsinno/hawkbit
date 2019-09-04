@@ -103,7 +103,6 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
     private void buildComponents() {
         filterByStatusFooter.init();
 
-        filterByButtons.addStyleName(SPUIStyleDefinitions.NO_TOP_BORDER);
         menu = new ConfigMenuBar(permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
                 permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
                 getDeleteButtonCommand(), UIComponentIdProvider.TARGET_MENU_BAR_ID, i18n);

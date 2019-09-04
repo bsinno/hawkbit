@@ -76,7 +76,7 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final VaadinMessageSource i18n,
             final EntityFactory entityFactory, final SpPermissionChecker permChecker,
             final UINotification uiNotification) {
-        super(eventBus, i18n, uiNotification);
+        super(eventBus, i18n, uiNotification, permChecker);
 
         this.artifactUploadState = artifactUploadState;
         this.uiNotification = uiNotification;
@@ -88,6 +88,8 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
                 softwareModuleTypeManagement);
         this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement,
                 new TypeToProxyTypeMapper<SoftwareModuleType>()).withConfigurableFilter();
+
+        init();
     }
 
     @Override

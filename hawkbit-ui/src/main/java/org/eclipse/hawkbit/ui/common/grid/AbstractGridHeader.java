@@ -85,6 +85,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     private void buildLayout() {
         setSpacing(false);
         setMargin(false);
+
         final HorizontalLayout titleFilterIconsLayout = createHeaderFilterIconLayout();
         titleFilterIconsLayout.addComponents(headerCaptionLayout);
 

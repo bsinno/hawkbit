@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import java.util.Collection;
 
+import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyFilterButton;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -44,25 +45,26 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     protected static final String FILTER_BUTTON_EDIT_ID = "filterButtonEdit";
     protected static final String FILTER_BUTTON_DELETE_ID = "filterButtonDelete";
 
-    protected final DeleteSupport<T> filterButtonDeleteSupport;
+    protected final transient DeleteSupport<T> filterButtonDeleteSupport;
 
     protected AbstractFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final UINotification notification) {
-        super(i18n, eventBus);
+            final UINotification notification, final SpPermissionChecker permChecker) {
+        super(i18n, eventBus, permChecker);
 
-        this.filterButtonDeleteSupport = new DeleteSupport<>(this, i18n, getFilterButtonsType(), permissionChecker,
+        this.filterButtonDeleteSupport = new DeleteSupport<>(this, i18n, getFilterButtonsType(), permChecker,
                 notification, this::deleteFilterButtons);
 
         // TODO: check if sufficient
-        setStyleName("type-button-layout");
-        setStyle();
+        removeHeaderRow(0);
+        setStyles();
     }
 
     protected abstract String getFilterButtonsType();
 
     protected abstract void deleteFilterButtons(Collection<T> filterButtonsToDelete);
 
-    private void setStyle() {
+    private void setStyles() {
+        setStyleName("type-button-layout");
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);

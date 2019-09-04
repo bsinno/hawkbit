@@ -62,7 +62,7 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
             final VaadinMessageSource i18n, final UINotification notification, final SpPermissionChecker permChecker,
             final EntityFactory entityFactory, final TargetTagManagement targetTagManagement,
             final TargetManagement targetManagement) {
-        super(eventBus, i18n, notification);
+        super(eventBus, i18n, notification, permChecker);
 
         this.managementUIState = managementUIState;
         this.uiNotification = notification;

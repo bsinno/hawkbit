@@ -88,7 +88,7 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
             final EntityFactory entityFactory, final SpPermissionChecker permChecker,
             final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final DistributionSetManagement distributionSetManagement, final SystemManagement systemManagement) {
-        super(eventBus, i18n, uiNotification);
+        super(eventBus, i18n, uiNotification, permChecker);
 
         this.manageDistUIState = manageDistUIState;
         this.uiNotification = uiNotification;
@@ -103,6 +103,8 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
                 distributionSetTypeManagement);
         this.dsTypeDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement,
                 new TypeToProxyTypeMapper<DistributionSetType>()).withConfigurableFilter();
+
+        init();
     }
 
     @Override

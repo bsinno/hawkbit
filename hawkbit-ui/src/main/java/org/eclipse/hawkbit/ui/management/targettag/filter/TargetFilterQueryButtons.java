@@ -71,6 +71,7 @@ public class TargetFilterQueryButtons extends Grid<ProxyTargetFilterQuery> {
 
         setDataProvider(tfqDataProvider);
 
+        removeHeaderRow(0);
         addColumns();
     }
 

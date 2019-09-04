@@ -95,6 +95,8 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
     @Override
     protected Component getFilterButtons() {
         final VerticalLayout filterButtonsLayout = new VerticalLayout();
+        filterButtonsLayout.setMargin(false);
+        filterButtonsLayout.setSpacing(false);
 
         filterButtonsLayout.addComponent(buildNoTagButton());
         filterButtonsLayout.addComponent(distributionTagButtons);

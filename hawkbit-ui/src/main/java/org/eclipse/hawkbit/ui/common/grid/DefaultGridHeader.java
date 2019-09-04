@@ -59,6 +59,9 @@ public class DefaultGridHeader extends VerticalLayout {
      * @return this DefaultGridHeader in order to allow method chaining
      */
     public DefaultGridHeader init() {
+        setMargin(false);
+        setSpacing(false);
+
         buildTitleLabel();
         buildTitleLayout();
         buildComponent();

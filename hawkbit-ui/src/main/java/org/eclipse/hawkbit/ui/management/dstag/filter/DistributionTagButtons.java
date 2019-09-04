@@ -61,7 +61,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
             final SpPermissionChecker permChecker, final DistributionSetTagManagement distributionSetTagManagement,
             final DistributionSetManagement distributionSetManagement) {
-        super(eventBus, i18n, uiNotification);
+        super(eventBus, i18n, uiNotification, permChecker);
 
         this.managementUIState = managementUIState;
         this.uiNotification = uiNotification;
