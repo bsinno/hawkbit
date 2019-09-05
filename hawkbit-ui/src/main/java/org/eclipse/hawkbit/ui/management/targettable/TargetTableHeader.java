@@ -114,6 +114,17 @@ public class TargetTableHeader extends AbstractTableHeader {
         return button;
     }
 
+    private void bulkUpload(final ClickEvent event) {
+        targetBulkUpdateWindow.resetComponents();
+        openBulkUploadWindow();
+    }
+
+    private void openBulkUploadWindow() {
+        final Window bulkUploadTargetWindow = targetBulkUpdateWindow.getWindow();
+        UI.getCurrent().addWindow(bulkUploadTargetWindow);
+        bulkUploadTargetWindow.setVisible(true);
+    }
+
     private HorizontalLayout buildDistributionSetFilterDropArea() {
         final HorizontalLayout dropArea = new HorizontalLayout();
 
@@ -398,17 +409,6 @@ public class TargetTableHeader extends AbstractTableHeader {
         addTargetWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.target")));
         UI.getCurrent().addWindow(addTargetWindow);
         addTargetWindow.setVisible(Boolean.TRUE);
-    }
-
-    private void bulkUpload(final ClickEvent event) {
-        targetBulkUpdateWindow.resetComponents();
-        openBulkUploadWindow();
-    }
-
-    private void openBulkUploadWindow() {
-        final Window bulkUploadTargetWindow = targetBulkUpdateWindow.getWindow();
-        UI.getCurrent().addWindow(bulkUploadTargetWindow);
-        bulkUploadTargetWindow.setVisible(true);
     }
 
     private boolean isBulkUploadInProgress() {

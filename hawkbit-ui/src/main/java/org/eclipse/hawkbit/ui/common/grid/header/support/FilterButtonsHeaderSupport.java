@@ -8,6 +8,56 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.header.support;
 
-public class FilterButtonsHeaderSupport {
+import java.util.function.BooleanSupplier;
 
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
+import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
+import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Button;
+
+public class FilterButtonsHeaderSupport {
+    private final VaadinMessageSource i18n;
+
+    private final String filterButtonsIconId;
+    private final Runnable showFilterButtonsLayoutCallback;
+    private final BooleanSupplier filterButtonsStateSupplier;
+
+    private final Button filterButtonsIcon;
+
+    public FilterButtonsHeaderSupport(final VaadinMessageSource i18n, final String filterButtonsIconId,
+            final Runnable showFilterButtonsLayoutCallback, final BooleanSupplier filterButtonsStateSupplier) {
+        this.i18n = i18n;
+
+        this.filterButtonsIconId = filterButtonsIconId;
+        this.showFilterButtonsLayoutCallback = showFilterButtonsLayoutCallback;
+        this.filterButtonsStateSupplier = filterButtonsStateSupplier;
+
+        this.filterButtonsIcon = createfilterButtonsIcon();
+    }
+
+    private Button createfilterButtonsIcon() {
+        final Button filterButtonsButton = SPUIComponentProvider.getButton(filterButtonsIconId, null,
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SHOW_TAGS), null, false, VaadinIcons.TAGS,
+                SPUIButtonStyleNoBorder.class);
+
+        // Hidden by default.
+        filterButtonsButton.setVisible(false);
+        filterButtonsButton.addClickListener(event -> filterButtonsIconClicked());
+
+        return filterButtonsButton;
+    }
+
+    private void filterButtonsIconClicked() {
+        filterButtonsIcon.setVisible(false);
+        showFilterButtonsLayoutCallback.run();
+    }
+
+    public void restoreFilterButtonsState() {
+        if (filterButtonsStateSupplier.getAsBoolean()) {
+            filterButtonsIcon.setVisible(true);
+        }
+    }
 }

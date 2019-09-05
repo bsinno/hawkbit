@@ -18,7 +18,6 @@ import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.event.TargetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.components.ConfigMenuBar;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -38,7 +37,6 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
@@ -77,8 +75,6 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
     private final transient TargetTagManagement targetTagManagement;
 
     private VerticalLayout targetTagTableLayout;
-
-    private Button cancelTagButton;
 
     MultipleTargetFilter(final SpPermissionChecker permChecker, final ManagementUIState managementUIState,
             final VaadinMessageSource i18n, final UIEventBus eventBus, final UINotification notification,
@@ -207,36 +203,27 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
 
     protected void processFilterHeaderEvent(final TargetTagFilterHeaderEvent event) {
         if (FilterHeaderEnum.SHOW_MENUBAR == event.getFilterHeaderEnum()
-                && targetTagTableLayout.getComponent(0).equals(cancelTagButton)) {
+                && menu.getConfig().getIcon() == FontAwesome.TIMES_CIRCLE) {
             removeCancelButtonAndAddMenuBar();
         } else if (FilterHeaderEnum.SHOW_CANCEL_BUTTON == event.getFilterHeaderEnum()) {
             removeMenuBarAndAddCancelButton();
         }
     }
 
-    protected void removeMenuBarAndAddCancelButton() {
-        targetTagTableLayout.removeComponent(menu);
-        targetTagTableLayout.addComponent(createCancelButtonForUpdateOrDeleteTag(), 0);
-        targetTagTableLayout.setComponentAlignment(cancelTagButton, Alignment.TOP_RIGHT);
-    }
-
-    protected Button createCancelButtonForUpdateOrDeleteTag() {
-        cancelTagButton = SPUIComponentProvider.getButton(UIComponentIdProvider.CANCEL_UPDATE_TAG_ID, "", "", null,
-                false, FontAwesome.TIMES_CIRCLE, SPUIButtonStyleNoBorder.class);
-        cancelTagButton.addClickListener(this::cancelUpdateOrDeleteTag);
-        return cancelTagButton;
-    }
-
     protected void removeCancelButtonAndAddMenuBar() {
-        targetTagTableLayout.removeComponent(cancelTagButton);
-        targetTagTableLayout.addComponent(menu, 0);
-        targetTagTableLayout.setComponentAlignment(menu, Alignment.TOP_RIGHT);
+        menu.getConfig().setIcon(FontAwesome.COG);
+        menu.getConfig().setStyleName(SPUIStyleDefinitions.CONFIG_MENU_BAR_ITEMS);
+        menu.getConfig().setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE));
+        menu.getConfig().setCommand(null);
+
         filterByButtons.hideActionColumns();
     }
 
-    @SuppressWarnings("squid:S1172")
-    protected void cancelUpdateOrDeleteTag(final ClickEvent event) {
-        removeCancelButtonAndAddMenuBar();
+    protected void removeMenuBarAndAddCancelButton() {
+        menu.getConfig().setIcon(FontAwesome.TIMES_CIRCLE);
+        menu.getConfig().setStyleName(null);
+        menu.getConfig().setDescription("Cancel");
+        menu.getConfig().setCommand(command -> removeCancelButtonAndAddMenuBar());
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

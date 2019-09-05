@@ -10,7 +10,9 @@ package org.eclipse.hawkbit.ui.common.grid.header;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
+import org.eclipse.hawkbit.ui.common.grid.header.support.BulkUploadHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
@@ -39,6 +41,8 @@ public abstract class AbstractGridHeader extends HorizontalLayout {
     private transient CloseHeaderSupport closeHeaderSupport;
     private transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
     private transient ResizeHeaderSupport resizeHeaderSupport;
+    private transient BulkUploadHeaderSupport bulkUploadHeaderSupport;
+    private transient CrudMenuHeaderSupport crudMenuHeaderSupport;
 
     public AbstractGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permissionChecker,
             final UIEventBus eventBus) {
@@ -84,19 +88,27 @@ public abstract class AbstractGridHeader extends HorizontalLayout {
 
         }
 
-        if (addHeaderSupport != null) {
-
-        }
-
-        if (closeHeaderSupport != null) {
-
-        }
-
         if (filterButtonsHeaderSupport != null) {
 
         }
 
+        if (addHeaderSupport != null) {
+
+        }
+
+        if (bulkUploadHeaderSupport != null) {
+
+        }
+
         if (resizeHeaderSupport != null) {
+
+        }
+
+        if (crudMenuHeaderSupport != null) {
+
+        }
+
+        if (closeHeaderSupport != null) {
 
         }
     }
@@ -139,5 +151,21 @@ public abstract class AbstractGridHeader extends HorizontalLayout {
 
     public void setResizeHeaderSupport(final ResizeHeaderSupport resizeHeaderSupport) {
         this.resizeHeaderSupport = resizeHeaderSupport;
+    }
+
+    public BulkUploadHeaderSupport getBulkUploadHeaderSupport() {
+        return bulkUploadHeaderSupport;
+    }
+
+    public void setBulkUploadHeaderSupport(final BulkUploadHeaderSupport bulkUploadHeaderSupport) {
+        this.bulkUploadHeaderSupport = bulkUploadHeaderSupport;
+    }
+
+    public CrudMenuHeaderSupport getCrudMenuHeaderSupport() {
+        return crudMenuHeaderSupport;
+    }
+
+    public void setCrudMenuHeaderSupport(final CrudMenuHeaderSupport crudMenuHeaderSupport) {
+        this.crudMenuHeaderSupport = crudMenuHeaderSupport;
     }
 }
