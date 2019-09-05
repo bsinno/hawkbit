@@ -18,8 +18,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 
-public class BulkUploadHeaderSupport {
+public class BulkUploadHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
     private final Button bulkUploadIcon;
@@ -49,10 +50,6 @@ public class BulkUploadHeaderSupport {
         return bulkUploadButton;
     }
 
-    public Button getBulkUploadIcon() {
-        return bulkUploadIcon;
-    }
-
     public void disableBulkUpload() {
         bulkUploadIcon.setEnabled(false);
     }
@@ -69,7 +66,13 @@ public class BulkUploadHeaderSupport {
         bulkUploadIcon.setVisible(true);
     }
 
-    public void restoreBulkUploadState() {
+    @Override
+    public Component getHeaderIcon() {
+        return bulkUploadIcon;
+    }
+
+    @Override
+    public void restoreState() {
         if (maximizedStateSupplier.getAsBoolean()) {
             hideBulkUpload();
         }

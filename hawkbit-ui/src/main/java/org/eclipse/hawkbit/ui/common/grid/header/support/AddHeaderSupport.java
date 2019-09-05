@@ -17,8 +17,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 
-public class AddHeaderSupport {
+public class AddHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
     private final String addIconId;
@@ -48,10 +49,6 @@ public class AddHeaderSupport {
         return addButton;
     }
 
-    public Button getAddIcon() {
-        return addIcon;
-    }
-
     public void hideAddIcon() {
         addIcon.setVisible(false);
     }
@@ -60,7 +57,13 @@ public class AddHeaderSupport {
         addIcon.setVisible(true);
     }
 
-    public void restoreAddState() {
+    @Override
+    public Component getHeaderIcon() {
+        return addIcon;
+    }
+
+    @Override
+    public void restoreState() {
         if (maximizedStateSupplier.getAsBoolean()) {
             hideAddIcon();
         }

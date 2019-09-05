@@ -8,6 +8,102 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.header.support;
 
-public class CrudMenuHeaderSupport {
+import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
+import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.themes.ValoTheme;
+
+public class CrudMenuHeaderSupport implements HeaderSupport {
+    private final VaadinMessageSource i18n;
+
+    private final String crudMenuBarId;
+    private final boolean hasCreatePermission;
+    private final boolean hasUpdatePermission;
+    private final boolean hasDeletePermission;
+    private final Command addCommand;
+    private final Command updateCommand;
+    private final Command deleteCommand;
+
+    private final MenuBar crudMenuBar;
+    private final MenuItem crudMenuItem;
+
+    private boolean isEditModeActivated;
+
+    public CrudMenuHeaderSupport(final VaadinMessageSource i18n, final String crudMenuBarId,
+            final boolean hasCreatePermission, final boolean hasUpdatePermission, final boolean hasDeletePermission,
+            final Command addCommand, final Command updateCommand, final Command deleteCommand) {
+        this.i18n = i18n;
+
+        this.crudMenuBarId = crudMenuBarId;
+        this.hasCreatePermission = hasCreatePermission;
+        this.hasUpdatePermission = hasUpdatePermission;
+        this.hasDeletePermission = hasDeletePermission;
+        this.addCommand = addCommand;
+        this.updateCommand = updateCommand;
+        this.deleteCommand = deleteCommand;
+
+        this.crudMenuBar = createCrudMenuBar();
+        this.crudMenuItem = crudMenuBar.addItem("");
+
+        addCrudMenuItemCommands();
+        activateSelectMode();
+    }
+
+    private MenuBar createCrudMenuBar() {
+        final MenuBar menuBar = new MenuBar();
+
+        menuBar.setId(crudMenuBarId);
+        menuBar.setStyleName(ValoTheme.MENUBAR_BORDERLESS);
+        menuBar.addStyleName(SPUIStyleDefinitions.CONFIG_MENU_BAR_POSITION);
+
+        return menuBar;
+    }
+
+    private void addCrudMenuItemCommands() {
+        if (hasCreatePermission) {
+            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_CREATE), VaadinIcons.PLUS,
+                    addCommand);
+        }
+        if (hasUpdatePermission) {
+            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_EDIT), VaadinIcons.EDIT,
+                    updateCommand);
+        }
+        if (hasDeletePermission) {
+            crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_DELETE), VaadinIcons.TRASH,
+                    deleteCommand);
+        }
+    }
+
+    public void activateSelectMode() {
+        crudMenuItem.setIcon(VaadinIcons.COG);
+        crudMenuItem.setStyleName(SPUIStyleDefinitions.CONFIG_MENU_BAR_ITEMS);
+        crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE));
+        crudMenuItem.setCommand(null);
+
+        isEditModeActivated = false;
+    }
+
+    public void activateEditMode() {
+        crudMenuItem.setIcon(VaadinIcons.CLOSE_CIRCLE);
+        crudMenuItem.setStyleName(null);
+        crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE_CLOSE));
+        crudMenuItem.setCommand(command -> activateSelectMode());
+
+        isEditModeActivated = true;
+    }
+
+    @Override
+    public Component getHeaderIcon() {
+        return crudMenuBar;
+    }
+
+    public boolean isEditModeActivated() {
+        return isEditModeActivated;
+    }
 }

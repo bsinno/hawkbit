@@ -15,8 +15,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 
-public class CloseHeaderSupport {
+public class CloseHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
     private final String closeIconId;
@@ -43,7 +44,8 @@ public class CloseHeaderSupport {
         return closeButton;
     }
 
-    public Button getCloseIcon() {
+    @Override
+    public Component getHeaderIcon() {
         return closeIcon;
     }
 }

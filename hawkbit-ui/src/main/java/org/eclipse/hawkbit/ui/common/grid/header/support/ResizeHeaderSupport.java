@@ -17,8 +17,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 
-public class ResizeHeaderSupport {
+public class ResizeHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
     private final String maxMinIconId;
@@ -84,11 +85,13 @@ public class ResizeHeaderSupport {
         maxMinIcon.setData(Boolean.FALSE);
     }
 
-    public Button getMaxMinIcon() {
+    @Override
+    public Component getHeaderIcon() {
         return maxMinIcon;
     }
 
-    public void restoreResizeState() {
+    @Override
+    public void restoreState() {
         if (maximizedStateSupplier.getAsBoolean()) {
             showMinIcon();
         }

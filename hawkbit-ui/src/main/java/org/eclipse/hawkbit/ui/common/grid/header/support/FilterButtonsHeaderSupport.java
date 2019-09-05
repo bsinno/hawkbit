@@ -17,8 +17,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 
-public class FilterButtonsHeaderSupport {
+public class FilterButtonsHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
     private final String filterButtonsIconId;
@@ -55,7 +56,13 @@ public class FilterButtonsHeaderSupport {
         showFilterButtonsLayoutCallback.run();
     }
 
-    public void restoreFilterButtonsState() {
+    @Override
+    public Component getHeaderIcon() {
+        return filterButtonsIcon;
+    }
+
+    @Override
+    public void restoreState() {
         if (filterButtonsStateSupplier.getAsBoolean()) {
             filterButtonsIcon.setVisible(true);
         }

@@ -8,14 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.header;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.BulkUploadHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
+import org.eclipse.hawkbit.ui.common.grid.header.support.HeaderSupport;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -35,14 +32,7 @@ public abstract class AbstractGridHeader extends HorizontalLayout {
     protected final transient UIEventBus eventBus;
 
     protected final Component headerCaption;
-
-    private transient SearchHeaderSupport searchHeaderSupport;
-    private transient AddHeaderSupport addHeaderSupport;
-    private transient CloseHeaderSupport closeHeaderSupport;
-    private transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
-    private transient ResizeHeaderSupport resizeHeaderSupport;
-    private transient BulkUploadHeaderSupport bulkUploadHeaderSupport;
-    private transient CrudMenuHeaderSupport crudMenuHeaderSupport;
+    private final Collection<HeaderSupport> headerSupports;
 
     public AbstractGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permissionChecker,
             final UIEventBus eventBus) {
@@ -51,6 +41,7 @@ public abstract class AbstractGridHeader extends HorizontalLayout {
         this.eventBus = eventBus;
 
         this.headerCaption = getHeaderCaption();
+        this.headerSupports = new ArrayList<>();
 
         init();
         if (doSubscribeToEventBus()) {
@@ -59,6 +50,10 @@ public abstract class AbstractGridHeader extends HorizontalLayout {
     }
 
     protected abstract Component getHeaderCaption();
+
+    protected void addHeaderSupports(final Collection<HeaderSupport> headerSupports) {
+        this.headerSupports.addAll(headerSupports);
+    }
 
     private void init() {
         addStyleName(SPUIStyleDefinitions.WIDGET_TITLE);
@@ -84,88 +79,14 @@ public abstract class AbstractGridHeader extends HorizontalLayout {
         addComponent(headerCaption);
         setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
 
-        if (searchHeaderSupport != null) {
-
-        }
-
-        if (filterButtonsHeaderSupport != null) {
-
-        }
-
-        if (addHeaderSupport != null) {
-
-        }
-
-        if (bulkUploadHeaderSupport != null) {
-
-        }
-
-        if (resizeHeaderSupport != null) {
-
-        }
-
-        if (crudMenuHeaderSupport != null) {
-
-        }
-
-        if (closeHeaderSupport != null) {
-
-        }
+        headerSupports.forEach(headerSupport -> {
+            addComponent(headerSupport.getHeaderIcon());
+            setComponentAlignment(headerSupport.getHeaderIcon(), Alignment.TOP_RIGHT);
+        });
     }
 
-    public SearchHeaderSupport getSearchHeaderSupport() {
-        return searchHeaderSupport;
-    }
-
-    public void setSearchHeaderSupport(final SearchHeaderSupport searchHeaderSupport) {
-        this.searchHeaderSupport = searchHeaderSupport;
-    }
-
-    public AddHeaderSupport getAddHeaderSupport() {
-        return addHeaderSupport;
-    }
-
-    public void setAddHeaderSupport(final AddHeaderSupport addHeaderSupport) {
-        this.addHeaderSupport = addHeaderSupport;
-    }
-
-    public CloseHeaderSupport getCloseHeaderSupport() {
-        return closeHeaderSupport;
-    }
-
-    public void setCloseHeaderSupport(final CloseHeaderSupport closeHeaderSupport) {
-        this.closeHeaderSupport = closeHeaderSupport;
-    }
-
-    public FilterButtonsHeaderSupport getFilterButtonsHeaderSupport() {
-        return filterButtonsHeaderSupport;
-    }
-
-    public void setFilterButtonsHeaderSupport(final FilterButtonsHeaderSupport filterButtonsHeaderSupport) {
-        this.filterButtonsHeaderSupport = filterButtonsHeaderSupport;
-    }
-
-    public ResizeHeaderSupport getResizeHeaderSupport() {
-        return resizeHeaderSupport;
-    }
-
-    public void setResizeHeaderSupport(final ResizeHeaderSupport resizeHeaderSupport) {
-        this.resizeHeaderSupport = resizeHeaderSupport;
-    }
-
-    public BulkUploadHeaderSupport getBulkUploadHeaderSupport() {
-        return bulkUploadHeaderSupport;
-    }
-
-    public void setBulkUploadHeaderSupport(final BulkUploadHeaderSupport bulkUploadHeaderSupport) {
-        this.bulkUploadHeaderSupport = bulkUploadHeaderSupport;
-    }
-
-    public CrudMenuHeaderSupport getCrudMenuHeaderSupport() {
-        return crudMenuHeaderSupport;
-    }
-
-    public void setCrudMenuHeaderSupport(final CrudMenuHeaderSupport crudMenuHeaderSupport) {
-        this.crudMenuHeaderSupport = crudMenuHeaderSupport;
+    protected void restoreHeaderState() {
+        // TODO: check if we need to call restoreCaption here
+        headerSupports.forEach(HeaderSupport::restoreState);
     }
 }

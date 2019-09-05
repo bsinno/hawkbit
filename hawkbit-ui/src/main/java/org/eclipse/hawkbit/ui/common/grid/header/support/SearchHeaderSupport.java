@@ -21,9 +21,11 @@ import org.springframework.util.StringUtils;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
-public class SearchHeaderSupport {
+public class SearchHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
     private final String searchFieldId;
@@ -89,7 +91,6 @@ public class SearchHeaderSupport {
         searchResetIcon.setData(Boolean.TRUE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
 
-        searchField.removeStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
         searchField.setVisible(true);
         searchField.focus();
     }
@@ -101,14 +102,14 @@ public class SearchHeaderSupport {
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
 
         searchField.setValue("");
-        searchField.addStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
         searchField.setVisible(false);
 
         // TODO: check if it is needed or can be done within searchByCallback
         resetSearchCallback.run();
     }
 
-    public void restoreSearchState() {
+    @Override
+    public void restoreState() {
         final String onLoadSearchBoxValue = searchStateSupplier.get();
 
         if (!StringUtils.isEmpty(onLoadSearchBoxValue)) {
@@ -121,15 +122,26 @@ public class SearchHeaderSupport {
         return searchField;
     }
 
-    public Button getSearchResetIcon() {
-        return searchResetIcon;
-    }
-
     public void disableSearch() {
         searchResetIcon.setEnabled(false);
     }
 
     public void enableSearch() {
         searchResetIcon.setEnabled(true);
+    }
+
+    @Override
+    public Component getHeaderIcon() {
+        final HorizontalLayout headerIconLayout = new HorizontalLayout();
+        headerIconLayout.setMargin(false);
+        headerIconLayout.setSpacing(false);
+
+        headerIconLayout.addComponent(searchField);
+        headerIconLayout.addComponent(searchResetIcon);
+
+        // hidden by default
+        searchField.setVisible(false);
+
+        return headerIconLayout;
     }
 }

@@ -141,6 +141,8 @@ public final class UIMessageIdProvider {
 
     public static final String TOOLTIP_CONFIGURE = "tooltip.configure";
 
+    public static final String TOOLTIP_CONFIGURE_CLOSE = "tooltip.configure.close";
+
     public static final String TOOLTIP_CHECK_FOR_MANDATORY = "tooltip.check.for.mandatory";
 
     public static final String TOOLTIP_ARTIFACT_ICON = "tooltip.artifact.icon";
