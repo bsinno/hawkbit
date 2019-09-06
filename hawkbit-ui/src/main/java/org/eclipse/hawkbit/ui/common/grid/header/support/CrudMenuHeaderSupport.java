@@ -93,7 +93,7 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         crudMenuItem.setIcon(VaadinIcons.CLOSE_CIRCLE);
         crudMenuItem.setStyleName(null);
         crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE_CLOSE));
-        crudMenuItem.setCommand(command -> activateSelectMode());
+        crudMenuItem.setCommand(menuItem -> activateSelectMode());
 
         isEditModeActivated = true;
     }

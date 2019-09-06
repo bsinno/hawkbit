@@ -13,7 +13,6 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -69,7 +68,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    protected AbstractFilterHeader getFilterHeader() {
+    protected SMTypeFilterHeader getFilterHeader() {
         return smTypeFilterHeader;
     }
 
@@ -89,7 +88,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    public Boolean isTypeFilterClosedOnLoad() {
+    public Boolean isFilterLayoutClosedOnLoad() {
         return artifactUploadState.isSwTypeFilterClosed();
     }
 }

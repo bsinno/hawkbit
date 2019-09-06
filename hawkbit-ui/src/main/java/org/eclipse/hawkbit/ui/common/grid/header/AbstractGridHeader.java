@@ -33,8 +33,6 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     protected final SpPermissionChecker permChecker;
     protected final transient UIEventBus eventBus;
 
-    protected final Component headerCaption;
-
     private final transient Collection<HeaderSupport> headerSupports;
 
     public AbstractGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
@@ -43,7 +41,6 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         this.permChecker = permChecker;
         this.eventBus = eventBus;
 
-        this.headerCaption = getHeaderCaption();
         this.headerSupports = new ArrayList<>();
 
         init();
@@ -51,8 +48,6 @@ public abstract class AbstractGridHeader extends VerticalLayout {
             eventBus.subscribe(this);
         }
     }
-
-    protected abstract Component getHeaderCaption();
 
     protected void restoreCaption() {
         // empty by default for stateless header captions
@@ -89,6 +84,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         headerComponentsLayout.setMargin(false);
         headerComponentsLayout.setSizeFull();
 
+        final Component headerCaption = getHeaderCaption();
         headerComponentsLayout.addComponent(headerCaption);
         headerComponentsLayout.setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
         headerComponentsLayout.setExpandRatio(headerCaption, 0.4F);
@@ -103,6 +99,8 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
         addComponent(headerComponentsLayout);
     }
+
+    protected abstract Component getHeaderCaption();
 
     protected void restoreHeaderState() {
         restoreCaption();

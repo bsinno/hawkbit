@@ -8,86 +8,110 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
+import java.util.Arrays;
+
+import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
+import org.eclipse.hawkbit.ui.common.event.TargetTagFilterHeaderEvent;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.targettag.CreateTargetTagLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
+import org.vaadin.spring.events.EventScope;
+import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
 
 /**
  * Target Tag filter by Tag Header.
  */
-public class TargetTagFilterHeader extends AbstractFilterHeader {
-
+// TODO: remove duplication with other FilterHeader classes
+public class TargetTagFilterHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
+
+    private final UINotification uiNotification;
+    private final transient EntityFactory entityFactory;
+    private final transient TargetTagManagement targetTagManagement;
 
     private final ManagementUIState managementUIState;
 
-    TargetTagFilterHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
-            final SpPermissionChecker permChecker, final UIEventBus eventBus) {
-        super(permChecker, eventBus, i18n);
+    private final TargetTagFilterButtons targetTagButtons;
+
+    private final transient CrudMenuHeaderSupport crudMenuHeaderSupport;
+    private final transient CloseHeaderSupport closeHeaderSupport;
+
+    public TargetTagFilterHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
+            final SpPermissionChecker permChecker, final UIEventBus eventBus, final UINotification uiNotification,
+            final EntityFactory entityFactory, final TargetTagManagement targetTagManagement,
+            final TargetTagFilterButtons targetTagButtons) {
+        super(i18n, permChecker, eventBus);
+
         this.managementUIState = managementUIState;
+        this.uiNotification = uiNotification;
+        this.entityFactory = entityFactory;
+        this.targetTagManagement = targetTagManagement;
+
+        this.targetTagButtons = targetTagButtons;
+
+        this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.TARGET_MENU_BAR_ID,
+                permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
+                permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
+                getDeleteButtonCommand());
+        this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.HIDE_TARGET_TAGS,
+                this::hideFilterButtonLayout);
+        addHeaderSupports(Arrays.asList(crudMenuHeaderSupport, closeHeaderSupport));
+
+        restoreHeaderState();
+        buildHeader();
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
+    protected Component getHeaderCaption() {
+        return new LabelBuilder().name(i18n.getMessage("header.target.filter.tag")).buildCaptionLabel();
     }
 
-    @Override
-    protected String getHideButtonId() {
-        return UIComponentIdProvider.HIDE_TARGET_TAGS;
-    }
-
-    @Override
-    protected String getTitle() {
-        return getI18n().getMessage("header.target.filter.tag");
-    }
-
-    @Override
-    protected boolean dropHitsRequired() {
-
-        return true;
-    }
-
-    @Override
-    protected void hideFilterButtonLayout() {
-        managementUIState.setTargetTagFilterClosed(true);
-        getEventBus().publish(this, ManagementUIEvent.HIDE_TARGET_TAG_LAYOUT);
-    }
-
-    @Override
-    protected String getConfigureFilterButtonId() {
-        return null;
-    }
-
-    @Override
-    protected boolean isAddTagRequired() {
-        return false;
-    }
-
-    @Override
     protected Command getAddButtonCommand() {
-        return null;
+        return menuItem -> new CreateTargetTagLayout(i18n, targetTagManagement, entityFactory, eventBus, permChecker,
+                uiNotification);
     }
 
-    @Override
-    protected Command getDeleteButtonCommand() {
-        return null;
-    }
-
-    @Override
     protected Command getUpdateButtonCommand() {
-        return null;
+        return menuItem -> {
+            targetTagButtons.showEditColumn();
+            eventBus.publish(this, new TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+        };
     }
 
-    @Override
-    protected String getMenuBarId() {
-        return null;
+    protected Command getDeleteButtonCommand() {
+        return menuItem -> {
+            targetTagButtons.showDeleteColumn();
+            eventBus.publish(this, new TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+        };
     }
 
+    private void hideFilterButtonLayout() {
+        managementUIState.setTargetTagFilterClosed(true);
+        eventBus.publish(this, ManagementUIEvent.HIDE_TARGET_TAG_LAYOUT);
+    }
+
+    @EventBusListenerMethod(scope = EventScope.UI)
+    private void onEvent(final TargetTagFilterHeaderEvent event) {
+        if (FilterHeaderEnum.SHOW_MENUBAR == event.getFilterHeaderEnum()
+                && crudMenuHeaderSupport.isEditModeActivated()) {
+            crudMenuHeaderSupport.activateSelectMode();
+            targetTagButtons.hideActionColumns();
+        } else if (FilterHeaderEnum.SHOW_CANCEL_BUTTON == event.getFilterHeaderEnum()) {
+            crudMenuHeaderSupport.activateEditMode();
+        }
+    }
 }

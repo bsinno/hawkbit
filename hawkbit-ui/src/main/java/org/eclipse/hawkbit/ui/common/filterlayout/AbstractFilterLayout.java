@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
 import com.vaadin.ui.Alignment;
@@ -18,7 +19,6 @@ import com.vaadin.v7.ui.VerticalLayout;
  * Parent class for filter button layout.
  */
 public abstract class AbstractFilterLayout extends VerticalLayout {
-
     private static final long serialVersionUID = 1L;
 
     protected void buildLayout() {
@@ -40,12 +40,12 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
     }
 
     protected void restoreState() {
-        if (isTypeFilterClosedOnLoad()) {
+        if (isFilterLayoutClosedOnLoad()) {
             setVisible(false);
         }
     }
 
-    protected abstract AbstractFilterHeader getFilterHeader();
+    protected abstract AbstractGridHeader getFilterHeader();
 
     // we use Component here due to NO TAG button
     protected abstract Component getFilterButtons();
@@ -55,5 +55,5 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
      * 
      * @return true if filter should be initially closed.
      */
-    public abstract Boolean isTypeFilterClosedOnLoad();
+    public abstract Boolean isFilterLayoutClosedOnLoad();
 }

@@ -15,6 +15,7 @@ import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.event.TargetTagFilterHeaderEvent;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
@@ -25,14 +26,20 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.Component;
+
 /**
  * Target Tag filter layout.
  */
-public class TargetTagFilterLayout extends AbstractTargetTagFilterLayout implements RefreshableContainer {
-
+public class TargetTagFilterLayout extends AbstractFilterLayout implements RefreshableContainer {
     private static final long serialVersionUID = 1L;
 
+    private final VaadinMessageSource i18n;
+    private final ManagementUIState managementUIState;
     private final transient UIEventBus eventBus;
+
+    private final TargetTagFilterHeader targetTagFilterHeader;
+    private final MultipleTargetFilter multipleTargetFilter;
 
     /**
      * Constructor
@@ -58,20 +65,41 @@ public class TargetTagFilterLayout extends AbstractTargetTagFilterLayout impleme
             final SpPermissionChecker permChecker, final UIEventBus eventBus, final UINotification notification,
             final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
             final TargetTagManagement targetTagManagement, final TargetManagement targetManagement) {
-        super(new TargetTagFilterHeader(i18n, managementUIState, permChecker, eventBus),
-                new MultipleTargetFilter(permChecker, managementUIState, i18n, eventBus, notification, entityFactory,
-                        targetFilterQueryManagement, targetTagManagement, targetManagement),
-                managementUIState);
+        this.i18n = i18n;
+        this.managementUIState = managementUIState;
         this.eventBus = eventBus;
+
+        // TODO: check if we could find better solution as to pass
+        // targetTagButtons into targetTagFilterHeader
+        this.multipleTargetFilter = new MultipleTargetFilter(permChecker, managementUIState, i18n, eventBus,
+                notification, entityFactory, targetFilterQueryManagement, targetTagManagement, targetManagement);
+        this.targetTagFilterHeader = new TargetTagFilterHeader(i18n, managementUIState, permChecker, eventBus,
+                notification, entityFactory, targetTagManagement, multipleTargetFilter.getTargetTagFilterButtons());
+
+        buildLayout();
+
+        restoreState();
         eventBus.subscribe(this);
+    }
+
+    @Override
+    protected TargetTagFilterHeader getFilterHeader() {
+        return targetTagFilterHeader;
+    }
+
+    @Override
+    protected Component getFilterButtons() {
+        return multipleTargetFilter;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final ManagementUIEvent event) {
         if (event == ManagementUIEvent.HIDE_TARGET_TAG_LAYOUT) {
+            managementUIState.setTargetTagFilterClosed(true);
             setVisible(false);
         }
         if (event == ManagementUIEvent.SHOW_TARGET_TAG_LAYOUT) {
+            managementUIState.setTargetTagFilterClosed(false);
             setVisible(true);
         }
     }
@@ -83,12 +111,12 @@ public class TargetTagFilterLayout extends AbstractTargetTagFilterLayout impleme
     }
 
     @Override
-    public Boolean onLoadIsTypeFilterIsClosed() {
+    public Boolean isFilterLayoutClosedOnLoad() {
         return managementUIState.isTargetTagFilterClosed();
     }
 
     @Override
     public void refreshContainer() {
-        getMultipleFilterTabs().getFilterByButtons().refreshContainer();
+        multipleTargetFilter.getTargetTagFilterButtons().refreshContainer();
     }
 }

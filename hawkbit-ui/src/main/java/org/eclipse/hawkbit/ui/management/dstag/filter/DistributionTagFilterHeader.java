@@ -8,12 +8,17 @@
  */
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
+import java.util.Arrays;
+
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.DistributionSetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.management.dstag.CreateDistributionSetTagLayout;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -24,106 +29,90 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
 
 /**
  * Table header for filtering distribution set tags
  *
  */
-public class DistributionTagFilterHeader extends AbstractFilterHeader {
-
+// TODO: remove duplication with other FilterHeader classes
+public class DistributionTagFilterHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
+
+    private final UINotification uiNotification;
+    private final transient EntityFactory entityFactory;
+    private final transient DistributionSetTagManagement distributionSetTagManagement;
 
     private final ManagementUIState managementUIState;
 
-    private final transient EntityFactory entityFactory;
-
-    private final UINotification uiNotification;
-
-    private final transient DistributionSetTagManagement distributionSetTagManagement;
-
     private final DistributionTagButtons distributionTagButtons;
 
-    DistributionTagFilterHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
+    private final transient CrudMenuHeaderSupport crudMenuHeaderSupport;
+    private final transient CloseHeaderSupport closeHeaderSupport;
+
+    public DistributionTagFilterHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
             final SpPermissionChecker permChecker, final UIEventBus eventBus,
             final DistributionSetTagManagement distributionSetTagManagement, final EntityFactory entityFactory,
             final UINotification uiNotification, final DistributionTagButtons distributionTagButtons) {
-        super(permChecker, eventBus, i18n);
+        super(i18n, permChecker, eventBus);
+
         this.entityFactory = entityFactory;
         this.managementUIState = managementUIState;
         this.uiNotification = uiNotification;
         this.distributionSetTagManagement = distributionSetTagManagement;
+
         this.distributionTagButtons = distributionTagButtons;
+
+        this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.DIST_TAG_MENU_BAR_ID,
+                permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
+                permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
+                getDeleteButtonCommand());
+        this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.HIDE_DS_TAGS,
+                this::hideFilterButtonLayout);
+        addHeaderSupports(Arrays.asList(crudMenuHeaderSupport, closeHeaderSupport));
+
+        restoreHeaderState();
+        buildHeader();
     }
 
     @Override
-    protected String getHideButtonId() {
-        return "hide.distribution.tags";
+    protected Component getHeaderCaption() {
+        return new LabelBuilder().name(i18n.getMessage("header.filter.tag")).buildCaptionLabel();
     }
 
-    @Override
-    protected String getTitle() {
-        return getI18n().getMessage("header.filter.tag");
+    private Command getAddButtonCommand() {
+        return menuItem -> new CreateDistributionSetTagLayout(i18n, distributionSetTagManagement, entityFactory,
+                eventBus, permChecker, uiNotification);
     }
 
-    @Override
-    protected boolean dropHitsRequired() {
-        return true;
-    }
-
-    @Override
-    protected void hideFilterButtonLayout() {
-        managementUIState.setDistTagFilterClosed(true);
-        getEventBus().publish(this, ManagementUIEvent.HIDE_DISTRIBUTION_TAG_LAYOUT);
-    }
-
-    @Override
-    protected String getConfigureFilterButtonId() {
-        return UIComponentIdProvider.ADD_DISTRIBUTION_TAG;
-    }
-
-    @Override
-    protected boolean isAddTagRequired() {
-        return true;
-    }
-
-    @Override
-    protected Command getAddButtonCommand() {
-        return command -> new CreateDistributionSetTagLayout(getI18n(), distributionSetTagManagement, entityFactory,
-                getEventBus(), getPermChecker(), uiNotification);
-    }
-
-    @Override
-    protected Command getDeleteButtonCommand() {
-        return command -> {
-            distributionTagButtons.showDeleteColumn();
-            getEventBus().publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
-        };
-    }
-
-    @Override
-    protected Command getUpdateButtonCommand() {
+    private Command getUpdateButtonCommand() {
         return command -> {
             distributionTagButtons.showEditColumn();
-            getEventBus().publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+            eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
 
-    @Override
-    protected void cancelUpdateOrDeleteTag(final ClickEvent event) {
-        super.cancelUpdateOrDeleteTag(event);
-        distributionTagButtons.hideActionColumns();
+    private Command getDeleteButtonCommand() {
+        return command -> {
+            distributionTagButtons.showDeleteColumn();
+            eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+        };
+    }
+
+    private void hideFilterButtonLayout() {
+        managementUIState.setDistTagFilterClosed(true);
+        eventBus.publish(this, ManagementUIEvent.HIDE_DISTRIBUTION_TAG_LAYOUT);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     private void onEvent(final DistributionSetTagFilterHeaderEvent event) {
-        processFilterHeaderEvent(event);
+        if (FilterHeaderEnum.SHOW_MENUBAR == event.getFilterHeaderEnum()
+                && crudMenuHeaderSupport.isEditModeActivated()) {
+            crudMenuHeaderSupport.activateSelectMode();
+            distributionTagButtons.hideActionColumns();
+        } else if (FilterHeaderEnum.SHOW_CANCEL_BUTTON == event.getFilterHeaderEnum()) {
+            crudMenuHeaderSupport.activateEditMode();
+        }
     }
-
-    @Override
-    protected String getMenuBarId() {
-        return UIComponentIdProvider.DIST_TAG_MENU_BAR_ID;
-    }
-
 }

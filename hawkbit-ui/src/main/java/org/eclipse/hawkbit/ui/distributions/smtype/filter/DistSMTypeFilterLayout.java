@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
@@ -71,7 +70,7 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    protected AbstractFilterHeader getFilterHeader() {
+    protected DistSMTypeFilterHeader getFilterHeader() {
         return distSMTypeFilterHeader;
     }
 
@@ -91,7 +90,7 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     @Override
-    public Boolean isTypeFilterClosedOnLoad() {
+    public Boolean isFilterLayoutClosedOnLoad() {
         return manageDistUIState.isSwTypeFilterClosed();
     }
 }

@@ -8,13 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
+import java.util.Arrays;
+
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.DistributionSetTypeFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.distributions.disttype.CreateDistributionSetTypeLayout;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
@@ -26,27 +31,27 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
 
 /**
  * Distribution Set Type filter buttons header.
  */
-public class DSTypeFilterHeader extends AbstractFilterHeader {
-
+// TODO: remove duplication with other FilterHeader classes
+public class DSTypeFilterHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
+
+    private final transient UINotification uiNotification;
+    private final transient EntityFactory entityFactory;
+    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
+    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
 
     private final ManageDistUIState manageDistUIState;
 
-    private final transient EntityFactory entityFactory;
-
-    private final transient UINotification uiNotification;
-
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-
-    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
-
     private final DSTypeFilterButtons dSTypeFilterButtons;
+
+    private final transient CrudMenuHeaderSupport crudMenuHeaderSupport;
+    private final transient CloseHeaderSupport closeHeaderSupport;
 
     /**
      * Constructor
@@ -75,83 +80,65 @@ public class DSTypeFilterHeader extends AbstractFilterHeader {
             final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement,
             final DSTypeFilterButtons dSTypeFilterButtons) {
-        super(permChecker, eventBus, i18n);
+        super(i18n, permChecker, eventBus);
+
+        this.uiNotification = uiNotification;
         this.manageDistUIState = manageDistUIState;
         this.entityFactory = entityFactory;
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
         this.distributionSetTypeManagement = distributionSetTypeManagement;
-        this.uiNotification = uiNotification;
+
         this.dSTypeFilterButtons = dSTypeFilterButtons;
+
+        this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.DIST_TAG_MENU_BAR_ID,
+                permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
+                permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
+                getDeleteButtonCommand());
+        this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.HIDE_FILTER_DIST_TYPE,
+                this::hideFilterButtonLayout);
+        addHeaderSupports(Arrays.asList(crudMenuHeaderSupport, closeHeaderSupport));
+
+        restoreHeaderState();
+        buildHeader();
     }
 
     @Override
-    protected String getTitle() {
-        return getI18n().getMessage(UIMessageIdProvider.CAPTION_FILTER_BY_TYPE);
+    protected Component getHeaderCaption() {
+        return new LabelBuilder().name(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_BY_TYPE)).buildCaptionLabel();
     }
 
-    @Override
-    protected boolean dropHitsRequired() {
-        return false;
-    }
-
-    @Override
-    protected void hideFilterButtonLayout() {
-        manageDistUIState.setDistTypeFilterClosed(true);
-        getEventBus().publish(this, DistributionsUIEvent.HIDE_DIST_FILTER_BY_TYPE);
-    }
-
-    @Override
-    protected String getConfigureFilterButtonId() {
-
-        return UIComponentIdProvider.ADD_DISTRIBUTION_TYPE_TAG;
-    }
-
-    @Override
-    protected String getHideButtonId() {
-        return UIComponentIdProvider.HIDE_FILTER_DIST_TYPE;
-    }
-
-    @Override
-    protected boolean isAddTagRequired() {
-        return true;
-    }
-
-    @Override
-    protected Command getAddButtonCommand() {
-        return command -> new CreateDistributionSetTypeLayout(getI18n(), entityFactory, getEventBus(), getPermChecker(),
+    private Command getAddButtonCommand() {
+        return command -> new CreateDistributionSetTypeLayout(i18n, entityFactory, eventBus, permChecker,
                 uiNotification, softwareModuleTypeManagement, distributionSetTypeManagement);
     }
 
-    @Override
-    protected Command getDeleteButtonCommand() {
-        return command -> {
-            dSTypeFilterButtons.showDeleteColumn();
-            getEventBus().publish(this, new DistributionSetTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
-        };
-    }
-
-    @Override
-    protected Command getUpdateButtonCommand() {
+    private Command getUpdateButtonCommand() {
         return command -> {
             dSTypeFilterButtons.showEditColumn();
-            getEventBus().publish(this, new DistributionSetTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+            eventBus.publish(this, new DistributionSetTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
 
-    @Override
-    protected void cancelUpdateOrDeleteTag(final ClickEvent event) {
-        super.cancelUpdateOrDeleteTag(event);
-        dSTypeFilterButtons.hideActionColumns();
+    private Command getDeleteButtonCommand() {
+        return command -> {
+            dSTypeFilterButtons.showDeleteColumn();
+            eventBus.publish(this, new DistributionSetTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+        };
+    }
+
+    private void hideFilterButtonLayout() {
+        manageDistUIState.setDistTypeFilterClosed(true);
+        eventBus.publish(this, DistributionsUIEvent.HIDE_DIST_FILTER_BY_TYPE);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     private void onEvent(final DistributionSetTypeFilterHeaderEvent event) {
-        processFilterHeaderEvent(event);
+        if (FilterHeaderEnum.SHOW_MENUBAR == event.getFilterHeaderEnum()
+                && crudMenuHeaderSupport.isEditModeActivated()) {
+            crudMenuHeaderSupport.activateSelectMode();
+            dSTypeFilterButtons.hideActionColumns();
+        } else if (FilterHeaderEnum.SHOW_CANCEL_BUTTON == event.getFilterHeaderEnum()) {
+            crudMenuHeaderSupport.activateEditMode();
+        }
     }
-
-    @Override
-    protected String getMenuBarId() {
-        return UIComponentIdProvider.DIST_TAG_MENU_BAR_ID;
-    }
-
 }

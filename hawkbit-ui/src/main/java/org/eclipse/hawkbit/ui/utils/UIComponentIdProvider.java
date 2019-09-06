@@ -518,6 +518,11 @@ public final class UIComponentIdProvider {
     public static final String HIDE_TARGET_TAGS = "hide.target.tags";
 
     /**
+     * Distribution tag close button.
+     */
+    public static final String HIDE_DS_TAGS = "hide.distribution.tags";
+
+    /**
      * Show target tag layout icon.
      */
     public static final String SHOW_TARGET_TAGS = "show.target.tags.icon";

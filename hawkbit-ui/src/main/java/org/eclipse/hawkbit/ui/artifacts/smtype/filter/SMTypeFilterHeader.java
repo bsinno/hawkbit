@@ -8,15 +8,20 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
+import java.util.Arrays;
+
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtype.CreateSoftwareModuleTypeLayout;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.event.SoftwareModuleTypeFilterHeaderEvent;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -25,105 +30,89 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
 
 /**
  * Software module type filter buttons header.
  */
-public class SMTypeFilterHeader extends AbstractFilterHeader {
-
+// TODO: remove duplication with other FilterHeader classes
+public class SMTypeFilterHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
+
+    private final UINotification uiNotification;
+    private final transient EntityFactory entityFactory;
+    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
 
     private final ArtifactUploadState artifactUploadState;
 
-    private final transient EntityFactory entityFactory;
-
-    private final UINotification uiNotification;
-
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-
     private final SMTypeFilterButtons smTypeFilterButtons;
+
+    private final transient CrudMenuHeaderSupport crudMenuHeaderSupport;
+    private final transient CloseHeaderSupport closeHeaderSupport;
 
     SMTypeFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
             final ArtifactUploadState artifactUploadState, final EntityFactory entityFactory,
             final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final SMTypeFilterButtons smTypeFilterButtons) {
-        super(permChecker, eventBus, i18n);
+        super(i18n, permChecker, eventBus);
+
         this.artifactUploadState = artifactUploadState;
         this.entityFactory = entityFactory;
         this.uiNotification = uiNotification;
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
+
         this.smTypeFilterButtons = smTypeFilterButtons;
+
+        this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.SOFT_MODULE_TYPE_MENU_BAR_ID,
+                permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
+                permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
+                getDeleteButtonCommand());
+        this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.SM_SHOW_FILTER_BUTTON_ID,
+                this::hideFilterButtonLayout);
+        addHeaderSupports(Arrays.asList(crudMenuHeaderSupport, closeHeaderSupport));
+
+        restoreHeaderState();
+        buildHeader();
     }
 
     @Override
-    protected String getTitle() {
-        return getI18n().getMessage(UIMessageIdProvider.CAPTION_FILTER_BY_TYPE);
+    protected Component getHeaderCaption() {
+        return new LabelBuilder().name(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_BY_TYPE)).buildCaptionLabel();
     }
 
-    @Override
-    protected boolean dropHitsRequired() {
-        return false;
+    private Command getAddButtonCommand() {
+        return command -> new CreateSoftwareModuleTypeLayout(i18n, entityFactory, eventBus, permChecker, uiNotification,
+                softwareModuleTypeManagement);
     }
 
-    @Override
-    protected void hideFilterButtonLayout() {
-        artifactUploadState.setSwTypeFilterClosed(true);
-        getEventBus().publish(this, UploadArtifactUIEvent.HIDE_FILTER_BY_TYPE);
-    }
-
-    @Override
-    protected String getConfigureFilterButtonId() {
-        return UIComponentIdProvider.ADD_SOFTWARE_MODULE_TYPE;
-    }
-
-    @Override
-    protected String getHideButtonId() {
-        return UIComponentIdProvider.SM_SHOW_FILTER_BUTTON_ID;
-    }
-
-    @Override
-    protected boolean isAddTagRequired() {
-        return true;
-    }
-
-    @Override
-    protected Command getAddButtonCommand() {
-        return command -> new CreateSoftwareModuleTypeLayout(getI18n(), entityFactory, getEventBus(), getPermChecker(),
-                uiNotification, softwareModuleTypeManagement);
-    }
-
-    @Override
-    protected Command getDeleteButtonCommand() {
-        return command -> {
-            smTypeFilterButtons.showDeleteColumn();
-            getEventBus().publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
-        };
-    }
-
-    @Override
-    protected Command getUpdateButtonCommand() {
+    private Command getUpdateButtonCommand() {
         return command -> {
             smTypeFilterButtons.showEditColumn();
-            getEventBus().publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+            eventBus.publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
         };
     }
 
-    @Override
-    protected void cancelUpdateOrDeleteTag(final ClickEvent event) {
-        super.cancelUpdateOrDeleteTag(event);
-        smTypeFilterButtons.hideActionColumns();
+    private Command getDeleteButtonCommand() {
+        return command -> {
+            smTypeFilterButtons.showDeleteColumn();
+            eventBus.publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+        };
+    }
+
+    private void hideFilterButtonLayout() {
+        artifactUploadState.setSwTypeFilterClosed(true);
+        eventBus.publish(this, UploadArtifactUIEvent.HIDE_FILTER_BY_TYPE);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     private void onEvent(final SoftwareModuleTypeFilterHeaderEvent event) {
-        processFilterHeaderEvent(event);
+        if (FilterHeaderEnum.SHOW_MENUBAR == event.getFilterHeaderEnum()
+                && crudMenuHeaderSupport.isEditModeActivated()) {
+            crudMenuHeaderSupport.activateSelectMode();
+            smTypeFilterButtons.hideActionColumns();
+        } else if (FilterHeaderEnum.SHOW_CANCEL_BUTTON == event.getFilterHeaderEnum()) {
+            crudMenuHeaderSupport.activateEditMode();
+        }
     }
-
-    @Override
-    protected String getMenuBarId() {
-        return UIComponentIdProvider.SOFT_MODULE_TYPE_MENU_BAR_ID;
-    }
-
 }

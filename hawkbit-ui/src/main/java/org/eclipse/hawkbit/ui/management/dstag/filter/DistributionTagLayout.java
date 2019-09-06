@@ -15,7 +15,6 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.DistributionSetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -40,7 +39,6 @@ import com.vaadin.ui.VerticalLayout;
  *
  */
 public class DistributionTagLayout extends AbstractFilterLayout implements RefreshableContainer {
-
     private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;
@@ -76,6 +74,8 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
         this.managementUIState = managementUIState;
         this.eventBus = eventBus;
 
+        // TODO: check if we could find better solution as to pass
+        // distributionTagButtons into distributionTagFilterHeader
         this.distributionTagButtons = new DistributionTagButtons(eventBus, managementUIState, entityFactory, i18n,
                 uiNotification, permChecker, distributionSetTagManagement, distributionSetManagement);
         this.distributionTagFilterHeader = new DistributionTagFilterHeader(i18n, managementUIState, permChecker,
@@ -88,7 +88,7 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
     }
 
     @Override
-    protected AbstractFilterHeader getFilterHeader() {
+    protected DistributionTagFilterHeader getFilterHeader() {
         return distributionTagFilterHeader;
     }
 
@@ -144,7 +144,7 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
     }
 
     @Override
-    public Boolean isTypeFilterClosedOnLoad() {
+    public Boolean isFilterLayoutClosedOnLoad() {
         return managementUIState.isDistTagFilterClosed();
     }
 
