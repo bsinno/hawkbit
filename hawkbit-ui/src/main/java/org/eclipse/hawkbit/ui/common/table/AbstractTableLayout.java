@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.table;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractTableDetailsLayout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.utils.ShortCutModifierUtils;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -34,7 +35,10 @@ public abstract class AbstractTableLayout<T extends ProxyNamedEntity> extends Ve
 
     private static final long serialVersionUID = 1L;
 
+    // TODO: remove after all headers are adapted
     private AbstractTableHeader tableHeader;
+
+    private AbstractGridHeader gridHeader;
 
     private AbstractGrid<T, ?> grid;
 
@@ -56,6 +60,20 @@ public abstract class AbstractTableLayout<T extends ProxyNamedEntity> extends Ve
         }
     }
 
+    protected void init(final VaadinMessageSource i18n, final AbstractGridHeader gridHeader,
+            final AbstractGrid<T, ?> grid, final AbstractTableDetailsLayout<T> detailsLayout) {
+        this.i18n = i18n;
+        this.gridHeader = gridHeader;
+        this.grid = grid;
+        this.detailsLayout = detailsLayout;
+        buildLayout();
+
+        // TODO: check if it is correct
+        if (grid.hasSelectionSupport()) {
+            grid.getSelectionSupport().selectFirstRow();
+        }
+    }
+
     private void buildLayout() {
         setSizeFull();
         setSpacing(true);
@@ -67,9 +85,10 @@ public abstract class AbstractTableLayout<T extends ProxyNamedEntity> extends Ve
         tableHeaderLayout.setMargin(false);
 
         tableHeaderLayout.setStyleName("table-layout");
-        tableHeaderLayout.addComponent(tableHeader);
+        // TODO: adapt after all headers are adapted
+        tableHeaderLayout.addComponent(gridHeader != null ? gridHeader : tableHeader);
+        tableHeaderLayout.setComponentAlignment(gridHeader != null ? gridHeader : tableHeader, Alignment.TOP_CENTER);
 
-        tableHeaderLayout.setComponentAlignment(tableHeader, Alignment.TOP_CENTER);
         if (isShortCutKeysRequired()) {
             final Panel tablePanel = new Panel();
             tablePanel.setStyleName("table-panel");
@@ -117,7 +136,10 @@ public abstract class AbstractTableLayout<T extends ProxyNamedEntity> extends Ve
     }
 
     public void setShowFilterButtonVisible(final boolean visible) {
-        tableHeader.setFilterButtonsIconVisible(visible);
+        // TODO: adapt/remove after all headers are adapted
+        if (tableHeader != null) {
+            tableHeader.setFilterButtonsIconVisible(visible);
+        }
     }
 
     public RefreshableContainer getTable() {

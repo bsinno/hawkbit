@@ -86,7 +86,8 @@ public class TargetFilterHeader extends VerticalLayout {
     }
 
     private Label createHeaderCaption() {
-        return new LabelBuilderV7().name(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM)).buildCaptionLabel();
+        return new LabelBuilderV7().name(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM))
+                .buildCaptionLabel();
     }
 
     private void buildLayout() {
@@ -169,14 +170,14 @@ public class TargetFilterHeader extends VerticalLayout {
         searchResetIcon.toggleIcon(FontAwesome.TIMES);
         searchResetIcon.setData(Boolean.TRUE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
-        searchField.removeStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
+        searchField.removeStyleName("filter-box-hide");
         searchField.setVisible(true);
         searchField.focus();
     }
 
     private void closeSearchTextField() {
         searchField.setValue("");
-        searchField.addStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
+        searchField.addStyleName("filter-box-hide");
         searchResetIcon.removeStyleName(SPUIDefinitions.FILTER_RESET_ICON);
         searchResetIcon.toggleIcon(FontAwesome.SEARCH);
         searchResetIcon.setData(Boolean.FALSE);

@@ -99,7 +99,7 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
     }
 
     @Override
-    public Component getHeaderIcon() {
+    public Component getHeaderComponent() {
         return crudMenuBar;
     }
 

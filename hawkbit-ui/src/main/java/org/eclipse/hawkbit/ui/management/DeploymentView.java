@@ -155,8 +155,8 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
                     targetGrid.getDataCommunicator());
 
             this.targetTableLayout = new TargetTableLayout(eventBus, targetGrid, targetManagement, entityFactory, i18n,
-                    uiNotification, managementUIState, managementViewClientCriterion, deploymentManagement,
-                    uiProperties, permChecker, targetTagManagement, distributionSetManagement, uiExecutor);
+                    uiNotification, managementUIState, deploymentManagement, uiProperties, permChecker,
+                    targetTagManagement, distributionSetManagement, uiExecutor);
 
             // TODO:
             // targetLayout.registerDetails(actionHistoryLayout.getMasterDetailsSupport());

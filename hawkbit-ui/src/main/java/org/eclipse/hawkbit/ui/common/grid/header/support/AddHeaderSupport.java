@@ -58,7 +58,7 @@ public class AddHeaderSupport implements HeaderSupport {
     }
 
     @Override
-    public Component getHeaderIcon() {
+    public Component getHeaderComponent() {
         return addIcon;
     }
 

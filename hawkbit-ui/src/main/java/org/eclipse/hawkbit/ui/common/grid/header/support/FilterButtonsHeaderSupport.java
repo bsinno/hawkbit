@@ -52,12 +52,20 @@ public class FilterButtonsHeaderSupport implements HeaderSupport {
     }
 
     private void filterButtonsIconClicked() {
-        filterButtonsIcon.setVisible(false);
+        hideFilterButtonsIcon();
         showFilterButtonsLayoutCallback.run();
     }
 
+    public void hideFilterButtonsIcon() {
+        filterButtonsIcon.setVisible(false);
+    }
+
+    public void showFilterButtonsIcon() {
+        filterButtonsIcon.setVisible(true);
+    }
+
     @Override
-    public Component getHeaderIcon() {
+    public Component getHeaderComponent() {
         return filterButtonsIcon;
     }
 

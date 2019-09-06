@@ -130,8 +130,14 @@ public class SearchHeaderSupport implements HeaderSupport {
         searchResetIcon.setEnabled(true);
     }
 
+    public void resetSearch() {
+        if (isSearchActivated()) {
+            closeSearchTextField();
+        }
+    }
+
     @Override
-    public Component getHeaderIcon() {
+    public Component getHeaderComponent() {
         final HorizontalLayout headerIconLayout = new HorizontalLayout();
         headerIconLayout.setMargin(false);
         headerIconLayout.setSpacing(false);

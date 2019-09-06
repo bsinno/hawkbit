@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
+import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+
 import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ValueChangeMode;
@@ -40,8 +42,8 @@ public class TextFieldBuilder extends AbstractTextFieldBuilder<TextFieldBuilder,
      */
     public TextField createSearchField(final ValueChangeListener<String> textChangeListener) {
         final TextField textField = createTextComponent();
-        textField.setStyleName("filter-box");
-        textField.addStyleName("text-style filter-box-hide");
+        textField.setStyleName(SPUIDefinitions.FILTER_BOX);
+        textField.addStyleName("text-style");
         textField.setWidth(100.0F, Unit.PERCENTAGE);
         textField.addValueChangeListener(textChangeListener);
         textField.setValueChangeMode(ValueChangeMode.LAZY);

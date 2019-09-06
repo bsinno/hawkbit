@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.grid.header;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.grid.header.support.HeaderSupport;
@@ -20,24 +21,26 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Abstract grid header.
  */
-public abstract class AbstractGridHeader extends HorizontalLayout {
+public abstract class AbstractGridHeader extends VerticalLayout {
     private static final long serialVersionUID = 1L;
 
     protected final VaadinMessageSource i18n;
-    protected final SpPermissionChecker permissionChecker;
+    protected final SpPermissionChecker permChecker;
     protected final transient UIEventBus eventBus;
 
     protected final Component headerCaption;
-    private final Collection<HeaderSupport> headerSupports;
 
-    public AbstractGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permissionChecker,
+    private final transient Collection<HeaderSupport> headerSupports;
+
+    public AbstractGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus) {
         this.i18n = i18n;
-        this.permissionChecker = permissionChecker;
+        this.permChecker = permChecker;
         this.eventBus = eventBus;
 
         this.headerCaption = getHeaderCaption();
@@ -56,14 +59,13 @@ public abstract class AbstractGridHeader extends HorizontalLayout {
     }
 
     private void init() {
-        addStyleName(SPUIStyleDefinitions.WIDGET_TITLE);
+        setSpacing(false);
+        setMargin(false);
+
         addStyleName("bordered-layout");
         addStyleName("no-border-bottom");
 
-        setSpacing(false);
-        setMargin(false);
-        setSizeFull();
-        setHeight("40px");
+        setHeight("50px");
     }
 
     /**
@@ -76,17 +78,30 @@ public abstract class AbstractGridHeader extends HorizontalLayout {
     }
 
     protected void buildHeader() {
-        addComponent(headerCaption);
-        setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
+        final HorizontalLayout headerComponentsLayout = new HorizontalLayout();
 
-        headerSupports.forEach(headerSupport -> {
-            addComponent(headerSupport.getHeaderIcon());
-            setComponentAlignment(headerSupport.getHeaderIcon(), Alignment.TOP_RIGHT);
+        headerComponentsLayout.addStyleName(SPUIStyleDefinitions.WIDGET_TITLE);
+        headerComponentsLayout.setSpacing(false);
+        headerComponentsLayout.setMargin(false);
+        headerComponentsLayout.setSizeFull();
+
+        headerComponentsLayout.addComponent(headerCaption);
+        headerComponentsLayout.setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
+        headerComponentsLayout.setExpandRatio(headerCaption, 0.4F);
+
+        // TODO: adapt expand Ratios for header support components
+        headerSupports.stream().filter(Objects::nonNull).forEach(headerSupport -> {
+            final Component headerComponent = headerSupport.getHeaderComponent();
+
+            headerComponentsLayout.addComponent(headerComponent);
+            headerComponentsLayout.setComponentAlignment(headerComponent, Alignment.TOP_RIGHT);
         });
+
+        addComponent(headerComponentsLayout);
     }
 
     protected void restoreHeaderState() {
         // TODO: check if we need to call restoreCaption here
-        headerSupports.forEach(HeaderSupport::restoreState);
+        headerSupports.stream().filter(Objects::nonNull).forEach(HeaderSupport::restoreState);
     }
 }

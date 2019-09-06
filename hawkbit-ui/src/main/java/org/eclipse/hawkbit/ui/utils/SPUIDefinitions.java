@@ -259,7 +259,7 @@ public final class SPUIDefinitions {
     public static final int MIN_DASHBOARD_WIDTH = 1100;
 
     /* Target Header Filter Box */
-    public static final String FILTER_BOX_HIDE = "filter-box-hide";
+    public static final String FILTER_BOX = "filter-box";
     public static final String FILTER_RESET_ICON = "filter-reset-icon";
 
     /* Action History */

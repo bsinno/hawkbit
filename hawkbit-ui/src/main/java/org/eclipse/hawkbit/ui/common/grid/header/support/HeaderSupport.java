@@ -12,7 +12,7 @@ import com.vaadin.ui.Component;
 
 public interface HeaderSupport {
 
-    Component getHeaderIcon();
+    Component getHeaderComponent();
 
     default void restoreState() {
         // empty by default for stateless header supports

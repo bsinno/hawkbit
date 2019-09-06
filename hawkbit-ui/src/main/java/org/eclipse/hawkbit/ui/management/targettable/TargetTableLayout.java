@@ -19,7 +19,6 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.table.AbstractTableLayout;
-import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -40,19 +39,21 @@ public class TargetTableLayout extends AbstractTableLayout<ProxyTarget> {
     public TargetTableLayout(final UIEventBus eventBus, final TargetGrid targetGrid,
             final TargetManagement targetManagement, final EntityFactory entityFactory, final VaadinMessageSource i18n,
             final UINotification uiNotification, final ManagementUIState managementUIState,
-            final ManagementViewClientCriterion managementViewClientCriterion,
             final DeploymentManagement deploymentManagement, final UiProperties uiProperties,
-            final SpPermissionChecker permissionChecker, final TargetTagManagement tagManagement,
+            final SpPermissionChecker permissionChecker, final TargetTagManagement targetTagManagement,
             final DistributionSetManagement distributionSetManagement, final Executor uiExecutor) {
+        this.eventBus = eventBus;
+
         final TargetMetadataPopupLayout targetMetadataPopupLayout = new TargetMetadataPopupLayout(i18n, uiNotification,
                 eventBus, targetManagement, entityFactory, permissionChecker);
-        this.eventBus = eventBus;
+
         final TargetDetails targetDetails = new TargetDetails(i18n, eventBus, permissionChecker, managementUIState,
-                uiNotification, tagManagement, targetManagement, targetMetadataPopupLayout, deploymentManagement,
+                uiNotification, targetTagManagement, targetManagement, targetMetadataPopupLayout, deploymentManagement,
                 entityFactory);
-        final TargetTableHeader targetTableHeader = new TargetTableHeader(i18n, permissionChecker, eventBus,
+
+        final TargetGridHeader targetTableHeader = new TargetGridHeader(i18n, permissionChecker, eventBus,
                 uiNotification, managementUIState, targetManagement, deploymentManagement, uiProperties, entityFactory,
-                uiNotification, tagManagement, distributionSetManagement, uiExecutor);
+                uiNotification, targetTagManagement, distributionSetManagement, uiExecutor);
 
         super.init(i18n, targetTableHeader, targetGrid, targetDetails);
     }

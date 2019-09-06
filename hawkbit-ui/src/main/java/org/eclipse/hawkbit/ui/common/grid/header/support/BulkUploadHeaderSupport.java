@@ -67,7 +67,7 @@ public class BulkUploadHeaderSupport implements HeaderSupport {
     }
 
     @Override
-    public Component getHeaderIcon() {
+    public Component getHeaderComponent() {
         return bulkUploadIcon;
     }
 

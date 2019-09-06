@@ -163,14 +163,14 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         searchResetIcon.toggleIcon(VaadinIcons.CLOSE);
         searchResetIcon.setData(Boolean.TRUE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
-        searchField.removeStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
+        searchField.removeStyleName("filter-box-hide");
         searchField.setVisible(true);
         searchField.focus();
     }
 
     private void closeSearchTextField() {
         searchField.setValue("");
-        searchField.addStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
+        searchField.addStyleName("filter-box-hide");
         searchField.setVisible(false);
         searchResetIcon.removeStyleName(SPUIDefinitions.FILTER_RESET_ICON);
         searchResetIcon.toggleIcon(VaadinIcons.SEARCH);

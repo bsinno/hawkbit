@@ -230,13 +230,13 @@ public abstract class AbstractTableHeader extends VerticalLayout {
         searchResetIcon.toggleIcon(FontAwesome.TIMES);
         searchResetIcon.setData(Boolean.TRUE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
-        searchField.removeStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
+        searchField.removeStyleName("filter-box-hide");
         searchField.focus();
     }
 
     private void closeSearchTextField() {
         searchField.setValue("");
-        searchField.addStyleName(SPUIDefinitions.FILTER_BOX_HIDE);
+        searchField.addStyleName("filter-box-hide");
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
         searchResetIcon.removeStyleName(SPUIDefinitions.FILTER_RESET_ICON);
         searchResetIcon.toggleIcon(FontAwesome.SEARCH);
