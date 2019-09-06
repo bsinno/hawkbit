@@ -15,19 +15,13 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
-import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader.AbstractHeaderMaximizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -41,9 +35,8 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
     private static final long serialVersionUID = 1L;
 
     private final ManagementUIState managementUIState;
-    private final String actionHistoryCaption;
 
-    private final ActionHistoryHeader actionHistoryHeader;
+    private final ActionHistoryGridHeader actionHistoryHeader;
     private final ActionHistoryGrid actionHistoryGrid;
 
     private final MasterDetailsSupport<ProxyTarget, String> masterDetailsSupport;
@@ -64,9 +57,8 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
         super(i18n, eventBus);
 
         this.managementUIState = managementUIState;
-        this.actionHistoryCaption = getActionHistoryCaption(null);
 
-        this.actionHistoryHeader = new ActionHistoryHeader().init();
+        this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, managementUIState);
         this.actionHistoryGrid = new ActionHistoryGrid(getI18n(), deploymentManagement, getEventBus(), notification,
                 managementUIState, permChecker);
 
@@ -83,20 +75,8 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
         init();
     }
 
-    private String getActionHistoryCaption(final String targetName) {
-        final String caption;
-        if (StringUtils.hasText(targetName)) {
-            caption = getI18n().getMessage(UIMessageIdProvider.CAPTION_ACTION_HISTORY_FOR,
-                    HawkbitCommonUtil.getBoldHTMLText(targetName));
-        } else {
-            caption = getI18n().getMessage(UIMessageIdProvider.CAPTION_ACTION_HISTORY);
-        }
-
-        return HawkbitCommonUtil.getCaptionText(caption);
-    }
-
     @Override
-    public ActionHistoryHeader getGridHeader() {
+    public ActionHistoryGridHeader getGridHeader() {
         return actionHistoryHeader;
     }
 
@@ -145,97 +125,5 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
 
     public MasterDetailsSupport<ProxyTarget, String> getMasterDetailsSupport() {
         return masterDetailsSupport;
-    }
-
-    /**
-     * Header for ActionHistory with maximize-support.
-     */
-    class ActionHistoryHeader extends DefaultGridHeader {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Constructor.
-         *
-         * @param managementUIState
-         */
-        ActionHistoryHeader() {
-            super(actionHistoryCaption, getI18n());
-
-            this.setHeaderMaximizeSupport(
-                    new ActionHistoryHeaderMaxSupport(this, SPUIDefinitions.EXPAND_ACTION_HISTORY));
-        }
-
-        /**
-         * Initializes the header.
-         */
-        @Override
-        public ActionHistoryHeader init() {
-            super.init();
-            addStyleName("action-history-header");
-            restorePreviousState();
-            return this;
-        }
-
-        /**
-         * Updates header with target name.
-         *
-         * @param targetName
-         *            name of the target
-         */
-        public void updateActionHistoryHeader(final String targetName) {
-            updateTitle(getActionHistoryCaption(targetName));
-        }
-
-        /**
-         * Restores the previous min-max state.
-         */
-        private void restorePreviousState() {
-            if (hasHeaderMaximizeSupport() && managementUIState.isActionHistoryMaximized()) {
-                getHeaderMaximizeSupport().showMinIcon();
-            }
-        }
-    }
-
-    /**
-     * Min-max support for header.
-     */
-    class ActionHistoryHeaderMaxSupport extends AbstractHeaderMaximizeSupport {
-
-        private final DefaultGridHeader abstractGridHeader;
-
-        /**
-         * Constructor.
-         *
-         * @param abstractGridHeader
-         * @param maximizeButtonId
-         */
-        protected ActionHistoryHeaderMaxSupport(final DefaultGridHeader abstractGridHeader,
-                final String maximizeButtonId) {
-            abstractGridHeader.super(maximizeButtonId);
-            this.abstractGridHeader = abstractGridHeader;
-        }
-
-        @Override
-        protected void maximize() {
-            // TODO: check if it is needed
-            // details.populateMasterDataAndRecreateContainer(masterForDetails);
-            getEventBus().publish(this, ManagementUIEvent.MAX_ACTION_HISTORY);
-            managementUIState.setActionHistoryMaximized(true);
-        }
-
-        @Override
-        protected void minimize() {
-            getEventBus().publish(this, ManagementUIEvent.MIN_ACTION_HISTORY);
-            managementUIState.setActionHistoryMaximized(false);
-        }
-
-        /**
-         * Gets the grid header the maximize support is for.
-         *
-         * @return grid header
-         */
-        protected DefaultGridHeader getGridHeader() {
-            return abstractGridHeader;
-        }
     }
 }

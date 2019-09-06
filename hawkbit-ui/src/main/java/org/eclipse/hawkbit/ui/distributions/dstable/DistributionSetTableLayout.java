@@ -59,7 +59,7 @@ public class DistributionSetTableLayout extends AbstractTableLayout<ProxyDistrib
                 distributionSetManagement, entityFactory, permissionChecker);
 
         super.init(i18n,
-                new DistributionSetTableHeader(
+                new DistributionSetGridHeader(
                         i18n, permissionChecker, eventBus, manageDistUIState, distributionAddUpdateWindowLayout),
                 distributionSetGrid,
                 new DistributionSetDetails(i18n, eventBus, permissionChecker, manageDistUIState, managementUIState,

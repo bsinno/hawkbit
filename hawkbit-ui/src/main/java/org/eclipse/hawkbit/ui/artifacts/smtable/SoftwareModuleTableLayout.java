@@ -45,7 +45,7 @@ public class SoftwareModuleTableLayout extends AbstractTableLayout<ProxySoftware
                 uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory);
 
         super.init(i18n,
-                new SoftwareModuleTableHeader(i18n, permChecker, eventBus, artifactUploadState,
+                new SoftwareModuleGridHeader(i18n, permChecker, eventBus, artifactUploadState,
                         softwareModuleAddUpdateWindow),
                 softwareModuleGrid,
                 new SoftwareModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,

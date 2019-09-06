@@ -52,7 +52,7 @@ public class SwModuleTableLayout extends AbstractTableLayout<ProxySoftwareModule
                 artifactUploadState, uiNotification, artifactManagement, permChecker);
 
         super.init(i18n,
-                new SwModuleTableHeader(i18n, permChecker, eventBus, manageDistUIState, softwareModuleAddUpdateWindow),
+                new SwModuleGridHeader(i18n, permChecker, eventBus, manageDistUIState, softwareModuleAddUpdateWindow),
                 swModuleGrid, new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,
                         manageDistUIState, softwareModuleManagement, swMetadataPopupLayout, artifactDetailsLayout));
     }

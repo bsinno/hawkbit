@@ -8,35 +8,38 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGridHeader;
+import java.util.Arrays;
+
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Header Layout of Rollout Group list view.
  */
 public class RolloutGroupsListHeader extends AbstractGridHeader {
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = 5077741997839715209L;
+    private final RolloutUIState rolloutUIState;
 
-    private final transient EventBus.UIEventBus eventBus;
+    private final Label headerCaptionDetails;
 
-    private Label headerCaption;
+    private final transient CloseHeaderSupport closeHeaderSupport;
 
     /**
      * Constructor for RolloutGroupsListHeader
@@ -50,9 +53,60 @@ public class RolloutGroupsListHeader extends AbstractGridHeader {
      */
     public RolloutGroupsListHeader(final UIEventBus eventBus, final RolloutUIState rolloutUiState,
             final VaadinMessageSource i18n) {
-        super(null, rolloutUiState, i18n);
-        this.eventBus = eventBus;
-        eventBus.subscribe(this);
+        super(i18n, null, eventBus);
+
+        this.rolloutUIState = rolloutUiState;
+
+        this.headerCaptionDetails = createHeaderCaptionDetails();
+
+        this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_GROUP_CLOSE,
+                this::showRolloutListView);
+        addHeaderSupports(Arrays.asList(closeHeaderSupport));
+
+        restoreHeaderState();
+        buildHeader();
+    }
+
+    private Label createHeaderCaptionDetails() {
+        final Label captionDetails = new LabelBuilder().id(UIComponentIdProvider.ROLLOUT_GROUP_HEADER_CAPTION).name("")
+                .buildCaptionLabel();
+
+        captionDetails.addStyleName("breadcrumbPaddingLeft");
+
+        return captionDetails;
+    }
+
+    @Override
+    protected Component getHeaderCaption() {
+        final Button rolloutsListViewLink = SPUIComponentProvider.getButton(null, "", "", null, false, null,
+                SPUIButtonStyleNoBorder.class);
+        rolloutsListViewLink.setStyleName(ValoTheme.LINK_SMALL + " on-focus-no-border link rollout-caption-links");
+        rolloutsListViewLink.setDescription(i18n.getMessage("message.rollouts"));
+        rolloutsListViewLink.setCaption(i18n.getMessage("message.rollouts"));
+        rolloutsListViewLink.addClickListener(value -> showRolloutListView());
+
+        final HorizontalLayout headerCaptionLayout = new HorizontalLayout();
+        headerCaptionLayout.setMargin(false);
+        headerCaptionLayout.setSpacing(false);
+
+        headerCaptionLayout.addComponent(rolloutsListViewLink);
+        headerCaptionLayout.addComponent(new Label(">"));
+        headerCaptionLayout.addComponent(headerCaptionDetails);
+
+        return headerCaptionLayout;
+    }
+
+    private void showRolloutListView() {
+        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
+    }
+
+    @Override
+    protected void restoreCaption() {
+        setCaptionDetails();
+    }
+
+    private void setCaptionDetails() {
+        headerCaptionDetails.setValue(rolloutUIState.getRolloutName().orElse(""));
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -61,108 +115,4 @@ public class RolloutGroupsListHeader extends AbstractGridHeader {
             setCaptionDetails();
         }
     }
-
-    private void setCaptionDetails() {
-        headerCaption.setCaption(rolloutUIState.getRolloutName().orElse(""));
-    }
-
-    @Override
-    protected void resetSearchText() {
-        // No implementation required.
-    }
-
-    @Override
-    protected String getSearchBoxId() {
-        // No implementation required.
-        return null;
-    }
-
-    @Override
-    protected String getSearchRestIconId() {
-        // No implementation required.
-        return null;
-    }
-
-    @Override
-    protected void searchBy(final String newSearchText) {
-        // No implementation required.
-
-    }
-
-    @Override
-    protected String getAddIconId() {
-        // No implementation required.
-        return null;
-    }
-
-    @Override
-    protected void addNewItem(final ClickEvent event) {
-        // No implementation required.
-    }
-
-    @Override
-    protected void onClose(final ClickEvent event) {
-        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
-
-    }
-
-    @Override
-    protected boolean hasCreatePermission() {
-        return true;
-    }
-
-    @Override
-    protected String getCloseButtonId() {
-        return UIComponentIdProvider.ROLLOUT_GROUP_CLOSE;
-    }
-
-    @Override
-    protected boolean showCloseButton() {
-        return true;
-    }
-
-    @Override
-    protected boolean isAllowSearch() {
-        return false;
-    }
-
-    @Override
-    protected String onLoadSearchBoxValue() {
-        return null;
-    }
-
-    @Override
-    protected boolean isRollout() {
-        return false;
-    }
-
-    @Override
-    protected HorizontalLayout getHeaderCaptionLayout() {
-        headerCaption = new LabelBuilderV7().id(UIComponentIdProvider.ROLLOUT_GROUP_HEADER_CAPTION).name("")
-                .buildCaptionLabel();
-        final Button rolloutsListViewLink = SPUIComponentProvider.getButton(null, "", "", null, false, null,
-                SPUIButtonStyleNoBorder.class);
-        rolloutsListViewLink.setStyleName(ValoTheme.LINK_SMALL + " " + "on-focus-no-border link rollout-caption-links");
-        rolloutsListViewLink.setDescription(i18n.getMessage("message.rollouts"));
-        rolloutsListViewLink.setCaption(i18n.getMessage("message.rollouts"));
-        rolloutsListViewLink.addClickListener(value -> showRolloutListView());
-
-        final HorizontalLayout headerCaptionLayout = new HorizontalLayout();
-        headerCaptionLayout.addComponent(rolloutsListViewLink);
-        headerCaptionLayout.addComponent(new Label(">"));
-        headerCaption.addStyleName("breadcrumbPaddingLeft");
-        headerCaptionLayout.addComponent(headerCaption);
-
-        return headerCaptionLayout;
-    }
-
-    @Override
-    protected void restoreCaption() {
-        setCaptionDetails();
-    }
-
-    private void showRolloutListView() {
-        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
-    }
-
 }

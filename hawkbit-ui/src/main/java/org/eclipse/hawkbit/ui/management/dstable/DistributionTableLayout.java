@@ -60,7 +60,7 @@ public class DistributionTableLayout extends AbstractTableLayout<ProxyDistributi
         this.distributionGrid = new DistributionGrid(eventBus, i18n, permissionChecker, notification, managementUIState,
                 targetManagement, distributionSetManagement, deploymentManagement, uiProperties);
 
-        super.init(i18n, new DistributionTableHeader(i18n, permissionChecker, eventBus, managementUIState),
+        super.init(i18n, new DistributionGridHeader(i18n, permissionChecker, eventBus, managementUIState),
                 distributionGrid,
                 new DistributionDetails(i18n, eventBus, permissionChecker, managementUIState, distributionSetManagement,
                         dsMetadataPopupLayout, notification, distributionSetTagManagement,

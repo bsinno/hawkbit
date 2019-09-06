@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
@@ -23,7 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * Abstract grid layout class which builds layout with grid {@link AbstractGrid}
- * and grid header {@link DefaultGridHeader}.
+ * and grid header {@link AbstractGridHeader}.
  * 
  * @param <T>
  *            The container-type used by the grid

@@ -89,14 +89,16 @@ public class TargetGridHeader extends AbstractGridHeader {
                 this::showFilterButtonsLayout, this::onLoadIsShowFilterButtonDisplayed);
         // TODO: consider moving permission check to header support or parent
         // header
-        this.addHeaderSupport = hasCreatePermission()
-                ? new AddHeaderSupport(i18n, UIComponentIdProvider.TARGET_TBL_ADD_ICON_ID, this::addNewItem,
-                        this::onLoadIsTableMaximized)
-                : null;
-        this.bulkUploadHeaderSupport = hasCreatePermission()
-                ? new BulkUploadHeaderSupport(i18n, this::bulkUpload, this::isBulkUploadInProgress,
-                        this::onLoadIsTableMaximized)
-                : null;
+        if (permChecker.hasCreateTargetPermission()) {
+            this.addHeaderSupport = new AddHeaderSupport(i18n, UIComponentIdProvider.TARGET_TBL_ADD_ICON_ID,
+                    this::addNewItem, this::onLoadIsTableMaximized);
+            this.bulkUploadHeaderSupport = new BulkUploadHeaderSupport(i18n, this::bulkUpload,
+                    this::isBulkUploadInProgress, this::onLoadIsTableMaximized);
+        } else {
+            this.addHeaderSupport = null;
+            this.bulkUploadHeaderSupport = null;
+        }
+
         this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, UIComponentIdProvider.TARGET_MAX_MIN_TABLE_ICON,
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
         addHeaderSupports(Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, addHeaderSupport,
@@ -160,10 +162,6 @@ public class TargetGridHeader extends AbstractGridHeader {
 
     private Boolean onLoadIsShowFilterButtonDisplayed() {
         return managementUIState.isTargetTagFilterClosed();
-    }
-
-    private boolean hasCreatePermission() {
-        return permChecker.hasCreateTargetPermission();
     }
 
     // TODO: refactor window handling

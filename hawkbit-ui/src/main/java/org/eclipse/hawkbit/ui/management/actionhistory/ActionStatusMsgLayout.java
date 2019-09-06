@@ -12,11 +12,9 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupportIdentifiable;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -26,7 +24,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class ActionStatusMsgLayout extends AbstractGridComponentLayout<ProxyMessage> {
     private static final long serialVersionUID = 1L;
 
-    private final DefaultGridHeader actionStatusMsgHeader;
+    private final ActionStatusMsgGridHeader actionStatusMsgHeader;
     private final ActionStatusMsgGrid actionStatusMsgGrid;
 
     private final MasterDetailsSupport<ProxyActionStatus, Long> masterDetailsSupport;
@@ -43,8 +41,7 @@ public class ActionStatusMsgLayout extends AbstractGridComponentLayout<ProxyMess
             final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus);
 
-        this.actionStatusMsgHeader = new DefaultGridHeader(
-                getI18n().getMessage(UIMessageIdProvider.CAPTION_ACTION_MESSAGES), getI18n()).init();
+        this.actionStatusMsgHeader = new ActionStatusMsgGridHeader(i18n);
         this.actionStatusMsgGrid = new ActionStatusMsgGrid(getI18n(), getEventBus(), deploymentManagement);
 
         this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(actionStatusMsgGrid);
@@ -58,7 +55,7 @@ public class ActionStatusMsgLayout extends AbstractGridComponentLayout<ProxyMess
     }
 
     @Override
-    public DefaultGridHeader getGridHeader() {
+    public ActionStatusMsgGridHeader getGridHeader() {
         return actionStatusMsgHeader;
     }
 

@@ -164,6 +164,10 @@ public final class UIComponentIdProvider {
      */
     public static final String SHOW_DIST_TAG_ICON = "show.dist.tags.icon";
     /**
+     * ID for distribution set tag icon
+     */
+    public static final String SHOW_SM_TYPE_ICON = "show.sm.types.icon";
+    /**
      * ID - soft.module.name.
      */
     public static final String SOFT_MODULE_NAME = "soft.module.name";

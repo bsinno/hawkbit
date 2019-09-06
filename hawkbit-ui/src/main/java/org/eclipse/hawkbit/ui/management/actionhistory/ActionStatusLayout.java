@@ -12,7 +12,6 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupportIdentifiable;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -25,7 +24,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionStatus> {
     private static final long serialVersionUID = 1L;
 
-    private final DefaultGridHeader actionStatusGridHeader;
+    private final ActionStatusGridHeader actionStatusGridHeader;
     private final ActionStatusGrid actionStatusGrid;
 
     private final MasterDetailsSupport<ProxyAction, Long> masterDetailsSupport;
@@ -41,8 +40,7 @@ public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionS
             final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus);
 
-        this.actionStatusGridHeader = new DefaultGridHeader(getI18n().getMessage("caption.action.states"), getI18n())
-                .init();
+        this.actionStatusGridHeader = new ActionStatusGridHeader(i18n);
         this.actionStatusGrid = new ActionStatusGrid(getI18n(), getEventBus(), deploymentManagement);
 
         this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(actionStatusGrid);
@@ -56,7 +54,7 @@ public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionS
     }
 
     @Override
-    public DefaultGridHeader getGridHeader() {
+    public ActionStatusGridHeader getGridHeader() {
         return actionStatusGridHeader;
     }
 

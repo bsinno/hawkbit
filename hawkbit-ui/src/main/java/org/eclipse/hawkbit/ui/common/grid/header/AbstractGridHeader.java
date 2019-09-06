@@ -54,6 +54,10 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
     protected abstract Component getHeaderCaption();
 
+    protected void restoreCaption() {
+        // empty by default for stateless header captions
+    }
+
     protected void addHeaderSupports(final Collection<HeaderSupport> headerSupports) {
         this.headerSupports.addAll(headerSupports);
     }
@@ -89,7 +93,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         headerComponentsLayout.setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
         headerComponentsLayout.setExpandRatio(headerCaption, 0.4F);
 
-        // TODO: adapt expand Ratios for header support components
+        // TODO: adapt Expand Ratios for header support components
         headerSupports.stream().filter(Objects::nonNull).forEach(headerSupport -> {
             final Component headerComponent = headerSupport.getHeaderComponent();
 
@@ -101,7 +105,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     }
 
     protected void restoreHeaderState() {
-        // TODO: check if we need to call restoreCaption here
+        restoreCaption();
         headerSupports.stream().filter(Objects::nonNull).forEach(HeaderSupport::restoreState);
     }
 }

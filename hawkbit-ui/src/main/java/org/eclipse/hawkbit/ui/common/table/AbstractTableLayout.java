@@ -35,9 +35,6 @@ public abstract class AbstractTableLayout<T extends ProxyNamedEntity> extends Ve
 
     private static final long serialVersionUID = 1L;
 
-    // TODO: remove after all headers are adapted
-    private AbstractTableHeader tableHeader;
-
     private AbstractGridHeader gridHeader;
 
     private AbstractGrid<T, ?> grid;
@@ -45,20 +42,6 @@ public abstract class AbstractTableLayout<T extends ProxyNamedEntity> extends Ve
     private AbstractTableDetailsLayout<T> detailsLayout;
 
     private VaadinMessageSource i18n;
-
-    protected void init(final VaadinMessageSource i18n, final AbstractTableHeader tableHeader,
-            final AbstractGrid<T, ?> grid, final AbstractTableDetailsLayout<T> detailsLayout) {
-        this.i18n = i18n;
-        this.tableHeader = tableHeader;
-        this.grid = grid;
-        this.detailsLayout = detailsLayout;
-        buildLayout();
-
-        // TODO: check if it is correct
-        if (grid.hasSelectionSupport()) {
-            grid.getSelectionSupport().selectFirstRow();
-        }
-    }
 
     protected void init(final VaadinMessageSource i18n, final AbstractGridHeader gridHeader,
             final AbstractGrid<T, ?> grid, final AbstractTableDetailsLayout<T> detailsLayout) {
@@ -85,9 +68,9 @@ public abstract class AbstractTableLayout<T extends ProxyNamedEntity> extends Ve
         tableHeaderLayout.setMargin(false);
 
         tableHeaderLayout.setStyleName("table-layout");
-        // TODO: adapt after all headers are adapted
-        tableHeaderLayout.addComponent(gridHeader != null ? gridHeader : tableHeader);
-        tableHeaderLayout.setComponentAlignment(gridHeader != null ? gridHeader : tableHeader, Alignment.TOP_CENTER);
+
+        tableHeaderLayout.addComponent(gridHeader);
+        tableHeaderLayout.setComponentAlignment(gridHeader, Alignment.TOP_CENTER);
 
         if (isShortCutKeysRequired()) {
             final Panel tablePanel = new Panel();
@@ -136,10 +119,8 @@ public abstract class AbstractTableLayout<T extends ProxyNamedEntity> extends Ve
     }
 
     public void setShowFilterButtonVisible(final boolean visible) {
-        // TODO: adapt/remove after all headers are adapted
-        if (tableHeader != null) {
-            tableHeader.setFilterButtonsIconVisible(visible);
-        }
+        // TODO: adapt/remove after layouts refactoring
+        // tableHeader.setFilterButtonsIconVisible(visible);
     }
 
     public RefreshableContainer getTable() {

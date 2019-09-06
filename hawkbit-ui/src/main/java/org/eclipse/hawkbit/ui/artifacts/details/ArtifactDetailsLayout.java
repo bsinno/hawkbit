@@ -12,24 +12,17 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent.SoftwareModuleEventType;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyArtifact;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader;
-import org.eclipse.hawkbit.ui.common.grid.DefaultGridHeader.AbstractHeaderMaximizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupportIdentifiable;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -44,9 +37,8 @@ public class ArtifactDetailsLayout extends AbstractGridComponentLayout<ProxyArti
     private static final long serialVersionUID = 1L;
 
     private final ArtifactUploadState artifactUploadState;
-    private final String artifactDetailsCaption;
 
-    private final ArtifactDetailsHeader artifactDetailsHeader;
+    private final ArtifactDetailsGridHeader artifactDetailsHeader;
     private final ArtifactDetailsGrid artifactDetailsGrid;
 
     private final MasterDetailsSupport<ProxySoftwareModule, Long> masterDetailsSupport;
@@ -71,9 +63,8 @@ public class ArtifactDetailsLayout extends AbstractGridComponentLayout<ProxyArti
         super(i18n, eventBus);
 
         this.artifactUploadState = artifactUploadState;
-        this.artifactDetailsCaption = getArtifactDetailsCaption(null);
 
-        this.artifactDetailsHeader = new ArtifactDetailsHeader().init();
+        this.artifactDetailsHeader = new ArtifactDetailsGridHeader(i18n, artifactUploadState);
         this.artifactDetailsGrid = new ArtifactDetailsGrid(eventBus, i18n, permChecker, notification,
                 artifactManagement);
 
@@ -82,20 +73,8 @@ public class ArtifactDetailsLayout extends AbstractGridComponentLayout<ProxyArti
         init();
     }
 
-    private String getArtifactDetailsCaption(final String swModuleNameVersion) {
-        final String caption;
-        if (StringUtils.hasText(swModuleNameVersion)) {
-            caption = getI18n().getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF,
-                    HawkbitCommonUtil.getBoldHTMLText(swModuleNameVersion));
-        } else {
-            caption = getI18n().getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS);
-        }
-
-        return HawkbitCommonUtil.getCaptionText(caption);
-    }
-
     @Override
-    public ArtifactDetailsHeader getGridHeader() {
+    public ArtifactDetailsGridHeader getGridHeader() {
         return artifactDetailsHeader;
     }
 
@@ -137,97 +116,5 @@ public class ArtifactDetailsLayout extends AbstractGridComponentLayout<ProxyArti
 
     public MasterDetailsSupport<ProxySoftwareModule, Long> getMasterDetailsSupport() {
         return masterDetailsSupport;
-    }
-
-    /**
-     * Header for ArtifactDetails with maximize-support.
-     */
-    class ArtifactDetailsHeader extends DefaultGridHeader {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Constructor.
-         *
-         * @param managementUIState
-         */
-        ArtifactDetailsHeader() {
-            super(artifactDetailsCaption, getI18n());
-
-            this.setHeaderMaximizeSupport(
-                    new ArtifactDetailsHeaderMaxSupport(this, SPUIDefinitions.EXPAND_ARTIFACT_DETAILS));
-        }
-
-        /**
-         * Initializes the header.
-         */
-        @Override
-        public ArtifactDetailsHeader init() {
-            super.init();
-            addStyleName("artifact-details-header");
-            restorePreviousState();
-            return this;
-        }
-
-        /**
-         * Updates header with target name.
-         *
-         * @param swModuleNameVersion
-         *            name and version of the software module
-         */
-        public void updateArtifactDetailsHeader(final String swModuleNameVersion) {
-            updateTitle(getArtifactDetailsCaption(swModuleNameVersion));
-        }
-
-        /**
-         * Restores the previous min-max state.
-         */
-        private void restorePreviousState() {
-            if (hasHeaderMaximizeSupport() && artifactUploadState.isArtifactDetailsMaximized()) {
-                getHeaderMaximizeSupport().showMinIcon();
-            }
-        }
-    }
-
-    /**
-     * Min-max support for header.
-     */
-    class ArtifactDetailsHeaderMaxSupport extends AbstractHeaderMaximizeSupport {
-
-        private final DefaultGridHeader abstractGridHeader;
-
-        /**
-         * Constructor.
-         *
-         * @param abstractGridHeader
-         * @param maximizeButtonId
-         */
-        protected ArtifactDetailsHeaderMaxSupport(final DefaultGridHeader abstractGridHeader,
-                final String maximizeButtonId) {
-            abstractGridHeader.super(maximizeButtonId);
-            this.abstractGridHeader = abstractGridHeader;
-        }
-
-        @Override
-        protected void maximize() {
-            // TODO: check if it is needed
-            // details.populateMasterDataAndRecreateContainer(masterForDetails);
-            getEventBus().publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MAXIMIZED));
-            artifactUploadState.setArtifactDetailsMaximized(true);
-        }
-
-        @Override
-        protected void minimize() {
-            getEventBus().publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MINIMIZED));
-            artifactUploadState.setArtifactDetailsMaximized(false);
-        }
-
-        /**
-         * Gets the grid header the maximize support is for.
-         *
-         * @return grid header
-         */
-        protected DefaultGridHeader getGridHeader() {
-            return abstractGridHeader;
-        }
     }
 }
