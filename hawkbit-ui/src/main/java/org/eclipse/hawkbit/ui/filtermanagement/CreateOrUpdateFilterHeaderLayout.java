@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
-import org.eclipse.hawkbit.ui.components.SPUIButton;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
@@ -41,7 +40,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
@@ -51,11 +49,8 @@ import com.vaadin.v7.ui.VerticalLayout;
 /**
  * A Vaadin layout for create or update the target filter.
  */
-public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button.ClickListener {
-
-    private static final long serialVersionUID = 7474232427119031474L;
-
-    private static final String BREADCRUMB_CUSTOM_FILTERS = "breadcrumb.target.filter.custom.filters";
+public class CreateOrUpdateFilterHeaderLayout extends VerticalLayout implements Button.ClickListener {
+    private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;
 
@@ -75,17 +70,11 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
 
     private final AutoCompleteTextFieldComponent queryTextField;
 
-    private Button breadcrumbButton;
-
-    private Label breadcrumbName;
-
     private Label headerCaption;
 
     private TextField nameTextField;
 
     private Label nameLabel;
-
-    private SPUIButton closeIcon;
 
     private Button saveButton;
 
@@ -105,7 +94,7 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
 
     private LayoutClickListener nameLayoutClickListner;
 
-    CreateOrUpdateFilterHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    CreateOrUpdateFilterHeaderLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final FilterManagementUIState filterManagementUIState,
             final TargetFilterQueryManagement targetFilterQueryManagement, final SpPermissionChecker permissionChecker,
             final UINotification notification, final UiProperties uiProperties, final EntityFactory entityFactory,
@@ -152,7 +141,6 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
             oldFilterName = query.getName();
             oldFilterQuery = query.getQuery();
         });
-        breadcrumbName.setValue(nameLabel.getValue());
         queryTextField.showValidationSuccesIcon(filterManagementUIState.getFilterQueryValue());
         titleFilterIconsLayout.addStyleName(SPUIStyleDefinitions.TARGET_FILTER_CAPTION_LAYOUT);
         headerCaption.setVisible(false);
@@ -163,16 +151,12 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
         queryTextField.clear();
         queryTextField.focus();
         headerCaption.setVisible(true);
-        breadcrumbName.setValue(headerCaption.getValue());
         nameLabel.setValue("");
         saveButton.setEnabled(false);
         titleFilterIconsLayout.removeStyleName(SPUIStyleDefinitions.TARGET_FILTER_CAPTION_LAYOUT);
     }
 
     private void createComponents() {
-
-        breadcrumbButton = createBreadcrumbButton();
-
         headerCaption = new LabelBuilderV7().name(i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER))
                 .buildCaptionLabel();
 
@@ -187,19 +171,6 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
 
         helpLink = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getTargetfilterView());
-
-        closeIcon = createSearchResetIcon();
-    }
-
-    private Button createBreadcrumbButton() {
-        final Button createFilterViewLink = SPUIComponentProvider.getButton(null, "", "", null, false, null,
-                SPUIButtonStyleNoBorder.class);
-        createFilterViewLink.setStyleName(ValoTheme.LINK_SMALL + " " + "on-focus-no-border link rollout-caption-links");
-        createFilterViewLink.setDescription(i18n.getMessage(BREADCRUMB_CUSTOM_FILTERS));
-        createFilterViewLink.setCaption(i18n.getMessage(BREADCRUMB_CUSTOM_FILTERS));
-        createFilterViewLink.addClickListener(value -> showCustomFiltersView());
-
-        return createFilterViewLink;
     }
 
     private TextField createNameTextField() {
@@ -250,19 +221,11 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
         titleFilterIconsLayout.addComponents(headerCaption, captionLayout);
         titleFilterIconsLayout.setSpacing(true);
 
-        final HorizontalLayout breadcrumbLayout = new HorizontalLayout();
-        breadcrumbLayout.addComponent(breadcrumbButton);
-        breadcrumbLayout.addComponent(new Label(">"));
-        breadcrumbName = new LabelBuilderV7().buildCaptionLabel();
-        breadcrumbLayout.addComponent(breadcrumbName);
-        breadcrumbName.addStyleName("breadcrumbPaddingLeft");
-
         final HorizontalLayout titleFilterLayout = new HorizontalLayout();
         titleFilterLayout.setSizeFull();
-        titleFilterLayout.addComponents(titleFilterIconsLayout, closeIcon);
+        titleFilterLayout.addComponents(titleFilterIconsLayout);
         titleFilterLayout.setExpandRatio(titleFilterIconsLayout, 1.0F);
         titleFilterLayout.setComponentAlignment(titleFilterIconsLayout, Alignment.TOP_LEFT);
-        titleFilterLayout.setComponentAlignment(closeIcon, Alignment.TOP_RIGHT);
 
         final HorizontalLayout iconLayout = new HorizontalLayout();
         iconLayout.setSizeUndefined();
@@ -274,11 +237,10 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
         queryLayout.setSpacing(true);
         queryLayout.addComponents(queryTextField, iconLayout);
 
-        addComponent(breadcrumbLayout);
         addComponent(titleFilterLayout);
         addComponent(queryLayout);
         setSpacing(true);
-        addStyleName(SPUIStyleDefinitions.WIDGET_TITLE);
+        // TODO: fix top-border
         addStyleName("bordered-layout");
     }
 
@@ -310,22 +272,6 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
 
     private static boolean isNameAndQueryEmpty(final String name, final String query) {
         return StringUtils.isEmpty(name) && StringUtils.isEmpty(query);
-    }
-
-    private SPUIButton createSearchResetIcon() {
-        final SPUIButton button = (SPUIButton) SPUIComponentProvider.getButton(
-                UIComponentIdProvider.CUSTOM_FILTER_CLOSE, "", i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLOSE), null,
-                false, FontAwesome.TIMES, SPUIButtonStyleNoBorder.class);
-        button.addClickListener(event -> closeFilterLayout());
-        return button;
-    }
-
-    private void closeFilterLayout() {
-        filterManagementUIState.setFilterQueryValue(null);
-        filterManagementUIState.setCreateFilterBtnClicked(false);
-        filterManagementUIState.setEditViewDisplayed(false);
-        filterManagementUIState.setTfQuery(null);
-        eventBus.publish(this, CustomFilterUIEvent.EXIT_CREATE_OR_UPDATE_FILTRER_VIEW);
     }
 
     private Button createSaveButton() {
@@ -416,9 +362,4 @@ public class CreateOrUpdateFilterHeader extends VerticalLayout implements Button
         }
         return true;
     }
-
-    private void showCustomFiltersView() {
-        eventBus.publish(this, CustomFilterUIEvent.SHOW_FILTER_MANAGEMENT);
-    }
-
 }

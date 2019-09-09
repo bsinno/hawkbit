@@ -53,7 +53,9 @@ public class FilterManagementView extends VerticalLayout implements View {
 
     private final TargetFilterGrid targetFilterGrid;
 
-    private final CreateOrUpdateFilterHeader createNewFilterHeader;
+    private final TargetFilterDetailsHeader targetFilterDetailsHeader;
+
+    private final CreateOrUpdateFilterHeaderLayout createNewFilterHeaderLayout;
 
     private final CreateOrUpdateFilterTargetGrid createNewFilterTargetGrid;
 
@@ -73,7 +75,8 @@ public class FilterManagementView extends VerticalLayout implements View {
         this.targetFilterHeader = new TargetFilterHeader(eventBus, filterManagementUIState, permissionChecker, i18n);
         this.targetFilterGrid = new TargetFilterGrid(i18n, notification, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, targetManagement, distributionSetManagement, permissionChecker);
-        this.createNewFilterHeader = new CreateOrUpdateFilterHeader(i18n, eventBus, filterManagementUIState,
+        this.targetFilterDetailsHeader = new TargetFilterDetailsHeader(eventBus, filterManagementUIState, i18n);
+        this.createNewFilterHeaderLayout = new CreateOrUpdateFilterHeaderLayout(i18n, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, permissionChecker, notification, uiProperties, entityFactory,
                 queryTextField);
         this.createNewFilterTargetGrid = new CreateOrUpdateFilterTargetGrid(i18n, eventBus, targetManagement,
@@ -115,8 +118,7 @@ public class FilterManagementView extends VerticalLayout implements View {
             viewTargetFilterDetailLayout();
         } else if (custFilterUIEvent == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK) {
             this.getUI().access(this::viewCreateTargetFilterLayout);
-        } else if (custFilterUIEvent == CustomFilterUIEvent.EXIT_CREATE_OR_UPDATE_FILTRER_VIEW
-                || custFilterUIEvent == CustomFilterUIEvent.SHOW_FILTER_MANAGEMENT) {
+        } else if (custFilterUIEvent == CustomFilterUIEvent.SHOW_FILTER_MANAGEMENT) {
             UI.getCurrent().access(this::viewListView);
         }
     }
@@ -137,8 +139,10 @@ public class FilterManagementView extends VerticalLayout implements View {
         tableHeaderLayout.setSpacing(false);
         tableHeaderLayout.setMargin(false);
         tableHeaderLayout.setStyleName("table-layout");
-        tableHeaderLayout.addComponent(createNewFilterHeader);
-        tableHeaderLayout.setComponentAlignment(createNewFilterHeader, Alignment.TOP_CENTER);
+        tableHeaderLayout.addComponent(targetFilterDetailsHeader);
+        tableHeaderLayout.setComponentAlignment(targetFilterDetailsHeader, Alignment.TOP_CENTER);
+        tableHeaderLayout.addComponent(createNewFilterHeaderLayout);
+        tableHeaderLayout.setComponentAlignment(createNewFilterHeaderLayout, Alignment.TOP_CENTER);
         tableHeaderLayout.addComponent(createNewFilterTargetGrid);
         tableHeaderLayout.setComponentAlignment(createNewFilterTargetGrid, Alignment.TOP_CENTER);
         tableHeaderLayout.setExpandRatio(createNewFilterTargetGrid, 1.0F);

@@ -20,9 +20,9 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.UI;
 import com.vaadin.v7.shared.ui.label.ContentMode;
 import com.vaadin.v7.ui.Label;
-import com.vaadin.ui.UI;
 
 /**
  * Count message label which display current filter details and details on
@@ -50,7 +50,7 @@ public class TargetFilterCountMessageLabel extends Label {
     void onEvent(final CustomFilterUIEvent custFUIEvent) {
         if (custFUIEvent == CustomFilterUIEvent.TARGET_DETAILS_VIEW
                 || custFUIEvent == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK
-                || custFUIEvent == CustomFilterUIEvent.EXIT_CREATE_OR_UPDATE_FILTRER_VIEW
+                || custFUIEvent == CustomFilterUIEvent.SHOW_FILTER_MANAGEMENT
                 || custFUIEvent == CustomFilterUIEvent.UPDATE_TARGET_FILTER_SEARCH_ICON) {
             UI.getCurrent().access(this::displayTargetFilterMessage);
         }
