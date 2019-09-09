@@ -34,9 +34,7 @@ import com.vaadin.ui.Component;
 public class TargetTagFilterLayout extends AbstractFilterLayout implements RefreshableContainer {
     private static final long serialVersionUID = 1L;
 
-    private final VaadinMessageSource i18n;
     private final ManagementUIState managementUIState;
-    private final transient UIEventBus eventBus;
 
     private final TargetTagFilterHeader targetTagFilterHeader;
     private final MultipleTargetFilter multipleTargetFilter;
@@ -65,9 +63,9 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
             final SpPermissionChecker permChecker, final UIEventBus eventBus, final UINotification notification,
             final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
             final TargetTagManagement targetTagManagement, final TargetManagement targetManagement) {
-        this.i18n = i18n;
+        super(eventBus);
+
         this.managementUIState = managementUIState;
-        this.eventBus = eventBus;
 
         // TODO: check if we could find better solution as to pass
         // targetTagButtons into targetTagFilterHeader
@@ -77,9 +75,7 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
                 notification, entityFactory, targetTagManagement, multipleTargetFilter.getTargetTagFilterButtons());
 
         buildLayout();
-
         restoreState();
-        eventBus.subscribe(this);
     }
 
     @Override

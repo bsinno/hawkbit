@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
+import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Component;
@@ -39,8 +40,9 @@ public class ActionHistoryGridHeader extends AbstractGridHeader {
 
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
-    public ActionHistoryGridHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState) {
-        super(i18n, null, null);
+    public ActionHistoryGridHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
+            final UIEventBus eventBus) {
+        super(i18n, null, eventBus);
 
         this.managementUIState = managementUIState;
 

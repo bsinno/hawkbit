@@ -67,7 +67,7 @@ public class DistributionTagFilterHeader extends AbstractGridHeader {
         this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.DIST_TAG_MENU_BAR_ID,
                 permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
                 permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
-                getDeleteButtonCommand());
+                getDeleteButtonCommand(), getCloseButtonCommand());
         this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.HIDE_DS_TAGS,
                 this::hideFilterButtonLayout);
         addHeaderSupports(Arrays.asList(crudMenuHeaderSupport, closeHeaderSupport));
@@ -100,17 +100,25 @@ public class DistributionTagFilterHeader extends AbstractGridHeader {
         };
     }
 
+    private Command getCloseButtonCommand() {
+        return command -> {
+            distributionTagButtons.hideActionColumns();
+            eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+        };
+    }
+
     private void hideFilterButtonLayout() {
         managementUIState.setDistTagFilterClosed(true);
         eventBus.publish(this, ManagementUIEvent.HIDE_DISTRIBUTION_TAG_LAYOUT);
     }
 
+    // TODO: Do we really need this listener, or should we activate mode in
+    // commands?
     @EventBusListenerMethod(scope = EventScope.UI)
     private void onEvent(final DistributionSetTagFilterHeaderEvent event) {
         if (FilterHeaderEnum.SHOW_MENUBAR == event.getFilterHeaderEnum()
                 && crudMenuHeaderSupport.isEditModeActivated()) {
             crudMenuHeaderSupport.activateSelectMode();
-            distributionTagButtons.hideActionColumns();
         } else if (FilterHeaderEnum.SHOW_CANCEL_BUTTON == event.getFilterHeaderEnum()) {
             crudMenuHeaderSupport.activateEditMode();
         }

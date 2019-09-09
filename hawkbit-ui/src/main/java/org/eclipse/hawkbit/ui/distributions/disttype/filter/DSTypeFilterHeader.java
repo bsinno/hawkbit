@@ -93,7 +93,7 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
         this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.DIST_TAG_MENU_BAR_ID,
                 permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
                 permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
-                getDeleteButtonCommand());
+                getDeleteButtonCommand(), getCloseButtonCommand());
         this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.HIDE_FILTER_DIST_TYPE,
                 this::hideFilterButtonLayout);
         addHeaderSupports(Arrays.asList(crudMenuHeaderSupport, closeHeaderSupport));
@@ -126,17 +126,25 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
         };
     }
 
+    private Command getCloseButtonCommand() {
+        return command -> {
+            dSTypeFilterButtons.hideActionColumns();
+            eventBus.publish(this, new DistributionSetTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+        };
+    }
+
     private void hideFilterButtonLayout() {
         manageDistUIState.setDistTypeFilterClosed(true);
         eventBus.publish(this, DistributionsUIEvent.HIDE_DIST_FILTER_BY_TYPE);
     }
 
+    // TODO: Do we really need this listener, or should we activate mode in
+    // commands?
     @EventBusListenerMethod(scope = EventScope.UI)
     private void onEvent(final DistributionSetTypeFilterHeaderEvent event) {
         if (FilterHeaderEnum.SHOW_MENUBAR == event.getFilterHeaderEnum()
                 && crudMenuHeaderSupport.isEditModeActivated()) {
             crudMenuHeaderSupport.activateSelectMode();
-            dSTypeFilterButtons.hideActionColumns();
         } else if (FilterHeaderEnum.SHOW_CANCEL_BUTTON == event.getFilterHeaderEnum()) {
             crudMenuHeaderSupport.activateEditMode();
         }

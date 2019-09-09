@@ -30,6 +30,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
@@ -43,9 +44,9 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
 
     private final VaadinMessageSource i18n;
     private final ManagementUIState managementUIState;
-    private final UIEventBus eventBus;
 
     private final DistributionTagFilterHeader distributionTagFilterHeader;
+    private final Button noTagButton;
     private final DistributionTagButtons distributionTagButtons;
 
     /**
@@ -70,10 +71,12 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
             final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final DistributionSetTagManagement distributionSetTagManagement, final EntityFactory entityFactory,
             final UINotification uiNotification, final DistributionSetManagement distributionSetManagement) {
+        super(eventBus);
+
         this.i18n = i18n;
         this.managementUIState = managementUIState;
-        this.eventBus = eventBus;
 
+        this.noTagButton = buildNoTagButton();
         // TODO: check if we could find better solution as to pass
         // distributionTagButtons into distributionTagFilterHeader
         this.distributionTagButtons = new DistributionTagButtons(eventBus, managementUIState, entityFactory, i18n,
@@ -82,9 +85,7 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
                 eventBus, distributionSetTagManagement, entityFactory, uiNotification, distributionTagButtons);
 
         buildLayout();
-
         restoreState();
-        eventBus.subscribe(this);
     }
 
     @Override
@@ -92,14 +93,20 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
         return distributionTagFilterHeader;
     }
 
+    // TODO: remove duplication with other type layouts
     @Override
     protected Component getFilterButtons() {
         final VerticalLayout filterButtonsLayout = new VerticalLayout();
         filterButtonsLayout.setMargin(false);
         filterButtonsLayout.setSpacing(false);
 
-        filterButtonsLayout.addComponent(buildNoTagButton());
+        filterButtonsLayout.addComponent(noTagButton);
         filterButtonsLayout.addComponent(distributionTagButtons);
+
+        filterButtonsLayout.setComponentAlignment(noTagButton, Alignment.TOP_LEFT);
+        filterButtonsLayout.setComponentAlignment(distributionTagButtons, Alignment.TOP_LEFT);
+
+        filterButtonsLayout.setExpandRatio(distributionTagButtons, 1.0F);
 
         return filterButtonsLayout;
     }

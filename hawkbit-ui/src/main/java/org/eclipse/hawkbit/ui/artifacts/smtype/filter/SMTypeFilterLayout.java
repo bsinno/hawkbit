@@ -20,7 +20,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Software module type filter buttons layout.
@@ -55,6 +57,8 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     public SMTypeFilterLayout(final ArtifactUploadState artifactUploadState, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final UIEventBus eventBus, final EntityFactory entityFactory,
             final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
+        super(eventBus);
+
         this.artifactUploadState = artifactUploadState;
 
         this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, artifactUploadState, softwareModuleTypeManagement,
@@ -63,7 +67,6 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
                 entityFactory, uiNotification, softwareModuleTypeManagement, sMTypeFilterButtons);
 
         buildLayout();
-
         restoreState();
     }
 
@@ -72,9 +75,18 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
         return smTypeFilterHeader;
     }
 
+    // TODO: remove duplication with other type layouts
     @Override
     protected Component getFilterButtons() {
-        return sMTypeFilterButtons;
+        final VerticalLayout filterButtonsLayout = new VerticalLayout();
+        filterButtonsLayout.setMargin(false);
+        filterButtonsLayout.setSpacing(false);
+
+        filterButtonsLayout.addComponent(sMTypeFilterButtons);
+        filterButtonsLayout.setComponentAlignment(sMTypeFilterButtons, Alignment.TOP_LEFT);
+        filterButtonsLayout.setExpandRatio(sMTypeFilterButtons, 1.0F);
+
+        return filterButtonsLayout;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

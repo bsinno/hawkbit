@@ -58,7 +58,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
 
         this.managementUIState = managementUIState;
 
-        this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, managementUIState);
+        this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, managementUIState, eventBus);
         this.actionHistoryGrid = new ActionHistoryGrid(getI18n(), deploymentManagement, getEventBus(), notification,
                 managementUIState, permChecker);
 

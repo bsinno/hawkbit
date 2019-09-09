@@ -98,6 +98,7 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
         this.addTab(getComplexFilterTab()).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
     }
 
+    // TODO: use AbstractFilterLayout here
     private Component getSimpleFilterTab() {
         simpleFilterTab = new VerticalLayout();
         targetTagTableLayout = new VerticalLayout();
@@ -144,7 +145,9 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
 
     @Override
     public void selectedTabChange(final SelectedTabChangeEvent event) {
-        if (i18n.getMessage("caption.filter.simple").equals(getSelectedTab().getCaption())) {
+        final String selectedTabId = getTab(getSelectedTab()).getId();
+
+        if (UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB.equals(selectedTabId)) {
             managementUIState.setCustomFilterSelected(false);
             eventBus.publish(this, ManagementUIEvent.RESET_TARGET_FILTER_QUERY);
         } else {

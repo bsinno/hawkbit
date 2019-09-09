@@ -358,8 +358,10 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
 
         // TODO: we register details here because ActionHistoryGrid allows
         // selection only in maximized mode
-        actionHistoryLayout.registerDetails(actionStatusLayout.getMasterDetailsSupport());
-        actionStatusLayout.registerDetails(actionStatusMsgLayout.getMasterDetailsSupport());
+        // TODO: move to createMaximizedContent in the grid, because selection
+        // mode is not available at this time
+        // actionHistoryLayout.registerDetails(actionStatusLayout.getMasterDetailsSupport());
+        // actionStatusLayout.registerDetails(actionStatusMsgLayout.getMasterDetailsSupport());
     }
 
     private void minimizeTargetTable() {

@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.header.support;
 
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -29,6 +28,7 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
     private final Command addCommand;
     private final Command updateCommand;
     private final Command deleteCommand;
+    private final Command closeCommand;
 
     private final MenuBar crudMenuBar;
     private final MenuItem crudMenuItem;
@@ -37,7 +37,8 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
 
     public CrudMenuHeaderSupport(final VaadinMessageSource i18n, final String crudMenuBarId,
             final boolean hasCreatePermission, final boolean hasUpdatePermission, final boolean hasDeletePermission,
-            final Command addCommand, final Command updateCommand, final Command deleteCommand) {
+            final Command addCommand, final Command updateCommand, final Command deleteCommand,
+            final Command closeCommand) {
         this.i18n = i18n;
 
         this.crudMenuBarId = crudMenuBarId;
@@ -47,6 +48,7 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         this.addCommand = addCommand;
         this.updateCommand = updateCommand;
         this.deleteCommand = deleteCommand;
+        this.closeCommand = closeCommand;
 
         this.crudMenuBar = createCrudMenuBar();
         this.crudMenuItem = crudMenuBar.addItem("");
@@ -60,7 +62,7 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
 
         menuBar.setId(crudMenuBarId);
         menuBar.setStyleName(ValoTheme.MENUBAR_BORDERLESS);
-        menuBar.addStyleName(SPUIStyleDefinitions.CONFIG_MENU_BAR_POSITION);
+        menuBar.addStyleName("crud-menubar");
 
         return menuBar;
     }
@@ -82,7 +84,6 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
 
     public void activateSelectMode() {
         crudMenuItem.setIcon(VaadinIcons.COG);
-        crudMenuItem.setStyleName(SPUIStyleDefinitions.CONFIG_MENU_BAR_ITEMS);
         crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE));
         crudMenuItem.setCommand(null);
 
@@ -91,9 +92,8 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
 
     public void activateEditMode() {
         crudMenuItem.setIcon(VaadinIcons.CLOSE_CIRCLE);
-        crudMenuItem.setStyleName(null);
         crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE_CLOSE));
-        crudMenuItem.setCommand(menuItem -> activateSelectMode());
+        crudMenuItem.setCommand(closeCommand);
 
         isEditModeActivated = true;
     }
@@ -105,5 +105,13 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
 
     public boolean isEditModeActivated() {
         return isEditModeActivated;
+    }
+
+    public void enableCrudMenu() {
+        crudMenuBar.setEnabled(true);
+    }
+
+    public void disableCrudMenu() {
+        crudMenuBar.setEnabled(false);
     }
 }

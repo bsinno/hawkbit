@@ -23,7 +23,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Distribution Set Type filter buttons layout.
@@ -62,6 +64,8 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
             final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement,
             final DistributionSetManagement distributionSetManagement, final SystemManagement systemManagement) {
+        super(eventBus);
+
         this.manageDistUIState = manageDistUIState;
 
         this.dSTypeFilterButtons = new DSTypeFilterButtons(eventBus, manageDistUIState, distributionSetTypeManagement,
@@ -71,7 +75,6 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
                 uiNotification, softwareModuleTypeManagement, distributionSetTypeManagement, dSTypeFilterButtons);
 
         buildLayout();
-
         restoreState();
     }
 
@@ -80,9 +83,18 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
         return dsTypeFilterHeader;
     }
 
+    // TODO: remove duplication with other type layouts
     @Override
     protected Component getFilterButtons() {
-        return dSTypeFilterButtons;
+        final VerticalLayout filterButtonsLayout = new VerticalLayout();
+        filterButtonsLayout.setMargin(false);
+        filterButtonsLayout.setSpacing(false);
+
+        filterButtonsLayout.addComponent(dSTypeFilterButtons);
+        filterButtonsLayout.setComponentAlignment(dSTypeFilterButtons, Alignment.TOP_LEFT);
+        filterButtonsLayout.setExpandRatio(dSTypeFilterButtons, 1.0F);
+
+        return filterButtonsLayout;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

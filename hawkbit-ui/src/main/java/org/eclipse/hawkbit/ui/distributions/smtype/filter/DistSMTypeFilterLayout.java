@@ -20,7 +20,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Software Module Type filter layout.
@@ -32,7 +34,7 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     private final ManageDistUIState manageDistUIState;
 
     private final DistSMTypeFilterHeader distSMTypeFilterHeader;
-    private final DistSMTypeFilterButtons filterButtons;
+    private final DistSMTypeFilterButtons distSMTypeFilterButtons;
 
     /**
      * Constructor
@@ -56,17 +58,17 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
             final SpPermissionChecker permChecker, final ManageDistUIState manageDistUIState,
             final EntityFactory entityFactory, final UINotification uiNotification,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
+        super(eventBus);
+
         this.manageDistUIState = manageDistUIState;
 
-        this.filterButtons = new DistSMTypeFilterButtons(eventBus, manageDistUIState, softwareModuleTypeManagement,
-                i18n, entityFactory, permChecker, uiNotification);
+        this.distSMTypeFilterButtons = new DistSMTypeFilterButtons(eventBus, manageDistUIState,
+                softwareModuleTypeManagement, i18n, entityFactory, permChecker, uiNotification);
         this.distSMTypeFilterHeader = new DistSMTypeFilterHeader(i18n, permChecker, eventBus, manageDistUIState,
-                entityFactory, uiNotification, softwareModuleTypeManagement, filterButtons);
+                entityFactory, uiNotification, softwareModuleTypeManagement, distSMTypeFilterButtons);
 
         buildLayout();
-
         restoreState();
-        eventBus.subscribe(this);
     }
 
     @Override
@@ -74,9 +76,18 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
         return distSMTypeFilterHeader;
     }
 
+    // TODO: remove duplication with other type layouts
     @Override
     protected Component getFilterButtons() {
-        return filterButtons;
+        final VerticalLayout filterButtonsLayout = new VerticalLayout();
+        filterButtonsLayout.setMargin(false);
+        filterButtonsLayout.setSpacing(false);
+
+        filterButtonsLayout.addComponent(distSMTypeFilterButtons);
+        filterButtonsLayout.setComponentAlignment(distSMTypeFilterButtons, Alignment.TOP_LEFT);
+        filterButtonsLayout.setExpandRatio(distSMTypeFilterButtons, 1.0F);
+
+        return filterButtonsLayout;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

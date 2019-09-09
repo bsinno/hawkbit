@@ -66,7 +66,7 @@ public class TargetTagFilterHeader extends AbstractGridHeader {
         this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.TARGET_MENU_BAR_ID,
                 permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
                 permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
-                getDeleteButtonCommand());
+                getDeleteButtonCommand(), getCloseButtonCommand());
         this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.HIDE_TARGET_TAGS,
                 this::hideFilterButtonLayout);
         addHeaderSupports(Arrays.asList(crudMenuHeaderSupport, closeHeaderSupport));
@@ -99,19 +99,36 @@ public class TargetTagFilterHeader extends AbstractGridHeader {
         };
     }
 
+    private Command getCloseButtonCommand() {
+        return command -> {
+            targetTagButtons.hideActionColumns();
+            eventBus.publish(this, new TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+        };
+    }
+
     private void hideFilterButtonLayout() {
         managementUIState.setTargetTagFilterClosed(true);
         eventBus.publish(this, ManagementUIEvent.HIDE_TARGET_TAG_LAYOUT);
     }
 
+    // TODO: Do we really need this listener, or should we activate mode in
+    // commands?
     @EventBusListenerMethod(scope = EventScope.UI)
     private void onEvent(final TargetTagFilterHeaderEvent event) {
         if (FilterHeaderEnum.SHOW_MENUBAR == event.getFilterHeaderEnum()
                 && crudMenuHeaderSupport.isEditModeActivated()) {
             crudMenuHeaderSupport.activateSelectMode();
-            targetTagButtons.hideActionColumns();
         } else if (FilterHeaderEnum.SHOW_CANCEL_BUTTON == event.getFilterHeaderEnum()) {
             crudMenuHeaderSupport.activateEditMode();
+        }
+    }
+
+    @EventBusListenerMethod(scope = EventScope.UI)
+    private void onEvent(final ManagementUIEvent event) {
+        if (event == ManagementUIEvent.RESET_TARGET_FILTER_QUERY) {
+            crudMenuHeaderSupport.enableCrudMenu();
+        } else if (event == ManagementUIEvent.RESET_SIMPLE_FILTERS) {
+            crudMenuHeaderSupport.disableCrudMenu();
         }
     }
 }

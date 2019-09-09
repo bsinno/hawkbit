@@ -18,7 +18,10 @@
   //Tag layout style
   .filter-btns-main-layout {
     background: none repeat scroll 0 0 $widget-bg;
-    border-radius: $v-border-radius;
+  }
+
+  .filter-btns-layout {
+    border-radius: 0 0 $v-border-radius $v-border-radius;
     border: 1px solid $widget-border-color;
   }
 
