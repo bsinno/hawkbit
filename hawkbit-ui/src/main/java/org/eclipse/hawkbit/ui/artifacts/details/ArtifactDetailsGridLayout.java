@@ -15,7 +15,6 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent.SoftwareModuleEventType;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyArtifact;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
@@ -32,8 +31,7 @@ import com.vaadin.ui.UI;
 /**
  * Display the details of the artifacts for a selected software module.
  */
-public class ArtifactDetailsLayout extends AbstractGridComponentLayout<ProxyArtifact> {
-
+public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
     private final ArtifactUploadState artifactUploadState;
@@ -57,30 +55,20 @@ public class ArtifactDetailsLayout extends AbstractGridComponentLayout<ProxyArti
      * @param artifactManagement
      *            ArtifactManagement
      */
-    public ArtifactDetailsLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    public ArtifactDetailsGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ArtifactUploadState artifactUploadState, final UINotification notification,
             final ArtifactManagement artifactManagement, final SpPermissionChecker permChecker) {
         super(i18n, eventBus);
 
         this.artifactUploadState = artifactUploadState;
 
-        this.artifactDetailsHeader = new ArtifactDetailsGridHeader(i18n, artifactUploadState);
+        this.artifactDetailsHeader = new ArtifactDetailsGridHeader(i18n, artifactUploadState, eventBus);
         this.artifactDetailsGrid = new ArtifactDetailsGrid(eventBus, i18n, permChecker, notification,
                 artifactManagement);
 
         this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(artifactDetailsGrid);
 
-        init();
-    }
-
-    @Override
-    public ArtifactDetailsGridHeader getGridHeader() {
-        return artifactDetailsHeader;
-    }
-
-    @Override
-    public ArtifactDetailsGrid getGrid() {
-        return artifactDetailsGrid;
+        buildLayout(artifactDetailsHeader, artifactDetailsGrid);
     }
 
     // TODO: check if it can be removed with registerDetails in
@@ -116,5 +104,9 @@ public class ArtifactDetailsLayout extends AbstractGridComponentLayout<ProxyArti
 
     public MasterDetailsSupport<ProxySoftwareModule, Long> getMasterDetailsSupport() {
         return masterDetailsSupport;
+    }
+
+    public ArtifactDetailsGrid getArtifactDetailsGrid() {
+        return artifactDetailsGrid;
     }
 }

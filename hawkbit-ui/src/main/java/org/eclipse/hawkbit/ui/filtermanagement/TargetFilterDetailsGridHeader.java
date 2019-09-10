@@ -34,7 +34,7 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * Layout for Custom Filter view
  */
-public class TargetFilterDetailsHeader extends AbstractGridHeader {
+public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
     private static final String BREADCRUMB_CUSTOM_FILTERS = "breadcrumb.target.filter.custom.filters";
@@ -55,7 +55,7 @@ public class TargetFilterDetailsHeader extends AbstractGridHeader {
      * @param i18n
      *            VaadinMessageSource
      */
-    public TargetFilterDetailsHeader(final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
+    public TargetFilterDetailsGridHeader(final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
             final VaadinMessageSource i18n) {
         super(i18n, null, eventBus);
 

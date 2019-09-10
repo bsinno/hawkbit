@@ -41,7 +41,6 @@ import com.vaadin.v7.ui.VerticalLayout;
  * @param <T>
  */
 public abstract class AbstractTableDetailsLayout<T extends ProxyNamedEntity> extends VerticalLayout {
-
     private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;

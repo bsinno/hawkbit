@@ -79,7 +79,8 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
         setSizeFull();
         setId(getGridId());
         if (!hasSelectionSupport()) {
-            setSelectionMode(SelectionMode.NONE);
+            selectionSupport = new SelectionSupport<>(this);
+            selectionSupport.disableSelection();
         }
         setColumnReorderingAllowed(true);
         setDataProvider(getFilterDataProvider());
@@ -173,7 +174,7 @@ public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableC
      *         <code>false</code>
      */
     public boolean hasSelectionSupport() {
-        return selectionSupport != null;
+        return selectionSupport != null && !selectionSupport.isNoSelectionModel();
     }
 
     /**

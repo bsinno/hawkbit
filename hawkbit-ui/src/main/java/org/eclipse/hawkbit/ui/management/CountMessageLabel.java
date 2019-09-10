@@ -30,16 +30,15 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.DataCommunicator;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Label;
 
 /**
  * Count message label which display current filter details and details on
  * pinning.
  */
 public class CountMessageLabel extends Label {
-
     private static final long serialVersionUID = 1L;
 
     private final transient TargetManagement targetManagement;
@@ -72,8 +71,14 @@ public class CountMessageLabel extends Label {
         this.managementUIState = managementUIState;
         this.targetGridDataCommunicator = targetGridDataCommunicator;
 
-        applyStyle();
+        init();
         eventBus.subscribe(this);
+    }
+
+    private void init() {
+        addStyleName(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
+        setContentMode(ContentMode.HTML);
+        setId(UIComponentIdProvider.COUNT_LABEL);
     }
 
     /**
@@ -112,12 +117,6 @@ public class CountMessageLabel extends Label {
             setValue("");
             displayTargetCountStatus();
         }
-    }
-
-    private void applyStyle() {
-        addStyleName(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
-        setContentMode(ContentMode.HTML);
-        setId(UIComponentIdProvider.COUNT_LABEL);
     }
 
     private void displayTargetCountStatus() {
@@ -169,7 +168,7 @@ public class CountMessageLabel extends Label {
 
     private StringBuilder getTotalTargetMessage() {
         if (managementUIState.getTargetsTruncated() != null) {
-            setIcon(FontAwesome.INFO_CIRCLE);
+            setIcon(VaadinIcons.INFO_CIRCLE);
             setDescription(i18n.getMessage("label.target.filter.truncated", managementUIState.getTargetsTruncated(),
                     SPUIDefinitions.MAX_TABLE_ENTRIES));
         } else {

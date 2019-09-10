@@ -40,7 +40,7 @@ import com.vaadin.ui.Window;
 /**
  * Header layout of rollout list view.
  */
-public class RolloutListHeader extends AbstractGridHeader {
+public class RolloutGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
     private final RolloutUIState rolloutUIState;
@@ -50,7 +50,7 @@ public class RolloutListHeader extends AbstractGridHeader {
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient AddHeaderSupport addHeaderSupport;
 
-    RolloutListHeader(final SpPermissionChecker permissionChecker, final RolloutUIState rolloutUIState,
+    RolloutGridHeader(final SpPermissionChecker permissionChecker, final RolloutUIState rolloutUIState,
             final UIEventBus eventBus, final RolloutManagement rolloutManagement,
             final TargetManagement targetManagement, final UINotification uiNotification,
             final UiProperties uiProperties, final EntityFactory entityFactory, final VaadinMessageSource i18n,

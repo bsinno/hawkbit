@@ -27,7 +27,7 @@ import com.vaadin.ui.Component;
 /**
  * Layout for Custom Filter view
  */
-public class TargetFilterHeader extends AbstractGridHeader {
+public class TargetFilterGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
     private final FilterManagementUIState filterManagementUIState;
@@ -47,7 +47,7 @@ public class TargetFilterHeader extends AbstractGridHeader {
      * @param i18n
      *            VaadinMessageSource
      */
-    public TargetFilterHeader(final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
+    public TargetFilterGridHeader(final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
             final SpPermissionChecker permissionChecker, final VaadinMessageSource i18n) {
         super(i18n, permissionChecker, eventBus);
 

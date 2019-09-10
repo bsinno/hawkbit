@@ -24,7 +24,6 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTarget
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -34,13 +33,13 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Rollout list view.
  */
-public class RolloutListView extends AbstractGridComponentLayout<ProxyRollout> {
+public class RolloutGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final RolloutListHeader rolloutListHeader;
-    private final RolloutListGrid rolloutListGrid;
+    private final RolloutGridHeader rolloutListHeader;
+    private final RolloutGrid rolloutListGrid;
 
-    public RolloutListView(final SpPermissionChecker permissionChecker, final RolloutUIState rolloutUIState,
+    public RolloutGridLayout(final SpPermissionChecker permissionChecker, final RolloutUIState rolloutUIState,
             final UIEventBus eventBus, final RolloutManagement rolloutManagement,
             final TargetManagement targetManagement, final UINotification uiNotification,
             final UiProperties uiProperties, final EntityFactory entityFactory, final VaadinMessageSource i18n,
@@ -58,30 +57,20 @@ public class RolloutListView extends AbstractGridComponentLayout<ProxyRollout> {
         final TargetFilterQueryDataProvider targetFilterQueryDataProvider = new TargetFilterQueryDataProvider(
                 targetFilterQueryManagement, new TargetFilterQueryToProxyTargetFilterMapper());
 
-        this.rolloutListHeader = new RolloutListHeader(permissionChecker, rolloutUIState, getEventBus(),
-                rolloutManagement, targetManagement, uiNotification, uiProperties, entityFactory, getI18n(),
-                targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, distributionSetDataProvider,
-                targetFilterQueryDataProvider);
-        this.rolloutListGrid = new RolloutListGrid(getI18n(), getEventBus(), rolloutManagement, uiNotification,
-                rolloutUIState, permissionChecker, targetManagement, entityFactory, uiProperties,
-                targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, tenantConfigManagement,
-                rolloutDataProvider, distributionSetDataProvider, targetFilterQueryDataProvider);
+        this.rolloutListHeader = new RolloutGridHeader(permissionChecker, rolloutUIState, eventBus, rolloutManagement,
+                targetManagement, uiNotification, uiProperties, entityFactory, i18n, targetFilterQueryManagement,
+                rolloutGroupManagement, quotaManagement, distributionSetDataProvider, targetFilterQueryDataProvider);
+        this.rolloutListGrid = new RolloutGrid(i18n, eventBus, rolloutManagement, uiNotification, rolloutUIState,
+                permissionChecker, targetManagement, entityFactory, uiProperties, targetFilterQueryManagement,
+                rolloutGroupManagement, quotaManagement, tenantConfigManagement, rolloutDataProvider,
+                distributionSetDataProvider, targetFilterQueryDataProvider);
 
-        init();
+        buildLayout(rolloutListHeader, rolloutListGrid);
     }
 
+    // TODO: check if it is correct
     @Override
     protected boolean doSubscribeToEventBus() {
         return false;
-    }
-
-    @Override
-    public RolloutListHeader getGridHeader() {
-        return rolloutListHeader;
-    }
-
-    @Override
-    public RolloutListGrid getGrid() {
-        return rolloutListGrid;
     }
 }

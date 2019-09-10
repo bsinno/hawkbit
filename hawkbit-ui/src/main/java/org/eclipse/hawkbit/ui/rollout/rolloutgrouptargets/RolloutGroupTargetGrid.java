@@ -37,7 +37,7 @@ import com.vaadin.ui.Label;
 /**
  * Grid component with targets of rollout group.
  */
-public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget, Void> {
+public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -57,7 +57,7 @@ public class RolloutGroupTargetsListGrid extends AbstractGrid<ProxyTarget, Void>
      * @param rolloutUIState
      *            RolloutUIState
      */
-    public RolloutGroupTargetsListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    public RolloutGroupTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutUIState rolloutUIState,
             final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider) {
         super(i18n, eventBus, null);

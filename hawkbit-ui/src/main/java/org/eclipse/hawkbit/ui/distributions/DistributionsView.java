@@ -35,8 +35,9 @@ import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.dd.criteria.DistributionsViewClientCriterion;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayout;
-import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetTableLayout;
-import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleTableLayout;
+import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridLayout;
+import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
+import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleGridLayout;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
@@ -82,9 +83,9 @@ public class DistributionsView extends AbstractNotificationView implements Brows
 
     private final DSTypeFilterLayout filterByDSTypeLayout;
 
-    private final DistributionSetTableLayout distributionTableLayout;
+    private final DistributionSetGridLayout distributionTableLayout;
 
-    private final SwModuleTableLayout softwareModuleTableLayout;
+    private final SwModuleGridLayout softwareModuleTableLayout;
 
     private final DistSMTypeFilterLayout filterBySMTypeLayout;
 
@@ -117,13 +118,13 @@ public class DistributionsView extends AbstractNotificationView implements Brows
         this.filterByDSTypeLayout = new DSTypeFilterLayout(manageDistUIState, i18n, permChecker, eventBus,
                 entityFactory, uiNotification, softwareModuleTypeManagement, distributionSetTypeManagement,
                 distributionSetManagement, systemManagement);
-        this.distributionTableLayout = new DistributionSetTableLayout(i18n, eventBus, permChecker, managementUIState,
-                manageDistUIState, softwareModuleManagement, distributionSetManagement, distributionSetTypeManagement,
-                targetManagement, entityFactory, uiNotification, distributionSetTagManagement,
-                distributionsViewClientCriterion, systemManagement, configManagement, systemSecurityContext);
-        this.softwareModuleTableLayout = new SwModuleTableLayout(i18n, uiNotification, eventBus,
+        this.distributionTableLayout = new DistributionSetGridLayout(i18n, eventBus, permChecker, managementUIState,
+                manageDistUIState, distributionSetManagement, distributionSetTypeManagement, targetManagement,
+                entityFactory, uiNotification, distributionSetTagManagement, systemManagement, configManagement,
+                systemSecurityContext);
+        this.softwareModuleTableLayout = new SwModuleGridLayout(i18n, uiNotification, eventBus,
                 softwareModuleManagement, softwareModuleTypeManagement, entityFactory, manageDistUIState, permChecker,
-                distributionsViewClientCriterion, artifactUploadState, artifactManagement);
+                artifactUploadState, artifactManagement);
 
         this.filterBySMTypeLayout = new DistSMTypeFilterLayout(eventBus, i18n, permChecker, manageDistUIState,
                 entityFactory, uiNotification, softwareModuleTypeManagement);
@@ -263,18 +264,16 @@ public class DistributionsView extends AbstractNotificationView implements Brows
 
     private void showOrHideFilterButtons(final int browserWidth) {
         if (browserWidth < SPUIDefinitions.REQ_MIN_BROWSER_WIDTH) {
-            filterByDSTypeLayout.setVisible(false);
-            distributionTableLayout.setShowFilterButtonVisible(true);
-            filterBySMTypeLayout.setVisible(false);
-            softwareModuleTableLayout.setShowFilterButtonVisible(true);
+            eventBus.publish(this, DistributionsUIEvent.HIDE_DIST_FILTER_BY_TYPE);
+            eventBus.publish(this, DistributionsUIEvent.HIDE_SM_FILTER_BY_TYPE);
         } else {
+            // TODO: check if managementUIState validation is correct here
             if (!manageDistUIState.isDistTypeFilterClosed()) {
-                filterByDSTypeLayout.setVisible(true);
-                distributionTableLayout.setShowFilterButtonVisible(false);
+                eventBus.publish(this, DistributionsUIEvent.SHOW_DIST_FILTER_BY_TYPE);
             }
+            // TODO: check if managementUIState validation is correct here
             if (!manageDistUIState.isSwTypeFilterClosed()) {
-                filterBySMTypeLayout.setVisible(true);
-                softwareModuleTableLayout.setShowFilterButtonVisible(false);
+                eventBus.publish(this, DistributionsUIEvent.SHOW_SM_FILTER_BY_TYPE);
             }
         }
     }
@@ -283,11 +282,13 @@ public class DistributionsView extends AbstractNotificationView implements Brows
     protected Map<Class<?>, RefreshableContainer> getSupportedPushEvents() {
         final Map<Class<?>, RefreshableContainer> supportedEvents = Maps.newHashMapWithExpectedSize(4);
 
-        supportedEvents.put(DistributionSetCreatedEventContainer.class, distributionTableLayout.getTable());
-        supportedEvents.put(DistributionSetDeletedEventContainer.class, distributionTableLayout.getTable());
+        supportedEvents.put(DistributionSetCreatedEventContainer.class,
+                distributionTableLayout.getDistributionSetGrid());
+        supportedEvents.put(DistributionSetDeletedEventContainer.class,
+                distributionTableLayout.getDistributionSetGrid());
 
-        supportedEvents.put(SoftwareModuleCreatedEventContainer.class, softwareModuleTableLayout.getTable());
-        supportedEvents.put(SoftwareModuleDeletedEventContainer.class, softwareModuleTableLayout.getTable());
+        supportedEvents.put(SoftwareModuleCreatedEventContainer.class, softwareModuleTableLayout.getSwModuleGrid());
+        supportedEvents.put(SoftwareModuleDeletedEventContainer.class, softwareModuleTableLayout.getSwModuleGrid());
 
         return supportedEvents;
     }

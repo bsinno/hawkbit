@@ -45,7 +45,6 @@ import com.vaadin.ui.themes.ValoTheme;
  * 
  */
 public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> {
-
     private static final long serialVersionUID = 1L;
 
     private static final String SOFT_TYPE_NAME_ID = "typeName";

@@ -134,6 +134,13 @@
     border-bottom-left-radius: 0 !important;
   }
 
+  //Layout - with no top border
+  .no-border-top {
+    border-top: none !important;
+    border-top-right-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+  }
+
   .bordered-layout {
     border: 1px solid $widget-border-color;
     border-radius: $v-border-radius;

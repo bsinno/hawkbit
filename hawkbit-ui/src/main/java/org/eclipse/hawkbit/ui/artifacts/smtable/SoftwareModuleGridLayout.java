@@ -13,9 +13,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.common.table.AbstractTableLayout;
-import org.eclipse.hawkbit.ui.dd.criteria.UploadViewClientCriterion;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -24,32 +22,32 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Software module table layout. (Upload Management)
  */
-public class SoftwareModuleTableLayout extends AbstractTableLayout<ProxySoftwareModule> {
-
+public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
+    private final SoftwareModuleGridHeader softwareModuleGridHeader;
     private final SoftwareModuleGrid softwareModuleGrid;
+    private final SoftwareModuleDetails softwareModuleDetails;
 
-    public SoftwareModuleTableLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
+    public SoftwareModuleGridLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final ArtifactUploadState artifactUploadState, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
-            final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
-            final UploadViewClientCriterion uploadViewClientCriterion) {
-
-        final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification, eventBus,
-                softwareModuleManagement, entityFactory, permChecker);
-        this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
-                artifactUploadState, softwareModuleManagement);
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory) {
+        super(i18n, eventBus);
 
         final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow = new SoftwareModuleAddUpdateWindow(i18n,
                 uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory);
 
-        super.init(i18n,
-                new SoftwareModuleGridHeader(i18n, permChecker, eventBus, artifactUploadState,
-                        softwareModuleAddUpdateWindow),
-                softwareModuleGrid,
-                new SoftwareModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,
-                        artifactUploadState, softwareModuleManagement, swMetadataPopupLayout));
+        this.softwareModuleGridHeader = new SoftwareModuleGridHeader(i18n, permChecker, eventBus, artifactUploadState,
+                softwareModuleAddUpdateWindow);
+        this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
+                artifactUploadState, softwareModuleManagement);
+        final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification, eventBus,
+                softwareModuleManagement, entityFactory, permChecker);
+        this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, permChecker,
+                softwareModuleAddUpdateWindow, artifactUploadState, softwareModuleManagement, swMetadataPopupLayout);
+
+        buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetails);
     }
 
     public SoftwareModuleGrid getSoftwareModuleGrid() {

@@ -78,17 +78,18 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
     TargetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
             final UINotification uiNotification, final TargetTagManagement tagManagement,
-            final TargetManagement targetManagement, final TargetMetadataPopupLayout targetMetadataPopupLayout,
-            final DeploymentManagement deploymentManagement, final EntityFactory entityFactory) {
+            final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
+            final EntityFactory entityFactory, final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout) {
         super(i18n, eventBus, permissionChecker, managementUIState);
+
         this.targetTagToken = new TargetTagToken(permissionChecker, i18n, uiNotification, eventBus, managementUIState,
                 tagManagement, targetManagement);
-        this.targetAddUpdateWindowLayout = new TargetAddUpdateWindowLayout(i18n, targetManagement, eventBus,
-                uiNotification, entityFactory);
+        this.targetAddUpdateWindowLayout = targetAddUpdateWindowLayout;
         this.uiNotification = uiNotification;
         this.targetManagement = targetManagement;
         this.deploymentManagement = deploymentManagement;
-        this.targetMetadataPopupLayout = targetMetadataPopupLayout;
+        this.targetMetadataPopupLayout = new TargetMetadataPopupLayout(i18n, uiNotification, eventBus, targetManagement,
+                entityFactory, permissionChecker);
         this.targetMetadataLayout = new TargetMetadataDetailsLayout(i18n, targetManagement, targetMetadataPopupLayout);
         addDetailsTab();
         restoreState();

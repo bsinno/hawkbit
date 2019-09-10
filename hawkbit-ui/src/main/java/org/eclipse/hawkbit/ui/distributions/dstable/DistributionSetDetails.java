@@ -44,12 +44,11 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
 
     DistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManageDistUIState manageDistUIState,
-            final ManagementUIState managementUIState,
-            final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout,
-            final DistributionSetManagement distributionSetManagement, final UINotification uiNotification,
-            final DistributionSetTagManagement distributionSetTagManagement,
+            final ManagementUIState managementUIState, final DistributionSetManagement distributionSetManagement,
+            final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
             final DsMetadataPopupLayout dsMetadataPopupLayout, final TenantConfigurationManagement configManagement,
-            final SystemSecurityContext systemSecurityContext) {
+            final SystemSecurityContext systemSecurityContext,
+            final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout) {
         super(i18n, eventBus, permissionChecker, managementUIState, distributionAddUpdateWindowLayout,
                 distributionSetManagement, dsMetadataPopupLayout, uiNotification, distributionSetTagManagement,
                 createSoftwareModuleDetailsGrid(i18n, permissionChecker, distributionSetManagement, eventBus,

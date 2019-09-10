@@ -11,7 +11,8 @@ package org.eclipse.hawkbit.ui.distributions.smtable;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsLayout;
+import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
+import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
@@ -44,7 +45,7 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
 
     private final ManageDistUIState manageDistUIState;
 
-    private final ArtifactDetailsLayout artifactDetailsLayout;
+    private final ArtifactDetailsGridLayout artifactDetailsLayout;
 
     private Button artifactDetailsButton;
 
@@ -54,7 +55,7 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
             final SpPermissionChecker permissionChecker,
             final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow,
             final ManageDistUIState manageDistUIState, final SoftwareModuleManagement softwareManagement,
-            final SwMetadataPopupLayout swMetadataPopupLayout, final ArtifactDetailsLayout artifactDetailsLayout) {
+            final SwMetadataPopupLayout swMetadataPopupLayout, final ArtifactDetailsGridLayout artifactDetailsLayout) {
         super(i18n, eventBus, permissionChecker, null, softwareManagement, swMetadataPopupLayout,
                 softwareModuleAddUpdateWindow);
         this.manageDistUIState = manageDistUIState;
@@ -101,6 +102,8 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
         return artifactDetailsButton;
     }
 
+    // TODO: check if it could be substituted with artifactDetailsLayout
+    // injected directly into window
     private void showArtifactDetailsWindow(final ProxySoftwareModule softwareModule) {
         final Window artifactDtlsWindow = new Window();
         artifactDtlsWindow.setCaption(HawkbitCommonUtil
@@ -117,9 +120,11 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
         // artifactDetailsLayout.setFullWindowMode(false);
 
         artifactDetailsLayout.populateArtifactDetails(softwareModule);
-        artifactDetailsLayout.getGrid().setWidth(700, Unit.PIXELS);
-        artifactDetailsLayout.getGrid().setHeight(500, Unit.PIXELS);
-        artifactDtlsWindow.setContent(artifactDetailsLayout.getGrid());
+        final ArtifactDetailsGrid artifactDetailsGrid = artifactDetailsLayout.getArtifactDetailsGrid();
+        artifactDetailsGrid.setWidth(700, Unit.PIXELS);
+        artifactDetailsGrid.setHeight(500, Unit.PIXELS);
+
+        artifactDtlsWindow.setContent(artifactDetailsGrid);
 
         artifactDtlsWindow.addWindowModeChangeListener(event -> {
             if (event.getWindowMode() == WindowMode.MAXIMIZED) {
@@ -131,12 +136,12 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
                 // TODO: check if it works
                 eventBus.publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MAXIMIZED));
 
-                artifactDetailsLayout.getGrid().setWidth(100, Unit.PERCENTAGE);
-                artifactDetailsLayout.getGrid().setHeight(100, Unit.PERCENTAGE);
-                artifactDtlsWindow.setContent(artifactDetailsLayout.getGrid());
+                artifactDetailsGrid.setWidth(100, Unit.PERCENTAGE);
+                artifactDetailsGrid.setHeight(100, Unit.PERCENTAGE);
+                artifactDtlsWindow.setContent(artifactDetailsGrid);
             } else {
                 artifactDtlsWindow.setSizeUndefined();
-                artifactDtlsWindow.setContent(artifactDetailsLayout.getGrid());
+                artifactDtlsWindow.setContent(artifactDetailsGrid);
             }
         });
         UI.getCurrent().addWindow(artifactDtlsWindow);

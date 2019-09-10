@@ -18,10 +18,11 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsLayout;
+import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleTableLayout;
+import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayout;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
@@ -71,9 +72,9 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
 
     private final SMTypeFilterLayout filterByTypeLayout;
 
-    private final SoftwareModuleTableLayout smTableLayout;
+    private final SoftwareModuleGridLayout smTableLayout;
 
-    private final ArtifactDetailsLayout artifactDetailsLayout;
+    private final ArtifactDetailsGridLayout artifactDetailsLayout;
 
     private final UploadDropAreaLayout dropAreaLayout;
 
@@ -93,10 +94,9 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         this.i18n = i18n;
         this.uiNotification = uiNotification;
         this.artifactUploadState = artifactUploadState;
-        this.smTableLayout = new SoftwareModuleTableLayout(i18n, permChecker, artifactUploadState, uiNotification,
-                eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory,
-                uploadViewClientCriterion);
-        this.artifactDetailsLayout = new ArtifactDetailsLayout(i18n, eventBus, artifactUploadState, uiNotification,
+        this.smTableLayout = new SoftwareModuleGridLayout(i18n, permChecker, artifactUploadState, uiNotification,
+                eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory);
+        this.artifactDetailsLayout = new ArtifactDetailsGridLayout(i18n, eventBus, artifactUploadState, uiNotification,
                 artifactManagement, permChecker);
         this.filterByTypeLayout = new SMTypeFilterLayout(artifactUploadState, i18n, permChecker, eventBus,
                 entityFactory, uiNotification, softwareModuleTypeManagement);
@@ -230,11 +230,9 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
 
     private void showOrHideFilterButtons(final int browserWidth) {
         if (browserWidth < SPUIDefinitions.REQ_MIN_BROWSER_WIDTH) {
-            filterByTypeLayout.setVisible(false);
-            smTableLayout.setShowFilterButtonVisible(true);
+            eventBus.publish(this, UploadArtifactUIEvent.HIDE_FILTER_BY_TYPE);
         } else if (!artifactUploadState.isSwTypeFilterClosed()) {
-            filterByTypeLayout.setVisible(true);
-            smTableLayout.setShowFilterButtonVisible(false);
+            eventBus.publish(this, UploadArtifactUIEvent.SHOW_FILTER_BY_TYPE);
         }
     }
 

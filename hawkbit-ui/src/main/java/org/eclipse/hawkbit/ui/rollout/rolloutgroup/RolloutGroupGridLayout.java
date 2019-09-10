@@ -12,7 +12,6 @@ import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -21,12 +20,12 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Groups List View.
  */
-public class RolloutGroupsListView extends AbstractGridComponentLayout<ProxyRolloutGroup> {
+public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
 
     private static final long serialVersionUID = 1L;
 
-    private final RolloutGroupsListHeader rolloutGroupsListHeader;
-    private final RolloutGroupListGrid rolloutGroupListGrid;
+    private final RolloutGroupGridHeader rolloutGroupsListHeader;
+    private final RolloutGroupGrid rolloutGroupListGrid;
 
     /**
      * Constructor for RolloutGroupsListView
@@ -42,7 +41,7 @@ public class RolloutGroupsListView extends AbstractGridComponentLayout<ProxyRoll
      * @param permissionChecker
      *            SpPermissionChecker
      */
-    public RolloutGroupsListView(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    public RolloutGroupGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
             final SpPermissionChecker permissionChecker) {
         super(i18n, eventBus);
@@ -50,25 +49,16 @@ public class RolloutGroupsListView extends AbstractGridComponentLayout<ProxyRoll
         final RolloutGroupDataProvider rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement,
                 rolloutUIState, new RolloutGroupToProxyRolloutGroupMapper());
 
-        this.rolloutGroupsListHeader = new RolloutGroupsListHeader(getEventBus(), rolloutUIState, getI18n());
-        this.rolloutGroupListGrid = new RolloutGroupListGrid(getI18n(), getEventBus(), rolloutGroupManagement,
-                rolloutUIState, permissionChecker, rolloutGroupDataProvider);
+        this.rolloutGroupsListHeader = new RolloutGroupGridHeader(eventBus, rolloutUIState, i18n);
+        this.rolloutGroupListGrid = new RolloutGroupGrid(i18n, eventBus, rolloutGroupManagement, rolloutUIState,
+                permissionChecker, rolloutGroupDataProvider);
 
-        init();
+        buildLayout(rolloutGroupsListHeader, rolloutGroupListGrid);
     }
 
+    // TODO: check if it is correct
     @Override
     protected boolean doSubscribeToEventBus() {
         return false;
-    }
-
-    @Override
-    public RolloutGroupsListHeader getGridHeader() {
-        return rolloutGroupsListHeader;
-    }
-
-    @Override
-    public RolloutGroupListGrid getGrid() {
-        return rolloutGroupListGrid;
     }
 }

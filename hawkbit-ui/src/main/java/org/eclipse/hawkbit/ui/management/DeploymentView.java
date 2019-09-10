@@ -33,18 +33,17 @@ import org.eclipse.hawkbit.ui.components.AbstractNotificationView;
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryLayout;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusLayout;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusMsgLayout;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionTableLayout;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridLayout;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusGridLayout;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusMsgGridLayout;
+import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayout;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayout;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.state.DistributionTableFilters;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.targettable.TargetGrid;
-import org.eclipse.hawkbit.ui.management.targettable.TargetTableLayout;
+import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayout;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayout;
 import org.eclipse.hawkbit.ui.menu.DashboardMenuItem;
 import org.eclipse.hawkbit.ui.push.DistributionSetCreatedEventContainer;
@@ -83,37 +82,25 @@ import com.vaadin.ui.UI;
 @UIScope
 @SpringView(name = DeploymentView.VIEW_NAME, ui = AbstractHawkbitUI.class)
 public class DeploymentView extends AbstractNotificationView implements BrowserWindowResizeListener {
-
     private static final long serialVersionUID = 1L;
 
     public static final String VIEW_NAME = "deployment";
 
     private final SpPermissionChecker permChecker;
 
-    private final VaadinMessageSource i18n;
-
-    private final UINotification uiNotification;
-
     private final ManagementUIState managementUIState;
 
-    private final ActionHistoryLayout actionHistoryLayout;
-
-    private final ActionStatusLayout actionStatusLayout;
-
-    private final ActionStatusMsgLayout actionStatusMsgLayout;
-
     private final TargetTagFilterLayout targetTagFilterLayout;
-
-    private final TargetTableLayout targetTableLayout;
-
+    private final TargetGridLayout targetGridLayout;
+    private final DistributionGridLayout distributionGridLayout;
     private final DistributionTagLayout distributionTagLayout;
-
-    private final DistributionTableLayout distributionTableLayout;
+    private final ActionHistoryGridLayout actionHistoryLayout;
+    private final ActionStatusGridLayout actionStatusLayout;
+    private final ActionStatusMsgGridLayout actionStatusMsgLayout;
 
     private GridLayout mainLayout;
 
     private final DeploymentViewMenuItem deploymentViewMenuItem;
-
     private final CountMessageLabel countMessageLabel;
 
     @Autowired
@@ -131,54 +118,51 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
             final NotificationUnreadButton notificationUnreadButton,
             final DeploymentViewMenuItem deploymentViewMenuItem, @Qualifier("uiExecutor") final Executor uiExecutor) {
         super(eventBus, notificationUnreadButton);
+
         this.permChecker = permChecker;
-        this.i18n = i18n;
-        this.uiNotification = uiNotification;
         this.managementUIState = managementUIState;
 
         this.deploymentViewMenuItem = deploymentViewMenuItem;
 
         if (permChecker.hasTargetReadPermission()) {
-            this.actionHistoryLayout = new ActionHistoryLayout(i18n, deploymentManagement, eventBus, uiNotification,
-                    managementUIState, permChecker);
-            this.actionStatusLayout = new ActionStatusLayout(i18n, eventBus, managementUIState, deploymentManagement);
-            this.actionStatusMsgLayout = new ActionStatusMsgLayout(i18n, eventBus, managementUIState,
-                    deploymentManagement);
             this.targetTagFilterLayout = new TargetTagFilterLayout(i18n, managementUIState, permChecker, eventBus,
                     uiNotification, entityFactory, targetFilterQueryManagement, targetTagManagement, targetManagement);
 
-            final TargetGrid targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement,
-                    managementUIState, permChecker, deploymentManagement, configManagement, systemSecurityContext,
-                    uiProperties);
+            this.targetGridLayout = new TargetGridLayout(eventBus, targetManagement, entityFactory, i18n,
+                    uiNotification, managementUIState, deploymentManagement, uiProperties, permChecker,
+                    targetTagManagement, distributionSetManagement, uiExecutor, configManagement,
+                    systemSecurityContext);
+
+            this.actionHistoryLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, eventBus, uiNotification,
+                    managementUIState, permChecker);
+            this.actionStatusLayout = new ActionStatusGridLayout(i18n, eventBus, managementUIState, deploymentManagement);
+            this.actionStatusMsgLayout = new ActionStatusMsgGridLayout(i18n, eventBus, managementUIState,
+                    deploymentManagement);
 
             this.countMessageLabel = new CountMessageLabel(eventBus, targetManagement, i18n, managementUIState,
-                    targetGrid.getDataCommunicator());
-
-            this.targetTableLayout = new TargetTableLayout(eventBus, targetGrid, targetManagement, entityFactory, i18n,
-                    uiNotification, managementUIState, deploymentManagement, uiProperties, permChecker,
-                    targetTagManagement, distributionSetManagement, uiExecutor);
+                    targetGridLayout.getTargetGrid().getDataCommunicator());
 
             // TODO:
             // targetLayout.registerDetails(actionHistoryLayout.getMasterDetailsSupport());
         } else {
+            this.targetTagFilterLayout = null;
+            this.targetGridLayout = null;
             this.actionHistoryLayout = null;
             this.actionStatusLayout = null;
             this.actionStatusMsgLayout = null;
-            this.targetTagFilterLayout = null;
             this.countMessageLabel = null;
-            this.targetTableLayout = null;
         }
 
         if (permChecker.hasReadRepositoryPermission()) {
             this.distributionTagLayout = new DistributionTagLayout(eventBus, managementUIState, i18n, permChecker,
                     distributionSetTagManagement, entityFactory, uiNotification, distributionSetManagement);
-            this.distributionTableLayout = new DistributionTableLayout(i18n, eventBus, permChecker, managementUIState,
-                    distributionSetManagement, distributionSetTypeManagement, managementViewClientCriterion,
-                    entityFactory, uiNotification, distributionSetTagManagement, targetTagManagement, systemManagement,
-                    targetManagement, deploymentManagement, configManagement, systemSecurityContext, uiProperties);
+            this.distributionGridLayout = new DistributionGridLayout(i18n, eventBus, permChecker, managementUIState,
+                    distributionSetManagement, distributionSetTypeManagement, entityFactory, uiNotification,
+                    distributionSetTagManagement, systemManagement, targetManagement, deploymentManagement,
+                    configManagement, systemSecurityContext, uiProperties);
         } else {
             this.distributionTagLayout = null;
-            this.distributionTableLayout = null;
+            this.distributionGridLayout = null;
         }
     }
 
@@ -186,67 +170,9 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
     void init() {
         buildLayout();
         restoreState();
-        checkNoDataAvaialble();
         Page.getCurrent().addBrowserWindowResizeListener(this);
         showOrHideFilterButtons(Page.getCurrent().getBrowserWindowWidth());
-        getEventBus().publish(this, ManagementUIEvent.SHOW_COUNT_MESSAGE);
-    }
-
-    @Override
-    public void enter(final ViewChangeEvent event) {
-        if (permChecker.hasReadRepositoryPermission()) {
-            managementUIState.getLastSelectedDsIdName().ifPresent(lastSeletedDsId -> {
-                final ProxyDistributionSet dsToSelect = new ProxyDistributionSet();
-                dsToSelect.setId(lastSeletedDsId);
-
-                distributionTableLayout.getDistributionGrid().select(dsToSelect);
-            });
-        }
-    }
-
-    @Override
-    protected DashboardMenuItem getDashboardMenuItem() {
-        return deploymentViewMenuItem;
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionTableEvent event) {
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            minimizeDistTable();
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            maximizeDistTable();
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent event) {
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            minimizeTargetTable();
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            maximizeTargetTable();
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final ManagementUIEvent mgmtUIEvent) {
-        if (mgmtUIEvent == ManagementUIEvent.MAX_ACTION_HISTORY) {
-            UI.getCurrent().access(this::maximizeActionHistory);
-        }
-        if (mgmtUIEvent == ManagementUIEvent.MIN_ACTION_HISTORY) {
-            UI.getCurrent().access(this::minimizeActionHistory);
-        }
-    }
-
-    private void restoreState() {
-        if (managementUIState.isTargetTableMaximized()) {
-            maximizeTargetTable();
-        }
-        if (managementUIState.isDsTableMaximized()) {
-            maximizeDistTable();
-        }
-        if (managementUIState.isActionHistoryMaximized()) {
-            maximizeActionHistory();
-        }
+        eventBus.publish(this, ManagementUIEvent.SHOW_COUNT_MESSAGE);
     }
 
     private void buildLayout() {
@@ -254,7 +180,7 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
             setSizeFull();
             createMainLayout();
             addComponent(mainLayout, 0);
-            setExpandRatio(mainLayout, 1);
+            setExpandRatio(mainLayout, 1.0F);
         }
     }
 
@@ -263,7 +189,7 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         layoutWidgets();
         mainLayout.setSizeFull();
         mainLayout.setSpacing(true);
-        mainLayout.setRowExpandRatio(0, 1F);
+        mainLayout.setRowExpandRatio(0, 1.0F);
         mainLayout.setStyleName("fullSize");
     }
 
@@ -282,8 +208,8 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         mainLayout.setColumns(5);
         mainLayout.setRows(1);
         mainLayout.addComponent(targetTagFilterLayout, 0, 0);
-        mainLayout.addComponent(targetTableLayout, 1, 0);
-        mainLayout.addComponent(distributionTableLayout, 2, 0);
+        mainLayout.addComponent(targetGridLayout, 1, 0);
+        mainLayout.addComponent(distributionGridLayout, 2, 0);
         mainLayout.addComponent(distributionTagLayout, 3, 0);
         mainLayout.addComponent(actionHistoryLayout, 4, 0);
         showTargetCount();
@@ -301,7 +227,7 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
     private void displayDistributionWidgetsOnly() {
         mainLayout.setColumns(2);
         mainLayout.setRows(1);
-        mainLayout.addComponent(distributionTableLayout, 0, 0);
+        mainLayout.addComponent(distributionGridLayout, 0, 0);
         mainLayout.addComponent(distributionTagLayout, 1, 0);
         mainLayout.setColumnExpandRatio(0, 1F);
     }
@@ -310,16 +236,28 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         mainLayout.setColumns(3);
         mainLayout.setRows(1);
         mainLayout.addComponent(targetTagFilterLayout, 0, 0);
-        mainLayout.addComponent(targetTableLayout, 1, 0);
+        mainLayout.addComponent(targetGridLayout, 1, 0);
         mainLayout.addComponent(actionHistoryLayout, 2, 0);
         showTargetCount();
         mainLayout.setColumnExpandRatio(1, 0.4F);
         mainLayout.setColumnExpandRatio(2, 0.6F);
     }
 
+    private void restoreState() {
+        if (managementUIState.isTargetTableMaximized()) {
+            maximizeTargetTable();
+        }
+        if (managementUIState.isDsTableMaximized()) {
+            maximizeDistTable();
+        }
+        if (managementUIState.isActionHistoryMaximized()) {
+            maximizeActionHistory();
+        }
+    }
+
     private void maximizeTargetTable() {
         if (permChecker.hasReadRepositoryPermission()) {
-            mainLayout.removeComponent(distributionTableLayout);
+            mainLayout.removeComponent(distributionGridLayout);
             mainLayout.removeComponent(distributionTagLayout);
         }
         mainLayout.removeComponent(actionHistoryLayout);
@@ -333,7 +271,7 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
     private void maximizeDistTable() {
         if (permChecker.hasTargetReadPermission()) {
             mainLayout.removeComponent(targetTagFilterLayout);
-            mainLayout.removeComponent(targetTableLayout);
+            mainLayout.removeComponent(targetGridLayout);
             mainLayout.removeComponent(actionHistoryLayout);
             removeComponent(countMessageLabel);
         }
@@ -364,24 +302,6 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         // actionStatusLayout.registerDetails(actionStatusMsgLayout.getMasterDetailsSupport());
     }
 
-    private void minimizeTargetTable() {
-        layoutWidgets();
-    }
-
-    private void minimizeDistTable() {
-        layoutWidgets();
-    }
-
-    private void minimizeActionHistory() {
-        layoutWidgets();
-    }
-
-    private void checkNoDataAvaialble() {
-        if (managementUIState.isNoDataAvilableTarget() && managementUIState.isNoDataAvailableDistribution()) {
-            uiNotification.displayValidationError(i18n.getMessage("message.no.data"));
-        }
-    }
-
     @Override
     public void browserWindowResized(final BrowserWindowResizeEvent event) {
         final int browserWidth = event.getWidth();
@@ -391,39 +311,99 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
     private void showOrHideFilterButtons(final int browserWidth) {
         if (browserWidth < SPUIDefinitions.REQ_MIN_BROWSER_WIDTH) {
             if (permChecker.hasTargetReadPermission()) {
-                targetTagFilterLayout.setVisible(false);
-                targetTableLayout.setShowFilterButtonVisible(true);
+                eventBus.publish(this, ManagementUIEvent.HIDE_TARGET_TAG_LAYOUT);
             }
 
             if (permChecker.hasReadRepositoryPermission()) {
-                distributionTagLayout.setVisible(false);
-                distributionTableLayout.setShowFilterButtonVisible(true);
+                eventBus.publish(this, ManagementUIEvent.HIDE_DISTRIBUTION_TAG_LAYOUT);
             }
         } else {
+            // TODO: check if managementUIState validation is correct here
             if (permChecker.hasTargetReadPermission() && !managementUIState.isTargetTagFilterClosed()) {
-                targetTagFilterLayout.setVisible(true);
-                targetTableLayout.setShowFilterButtonVisible(false);
-
+                eventBus.publish(this, ManagementUIEvent.SHOW_TARGET_TAG_LAYOUT);
             }
+            // TODO: check if managementUIState validation is correct here
             if (permChecker.hasReadRepositoryPermission() && !managementUIState.isDistTagFilterClosed()) {
-                distributionTagLayout.setVisible(true);
-                distributionTableLayout.setShowFilterButtonVisible(false);
+                eventBus.publish(this, ManagementUIEvent.SHOW_DISTRIBUTION_TAG_LAYOUT);
             }
         }
+    }
+
+    // TODO: do we really need to set the selected DS here?
+    @Override
+    public void enter(final ViewChangeEvent event) {
+        if (permChecker.hasReadRepositoryPermission()) {
+            // TODO: refactor fields in managementUIState
+            managementUIState.getLastSelectedDsIdName().ifPresent(lastSelectedDsId -> {
+                final ProxyDistributionSet dsToSelect = new ProxyDistributionSet();
+                dsToSelect.setId(lastSelectedDsId);
+
+                distributionGridLayout.getDistributionGrid().select(dsToSelect);
+            });
+        }
+    }
+
+    @Override
+    protected DashboardMenuItem getDashboardMenuItem() {
+        return deploymentViewMenuItem;
+    }
+
+    @EventBusListenerMethod(scope = EventScope.UI)
+    void onEvent(final DistributionTableEvent event) {
+        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
+            minimizeDistTable();
+        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
+            maximizeDistTable();
+        }
+    }
+
+    private void minimizeDistTable() {
+        layoutWidgets();
+    }
+
+    @EventBusListenerMethod(scope = EventScope.UI)
+    void onEvent(final TargetTableEvent event) {
+        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
+            minimizeTargetTable();
+        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
+            maximizeTargetTable();
+        }
+    }
+
+    private void minimizeTargetTable() {
+        layoutWidgets();
+    }
+
+    // TODO: rethink eventing and check if ui.access is neccessary here
+    @EventBusListenerMethod(scope = EventScope.UI)
+    void onEvent(final ManagementUIEvent mgmtUIEvent) {
+        if (mgmtUIEvent == ManagementUIEvent.MIN_ACTION_HISTORY) {
+            UI.getCurrent().access(this::minimizeActionHistory);
+        } else if (mgmtUIEvent == ManagementUIEvent.MAX_ACTION_HISTORY) {
+            UI.getCurrent().access(this::maximizeActionHistory);
+        }
+    }
+
+    private void minimizeActionHistory() {
+        layoutWidgets();
     }
 
     @Override
     protected Map<Class<?>, RefreshableContainer> getSupportedPushEvents() {
         final Map<Class<?>, RefreshableContainer> supportedEvents = Maps.newHashMapWithExpectedSize(10);
 
+        // TODO: what about TargetUpdatedEventContainer?
         if (permChecker.hasTargetReadPermission()) {
-            supportedEvents.put(TargetCreatedEventContainer.class, targetTableLayout.getTable());
-            supportedEvents.put(TargetDeletedEventContainer.class, targetTableLayout.getTable());
+            supportedEvents.put(TargetCreatedEventContainer.class, targetGridLayout.getTargetGrid());
+            supportedEvents.put(TargetDeletedEventContainer.class, targetGridLayout.getTargetGrid());
         }
 
+        // TODO: what about DistributionSetUpdatedEventContainer?
         if (permChecker.hasReadRepositoryPermission()) {
-            supportedEvents.put(DistributionSetCreatedEventContainer.class, distributionTableLayout.getTable());
-            supportedEvents.put(DistributionSetDeletedEventContainer.class, distributionTableLayout.getTable());
+            supportedEvents.put(DistributionSetCreatedEventContainer.class,
+                    distributionGridLayout.getDistributionGrid());
+            supportedEvents.put(DistributionSetDeletedEventContainer.class,
+                    distributionGridLayout.getDistributionGrid());
         }
 
         supportedEvents.put(TargetTagCreatedEventContainer.class, targetTagFilterLayout);

@@ -70,14 +70,13 @@ public class TargetGridHeader extends AbstractGridHeader {
             final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
             final UiProperties uiproperties, final EntityFactory entityFactory, final UINotification uiNotification,
             final TargetTagManagement tagManagement, final DistributionSetManagement distributionSetManagement,
-            final Executor uiExecutor) {
+            final Executor uiExecutor, final TargetAddUpdateWindowLayout targetAddUpdateWindow) {
         super(i18n, permChecker, eventBus);
 
         this.notification = notification;
         this.managementUIState = managementUIState;
 
-        this.targetAddUpdateWindow = new TargetAddUpdateWindowLayout(i18n, targetManagement, eventBus, uiNotification,
-                entityFactory);
+        this.targetAddUpdateWindow = targetAddUpdateWindow;
         this.targetBulkUpdateWindow = new TargetBulkUpdateWindowLayout(i18n, targetManagement, eventBus,
                 managementUIState, deploymentManagement, uiproperties, permChecker, uiNotification, tagManagement,
                 distributionSetManagement, entityFactory, uiExecutor);

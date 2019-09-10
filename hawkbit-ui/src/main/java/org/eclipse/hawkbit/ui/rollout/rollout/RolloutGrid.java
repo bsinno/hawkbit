@@ -67,7 +67,7 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 /**
  * Rollout list grid component.
  */
-public class RolloutListGrid extends AbstractGrid<ProxyRollout, Void> {
+public class RolloutGrid extends AbstractGrid<ProxyRollout, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -127,7 +127,7 @@ public class RolloutListGrid extends AbstractGrid<ProxyRollout, Void> {
 
     private final ConfigurableFilterDataProvider<ProxyRollout, Void, Void> rolloutDataProvider;
 
-    RolloutListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutManagement rolloutManagement, final UINotification uiNotification,
             final RolloutUIState rolloutUIState, final SpPermissionChecker permissionChecker,
             final TargetManagement targetManagement, final EntityFactory entityFactory, final UiProperties uiProperties,

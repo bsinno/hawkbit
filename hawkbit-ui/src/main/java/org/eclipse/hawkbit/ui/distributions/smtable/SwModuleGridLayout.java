@@ -13,12 +13,10 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsLayout;
+import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.common.table.AbstractTableLayout;
-import org.eclipse.hawkbit.ui.dd.criteria.DistributionsViewClientCriterion;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -27,38 +25,38 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Implementation of software module Layout on the Distribution View
  */
-public class SwModuleTableLayout extends AbstractTableLayout<ProxySoftwareModule> {
-
+public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
+    private final SwModuleGridHeader swModuleGridHeader;
     private final SwModuleGrid swModuleGrid;
+    private final SwModuleDetails swModuleDetails;
 
-    public SwModuleTableLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
+    public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
             final ManageDistUIState manageDistUIState, final SpPermissionChecker permChecker,
-            final DistributionsViewClientCriterion distributionsViewClientCriterion,
             final ArtifactUploadState artifactUploadState, final ArtifactManagement artifactManagement) {
-
-        final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification, eventBus,
-                softwareModuleManagement, entityFactory, permChecker);
-
-        this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, manageDistUIState,
-                softwareModuleManagement);
+        super(i18n, eventBus);
 
         final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow = new SoftwareModuleAddUpdateWindow(i18n,
                 uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory);
-        final ArtifactDetailsLayout artifactDetailsLayout = new ArtifactDetailsLayout(i18n, eventBus,
-                artifactUploadState, uiNotification, artifactManagement, permChecker);
 
-        super.init(i18n,
-                new SwModuleGridHeader(i18n, permChecker, eventBus, manageDistUIState, softwareModuleAddUpdateWindow),
-                swModuleGrid, new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,
-                        manageDistUIState, softwareModuleManagement, swMetadataPopupLayout, artifactDetailsLayout));
+        this.swModuleGridHeader = new SwModuleGridHeader(i18n, permChecker, eventBus, manageDistUIState,
+                softwareModuleAddUpdateWindow);
+        this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, manageDistUIState,
+                softwareModuleManagement);
+        final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification, eventBus,
+                softwareModuleManagement, entityFactory, permChecker);
+        final ArtifactDetailsGridLayout artifactDetailsLayout = new ArtifactDetailsGridLayout(i18n, eventBus,
+                artifactUploadState, uiNotification, artifactManagement, permChecker);
+        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,
+                manageDistUIState, softwareModuleManagement, swMetadataPopupLayout, artifactDetailsLayout);
+
+        buildLayout(swModuleGridHeader, swModuleGrid, swModuleDetails);
     }
 
     public SwModuleGrid getSwModuleGrid() {
         return swModuleGrid;
     }
-
 }

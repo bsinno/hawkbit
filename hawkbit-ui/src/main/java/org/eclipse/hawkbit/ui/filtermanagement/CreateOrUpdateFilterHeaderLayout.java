@@ -240,8 +240,8 @@ public class CreateOrUpdateFilterHeaderLayout extends VerticalLayout implements 
         addComponent(titleFilterLayout);
         addComponent(queryLayout);
         setSpacing(true);
-        // TODO: fix top-border
         addStyleName("bordered-layout");
+        addStyleName("no-border-top");
     }
 
     private void setUpCaptionLayout(final boolean isCreateView) {

@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupportIdentifiable;
@@ -21,7 +20,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Layout responsible for action-states-grid and the corresponding header.
  */
-public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionStatus> {
+public class ActionStatusGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
     private final ActionStatusGridHeader actionStatusGridHeader;
@@ -36,31 +35,22 @@ public class ActionStatusLayout extends AbstractGridComponentLayout<ProxyActionS
      * @param eventBus
      * @param managementUIState
      */
-    public ActionStatusLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    public ActionStatusGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus);
 
         this.actionStatusGridHeader = new ActionStatusGridHeader(i18n);
-        this.actionStatusGrid = new ActionStatusGrid(getI18n(), getEventBus(), deploymentManagement);
+        this.actionStatusGrid = new ActionStatusGrid(i18n, eventBus, deploymentManagement);
 
         this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(actionStatusGrid);
 
-        init();
+        buildLayout(actionStatusGridHeader, actionStatusGrid);
     }
 
+    // TODO: check if it is correct
     @Override
     protected boolean doSubscribeToEventBus() {
         return false;
-    }
-
-    @Override
-    public ActionStatusGridHeader getGridHeader() {
-        return actionStatusGridHeader;
-    }
-
-    @Override
-    public ActionStatusGrid getGrid() {
-        return actionStatusGrid;
     }
 
     public MasterDetailsSupport<ProxyAction, Long> getMasterDetailsSupport() {

@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupportIdentifiable;
@@ -21,7 +20,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * Layout responsible for messages-grid and the corresponding header.
  */
-public class ActionStatusMsgLayout extends AbstractGridComponentLayout<ProxyMessage> {
+public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
     private final ActionStatusMsgGridHeader actionStatusMsgHeader;
@@ -37,31 +36,22 @@ public class ActionStatusMsgLayout extends AbstractGridComponentLayout<ProxyMess
      * @param managementUIState
      * @param deploymentManagement
      */
-    public ActionStatusMsgLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    public ActionStatusMsgGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus);
 
         this.actionStatusMsgHeader = new ActionStatusMsgGridHeader(i18n);
-        this.actionStatusMsgGrid = new ActionStatusMsgGrid(getI18n(), getEventBus(), deploymentManagement);
+        this.actionStatusMsgGrid = new ActionStatusMsgGrid(i18n, eventBus, deploymentManagement);
 
         this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(actionStatusMsgGrid);
 
-        init();
+        buildLayout(actionStatusMsgHeader, actionStatusMsgGrid);
     }
 
+    // TODO: check if it is correct
     @Override
     protected boolean doSubscribeToEventBus() {
         return false;
-    }
-
-    @Override
-    public ActionStatusMsgGridHeader getGridHeader() {
-        return actionStatusMsgHeader;
-    }
-
-    @Override
-    public ActionStatusMsgGrid getGrid() {
-        return actionStatusMsgGrid;
     }
 
     public MasterDetailsSupport<ProxyActionStatus, Long> getMasterDetailsSupport() {

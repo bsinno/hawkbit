@@ -6,11 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
+package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
 import java.util.Arrays;
 
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
@@ -31,57 +30,47 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
- * Header Layout of Rollout Group Targets list view.
+ * Header Layout of Rollout Group list view.
  */
-// TODO: consider extending RolloutGroupsListHeader in order to remove
-// duplication
-public class RolloutGroupTargetsListHeader extends AbstractGridHeader {
+public class RolloutGroupGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
     private final RolloutUIState rolloutUIState;
 
-    private final Button rolloutNameLink;
     private final Label headerCaptionDetails;
 
     private final transient CloseHeaderSupport closeHeaderSupport;
 
-    public RolloutGroupTargetsListHeader(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final RolloutUIState rolloutUiState) {
+    /**
+     * Constructor for RolloutGroupsListHeader
+     * 
+     * @param eventBus
+     *            UIEventBus
+     * @param rolloutUiState
+     *            RolloutUIState
+     * @param i18n
+     *            I18N
+     */
+    public RolloutGroupGridHeader(final UIEventBus eventBus, final RolloutUIState rolloutUiState,
+            final VaadinMessageSource i18n) {
         super(i18n, null, eventBus);
 
         this.rolloutUIState = rolloutUiState;
 
-        this.rolloutNameLink = createRolloutNameLink();
         this.headerCaptionDetails = createHeaderCaptionDetails();
 
-        this.closeHeaderSupport = new CloseHeaderSupport(i18n,
-                UIComponentIdProvider.ROLLOUT_TARGET_VIEW_CLOSE_BUTTON_ID, this::showRolloutGroupListView);
+        this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_GROUP_CLOSE,
+                this::showRolloutListView);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
         restoreHeaderState();
         buildHeader();
     }
 
-    private Button createRolloutNameLink() {
-        final Button rolloutListLink = SPUIComponentProvider.getButton(null, "", "", null, false, null,
-                SPUIButtonStyleNoBorder.class);
-
-        rolloutListLink.setStyleName(ValoTheme.LINK_SMALL + " on-focus-no-border link rollout-caption-links");
-        rolloutListLink.addStyleName("breadcrumbPaddingLeft");
-        rolloutListLink.setDescription(i18n.getMessage("dashboard.rollouts.caption"));
-        rolloutListLink.addClickListener(value -> showRolloutGroupListView());
-
-        return rolloutListLink;
-    }
-
-    private void showRolloutGroupListView() {
-        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUPS);
-    }
-
     private Label createHeaderCaptionDetails() {
-        final Label captionDetails = new LabelBuilder().name("").buildCaptionLabel();
+        final Label captionDetails = new LabelBuilder().id(UIComponentIdProvider.ROLLOUT_GROUP_HEADER_CAPTION).name("")
+                .buildCaptionLabel();
 
-        captionDetails.setStyleName(ValoTheme.LABEL_BOLD + " " + ValoTheme.LABEL_SMALL);
         captionDetails.addStyleName("breadcrumbPaddingLeft");
 
         return captionDetails;
@@ -91,7 +80,7 @@ public class RolloutGroupTargetsListHeader extends AbstractGridHeader {
     protected Component getHeaderCaption() {
         final Button rolloutsListViewLink = SPUIComponentProvider.getButton(null, "", "", null, false, null,
                 SPUIButtonStyleNoBorder.class);
-        rolloutsListViewLink.setStyleName(ValoTheme.LINK_SMALL + " " + "on-focus-no-border link rollout-caption-links");
+        rolloutsListViewLink.setStyleName(ValoTheme.LINK_SMALL + " on-focus-no-border link rollout-caption-links");
         rolloutsListViewLink.setDescription(i18n.getMessage("message.rollouts"));
         rolloutsListViewLink.setCaption(i18n.getMessage("message.rollouts"));
         rolloutsListViewLink.addClickListener(value -> showRolloutListView());
@@ -101,8 +90,6 @@ public class RolloutGroupTargetsListHeader extends AbstractGridHeader {
         headerCaptionLayout.setSpacing(false);
 
         headerCaptionLayout.addComponent(rolloutsListViewLink);
-        headerCaptionLayout.addComponent(new Label(">"));
-        headerCaptionLayout.addComponent(rolloutNameLink);
         headerCaptionLayout.addComponent(new Label(">"));
         headerCaptionLayout.addComponent(headerCaptionDetails);
 
@@ -119,13 +106,12 @@ public class RolloutGroupTargetsListHeader extends AbstractGridHeader {
     }
 
     private void setCaptionDetails() {
-        rolloutUIState.getRolloutGroup().map(RolloutGroup::getName).ifPresent(headerCaptionDetails::setValue);
-        rolloutNameLink.setCaption(rolloutUIState.getRolloutName().orElse(""));
+        headerCaptionDetails.setValue(rolloutUIState.getRolloutName().orElse(""));
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final RolloutEvent event) {
-        if (event == RolloutEvent.SHOW_ROLLOUT_GROUP_TARGETS) {
+        if (event == RolloutEvent.SHOW_ROLLOUT_GROUPS) {
             setCaptionDetails();
         }
     }

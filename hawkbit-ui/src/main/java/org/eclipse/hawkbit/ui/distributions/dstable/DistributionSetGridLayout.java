@@ -12,15 +12,12 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.table.AbstractTableLayout;
-import org.eclipse.hawkbit.ui.dd.criteria.DistributionsViewClientCriterion;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -31,40 +28,37 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 /**
  * DistributionSet table layout.
  */
-public class DistributionSetTableLayout extends AbstractTableLayout<ProxyDistributionSet> {
-
+public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
+    private final DistributionSetGridHeader distributionSetGridHeader;
     private final DistributionSetGrid distributionSetGrid;
+    private final DistributionSetDetails distributionSetDetails;
 
-    public DistributionSetTableLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    public DistributionSetGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final ManageDistUIState manageDistUIState, final SoftwareModuleManagement softwareManagement,
-            final DistributionSetManagement distributionSetManagement,
+            final ManageDistUIState manageDistUIState, final DistributionSetManagement distributionSetManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final UINotification uiNotification,
-            final DistributionSetTagManagement distributionSetTagManagement,
-            final DistributionsViewClientCriterion distributionsViewClientCriterion,
-            final SystemManagement systemManagement, final TenantConfigurationManagement configManagement,
-            final SystemSecurityContext systemSecurityContext) {
-
-        this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
-                manageDistUIState, targetManagement, distributionSetManagement);
+            final DistributionSetTagManagement distributionSetTagManagement, final SystemManagement systemManagement,
+            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext) {
+        super(i18n, eventBus);
 
         final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout = new DistributionAddUpdateWindowLayout(
                 i18n, uiNotification, eventBus, distributionSetManagement, distributionSetTypeManagement,
                 systemManagement, entityFactory, configManagement, systemSecurityContext);
 
+        this.distributionSetGridHeader = new DistributionSetGridHeader(i18n, permissionChecker, eventBus,
+                manageDistUIState, distributionAddUpdateWindowLayout);
+        this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
+                manageDistUIState, targetManagement, distributionSetManagement);
         final DsMetadataPopupLayout popupLayout = new DsMetadataPopupLayout(i18n, uiNotification, eventBus,
                 distributionSetManagement, entityFactory, permissionChecker);
+        this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker, manageDistUIState,
+                managementUIState, distributionSetManagement, uiNotification, distributionSetTagManagement, popupLayout,
+                configManagement, systemSecurityContext, distributionAddUpdateWindowLayout);
 
-        super.init(i18n,
-                new DistributionSetGridHeader(
-                        i18n, permissionChecker, eventBus, manageDistUIState, distributionAddUpdateWindowLayout),
-                distributionSetGrid,
-                new DistributionSetDetails(i18n, eventBus, permissionChecker, manageDistUIState, managementUIState,
-                        distributionAddUpdateWindowLayout, distributionSetManagement, uiNotification,
-                        distributionSetTagManagement, popupLayout, configManagement, systemSecurityContext));
+        buildLayout(distributionSetGridHeader, distributionSetGrid, distributionSetDetails);
     }
 
     public DistributionSetGrid getDistributionSetGrid() {

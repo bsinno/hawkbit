@@ -12,14 +12,12 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -31,7 +29,7 @@ import com.vaadin.ui.UI;
 /**
  * Layout responsible for action-history-grid and the corresponding header.
  */
-public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction> {
+public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
     private final ManagementUIState managementUIState;
@@ -51,7 +49,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
      * @param managementUIState
      * @param permChecker
      */
-    public ActionHistoryLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
+    public ActionHistoryGridLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
             final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
             final SpPermissionChecker permChecker) {
         super(i18n, eventBus);
@@ -59,7 +57,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
         this.managementUIState = managementUIState;
 
         this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, managementUIState, eventBus);
-        this.actionHistoryGrid = new ActionHistoryGrid(getI18n(), deploymentManagement, getEventBus(), notification,
+        this.actionHistoryGrid = new ActionHistoryGrid(i18n, deploymentManagement, eventBus, notification,
                 managementUIState, permChecker);
 
         this.masterDetailsSupport = new MasterDetailsSupport<ProxyTarget, String>(actionHistoryGrid) {
@@ -72,17 +70,7 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
             }
         };
 
-        init();
-    }
-
-    @Override
-    public ActionHistoryGridHeader getGridHeader() {
-        return actionHistoryHeader;
-    }
-
-    @Override
-    public ActionHistoryGrid getGrid() {
-        return actionHistoryGrid;
+        buildLayout(actionHistoryHeader, actionHistoryGrid);
     }
 
     // TODO: check if it can be removed with registerDetails in Deployment View
@@ -91,11 +79,9 @@ public class ActionHistoryLayout extends AbstractGridComponentLayout<ProxyAction
         final Optional<Long> targetId = managementUIState.getLastSelectedTargetId();
 
         if (BaseEntityEventType.SELECTED_ENTITY == targetUIEvent.getEventType()) {
-            setData(getI18n().getMessage(UIMessageIdProvider.MESSAGE_DATA_AVAILABLE));
             UI.getCurrent().access(() -> populateActionHistoryDetails(targetUIEvent.getEntity()));
         } else if (BaseEntityEventType.REMOVE_ENTITY == targetUIEvent.getEventType() && targetId.isPresent()
                 && targetUIEvent.getEntityIds().contains(targetId.get())) {
-            setData(getI18n().getMessage(UIMessageIdProvider.MESSAGE_NO_DATA));
             UI.getCurrent().access(this::populateActionHistoryDetails);
         }
     }

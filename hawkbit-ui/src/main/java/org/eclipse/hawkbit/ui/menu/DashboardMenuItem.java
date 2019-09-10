@@ -13,13 +13,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.vaadin.server.Resource;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 
 /**
  * Describe a menu entry for the Dashboard.
- * 
- *
- *
  */
 public interface DashboardMenuItem extends Serializable {
 
@@ -72,5 +69,4 @@ public interface DashboardMenuItem extends Serializable {
      * @return return the notification
      */
     Label getNotificationUnreadLabel();
-
 }

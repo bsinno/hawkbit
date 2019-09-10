@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
+import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Component;
@@ -41,8 +42,9 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
 
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
-    public ArtifactDetailsGridHeader(final VaadinMessageSource i18n, final ArtifactUploadState artifactUploadState) {
-        super(i18n, null, null);
+    public ArtifactDetailsGridHeader(final VaadinMessageSource i18n, final ArtifactUploadState artifactUploadState,
+            final UIEventBus eventBus) {
+        super(i18n, null, eventBus);
 
         this.artifactUploadState = artifactUploadState;
 

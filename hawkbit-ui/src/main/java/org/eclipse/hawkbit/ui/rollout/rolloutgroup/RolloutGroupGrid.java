@@ -42,7 +42,7 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 /**
  * Rollout group list grid component.
  */
-public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
+public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -70,7 +70,7 @@ public class RolloutGroupListGrid extends AbstractGrid<ProxyRolloutGroup, Void> 
      * @param permissionChecker
      *            SpPermissionChecker
      */
-    public RolloutGroupListGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    public RolloutGroupGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
             final SpPermissionChecker permissionChecker, final RolloutGroupDataProvider rolloutGroupDataProvider) {
         super(i18n, eventBus, permissionChecker);

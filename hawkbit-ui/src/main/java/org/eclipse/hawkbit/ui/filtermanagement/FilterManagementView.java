@@ -49,11 +49,11 @@ public class FilterManagementView extends VerticalLayout implements View {
 
     public static final String VIEW_NAME = "targetFilters";
 
-    private final TargetFilterHeader targetFilterHeader;
+    private final TargetFilterGridHeader targetFilterHeader;
 
     private final TargetFilterGrid targetFilterGrid;
 
-    private final TargetFilterDetailsHeader targetFilterDetailsHeader;
+    private final TargetFilterDetailsGridHeader targetFilterDetailsHeader;
 
     private final CreateOrUpdateFilterHeaderLayout createNewFilterHeaderLayout;
 
@@ -72,10 +72,10 @@ public class FilterManagementView extends VerticalLayout implements View {
             final UINotification notification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final AutoCompleteTextFieldComponent queryTextField, final TargetManagement targetManagement,
             final DistributionSetManagement distributionSetManagement) {
-        this.targetFilterHeader = new TargetFilterHeader(eventBus, filterManagementUIState, permissionChecker, i18n);
+        this.targetFilterHeader = new TargetFilterGridHeader(eventBus, filterManagementUIState, permissionChecker, i18n);
         this.targetFilterGrid = new TargetFilterGrid(i18n, notification, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, targetManagement, distributionSetManagement, permissionChecker);
-        this.targetFilterDetailsHeader = new TargetFilterDetailsHeader(eventBus, filterManagementUIState, i18n);
+        this.targetFilterDetailsHeader = new TargetFilterDetailsGridHeader(eventBus, filterManagementUIState, i18n);
         this.createNewFilterHeaderLayout = new CreateOrUpdateFilterHeaderLayout(i18n, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, permissionChecker, notification, uiProperties, entityFactory,
                 queryTextField);
