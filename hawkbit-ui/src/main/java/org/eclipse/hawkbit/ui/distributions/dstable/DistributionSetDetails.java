@@ -35,7 +35,6 @@ import com.vaadin.ui.UI;
  * Distribution set details layout.
  */
 public class DistributionSetDetails extends AbstractDistributionSetDetails {
-
     private static final long serialVersionUID = 1L;
 
     private final ManageDistUIState manageDistUIState;
@@ -63,7 +62,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
     }
 
     private void addAdditionalTab() {
-        getDetailsTab().addTab(tfqDetailsGrid, getI18n().getMessage("caption.auto.assignment.ds"), null);
+        getDetailsTab().addTab(tfqDetailsGrid, i18n.getMessage("caption.auto.assignment.ds"), null);
     }
 
     private static final SoftwareModuleDetailsGrid createSoftwareModuleDetailsGrid(final VaadinMessageSource i18n,

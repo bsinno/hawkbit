@@ -222,14 +222,17 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     private VerticalLayout getTokenFieldLayout() {
         final TagPanelLayout tagPanelLayout = targetBulkTokenTags.getTagPanel();
         tagPanelLayout.setMargin(false);
-        final VerticalLayout tokenLayout = SPUIComponentProvider.getDetailTabLayout();
-        tokenLayout.addStyleName("bulk-target-tags-layout");
-        tokenLayout.addComponent(tagPanelLayout);
+
+        final VerticalLayout tokenLayout = new VerticalLayout();
+        tokenLayout.setId(UIComponentIdProvider.BULK_UPLOAD_TAG);
         tokenLayout.setSpacing(false);
         tokenLayout.setMargin(false);
         tokenLayout.setSizeFull();
         tokenLayout.setHeight("100px");
-        tokenLayout.setId(UIComponentIdProvider.BULK_UPLOAD_TAG);
+        tokenLayout.addStyleName("bulk-target-tags-layout");
+
+        tokenLayout.addComponent(tagPanelLayout);
+
         return tokenLayout;
     }
 

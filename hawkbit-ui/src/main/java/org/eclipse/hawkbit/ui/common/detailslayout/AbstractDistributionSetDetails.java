@@ -68,7 +68,8 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
             final SoftwareModuleDetailsGrid softwareModuleDetailsGrid,
             final TenantConfigurationManagement tenantConfigurationManagement,
             final SystemSecurityContext systemSecurityContext) {
-        super(i18n, eventBus, permissionChecker, managementUIState);
+        super(i18n, eventBus, permissionChecker);
+
         this.distributionAddUpdateWindowLayout = distributionAddUpdateWindowLayout;
         this.uiNotification = uiNotification;
         this.distributionSetManagement = distributionSetManagement;
@@ -100,7 +101,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
 
     @Override
     protected String getDefaultCaption() {
-        return getI18n().getMessage("distribution.details.header");
+        return i18n.getMessage("distribution.details.header");
     }
 
     @Override
@@ -115,7 +116,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
 
     @Override
     protected boolean hasEditPermission() {
-        return getPermissionChecker().hasUpdateRepositoryPermission();
+        return permissionChecker.hasUpdateRepositoryPermission();
     }
 
     @Override
@@ -137,7 +138,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
     protected void showMetadata(final ClickEvent event) {
         final Optional<DistributionSet> ds = distributionSetManagement.get(getSelectedBaseEntityId());
         if (!ds.isPresent()) {
-            uiNotification.displayWarning(getI18n().getMessage("distributionset.not.exists"));
+            uiNotification.displayWarning(i18n.getMessage("distributionset.not.exists"));
             return;
         }
         UI.getCurrent().addWindow(dsMetadataPopupLayout.getWindow(ds.get(), null));
@@ -150,12 +151,12 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
     }
 
     private final void addDetailsTab() {
-        getDetailsTab().addTab(getDetailsLayout(), getI18n().getMessage("caption.tab.details"), null);
-        getDetailsTab().addTab(getDescriptionLayout(), getI18n().getMessage("caption.tab.description"), null);
-        getDetailsTab().addTab(softwareModuleTab, getI18n().getMessage("caption.softwares.distdetail.tab"), null);
-        getDetailsTab().addTab(getTagsLayout(), getI18n().getMessage("caption.tags.tab"), null);
-        getDetailsTab().addTab(getLogLayout(), getI18n().getMessage("caption.logs.tab"), null);
-        getDetailsTab().addTab(dsMetadataLayout, getI18n().getMessage("caption.metadata"), null);
+        getDetailsTab().addTab(getDetailsLayout(), i18n.getMessage("caption.tab.details"), null);
+        getDetailsTab().addTab(getDescriptionLayout(), i18n.getMessage("caption.tab.description"), null);
+        getDetailsTab().addTab(softwareModuleTab, i18n.getMessage("caption.softwares.distdetail.tab"), null);
+        getDetailsTab().addTab(getTagsLayout(), i18n.getMessage("caption.tags.tab"), null);
+        getDetailsTab().addTab(getLogLayout(), i18n.getMessage("caption.logs.tab"), null);
+        getDetailsTab().addTab(dsMetadataLayout, i18n.getMessage("caption.metadata"), null);
     }
 
     protected void populateDetails() {
@@ -181,14 +182,13 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
         final VerticalLayout detailsTabLayout = getDetailsLayout();
         detailsTabLayout.removeAllComponents();
 
-        final Label typeLabel = SPUIComponentProvider
-                .createNameValueLabel(getI18n().getMessage("label.dist.details.type"), type == null ? "" : type);
+        final Label typeLabel = SPUIComponentProvider.createNameValueLabel(i18n.getMessage("label.dist.details.type"),
+                type == null ? "" : type);
         typeLabel.setId(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID);
         detailsTabLayout.addComponent(typeLabel);
 
         final Label requiredMigrationStepLabel = SPUIComponentProvider.createNameValueLabel(
-                getI18n().getMessage("checkbox.dist.migration.required"),
-                getMigrationRequiredValue(isMigrationRequired));
+                i18n.getMessage("checkbox.dist.migration.required"), getMigrationRequiredValue(isMigrationRequired));
         requiredMigrationStepLabel.setId(UIComponentIdProvider.DETAILS_REQUIRED_MIGRATION_STEP_LABEL_ID);
         if (!isMultiAssignmentEnabled()) {
             detailsTabLayout.addComponent(requiredMigrationStepLabel);
@@ -205,8 +205,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
         if (isMigrationRequired == null) {
             return "";
         }
-        return isMigrationRequired.equals(Boolean.TRUE) ? getI18n().getMessage("label.yes")
-                : getI18n().getMessage("label.no");
+        return isMigrationRequired.equals(Boolean.TRUE) ? i18n.getMessage("label.yes") : i18n.getMessage("label.no");
     }
 
     protected SoftwareModuleDetailsGrid getSoftwareModuleGrid() {

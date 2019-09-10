@@ -50,13 +50,13 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
             final SoftwareModuleManagement softwareManagement, final SwMetadataPopupLayout swMetadataPopupLayout,
             final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow) {
-        super(i18n, eventBus, permissionChecker, managementUIState);
+        super(i18n, eventBus, permissionChecker);
+
         this.softwareModuleAddUpdateWindow = softwareModuleAddUpdateWindow;
         this.softwareModuleManagement = softwareManagement;
         this.swMetadataPopupLayout = swMetadataPopupLayout;
 
-        swmMetadataLayout = new SoftwareModuleMetadataDetailsLayout(getI18n(), softwareManagement,
-                swMetadataPopupLayout);
+        swmMetadataLayout = new SoftwareModuleMetadataDetailsLayout(i18n, softwareManagement, swMetadataPopupLayout);
 
         addDetailsTab();
     }
@@ -67,10 +67,10 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
     }
 
     private final void addDetailsTab() {
-        getDetailsTab().addTab(getDetailsLayout(), getI18n().getMessage("caption.tab.details"), null);
-        getDetailsTab().addTab(getDescriptionLayout(), getI18n().getMessage("caption.tab.description"), null);
-        getDetailsTab().addTab(getLogLayout(), getI18n().getMessage("caption.logs.tab"), null);
-        getDetailsTab().addTab(swmMetadataLayout, getI18n().getMessage("caption.metadata"), null);
+        getDetailsTab().addTab(getDetailsLayout(), i18n.getMessage("caption.tab.details"), null);
+        getDetailsTab().addTab(getDescriptionLayout(), i18n.getMessage("caption.tab.description"), null);
+        getDetailsTab().addTab(getLogLayout(), i18n.getMessage("caption.logs.tab"), null);
+        getDetailsTab().addTab(swmMetadataLayout, i18n.getMessage("caption.metadata"), null);
     }
 
     @Override
@@ -82,8 +82,7 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
     protected void onEdit(final ClickEvent event) {
         final Window addSoftwareModule = softwareModuleAddUpdateWindow
                 .createUpdateSoftwareModuleWindow(getSelectedBaseEntityId());
-        addSoftwareModule
-                .setCaption(getI18n().getMessage("caption.update", getI18n().getMessage("caption.software.module")));
+        addSoftwareModule.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
         UI.getCurrent().addWindow(addSoftwareModule);
         addSoftwareModule.setVisible(Boolean.TRUE);
     }
@@ -100,12 +99,12 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
 
     @Override
     protected String getDefaultCaption() {
-        return getI18n().getMessage("upload.swModuleTable.header");
+        return i18n.getMessage("upload.swModuleTable.header");
     }
 
     @Override
     protected boolean hasEditPermission() {
-        return getPermissionChecker().hasUpdateRepositoryPermission();
+        return permissionChecker.hasUpdateRepositoryPermission();
     }
 
     @Override
@@ -131,19 +130,19 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
         detailsTabLayout.removeAllComponents();
 
         final Label vendorLabel = SPUIComponentProvider
-                .createNameValueLabel(getI18n().getMessage("label.dist.details.vendor"), vendor == null ? "" : vendor);
+                .createNameValueLabel(i18n.getMessage("label.dist.details.vendor"), vendor == null ? "" : vendor);
         vendorLabel.setId(UIComponentIdProvider.DETAILS_VENDOR_LABEL_ID);
         detailsTabLayout.addComponent(vendorLabel);
 
         if (type != null) {
             final Label typeLabel = SPUIComponentProvider
-                    .createNameValueLabel(getI18n().getMessage("label.dist.details.type"), type);
+                    .createNameValueLabel(i18n.getMessage("label.dist.details.type"), type);
             typeLabel.setId(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID);
             detailsTabLayout.addComponent(typeLabel);
         }
 
-        final Label assignLabel = SPUIComponentProvider
-                .createNameValueLabel(getI18n().getMessage("label.assigned.type"), maxAssign == null ? "" : maxAssign);
+        final Label assignLabel = SPUIComponentProvider.createNameValueLabel(i18n.getMessage("label.assigned.type"),
+                maxAssign == null ? "" : maxAssign);
         assignLabel.setId(UIComponentIdProvider.SWM_DTLS_MAX_ASSIGN);
         detailsTabLayout.addComponent(assignLabel);
     }
@@ -169,9 +168,9 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
         if (getSelectedBaseEntity() != null) {
             String maxAssign;
             if (getSelectedBaseEntity().getType().getMaxAssignments() == 1) {
-                maxAssign = getI18n().getMessage("label.singleAssign.type");
+                maxAssign = i18n.getMessage("label.singleAssign.type");
             } else {
-                maxAssign = getI18n().getMessage("label.multiAssign.type");
+                maxAssign = i18n.getMessage("label.multiAssign.type");
             }
             updateSoftwareModuleDetailsLayout(getSelectedBaseEntity().getType().getName(),
                     getSelectedBaseEntity().getVendor(), maxAssign);

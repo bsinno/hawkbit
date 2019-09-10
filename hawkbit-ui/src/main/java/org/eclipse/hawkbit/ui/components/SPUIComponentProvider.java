@@ -282,19 +282,6 @@ public final class SPUIComponentProvider {
     }
 
     /**
-     * Layout of tabs in detail tabsheet.
-     *
-     * @return VerticalLayout
-     */
-    public static VerticalLayout getDetailTabLayout() {
-        final VerticalLayout layout = new VerticalLayout();
-        layout.setSpacing(true);
-        layout.setMargin(true);
-
-        return layout;
-    }
-
-    /**
      * Method to create a link.
      *
      * @param id

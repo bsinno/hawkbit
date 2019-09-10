@@ -54,8 +54,9 @@ import com.vaadin.v7.ui.VerticalLayout;
  * Target details layout which is shown on the Deployment View.
  */
 public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
-
     private static final long serialVersionUID = 1L;
+
+    private final ManagementUIState managementUIState;
 
     private final TargetTagToken targetTagToken;
 
@@ -80,7 +81,9 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
             final UINotification uiNotification, final TargetTagManagement tagManagement,
             final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
             final EntityFactory entityFactory, final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout) {
-        super(i18n, eventBus, permissionChecker, managementUIState);
+        super(i18n, eventBus, permissionChecker);
+
+        this.managementUIState = managementUIState;
 
         this.targetTagToken = new TargetTagToken(permissionChecker, i18n, uiNotification, eventBus, managementUIState,
                 tagManagement, targetManagement);
@@ -97,18 +100,18 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
 
     @Override
     protected String getDefaultCaption() {
-        return getI18n().getMessage("target.details.header");
+        return i18n.getMessage("target.details.header");
     }
 
     private final void addDetailsTab() {
-        getDetailsTab().addTab(getDetailsLayout(), getI18n().getMessage("caption.tab.details"), null);
-        getDetailsTab().addTab(getDescriptionLayout(), getI18n().getMessage("caption.tab.description"), null);
-        getDetailsTab().addTab(getAttributesLayout(), getI18n().getMessage("caption.attributes.tab"), null);
-        getDetailsTab().addTab(createAssignedDistLayout(), getI18n().getMessage("header.target.assigned"), null);
-        getDetailsTab().addTab(createInstalledDistLayout(), getI18n().getMessage("header.target.installed"), null);
-        getDetailsTab().addTab(getTagsLayout(), getI18n().getMessage("caption.tags.tab"), null);
-        getDetailsTab().addTab(getLogLayout(), getI18n().getMessage("caption.logs.tab"), null);
-        getDetailsTab().addTab(targetMetadataLayout, getI18n().getMessage("caption.metadata"), null);
+        getDetailsTab().addTab(getDetailsLayout(), i18n.getMessage("caption.tab.details"), null);
+        getDetailsTab().addTab(getDescriptionLayout(), i18n.getMessage("caption.tab.description"), null);
+        getDetailsTab().addTab(getAttributesLayout(), i18n.getMessage("caption.attributes.tab"), null);
+        getDetailsTab().addTab(createAssignedDistLayout(), i18n.getMessage("header.target.assigned"), null);
+        getDetailsTab().addTab(createInstalledDistLayout(), i18n.getMessage("header.target.installed"), null);
+        getDetailsTab().addTab(getTagsLayout(), i18n.getMessage("caption.tags.tab"), null);
+        getDetailsTab().addTab(getLogLayout(), i18n.getMessage("caption.logs.tab"), null);
+        getDetailsTab().addTab(targetMetadataLayout, i18n.getMessage("caption.metadata"), null);
     }
 
     private Component createInstalledDistLayout() {
@@ -134,7 +137,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
         if (targetWindow == null) {
             return;
         }
-        targetWindow.setCaption(getI18n().getMessage("caption.update", getI18n().getMessage("caption.target")));
+        targetWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
         UI.getCurrent().addWindow(targetWindow);
         targetWindow.setVisible(Boolean.TRUE);
     }
@@ -146,7 +149,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
 
     @Override
     protected boolean onLoadIsTableMaximized() {
-        return getManagementUIState().isTargetTableMaximized();
+        return managementUIState.isTargetTableMaximized();
     }
 
     @Override
@@ -179,23 +182,23 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
         final VerticalLayout detailsTabLayout = getDetailsLayout();
         detailsTabLayout.removeAllComponents();
 
-        final Label controllerLabel = SPUIComponentProvider.createNameValueLabel(
-                getI18n().getMessage("label.target.id"), controllerId == null ? "" : controllerId);
+        final Label controllerLabel = SPUIComponentProvider.createNameValueLabel(i18n.getMessage("label.target.id"),
+                controllerId == null ? "" : controllerId);
         controllerLabel.setId(UIComponentIdProvider.TARGET_CONTROLLER_ID);
         detailsTabLayout.addComponent(controllerLabel);
 
         final Label lastPollDtLabel = SPUIComponentProvider.createNameValueLabel(
-                getI18n().getMessage("label.target.lastpolldate"), lastQueryDate == null ? "" : lastQueryDate);
+                i18n.getMessage("label.target.lastpolldate"), lastQueryDate == null ? "" : lastQueryDate);
         lastPollDtLabel.setId(UIComponentIdProvider.TARGET_LAST_QUERY_DT);
         detailsTabLayout.addComponent(lastPollDtLabel);
 
-        final Label typeLabel = SPUIComponentProvider.createNameValueLabel(getI18n().getMessage("label.ip"),
+        final Label typeLabel = SPUIComponentProvider.createNameValueLabel(i18n.getMessage("label.ip"),
                 address == null ? "" : address.toString());
         typeLabel.setId(UIComponentIdProvider.TARGET_IP_ADDRESS);
         detailsTabLayout.addComponent(typeLabel);
 
         final HorizontalLayout securityTokenLayout = getSecurityTokenLayout(securityToken);
-        controllerLabel.setId(UIComponentIdProvider.TARGET_SECURITY_TOKEN);
+        securityTokenLayout.setId(UIComponentIdProvider.TARGET_SECURITY_TOKEN);
         detailsTabLayout.addComponent(securityTokenLayout);
     }
 
@@ -203,7 +206,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
         final HorizontalLayout securityTokenLayout = new HorizontalLayout();
 
         final Label securityTableLbl = new Label(
-                SPUIComponentProvider.getBoldHTMLText(getI18n().getMessage("label.target.security.token")),
+                SPUIComponentProvider.getBoldHTMLText(i18n.getMessage("label.target.security.token")),
                 ContentMode.HTML);
         securityTableLbl.addStyleName(SPUIDefinitions.TEXT_STYLE);
         securityTableLbl.addStyleName("label-style");
@@ -225,12 +228,11 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
 
     private void populateDistributionDtls(final VerticalLayout layout, final DistributionSet distributionSet) {
         layout.removeAllComponents();
-        layout.addComponent(SPUIComponentProvider.createNameValueLabel(getI18n().getMessage("label.dist.details.name"),
+        layout.addComponent(SPUIComponentProvider.createNameValueLabel(i18n.getMessage("label.dist.details.name"),
                 distributionSet == null ? "" : distributionSet.getName()));
 
-        layout.addComponent(
-                SPUIComponentProvider.createNameValueLabel(getI18n().getMessage("label.dist.details.version"),
-                        distributionSet == null ? "" : distributionSet.getVersion()));
+        layout.addComponent(SPUIComponentProvider.createNameValueLabel(i18n.getMessage("label.dist.details.version"),
+                distributionSet == null ? "" : distributionSet.getVersion()));
 
         if (distributionSet == null) {
             return;
@@ -276,7 +278,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
     private Label buildAttributesUpdateLabel() {
         final Label attributesUpdateLabel = new Label();
         attributesUpdateLabel.setStyleName(ValoTheme.LABEL_SMALL);
-        attributesUpdateLabel.setValue(getI18n().getMessage("label.target.attributes.update.pending"));
+        attributesUpdateLabel.setValue(i18n.getMessage("label.target.attributes.update.pending"));
 
         return attributesUpdateLabel;
     }
@@ -289,12 +291,10 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
         requestAttributesUpdateButton.addClickListener(e -> targetManagement.requestControllerAttributes(controllerId));
 
         if (isRequestAttributes) {
-            requestAttributesUpdateButton
-                    .setDescription(getI18n().getMessage("tooltip.target.attributes.update.requested"));
+            requestAttributesUpdateButton.setDescription(i18n.getMessage("tooltip.target.attributes.update.requested"));
             requestAttributesUpdateButton.setEnabled(false);
         } else {
-            requestAttributesUpdateButton
-                    .setDescription(getI18n().getMessage("tooltip.target.attributes.update.request"));
+            requestAttributesUpdateButton.setDescription(i18n.getMessage("tooltip.target.attributes.update.request"));
             requestAttributesUpdateButton.setEnabled(true);
         }
 
@@ -316,7 +316,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
 
     @Override
     protected boolean hasEditPermission() {
-        return getPermissionChecker().hasUpdateTargetPermission();
+        return permissionChecker.hasUpdateTargetPermission();
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -338,7 +338,7 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
     protected void showMetadata(final ClickEvent event) {
         final Optional<Target> target = targetManagement.get(getSelectedBaseEntityId());
         if (!target.isPresent()) {
-            uiNotification.displayWarning(getI18n().getMessage("targets.not.exists"));
+            uiNotification.displayWarning(i18n.getMessage("targets.not.exists"));
             return;
         }
         UI.getCurrent().addWindow(targetMetadataPopupLayout.getWindow(target.get(), null));

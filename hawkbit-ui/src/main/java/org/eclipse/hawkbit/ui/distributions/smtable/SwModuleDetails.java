@@ -97,7 +97,7 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
     private Button createShowArtifactDetailsButton() {
         artifactDetailsButton = SPUIComponentProvider.getButton("", "", "", null, false, FontAwesome.FILE_O,
                 SPUIButtonStyleNoBorder.class);
-        artifactDetailsButton.setDescription(getI18n().getMessage(UIMessageIdProvider.TOOLTIP_ARTIFACT_ICON));
+        artifactDetailsButton.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_ARTIFACT_ICON));
         artifactDetailsButton.addClickListener(event -> showArtifactDetailsWindow(getSelectedBaseEntity()));
         return artifactDetailsButton;
     }
@@ -107,7 +107,7 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
     private void showArtifactDetailsWindow(final ProxySoftwareModule softwareModule) {
         final Window artifactDtlsWindow = new Window();
         artifactDtlsWindow.setCaption(HawkbitCommonUtil
-                .getArtifactoryDetailsLabelId(softwareModule.getName() + "." + softwareModule.getVersion(), getI18n()));
+                .getArtifactoryDetailsLabelId(softwareModule.getName() + "." + softwareModule.getVersion(), i18n));
         artifactDtlsWindow.setCaptionAsHtml(true);
         artifactDtlsWindow.setClosable(true);
         artifactDtlsWindow.setResizable(true);

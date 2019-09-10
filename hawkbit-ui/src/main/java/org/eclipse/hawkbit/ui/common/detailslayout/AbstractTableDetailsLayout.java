@@ -16,7 +16,6 @@ import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 import org.eclipse.hawkbit.ui.common.tagdetails.AbstractTagToken;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -43,46 +42,38 @@ import com.vaadin.v7.ui.VerticalLayout;
 public abstract class AbstractTableDetailsLayout<T extends ProxyNamedEntity> extends VerticalLayout {
     private static final long serialVersionUID = 1L;
 
-    private final VaadinMessageSource i18n;
-
-    private final SpPermissionChecker permissionChecker;
-
-    private T selectedBaseEntity;
+    protected final VaadinMessageSource i18n;
+    protected final SpPermissionChecker permissionChecker;
 
     private Label caption;
-
     private Button editButton;
-
     private Button manageMetadataBtn;
-
     private TabSheet detailsTab;
 
     private final VerticalLayout detailsLayout;
-
     private final VerticalLayout descriptionLayout;
-
     private final VerticalLayout logLayout;
-
     private final VerticalLayout attributesLayout;
-
     private final VerticalLayout tagsLayout;
-
-    private final ManagementUIState managementUIState;
 
     private HorizontalLayout nameEditLayout;
 
+    private T selectedBaseEntity;
+
     protected AbstractTableDetailsLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState) {
+            final SpPermissionChecker permissionChecker) {
         this.i18n = i18n;
         this.permissionChecker = permissionChecker;
-        this.managementUIState = managementUIState;
+
         detailsLayout = createTabLayout();
         descriptionLayout = createTabLayout();
         logLayout = createTabLayout();
         attributesLayout = createTabLayout();
         tagsLayout = createTabLayout();
+
         createComponents();
         buildLayout();
+
         if (doSubscribeToEventBus()) {
             eventBus.subscribe(this);
         }
@@ -101,22 +92,17 @@ public abstract class AbstractTableDetailsLayout<T extends ProxyNamedEntity> ext
         this.selectedBaseEntity = selectedBaseEntity;
     }
 
-    protected final VerticalLayout createTabLayout() {
-        final VerticalLayout tabLayout = SPUIComponentProvider.getDetailTabLayout();
-        tabLayout.addStyleName("details-layout");
-        return tabLayout;
-    }
-
-    protected SpPermissionChecker getPermissionChecker() {
-        return permissionChecker;
-    }
-
-    protected VaadinMessageSource getI18n() {
-        return i18n;
-    }
-
     protected T getSelectedBaseEntity() {
         return selectedBaseEntity;
+    }
+
+    protected final VerticalLayout createTabLayout() {
+        final VerticalLayout tabLayout = new VerticalLayout();
+        tabLayout.setSpacing(true);
+        tabLayout.setMargin(true);
+        tabLayout.addStyleName("details-layout");
+
+        return tabLayout;
     }
 
     /**
@@ -205,10 +191,6 @@ public abstract class AbstractTableDetailsLayout<T extends ProxyNamedEntity> ext
 
     protected TabSheet getDetailsTab() {
         return detailsTab;
-    }
-
-    protected ManagementUIState getManagementUIState() {
-        return managementUIState;
     }
 
     protected void createComponents() {

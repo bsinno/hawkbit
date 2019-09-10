@@ -25,8 +25,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * Distribution set details layout.
  */
 public class DistributionDetails extends AbstractDistributionSetDetails {
-
     private static final long serialVersionUID = 1L;
+
+    private final ManagementUIState managementUIState;
 
     DistributionDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
@@ -40,6 +41,9 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
                 distributionSetManagement, dsMetadataPopupLayout, uiNotification, distributionSetTagManagement,
                 createSoftwareModuleDetailsGrid(i18n, permissionChecker, uiNotification), tenantConfigurationManagement,
                 systemSecurityContext);
+
+        this.managementUIState = managementUIState;
+
         restoreState();
     }
 
@@ -50,7 +54,7 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
 
     @Override
     protected boolean onLoadIsTableMaximized() {
-        return getManagementUIState().isDsTableMaximized();
+        return managementUIState.isDsTableMaximized();
     }
 
     @Override
