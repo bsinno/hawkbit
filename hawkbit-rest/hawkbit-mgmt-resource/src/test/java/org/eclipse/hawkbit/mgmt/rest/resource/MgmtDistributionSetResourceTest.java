@@ -98,11 +98,12 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         // create targets and assign DisSet to target
         final String[] knownTargetIds = new String[] { "1", "2" };
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(768);
         for (final String targetId : knownTargetIds) {
             testdataFactory.createTarget(targetId);
             list.put(new JSONObject().put("id", Long.valueOf(targetId)));
         }
-        assignDistributionSet(disSet.getId(), knownTargetIds[0]);
+        assignDistributionSet(disSet.getId(), knownTargetIds[0], weight);
         mvc.perform(
                 post(MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + disSet.getId() + "/assignedTargets")
                         .contentType(MediaType.APPLICATION_JSON).content(list.toString()))
@@ -140,12 +141,13 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         // create Targets
         final String[] knownTargetIds = new String[] { "1", "2" };
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(768);
         for (final String targetId : knownTargetIds) {
             testdataFactory.createTarget(targetId);
             list.put(new JSONObject().put("id", Long.valueOf(targetId)));
         }
         // assign DisSet to target and test assignment
-        assignDistributionSet(disSet.getId(), knownTargetIds[0]);
+        assignDistributionSet(disSet.getId(), knownTargetIds[0], weight);
         mvc.perform(
                 post(MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + disSet.getId() + "/assignedTargets")
                         .contentType(MediaType.APPLICATION_JSON).content(list.toString()))
@@ -258,12 +260,13 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         // prepare targets
         final String[] knownTargetIds = new String[] { "1", "2", "3", "4", "5" };
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(768);
         for (final String targetId : knownTargetIds) {
             testdataFactory.createTarget(targetId);
             list.put(new JSONObject().put("id", Long.valueOf(targetId)));
         }
         // assign already one target to DS
-        assignDistributionSet(createdDs.getId(), knownTargetIds[0]);
+        assignDistributionSet(createdDs.getId(), knownTargetIds[0], weight);
 
         mvc.perform(post(
                 MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + createdDs.getId() + "/assignedTargets")
@@ -333,10 +336,11 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         final DistributionSet ds1 = testdataFactory.createDistributionSet("ds1");
         final DistributionSet ds2 = testdataFactory.createDistributionSet("ds2");
         final DistributionSet ds3 = testdataFactory.createDistributionSet("ds3");
+        final Integer weight = new Integer(768);
 
         IntStream.range(0, maxActions).forEach(i -> {
             // toggle the distribution set
-            assignDistributionSet(i % 2 == 0 ? ds1 : ds2, testTarget);
+            assignDistributionSet(i % 2 == 0 ? ds1 : ds2, testTarget, weight);
         });
 
         // assign our test target to another distribution set and verify that
@@ -352,6 +356,7 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         final DistributionSet createdDs = testdataFactory.createDistributionSet();
         final List<Target> targets = testdataFactory.createTargets(5);
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(768);
         targets.forEach(target -> {
             try {
                 list.put(new JSONObject().put("id", target.getControllerId()));
@@ -361,7 +366,7 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         });
 
         // assign already one target to DS
-        assignDistributionSet(createdDs.getId(), targets.get(0).getControllerId());
+        assignDistributionSet(createdDs.getId(), targets.get(0).getControllerId(), weight);
 
         mvc.perform(post(MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + createdDs.getId()
                 + "/assignedTargets?offline=true").contentType(MediaType.APPLICATION_JSON).content(list.toString()))
@@ -384,13 +389,14 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         // prepare targets
         final String[] knownTargetIds = new String[] { "1", "2", "3", "4", "5" };
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(768);
         for (final String targetId : knownTargetIds) {
             testdataFactory.createTarget(targetId);
             list.put(new JSONObject().put("id", Long.valueOf(targetId)).put("maintenanceWindow",
                     new JSONObject().put("schedule", getTestSchedule(0))));
         }
         // assign already one target to DS
-        assignDistributionSet(createdDs.getId(), knownTargetIds[0]);
+        assignDistributionSet(createdDs.getId(), knownTargetIds[0], weight);
 
         mvc.perform(post(
                 MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + createdDs.getId() + "/assignedTargets")
@@ -407,13 +413,14 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         // prepare targets
         final String[] knownTargetIds = new String[] { "1", "2", "3", "4", "5" };
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(768);
         for (final String targetId : knownTargetIds) {
             testdataFactory.createTarget(targetId);
             list.put(new JSONObject().put("id", Long.valueOf(targetId)).put("maintenanceWindow",
                     new JSONObject().put("duration", getTestDuration(10))));
         }
         // assign already one target to DS
-        assignDistributionSet(createdDs.getId(), knownTargetIds[0]);
+        assignDistributionSet(createdDs.getId(), knownTargetIds[0], weight);
 
         mvc.perform(post(
                 MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + createdDs.getId() + "/assignedTargets")
@@ -430,6 +437,7 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         // prepare targets
         final String[] knownTargetIds = new String[] { "1", "2", "3", "4", "5" };
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(768);
         for (final String targetId : knownTargetIds) {
             testdataFactory.createTarget(targetId);
             list.put(new JSONObject().put("id", Long.valueOf(targetId)).put("maintenanceWindow",
@@ -437,7 +445,7 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
                             .put("timezone", getTestTimeZone())));
         }
         // assign already one target to DS
-        assignDistributionSet(createdDs.getId(), knownTargetIds[0]);
+        assignDistributionSet(createdDs.getId(), knownTargetIds[0], weight);
 
         mvc.perform(post(
                 MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + createdDs.getId() + "/assignedTargets")
@@ -454,6 +462,7 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         // prepare targets
         final String[] knownTargetIds = new String[] { "1", "2", "3", "4", "5" };
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(22);
         for (final String targetId : knownTargetIds) {
             testdataFactory.createTarget(targetId);
             list.put(new JSONObject().put("id", Long.valueOf(targetId)).put("maintenanceWindow",
@@ -461,7 +470,7 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
                             .put("timezone", getTestTimeZone())));
         }
         // assign already one target to DS
-        assignDistributionSet(createdDs.getId(), knownTargetIds[0]);
+        assignDistributionSet(createdDs.getId(), knownTargetIds[0], weight);
 
         mvc.perform(post(
                 MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + createdDs.getId() + "/assignedTargets")
@@ -478,6 +487,7 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         // prepare targets
         final String[] knownTargetIds = new String[] { "1", "2", "3", "4", "5" };
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(768);
         for (final String targetId : knownTargetIds) {
             testdataFactory.createTarget(targetId);
             if (Integer.parseInt(targetId) % 2 == 0) {
@@ -489,7 +499,7 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
             }
         }
         // assign already one target to DS
-        assignDistributionSet(createdDs.getId(), knownTargetIds[0]);
+        assignDistributionSet(createdDs.getId(), knownTargetIds[0], weight);
 
         mvc.perform(post(
                 MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + createdDs.getId() + "/assignedTargets")
@@ -504,8 +514,9 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         final String knownTargetId = "knownTargetId1";
         final Set<DistributionSet> createDistributionSetsAlphabetical = createDistributionSetsAlphabetical(1);
         final DistributionSet createdDs = createDistributionSetsAlphabetical.iterator().next();
+        final Integer weight = new Integer(768);
         testdataFactory.createTarget(knownTargetId);
-        assignDistributionSet(createdDs.getId(), knownTargetId);
+        assignDistributionSet(createdDs.getId(), knownTargetId, weight);
 
         mvc.perform(get(
                 MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING + "/" + createdDs.getId() + "/assignedTargets"))
@@ -532,11 +543,12 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         final Set<DistributionSet> createDistributionSetsAlphabetical = createDistributionSetsAlphabetical(1);
         final DistributionSet createdDs = createDistributionSetsAlphabetical.iterator().next();
         final Target createTarget = testdataFactory.createTarget(knownTargetId);
+        final Integer weight = new Integer(768);
         // create some dummy targets which are not assigned or installed
         testdataFactory.createTarget("dummy1");
         testdataFactory.createTarget("dummy2");
         // assign knownTargetId to distribution set
-        assignDistributionSet(createdDs.getId(), knownTargetId);
+        assignDistributionSet(createdDs.getId(), knownTargetId, weight);
         // make it in install state
         testdataFactory.sendUpdateActionStatusToTargets(Arrays.asList(createTarget), Status.FINISHED,
                 Collections.singletonList("some message"));
@@ -888,8 +900,9 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         assertThat(distributionSetManagement.findByCompleted(PAGE, true)).hasSize(0);
 
         final DistributionSet set = testdataFactory.createDistributionSet("one");
+        final Integer weight = new Integer(768);
         testdataFactory.createTarget("test");
-        assignDistributionSet(set.getId(), "test");
+        assignDistributionSet(set.getId(), "test", weight);
 
         assertThat(distributionSetManagement.findByCompleted(PAGE, true)).hasSize(1);
 
@@ -943,7 +956,8 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         assertThat(distributionSetManagement.findByCompleted(PAGE, true)).hasSize(0);
 
         final DistributionSet set = testdataFactory.createDistributionSet("one");
-        assignDistributionSet(set.getId(), testdataFactory.createTarget().getControllerId());
+        final Integer weight = new Integer(768);
+        assignDistributionSet(set.getId(), testdataFactory.createTarget().getControllerId(), weight);
 
         assertThat(distributionSetManagement.count()).isEqualTo(1);
 
@@ -1200,12 +1214,13 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
         final DistributionSet createdDs = createDistributionSetsAlphabetical.iterator().next();
         // prepare targets
         final Collection<String> knownTargetIds = Arrays.asList("1", "2", "3", "4", "5");
+        final Integer weight = new Integer(768);
 
         knownTargetIds.forEach(
                 controllerId -> targetManagement.create(entityFactory.target().create().controllerId(controllerId)));
 
         // assign already one target to DS
-        assignDistributionSet(createdDs.getId(), knownTargetIds.iterator().next());
+        assignDistributionSet(createdDs.getId(), knownTargetIds.iterator().next(), weight);
 
         final String rsqlFindTargetId1 = "controllerId==1";
 
@@ -1247,24 +1262,25 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
     }
 
     @Test
-    @Description("Ensures that multi target assignment through API is reflected by the repository in the case of " +
-            "DOWNLOAD_ONLY.")
+    @Description("Ensures that multi target assignment through API is reflected by the repository in the case of "
+            + "DOWNLOAD_ONLY.")
     public void assignMultipleTargetsToDistributionSetAsDownloadOnly() throws Exception {
         final DistributionSet createdDs = testdataFactory.createDistributionSet();
 
         // prepare targets
         final String[] knownTargetIds = new String[] { "1", "2", "3", "4", "5" };
         final JSONArray list = new JSONArray();
+        final Integer weight = new Integer(768);
         for (final String targetId : knownTargetIds) {
             testdataFactory.createTarget(targetId);
             list.put(new JSONObject().put("id", Long.valueOf(targetId)));
         }
         // assign already one target to DS
-        assignDistributionSet(createdDs.getId(), knownTargetIds[0], Action.ActionType.DOWNLOAD_ONLY);
+        assignDistributionSet(createdDs.getId(), knownTargetIds[0], Action.ActionType.DOWNLOAD_ONLY, weight);
 
         mvc.perform(post("/rest/v1/distributionsets/{ds}/assignedTargets", createdDs.getId())
-                .contentType(MediaType.APPLICATION_JSON).content(list.toString()))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.assigned", equalTo(knownTargetIds.length - 1)))
+                .contentType(MediaType.APPLICATION_JSON).content(list.toString())).andExpect(status().isOk())
+                .andExpect(jsonPath("$.assigned", equalTo(knownTargetIds.length - 1)))
                 .andExpect(jsonPath("$.alreadyAssigned", equalTo(1)))
                 .andExpect(jsonPath("$.total", equalTo(knownTargetIds.length)));
 
@@ -1320,8 +1336,6 @@ public class MgmtDistributionSetResourceTest extends AbstractManagementApiIntegr
                 .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultPrinter.print()).andExpect(status().isOk())
                 .andExpect(jsonPath("total", equalTo(body.length())));
     }
-
-
 
     public static JSONObject getAssignmentObject(final String targetId, final MgmtActionType type)
             throws JSONException {

@@ -76,7 +76,7 @@ public class RSQLTargetFieldTest extends AbstractJpaIntegrationTest {
         targetManagement.assignTag(Arrays.asList(target3.getControllerId(), target4.getControllerId()),
                 targetTag3.getId());
 
-        assignDistributionSet(ds.getId(), target.getControllerId());
+        assignDistributionSet(ds.getId(), target.getControllerId(), new Integer(564));
     }
 
     @Test

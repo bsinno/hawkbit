@@ -36,7 +36,7 @@ public final class MgmtDeploymentRequestMapper {
             final String targetId) {
 
         return createAssignmentRequest(targetId, dsAssignment.getId(), dsAssignment.getType(),
-                dsAssignment.getForcetime(), dsAssignment.getMaintenanceWindow());
+                dsAssignment.getForcetime(), dsAssignment.getWeight(), dsAssignment.getMaintenanceWindow());
     }
 
     /**
@@ -52,13 +52,15 @@ public final class MgmtDeploymentRequestMapper {
             final Long dsId) {
 
         return createAssignmentRequest(targetAssignment.getId(), dsId, targetAssignment.getType(),
-                targetAssignment.getForcetime(), targetAssignment.getMaintenanceWindow());
+                targetAssignment.getForcetime(), targetAssignment.getWeight(), targetAssignment.getMaintenanceWindow());
     }
 
     private static DeploymentRequest createAssignmentRequest(final String targetId, final Long dsId,
-            final MgmtActionType type, final long forcetime, final MgmtMaintenanceWindowRequestBody maintenanceWindow) {
+            final MgmtActionType type, final long forcetime, final Integer weight,
+            final MgmtMaintenanceWindowRequestBody maintenanceWindow) {
         if (maintenanceWindow == null) {
-            return new DeploymentRequest(targetId, dsId, MgmtRestModelMapper.convertActionType(type), forcetime);
+            return new DeploymentRequest(targetId, dsId, MgmtRestModelMapper.convertActionType(type), forcetime,
+                    weight);
         }
 
         final String cronSchedule = maintenanceWindow.getSchedule();
@@ -67,7 +69,7 @@ public final class MgmtDeploymentRequestMapper {
 
         MaintenanceScheduleHelper.validateMaintenanceSchedule(cronSchedule, duration, timezone);
 
-        return new DeploymentRequest(targetId, dsId, MgmtRestModelMapper.convertActionType(type), forcetime,
+        return new DeploymentRequest(targetId, dsId, MgmtRestModelMapper.convertActionType(type), forcetime, weight,
                 cronSchedule, duration, timezone);
     }
 

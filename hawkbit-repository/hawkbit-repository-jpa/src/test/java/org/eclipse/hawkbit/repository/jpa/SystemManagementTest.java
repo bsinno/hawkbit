@@ -98,6 +98,7 @@ public class SystemManagementTest extends AbstractJpaIntegrationTest {
             final int updates) throws Exception {
         final Random randomgen = new Random();
         final byte random[] = new byte[artifactSize];
+        final Integer weight = new Integer(87);
         randomgen.nextBytes(random);
 
         for (int i = 0; i < tenants; i++) {
@@ -116,7 +117,7 @@ public class SystemManagementTest extends AbstractJpaIntegrationTest {
                                     final DistributionSet ds = testdataFactory
                                             .createDistributionSet("to be deployed" + x, true);
 
-                                    assignDistributionSet(ds, createdTargets);
+                                    assignDistributionSet(ds, createdTargets, weight);
                                 }
                             }
                         }

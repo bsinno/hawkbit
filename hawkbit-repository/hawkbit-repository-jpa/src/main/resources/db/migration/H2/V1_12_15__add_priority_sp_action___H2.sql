@@ -1,1 +1,0 @@
-ALTER TABLE sp_action ADD weight BIGINT;

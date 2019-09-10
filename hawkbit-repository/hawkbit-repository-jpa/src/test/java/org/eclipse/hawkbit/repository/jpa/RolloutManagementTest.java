@@ -101,8 +101,9 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
         final String knownControllerId = "controller12345";
         final DistributionSet knownDistributionSet = testdataFactory.createDistributionSet();
         testdataFactory.createTarget(knownControllerId);
+        final Integer weight = new Integer(76);
         final DistributionSetAssignmentResult assignmentResult = assignDistributionSet(knownDistributionSet.getId(),
-                knownControllerId);
+                knownControllerId, weight);
         final Long manuallyAssignedActionId = getFirstAssignedActionId(assignmentResult);
 
         // create rollout with the same distribution set already assigned
@@ -126,7 +127,6 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
         final Action rolloutCreatedAction = actionsByKnownTarget.stream()
                 .filter(action -> !action.getId().equals(manuallyAssignedActionId)).findAny().get();
         assertThat(rolloutCreatedAction.getStatus()).isEqualTo(Status.FINISHED);
-
     }
 
     @Test
@@ -141,8 +141,9 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
             final DistributionSet firstDistributionSet = testdataFactory.createDistributionSet();
             final DistributionSet secondDistributionSet = testdataFactory.createDistributionSet("second");
             testdataFactory.createTarget(knownControllerId);
+            final Integer weight = new Integer(76);
             final DistributionSetAssignmentResult assignmentResult = assignDistributionSet(firstDistributionSet.getId(),
-                    knownControllerId);
+                    knownControllerId, weight);
             final Long manuallyAssignedActionId = getFirstAssignedActionId(assignmentResult);
 
             // create rollout with the same distribution set already assigned
@@ -619,7 +620,8 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
 
         changeStatusForAllRunningActions(createdRollout, Status.DOWNLOADED);
         rolloutManagement.handleRollouts();
-        // 4 targets are ready, 2 are finished(with DOWNLOADED action status) and 2 are running
+        // 4 targets are ready, 2 are finished(with DOWNLOADED action status)
+        // and 2 are running
         validationMap = createInitStatusMap();
         validationMap.put(TotalTargetCountStatus.Status.SCHEDULED, 4L);
         validationMap.put(TotalTargetCountStatus.Status.FINISHED, 2L);
@@ -628,7 +630,8 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
 
         changeStatusForAllRunningActions(createdRollout, Status.DOWNLOADED);
         rolloutManagement.handleRollouts();
-        // 2 targets are ready, 4 are finished(with DOWNLOADED action status) and 2 are running
+        // 2 targets are ready, 4 are finished(with DOWNLOADED action status)
+        // and 2 are running
         validationMap = createInitStatusMap();
         validationMap.put(TotalTargetCountStatus.Status.SCHEDULED, 2L);
         validationMap.put(TotalTargetCountStatus.Status.FINISHED, 4L);
@@ -637,7 +640,8 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
 
         changeStatusForAllRunningActions(createdRollout, Status.DOWNLOADED);
         rolloutManagement.handleRollouts();
-        // 0 targets are ready, 6 are finished(with DOWNLOADED action status) and 2 are running
+        // 0 targets are ready, 6 are finished(with DOWNLOADED action status)
+        // and 2 are running
         validationMap = createInitStatusMap();
         validationMap.put(TotalTargetCountStatus.Status.FINISHED, 6L);
         validationMap.put(TotalTargetCountStatus.Status.RUNNING, 2L);
@@ -645,7 +649,8 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
 
         changeStatusForAllRunningActions(createdRollout, Status.FINISHED);
         rolloutManagement.handleRollouts();
-        // 0 targets are ready, 6 are finished(with DOWNLOADED action status), 2 are finished and 0 are running
+        // 0 targets are ready, 6 are finished(with DOWNLOADED action status), 2
+        // are finished and 0 are running
         validationMap = createInitStatusMap();
         validationMap.put(TotalTargetCountStatus.Status.FINISHED, 8L);
         validateRolloutActionStatus(createdRollout.getId(), validationMap);
@@ -764,7 +769,8 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
         targetToCancel.add(targetList.get(1));
         targetToCancel.add(targetList.get(2));
         final DistributionSet dsForCancelTest = testdataFactory.createDistributionSet("dsForTest");
-        assignDistributionSet(dsForCancelTest, targetToCancel);
+        final Integer weight = new Integer(765);
+        assignDistributionSet(dsForCancelTest, targetToCancel, weight);
         // 5 targets are canceling but still have the status running and 5 are
         // still in SCHEDULED
         final Map<TotalTargetCountStatus.Status, Long> validationMap = createInitStatusMap();

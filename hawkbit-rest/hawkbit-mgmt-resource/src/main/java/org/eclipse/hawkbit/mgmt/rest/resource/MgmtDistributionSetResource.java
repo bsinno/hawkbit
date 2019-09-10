@@ -253,11 +253,10 @@ public class MgmtDistributionSetResource implements MgmtDistributionSetRestApi {
                 .collect(Collectors.toList());
 
         if (offline) {
-            return ResponseEntity
-                    .ok(MgmtDistributionSetMapper.toResponse(deployManagament.offlineAssignedDistributionSets(
-                            Collections.singletonList(distributionSetId), targetIds)));
+            return ResponseEntity.ok(MgmtDistributionSetMapper.toResponse(deployManagament
+                    .offlineAssignedDistributionSets(Collections.singletonList(distributionSetId), targetIds)));
         }
-        
+
         final List<DeploymentRequest> deploymentRequests = assignments.stream()
                 .map(assignment -> MgmtDeploymentRequestMapper.createAssignmentRequest(assignment, distributionSetId))
                 .collect(Collectors.toList());

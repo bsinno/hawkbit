@@ -189,7 +189,8 @@ public class SoftwareModuleManagementTest extends AbstractJpaIntegrationTest {
                         .modules(Arrays.asList(os.getId(), jvm.getId(), ah2.getId())));
 
         final JpaTarget target = (JpaTarget) testdataFactory.createTarget();
-        ds = (JpaDistributionSet) assignSet(target, ds).getDistributionSet();
+        final Integer weight = new Integer(126);
+        ds = (JpaDistributionSet) assignSet(target, ds, weight).getDistributionSet();
 
         // standard searches
         assertThat(softwareModuleManagement.findByTextAndType(PAGE, "poky", osType.getId()).getContent()).hasSize(1);
@@ -213,8 +214,8 @@ public class SoftwareModuleManagementTest extends AbstractJpaIntegrationTest {
                 .isEqualTo(ah);
     }
 
-    private Action assignSet(final JpaTarget target, final JpaDistributionSet ds) {
-        assignDistributionSet(ds.getId(), target.getControllerId());
+    private Action assignSet(final JpaTarget target, final JpaDistributionSet ds, final Integer weight) {
+        assignDistributionSet(ds.getId(), target.getControllerId(), weight);
         assertThat(targetManagement.getByControllerID(target.getControllerId()).get().getUpdateStatus())
                 .isEqualTo(TargetUpdateStatus.PENDING);
         assertThat(deploymentManagement.getAssignedDistributionSet(target.getControllerId()).get()).isEqualTo(ds);
@@ -333,7 +334,7 @@ public class SoftwareModuleManagementTest extends AbstractJpaIntegrationTest {
         final DistributionSet disSet = testdataFactory.createDistributionSet(Sets.newHashSet(assignedModule));
 
         // [STEP3]: Assign DistributionSet to a Device
-        assignDistributionSet(disSet, Arrays.asList(target));
+        assignDistributionSet(disSet, Arrays.asList(target), new Integer(45));
 
         // [STEP4]: Delete the DistributionSet
         distributionSetManagement.delete(disSet.getId());
@@ -432,11 +433,11 @@ public class SoftwareModuleManagementTest extends AbstractJpaIntegrationTest {
 
         // [STEP3]: Assign SoftwareModuleX to DistributionSetX and to target
         final DistributionSet disSetX = testdataFactory.createDistributionSet(Sets.newHashSet(moduleX), "X");
-        assignDistributionSet(disSetX, Arrays.asList(target));
+        assignDistributionSet(disSetX, Arrays.asList(target), new Integer(567));
 
         // [STEP4]: Assign SoftwareModuleY to DistributionSet and to target
         final DistributionSet disSetY = testdataFactory.createDistributionSet(Sets.newHashSet(moduleY), "Y");
-        assignDistributionSet(disSetY, Arrays.asList(target));
+        assignDistributionSet(disSetY, Arrays.asList(target), new Integer(86));
 
         // [STEP5]: Delete SoftwareModuleX
         softwareModuleManagement.delete(moduleX.getId());

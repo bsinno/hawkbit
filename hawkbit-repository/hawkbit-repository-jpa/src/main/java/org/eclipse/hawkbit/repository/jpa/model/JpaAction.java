@@ -28,6 +28,7 @@ import javax.persistence.NamedEntityGraphs;
 import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.hawkbit.repository.MaintenanceScheduleHelper;
@@ -90,7 +91,8 @@ public class JpaAction extends AbstractJpaTenantAwareBaseEntity implements Actio
     private long forcedTime;
 
     @Column(name = "weight")
-    private long weight;
+    @Max(Action.PRIORITY_MAX_WEIGHT)
+    private Integer weight;
 
     @Column(name = "status", nullable = false)
     @ObjectTypeConverter(name = "status", objectType = Action.Status.class, dataType = Integer.class, conversionValues = {
@@ -196,11 +198,11 @@ public class JpaAction extends AbstractJpaTenantAwareBaseEntity implements Actio
     }
 
     @Override
-    public long getWeight() {
+    public Integer getWeight() {
         return weight;
     }
 
-    public void setWeight(final long weight) {
+    public void setWeight(final Integer weight) {
         this.weight = weight;
     }
 

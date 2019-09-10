@@ -98,6 +98,9 @@ public class AutoAssignChecker {
 
         final Page<TargetFilterQuery> filterQueries = targetFilterQueryManagement.findWithAutoAssignDS(pageRequest);
 
+        // TODO : In INC 3, we need to ensure that the filter queries are sorted
+        // in the order of weights so that the actions tied to every DS gets
+        // executed accordingly
         for (final TargetFilterQuery filterQuery : filterQueries) {
             checkByTargetFilterQueryAndAssignDS(filterQuery);
         }
@@ -176,8 +179,10 @@ public class AutoAssignChecker {
         // specified)
         final ActionType autoAssignActionType = type == null ? ActionType.FORCED : type;
 
+        // TODO: right now the weight is NULL here, but need to check again in
+        // INC 3 stage
         return targets.getContent().stream().map(t -> new DeploymentRequest(t.getControllerId(), dsId,
-                autoAssignActionType, RepositoryModelConstants.NO_FORCE_TIME)).collect(Collectors.toList());
+                autoAssignActionType, RepositoryModelConstants.NO_FORCE_TIME, null)).collect(Collectors.toList());
     }
 
 }

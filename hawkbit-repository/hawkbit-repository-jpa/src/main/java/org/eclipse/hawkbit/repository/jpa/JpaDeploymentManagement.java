@@ -175,9 +175,9 @@ public class JpaDeploymentManagement implements DeploymentManagement {
         final List<Long> distinctDsIds = requestedDsIDs.stream().distinct().collect(Collectors.toList());
         enforceMaxAssignmentsPerRequest(distinctControllerIds.size() * distinctControllerIds.size());
         final List<DeploymentRequest> deploymentRequests = new ArrayList<>();
-        distinctDsIds.forEach(dsId ->
-            distinctControllerIds.forEach(controllerId -> deploymentRequests
-                .add(new DeploymentRequest(controllerId, dsId, ActionType.FORCED, -1))));
+
+        distinctDsIds.forEach(dsId -> distinctControllerIds.forEach(controllerId -> deploymentRequests
+                .add(new DeploymentRequest(controllerId, dsId, ActionType.FORCED, -1, null))));
 
         return assignDistributionSets(deploymentRequests, null, offlineDsAssignmentStrategy);
     }
@@ -274,8 +274,8 @@ public class JpaDeploymentManagement implements DeploymentManagement {
             final AbstractDsAssignmentStrategy assignmentStrategy) {
 
         final JpaDistributionSet distributionSetEntity = getAndValidateDsById(dsID);
-        final List<String> targetIds = targetsWithActionType.stream().map(TargetWithActionType::getControllerId).distinct()
-                .collect(Collectors.toList());
+        final List<String> targetIds = targetsWithActionType.stream().map(TargetWithActionType::getControllerId)
+                .distinct().collect(Collectors.toList());
 
         final List<JpaTarget> targetEntities = assignmentStrategy.findTargetsForAssignment(targetIds,
                 distributionSetEntity.getId());
@@ -284,8 +284,8 @@ public class JpaDeploymentManagement implements DeploymentManagement {
             return allTargetsAlreadyAssignedResult(distributionSetEntity, targetsWithActionType.size());
         }
 
-        final List<JpaAction> assignedActions = doAssignDistributionSetToTargets(targetsWithActionType,
-                actionMessage, assignmentStrategy, distributionSetEntity, targetEntities);
+        final List<JpaAction> assignedActions = doAssignDistributionSetToTargets(targetsWithActionType, actionMessage,
+                assignmentStrategy, distributionSetEntity, targetEntities);
         return buildAssignmentResult(distributionSetEntity, assignedActions, targetsWithActionType.size());
     }
 

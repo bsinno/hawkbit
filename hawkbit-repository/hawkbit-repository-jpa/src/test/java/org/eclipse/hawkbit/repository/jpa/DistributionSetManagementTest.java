@@ -432,7 +432,8 @@ public class DistributionSetManagementTest extends AbstractJpaIntegrationTest {
         ds = distributionSetManagement.assignSoftwareModules(ds.getId(), Sets.newHashSet(ah2.getId()));
 
         // assign target
-        assignDistributionSet(ds.getId(), target.getControllerId());
+        final Integer weight = new Integer(80);
+        assignDistributionSet(ds.getId(), target.getControllerId(), weight);
         ds = distributionSetManagement.getWithDetails(ds.getId()).get();
 
         final Long dsId = ds.getId();
@@ -583,19 +584,22 @@ public class DistributionSetManagementTest extends AbstractJpaIntegrationTest {
         final Iterator<Target> tIterator = buildTargetFixtures.iterator();
         dsIterator.next();
         final DistributionSet dsSecond = dsIterator.next();
+        final Integer weight2 = new Integer(90);
         final DistributionSet dsThree = dsIterator.next();
+        final Integer weight3 = new Integer(100);
         final DistributionSet dsFour = dsIterator.next();
+        final Integer weight4 = new Integer(110);
         final Target tFirst = tIterator.next();
         final Target tSecond = tIterator.next();
 
         // set assigned
-        assignDistributionSet(dsSecond.getId(), tSecond.getControllerId());
-        assignDistributionSet(dsThree.getId(), tFirst.getControllerId());
+        assignDistributionSet(dsSecond.getId(), tSecond.getControllerId(), weight2);
+        assignDistributionSet(dsThree.getId(), tFirst.getControllerId(), weight3);
         // set installed
         testdataFactory.sendUpdateActionStatusToTargets(Collections.singleton(tSecond), Status.FINISHED,
                 Arrays.asList("some message"));
 
-        assignDistributionSet(dsFour.getId(), tSecond.getControllerId());
+        assignDistributionSet(dsFour.getId(), tSecond.getControllerId(), weight4);
 
         final DistributionSetFilterBuilder distributionSetFilterBuilder = new DistributionSetFilterBuilder()
                 .setIsDeleted(false).setIsComplete(true).setSelectDSWithNoTag(Boolean.FALSE);
@@ -649,7 +653,8 @@ public class DistributionSetManagementTest extends AbstractJpaIntegrationTest {
                 entityFactory.distributionSet().create().name("newtype").version("1").type(newType.getKey()).modules(
                         dsDeleted.getModules().stream().map(SoftwareModule::getId).collect(Collectors.toList())));
 
-        assignDistributionSet(dsDeleted, testdataFactory.createTargets(5));
+        final Integer weight = new Integer(456);
+        assignDistributionSet(dsDeleted, testdataFactory.createTargets(5), weight);
         distributionSetManagement.delete(dsDeleted.getId());
         dsDeleted = distributionSetManagement.get(dsDeleted.getId()).get();
 
@@ -978,7 +983,8 @@ public class DistributionSetManagementTest extends AbstractJpaIntegrationTest {
 
         // create assigned DS
         final Target savedTarget = testdataFactory.createTarget();
-        assignDistributionSet(dsToTargetAssigned.getId(), savedTarget.getControllerId());
+        final Integer weight = new Integer(867);
+        assignDistributionSet(dsToTargetAssigned.getId(), savedTarget.getControllerId(), weight);
 
         // create assigned rollout
         testdataFactory.createRolloutByVariables("test", "test", 5, "name==*", dsToRolloutAssigned, "50", "5");
