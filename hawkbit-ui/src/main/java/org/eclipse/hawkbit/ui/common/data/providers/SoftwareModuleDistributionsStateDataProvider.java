@@ -41,6 +41,11 @@ public class SoftwareModuleDistributionsStateDataProvider
     @Override
     protected Optional<Slice<AssignedSoftwareModule>> loadBackendEntities(final PageRequest pageRequest,
             final Optional<SwFilterParams> filter) {
+        if (!filter.isPresent()) {
+            return Optional
+                    .of(softwareModuleManagement.findAll(pageRequest).map(sm -> new AssignedSoftwareModule(sm, false)));
+        }
+
         return filter.map(
                 filterParams -> softwareModuleManagement.findAllOrderBySetAssignmentAndModuleNameAscModuleVersionAsc(
                         pageRequest, filterParams.getLastSelectedDistributionId(), filterParams.getSearchText(),

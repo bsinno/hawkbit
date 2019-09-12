@@ -8,12 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
-import org.eclipse.hawkbit.ui.common.detailslayout.support.DetailsSupport;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -31,15 +27,11 @@ public class AbstractGridDetailsLayout<T extends ProxyNamedEntity> extends Verti
     protected final SpPermissionChecker permChecker;
     protected final transient UIEventBus eventBus;
 
-    private final transient Collection<DetailsSupport<T>> detailsSupports;
-
     public AbstractGridDetailsLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus) {
         this.i18n = i18n;
         this.permChecker = permChecker;
         this.eventBus = eventBus;
-
-        this.detailsSupports = new ArrayList<>();
 
         init();
         if (doSubscribeToEventBus()) {
@@ -54,10 +46,6 @@ public class AbstractGridDetailsLayout<T extends ProxyNamedEntity> extends Verti
      */
     protected boolean doSubscribeToEventBus() {
         return true;
-    }
-
-    protected void addDetailsSupports(final Collection<DetailsSupport<T>> detailsSupports) {
-        this.detailsSupports.addAll(detailsSupports);
     }
 
     private void init() {

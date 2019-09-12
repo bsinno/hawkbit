@@ -119,7 +119,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         setResizeSupport(new TargetResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyTarget>(this));
+        setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, TargetTableEvent.class));
         if (managementUIState.isTargetTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {

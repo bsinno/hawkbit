@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
  */
 public class TargetToProxyTargetMapper extends AbstractNamedEntityToProxyNamedEntityMapper<ProxyTarget, Target> {
 
-    private final transient VaadinMessageSource i18n;
+    private final VaadinMessageSource i18n;
 
     public TargetToProxyTargetMapper(final VaadinMessageSource i18n) {
         this.i18n = i18n;
@@ -38,6 +38,7 @@ public class TargetToProxyTargetMapper extends AbstractNamedEntityToProxyNamedEn
         proxyTarget.setUpdateStatus(target.getUpdateStatus());
         proxyTarget.setPollStatusToolTip(HawkbitCommonUtil.getPollStatusToolTip(target.getPollStatus(), i18n));
         proxyTarget.setSecurityToken(target.getSecurityToken());
+        proxyTarget.setRequestAttributes(target.isRequestControllerAttributes());
 
         return proxyTarget;
     }

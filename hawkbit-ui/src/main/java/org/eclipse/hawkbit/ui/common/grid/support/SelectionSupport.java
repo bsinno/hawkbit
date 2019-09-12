@@ -8,6 +8,14 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Set;
+
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
+import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
+import org.vaadin.spring.events.EventBus.UIEventBus;
+
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
@@ -20,19 +28,60 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
  * @param <T>
  *            The item-type used by the grid
  */
-public class SelectionSupport<T> {
-    final Grid<T> grid;
+public class SelectionSupport<T extends ProxyIdentifiableEntity> {
+    private final Grid<T> grid;
+    private final UIEventBus eventBus;
+    private final Class<? extends BaseUIEntityEvent<T>> selectedEventType;
 
+    // for grids without selection or master-details support
     public SelectionSupport(final Grid<T> grid) {
+        this(grid, null, null);
+    }
+
+    public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus,
+            final Class<? extends BaseUIEntityEvent<T>> selectedEventType) {
         this.grid = grid;
+        this.eventBus = eventBus;
+        this.selectedEventType = selectedEventType;
     }
 
     public final void enableMultiSelection() {
         grid.setSelectionMode(SelectionMode.MULTI);
+
+        grid.asMultiSelect().addMultiSelectionListener(event -> {
+            final Set<T> selectedItems = event.getAllSelectedItems();
+
+            sendSelectedEvent(selectedItems.size() == 1 ? selectedItems.iterator().next() : null);
+        });
+    }
+
+    private void sendSelectedEvent(final T selectedItemToSend) {
+        if (eventBus == null || selectedEventType == null) {
+            return;
+        }
+
+        // TODO: check if we should use this or grid as the sender
+        try {
+            if (selectedItemToSend == null) {
+                eventBus.publish(this, selectedEventType.getConstructor(BaseEntityEventType.class)
+                        .newInstance(BaseEntityEventType.SELECTED_ENTITY));
+            } else {
+                eventBus.publish(this,
+                        selectedEventType.getConstructor(BaseEntityEventType.class, selectedItemToSend.getClass())
+                                .newInstance(BaseEntityEventType.SELECTED_ENTITY, selectedItemToSend));
+            }
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
+            // TODO: refactor
+            throw new RuntimeException(e);
+        }
     }
 
     public final void enableSingleSelection() {
         grid.setSelectionMode(SelectionMode.SINGLE);
+
+        grid.asSingleSelect()
+                .addSingleSelectionListener(event -> sendSelectedEvent(event.getSelectedItem().orElse(null)));
     }
 
     public final void disableSelection() {

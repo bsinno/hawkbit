@@ -48,6 +48,8 @@ public class ProxyTarget extends ProxyNamedEntity {
 
     private String securityToken;
 
+    private boolean isRequestAttributes;
+
     public String getAssignedDistNameVersion() {
         return assignedDistNameVersion;
     }
@@ -140,8 +142,15 @@ public class ProxyTarget extends ProxyNamedEntity {
         return securityToken;
     }
 
-    public void setSecurityToken(String securityToken) {
+    public void setSecurityToken(final String securityToken) {
         this.securityToken = securityToken;
     }
 
+    public boolean isRequestAttributes() {
+        return isRequestAttributes;
+    }
+
+    public void setRequestAttributes(final boolean isRequestAttributes) {
+        this.isRequestAttributes = isRequestAttributes;
+    }
 }

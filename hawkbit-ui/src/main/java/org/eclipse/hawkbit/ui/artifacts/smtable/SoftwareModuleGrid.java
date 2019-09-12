@@ -91,7 +91,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
         setResizeSupport(new SwModuleResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this));
+        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, SoftwareModuleEvent.class));
         if (uploadUIState.isSwModuleTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {

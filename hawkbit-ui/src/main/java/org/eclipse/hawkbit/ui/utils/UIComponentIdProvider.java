@@ -657,6 +657,11 @@ public final class UIComponentIdProvider {
     public static final String DETAILS_DESCRIPTION_LABEL_ID = "details.description";
 
     /**
+     * Software module table details description label id.
+     */
+    public static final String TARGET_DETAILS_DESCRIPTION_ID = "target.details.description";
+
+    /**
      * Software module table details type label id.
      */
     public static final String DETAILS_TYPE_LABEL_ID = "details.type";
@@ -700,6 +705,36 @@ public final class UIComponentIdProvider {
      * Id of Controller Id label in target details.
      */
     public static final String TARGET_CONTROLLER_ID = "target.controller.id";
+
+    /**
+     * Id of Controller Id label in target details.
+     */
+    public static final String TARGET_CREATEDAT_ID = "target.createdAt.id";
+
+    /**
+     * Id of Controller Id label in target details.
+     */
+    public static final String TARGET_CREATEDBY_ID = "target.createdBy.id";
+
+    /**
+     * Id of Controller Id label in target details.
+     */
+    public static final String TARGET_MODIFIEDAT_ID = "target.modifiedAt.id";
+
+    /**
+     * Id of Controller Id label in target details.
+     */
+    public static final String TARGET_MODIFIEDBY_ID = "target.modifiedBy.id";
+
+    /**
+     * Id of Controller Id label in target details.
+     */
+    public static final String TARGET_ASSIGNED_DS_NAME_ID = "target.assigned.ds.name.id";
+
+    /**
+     * Id of Controller Id label in target details.
+     */
+    public static final String TARGET_ASSIGNED_DS_VERSION_ID = "target.assigned.ds.version.id";
 
     /**
      * Id of security token label in target details.

@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.grid.support;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -29,7 +30,7 @@ import com.vaadin.ui.components.grid.GridDropTarget;
  * @param <T>
  *            The item-type used by the source grid
  */
-public class DragAndDropSupport<T> {
+public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     private final AbstractGrid<T, ?> grid;
     private final VaadinMessageSource i18n;
     private final UINotification notification;

@@ -38,10 +38,15 @@ public abstract class MasterDetailsSupport<T, F> {
     public void masterItemChangedCallback(final T masterItem) {
         grid.clearSortOrder();
 
-        final F filter = mapMasterItemToDetailsFilter(masterItem);
-        grid.getFilterDataProvider().setFilter(filter);
+        // TODO: refactor (check if it is correct)
+        if (masterItem != null) {
+            final F filter = mapMasterItemToDetailsFilter(masterItem);
+            grid.getFilterDataProvider().setFilter(filter);
 
-        adaptSelection(filter);
+            adaptSelection(filter);
+        } else {
+            grid.getFilterDataProvider().setFilter(null);
+        }
     }
 
     // TODO: check if it really belongs here, or rather to abstract grid

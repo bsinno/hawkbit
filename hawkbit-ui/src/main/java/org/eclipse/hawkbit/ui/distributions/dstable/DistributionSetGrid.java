@@ -98,7 +98,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
         setResizeSupport(new DistributionSetResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this));
+        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, DistributionTableEvent.class));
         if (manageDistUIState.isDsTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {

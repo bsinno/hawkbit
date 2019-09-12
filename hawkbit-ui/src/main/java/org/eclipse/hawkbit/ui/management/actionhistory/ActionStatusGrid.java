@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.eclipse.hawkbit.ui.management.event.DeploymentActionStatusEvent;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -59,7 +60,7 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
         this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
                 new ActionStatusToProxyActionStatusMapper()).withConfigurableFilter();
 
-        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this));
+        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, DeploymentActionStatusEvent.class));
         getSelectionSupport().enableSingleSelection();
 
         initStatusIconMap();

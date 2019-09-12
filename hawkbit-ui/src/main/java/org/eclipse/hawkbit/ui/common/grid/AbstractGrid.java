@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.common.grid;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
@@ -32,7 +33,8 @@ import com.vaadin.ui.components.grid.HeaderRow;
  * @param <F>
  *            The filter-type used by the grid
  */
-public abstract class AbstractGrid<T, F> extends Grid<T> implements RefreshableContainer {
+public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends Grid<T>
+        implements RefreshableContainer {
     private static final long serialVersionUID = 1L;
 
     protected static final String CENTER_ALIGN = "v-align-center";

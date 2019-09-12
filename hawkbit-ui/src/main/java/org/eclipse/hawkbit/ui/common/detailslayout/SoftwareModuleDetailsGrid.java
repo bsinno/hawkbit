@@ -224,6 +224,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         setItems(items);
     }
 
+    // TODO: fix null pointer exception
     private ProxySoftwareModuleDetails getDetailsByDsAndType(final ProxyDistributionSet distributionSet,
             final boolean isMandatory, final SoftwareModuleType type) {
         return new ProxySoftwareModuleDetails(distributionSet.getId(), distributionSet.getName(),
