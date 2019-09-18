@@ -204,9 +204,8 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
         // prepare test
         final DistributionSet dsA = testdataFactory.createDistributionSet("");
         final Target createTarget = testdataFactory.createTarget("knownTargetId");
-        final Integer weight = new Integer(768);
 
-        assignDistributionSet(dsA, Arrays.asList(createTarget), weight);
+        assignDistributionSet(dsA, Arrays.asList(createTarget));
 
         final String rsqlPendingStatus = "status==pending";
         final String rsqlFinishedStatus = "status==finished";
@@ -608,8 +607,7 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
         final String knownName = "someName";
         createSingleTarget(knownControllerId, knownName);
         final DistributionSet ds = testdataFactory.createDistributionSet("");
-        final Integer weight = new Integer(44);
-        assignDistributionSet(ds.getId(), knownControllerId, weight);
+        assignDistributionSet(ds.getId(), knownControllerId);
 
         // test
 
@@ -1211,26 +1209,24 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
         final Iterator<DistributionSet> sets = testdataFactory.createDistributionSets(2).iterator();
         final DistributionSet one = sets.next();
         final DistributionSet two = sets.next();
-        final Integer weight1 = new Integer(768);
-        final Integer weight2 = new Integer(765);
 
         // Update
         if (schedule == null) {
-            final List<Target> updatedTargets = assignDistributionSet(one, Arrays.asList(target), weight1)
-                    .getAssignedEntity().stream().map(Action::getTarget).collect(Collectors.toList());
+            final List<Target> updatedTargets = assignDistributionSet(one, Arrays.asList(target)).getAssignedEntity()
+                    .stream().map(Action::getTarget).collect(Collectors.toList());
             // 2nd update
             // sleep 10ms to ensure that we can sort by reportedAt
             Thread.sleep(10);
-            assignDistributionSet(two, updatedTargets, weight2);
+            assignDistributionSet(two, updatedTargets);
         } else {
             final List<Target> updatedTargets = assignDistributionSetWithMaintenanceWindow(one.getId(),
-                    target.getControllerId(), weight1, schedule, duration, timezone).getAssignedEntity().stream()
+                    target.getControllerId(), schedule, duration, timezone).getAssignedEntity().stream()
                             .map(Action::getTarget).collect(Collectors.toList());
             // 2nd update
             // sleep 10ms to ensure that we can sort by reportedAt
             Thread.sleep(10);
-            assignDistributionSetWithMaintenanceWindow(two.getId(), updatedTargets.get(0).getControllerId(), weight2,
-                    schedule, duration, timezone);
+            assignDistributionSetWithMaintenanceWindow(two.getId(), updatedTargets.get(0).getControllerId(), schedule,
+                    duration, timezone);
         }
 
         // two updates, one cancellation
@@ -1246,9 +1242,8 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
     public void updateAction() throws Exception {
         final Target target = testdataFactory.createTarget();
         final DistributionSet set = testdataFactory.createDistributionSet();
-        final Integer weight = new Integer(768);
         final Long actionId = getFirstAssignedActionId(
-                assignDistributionSet(set.getId(), target.getControllerId(), ActionType.SOFT, weight));
+                assignDistributionSet(set.getId(), target.getControllerId(), ActionType.SOFT));
         assertThat(deploymentManagement.findAction(actionId).get().getActionType()).isEqualTo(ActionType.SOFT);
 
         final String body = new JSONObject().put("forceType", "forced").toString();
@@ -1679,9 +1674,8 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
         // prepare test
         final DistributionSet dsA = testdataFactory.createDistributionSet("");
         final Target tA = testdataFactory.createTarget("target-id-A");
-        final Integer weight = new Integer(66);
         // assign a distribution set so we get an active update action
-        assignDistributionSet(dsA, Arrays.asList(tA), weight);
+        assignDistributionSet(dsA, Arrays.asList(tA));
         // verify active action
         final Slice<Action> actionsByTarget = deploymentManagement.findActionsByTarget(tA.getControllerId(), PAGE);
         assertThat(actionsByTarget.getContent()).hasSize(1);

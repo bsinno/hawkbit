@@ -475,12 +475,11 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
         final long current = System.currentTimeMillis();
         controllerManagement.findOrRegisterTargetIfItDoesNotExist("4711", LOCALHOST);
 
-        final Integer weight = new Integer(123);
-        final DistributionSetAssignmentResult result = assignDistributionSet(set.getId(), "4711", weight);
+        final DistributionSetAssignmentResult result = assignDistributionSet(set.getId(), "4711");
 
         controllerManagement.addUpdateActionStatus(
                 entityFactory.actionStatus().create(getFirstAssignedActionId(result)).status(Status.FINISHED));
-        assignDistributionSet(set2.getId(), "4711", weight);
+        assignDistributionSet(set2.getId(), "4711");
 
         target = targetManagement.getByControllerID("4711").get();
         // read data

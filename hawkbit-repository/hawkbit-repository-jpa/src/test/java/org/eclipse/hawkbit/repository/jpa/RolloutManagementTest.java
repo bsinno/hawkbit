@@ -101,9 +101,8 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
         final String knownControllerId = "controller12345";
         final DistributionSet knownDistributionSet = testdataFactory.createDistributionSet();
         testdataFactory.createTarget(knownControllerId);
-        final Integer weight = new Integer(76);
         final DistributionSetAssignmentResult assignmentResult = assignDistributionSet(knownDistributionSet.getId(),
-                knownControllerId, weight);
+                knownControllerId);
         final Long manuallyAssignedActionId = getFirstAssignedActionId(assignmentResult);
 
         // create rollout with the same distribution set already assigned
@@ -141,9 +140,8 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
             final DistributionSet firstDistributionSet = testdataFactory.createDistributionSet();
             final DistributionSet secondDistributionSet = testdataFactory.createDistributionSet("second");
             testdataFactory.createTarget(knownControllerId);
-            final Integer weight = new Integer(76);
             final DistributionSetAssignmentResult assignmentResult = assignDistributionSet(firstDistributionSet.getId(),
-                    knownControllerId, weight);
+                    knownControllerId);
             final Long manuallyAssignedActionId = getFirstAssignedActionId(assignmentResult);
 
             // create rollout with the same distribution set already assigned
@@ -769,8 +767,7 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
         targetToCancel.add(targetList.get(1));
         targetToCancel.add(targetList.get(2));
         final DistributionSet dsForCancelTest = testdataFactory.createDistributionSet("dsForTest");
-        final Integer weight = new Integer(765);
-        assignDistributionSet(dsForCancelTest, targetToCancel, weight);
+        assignDistributionSet(dsForCancelTest, targetToCancel);
         // 5 targets are canceling but still have the status running and 5 are
         // still in SCHEDULED
         final Map<TotalTargetCountStatus.Status, Long> validationMap = createInitStatusMap();

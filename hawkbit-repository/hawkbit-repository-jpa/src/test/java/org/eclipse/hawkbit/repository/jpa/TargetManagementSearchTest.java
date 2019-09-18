@@ -85,22 +85,18 @@ public class TargetManagementSearchTest extends AbstractJpaIntegrationTest {
         targCs = toggleTagAssignment(targCs, targTagZ).getAssignedEntity();
         targCs = toggleTagAssignment(targCs, targTagW).getAssignedEntity();
 
-        final Integer weightA = new Integer(120);
-        final Integer weightB = new Integer(122);
-        final Integer weightC = new Integer(123);
-
         final String targetDsDIdPref = "targ-D";
         final List<Target> targDs = testdataFactory.createTargets(100, targetDsDIdPref,
                 targetDsDIdPref.concat(" description"), lastTargetNull);
 
         final String assignedC = targCs.iterator().next().getControllerId();
-        assignDistributionSet(setA.getId(), assignedC, weightC);
+        assignDistributionSet(setA.getId(), assignedC);
         final String assignedA = targAs.iterator().next().getControllerId();
-        assignDistributionSet(setA.getId(), assignedA, weightA);
+        assignDistributionSet(setA.getId(), assignedA);
         final String assignedB = targBs.iterator().next().getControllerId();
-        assignDistributionSet(setA.getId(), assignedB, weightB);
+        assignDistributionSet(setA.getId(), assignedB);
         final String installedC = targCs.iterator().next().getControllerId();
-        final Long actionId = getFirstAssignedActionId(assignDistributionSet(installedSet.getId(), assignedC, weightC));
+        final Long actionId = getFirstAssignedActionId(assignDistributionSet(installedSet.getId(), assignedC));
 
         // add attributes to match against only attribute value or attribute
         // value and name
@@ -118,7 +114,7 @@ public class TargetManagementSearchTest extends AbstractJpaIntegrationTest {
         // set one installed DS also
         controllerManagement.addUpdateActionStatus(
                 entityFactory.actionStatus().create(actionId).status(Status.FINISHED).message("message"));
-        assignDistributionSet(setA.getId(), installedC, weightC);
+        assignDistributionSet(setA.getId(), installedC);
 
         final List<TargetUpdateStatus> unknown = Arrays.asList(TargetUpdateStatus.UNKNOWN);
         final List<TargetUpdateStatus> pending = Arrays.asList(TargetUpdateStatus.PENDING);
@@ -582,12 +578,11 @@ public class TargetManagementSearchTest extends AbstractJpaIntegrationTest {
         List<Target> targInstalled = testdataFactory.createTargets(3, "installed", "first description");
 
         final DistributionSet ds = testdataFactory.createDistributionSet("a");
-        final Integer weight = new Integer(765);
 
-        targAssigned = assignDistributionSet(ds, targAssigned, weight).getAssignedEntity().stream()
-                .map(Action::getTarget).collect(Collectors.toList());
-        targInstalled = assignDistributionSet(ds, targInstalled, weight).getAssignedEntity().stream()
-                .map(Action::getTarget).collect(Collectors.toList());
+        targAssigned = assignDistributionSet(ds, targAssigned).getAssignedEntity().stream().map(Action::getTarget)
+                .collect(Collectors.toList());
+        targInstalled = assignDistributionSet(ds, targInstalled).getAssignedEntity().stream().map(Action::getTarget)
+                .collect(Collectors.toList());
         targInstalled = testdataFactory
                 .sendUpdateActionStatusToTargets(targInstalled, Status.FINISHED, Collections.singletonList("installed"))
                 .stream().map(Action::getTarget).collect(Collectors.toList());
@@ -636,12 +631,11 @@ public class TargetManagementSearchTest extends AbstractJpaIntegrationTest {
         }
 
         final DistributionSet ds = testdataFactory.createDistributionSet("a");
-        final Integer weight = new Integer(876);
 
-        targAssigned = assignDistributionSet(ds, targAssigned, weight).getAssignedEntity().stream()
-                .map(Action::getTarget).collect(Collectors.toList());
-        targInstalled = assignDistributionSet(ds, targInstalled, weight).getAssignedEntity().stream()
-                .map(Action::getTarget).collect(Collectors.toList());
+        targAssigned = assignDistributionSet(ds, targAssigned).getAssignedEntity().stream().map(Action::getTarget)
+                .collect(Collectors.toList());
+        targInstalled = assignDistributionSet(ds, targInstalled).getAssignedEntity().stream().map(Action::getTarget)
+                .collect(Collectors.toList());
         targInstalled = testdataFactory
                 .sendUpdateActionStatusToTargets(targInstalled, Status.FINISHED, Collections.singletonList("installed"))
                 .stream().map(Action::getTarget).collect(Collectors.toList());
@@ -674,9 +668,8 @@ public class TargetManagementSearchTest extends AbstractJpaIntegrationTest {
         final DistributionSet assignedSet = testdataFactory.createDistributionSet("");
         testdataFactory.createTargets(10, "unassigned", "unassigned");
         List<Target> assignedtargets = testdataFactory.createTargets(10, "assigned", "assigned");
-        final Integer weight = new Integer(765);
 
-        assignDistributionSet(assignedSet, assignedtargets, weight);
+        assignDistributionSet(assignedSet, assignedtargets);
 
         // get final updated version of targets
         assignedtargets = targetManagement.getByControllerID(
@@ -696,9 +689,8 @@ public class TargetManagementSearchTest extends AbstractJpaIntegrationTest {
                 .create(entityFactory.targetFilterQuery().create().name("tfq").query("name==*"));
         final List<Target> unassignedTargets = testdataFactory.createTargets(12, "unassigned", "unassigned");
         final List<Target> assignedTargets = testdataFactory.createTargets(10, "assigned", "assigned");
-        final Integer weight = new Integer(765);
 
-        assignDistributionSet(assignedSet, assignedTargets, weight);
+        assignDistributionSet(assignedSet, assignedTargets);
 
         final List<Target> result = targetManagement
                 .findByTargetFilterQueryAndNonDS(PAGE, assignedSet.getId(), tfq.getQuery()).getContent();
@@ -714,13 +706,11 @@ public class TargetManagementSearchTest extends AbstractJpaIntegrationTest {
         final DistributionSet installedSet = testdataFactory.createDistributionSet("another");
         testdataFactory.createTargets(10, "unassigned", "unassigned");
         List<Target> installedtargets = testdataFactory.createTargets(10, "assigned", "assigned");
-        final Integer weight = new Integer(765);
 
         // set on installed and assign another one
-        assignDistributionSet(installedSet, installedtargets, weight).getAssignedEntity()
-                .forEach(action -> controllerManagement.addUpdateActionStatus(
-                        entityFactory.actionStatus().create(action.getId()).status(Status.FINISHED)));
-        assignDistributionSet(assignedSet, installedtargets, weight);
+        assignDistributionSet(installedSet, installedtargets).getAssignedEntity().forEach(action -> controllerManagement
+                .addUpdateActionStatus(entityFactory.actionStatus().create(action.getId()).status(Status.FINISHED)));
+        assignDistributionSet(assignedSet, installedtargets);
 
         // get final updated version of targets
         installedtargets = targetManagement

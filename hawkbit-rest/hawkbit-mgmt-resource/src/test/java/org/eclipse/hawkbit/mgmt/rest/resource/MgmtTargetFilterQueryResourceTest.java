@@ -463,8 +463,7 @@ public class MgmtTargetFilterQueryResourceTest extends AbstractManagementApiInte
     @Step
     private void verifyAutoAssignmentWithSoftDeletedDs(final TargetFilterQuery tfq) throws Exception {
         final DistributionSet softDeletedDs = testdataFactory.createDistributionSet("softDeleted");
-        final Integer weight = new Integer(768);
-        assignDistributionSet(softDeletedDs, testdataFactory.createTarget("forSoftDeletedDs"), weight);
+        assignDistributionSet(softDeletedDs, testdataFactory.createTarget("forSoftDeletedDs"));
         distributionSetManagement.delete(softDeletedDs.getId());
 
         mvc.perform(post(MgmtRestConstants.TARGET_FILTER_V1_REQUEST_MAPPING + "/" + tfq.getId() + "/autoAssignDS")

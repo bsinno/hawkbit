@@ -229,31 +229,29 @@ public abstract class AbstractIntegrationTest {
         }
     };
 
-    protected DistributionSetAssignmentResult assignDistributionSet(final long dsID, final String controllerId,
-            final Integer weight) {
-        return assignDistributionSet(dsID, controllerId, ActionType.FORCED, weight);
+    protected DistributionSetAssignmentResult assignDistributionSet(final long dsID, final String controllerId) {
+        return assignDistributionSet(dsID, controllerId, ActionType.FORCED);
     }
 
     protected DistributionSetAssignmentResult assignDistributionSet(final long dsID, final String controllerId,
-            final ActionType actionType, final Integer weight) {
-        return assignDistributionSet(dsID, Collections.singletonList(controllerId), actionType, weight);
+            final ActionType actionType) {
+        return assignDistributionSet(dsID, Collections.singletonList(controllerId), actionType);
     }
 
     protected DistributionSetAssignmentResult assignDistributionSet(final long dsID, final String controllerId,
-            final ActionType actionType, final long forcedTime, final Integer weight) {
-        return assignDistributionSet(dsID, Collections.singletonList(controllerId), actionType, forcedTime, weight);
+            final ActionType actionType, final long forcedTime) {
+        return assignDistributionSet(dsID, Collections.singletonList(controllerId), actionType, forcedTime);
     }
 
     protected DistributionSetAssignmentResult assignDistributionSet(final long dsID, final List<String> controllerIds,
-            final ActionType actionType, final Integer weight) {
-        return assignDistributionSet(dsID, controllerIds, actionType, RepositoryModelConstants.NO_FORCE_TIME, weight);
+            final ActionType actionType) {
+        return assignDistributionSet(dsID, controllerIds, actionType, RepositoryModelConstants.NO_FORCE_TIME);
     }
 
     protected DistributionSetAssignmentResult assignDistributionSet(final long dsID, final List<String> controllerIds,
-            final ActionType actionType, final long forcedTime, final Integer weight) {
+            final ActionType actionType, final long forcedTime) {
         final List<DeploymentRequest> deploymentRequests = controllerIds.stream()
-                .map(id -> new DeploymentRequest(id, dsID, actionType, forcedTime, weight))
-                .collect(Collectors.toList());
+                .map(id -> new DeploymentRequest(id, dsID, actionType, forcedTime, null)).collect(Collectors.toList());
         final List<DistributionSetAssignmentResult> results = deploymentManagement
                 .assignDistributionSets(deploymentRequests);
         assertThat(results).hasSize(1);
@@ -261,9 +259,9 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected DistributionSetAssignmentResult assignDistributionSet(final DistributionSet ds,
-            final List<Target> targets, final Integer weight) {
+            final List<Target> targets) {
         final List<String> targetIds = targets.stream().map(Target::getControllerId).collect(Collectors.toList());
-        return assignDistributionSet(ds.getId(), targetIds, ActionType.FORCED, weight);
+        return assignDistributionSet(ds.getId(), targetIds, ActionType.FORCED);
     }
 
     private DistributionSetAssignmentResult makeAssignment(final DeploymentRequest request) {
@@ -281,9 +279,7 @@ public abstract class AbstractIntegrationTest {
      *            is the ID for the distribution set being assigned
      * @param controllerId
      *            is the ID for the controller to which the distribution set is
-     *            being assigned
-     * @param weight
-     *            the priority of an {@link Action}.
+     *            being assigned.
      * @param maintenanceSchedule
      *            is the cron expression to be used for scheduling the
      *            maintenance window. Expression has 6 mandatory fields and 1
@@ -302,20 +298,19 @@ public abstract class AbstractIntegrationTest {
      *         DistributionSetAssignmentResult}.
      */
     protected DistributionSetAssignmentResult assignDistributionSetWithMaintenanceWindow(final long dsID,
-            final String controllerId, final Integer weight, final String maintenanceWindowSchedule,
-            final String maintenanceWindowDuration, final String maintenanceWindowTimeZone) {
+            final String controllerId, final String maintenanceWindowSchedule, final String maintenanceWindowDuration,
+            final String maintenanceWindowTimeZone) {
 
         return makeAssignment(
                 new DeploymentRequest(controllerId, dsID, ActionType.FORCED, RepositoryModelConstants.NO_FORCE_TIME,
-                        weight, maintenanceWindowSchedule, maintenanceWindowDuration, maintenanceWindowTimeZone));
+                        null, maintenanceWindowSchedule, maintenanceWindowDuration, maintenanceWindowTimeZone));
     }
 
     protected DistributionSetAssignmentResult assignDistributionSetWithMaintenanceWindow(final long dsID,
-            final String controllerId, final ActionType type, final Integer weight,
-            final String maintenanceWindowSchedule, final String maintenanceWindowDuration,
-            final String maintenanceWindowTimeZone) {
+            final String controllerId, final ActionType type, final String maintenanceWindowSchedule,
+            final String maintenanceWindowDuration, final String maintenanceWindowTimeZone) {
         return makeAssignment(new DeploymentRequest(controllerId, dsID, type, RepositoryModelConstants.NO_FORCE_TIME,
-                weight, maintenanceWindowSchedule, maintenanceWindowDuration, maintenanceWindowTimeZone));
+                null, maintenanceWindowSchedule, maintenanceWindowDuration, maintenanceWindowTimeZone));
     }
 
     protected List<DeploymentRequest> createAssignmentRequests(final Collection<DistributionSet> distributionSets,
@@ -326,9 +321,8 @@ public abstract class AbstractIntegrationTest {
         return deploymentRequests;
     }
 
-    protected DistributionSetAssignmentResult assignDistributionSet(final DistributionSet pset, final Target target,
-            final Integer weight) {
-        return assignDistributionSet(pset, Arrays.asList(target), weight);
+    protected DistributionSetAssignmentResult assignDistributionSet(final DistributionSet pset, final Target target) {
+        return assignDistributionSet(pset, Arrays.asList(target));
     }
 
     protected void enableMultiAssignments() {
@@ -355,17 +349,16 @@ public abstract class AbstractIntegrationTest {
         return ds.findFirstModuleByType(osType).get().getId();
     }
 
-    // TODO: right now passing the weight as NULL, check as you update the tests
     protected Action prepareFinishedUpdate() {
-        return prepareFinishedUpdate(TestdataFactory.DEFAULT_CONTROLLER_ID, "", false, null);
+        return prepareFinishedUpdate(TestdataFactory.DEFAULT_CONTROLLER_ID, "", false);
     }
 
     protected Action prepareFinishedUpdate(final String controllerId, final String distributionSet,
-            final boolean isRequiredMigrationStep, final Integer weight) {
+            final boolean isRequiredMigrationStep) {
         final DistributionSet ds = testdataFactory.createDistributionSet(distributionSet, isRequiredMigrationStep);
         Target savedTarget = testdataFactory.createTarget(controllerId);
         savedTarget = getFirstAssignedTarget(
-                assignDistributionSet(ds.getId(), savedTarget.getControllerId(), ActionType.FORCED, weight));
+                assignDistributionSet(ds.getId(), savedTarget.getControllerId(), ActionType.FORCED));
         Action savedAction = deploymentManagement.findActiveActionsByTarget(PAGE, savedTarget.getControllerId())
                 .getContent().get(0);
 

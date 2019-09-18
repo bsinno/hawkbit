@@ -51,10 +51,9 @@ public class AutoActionCleanupTest extends AbstractJpaIntegrationTest {
 
         final DistributionSet ds1 = testdataFactory.createDistributionSet("ds1");
         final DistributionSet ds2 = testdataFactory.createDistributionSet("ds2");
-        final Integer weight = new Integer(76);
 
-        assignDistributionSet(ds1.getId(), trg1.getControllerId(), weight);
-        assignDistributionSet(ds2.getId(), trg2.getControllerId(), weight);
+        assignDistributionSet(ds1.getId(), trg1.getControllerId());
+        assignDistributionSet(ds2.getId(), trg2.getControllerId());
 
         assertThat(actionRepository.count()).isEqualTo(2);
 
@@ -77,10 +76,8 @@ public class AutoActionCleanupTest extends AbstractJpaIntegrationTest {
         final DistributionSet ds1 = testdataFactory.createDistributionSet("ds1");
         final DistributionSet ds2 = testdataFactory.createDistributionSet("ds2");
 
-        final Integer weight = new Integer(76);
-        final Long action1 = getFirstAssignedActionId(
-                assignDistributionSet(ds1.getId(), trg1.getControllerId(), weight));
-        assignDistributionSet(ds2.getId(), trg2.getControllerId(), weight);
+        final Long action1 = getFirstAssignedActionId(assignDistributionSet(ds1.getId(), trg1.getControllerId()));
+        assignDistributionSet(ds2.getId(), trg2.getControllerId());
 
         setActionToCanceled(action1);
 
@@ -106,13 +103,9 @@ public class AutoActionCleanupTest extends AbstractJpaIntegrationTest {
         final DistributionSet ds1 = testdataFactory.createDistributionSet("ds1");
         final DistributionSet ds2 = testdataFactory.createDistributionSet("ds2");
 
-        final Integer weight = new Integer(76);
-        final Long action1 = getFirstAssignedActionId(
-                assignDistributionSet(ds1.getId(), trg1.getControllerId(), weight));
-        final Long action2 = getFirstAssignedActionId(
-                assignDistributionSet(ds2.getId(), trg2.getControllerId(), weight));
-        final Long action3 = getFirstAssignedActionId(
-                assignDistributionSet(ds2.getId(), trg3.getControllerId(), weight));
+        final Long action1 = getFirstAssignedActionId(assignDistributionSet(ds1.getId(), trg1.getControllerId()));
+        final Long action2 = getFirstAssignedActionId(assignDistributionSet(ds2.getId(), trg2.getControllerId()));
+        final Long action3 = getFirstAssignedActionId(assignDistributionSet(ds2.getId(), trg3.getControllerId()));
 
         assertThat(actionRepository.count()).isEqualTo(3);
 
@@ -142,13 +135,9 @@ public class AutoActionCleanupTest extends AbstractJpaIntegrationTest {
         final DistributionSet ds1 = testdataFactory.createDistributionSet("ds1");
         final DistributionSet ds2 = testdataFactory.createDistributionSet("ds2");
 
-        final Integer weight = new Integer(76);
-        final Long action1 = getFirstAssignedActionId(
-                assignDistributionSet(ds1.getId(), trg1.getControllerId(), weight));
-        final Long action2 = getFirstAssignedActionId(
-                assignDistributionSet(ds2.getId(), trg2.getControllerId(), weight));
-        final Long action3 = getFirstAssignedActionId(
-                assignDistributionSet(ds2.getId(), trg3.getControllerId(), weight));
+        final Long action1 = getFirstAssignedActionId(assignDistributionSet(ds1.getId(), trg1.getControllerId()));
+        final Long action2 = getFirstAssignedActionId(assignDistributionSet(ds2.getId(), trg2.getControllerId()));
+        final Long action3 = getFirstAssignedActionId(assignDistributionSet(ds2.getId(), trg3.getControllerId()));
 
         assertThat(actionRepository.count()).isEqualTo(3);
 
@@ -180,13 +169,9 @@ public class AutoActionCleanupTest extends AbstractJpaIntegrationTest {
         final DistributionSet ds1 = testdataFactory.createDistributionSet("ds1");
         final DistributionSet ds2 = testdataFactory.createDistributionSet("ds2");
 
-        final Integer weight = new Integer(76);
-        final Long action1 = getFirstAssignedActionId(
-                assignDistributionSet(ds1.getId(), trg1.getControllerId(), weight));
-        final Long action2 = getFirstAssignedActionId(
-                assignDistributionSet(ds2.getId(), trg2.getControllerId(), weight));
-        final Long action3 = getFirstAssignedActionId(
-                assignDistributionSet(ds2.getId(), trg3.getControllerId(), weight));
+        final Long action1 = getFirstAssignedActionId(assignDistributionSet(ds1.getId(), trg1.getControllerId()));
+        final Long action2 = getFirstAssignedActionId(assignDistributionSet(ds2.getId(), trg2.getControllerId()));
+        final Long action3 = getFirstAssignedActionId(assignDistributionSet(ds2.getId(), trg3.getControllerId()));
 
         assertThat(actionRepository.count()).isEqualTo(3);
 
