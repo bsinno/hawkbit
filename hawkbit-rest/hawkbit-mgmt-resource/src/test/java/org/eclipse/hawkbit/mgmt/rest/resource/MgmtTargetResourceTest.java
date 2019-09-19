@@ -1869,8 +1869,9 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
                 .andExpect(jsonPath("content[0].value", equalTo("knownValue1")));
     }
 
+
     @Test
-    @Description("A request for assigning multiple DS to a rarget results in a Bad Request when multiassignment in disabled.")
+    @Description("A request for assigning multiple DS to a target results in a Bad Request when multiassignment in disabled.")
     public void multiassignmentRequestNotAllowedIfDisabled() throws Exception {
         final String targetId = testdataFactory.createTarget().getControllerId();
         final List<Long> dsIds = testdataFactory.createDistributionSets(2).stream().map(DistributionSet::getId)
@@ -1890,7 +1891,7 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
         final Long dsId = testdataFactory.createDistributionSet().getId();
 
         final JSONArray body = getAssignmentBody(Collections.singletonList(dsId));
-
+            
         mvc.perform(post("/rest/v1/targets/{targetId}/assignedDS", targetId).content(body.toString())
                 .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultPrinter.print())
                 .andExpect(status().isOk());
@@ -1920,8 +1921,8 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
 
         enableMultiAssignments();
         mvc.perform(post("/rest/v1/targets/{targetId}/assignedDS", targetId).content(body.toString())
-                .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultPrinter.print()).andExpect(status().isOk())
-                .andExpect(jsonPath("total", equalTo(2)));
+                .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultPrinter.print())
+                .andExpect(status().isOk()).andExpect(jsonPath("total", equalTo(2)));
     }
 
     public static JSONArray getAssignmentBody(final Collection<Long> dsIds) throws JSONException {

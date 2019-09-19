@@ -12,8 +12,10 @@ import org.eclipse.hawkbit.mgmt.json.model.MgmtMaintenanceWindowRequestBody;
 import org.eclipse.hawkbit.mgmt.json.model.distributionset.MgmtActionType;
 import org.eclipse.hawkbit.mgmt.json.model.distributionset.MgmtTargetAssignmentRequestBody;
 import org.eclipse.hawkbit.mgmt.json.model.target.MgmtDistributionSetAssignment;
+import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.MaintenanceScheduleHelper;
 import org.eclipse.hawkbit.repository.model.DeploymentRequest;
+import org.eclipse.hawkbit.repository.model.DeploymentRequestBuilder;
 
 /**
  * A mapper for assignment requests
@@ -36,7 +38,7 @@ public final class MgmtDeploymentRequestMapper {
             final String targetId) {
 
         return createAssignmentRequest(targetId, dsAssignment.getId(), dsAssignment.getType(),
-                dsAssignment.getForcetime(), dsAssignment.getWeight(), dsAssignment.getMaintenanceWindow());
+                dsAssignment.getForcetime(),dsAssignment.getWeight(), dsAssignment.getMaintenanceWindow());
     }
 
     /**
@@ -52,25 +54,21 @@ public final class MgmtDeploymentRequestMapper {
             final Long dsId) {
 
         return createAssignmentRequest(targetAssignment.getId(), dsId, targetAssignment.getType(),
-                targetAssignment.getForcetime(), targetAssignment.getWeight(), targetAssignment.getMaintenanceWindow());
+                targetAssignment.getForcetime(), targetAssignment.getWeight(),targetAssignment.getMaintenanceWindow());
     }
 
     private static DeploymentRequest createAssignmentRequest(final String targetId, final Long dsId,
-            final MgmtActionType type, final long forcetime, final Integer weight,
-            final MgmtMaintenanceWindowRequestBody maintenanceWindow) {
-        if (maintenanceWindow == null) {
-            return new DeploymentRequest(targetId, dsId, MgmtRestModelMapper.convertActionType(type), forcetime,
-                    weight);
+            final MgmtActionType type, final long forcetime, final Integer weight, final MgmtMaintenanceWindowRequestBody maintenanceWindow) {
+        final DeploymentRequestBuilder request = DeploymentManagement.deploymentRequest(targetId, dsId)
+                .setActionType(MgmtRestModelMapper.convertActionType(type)).setForceTime(forcetime).setWeight(weight);
+        if (maintenanceWindow != null) {
+            final String cronSchedule = maintenanceWindow.getSchedule();
+            final String duration = maintenanceWindow.getDuration();
+            final String timezone = maintenanceWindow.getTimezone();
+            MaintenanceScheduleHelper.validateMaintenanceSchedule(cronSchedule, duration, timezone);
+            request.setMaintenance(cronSchedule, duration, timezone);
         }
-
-        final String cronSchedule = maintenanceWindow.getSchedule();
-        final String duration = maintenanceWindow.getDuration();
-        final String timezone = maintenanceWindow.getTimezone();
-
-        MaintenanceScheduleHelper.validateMaintenanceSchedule(cronSchedule, duration, timezone);
-
-        return new DeploymentRequest(targetId, dsId, MgmtRestModelMapper.convertActionType(type), forcetime, weight,
-                cronSchedule, duration, timezone);
+        return request.build();
     }
 
 }

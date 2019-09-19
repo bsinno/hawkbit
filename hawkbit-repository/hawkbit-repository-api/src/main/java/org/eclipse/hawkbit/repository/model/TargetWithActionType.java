@@ -161,6 +161,7 @@ public class TargetWithActionType {
                 maintenanceWindowTimeZone);
     }
 
+    @SuppressWarnings("squid:S1067")
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {

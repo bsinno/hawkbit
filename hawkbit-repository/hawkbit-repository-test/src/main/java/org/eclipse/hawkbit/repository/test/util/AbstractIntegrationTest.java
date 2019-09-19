@@ -250,8 +250,9 @@ public abstract class AbstractIntegrationTest {
 
     protected DistributionSetAssignmentResult assignDistributionSet(final long dsID, final List<String> controllerIds,
             final ActionType actionType, final long forcedTime) {
-        final List<DeploymentRequest> deploymentRequests = controllerIds.stream()
-                .map(id -> new DeploymentRequest(id, dsID, actionType, forcedTime, null)).collect(Collectors.toList());
+        final List<DeploymentRequest> deploymentRequests = controllerIds.stream().map(id -> DeploymentManagement
+                .deploymentRequest(id, dsID).setActionType(actionType).setForceTime(forcedTime).build())
+                .collect(Collectors.toList());
         final List<DistributionSetAssignmentResult> results = deploymentManagement
                 .assignDistributionSets(deploymentRequests);
         assertThat(results).hasSize(1);
@@ -279,7 +280,7 @@ public abstract class AbstractIntegrationTest {
      *            is the ID for the distribution set being assigned
      * @param controllerId
      *            is the ID for the controller to which the distribution set is
-     *            being assigned.
+     *            being assigned
      * @param maintenanceSchedule
      *            is the cron expression to be used for scheduling the
      *            maintenance window. Expression has 6 mandatory fields and 1
@@ -301,23 +302,24 @@ public abstract class AbstractIntegrationTest {
             final String controllerId, final String maintenanceWindowSchedule, final String maintenanceWindowDuration,
             final String maintenanceWindowTimeZone) {
 
-        return makeAssignment(
-                new DeploymentRequest(controllerId, dsID, ActionType.FORCED, RepositoryModelConstants.NO_FORCE_TIME,
-                        null, maintenanceWindowSchedule, maintenanceWindowDuration, maintenanceWindowTimeZone));
+        return makeAssignment(DeploymentManagement.deploymentRequest(controllerId, dsID)
+                .setMaintenance(maintenanceWindowSchedule, maintenanceWindowDuration, maintenanceWindowTimeZone)
+                .build());
     }
 
     protected DistributionSetAssignmentResult assignDistributionSetWithMaintenanceWindow(final long dsID,
             final String controllerId, final ActionType type, final String maintenanceWindowSchedule,
             final String maintenanceWindowDuration, final String maintenanceWindowTimeZone) {
-        return makeAssignment(new DeploymentRequest(controllerId, dsID, type, RepositoryModelConstants.NO_FORCE_TIME,
-                null, maintenanceWindowSchedule, maintenanceWindowDuration, maintenanceWindowTimeZone));
+        return makeAssignment(DeploymentManagement.deploymentRequest(controllerId, dsID).setActionType(type)
+                .setMaintenance(maintenanceWindowSchedule, maintenanceWindowDuration, maintenanceWindowTimeZone)
+                .build());
     }
 
     protected List<DeploymentRequest> createAssignmentRequests(final Collection<DistributionSet> distributionSets,
             final Collection<Target> targets) {
         final List<DeploymentRequest> deploymentRequests = new ArrayList<>();
-        distributionSets.forEach(ds -> targets.forEach(
-                target -> deploymentRequests.add(new DeploymentRequest(target.getControllerId(), ds.getId()))));
+        distributionSets.forEach(ds -> targets.forEach(target -> deploymentRequests
+                .add(DeploymentManagement.deploymentRequest(target.getControllerId(), ds.getId()).build())));
         return deploymentRequests;
     }
 

@@ -8,9 +8,10 @@
  */
 package org.eclipse.hawkbit.mgmt.rest.resource;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.mgmt.json.model.MgmtMetadata;
@@ -249,14 +250,15 @@ public class MgmtDistributionSetResource implements MgmtDistributionSetRestApi {
             @PathVariable("distributionSetId") final Long distributionSetId,
             @RequestBody final List<MgmtTargetAssignmentRequestBody> assignments,
             @RequestParam(value = "offline", required = false) final boolean offline) {
-        final List<String> targetIds = assignments.stream().map(MgmtTargetAssignmentRequestBody::getId)
-                .collect(Collectors.toList());
-
         if (offline) {
-            return ResponseEntity.ok(MgmtDistributionSetMapper.toResponse(deployManagament
-                    .offlineAssignedDistributionSets(Collections.singletonList(distributionSetId), targetIds)));
+            final List<Entry<String, Long>> offlineAssignments = assignments.stream()
+                    .map(assignment -> new SimpleEntry<String, Long>(assignment.getId(), distributionSetId))
+                    .collect(Collectors.toList());
+            return ResponseEntity
+                    .ok(MgmtDistributionSetMapper
+                            .toResponse(deployManagament.offlineAssignedDistributionSets(offlineAssignments)));
         }
-
+        
         final List<DeploymentRequest> deploymentRequests = assignments.stream()
                 .map(assignment -> MgmtDeploymentRequestMapper.createAssignmentRequest(assignment, distributionSetId))
                 .collect(Collectors.toList());
@@ -264,7 +266,6 @@ public class MgmtDistributionSetResource implements MgmtDistributionSetRestApi {
         final List<DistributionSetAssignmentResult> assignmentResults = deployManagament
                 .assignDistributionSets(deploymentRequests);
         return ResponseEntity.ok(MgmtDistributionSetMapper.toResponse(assignmentResults));
-
     }
 
     @Override

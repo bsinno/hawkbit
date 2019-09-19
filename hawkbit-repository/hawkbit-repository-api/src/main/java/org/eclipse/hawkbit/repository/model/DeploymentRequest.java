@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.repository.model;
 
+import java.util.Objects;
+
 import org.eclipse.hawkbit.repository.exception.InvalidMaintenanceScheduleException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 
@@ -18,41 +20,6 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 public class DeploymentRequest {
     private final Long distributionSetId;
     private final TargetWithActionType targetWithActionType;
-
-    /**
-     * Constructor with actionType {@link ActionType#FORCED}
-     * 
-     * @param controllerId
-     *            for which the action is created.
-     * @param distributionSetId
-     *            of the distribution set that that should be assigned to the
-     *            controller.
-     */
-    public DeploymentRequest(final String controllerId, final Long distributionSetId) {
-        this.targetWithActionType = new TargetWithActionType(controllerId);
-        this.distributionSetId = distributionSetId;
-    }
-
-    /**
-     * Constructor without maintenanceWindow.
-     *
-     * @param controllerId
-     *            for which the action is created.
-     * @param distributionSetId
-     *            of the distribution set that that should be assigned to the
-     *            controller.
-     * @param actionType
-     *            specified for the action.
-     * @param forceTime
-     *            at what time the type soft turns into forced.
-     * @param weight
-     *            the priority of an {@link Action}.
-     */
-    public DeploymentRequest(final String controllerId, final Long distributionSetId, final ActionType actionType,
-            final long forceTime, final Integer weight) {
-        this.targetWithActionType = new TargetWithActionType(controllerId, actionType, forceTime, weight);
-        this.distributionSetId = distributionSetId;
-    }
 
     /**
      * Constructor that also accepts maintenance schedule parameters and checks
@@ -91,7 +58,6 @@ public class DeploymentRequest {
         this.targetWithActionType = new TargetWithActionType(controllerId, actionType, forceTime, weight,
                 maintenanceSchedule, maintenanceWindowDuration, maintenanceWindowTimeZone);
         this.distributionSetId = distributionSetId;
-
     }
 
     public Long getDistributionSetId() {
@@ -118,13 +84,9 @@ public class DeploymentRequest {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((distributionSetId == null) ? 0 : distributionSetId.hashCode());
-        result = prime * result + ((targetWithActionType == null) ? 0 : targetWithActionType.hashCode());
-        return result;
+        return Objects.hash(distributionSetId, targetWithActionType);
     }
-
+    
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -137,20 +99,7 @@ public class DeploymentRequest {
             return false;
         }
         final DeploymentRequest other = (DeploymentRequest) obj;
-        if (distributionSetId == null) {
-            if (other.distributionSetId != null) {
-                return false;
-            }
-        } else if (!distributionSetId.equals(other.distributionSetId)) {
-            return false;
-        }
-        if (targetWithActionType == null) {
-            if (other.targetWithActionType != null) {
-                return false;
-            }
-        } else if (!targetWithActionType.equals(other.targetWithActionType)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(distributionSetId, other.distributionSetId)
+                && Objects.equals(targetWithActionType, other.targetWithActionType);
     }
 }
