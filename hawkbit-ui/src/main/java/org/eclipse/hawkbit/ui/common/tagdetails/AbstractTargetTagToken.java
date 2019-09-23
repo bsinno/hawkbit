@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.repository.event.remote.TargetTagDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagUpdatedEvent;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.TargetTagCreatedEventContainer;
@@ -28,14 +28,10 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 /**
- * /** Abstract class for target tag token layout.
- * 
- * @param <T>
- *            the entity type
+ * Abstract class for target tag token layout.
  */
-public abstract class AbstractTargetTagToken<T extends ProxyNamedEntity> extends AbstractTagToken<T> {
-
-    private static final long serialVersionUID = 7772876588903171201L;
+public abstract class AbstractTargetTagToken extends AbstractTagToken<ProxyTarget> {
+    private static final long serialVersionUID = 1L;
 
     protected final transient TargetTagManagement tagManagement;
 
@@ -69,4 +65,10 @@ public abstract class AbstractTargetTagToken<T extends ProxyNamedEntity> extends
         repopulateTags();
     }
 
+    @Override
+    public ProxyTarget getValue() {
+        // not needed to return meaningful object, because it is
+        // intended to be read-only
+        return new ProxyTarget();
+    }
 }

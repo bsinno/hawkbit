@@ -75,7 +75,7 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetails
 
     @Override
     protected void populateMetadataDetails() {
-        swmMetadataLayout.populateSMMetadata(getSelectedBaseEntity());
+        // swmMetadataLayout.populateSMMetadata(getSelectedBaseEntity());
     }
 
     @Override

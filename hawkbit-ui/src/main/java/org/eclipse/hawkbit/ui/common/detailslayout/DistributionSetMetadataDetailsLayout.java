@@ -15,21 +15,24 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.UI;
 
 /**
  * DistributionSet Metadata details layout.
  *
  */
-public class DistributionSetMetadataDetailsLayout extends AbstractMetadataDetailsLayout {
-
+public class DistributionSetMetadataDetailsLayout extends CustomField<ProxyDistributionSet> {
     private static final long serialVersionUID = 1L;
+
+    private final MetadataDetailsGrid metadataDetailsGrid;
 
     private final transient DistributionSetManagement distributionSetManagement;
 
     private final DsMetadataPopupLayout dsMetadataPopupLayout;
 
-    private Long selectedDistSetId;
+    private ProxyDistributionSet selectedDistSet;
 
     /**
      * Initialize the layout.
@@ -44,39 +47,45 @@ public class DistributionSetMetadataDetailsLayout extends AbstractMetadataDetail
     public DistributionSetMetadataDetailsLayout(final VaadinMessageSource i18n,
             final DistributionSetManagement distributionSetManagement,
             final DsMetadataPopupLayout dsMetadataPopupLayout) {
-        super(i18n);
         this.distributionSetManagement = distributionSetManagement;
         this.dsMetadataPopupLayout = dsMetadataPopupLayout;
 
+        this.metadataDetailsGrid = new MetadataDetailsGrid(i18n, UIComponentIdProvider.DS_METADATA_DETAIL_LINK,
+                this::showMetadataDetails);
     }
 
-    /**
-     * Populate distribution set metadata.
-     *
-     * @param distributionSet
-     */
-    public void populateDSMetadata(final ProxyDistributionSet distributionSet) {
-        if (distributionSet == null) {
-            metaDataList.clear();
-            // TODO: should we call refreshAll here?
-            return;
-        }
-        selectedDistSetId = distributionSet.getId();
-        distributionSetManagement
-                .findMetaDataByDistributionSetId(PageRequest.of(0, MAX_METADATA_QUERY), selectedDistSetId).getContent()
-                .forEach(this::addMetaDataToList);
-        // TODO: should we call refreshAll here?
-    }
-
-    @Override
-    protected void showMetadataDetails(final String metadataKey) {
-        distributionSetManagement.get(selectedDistSetId)
+    private void showMetadataDetails(final String metadataKey) {
+        distributionSetManagement.get(selectedDistSet.getId())
                 .ifPresent(distSet -> UI.getCurrent().addWindow(dsMetadataPopupLayout.getWindow(distSet, metadataKey)));
     }
 
     @Override
-    protected String getDetailLinkId(final String name) {
-        return new StringBuilder(UIComponentIdProvider.DS_METADATA_DETAIL_LINK).append('.').append(name).toString();
+    public ProxyDistributionSet getValue() {
+        return new ProxyDistributionSet();
     }
 
+    @Override
+    protected Component initContent() {
+        return metadataDetailsGrid;
+    }
+
+    @Override
+    protected void doSetValue(final ProxyDistributionSet value) {
+        selectedDistSet = value;
+        populateMetadata();
+    }
+
+    private void populateMetadata() {
+        if (selectedDistSet == null) {
+            metadataDetailsGrid.setVisible(false);
+            metadataDetailsGrid.clearData();
+        } else {
+            metadataDetailsGrid.setVisible(true);
+            distributionSetManagement
+                    .findMetaDataByDistributionSetId(PageRequest.of(0, MetadataDetailsGrid.MAX_METADATA_QUERY),
+                            selectedDistSet.getId())
+                    .getContent().forEach(metadataDetailsGrid::addMetaDataToList);
+            // TODO: should we call refreshAll here?
+        }
+    }
 }

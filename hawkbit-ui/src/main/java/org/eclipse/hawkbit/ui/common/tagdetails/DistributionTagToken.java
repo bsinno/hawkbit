@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
-import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.DistributionSetTagCreatedEventContainer;
@@ -40,11 +39,9 @@ import com.google.common.collect.Sets;
  *
  */
 public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet> {
-
-    private static final long serialVersionUID = -8022738301736043396L;
+    private static final long serialVersionUID = 1L;
 
     private final transient DistributionSetTagManagement distributionSetTagManagement;
-
     private final transient DistributionSetManagement distributionSetManagement;
 
     public DistributionTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
@@ -105,11 +102,6 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionTableEvent distributionTableEvent) {
-        onBaseEntityEvent(distributionTableEvent);
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
     void onDistributionSetTagCreatedEvent(final DistributionSetTagCreatedEventContainer eventContainer) {
         eventContainer.getEvents().stream().filter(Objects::nonNull).map(DistributionSetTagCreatedEvent::getEntity)
                 .forEach(tag -> tagCreated(new TagData(tag.getId(), tag.getName(), tag.getColour())));
@@ -128,5 +120,12 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
     @EventBusListenerMethod(scope = EventScope.UI)
     void onDistributionSetTagUpdateEvent(final DistributionSetTagTableEvent event) {
         repopulateTags();
+    }
+
+    @Override
+    public ProxyDistributionSet getValue() {
+        // not needed to return meaningful object, because it is
+        // intended to be read-only
+        return new ProxyDistributionSet();
     }
 }

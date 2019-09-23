@@ -707,24 +707,24 @@ public final class UIComponentIdProvider {
     public static final String TARGET_CONTROLLER_ID = "target.controller.id";
 
     /**
-     * Id of Controller Id label in target details.
+     * Id of created at label in details.
      */
-    public static final String TARGET_CREATEDAT_ID = "target.createdAt.id";
+    public static final String CREATEDAT_ID = "createdAt.id";
 
     /**
-     * Id of Controller Id label in target details.
+     * Id of created by label in details.
      */
-    public static final String TARGET_CREATEDBY_ID = "target.createdBy.id";
+    public static final String CREATEDBY_ID = "createdBy.id";
 
     /**
-     * Id of Controller Id label in target details.
+     * Id of last modified at label in details.
      */
-    public static final String TARGET_MODIFIEDAT_ID = "target.modifiedAt.id";
+    public static final String MODIFIEDAT_ID = "modifiedAt.id";
 
     /**
-     * Id of Controller Id label in target details.
+     * Id of last modified by label in details.
      */
-    public static final String TARGET_MODIFIEDBY_ID = "target.modifiedBy.id";
+    public static final String MODIFIEDBY_ID = "modifiedBy.id";
 
     /**
      * Id of Controller Id label in target details.

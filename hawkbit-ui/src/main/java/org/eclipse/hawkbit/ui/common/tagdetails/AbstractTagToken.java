@@ -8,14 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.tagdetails;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout.TagAssignmentListener;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -25,7 +22,8 @@ import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.UI;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
 
 /**
  * Abstract class for target/ds tag token layout.
@@ -33,11 +31,11 @@ import com.vaadin.ui.UI;
  * @param <T>
  *            the special entity
  */
-public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements Serializable, TagAssignmentListener {
+public abstract class AbstractTagToken<T extends ProxyNamedEntity> extends CustomField<T>
+        implements TagAssignmentListener {
+    private static final long serialVersionUID = 1L;
 
     protected static final int MAX_TAG_QUERY = 1000;
-
-    private static final long serialVersionUID = 6599386705285184783L;
 
     protected TagPanelLayout tagPanelLayout;
 
@@ -75,17 +73,15 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements Se
         return true;
     }
 
-    protected void onBaseEntityEvent(final BaseUIEntityEvent<T> baseEntityEvent) {
-        if (BaseEntityEventType.SELECTED_ENTITY != baseEntityEvent.getEventType()) {
-            return;
-        }
-        UI.getCurrent().access(() -> {
-            final T entity = baseEntityEvent.getEntity();
-            if (entity != null) {
-                selectedEntity = entity;
-                repopulateTags();
-            }
-        });
+    @Override
+    protected Component initContent() {
+        return tagPanelLayout;
+    }
+
+    @Override
+    protected void doSetValue(final T value) {
+        selectedEntity = value;
+        repopulateTags();
     }
 
     private void createTagPanel() {
@@ -95,7 +91,12 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements Se
     }
 
     protected void repopulateTags() {
-        tagPanelLayout.initializeTags(getAllTags(), getAssignedTags());
+        if (selectedEntity == null) {
+            tagPanelLayout.setVisible(false);
+        } else {
+            tagPanelLayout.setVisible(true);
+            tagPanelLayout.initializeTags(getAllTags(), getAssignedTags());
+        }
     }
 
     protected void tagCreated(final TagData tagData) {

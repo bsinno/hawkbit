@@ -15,6 +15,7 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
@@ -88,7 +89,18 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      * Initializes this layout that presents a header, a grid and grid details.
      */
     protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
+            // TODO: change to AbstractGridDetailsLayout when all classes are
+            // refactored
             final AbstractTableDetailsLayout<?> detailsLayout) {
+        buildLayout(gridHeader, grid);
+
+        addComponent(detailsLayout);
+        setComponentAlignment(detailsLayout, Alignment.TOP_CENTER);
+    }
+
+    // TODO: remove when all classes are refactored
+    protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
+            final Component detailsLayout) {
         buildLayout(gridHeader, grid);
 
         addComponent(detailsLayout);

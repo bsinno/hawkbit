@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,14 +22,16 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Target;
+import org.eclipse.hawkbit.repository.model.TargetMetadata;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetAttributesDetails;
-import org.eclipse.hawkbit.ui.common.detailslayout.AbstractTableDetailsLayout;
+import org.eclipse.hawkbit.ui.common.detailslayout.AbstractGridDetailsLayout;
+import org.eclipse.hawkbit.ui.common.detailslayout.DetailsHeader;
 import org.eclipse.hawkbit.ui.common.detailslayout.KeyValueDetailsComponent;
-import org.eclipse.hawkbit.ui.common.detailslayout.TargetMetadataDetailsLayout;
+import org.eclipse.hawkbit.ui.common.detailslayout.MetadataDetailsGrid;
+import org.eclipse.hawkbit.ui.common.detailslayout.MetadataDetailsLayout;
 import org.eclipse.hawkbit.ui.common.tagdetails.TargetTagToken;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -36,84 +39,139 @@ import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Target details layout which is shown on the Deployment View.
  */
-public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
+public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
     private final ManagementUIState managementUIState;
-
-    private final TargetTagToken targetTagToken;
-
-    private final TargetMetadataDetailsLayout targetMetadataLayout;
-
-    private final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout;
-
-    private final transient TargetManagement targetManagement;
-
-    private final TargetMetadataPopupLayout targetMetadataPopupLayout;
-
     private final UINotification uiNotification;
 
+    private final transient TargetManagement targetManagement;
     private final transient DeploymentManagement deploymentManagement;
 
-    private final KeyValueDetailsComponent entityDetails;
-    private final TextArea entityDescription;
+    private final DetailsHeader targetDetailsHeader;
+
     private final TargetAttributesDetailsComponent attributesLayout;
     private final KeyValueDetailsComponent assignedDsDetails;
     private final KeyValueDetailsComponent installedDsDetails;
-    private final KeyValueDetailsComponent logDetails;
-    private final Binder<ProxyTarget> binder;
+    private final TargetTagToken targetTagToken;
+    private final MetadataDetailsLayout<ProxyTarget> targetMetadataLayout;
+    private final TargetMetadataPopupLayout targetMetadataPopupLayout;
+
+    private final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout;
 
     TargetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
             final UINotification uiNotification, final TargetTagManagement tagManagement,
             final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
             final EntityFactory entityFactory, final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout) {
-        super(i18n, eventBus, permissionChecker);
+        super(i18n, permissionChecker, eventBus);
 
-        this.binder = new Binder<>();
+        this.managementUIState = managementUIState;
+        this.uiNotification = uiNotification;
+        this.targetManagement = targetManagement;
+        this.deploymentManagement = deploymentManagement;
 
-        this.entityDetails = new KeyValueDetailsComponent();
-        binder.forField(entityDetails)
-                .bind(target -> Arrays.asList(
-                        new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_CONTROLLER_ID,
-                                i18n.getMessage("label.target.id"), target.getControllerId()),
-                        new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_LAST_QUERY_DT,
-                                i18n.getMessage("label.target.lastpolldate"),
-                                SPDateTimeUtil.getFormattedDate(target.getLastTargetQuery())),
-                        new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_IP_ADDRESS, i18n.getMessage("label.ip"),
-                                target.getAddress() != null ? target.getAddress().toString() : ""),
-                        new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_SECURITY_TOKEN,
-                                i18n.getMessage("label.target.security.token"), target.getSecurityToken())),
-                        null);
+        this.targetDetailsHeader = new DetailsHeader(i18n, eventBus, permissionChecker::hasUpdateTargetPermission,
+                i18n.getMessage("target.details.header"), UIComponentIdProvider.TARGET_DETAILS_HEADER_LABEL_ID,
+                UIComponentIdProvider.TARGET_EDIT_ICON, this::onEdit, UIComponentIdProvider.TARGET_METADATA_BUTTON,
+                this::showMetadata);
 
-        this.entityDescription = new TextArea();
-        entityDescription.setId(UIComponentIdProvider.TARGET_DETAILS_DESCRIPTION_ID);
-        entityDescription.setReadOnly(true);
-        entityDescription.setWordWrap(true);
-        entityDescription.setSizeFull();
-        entityDescription.setStyleName(ValoTheme.TEXTAREA_BORDERLESS);
-        entityDescription.addStyleName(ValoTheme.TEXTAREA_SMALL);
-        entityDescription.addStyleName("details-description");
-        binder.forField(entityDescription).bind(ProxyTarget::getDescription, null);
+        this.attributesLayout = buildAttributesLayout();
 
-        this.attributesLayout = new TargetAttributesDetailsComponent(i18n, targetManagement);
-        binder.forField(attributesLayout).bind(target -> {
+        this.assignedDsDetails = buildAssignedDsDetails();
+
+        this.installedDsDetails = buildInstalledDsDetails();
+
+        this.targetTagToken = new TargetTagToken(permissionChecker, i18n, uiNotification, eventBus, managementUIState,
+                tagManagement, targetManagement);
+        binder.forField(targetTagToken).bind(target -> target, null);
+
+        this.targetMetadataPopupLayout = new TargetMetadataPopupLayout(i18n, uiNotification, eventBus, targetManagement,
+                entityFactory, permissionChecker);
+        this.targetMetadataLayout = new MetadataDetailsLayout<>(i18n, UIComponentIdProvider.TARGET_METADATA_DETAIL_LINK,
+                this::showMetadataDetails, this::getTargetMetaData);
+        binder.forField(targetMetadataLayout).bind(target -> target, null);
+
+        this.targetAddUpdateWindowLayout = targetAddUpdateWindowLayout;
+
+        addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
+                new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),
+                new SimpleEntry<>(i18n.getMessage("caption.attributes.tab"), attributesLayout),
+                new SimpleEntry<>(i18n.getMessage("header.target.assigned"), assignedDsDetails),
+                new SimpleEntry<>(i18n.getMessage("header.target.installed"), installedDsDetails),
+                new SimpleEntry<>(i18n.getMessage("caption.tags.tab"), targetTagToken),
+                new SimpleEntry<>(i18n.getMessage("caption.logs.tab"), logDetails),
+                new SimpleEntry<>(i18n.getMessage("caption.metadata"), targetMetadataLayout)));
+
+        buildDetails();
+        restoreState();
+    }
+
+    @Override
+    protected String getTabSheetId() {
+        return UIComponentIdProvider.TARGET_DETAILS_TABSHEET;
+    }
+
+    private void onEdit() {
+        if (binder.getBean() == null) {
+            return;
+        }
+
+        final Window targetWindow = targetAddUpdateWindowLayout.getWindow(binder.getBean().getControllerId());
+        if (targetWindow == null) {
+            return;
+        }
+        targetWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
+        UI.getCurrent().addWindow(targetWindow);
+        targetWindow.setVisible(Boolean.TRUE);
+    }
+
+    private void showMetadataDetails(final String metadataKey) {
+        // TODO: adapt after popup refactoring
+        targetManagement.get(binder.getBean().getId()).ifPresent(
+                target -> UI.getCurrent().addWindow(targetMetadataPopupLayout.getWindow(target, metadataKey)));
+    }
+
+    @Override
+    protected DetailsHeader getDetailsHeader() {
+        return targetDetailsHeader;
+    }
+
+    @Override
+    protected List<ProxyKeyValueDetails> getEntityDetails(final ProxyTarget entity) {
+        return Arrays.asList(
+                new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_CONTROLLER_ID, i18n.getMessage("label.target.id"),
+                        entity.getControllerId()),
+                new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_LAST_QUERY_DT,
+                        i18n.getMessage("label.target.lastpolldate"),
+                        SPDateTimeUtil.getFormattedDate(entity.getLastTargetQuery())),
+                new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_IP_ADDRESS, i18n.getMessage("label.ip"),
+                        entity.getAddress() != null ? entity.getAddress().toString() : ""),
+                new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_SECURITY_TOKEN,
+                        i18n.getMessage("label.target.security.token"), entity.getSecurityToken()));
+    }
+
+    @Override
+    protected String getDetailsDescriptionId() {
+        return UIComponentIdProvider.TARGET_DETAILS_DESCRIPTION_ID;
+    }
+
+    private TargetAttributesDetailsComponent buildAttributesLayout() {
+        final TargetAttributesDetailsComponent attributesDetails = new TargetAttributesDetailsComponent(i18n,
+                targetManagement);
+
+        binder.forField(attributesDetails).bind(target -> {
             final String controllerId = target.getControllerId();
             final boolean isRequestAttributes = target.isRequestAttributes();
 
@@ -128,54 +186,20 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
             return new ProxyTargetAttributesDetails(controllerId, isRequestAttributes, attributes);
         }, null);
 
-        this.assignedDsDetails = new KeyValueDetailsComponent();
-        binder.forField(assignedDsDetails).bind(target -> {
+        return attributesDetails;
+    }
+
+    private KeyValueDetailsComponent buildAssignedDsDetails() {
+        final KeyValueDetailsComponent assignedDsLayout = new KeyValueDetailsComponent();
+
+        binder.forField(assignedDsLayout).bind(target -> {
             final Optional<DistributionSet> targetAssignedDs = deploymentManagement
                     .getAssignedDistributionSet(target.getControllerId());
 
             return targetAssignedDs.map(this::getDistributionDetails).orElse(null);
         }, null);
 
-        this.installedDsDetails = new KeyValueDetailsComponent();
-        binder.forField(installedDsDetails).bind(target -> {
-            final Optional<DistributionSet> targetInstalledDs = deploymentManagement
-                    .getInstalledDistributionSet(target.getControllerId());
-
-            return targetInstalledDs.map(this::getDistributionDetails).orElse(null);
-        }, null);
-
-        this.logDetails = new KeyValueDetailsComponent();
-        binder.forField(logDetails).bind(target -> Arrays.asList(
-                new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_CREATEDAT_ID, i18n.getMessage("label.created.at"),
-                        SPDateTimeUtil.getFormattedDate(target.getCreatedAt())),
-                new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_CREATEDBY_ID, i18n.getMessage("label.created.by"),
-                        target.getCreatedBy() != null
-                                ? UserDetailsFormatter.loadAndFormatUsername(target.getCreatedBy())
-                                : ""),
-                new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_MODIFIEDAT_ID,
-                        i18n.getMessage("label.modified.date"),
-                        SPDateTimeUtil.getFormattedDate(target.getLastModifiedAt())),
-                new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_MODIFIEDBY_ID,
-                        i18n.getMessage("label.modified.by"),
-                        target.getCreatedBy() != null
-                                ? UserDetailsFormatter.loadAndFormatUsername(target.getLastModifiedBy())
-                                : "")),
-                null);
-
-        // ------------------------------------------
-        this.managementUIState = managementUIState;
-
-        this.targetTagToken = new TargetTagToken(permissionChecker, i18n, uiNotification, eventBus, managementUIState,
-                tagManagement, targetManagement);
-        this.targetAddUpdateWindowLayout = targetAddUpdateWindowLayout;
-        this.uiNotification = uiNotification;
-        this.targetManagement = targetManagement;
-        this.deploymentManagement = deploymentManagement;
-        this.targetMetadataPopupLayout = new TargetMetadataPopupLayout(i18n, uiNotification, eventBus, targetManagement,
-                entityFactory, permissionChecker);
-        this.targetMetadataLayout = new TargetMetadataDetailsLayout(i18n, targetManagement, targetMetadataPopupLayout);
-        addDetailsTab();
-        restoreState();
+        return assignedDsLayout;
     }
 
     private List<ProxyKeyValueDetails> getDistributionDetails(final DistributionSet ds) {
@@ -194,97 +218,27 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
         return dsDetails;
     }
 
-    @Override
-    protected String getDefaultCaption() {
-        return i18n.getMessage("target.details.header");
-    }
+    private KeyValueDetailsComponent buildInstalledDsDetails() {
+        final KeyValueDetailsComponent installedDsLayout = new KeyValueDetailsComponent();
 
-    private final void addDetailsTab() {
-        getDetailsTab().addTab(buildTabWrapperDetailsLayout(entityDetails), i18n.getMessage("caption.tab.details"),
-                null);
-        getDetailsTab().addTab(buildTabWrapperDetailsLayout(entityDescription),
-                i18n.getMessage("caption.tab.description"), null);
-        getDetailsTab().addTab(buildTabWrapperDetailsLayout(attributesLayout),
-                i18n.getMessage("caption.attributes.tab"), null);
-        getDetailsTab().addTab(buildTabWrapperDetailsLayout(assignedDsDetails),
-                i18n.getMessage("header.target.assigned"), null);
-        getDetailsTab().addTab(buildTabWrapperDetailsLayout(installedDsDetails),
-                i18n.getMessage("header.target.installed"), null);
-        getDetailsTab().addTab(getTagsLayout(), i18n.getMessage("caption.tags.tab"), null);
-        getDetailsTab().addTab(buildTabWrapperDetailsLayout(logDetails), i18n.getMessage("caption.logs.tab"), null);
-        getDetailsTab().addTab(targetMetadataLayout, i18n.getMessage("caption.metadata"), null);
-    }
+        binder.forField(installedDsLayout).bind(target -> {
+            final Optional<DistributionSet> targetInstalledDs = deploymentManagement
+                    .getInstalledDistributionSet(target.getControllerId());
 
-    private VerticalLayout buildTabWrapperDetailsLayout(final Component detailsComponent) {
-        final VerticalLayout tabWrapperDetailsLayout = new VerticalLayout();
-        tabWrapperDetailsLayout.setSpacing(false);
-        tabWrapperDetailsLayout.setMargin(false);
-        tabWrapperDetailsLayout.setStyleName("details-layout");
+            return targetInstalledDs.map(this::getDistributionDetails).orElse(null);
+        }, null);
 
-        tabWrapperDetailsLayout.addComponent(detailsComponent);
-
-        return tabWrapperDetailsLayout;
+        return installedDsLayout;
     }
 
     @Override
-    protected void onEdit(final ClickEvent event) {
-        if (getSelectedBaseEntity() == null) {
-            return;
-        }
-        openWindow();
+    protected String getLogLabelIdPrefix() {
+        // TODO: fix with constant
+        return "target.";
     }
 
-    private void openWindow() {
-        final Window targetWindow = targetAddUpdateWindowLayout.getWindow(getSelectedBaseEntity().getControllerId());
-        if (targetWindow == null) {
-            return;
-        }
-        targetWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
-        UI.getCurrent().addWindow(targetWindow);
-        targetWindow.setVisible(Boolean.TRUE);
-    }
-
-    @Override
-    protected String getEditButtonId() {
-        return UIComponentIdProvider.TARGET_EDIT_ICON;
-    }
-
-    @Override
-    protected boolean onLoadIsTableMaximized() {
-        return managementUIState.isTargetTableMaximized();
-    }
-
-    @Override
-    protected void populateDetailsWidget() {
-        binder.setBean(getSelectedBaseEntity());
-
-        populateTags(targetTagToken);
-        populateMetadataDetails();
-    }
-
-    @Override
-    protected boolean hasEditPermission() {
-        return permissionChecker.hasUpdateTargetPermission();
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent targetTableEvent) {
-        onBaseEntityEvent(targetTableEvent);
-    }
-
-    @Override
-    protected String getTabSheetId() {
-        return UIComponentIdProvider.TARGET_DETAILS_TABSHEET;
-    }
-
-    @Override
-    protected String getDetailsHeaderCaptionId() {
-        return UIComponentIdProvider.TARGET_DETAILS_HEADER_LABEL_ID;
-    }
-
-    @Override
-    protected void showMetadata(final ClickEvent event) {
-        final Optional<Target> target = targetManagement.get(getSelectedBaseEntityId());
+    private void showMetadata() {
+        final Optional<Target> target = targetManagement.get(binder.getBean().getId());
         if (!target.isPresent()) {
             uiNotification.displayWarning(i18n.getMessage("targets.not.exists"));
             return;
@@ -292,14 +246,20 @@ public class TargetDetails extends AbstractTableDetailsLayout<ProxyTarget> {
         UI.getCurrent().addWindow(targetMetadataPopupLayout.getWindow(target.get(), null));
     }
 
-    @Override
-    protected void populateMetadataDetails() {
-        targetMetadataLayout.populateMetadata(getSelectedBaseEntity());
+    private List<TargetMetadata> getTargetMetaData(final ProxyTarget target) {
+        return targetManagement.findMetaDataByControllerId(PageRequest.of(0, MetadataDetailsGrid.MAX_METADATA_QUERY),
+                target.getControllerId()).getContent();
     }
 
-    @Override
-    protected String getMetadataButtonId() {
-        return UIComponentIdProvider.TARGET_METADATA_BUTTON;
+    // TODO: should we move it to parent?
+    private void restoreState() {
+        if (managementUIState.isTargetTableMaximized()) {
+            setVisible(false);
+        }
     }
 
+    @EventBusListenerMethod(scope = EventScope.UI)
+    void onEvent(final TargetTableEvent targetTableEvent) {
+        onBaseEntityEvent(targetTableEvent);
+    }
 }

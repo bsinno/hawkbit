@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.tagdetails.AbstractTargetTagToken;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagData;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -27,8 +26,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * Target tag layout in bulk upload popup.
  *
  */
-public class TargetBulkTokenTags extends AbstractTargetTagToken<ProxyTarget> {
-    private static final long serialVersionUID = 4159616629565523717L;
+public class TargetBulkTokenTags extends AbstractTargetTagToken {
+    private static final long serialVersionUID = 1L;
 
     TargetBulkTokenTags(final SpPermissionChecker checker, final VaadinMessageSource i18n,
             final UINotification uinotification, final UIEventBus eventBus, final ManagementUIState managementUIState,

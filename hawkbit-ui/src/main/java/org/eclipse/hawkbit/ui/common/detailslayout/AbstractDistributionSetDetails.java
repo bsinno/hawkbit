@@ -126,7 +126,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractTableDetail
 
     @Override
     protected void populateMetadataDetails() {
-        dsMetadataLayout.populateDSMetadata(getSelectedBaseEntity());
+        // dsMetadataLayout.populateDSMetadata(getSelectedBaseEntity());
     }
 
     @Override

@@ -15,21 +15,24 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.UI;
 
 /**
  * SoftwareModule Metadata details layout.
  *
  */
-public class SoftwareModuleMetadataDetailsLayout extends AbstractMetadataDetailsLayout {
-
+public class SoftwareModuleMetadataDetailsLayout extends CustomField<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
+
+    private final MetadataDetailsGrid metadataDetailsGrid;
 
     private transient SoftwareModuleManagement softwareModuleManagement;
 
     private final SwMetadataPopupLayout swMetadataPopupLayout;
 
-    private Long selectedSWModuleId;
+    private ProxySoftwareModule selectedSWModule;
 
     /**
      * Initialize the layout.
@@ -43,38 +46,45 @@ public class SoftwareModuleMetadataDetailsLayout extends AbstractMetadataDetails
      */
     public SoftwareModuleMetadataDetailsLayout(final VaadinMessageSource i18n,
             final SoftwareModuleManagement softwareManagement, final SwMetadataPopupLayout swMetadataPopupLayout) {
-        super(i18n);
         this.softwareModuleManagement = softwareManagement;
         this.swMetadataPopupLayout = swMetadataPopupLayout;
+
+        this.metadataDetailsGrid = new MetadataDetailsGrid(i18n, UIComponentIdProvider.SW_METADATA_DETAIL_LINK,
+                this::showMetadataDetails);
     }
 
-    /**
-     * Populate software module metadata table.
-     * 
-     * @param swModule
-     */
-    public void populateSMMetadata(final ProxySoftwareModule swModule) {
-        if (swModule == null) {
-            metaDataList.clear();
-            // TODO: should we call refreshAll here?
-            return;
-        }
-        selectedSWModuleId = swModule.getId();
-        softwareModuleManagement
-                .findMetaDataBySoftwareModuleId(PageRequest.of(0, MAX_METADATA_QUERY), selectedSWModuleId).getContent()
-                .forEach(this::addMetaDataToList);
-        // TODO: should we call refreshAll here?
-    }
-
-    @Override
-    protected void showMetadataDetails(final String metadataKey) {
-        softwareModuleManagement.get(selectedSWModuleId).ifPresent(
+    private void showMetadataDetails(final String metadataKey) {
+        softwareModuleManagement.get(selectedSWModule.getId()).ifPresent(
                 swmodule -> UI.getCurrent().addWindow(swMetadataPopupLayout.getWindow(swmodule, metadataKey)));
     }
 
     @Override
-    protected String getDetailLinkId(final String name) {
-        return new StringBuilder(UIComponentIdProvider.SW_METADATA_DETAIL_LINK).append('.').append(name).toString();
+    public ProxySoftwareModule getValue() {
+        return new ProxySoftwareModule();
     }
 
+    @Override
+    protected Component initContent() {
+        return metadataDetailsGrid;
+    }
+
+    @Override
+    protected void doSetValue(final ProxySoftwareModule value) {
+        selectedSWModule = value;
+        populateMetadata();
+    }
+
+    private void populateMetadata() {
+        if (selectedSWModule == null) {
+            metadataDetailsGrid.setVisible(false);
+            metadataDetailsGrid.clearData();
+        } else {
+            metadataDetailsGrid.setVisible(true);
+            softwareModuleManagement
+                    .findMetaDataBySoftwareModuleId(PageRequest.of(0, MetadataDetailsGrid.MAX_METADATA_QUERY),
+                            selectedSWModule.getId())
+                    .getContent().forEach(metadataDetailsGrid::addMetaDataToList);
+            // TODO: should we call refreshAll here?
+        }
+    }
 }

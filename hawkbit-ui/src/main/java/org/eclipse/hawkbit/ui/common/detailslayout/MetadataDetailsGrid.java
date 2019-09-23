@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.repository.model.MetaData;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
@@ -21,23 +22,27 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
- * Abstract metadata tab for entities.
- *
+ * Metadata grid for entities.
  */
-public abstract class AbstractMetadataDetailsLayout extends Grid<ProxyMetaData> {
-
+public class MetadataDetailsGrid extends Grid<ProxyMetaData> {
     private static final long serialVersionUID = 1L;
+
+    public static final int MAX_METADATA_QUERY = 500;
 
     private static final String METADATA_KEY_ID = "Key";
 
-    protected static final int MAX_METADATA_QUERY = 500;
-    protected final List<ProxyMetaData> metaDataList;
+    private final List<ProxyMetaData> metaDataList;
 
     private final VaadinMessageSource i18n;
+    private final String detailLinkIdPrefix;
+    private final transient Consumer<String> showMetadataDetailsCallback;
 
-    protected AbstractMetadataDetailsLayout(final VaadinMessageSource i18n) {
+    public MetadataDetailsGrid(final VaadinMessageSource i18n, final String detailLinkIdPrefix,
+            final Consumer<String> showMetadataDetailsCallback) {
         this.i18n = i18n;
-        metaDataList = new ArrayList<>();
+        this.detailLinkIdPrefix = detailLinkIdPrefix;
+        this.showMetadataDetailsCallback = showMetadataDetailsCallback;
+        this.metaDataList = new ArrayList<>();
 
         init();
     }
@@ -48,9 +53,11 @@ public abstract class AbstractMetadataDetailsLayout extends Grid<ProxyMetaData> 
         setSelectionMode(SelectionMode.NONE);
         setSizeFull();
         // same as height of other tabs in details tabsheet
-        setHeight(116, Unit.PIXELS);
+        // setHeight(116, Unit.PIXELS);
 
         addColumns();
+
+        setItems(metaDataList);
     }
 
     private void addColumns() {
@@ -61,9 +68,10 @@ public abstract class AbstractMetadataDetailsLayout extends Grid<ProxyMetaData> 
     // TODO: remove duplication with RolloutListGrid
     private Button buildKeyLink(final ProxyMetaData metaData) {
         final String metaDataKey = metaData.getKey();
+        final String keyLinkId = new StringBuilder(detailLinkIdPrefix).append('.').append(metaDataKey).toString();
         final Button metaDataKeyLink = new Button();
 
-        metaDataKeyLink.setId(getDetailLinkId(metaDataKey));
+        metaDataKeyLink.setId(keyLinkId);
         metaDataKeyLink.addStyleName("borderless");
         metaDataKeyLink.addStyleName("small");
         metaDataKeyLink.addStyleName("on-focus-no-border");
@@ -74,16 +82,12 @@ public abstract class AbstractMetadataDetailsLayout extends Grid<ProxyMetaData> 
         // this is to allow the button to disappear, if the text is null
         metaDataKeyLink.setVisible(!StringUtils.isEmpty(metaDataKey));
 
-        metaDataKeyLink.addClickListener(event -> showMetadataDetails(metaDataKey));
+        metaDataKeyLink.addClickListener(event -> showMetadataDetailsCallback.accept(metaDataKey));
 
         return metaDataKeyLink;
     }
 
-    protected abstract String getDetailLinkId(final String name);
-
-    protected abstract void showMetadataDetails(final String metadataKey);
-
-    protected void addMetaDataToList(final MetaData metaData) {
+    public void addMetaDataToList(final MetaData metaData) {
         final ProxyMetaData metaDataItem = new ProxyMetaData();
 
         metaDataItem.setEntityId(metaData.getEntityId());
@@ -93,4 +97,8 @@ public abstract class AbstractMetadataDetailsLayout extends Grid<ProxyMetaData> 
         metaDataList.add(metaDataItem);
     }
 
+    public void clearData() {
+        metaDataList.clear();
+        // TODO: should we call refreshAll here?
+    }
 }

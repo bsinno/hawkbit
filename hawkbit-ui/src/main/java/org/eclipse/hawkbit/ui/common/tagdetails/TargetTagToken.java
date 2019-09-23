@@ -16,16 +16,12 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.google.common.collect.Lists;
 
@@ -34,9 +30,8 @@ import com.google.common.collect.Lists;
  *
  *
  */
-public class TargetTagToken extends AbstractTargetTagToken<ProxyTarget> {
-
-    private static final long serialVersionUID = 7124887018280196721L;
+public class TargetTagToken extends AbstractTargetTagToken {
+    private static final long serialVersionUID = 1L;
 
     private final transient TargetManagement targetManagement;
 
@@ -90,10 +85,4 @@ public class TargetTagToken extends AbstractTargetTagToken<ProxyTarget> {
         }
         return Lists.newArrayList();
     }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent targetTableEvent) {
-        onBaseEntityEvent(targetTableEvent);
-    }
-
 }
