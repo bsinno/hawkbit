@@ -21,14 +21,12 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
-import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetMetadata;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetAttributesDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractGridDetailsLayout;
-import org.eclipse.hawkbit.ui.common.detailslayout.DetailsHeader;
 import org.eclipse.hawkbit.ui.common.detailslayout.KeyValueDetailsComponent;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetadataDetailsGrid;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetadataDetailsLayout;
@@ -45,7 +43,6 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
 
 /**
  * Target details layout which is shown on the Deployment View.
@@ -54,21 +51,19 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
     private final ManagementUIState managementUIState;
-    private final UINotification uiNotification;
 
+    private final UINotification uiNotification;
+    private final transient EntityFactory entityFactory;
     private final transient TargetManagement targetManagement;
     private final transient DeploymentManagement deploymentManagement;
 
-    private final DetailsHeader targetDetailsHeader;
+    private final TargetDetailsHeader targetDetailsHeader;
 
     private final TargetAttributesDetailsComponent attributesLayout;
     private final KeyValueDetailsComponent assignedDsDetails;
     private final KeyValueDetailsComponent installedDsDetails;
     private final TargetTagToken targetTagToken;
     private final MetadataDetailsLayout<ProxyTarget> targetMetadataLayout;
-    private final TargetMetadataPopupLayout targetMetadataPopupLayout;
-
-    private final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout;
 
     TargetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
@@ -81,11 +76,10 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
         this.uiNotification = uiNotification;
         this.targetManagement = targetManagement;
         this.deploymentManagement = deploymentManagement;
+        this.entityFactory = entityFactory;
 
-        this.targetDetailsHeader = new DetailsHeader(i18n, eventBus, permissionChecker::hasUpdateTargetPermission,
-                i18n.getMessage("target.details.header"), UIComponentIdProvider.TARGET_DETAILS_HEADER_LABEL_ID,
-                UIComponentIdProvider.TARGET_EDIT_ICON, this::onEdit, UIComponentIdProvider.TARGET_METADATA_BUTTON,
-                this::showMetadata);
+        this.targetDetailsHeader = new TargetDetailsHeader(i18n, permissionChecker, eventBus, uiNotification,
+                entityFactory, targetManagement, targetAddUpdateWindowLayout);
 
         this.attributesLayout = buildAttributesLayout();
 
@@ -97,13 +91,9 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
                 tagManagement, targetManagement);
         binder.forField(targetTagToken).bind(target -> target, null);
 
-        this.targetMetadataPopupLayout = new TargetMetadataPopupLayout(i18n, uiNotification, eventBus, targetManagement,
-                entityFactory, permissionChecker);
         this.targetMetadataLayout = new MetadataDetailsLayout<>(i18n, UIComponentIdProvider.TARGET_METADATA_DETAIL_LINK,
                 this::showMetadataDetails, this::getTargetMetaData);
         binder.forField(targetMetadataLayout).bind(target -> target, null);
-
-        this.targetAddUpdateWindowLayout = targetAddUpdateWindowLayout;
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),
@@ -123,28 +113,8 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
         return UIComponentIdProvider.TARGET_DETAILS_TABSHEET;
     }
 
-    private void onEdit() {
-        if (binder.getBean() == null) {
-            return;
-        }
-
-        final Window targetWindow = targetAddUpdateWindowLayout.getWindow(binder.getBean().getControllerId());
-        if (targetWindow == null) {
-            return;
-        }
-        targetWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
-        UI.getCurrent().addWindow(targetWindow);
-        targetWindow.setVisible(Boolean.TRUE);
-    }
-
-    private void showMetadataDetails(final String metadataKey) {
-        // TODO: adapt after popup refactoring
-        targetManagement.get(binder.getBean().getId()).ifPresent(
-                target -> UI.getCurrent().addWindow(targetMetadataPopupLayout.getWindow(target, metadataKey)));
-    }
-
     @Override
-    protected DetailsHeader getDetailsHeader() {
+    protected TargetDetailsHeader getDetailsHeader() {
         return targetDetailsHeader;
     }
 
@@ -237,13 +207,13 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
         return "target.";
     }
 
-    private void showMetadata() {
-        final Optional<Target> target = targetManagement.get(binder.getBean().getId());
-        if (!target.isPresent()) {
-            uiNotification.displayWarning(i18n.getMessage("targets.not.exists"));
-            return;
-        }
-        UI.getCurrent().addWindow(targetMetadataPopupLayout.getWindow(target.get(), null));
+    private void showMetadataDetails(final String metadataKey) {
+        // TODO: adapt after popup refactoring
+        targetManagement.get(binder.getBean().getId()).ifPresent(target -> {
+            final TargetMetadataPopupLayout targetMetadataPopupLayout = new TargetMetadataPopupLayout(i18n,
+                    uiNotification, eventBus, targetManagement, entityFactory, permChecker);
+            UI.getCurrent().addWindow(targetMetadataPopupLayout.getWindow(target, metadataKey));
+        });
     }
 
     private List<TargetMetadata> getTargetMetaData(final ProxyTarget target) {
@@ -257,6 +227,11 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
             setVisible(false);
         }
     }
+
+    // TODO: implement
+    // protected void populateMetaData() {
+    // targetMetadataLayout.populateMetadata(entity);
+    // }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final TargetTableEvent targetTableEvent) {

@@ -164,7 +164,7 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
     }
 
     protected void buildDetails() {
-        final DetailsHeader header = getDetailsHeader();
+        final DetailsHeader<T> header = getDetailsHeader();
         addComponent(header);
         setComponentAlignment(header, Alignment.TOP_CENTER);
 
@@ -179,7 +179,7 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         setComponentAlignment(detailsTab, Alignment.TOP_CENTER);
     }
 
-    protected abstract DetailsHeader getDetailsHeader();
+    protected abstract DetailsHeader<T> getDetailsHeader();
 
     private VerticalLayout buildTabWrapperDetailsLayout(final Component detailsComponent) {
         final VerticalLayout tabWrapperDetailsLayout = new VerticalLayout();
@@ -211,14 +211,8 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
     }
 
     protected void populateDetails(final T entity) {
-        if (entity == null) {
-            getDetailsHeader().disableEditComponents();
-        } else {
-            getDetailsHeader().enableEditComponents();
-        }
-
+        getDetailsHeader().updateDetailsHeader(entity);
         binder.setBean(entity);
-        // targetMetadataLayout.populateMetadata(entity);
     }
 
     protected void addDetailsComponents(final Collection<Entry<String, Component>> detailsComponents) {

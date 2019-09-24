@@ -8,12 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
+import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractSoftwareModuleDetails;
-import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
+import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
+import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -21,35 +22,36 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * Software module details.
  */
 public class SoftwareModuleDetails extends AbstractSoftwareModuleDetails {
-
     private static final long serialVersionUID = 1L;
 
     private final ArtifactUploadState artifactUploadState;
+
+    private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
 
     SoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker,
             final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow,
             final ArtifactUploadState artifactUploadState, final SoftwareModuleManagement softwareManagement,
-            final SwMetadataPopupLayout swMetadataPopupLayout) {
-        super(i18n, eventBus, permissionChecker, null, softwareManagement, swMetadataPopupLayout,
-                softwareModuleAddUpdateWindow);
+            final EntityFactory entityFactory, final UINotification uiNotification) {
+        super(i18n, eventBus, permissionChecker, softwareManagement, entityFactory, uiNotification);
+
         this.artifactUploadState = artifactUploadState;
+
+        this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permissionChecker, eventBus,
+                uiNotification, entityFactory, softwareManagement, softwareModuleAddUpdateWindow);
+
+        buildDetails();
         restoreState();
     }
 
-    @Override
-    protected boolean onLoadIsTableMaximized() {
-        return artifactUploadState.isSwModuleTableMaximized();
+    private void restoreState() {
+        if (artifactUploadState.isSwModuleTableMaximized()) {
+            setVisible(false);
+        }
     }
 
     @Override
-    protected String getTabSheetId() {
-        return null;
+    protected SoftwareModuleDetailsHeader getDetailsHeader() {
+        return softwareModuleDetailsHeader;
     }
-
-    @Override
-    protected boolean isSoftwareModuleSelected(final SoftwareModule softwareModule) {
-        return compareSoftwareModulesById(softwareModule, artifactUploadState.getSelectedBaseSwModuleId().orElse(null));
-    }
-
 }

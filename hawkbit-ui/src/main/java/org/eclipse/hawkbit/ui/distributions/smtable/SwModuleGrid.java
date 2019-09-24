@@ -34,9 +34,9 @@ import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
 import org.eclipse.hawkbit.ui.distributions.event.SaveActionWindowEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
+import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -95,7 +95,9 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
 
         setResizeSupport(new SwModuleResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, SoftwareModuleEvent.class));
+        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, SoftwareModuleEvent.class,
+                selectedSm -> manageDistUIState
+                        .setLastSelectedSoftwareModule(selectedSm != null ? selectedSm.getId() : null)));
         if (manageDistUIState.isSwModuleTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -272,9 +274,9 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionsUIEvent event) {
+    void onEvent(final DistributionTableEvent event) {
         UI.getCurrent().access(() -> {
-            if (event == DistributionsUIEvent.ORDER_BY_DISTRIBUTION) {
+            if (BaseEntityEventType.SELECTED_ENTITY == event.getEventType()) {
                 refreshFilter();
                 styleRowOnDistSelection();
             }

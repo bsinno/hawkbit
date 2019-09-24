@@ -58,7 +58,9 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> extends Custo
         this.uinotification = uinotification;
         this.eventBus = eventBus;
         this.managementUIState = managementUIState;
-        createTagPanel();
+
+        buildTagPanel();
+
         if (doSubscribeToEventBus()) {
             eventBus.subscribe(this);
         }
@@ -73,6 +75,15 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> extends Custo
         return true;
     }
 
+    private void buildTagPanel() {
+        tagPanelLayout = new TagPanelLayout(i18n, !isToggleTagAssignmentAllowed());
+        tagPanelLayout.addTagAssignmentListener(this);
+
+        tagPanelLayout.setSpacing(false);
+        tagPanelLayout.setMargin(false);
+        tagPanelLayout.setSizeFull();
+    }
+
     @Override
     protected Component initContent() {
         return tagPanelLayout;
@@ -82,12 +93,6 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> extends Custo
     protected void doSetValue(final T value) {
         selectedEntity = value;
         repopulateTags();
-    }
-
-    private void createTagPanel() {
-        tagPanelLayout = new TagPanelLayout(i18n, !isToggleTagAssignmentAllowed());
-        tagPanelLayout.addTagAssignmentListener(this);
-        tagPanelLayout.setSizeFull();
     }
 
     protected void repopulateTags() {

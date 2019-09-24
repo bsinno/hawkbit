@@ -135,15 +135,13 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
 
             this.actionHistoryLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, eventBus, uiNotification,
                     managementUIState, permChecker);
-            this.actionStatusLayout = new ActionStatusGridLayout(i18n, eventBus, managementUIState, deploymentManagement);
+            this.actionStatusLayout = new ActionStatusGridLayout(i18n, eventBus, managementUIState,
+                    deploymentManagement);
             this.actionStatusMsgLayout = new ActionStatusMsgGridLayout(i18n, eventBus, managementUIState,
                     deploymentManagement);
 
             this.countMessageLabel = new CountMessageLabel(eventBus, targetManagement, i18n, managementUIState,
                     targetGridLayout.getTargetGrid().getDataCommunicator());
-
-            // TODO:
-            // targetLayout.registerDetails(actionHistoryLayout.getMasterDetailsSupport());
         } else {
             this.targetTagFilterLayout = null;
             this.targetGridLayout = null;
@@ -293,13 +291,6 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         mainLayout.setColumnExpandRatio(1, 0.18F);
         mainLayout.setColumnExpandRatio(2, 0.27F);
         mainLayout.setComponentAlignment(actionHistoryLayout, Alignment.TOP_LEFT);
-
-        // TODO: we register details here because ActionHistoryGrid allows
-        // selection only in maximized mode
-        // TODO: move to createMaximizedContent in the grid, because selection
-        // mode is not available at this time
-        // actionHistoryLayout.registerDetails(actionStatusLayout.getMasterDetailsSupport());
-        // actionStatusLayout.registerDetails(actionStatusMsgLayout.getMasterDetailsSupport());
     }
 
     @Override

@@ -8,21 +8,20 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
-import org.eclipse.hawkbit.ui.common.detailslayout.AbstractTableDetailsLayout;
+import org.eclipse.hawkbit.ui.common.detailslayout.AbstractGridDetailsLayout;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
 /**
  * Abstract grid layout class which builds layout with grid header
  * {@link AbstractGridHeader}, grid {@link AbstractGrid}, optional grid details
- * {@link AbstractTableDetailsLayout} and optional footer.
+ * {@link AbstractGridDetailsLayout} and optional footer.
  */
 public abstract class AbstractGridComponentLayout extends VerticalLayout {
     private static final long serialVersionUID = 1L;
@@ -89,18 +88,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      * Initializes this layout that presents a header, a grid and grid details.
      */
     protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
-            // TODO: change to AbstractGridDetailsLayout when all classes are
-            // refactored
-            final AbstractTableDetailsLayout<?> detailsLayout) {
-        buildLayout(gridHeader, grid);
-
-        addComponent(detailsLayout);
-        setComponentAlignment(detailsLayout, Alignment.TOP_CENTER);
-    }
-
-    // TODO: remove when all classes are refactored
-    protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
-            final Component detailsLayout) {
+            final AbstractGridDetailsLayout<?> detailsLayout) {
         buildLayout(gridHeader, grid);
 
         addComponent(detailsLayout);
@@ -124,7 +112,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      * a footer.
      */
     protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
-            final AbstractTableDetailsLayout<?> detailsLayout, final AbstractFooterSupport footerSupport) {
+            final AbstractGridDetailsLayout<?> detailsLayout, final AbstractFooterSupport footerSupport) {
         buildLayout(gridHeader, grid, detailsLayout);
 
         final Layout footerLayout = footerSupport.createFooterMessageComponent();

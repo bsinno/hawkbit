@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.grid.support;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
@@ -32,17 +33,20 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     private final Grid<T> grid;
     private final UIEventBus eventBus;
     private final Class<? extends BaseUIEntityEvent<T>> selectedEventType;
+    private final Consumer<T> updateLastSelectedUiStateCallback;
 
     // for grids without selection or master-details support
     public SelectionSupport(final Grid<T> grid) {
-        this(grid, null, null);
+        this(grid, null, null, null);
     }
 
     public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus,
-            final Class<? extends BaseUIEntityEvent<T>> selectedEventType) {
+            final Class<? extends BaseUIEntityEvent<T>> selectedEventType,
+            final Consumer<T> updateLastSelectedUiStateCallback) {
         this.grid = grid;
         this.eventBus = eventBus;
         this.selectedEventType = selectedEventType;
+        this.updateLastSelectedUiStateCallback = updateLastSelectedUiStateCallback;
     }
 
     public final void enableMultiSelection() {
@@ -75,6 +79,8 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
             // TODO: refactor
             throw new RuntimeException(e);
         }
+
+        updateLastSelectedUiStateCallback.accept(selectedItemToSend);
     }
 
     public final void enableSingleSelection() {

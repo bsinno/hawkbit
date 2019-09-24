@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.management.ds.DistributionGrid;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -54,11 +53,9 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         this.distributionGridHeader = new DistributionGridHeader(i18n, permissionChecker, eventBus, managementUIState);
         this.distributionGrid = new DistributionGrid(eventBus, i18n, permissionChecker, notification, managementUIState,
                 targetManagement, distributionSetManagement, deploymentManagement, uiProperties);
-        final DsMetadataPopupLayout dsMetadataPopupLayout = new DsMetadataPopupLayout(i18n, notification, eventBus,
-                distributionSetManagement, entityFactory, permissionChecker);
         this.distributionDetails = new DistributionDetails(i18n, eventBus, permissionChecker, managementUIState,
-                distributionSetManagement, dsMetadataPopupLayout, notification, distributionSetTagManagement,
-                distributionAddUpdateWindowLayout, configManagement, systemSecurityContext);
+                distributionSetManagement, notification, distributionSetTagManagement,
+                distributionAddUpdateWindowLayout, configManagement, systemSecurityContext, entityFactory);
 
         buildLayout(distributionGridHeader, distributionGrid, distributionDetails);
     }

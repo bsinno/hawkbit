@@ -499,6 +499,11 @@ public final class UIComponentIdProvider {
     public static final String UPLOAD_SW_MODULE_METADATA_BUTTON = "swmodule.metadata.button";
 
     /**
+     * Artifact details - sw module button id.
+     */
+    public static final String SW_MODULE_ARTIFACT_DETAILS_BUTTON = "swmodule.artifact.details.button";
+
+    /**
      * Ds edit button id.
      */
     public static final String DS_EDIT_BUTTON = "ds.edit.button";
@@ -507,6 +512,12 @@ public final class UIComponentIdProvider {
      * Ds metadata button id.
      */
     public static final String DS_METADATA_BUTTON = "ds.metadata.button";
+
+    /**
+     * Ds details description label id.
+     */
+    public static final String DS_DETAILS_DESCRIPTION_ID = "ds.details.description";
+
     /**
      * Upload Artifact details max table Id.
      */
@@ -654,7 +665,7 @@ public final class UIComponentIdProvider {
     /**
      * Software module table details description label id.
      */
-    public static final String DETAILS_DESCRIPTION_LABEL_ID = "details.description";
+    public static final String SM_DETAILS_DESCRIPTION_LABEL_ID = "sm.details.description";
 
     /**
      * Software module table details description label id.

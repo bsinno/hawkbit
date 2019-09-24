@@ -45,6 +45,7 @@ public class TagPanelLayout extends VerticalLayout {
 
         assignedTagField = new TagListField(i18n, readOnlyMode);
         addComponent(assignedTagField);
+
         setExpandRatio(assignedTagField, 1.0F);
         setExpandRatio(assignableTagsComboBox, 0.0F);
     }

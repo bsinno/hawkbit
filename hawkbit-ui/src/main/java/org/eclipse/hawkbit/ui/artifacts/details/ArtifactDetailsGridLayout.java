@@ -71,8 +71,6 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         buildLayout(artifactDetailsHeader, artifactDetailsGrid);
     }
 
-    // TODO: check if it can be removed with registerDetails in
-    // UploadArtifactView
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final SoftwareModuleEvent swModuleUIEvent) {
         final Optional<Long> swModuleId = artifactUploadState.getSelectedBaseSwModuleId();

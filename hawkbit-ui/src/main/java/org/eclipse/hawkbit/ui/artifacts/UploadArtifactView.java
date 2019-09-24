@@ -102,9 +102,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
                 entityFactory, uiNotification, softwareModuleTypeManagement);
         this.dropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, uiNotification, artifactUploadState,
                 multipartConfigElement, softwareModuleManagement, artifactManagement);
-
-        // TODO: when smTableLayout extends AbstractGridComponentLayout
-        // smTableLayout.registerDetails(artifactDetailsLayout.getMasterDetailsSupport());
     }
 
     @PostConstruct

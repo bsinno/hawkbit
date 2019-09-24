@@ -8,175 +8,107 @@
  */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModule;
+import org.eclipse.hawkbit.repository.model.SoftwareModuleMetadata;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Abstract class which contains common code for Software Module Details
  *
  */
-public abstract class AbstractSoftwareModuleDetails extends AbstractTableDetailsLayout<ProxySoftwareModule> {
-
+public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
-    private final SoftwareModuleMetadataDetailsLayout swmMetadataLayout;
+    private final UINotification uiNotification;
 
-    private final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow;
-
+    private final transient EntityFactory entityFactory;
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
-    private final SwMetadataPopupLayout swMetadataPopupLayout;
+    private final MetadataDetailsLayout<ProxySoftwareModule> swmMetadataLayout;
 
     protected AbstractSoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final SoftwareModuleManagement softwareManagement, final SwMetadataPopupLayout swMetadataPopupLayout,
-            final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow) {
-        super(i18n, eventBus, permissionChecker);
+            final SpPermissionChecker permissionChecker, final SoftwareModuleManagement softwareManagement,
+            final EntityFactory entityFactory, final UINotification uiNotification) {
+        super(i18n, permissionChecker, eventBus);
 
-        this.softwareModuleAddUpdateWindow = softwareModuleAddUpdateWindow;
+        this.uiNotification = uiNotification;
+        this.entityFactory = entityFactory;
         this.softwareModuleManagement = softwareManagement;
-        this.swMetadataPopupLayout = swMetadataPopupLayout;
 
-        swmMetadataLayout = new SoftwareModuleMetadataDetailsLayout(i18n, softwareManagement, swMetadataPopupLayout);
+        this.swmMetadataLayout = new MetadataDetailsLayout<>(i18n, UIComponentIdProvider.SW_METADATA_DETAIL_LINK,
+                this::showMetadataDetails, this::getSmMetaData);
+        binder.forField(swmMetadataLayout).bind(sm -> sm, null);
 
-        addDetailsTab();
+        addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
+                new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),
+                new SimpleEntry<>(i18n.getMessage("caption.logs.tab"), logDetails),
+                new SimpleEntry<>(i18n.getMessage("caption.metadata"), swmMetadataLayout)));
+    }
+
+    @Override
+    protected String getTabSheetId() {
+        return UIComponentIdProvider.DIST_SW_MODULE_DETAILS_TABSHEET_ID;
+    }
+
+    @Override
+    protected List<ProxyKeyValueDetails> getEntityDetails(final ProxySoftwareModule entity) {
+        return Arrays.asList(
+                new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_VENDOR_LABEL_ID,
+                        i18n.getMessage("label.dist.details.vendor"), entity.getVendor()),
+                new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
+                        i18n.getMessage("label.dist.details.type"), entity.getType().getName()),
+                new ProxyKeyValueDetails(UIComponentIdProvider.SWM_DTLS_MAX_ASSIGN,
+                        i18n.getMessage("label.assigned.type"),
+                        entity.getType().getMaxAssignments() == 1 ? i18n.getMessage("label.singleAssign.type")
+                                : i18n.getMessage("label.multiAssign.type")));
+    }
+
+    @Override
+    protected String getDetailsDescriptionId() {
+        return UIComponentIdProvider.SM_DETAILS_DESCRIPTION_LABEL_ID;
+    }
+
+    @Override
+    protected String getLogLabelIdPrefix() {
+        // TODO: fix with constant
+        return "sm.";
+    }
+
+    private void showMetadataDetails(final String metadataKey) {
+        // TODO: adapt after popup refactoring
+        softwareModuleManagement.get(binder.getBean().getId()).ifPresent(sm -> {
+            final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification,
+                    eventBus, softwareModuleManagement, entityFactory, permChecker);
+            UI.getCurrent().addWindow(swMetadataPopupLayout.getWindow(sm, metadataKey));
+        });
+    }
+
+    private List<SoftwareModuleMetadata> getSmMetaData(final ProxySoftwareModule sm) {
+        return softwareModuleManagement
+                .findMetaDataBySoftwareModuleId(PageRequest.of(0, MetadataDetailsGrid.MAX_METADATA_QUERY), sm.getId())
+                .getContent();
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final SoftwareModuleEvent softwareModuleEvent) {
         onBaseEntityEvent(softwareModuleEvent);
     }
-
-    private final void addDetailsTab() {
-        getDetailsTab().addTab(getDetailsLayout(), i18n.getMessage("caption.tab.details"), null);
-        getDetailsTab().addTab(getDescriptionLayout(), i18n.getMessage("caption.tab.description"), null);
-        getDetailsTab().addTab(getLogLayout(), i18n.getMessage("caption.logs.tab"), null);
-        getDetailsTab().addTab(swmMetadataLayout, i18n.getMessage("caption.metadata"), null);
-    }
-
-    @Override
-    protected void populateMetadataDetails() {
-        // swmMetadataLayout.populateSMMetadata(getSelectedBaseEntity());
-    }
-
-    @Override
-    protected void onEdit(final ClickEvent event) {
-        final Window addSoftwareModule = softwareModuleAddUpdateWindow
-                .createUpdateSoftwareModuleWindow(getSelectedBaseEntityId());
-        addSoftwareModule.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
-        UI.getCurrent().addWindow(addSoftwareModule);
-        addSoftwareModule.setVisible(Boolean.TRUE);
-    }
-
-    @Override
-    protected String getEditButtonId() {
-        return UIComponentIdProvider.UPLOAD_SW_MODULE_EDIT_BUTTON;
-    }
-
-    @Override
-    protected String getMetadataButtonId() {
-        return UIComponentIdProvider.UPLOAD_SW_MODULE_METADATA_BUTTON;
-    }
-
-    @Override
-    protected String getDefaultCaption() {
-        return i18n.getMessage("upload.swModuleTable.header");
-    }
-
-    @Override
-    protected boolean hasEditPermission() {
-        return permissionChecker.hasUpdateRepositoryPermission();
-    }
-
-    @Override
-    protected String getDetailsHeaderCaptionId() {
-        return UIComponentIdProvider.SOFTWARE_MODULE_DETAILS_HEADER_LABEL_ID;
-    }
-
-    @Override
-    protected void showMetadata(final ClickEvent event) {
-        softwareModuleManagement.get(getSelectedBaseEntityId())
-                .ifPresent(swmodule -> UI.getCurrent().addWindow(swMetadataPopupLayout.getWindow(swmodule, null)));
-    }
-
-    @Override
-    protected String getName() {
-        return HawkbitCommonUtil.getFormattedNameVersion(getSelectedBaseEntity().getName(),
-                getSelectedBaseEntity().getVersion());
-    }
-
-    protected void updateSoftwareModuleDetailsLayout(final String type, final String vendor, final String maxAssign) {
-        final VerticalLayout detailsTabLayout = getDetailsLayout();
-
-        detailsTabLayout.removeAllComponents();
-
-        final Label vendorLabel = SPUIComponentProvider
-                .createNameValueLabel(i18n.getMessage("label.dist.details.vendor"), vendor == null ? "" : vendor);
-        vendorLabel.setId(UIComponentIdProvider.DETAILS_VENDOR_LABEL_ID);
-        detailsTabLayout.addComponent(vendorLabel);
-
-        if (type != null) {
-            final Label typeLabel = SPUIComponentProvider
-                    .createNameValueLabel(i18n.getMessage("label.dist.details.type"), type);
-            typeLabel.setId(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID);
-            detailsTabLayout.addComponent(typeLabel);
-        }
-
-        final Label assignLabel = SPUIComponentProvider.createNameValueLabel(i18n.getMessage("label.assigned.type"),
-                maxAssign == null ? "" : maxAssign);
-        assignLabel.setId(UIComponentIdProvider.SWM_DTLS_MAX_ASSIGN);
-        detailsTabLayout.addComponent(assignLabel);
-    }
-
-    @Override
-    protected void populateDetailsWidget() {
-        populateDetails();
-        populateMetadataDetails();
-    }
-
-    protected boolean compareSoftwareModulesById(final SoftwareModule softwareModule,
-            final Long selectedBaseSwModuleId) {
-        if (softwareModule == null) {
-            return false;
-        }
-
-        return softwareModule.getId().equals(selectedBaseSwModuleId);
-    }
-
-    protected abstract boolean isSoftwareModuleSelected(SoftwareModule softwareModule);
-
-    private void populateDetails() {
-        if (getSelectedBaseEntity() != null) {
-            String maxAssign;
-            if (getSelectedBaseEntity().getType().getMaxAssignments() == 1) {
-                maxAssign = i18n.getMessage("label.singleAssign.type");
-            } else {
-                maxAssign = i18n.getMessage("label.multiAssign.type");
-            }
-            updateSoftwareModuleDetailsLayout(getSelectedBaseEntity().getType().getName(),
-                    getSelectedBaseEntity().getVendor(), maxAssign);
-        } else {
-            updateSoftwareModuleDetailsLayout("", "", "");
-        }
-    }
-
 }

@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.management.event.DeploymentActionStatusEvent;
+import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -54,13 +55,15 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
      * @param deploymentManagement
      */
     protected ActionStatusGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final DeploymentManagement deploymentManagement) {
+            final DeploymentManagement deploymentManagement, final ManagementUIState managementUIState) {
         super(i18n, eventBus, null);
 
         this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
                 new ActionStatusToProxyActionStatusMapper()).withConfigurableFilter();
 
-        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, DeploymentActionStatusEvent.class));
+        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, DeploymentActionStatusEvent.class,
+                selectedActionStatus -> managementUIState.setLastSelectedActionStatusId(
+                        selectedActionStatus != null ? selectedActionStatus.getId() : null)));
         getSelectionSupport().enableSingleSelection();
 
         initStatusIconMap();

@@ -14,7 +14,6 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -42,10 +41,9 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
                 softwareModuleAddUpdateWindow);
         this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
                 artifactUploadState, softwareModuleManagement);
-        final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification, eventBus,
-                softwareModuleManagement, entityFactory, permChecker);
         this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, permChecker,
-                softwareModuleAddUpdateWindow, artifactUploadState, softwareModuleManagement, swMetadataPopupLayout);
+                softwareModuleAddUpdateWindow, artifactUploadState, softwareModuleManagement, entityFactory,
+                uiNotification);
 
         buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetails);
     }

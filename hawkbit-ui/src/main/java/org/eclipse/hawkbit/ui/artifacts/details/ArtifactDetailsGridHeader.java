@@ -12,7 +12,6 @@ import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
@@ -25,8 +24,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Header for ArtifactDetails with maximize-support.
@@ -37,8 +36,7 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
 
     private final ArtifactUploadState artifactUploadState;
 
-    private final Label headerCaptionTitle;
-    private final Label headerCaptionDetails;
+    private final Label headerCaption;
 
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
@@ -48,8 +46,7 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
 
         this.artifactUploadState = artifactUploadState;
 
-        this.headerCaptionTitle = buildHeaderCaptionTitle();
-        this.headerCaptionDetails = buildHeaderCaptionDetails();
+        this.headerCaption = buildHeaderCaption();
 
         this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, SPUIDefinitions.EXPAND_ARTIFACT_DETAILS,
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
@@ -59,13 +56,15 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
         buildHeader();
     }
 
-    private Label buildHeaderCaptionTitle() {
-        return new LabelBuilder().name(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS))
-                .buildCaptionLabel();
-    }
+    private Label buildHeaderCaption() {
+        final Label caption = new Label(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS),
+                ContentMode.HTML);
 
-    private Label buildHeaderCaptionDetails() {
-        return new Label("", ContentMode.HTML);
+        caption.addStyleName(ValoTheme.LABEL_SMALL);
+        caption.addStyleName(ValoTheme.LABEL_BOLD);
+        caption.addStyleName("header-caption");
+
+        return caption;
     }
 
     @Override
@@ -75,14 +74,7 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
 
     @Override
     protected Component getHeaderCaption() {
-        final HorizontalLayout headerCaptionLayout = new HorizontalLayout();
-        headerCaptionLayout.setMargin(false);
-        headerCaptionLayout.setSpacing(false);
-
-        headerCaptionLayout.addComponent(headerCaptionTitle);
-        headerCaptionLayout.addComponent(headerCaptionDetails);
-
-        return headerCaptionLayout;
+        return headerCaption;
     }
 
     private void maximizeTable() {
@@ -109,11 +101,10 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
      */
     public void updateArtifactDetailsHeader(final String swModuleNameVersion) {
         if (StringUtils.hasText(swModuleNameVersion)) {
-            headerCaptionTitle.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF));
-            headerCaptionDetails.setValue(HawkbitCommonUtil.getBoldHTMLText(swModuleNameVersion));
+            headerCaption.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF) + " "
+                    + HawkbitCommonUtil.getBoldHTMLText(swModuleNameVersion));
         } else {
-            headerCaptionTitle.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS));
-            headerCaptionDetails.setValue("");
+            headerCaption.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS));
         }
     }
 }

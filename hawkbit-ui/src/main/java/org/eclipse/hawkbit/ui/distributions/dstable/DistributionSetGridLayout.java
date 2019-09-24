@@ -52,11 +52,9 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 manageDistUIState, distributionAddUpdateWindowLayout);
         this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
                 manageDistUIState, targetManagement, distributionSetManagement);
-        final DsMetadataPopupLayout popupLayout = new DsMetadataPopupLayout(i18n, uiNotification, eventBus,
-                distributionSetManagement, entityFactory, permissionChecker);
         this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker, manageDistUIState,
-                managementUIState, distributionSetManagement, uiNotification, distributionSetTagManagement, popupLayout,
-                configManagement, systemSecurityContext, distributionAddUpdateWindowLayout);
+                managementUIState, distributionSetManagement, uiNotification, distributionSetTagManagement,
+                configManagement, systemSecurityContext, distributionAddUpdateWindowLayout, entityFactory);
 
         buildLayout(distributionSetGridHeader, distributionSetGrid, distributionSetDetails);
     }
@@ -64,5 +62,4 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     public DistributionSetGrid getDistributionSetGrid() {
         return distributionSetGrid;
     }
-
 }

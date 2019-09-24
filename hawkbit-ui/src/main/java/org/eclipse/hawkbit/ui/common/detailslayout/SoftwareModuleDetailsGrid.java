@@ -23,7 +23,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModuleDetails;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -193,7 +192,6 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
             manageDistUIState.setLastSelectedEntityId(newDistributionSet.getId());
             eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY,
                     new DistributionSetToProxyDistributionMapper().map(newDistributionSet)));
-            eventBus.publish(this, DistributionsUIEvent.ORDER_BY_DISTRIBUTION);
             uiNotification.displaySuccess(i18n.getMessage("message.sw.unassigned", smNameAndVersion));
         }
     }

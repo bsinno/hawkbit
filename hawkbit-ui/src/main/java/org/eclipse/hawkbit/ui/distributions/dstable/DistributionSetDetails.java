@@ -8,8 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.distributions.dstable;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Collections;
+
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
+import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -29,8 +33,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.ui.UI;
-
 /**
  * Distribution set details layout.
  */
@@ -45,58 +47,48 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
             final SpPermissionChecker permissionChecker, final ManageDistUIState manageDistUIState,
             final ManagementUIState managementUIState, final DistributionSetManagement distributionSetManagement,
             final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
-            final DsMetadataPopupLayout dsMetadataPopupLayout, final TenantConfigurationManagement configManagement,
-            final SystemSecurityContext systemSecurityContext,
-            final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout) {
+            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
+            final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout,
+            final EntityFactory entityFactory) {
         super(i18n, eventBus, permissionChecker, managementUIState, distributionAddUpdateWindowLayout,
-                distributionSetManagement, dsMetadataPopupLayout, uiNotification, distributionSetTagManagement,
-                createSoftwareModuleDetailsGrid(i18n, permissionChecker, distributionSetManagement, eventBus,
-                        manageDistUIState, uiNotification),
-                configManagement, systemSecurityContext);
+                distributionSetManagement, uiNotification, distributionSetTagManagement, configManagement,
+                systemSecurityContext, entityFactory);
+
         this.manageDistUIState = manageDistUIState;
 
         tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n);
 
-        addAdditionalTab();
+        addDetailsComponents(Collections
+                .singletonList(new SimpleEntry<>(i18n.getMessage("caption.auto.assignment.ds"), tfqDetailsGrid)));
+        buildDetails();
         restoreState();
     }
 
-    private void addAdditionalTab() {
-        getDetailsTab().addTab(tfqDetailsGrid, i18n.getMessage("caption.auto.assignment.ds"), null);
-    }
-
-    private static final SoftwareModuleDetailsGrid createSoftwareModuleDetailsGrid(final VaadinMessageSource i18n,
-            final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
-            final UIEventBus eventBus, final ManageDistUIState manageDistUIState, final UINotification uiNotification) {
-        return new SoftwareModuleDetailsGrid(i18n, true, permissionChecker, distributionSetManagement, eventBus,
+    @Override
+    protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
+        return new SoftwareModuleDetailsGrid(i18n, true, permChecker, distributionSetManagement, eventBus,
                 manageDistUIState, uiNotification);
     }
 
-    @Override
-    protected void populateDetailsWidget() {
-        populateDetails();
-        populateSmDetails();
-        populateTags(getDistributionTagToken());
-        populateMetadataDetails();
-        populateTargetFilterQueries();
-    }
+    // TODO: implement
+    // protected void populateTargetFilterQueries() {
+    // tfqDetailsGrid.populateGrid(getSelectedBaseEntity());
+    // }
 
-    protected void populateTargetFilterQueries() {
-        tfqDetailsGrid.populateGrid(getSelectedBaseEntity());
-    }
-
-    @Override
-    protected boolean onLoadIsTableMaximized() {
-        return manageDistUIState.isDsTableMaximized();
+    private void restoreState() {
+        if (manageDistUIState.isDsTableMaximized()) {
+            setVisible(false);
+        }
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final SoftwareModuleEvent event) {
         if (event.getSoftwareModuleEventType() == SoftwareModuleEventType.ASSIGN_SOFTWARE_MODULE) {
             // TODO: check if it works
-            getDistributionSetManagement().getWithDetails(getSelectedBaseEntityId()).ifPresent(set -> {
-                setSelectedBaseEntity(new DistributionSetToProxyDistributionMapper().map(set));
-                UI.getCurrent().access(this::populateSmDetails);
+            distributionSetManagement.getWithDetails(binder.getBean().getId()).ifPresent(set -> {
+                binder.setBean(new DistributionSetToProxyDistributionMapper().map(set));
+                // TODO: check if this is needed
+                // UI.getCurrent().access(this::populateSmDetails);
             });
         }
     }
@@ -105,10 +97,12 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
     void onEvent(final SaveActionWindowEvent saveActionWindowEvent) {
         if ((saveActionWindowEvent == SaveActionWindowEvent.SAVED_ASSIGNMENTS
                 || saveActionWindowEvent == SaveActionWindowEvent.DISCARD_ALL_ASSIGNMENTS)
-                && getSelectedBaseEntity() != null) {
-            getDistributionSetManagement().getWithDetails(getSelectedBaseEntityId()).ifPresent(set -> {
-                setSelectedBaseEntity(new DistributionSetToProxyDistributionMapper().map(set));
-                UI.getCurrent().access(this::populateSmDetails);
+                && binder.getBean() != null) {
+            // TODO: check if it works
+            distributionSetManagement.getWithDetails(binder.getBean().getId()).ifPresent(set -> {
+                binder.setBean(new DistributionSetToProxyDistributionMapper().map(set));
+                // TODO: check if this is needed
+                // UI.getCurrent().access(this::populateSmDetails);
             });
         }
     }

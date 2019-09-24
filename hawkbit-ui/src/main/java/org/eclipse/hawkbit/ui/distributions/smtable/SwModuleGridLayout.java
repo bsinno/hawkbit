@@ -13,7 +13,6 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
@@ -46,12 +45,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 softwareModuleAddUpdateWindow);
         this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, manageDistUIState,
                 softwareModuleManagement);
-        final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification, eventBus,
-                softwareModuleManagement, entityFactory, permChecker);
-        final ArtifactDetailsGridLayout artifactDetailsLayout = new ArtifactDetailsGridLayout(i18n, eventBus,
-                artifactUploadState, uiNotification, artifactManagement, permChecker);
         this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,
-                manageDistUIState, softwareModuleManagement, swMetadataPopupLayout, artifactDetailsLayout);
+                manageDistUIState, softwareModuleManagement, entityFactory, uiNotification, artifactUploadState,
+                artifactManagement);
 
         buildLayout(swModuleGridHeader, swModuleGrid, swModuleDetails);
     }

@@ -10,12 +10,12 @@ package org.eclipse.hawkbit.ui.management.dstable;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
+import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractDistributionSetDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsGrid;
-import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -31,38 +31,29 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
 
     DistributionDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final DistributionSetManagement distributionSetManagement,
-            final DsMetadataPopupLayout dsMetadataPopupLayout, final UINotification uiNotification,
+            final DistributionSetManagement distributionSetManagement, final UINotification uiNotification,
             final DistributionSetTagManagement distributionSetTagManagement,
             final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout,
             final TenantConfigurationManagement tenantConfigurationManagement,
-            final SystemSecurityContext systemSecurityContext) {
+            final SystemSecurityContext systemSecurityContext, final EntityFactory entityFactory) {
         super(i18n, eventBus, permissionChecker, managementUIState, distributionAddUpdateWindowLayout,
-                distributionSetManagement, dsMetadataPopupLayout, uiNotification, distributionSetTagManagement,
-                createSoftwareModuleDetailsGrid(i18n, permissionChecker, uiNotification), tenantConfigurationManagement,
-                systemSecurityContext);
+                distributionSetManagement, uiNotification, distributionSetTagManagement, tenantConfigurationManagement,
+                systemSecurityContext, entityFactory);
 
         this.managementUIState = managementUIState;
 
+        buildDetails();
         restoreState();
     }
 
-    private static final SoftwareModuleDetailsGrid createSoftwareModuleDetailsGrid(final VaadinMessageSource i18n,
-            final SpPermissionChecker permissionChecker, final UINotification uiNotification) {
-        return new SoftwareModuleDetailsGrid(i18n, false, permissionChecker, null, null, null, uiNotification);
-    }
-
     @Override
-    protected boolean onLoadIsTableMaximized() {
-        return managementUIState.isDsTableMaximized();
+    protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
+        return new SoftwareModuleDetailsGrid(i18n, false, permChecker, null, null, null, uiNotification);
     }
 
-    @Override
-    protected void populateDetailsWidget() {
-        populateSmDetails();
-        populateDetails();
-        populateTags(getDistributionTagToken());
-        populateMetadataDetails();
+    private void restoreState() {
+        if (managementUIState.isDsTableMaximized()) {
+            setVisible(false);
+        }
     }
-
 }

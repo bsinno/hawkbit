@@ -35,7 +35,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.SwModulesToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
@@ -79,9 +78,10 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private final transient DistributionSetManagement distributionSetManagement;
 
     private final ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsDistributionsFilterParams> dsDataProvider;
-    private final DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
-    private final DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
-    private final DragAndDropSupport<ProxyDistributionSet> dragAndDropSupport;
+
+    private final transient DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
+    private final transient DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
+    private final transient DragAndDropSupport<ProxyDistributionSet> dragAndDropSupport;
 
     public DistributionSetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -98,7 +98,9 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
         setResizeSupport(new DistributionSetResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, DistributionTableEvent.class));
+        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, DistributionTableEvent.class,
+                selectedDs -> manageDistUIState
+                        .setLastSelectedEntityId(selectedDs != null ? selectedDs.getId() : null)));
         if (manageDistUIState.isDsTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -119,7 +121,6 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         this.dragAndDropSupport.addDropTarget();
 
         initIsCompleteStyleGenerator();
-        initSelectionListener();
         init();
     }
 
@@ -142,12 +143,6 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
     private void initIsCompleteStyleGenerator() {
         setStyleGenerator(ds -> ds.getIsComplete() ? null : SPUIDefinitions.DISABLE_DISTRIBUTION);
-    }
-
-    private void initSelectionListener() {
-        // TODO: do we need it, or can we provide selection callback? Should we
-        // set the selected Ds for event?
-        addSelectionListener(selectedDs -> eventBus.publish(this, DistributionsUIEvent.ORDER_BY_DISTRIBUTION));
     }
 
     @Override

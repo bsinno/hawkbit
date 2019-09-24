@@ -105,7 +105,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .withConfigurableFilter();
 
         setResizeSupport(new ActionHistoryResizeSupport());
-        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, DeploymentActionEvent.class));
+        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, DeploymentActionEvent.class,
+                selectedAction -> managementUIState
+                        .setLastSelectedActionId(selectedAction != null ? selectedAction.getId() : null)));
         if (managementUIState.isActionHistoryMaximized()) {
             getSelectionSupport().enableSingleSelection();
         } else {

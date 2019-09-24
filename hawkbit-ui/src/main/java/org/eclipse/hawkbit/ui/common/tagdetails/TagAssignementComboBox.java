@@ -15,7 +15,6 @@ import java.util.Set;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout.TagAssignmentListener;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -71,7 +70,6 @@ public class TagAssignementComboBox extends HorizontalLayout {
 
         tagsComboBox.setId(UIComponentIdProvider.TAG_SELECTION_ID);
         tagsComboBox.setDescription(description);
-        tagsComboBox.addStyleName(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
         tagsComboBox.addStyleName(ValoTheme.COMBOBOX_TINY);
         tagsComboBox.setEnabled(!readOnlyMode);
         tagsComboBox.setWidth("100%");

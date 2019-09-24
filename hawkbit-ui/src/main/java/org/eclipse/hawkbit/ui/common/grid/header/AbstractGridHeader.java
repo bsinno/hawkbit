@@ -66,7 +66,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         this.headerSupports.addAll(headerSupports);
     }
 
-    private void init() {
+    protected void init() {
         setSpacing(false);
         setMargin(false);
 

@@ -78,6 +78,10 @@ public class ManagementUIState implements ManagementEntityState, Serializable {
 
     private boolean bulkUploadWindowMinimised;
 
+    private transient Optional<Long> lastSelectedActionId = Optional.empty();
+
+    private transient Optional<Long> lastSelectedActionStatusId = Optional.empty();
+
     @Autowired
     ManagementUIState(final DistributionTableFilters distributionTableFilters,
             final TargetTableFilters targetTableFilters) {
@@ -245,5 +249,21 @@ public class ManagementUIState implements ManagementEntityState, Serializable {
 
     public void setNoDataAvailableDistribution(final boolean noDataAvailableDistribution) {
         this.noDataAvailableDistribution = noDataAvailableDistribution;
+    }
+
+    public Optional<Long> getLastSelectedActionId() {
+        return lastSelectedActionId;
+    }
+
+    public void setLastSelectedActionId(final Long lastSelectedActionId) {
+        this.lastSelectedActionId = Optional.ofNullable(lastSelectedActionId);
+    }
+
+    public Optional<Long> getLastSelectedActionStatusId() {
+        return lastSelectedActionStatusId;
+    }
+
+    public void setLastSelectedActionStatusId(final Long lastSelectedActionStatusId) {
+        this.lastSelectedActionStatusId = Optional.ofNullable(lastSelectedActionStatusId);
     }
 }

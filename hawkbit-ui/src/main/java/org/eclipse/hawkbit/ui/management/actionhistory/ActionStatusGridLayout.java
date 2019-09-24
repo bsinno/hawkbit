@@ -40,7 +40,7 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
         super(i18n, eventBus);
 
         this.actionStatusGridHeader = new ActionStatusGridHeader(i18n);
-        this.actionStatusGrid = new ActionStatusGrid(i18n, eventBus, deploymentManagement);
+        this.actionStatusGrid = new ActionStatusGrid(i18n, eventBus, deploymentManagement, managementUIState);
 
         this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(actionStatusGrid);
 

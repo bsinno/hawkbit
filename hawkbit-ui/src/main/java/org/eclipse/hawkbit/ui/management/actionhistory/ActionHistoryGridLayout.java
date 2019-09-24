@@ -73,7 +73,6 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
         buildLayout(actionHistoryHeader, actionHistoryGrid);
     }
 
-    // TODO: check if it can be removed with registerDetails in Deployment View
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final TargetTableEvent targetUIEvent) {
         final Optional<Long> targetId = managementUIState.getLastSelectedTargetId();
