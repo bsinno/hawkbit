@@ -13,7 +13,6 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractSoftwareModuleDetails;
-import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -26,19 +25,13 @@ public class SoftwareModuleDetails extends AbstractSoftwareModuleDetails {
 
     private final ArtifactUploadState artifactUploadState;
 
-    private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
-
     SoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker,
-            final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow,
-            final ArtifactUploadState artifactUploadState, final SoftwareModuleManagement softwareManagement,
-            final EntityFactory entityFactory, final UINotification uiNotification) {
+            final SpPermissionChecker permissionChecker, final ArtifactUploadState artifactUploadState,
+            final SoftwareModuleManagement softwareManagement, final EntityFactory entityFactory,
+            final UINotification uiNotification) {
         super(i18n, eventBus, permissionChecker, softwareManagement, entityFactory, uiNotification);
 
         this.artifactUploadState = artifactUploadState;
-
-        this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permissionChecker, eventBus,
-                uiNotification, entityFactory, softwareManagement, softwareModuleAddUpdateWindow);
 
         buildDetails();
         restoreState();
@@ -48,10 +41,5 @@ public class SoftwareModuleDetails extends AbstractSoftwareModuleDetails {
         if (artifactUploadState.isSwModuleTableMaximized()) {
             setVisible(false);
         }
-    }
-
-    @Override
-    protected SoftwareModuleDetailsHeader getDetailsHeader() {
-        return softwareModuleDetailsHeader;
     }
 }

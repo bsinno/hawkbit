@@ -13,8 +13,10 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -29,6 +31,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
     private final SwModuleGridHeader swModuleGridHeader;
     private final SwModuleGrid swModuleGrid;
+    private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SwModuleDetails swModuleDetails;
 
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
@@ -45,11 +48,17 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 softwareModuleAddUpdateWindow);
         this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, manageDistUIState,
                 softwareModuleManagement);
-        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleAddUpdateWindow,
-                manageDistUIState, softwareModuleManagement, entityFactory, uiNotification, artifactUploadState,
-                artifactManagement);
 
-        buildLayout(swModuleGridHeader, swModuleGrid, swModuleDetails);
+        // TODO: change to load ArtifactDetailsGridLayout only after button
+        // click
+        final ArtifactDetailsGridLayout artifactDetailsLayout = new ArtifactDetailsGridLayout(i18n, eventBus,
+                artifactUploadState, uiNotification, artifactManagement, permChecker);
+        this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
+                entityFactory, softwareModuleManagement, softwareModuleAddUpdateWindow, artifactDetailsLayout);
+        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, manageDistUIState,
+                softwareModuleManagement, entityFactory, uiNotification);
+
+        buildLayout(swModuleGridHeader, swModuleGrid, softwareModuleDetailsHeader, swModuleDetails);
     }
 
     public SwModuleGrid getSwModuleGrid() {

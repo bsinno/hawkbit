@@ -57,8 +57,6 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     private final transient TargetManagement targetManagement;
     private final transient DeploymentManagement deploymentManagement;
 
-    private final TargetDetailsHeader targetDetailsHeader;
-
     private final TargetAttributesDetailsComponent attributesLayout;
     private final KeyValueDetailsComponent assignedDsDetails;
     private final KeyValueDetailsComponent installedDsDetails;
@@ -69,7 +67,7 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
             final UINotification uiNotification, final TargetTagManagement tagManagement,
             final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
-            final EntityFactory entityFactory, final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout) {
+            final EntityFactory entityFactory) {
         super(i18n, permissionChecker, eventBus);
 
         this.managementUIState = managementUIState;
@@ -77,9 +75,6 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
         this.targetManagement = targetManagement;
         this.deploymentManagement = deploymentManagement;
         this.entityFactory = entityFactory;
-
-        this.targetDetailsHeader = new TargetDetailsHeader(i18n, permissionChecker, eventBus, uiNotification,
-                entityFactory, targetManagement, targetAddUpdateWindowLayout);
 
         this.attributesLayout = buildAttributesLayout();
 
@@ -111,11 +106,6 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     @Override
     protected String getTabSheetId() {
         return UIComponentIdProvider.TARGET_DETAILS_TABSHEET;
-    }
-
-    @Override
-    protected TargetDetailsHeader getDetailsHeader() {
-        return targetDetailsHeader;
     }
 
     @Override

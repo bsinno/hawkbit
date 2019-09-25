@@ -9,7 +9,9 @@
 package org.eclipse.hawkbit.ui.common.grid;
 
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractGridDetailsLayout;
+import org.eclipse.hawkbit.ui.common.detailslayout.DetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
+import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -85,14 +87,29 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
     }
 
     /**
-     * Initializes this layout that presents a header, a grid and grid details.
+     * Initializes this layout that presents a header, a grid, details header
+     * and grid details.
      */
     protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
-            final AbstractGridDetailsLayout<?> detailsLayout) {
+            final DetailsHeader<?> detailsHeader, final AbstractGridDetailsLayout<?> detailsLayout) {
         buildLayout(gridHeader, grid);
 
-        addComponent(detailsLayout);
-        setComponentAlignment(detailsLayout, Alignment.TOP_CENTER);
+        final VerticalLayout detailsHeaderLayout = new VerticalLayout();
+        detailsHeaderLayout.setSizeFull();
+        detailsHeaderLayout.setSpacing(false);
+        detailsHeaderLayout.setMargin(false);
+        detailsHeaderLayout.setHeightUndefined();
+        detailsHeaderLayout.addStyleName(SPUIStyleDefinitions.WIDGET_STYLE);
+
+        detailsHeaderLayout.addComponent(detailsHeader);
+        detailsHeaderLayout.setComponentAlignment(detailsHeader, Alignment.TOP_CENTER);
+
+        detailsHeaderLayout.addComponent(detailsLayout);
+        detailsHeaderLayout.setComponentAlignment(detailsLayout, Alignment.TOP_CENTER);
+        detailsHeaderLayout.setExpandRatio(detailsLayout, 1.0F);
+
+        addComponent(detailsHeaderLayout);
+        setComponentAlignment(detailsHeaderLayout, Alignment.TOP_CENTER);
     }
 
     /**
@@ -112,8 +129,9 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      * a footer.
      */
     protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
-            final AbstractGridDetailsLayout<?> detailsLayout, final AbstractFooterSupport footerSupport) {
-        buildLayout(gridHeader, grid, detailsLayout);
+            final DetailsHeader<?> detailsHeader, final AbstractGridDetailsLayout<?> detailsLayout,
+            final AbstractFooterSupport footerSupport) {
+        buildLayout(gridHeader, grid, detailsHeader, detailsLayout);
 
         final Layout footerLayout = footerSupport.createFooterMessageComponent();
         addComponent(footerLayout);

@@ -33,12 +33,10 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
             final DistributionSetManagement distributionSetManagement, final UINotification uiNotification,
             final DistributionSetTagManagement distributionSetTagManagement,
-            final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout,
             final TenantConfigurationManagement tenantConfigurationManagement,
             final SystemSecurityContext systemSecurityContext, final EntityFactory entityFactory) {
-        super(i18n, eventBus, permissionChecker, managementUIState, distributionAddUpdateWindowLayout,
-                distributionSetManagement, uiNotification, distributionSetTagManagement, tenantConfigurationManagement,
-                systemSecurityContext, entityFactory);
+        super(i18n, eventBus, permissionChecker, managementUIState, distributionSetManagement, uiNotification,
+                distributionSetTagManagement, tenantConfigurationManagement, systemSecurityContext, entityFactory);
 
         this.managementUIState = managementUIState;
 

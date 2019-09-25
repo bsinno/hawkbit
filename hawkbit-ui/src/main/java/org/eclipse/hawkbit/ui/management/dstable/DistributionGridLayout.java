@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.management.ds.DistributionGrid;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -34,6 +35,7 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     private final DistributionGridHeader distributionGridHeader;
     private final DistributionGrid distributionGrid;
+    private final DistributionSetDetailsHeader distributionSetDetailsHeader;
     private final DistributionDetails distributionDetails;
 
     public DistributionGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -53,11 +55,14 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         this.distributionGridHeader = new DistributionGridHeader(i18n, permissionChecker, eventBus, managementUIState);
         this.distributionGrid = new DistributionGrid(eventBus, i18n, permissionChecker, notification, managementUIState,
                 targetManagement, distributionSetManagement, deploymentManagement, uiProperties);
-        this.distributionDetails = new DistributionDetails(i18n, eventBus, permissionChecker, managementUIState,
-                distributionSetManagement, notification, distributionSetTagManagement,
-                distributionAddUpdateWindowLayout, configManagement, systemSecurityContext, entityFactory);
 
-        buildLayout(distributionGridHeader, distributionGrid, distributionDetails);
+        this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
+                notification, entityFactory, distributionSetManagement, distributionAddUpdateWindowLayout);
+        this.distributionDetails = new DistributionDetails(i18n, eventBus, permissionChecker, managementUIState,
+                distributionSetManagement, notification, distributionSetTagManagement, configManagement,
+                systemSecurityContext, entityFactory);
+
+        buildLayout(distributionGridHeader, distributionGrid, distributionSetDetailsHeader, distributionDetails);
     }
 
     public DistributionGrid getDistributionGrid() {

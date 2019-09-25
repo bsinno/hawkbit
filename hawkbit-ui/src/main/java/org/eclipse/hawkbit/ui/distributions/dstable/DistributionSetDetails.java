@@ -25,7 +25,6 @@ import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsGrid;
 import org.eclipse.hawkbit.ui.common.detailslayout.TargetFilterQueryDetailsGrid;
 import org.eclipse.hawkbit.ui.distributions.event.SaveActionWindowEvent;
 import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -48,11 +47,9 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
             final ManagementUIState managementUIState, final DistributionSetManagement distributionSetManagement,
             final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
-            final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout,
             final EntityFactory entityFactory) {
-        super(i18n, eventBus, permissionChecker, managementUIState, distributionAddUpdateWindowLayout,
-                distributionSetManagement, uiNotification, distributionSetTagManagement, configManagement,
-                systemSecurityContext, entityFactory);
+        super(i18n, eventBus, permissionChecker, managementUIState, distributionSetManagement, uiNotification,
+                distributionSetTagManagement, configManagement, systemSecurityContext, entityFactory);
 
         this.manageDistUIState = manageDistUIState;
 

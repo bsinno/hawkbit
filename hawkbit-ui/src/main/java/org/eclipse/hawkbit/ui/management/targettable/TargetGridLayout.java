@@ -33,6 +33,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     private final TargetGridHeader targetGridHeader;
     private final TargetGrid targetGrid;
+    private final TargetDetailsHeader targetDetailsHeader;
     private final TargetDetails targetDetails;
 
     public TargetGridLayout(final UIEventBus eventBus, final TargetManagement targetManagement,
@@ -52,11 +53,13 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 targetTagManagement, distributionSetManagement, uiExecutor, targetAddUpdateWindowLayout);
         this.targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement, managementUIState,
                 permissionChecker, deploymentManagement, configManagement, systemSecurityContext, uiProperties);
-        this.targetDetails = new TargetDetails(i18n, eventBus, permissionChecker, managementUIState, uiNotification,
-                targetTagManagement, targetManagement, deploymentManagement, entityFactory,
-                targetAddUpdateWindowLayout);
 
-        buildLayout(targetGridHeader, targetGrid, targetDetails);
+        this.targetDetailsHeader = new TargetDetailsHeader(i18n, permissionChecker, eventBus, uiNotification,
+                entityFactory, targetManagement, targetAddUpdateWindowLayout);
+        this.targetDetails = new TargetDetails(i18n, eventBus, permissionChecker, managementUIState, uiNotification,
+                targetTagManagement, targetManagement, deploymentManagement, entityFactory);
+
+        buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }
 
     public TargetGrid getTargetGrid() {

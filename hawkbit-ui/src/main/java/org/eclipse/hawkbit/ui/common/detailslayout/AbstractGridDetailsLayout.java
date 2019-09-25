@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -28,7 +27,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.Binder;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
@@ -41,7 +39,7 @@ import com.vaadin.ui.themes.ValoTheme;
  *
  * @param <T>
  */
-public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> extends VerticalLayout {
+public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> extends TabSheet {
     private static final long serialVersionUID = 1L;
 
     protected final VaadinMessageSource i18n;
@@ -50,7 +48,6 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
 
     protected final Binder<T> binder;
 
-    protected final TabSheet detailsTab;
     protected final KeyValueDetailsComponent entityDetails;
     protected final TextArea entityDescription;
     protected final KeyValueDetailsComponent logDetails;
@@ -65,7 +62,6 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
 
         this.binder = new Binder<>();
 
-        this.detailsTab = buildDetailsTab();
         this.entityDetails = buildEntityDetails();
         this.entityDescription = buildEntityDescription();
         this.logDetails = buildLogDetails();
@@ -87,15 +83,15 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         return true;
     }
 
-    private TabSheet buildDetailsTab() {
-        final TabSheet tab = SPUIComponentProvider.getDetailsTabSheet();
+    private void init() {
+        setWidth(98, Unit.PERCENTAGE);
+        setHeight(90, Unit.PERCENTAGE);
 
-        tab.setWidth(98, Unit.PERCENTAGE);
-        tab.setHeight(90, Unit.PERCENTAGE);
-        tab.addStyleName(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
-        tab.setId(getTabSheetId());
+        addStyleName(ValoTheme.TABSHEET_COMPACT_TABBAR);
+        addStyleName(ValoTheme.TABSHEET_FRAMED);
+        addStyleName(SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
 
-        return tab;
+        setId(getTabSheetId());
     }
 
     protected abstract String getTabSheetId();
@@ -155,31 +151,22 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
 
     protected abstract String getLogLabelIdPrefix();
 
-    private void init() {
-        setSpacing(false);
-        setMargin(false);
-        setSizeFull();
-        setHeightUndefined();
-        addStyleName(SPUIStyleDefinitions.WIDGET_STYLE);
+    protected void addDetailsComponents(final Collection<Entry<String, Component>> detailsComponents) {
+        this.detailsComponents.addAll(detailsComponents);
+    }
+
+    protected void populateDetails(final T entity) {
+        binder.setBean(entity);
     }
 
     protected void buildDetails() {
-        final DetailsHeader<T> header = getDetailsHeader();
-        addComponent(header);
-        setComponentAlignment(header, Alignment.TOP_CENTER);
-
         detailsComponents.forEach(detailsComponentEntry -> {
             final String detailsComponentCaption = detailsComponentEntry.getKey();
             final Component detailsComponent = detailsComponentEntry.getValue();
 
-            detailsTab.addTab(buildTabWrapperDetailsLayout(detailsComponent), detailsComponentCaption);
+            addTab(buildTabWrapperDetailsLayout(detailsComponent), detailsComponentCaption);
         });
-
-        addComponent(detailsTab);
-        setComponentAlignment(detailsTab, Alignment.TOP_CENTER);
     }
-
-    protected abstract DetailsHeader<T> getDetailsHeader();
 
     private VerticalLayout buildTabWrapperDetailsLayout(final Component detailsComponent) {
         final VerticalLayout tabWrapperDetailsLayout = new VerticalLayout();
@@ -208,14 +195,5 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         } else if (BaseEntityEventType.MAXIMIZED == eventType) {
             UI.getCurrent().access(() -> setVisible(false));
         }
-    }
-
-    protected void populateDetails(final T entity) {
-        getDetailsHeader().updateDetailsHeader(entity);
-        binder.setBean(entity);
-    }
-
-    protected void addDetailsComponents(final Collection<Entry<String, Component>> detailsComponents) {
-        this.detailsComponents.addAll(detailsComponents);
     }
 }

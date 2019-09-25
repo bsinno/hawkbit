@@ -25,7 +25,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.tagdetails.DistributionTagToken;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -52,14 +51,11 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     private final transient TenantConfigurationManagement tenantConfigurationManagement;
     private final transient SystemSecurityContext systemSecurityContext;
 
-    private final DistributionSetDetailsHeader dsDetailsHeader;
-
     private final DistributionTagToken distributionTagToken;
     private final MetadataDetailsLayout<ProxyDistributionSet> dsMetadataLayout;
 
     protected AbstractDistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout,
             final DistributionSetManagement distributionSetManagement, final UINotification uiNotification,
             final DistributionSetTagManagement distributionSetTagManagement,
             final TenantConfigurationManagement tenantConfigurationManagement,
@@ -71,9 +67,6 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
         this.distributionSetManagement = distributionSetManagement;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.systemSecurityContext = systemSecurityContext;
-
-        this.dsDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus, uiNotification,
-                entityFactory, distributionSetManagement, distributionAddUpdateWindowLayout);
 
         this.distributionTagToken = new DistributionTagToken(permissionChecker, i18n, uiNotification, eventBus,
                 managementUIState, distributionSetTagManagement, distributionSetManagement);
@@ -94,11 +87,6 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     @Override
     protected String getTabSheetId() {
         return UIComponentIdProvider.DISTRIBUTIONSET_DETAILS_TABSHEET_ID;
-    }
-
-    @Override
-    protected DistributionSetDetailsHeader getDetailsHeader() {
-        return dsDetailsHeader;
     }
 
     @Override

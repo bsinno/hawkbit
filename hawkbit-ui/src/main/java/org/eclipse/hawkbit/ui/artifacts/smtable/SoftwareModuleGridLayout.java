@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -26,6 +27,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     private final SoftwareModuleGridHeader softwareModuleGridHeader;
     private final SoftwareModuleGrid softwareModuleGrid;
+    private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SoftwareModuleDetails softwareModuleDetails;
 
     public SoftwareModuleGridLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
@@ -41,11 +43,13 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
                 softwareModuleAddUpdateWindow);
         this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
                 artifactUploadState, softwareModuleManagement);
-        this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, permChecker,
-                softwareModuleAddUpdateWindow, artifactUploadState, softwareModuleManagement, entityFactory,
-                uiNotification);
 
-        buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetails);
+        this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
+                entityFactory, softwareModuleManagement, softwareModuleAddUpdateWindow);
+        this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, permChecker, artifactUploadState,
+                softwareModuleManagement, entityFactory, uiNotification);
+
+        buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetailsHeader, softwareModuleDetails);
     }
 
     public SoftwareModuleGrid getSoftwareModuleGrid() {
