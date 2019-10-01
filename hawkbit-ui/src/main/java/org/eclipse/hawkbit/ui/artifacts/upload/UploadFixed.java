@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.artifacts.upload;
 import java.io.OutputStream;
 
 import com.vaadin.server.StreamVariable;
-import com.vaadin.v7.ui.Upload;
+import com.vaadin.ui.Upload;
 
 /**
  * The {@link Upload} class has a bug.The lifecycle methods of the registered
@@ -21,6 +21,7 @@ import com.vaadin.v7.ui.Upload;
  * class.
  *
  */
+// TODO is this vaadin bug fixed???
 public class UploadFixed extends Upload {
 
     private static final long serialVersionUID = 1L;

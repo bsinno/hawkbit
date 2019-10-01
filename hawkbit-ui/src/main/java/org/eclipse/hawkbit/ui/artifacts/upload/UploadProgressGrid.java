@@ -52,7 +52,7 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
 
     private void initProgressStatusIconMap() {
         progressStatusIconMap.put(ProgressSatus.INPROGRESS, new FontIcon(VaadinIcons.ADJUST,
-                SPUIStyleDefinitions.STATUS_ICON_ACTIVE, getProgressStatusDescription(ProgressSatus.INPROGRESS)));
+                SPUIStyleDefinitions.STATUS_ICON_YELLOW, getProgressStatusDescription(ProgressSatus.INPROGRESS)));
         progressStatusIconMap.put(ProgressSatus.FINISHED, new FontIcon(VaadinIcons.CHECK_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getProgressStatusDescription(ProgressSatus.FINISHED)));
         progressStatusIconMap.put(ProgressSatus.FAILED, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,

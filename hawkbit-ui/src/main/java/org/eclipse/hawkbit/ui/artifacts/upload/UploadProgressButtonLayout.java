@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
+import java.util.Objects;
+
 import javax.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
@@ -27,7 +29,8 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Container for upload and progress button.
@@ -48,7 +51,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
 
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
-    private final UploadFixed upload;
+    private final Upload upload;
 
     private final transient ArtifactManagement artifactManagement;
 
@@ -88,7 +91,9 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         this.i18n = i18n;
         this.multipartConfigElement = multipartConfigElement;
         this.softwareModuleManagement = softwareManagement;
-        this.upload = new UploadFixed();
+        this.upload = new Upload();
+        // TODO remove
+        // this.upload = new UploadFixed();
 
         createComponents();
         buildLayout();
@@ -123,8 +128,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         final BaseEntityEventType eventType = event.getEventType();
         if (eventType == BaseEntityEventType.SELECTED_ENTITY) {
             ui.access(() -> {
-                if (artifactUploadState.isNoSoftwareModuleSelected()
-                        || artifactUploadState.isMoreThanOneSoftwareModulesSelected()) {
+                if (isNoSoftwareModuleOrMoreThanOneSelected(event)) {
                     upload.setEnabled(false);
                 } else if (artifactUploadState.areAllUploadsFinished()) {
                     upload.setEnabled(true);
@@ -133,12 +137,16 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         }
     }
 
+    private boolean isNoSoftwareModuleOrMoreThanOneSelected(final SoftwareModuleEvent event) {
+        return Objects.nonNull(event.getEntityIds()) && event.getEntityIds().size() != 1;
+    }
+
     private void createComponents() {
         uploadProgressButton = SPUIComponentProvider.getButton(UIComponentIdProvider.UPLOAD_STATUS_BUTTON, "", "", "",
                 false, null, SPUIButtonStyleNoBorder.class);
         uploadProgressButton.addStyleName(SPUIStyleDefinitions.UPLOAD_PROGRESS_INDICATOR_STYLE);
         uploadProgressButton.setIcon(null);
-        uploadProgressButton.setHtmlContentAllowed(true);
+        uploadProgressButton.setCaptionAsHtml(true);
         uploadProgressButton.addClickListener(event -> onClickOfUploadProgressButton());
     }
 
@@ -146,7 +154,6 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         final FileTransferHandlerVaadinUpload uploadHandler = new FileTransferHandlerVaadinUpload(
                 multipartConfigElement.getMaxFileSize(), softwareModuleManagement, artifactManagement, i18n);
         upload.setButtonCaption(i18n.getMessage("upload.file"));
-
         upload.setReceiver(uploadHandler);
         upload.addSucceededListener(uploadHandler);
         upload.addFailedListener(uploadHandler);
@@ -156,7 +163,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         upload.setId(UIComponentIdProvider.UPLOAD_BUTTON);
 
         addComponent(upload);
-        setSpacing(true);
+        setMargin(false);
     }
 
     /**

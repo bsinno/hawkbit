@@ -26,15 +26,15 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Window that shows the progress of all uploads.
@@ -117,9 +117,9 @@ public class UploadProgressInfoWindow extends Window {
         if (gridUploadItem.getFileUploadId() == null) {
             gridUploadItem.setFileUploadId(fileUploadId);
             uploads.add(gridUploadItem);
-            // TODO: do we need to call refreshAll on the Grid here?
         }
-        // TODO: do we need to call refreshItem on the Grid here?
+
+        uploadProgressGrid.getDataProvider().refreshItem(gridUploadItem);
     }
 
     private ProgressSatus getStatusRepresentaion(final FileUploadStatus uploadStatus) {
@@ -156,9 +156,6 @@ public class UploadProgressInfoWindow extends Window {
         if (isWindowNotAlreadyAttached()) {
             maximizeWindow();
         }
-
-        // TODO: do we need this, if so, how to scroll?
-        // grid.scrollTo(fileUploadProgress.getFileUploadId());
     }
 
     private boolean isWindowNotAlreadyAttached() {
@@ -244,7 +241,7 @@ public class UploadProgressInfoWindow extends Window {
 
     private Button getCloseButton() {
         final Button closeBtn = SPUIComponentProvider.getButton(
-                UIComponentIdProvider.UPLOAD_STATUS_POPUP_CLOSE_BUTTON_ID, "", "", "", true, FontAwesome.TIMES,
+                UIComponentIdProvider.UPLOAD_STATUS_POPUP_CLOSE_BUTTON_ID, "", "", "", true, VaadinIcons.CLOSE,
                 SPUIButtonStyleNoBorder.class);
         closeBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
         closeBtn.addClickListener(event -> onClose());

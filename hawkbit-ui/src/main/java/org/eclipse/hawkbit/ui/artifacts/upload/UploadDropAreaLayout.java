@@ -8,6 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
+import java.util.Collection;
+import java.util.Objects;
+
 import javax.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
@@ -16,8 +19,6 @@ import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.dd.criteria.ServerItemIdClientCriterion;
-import org.eclipse.hawkbit.ui.dd.criteria.ServerItemIdClientCriterion.Mode;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -27,20 +28,16 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.event.dd.acceptcriteria.Not;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.ui.DragAndDropWrapper.WrapperTransferable;
 import com.vaadin.ui.Html5File;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.dnd.FileDropHandler;
+import com.vaadin.ui.dnd.FileDropTarget;
+import com.vaadin.ui.dnd.event.FileDropEvent;
 
 /**
  * Container for drag and drop area in the upload view.
@@ -49,10 +46,7 @@ public class UploadDropAreaLayout extends AbstractComponent {
 
     private static final long serialVersionUID = 1L;
 
-    private static AcceptCriterion acceptAllExceptBlacklisted = new Not(new ServerItemIdClientCriterion(Mode.PREFIX,
-            UIComponentIdProvider.UPLOAD_SOFTWARE_MODULE_TABLE, UIComponentIdProvider.UPLOAD_TYPE_BUTTON_PREFIX));
-
-    private DragAndDropWrapper dropAreaWrapper;
+    private VerticalLayout dropAreaLayout;
 
     private final VaadinMessageSource i18n;
 
@@ -111,71 +105,63 @@ public class UploadDropAreaLayout extends AbstractComponent {
         final BaseEntityEventType eventType = event.getEventType();
         if (eventType == BaseEntityEventType.SELECTED_ENTITY) {
             UI.getCurrent().access(() -> {
-                if (artifactUploadState.isNoSoftwareModuleSelected()
-                        || artifactUploadState.isMoreThanOneSoftwareModulesSelected()) {
-                    dropAreaWrapper.setEnabled(false);
+                if (isNoSoftwareModuleOrMoreThanOneSelected(event)) {
+                    dropAreaLayout.setEnabled(false);
                 } else if (artifactUploadState.areAllUploadsFinished()) {
-                    dropAreaWrapper.setEnabled(true);
+                    dropAreaLayout.setEnabled(true);
                 }
             });
         }
     }
 
-    private void buildLayout() {
-        dropAreaWrapper = new DragAndDropWrapper(createDropAreaLayout());
-        dropAreaWrapper.setDropHandler(new DropAreaHandler());
+    private boolean isNoSoftwareModuleOrMoreThanOneSelected(final SoftwareModuleEvent event) {
+        return Objects.nonNull(event.getEntityIds()) && event.getEntityIds().size() != 1;
     }
 
-    private VerticalLayout createDropAreaLayout() {
-        final VerticalLayout dropAreaLayout = new VerticalLayout();
-        final Label dropHereLabel = new Label(i18n.getMessage(UIMessageIdProvider.LABEL_DROP_AREA_UPLOAD));
-        dropHereLabel.setWidth(null);
+    private void buildLayout() {
+        dropAreaLayout = new VerticalLayout();
+        dropAreaLayout.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_FILE_DROP_LAYOUT);
+        dropAreaLayout.setSpacing(true);
+        dropAreaLayout.addStyleName("upload-drop-area-layout-info");
+        dropAreaLayout.setEnabled(false);
+        dropAreaLayout.setHeightUndefined();
 
-        final Label dropIcon = new Label(FontAwesome.ARROW_DOWN.getHtml(), ContentMode.HTML);
+        final Label dropIcon = new Label(VaadinIcons.ARROW_DOWN.getHtml(), ContentMode.HTML);
         dropIcon.addStyleName("drop-icon");
         dropIcon.setWidth(null);
-
+        dropIcon.setCaptionAsHtml(true);
         dropAreaLayout.addComponent(dropIcon);
-        dropAreaLayout.setComponentAlignment(dropIcon, Alignment.TOP_CENTER);
+
+        final Label dropHereLabel = new Label(i18n.getMessage(UIMessageIdProvider.LABEL_DROP_AREA_UPLOAD));
+        dropHereLabel.setWidth(null);
         dropAreaLayout.addComponent(dropHereLabel);
-        dropAreaLayout.setComponentAlignment(dropHereLabel, Alignment.TOP_CENTER);
 
         uploadButtonLayout.setWidth(null);
         uploadButtonLayout.addStyleName("upload-button");
         dropAreaLayout.addComponent(uploadButtonLayout);
-        dropAreaLayout.setComponentAlignment(uploadButtonLayout, Alignment.BOTTOM_CENTER);
 
-        dropAreaLayout.setSizeFull();
-        dropAreaLayout.setStyleName("upload-drop-area-layout-info");
-        dropAreaLayout.setSpacing(false);
+        new FileDropTarget<>(dropAreaLayout, new UploadFileDropHandler());
+    }
+
+    public VerticalLayout getDropAreaLayout() {
         return dropAreaLayout;
     }
 
-    public DragAndDropWrapper getDropAreaWrapper() {
-        return dropAreaWrapper;
-    }
-
-    private class DropAreaHandler implements DropHandler {
+    private class UploadFileDropHandler implements FileDropHandler<VerticalLayout> {
 
         private static final long serialVersionUID = 1L;
 
         @Override
-        public AcceptCriterion getAcceptCriterion() {
-            return acceptAllExceptBlacklisted;
-        }
-
-        @Override
-        public void drop(final DragAndDropEvent event) {
+        public void drop(final FileDropEvent<VerticalLayout> event) {
             if (validate(event)) {
-                final Html5File[] files = ((WrapperTransferable) event.getTransferable()).getFiles();
                 // selected software module at the time of file drop is
                 // considered for upload
                 artifactUploadState.getSelectedBaseSwModuleId()
-                        .ifPresent(selectedSwId -> uploadFilesForSoftwareModule(files, selectedSwId));
+                        .ifPresent(selectedSwId -> uploadFilesForSoftwareModule(event.getFiles(), selectedSwId));
             }
         }
 
-        private void uploadFilesForSoftwareModule(final Html5File[] files, final Long softwareModuleId) {
+        private void uploadFilesForSoftwareModule(final Collection<Html5File> files, final Long softwareModuleId) {
             final SoftwareModule softwareModule = softwareManagement.get(softwareModuleId).orElse(null);
 
             boolean duplicateFound = false;
@@ -194,7 +180,7 @@ public class UploadDropAreaLayout extends AbstractComponent {
             }
         }
 
-        private boolean validate(final DragAndDropEvent event) {
+        private boolean validate(final FileDropEvent<VerticalLayout> event) {
             // check if drop is valid.If valid ,check if software module is
             // selected.
             if (!isFilesDropped(event)) {
@@ -204,12 +190,8 @@ public class UploadDropAreaLayout extends AbstractComponent {
             return validateSoftwareModuleSelection();
         }
 
-        private boolean isFilesDropped(final DragAndDropEvent event) {
-            if (event.getTransferable() instanceof WrapperTransferable) {
-                final Html5File[] files = ((WrapperTransferable) event.getTransferable()).getFiles();
-                return files != null;
-            }
-            return false;
+        private boolean isFilesDropped(final FileDropEvent<VerticalLayout> event) {
+            return event.getFiles() != null;
         }
 
         private boolean validateSoftwareModuleSelection() {
@@ -223,6 +205,7 @@ public class UploadDropAreaLayout extends AbstractComponent {
             }
             return true;
         }
+
     }
 
     public UploadProgressButtonLayout getUploadButtonLayout() {

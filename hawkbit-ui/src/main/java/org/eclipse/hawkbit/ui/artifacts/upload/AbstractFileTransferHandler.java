@@ -247,6 +247,7 @@ public abstract class AbstractFileTransferHandler implements Serializable {
             LOG.info("Transfering file {} directly to repository", filename);
             final Artifact artifact = uploadArtifact(filename).orElseThrow(ArtifactUploadFailedException::new);
             if (isUploadInterrupted()) {
+                LOG.warn("Upload of {} was interrupted", filename);
                 handleUploadFailure(artifact);
                 publishUploadFinishedEvent(fileUploadId);
                 return;
@@ -261,7 +262,7 @@ public abstract class AbstractFileTransferHandler implements Serializable {
                 return Optional.ofNullable(artifactManagement.create(new ArtifactUpload(inputStream,
                         fileUploadId.getSoftwareModuleId(), filename, null, null, true, mimeType, -1)));
             } catch (final ArtifactUploadFailedException | InvalidSHA1HashException | InvalidMD5HashException e) {
-                LOG.error("Failed to transfer file to repository", e);
+                LOG.warn("Failed to transfer file " + filename + " to repository", e);
                 return Optional.empty();
             }
         }
