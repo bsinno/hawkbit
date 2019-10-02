@@ -107,7 +107,7 @@ public class UploadDropAreaLayout extends AbstractComponent {
             UI.getCurrent().access(() -> {
                 if (isNoSoftwareModuleOrMoreThanOneSelected(event)) {
                     dropAreaLayout.setEnabled(false);
-                } else if (artifactUploadState.areAllUploadsFinished()) {
+                } else {
                     dropAreaLayout.setEnabled(true);
                 }
             });
@@ -205,7 +205,6 @@ public class UploadDropAreaLayout extends AbstractComponent {
             }
             return true;
         }
-
     }
 
     public UploadProgressButtonLayout getUploadButtonLayout() {
