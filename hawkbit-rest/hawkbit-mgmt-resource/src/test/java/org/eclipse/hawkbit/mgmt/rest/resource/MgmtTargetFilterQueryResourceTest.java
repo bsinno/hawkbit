@@ -537,6 +537,21 @@ public class MgmtTargetFilterQueryResourceTest extends AbstractManagementApiInte
         assertThat(filters.get(0).getAutoAssignWeight()).isEqualTo(DEFAULT_TEST_WEIGHT);
     }
 
+    @Test
+    @Description("An auto assignment must contain a weight when multi assignment is enabled")
+    public void weightMandetoryInMultiAssignmentMode() throws Exception {
+        final Long dsId = testdataFactory.createDistributionSet().getId();
+        final Long filterId = createSingleTargetFilterQuery("filter1", "name==*").getId();
+
+        final String body = new JSONObject().put("id", dsId).toString();
+
+        enableMultiAssignments();
+        mvc.perform(post(MgmtRestConstants.TARGET_FILTER_V1_REQUEST_MAPPING + "/{targetFilterQueryId}/autoAssignDS",
+                filterId).content(body).contentType(MediaType.APPLICATION_JSON)).andDo(print())
+                .andExpect(status().isBadRequest()).andExpect(
+                        jsonPath("errorCode", equalTo("hawkbit.server.error.noWeightProvidedInMultiAssignmentMode")));
+    }
+
     private TargetFilterQuery createSingleTargetFilterQuery(final String name, final String query) {
         return targetFilterQueryManagement.create(entityFactory.targetFilterQuery().create().name(name).query(query));
     }

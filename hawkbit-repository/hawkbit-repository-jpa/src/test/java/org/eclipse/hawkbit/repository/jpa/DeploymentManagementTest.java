@@ -41,6 +41,7 @@ import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.exception.ForceQuitActionNotAllowedException;
 import org.eclipse.hawkbit.repository.exception.IncompleteDistributionSetException;
 import org.eclipse.hawkbit.repository.exception.MultiAssignmentIsNotEnabledException;
+import org.eclipse.hawkbit.repository.exception.NoWeightProvidedInMultiAssignmentModeException;
 import org.eclipse.hawkbit.repository.exception.QuotaExceededException;
 import org.eclipse.hawkbit.repository.jpa.configuration.Constants;
 import org.eclipse.hawkbit.repository.jpa.model.JpaAction;
@@ -696,6 +697,25 @@ public class DeploymentManagementTest extends AbstractJpaIntegrationTest {
         Assertions.assertThatExceptionOfType(QuotaExceededException.class)
                 .isThrownBy(() -> deploymentManagement.assignDistributionSets(deploymentRequests));
         assertThat(actionRepository.countByTargetControllerId(controllerId)).isEqualTo(0);
+    }
+
+    @Test
+    @Description("An assignment request without a weight causes an error when multi assignment in enabled.")
+    @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 1),
+            @Expect(type = DistributionSetCreatedEvent.class, count = 1),
+            @Expect(type = SoftwareModuleCreatedEvent.class, count = 3) })
+    public void weightRequiredInMultiAssignmentMode() {
+        final String targetId = testdataFactory.createTarget().getControllerId();
+        final Long dsId = testdataFactory.createDistributionSet().getId();
+
+        final DeploymentRequest assignWithoutWeight = DeploymentManagement.deploymentRequest(targetId, dsId).build();
+        final DeploymentRequest assignWithWeight = DeploymentManagement.deploymentRequest(targetId, dsId)
+                .setWeight(DEFAULT_TEST_WEIGHT).build();
+
+        enableMultiAssignments();
+        Assertions.assertThatExceptionOfType(NoWeightProvidedInMultiAssignmentModeException.class)
+                .isThrownBy(() -> deploymentManagement
+                        .assignDistributionSets(Arrays.asList(assignWithoutWeight, assignWithWeight)));
     }
 
     @Test

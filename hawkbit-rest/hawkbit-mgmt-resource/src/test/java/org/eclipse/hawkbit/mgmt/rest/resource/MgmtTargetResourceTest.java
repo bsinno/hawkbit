@@ -1953,6 +1953,21 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
     }
 
     @Test
+    @Description("An assignment request must contain a weight when multi assignment is enabled")
+    public void weightMandetoryInMultiAssignmentMode() throws Exception{
+        final String targetId = testdataFactory.createTarget().getControllerId();
+        final Long dsId = testdataFactory.createDistributionSet().getId();
+        final JSONArray body = new JSONArray()
+                .put(getAssignmentObject(dsId, MgmtActionType.FORCED, DEFAULT_TEST_WEIGHT))
+                .put(getAssignmentObject(dsId, MgmtActionType.FORCED));
+        enableMultiAssignments();
+        mvc.perform(post("/rest/v1/targets/{targetId}/assignedDS", targetId).content(body.toString())
+                .contentType(MediaType.APPLICATION_JSON)).andDo(MockMvcResultPrinter.print())
+                .andExpect(status().isBadRequest()).andExpect(
+                        jsonPath("errorCode", equalTo("hawkbit.server.error.noWeightProvidedInMultiAssignmentMode")));
+    }
+
+    @Test
     @Description("Get weight of action")
     public void getActionWeight() throws Exception {
         final String targetId = testdataFactory.createTarget().getControllerId();

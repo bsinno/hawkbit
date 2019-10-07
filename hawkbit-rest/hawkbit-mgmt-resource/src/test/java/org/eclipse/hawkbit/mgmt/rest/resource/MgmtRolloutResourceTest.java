@@ -944,6 +944,23 @@ public class MgmtRolloutResourceTest extends AbstractManagementApiIntegrationTes
     }
 
     @Test
+    @Description("A rollout create request must contain a weight when multi assignment is enabled")
+    public void weightMandetoryInMultiAssignmentMode() throws Exception {
+        testdataFactory.createTargets(4, "rollout", "description");
+        final Long dsId = testdataFactory.createDistributionSet().getId();
+
+        enableMultiAssignments();
+        final String rolloutwithoutWeight = JsonBuilder.rollout("withWeight", "", 2, dsId, "id==rollout*",
+                new RolloutGroupConditionBuilder().withDefaults().build(), null, null);
+
+        mvc.perform(post("/rest/v1/rollouts").content(rolloutwithoutWeight).contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)).andDo(MockMvcResultPrinter.print())
+                .andExpect(status().isBadRequest())
+                .andExpect(
+                        jsonPath("errorCode", equalTo("hawkbit.server.error.noWeightProvidedInMultiAssignmentMode")));
+    }
+
+    @Test
     @Description("Get weight of rollout")
     public void getRolloutWeight() throws Exception {
         testdataFactory.createTargets(4, "rollout", "description");

@@ -46,6 +46,7 @@ import org.eclipse.hawkbit.repository.event.remote.entity.TargetUpdatedEvent;
 import org.eclipse.hawkbit.repository.exception.EntityAlreadyExistsException;
 import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.exception.MultiAssignmentIsNotEnabledException;
+import org.eclipse.hawkbit.repository.exception.NoWeightProvidedInMultiAssignmentModeException;
 import org.eclipse.hawkbit.repository.exception.QuotaExceededException;
 import org.eclipse.hawkbit.repository.exception.RolloutIllegalStateException;
 import org.eclipse.hawkbit.repository.jpa.model.JpaAction;
@@ -1752,6 +1753,15 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
         // verify that all running actions keep running
         assertThat(actionRepository.findByRolloutIdAndStatus(PAGE, deletedRollout.getId(), Status.RUNNING)
                 .getNumberOfElements()).isEqualTo(2);
+    }
+
+    @Test
+    @Description("Creating a rollout without a weight causes an error when multi assignment in enabled.")
+    public void weightRequiredInMultiAssignmentMode() {
+        enableMultiAssignments();
+        Assertions.assertThatExceptionOfType(NoWeightProvidedInMultiAssignmentModeException.class)
+                .isThrownBy(() -> createSimpleTestRolloutWithTargetsAndDistributionSet(10, 10, 2, "50", "80",
+                        ActionType.FORCED, null));
     }
 
     @Test
