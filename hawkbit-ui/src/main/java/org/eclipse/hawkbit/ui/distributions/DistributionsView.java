@@ -178,7 +178,7 @@ public class DistributionsView extends AbstractNotificationView implements Brows
             return;
         }
         setSizeFull();
-        setStyleName("rootLayout");
+        setMargin(false);
         createMainLayout();
         addComponents(mainLayout);
         setExpandRatio(mainLayout, 1);
@@ -192,6 +192,7 @@ public class DistributionsView extends AbstractNotificationView implements Brows
     private void createMainLayout() {
         mainLayout = new GridLayout(4, 1);
         mainLayout.setSizeFull();
+        mainLayout.setMargin(false);
         mainLayout.setSpacing(true);
         mainLayout.setStyleName("fullSize");
 
