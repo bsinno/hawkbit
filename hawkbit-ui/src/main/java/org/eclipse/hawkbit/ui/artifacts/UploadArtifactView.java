@@ -143,6 +143,7 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     private void buildLayout() {
         if (permChecker.hasReadRepositoryPermission() || permChecker.hasCreateRepositoryPermission()) {
             setSizeFull();
+            setMargin(false);
             createMainLayout();
             addComponents(mainLayout);
             setExpandRatio(mainLayout, 1);

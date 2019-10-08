@@ -21,7 +21,6 @@ import com.vaadin.ui.Upload;
  * class.
  *
  */
-// TODO is this vaadin bug fixed???
 public class UploadFixed extends Upload {
 
     private static final long serialVersionUID = 1L;

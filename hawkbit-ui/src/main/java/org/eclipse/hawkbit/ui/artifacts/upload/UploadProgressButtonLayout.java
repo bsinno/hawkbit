@@ -91,9 +91,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         this.i18n = i18n;
         this.multipartConfigElement = multipartConfigElement;
         this.softwareModuleManagement = softwareManagement;
-        this.upload = new Upload();
-        // TODO remove
-        // this.upload = new UploadFixed();
+        this.upload = new UploadFixed();
 
         createComponents();
         buildLayout();
@@ -163,6 +161,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         upload.setId(UIComponentIdProvider.UPLOAD_BUTTON);
 
         addComponent(upload);
+        setSizeFull();
         setMargin(false);
     }
 
