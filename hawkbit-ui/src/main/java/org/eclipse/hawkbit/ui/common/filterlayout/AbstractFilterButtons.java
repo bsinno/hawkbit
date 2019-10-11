@@ -157,16 +157,6 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     }
 
     /**
-     * Refreshes the tags tables
-     */
-    @Override
-    public void refreshContainer() {
-        super.refreshContainer();
-
-        hideActionColumns();
-    }
-
-    /**
      * Hides the edit and delete icon next to the filter tags in target,
      * distribution and software module tags/types layouts.
      */

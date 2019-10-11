@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.DistributionSetTagCreatedEventContainer;
 import org.eclipse.hawkbit.ui.push.DistributionSetTagDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.DistributionSetTagUpdatedEventContainer;
@@ -45,10 +44,10 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
     private final transient DistributionSetManagement distributionSetManagement;
 
     public DistributionTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
-            final UINotification uinotification, final UIEventBus eventBus, final ManagementUIState managementUIState,
+            final UINotification uinotification, final UIEventBus eventBus,
             final DistributionSetTagManagement distributionSetTagManagement,
             final DistributionSetManagement distributionSetManagement) {
-        super(checker, i18n, uinotification, eventBus, managementUIState);
+        super(checker, i18n, uinotification, eventBus);
         this.distributionSetTagManagement = distributionSetTagManagement;
         this.distributionSetManagement = distributionSetManagement;
     }
@@ -57,7 +56,7 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
     public void assignTag(final TagData tagData) {
         final List<DistributionSet> assignedDistributionSets = distributionSetManagement
                 .assignTag(Sets.newHashSet(selectedEntity.getId()), tagData.getId());
-        if (checkAssignmentResult(assignedDistributionSets, managementUIState.getLastSelectedDsIdName().orElse(null))) {
+        if (checkAssignmentResult(assignedDistributionSets, selectedEntity.getId())) {
             uinotification.displaySuccess(
                     i18n.getMessage("message.target.assigned.one", selectedEntity.getName(), tagData.getName()));
             eventBus.publish(this, ManagementUIEvent.ASSIGN_DISTRIBUTION_TAG);
@@ -69,8 +68,7 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
     public void unassignTag(final TagData tagData) {
         final DistributionSet unAssignedDistributionSet = distributionSetManagement.unAssignTag(selectedEntity.getId(),
                 tagData.getId());
-        if (checkUnassignmentResult(unAssignedDistributionSet,
-                managementUIState.getLastSelectedDsIdName().orElse(null))) {
+        if (checkUnassignmentResult(unAssignedDistributionSet, selectedEntity.getId())) {
             uinotification.displaySuccess(
                     i18n.getMessage("message.target.unassigned.one", selectedEntity.getName(), tagData.getName()));
             eventBus.publish(this, ManagementUIEvent.UNASSIGN_DISTRIBUTION_TAG);

@@ -15,13 +15,14 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
+import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionAddUpdateWindowLayout;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -37,13 +38,16 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     private final DistributionSetDetailsHeader distributionSetDetailsHeader;
     private final DistributionSetDetails distributionSetDetails;
 
+    private final DistributionSetGridLayoutEventListener eventListener;
+
     public DistributionSetGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final ManageDistUIState manageDistUIState, final DistributionSetManagement distributionSetManagement,
+            final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final UINotification uiNotification,
             final DistributionSetTagManagement distributionSetTagManagement, final SystemManagement systemManagement,
-            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext) {
+            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
+            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
+            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         super(i18n, eventBus);
 
         final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout = new DistributionAddUpdateWindowLayout(
@@ -51,15 +55,17 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 systemManagement, entityFactory, configManagement, systemSecurityContext);
 
         this.distributionSetGridHeader = new DistributionSetGridHeader(i18n, permissionChecker, eventBus,
-                manageDistUIState, distributionAddUpdateWindowLayout);
+                distributionAddUpdateWindowLayout, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
         this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
-                manageDistUIState, targetManagement, distributionSetManagement);
+                targetManagement, distributionSetManagement, distributionSetGridLayoutUiState);
 
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
                 uiNotification, entityFactory, distributionSetManagement, distributionAddUpdateWindowLayout);
-        this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker, manageDistUIState,
-                managementUIState, distributionSetManagement, uiNotification, distributionSetTagManagement,
-                configManagement, systemSecurityContext, entityFactory);
+        this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker,
+                distributionSetManagement, uiNotification, distributionSetTagManagement, configManagement,
+                systemSecurityContext, entityFactory, distributionSetGridLayoutUiState);
+
+        this.eventListener = new DistributionSetGridLayoutEventListener(this, eventBus);
 
         buildLayout(distributionSetGridHeader, distributionSetGrid, distributionSetDetailsHeader,
                 distributionSetDetails);
@@ -67,5 +73,47 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     public DistributionSetGrid getDistributionSetGrid() {
         return distributionSetGrid;
+    }
+
+    public void onDsSelected(final ProxyDistributionSet selectedDs) {
+        distributionSetDetailsHeader.masterEntityChanged(selectedDs);
+        distributionSetDetails.masterEntityChanged(selectedDs);
+
+    }
+
+    public void showDsTypeHeaderIcon() {
+        distributionSetGridHeader.showDsTypeIcon();
+    }
+
+    public void hideDsTypeHeaderIcon() {
+        distributionSetGridHeader.hideDsTypeIcon();
+    }
+
+    public void filterGridBySearch(final String searchFilter) {
+        distributionSetGrid.updateSearchFilter(searchFilter);
+    }
+
+    public void filterGridByType(final DistributionSetType typeFilter) {
+        distributionSetGrid.updateTypeFilter(typeFilter);
+    }
+
+    public void maximize() {
+        distributionSetGrid.createMaximizedContent();
+        distributionSetDetailsHeader.setVisible(false);
+        distributionSetDetails.setVisible(false);
+    }
+
+    public void minimize() {
+        distributionSetGrid.createMinimizedContent();
+        distributionSetDetailsHeader.setVisible(true);
+        distributionSetDetails.setVisible(true);
+    }
+
+    public void refreshGrid() {
+        distributionSetGrid.refreshContainer();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

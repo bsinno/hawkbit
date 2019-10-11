@@ -10,22 +10,17 @@ package org.eclipse.hawkbit.ui.distributions.smtable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
-import org.eclipse.hawkbit.repository.model.AssignedSoftwareModule;
-import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.AssignedSoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsStateDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
@@ -34,17 +29,14 @@ import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
+import org.eclipse.hawkbit.ui.distributions.DistributionsView;
 import org.eclipse.hawkbit.ui.distributions.event.SaveActionWindowEvent;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
-import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
-import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.eclipse.hawkbit.ui.view.filter.OnlyEventsFromDistributionsViewFilter;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -72,40 +64,43 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     private static final String SM_VENDOR_ID = "smVendor";
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
 
-    private final ManageDistUIState manageDistUIState;
+    private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
     private final ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> swModuleDataProvider;
+    private final SwFilterParams smFilter;
+
     private final AssignedSoftwareModuleToProxyMapper assignedSoftwareModuleToProxyMapper;
     private final DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
     private final DragAndDropSupport<ProxySoftwareModule> dragAndDropSupport;
 
     public SwModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final ManageDistUIState manageDistUIState, final SoftwareModuleManagement softwareModuleManagement) {
+            final SoftwareModuleManagement softwareModuleManagement,
+            final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
-        this.manageDistUIState = manageDistUIState;
+        this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
         this.softwareModuleManagement = softwareModuleManagement;
 
         this.assignedSoftwareModuleToProxyMapper = new AssignedSoftwareModuleToProxyMapper(
                 new SoftwareModuleToProxyMapper());
         this.swModuleDataProvider = new SoftwareModuleDistributionsStateDataProvider(softwareModuleManagement,
                 assignedSoftwareModuleToProxyMapper).withConfigurableFilter();
+        this.smFilter = new SwFilterParams();
 
         setResizeSupport(new SwModuleResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, SoftwareModuleEvent.class,
-                selectedSm -> manageDistUIState
-                        .setLastSelectedSoftwareModule(selectedSm != null ? selectedSm.getId() : null)));
-        if (manageDistUIState.isSwModuleTableMaximized()) {
+        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, DistributionsView.VIEW_NAME,
+                this::updateLastSelectedSmUiState));
+        if (swModuleGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
             getSelectionSupport().enableMultiSelection();
         }
 
         this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.software.module"),
-                permissionChecker, notification, this::swModulesDeletionCallback);
+                permissionChecker, notification, this::deleteSoftwareModules);
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap());
         this.dragAndDropSupport.addDragSource();
@@ -113,16 +108,21 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         init();
     }
 
-    private void swModulesDeletionCallback(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
+    private void updateLastSelectedSmUiState(final ProxySoftwareModule selectedSm) {
+        if (selectedSm.getId().equals(swModuleGridLayoutUiState.getSelectedSmId())) {
+            swModuleGridLayoutUiState.setSelectedSmId(null);
+        } else {
+            swModuleGridLayoutUiState.setSelectedSmId(selectedSm.getId());
+        }
+    }
+
+    private void deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
         final Collection<Long> swModuleToBeDeletedIds = swModulesToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
-
-        // TODO: should we really pass the swModuleToBeDeletedIds? We call
-        // dataprovider refreshAll anyway after receiving the event
-        eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.REMOVE_ENTITY, swModuleToBeDeletedIds));
-
-        manageDistUIState.getSelectedSoftwareModules().clear();
+        // We do not publish an event here, because deletion is managed by
+        // the grid itself
+        refreshContainer();
     }
 
     @Override
@@ -133,48 +133,6 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     @Override
     public ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> getFilterDataProvider() {
         return swModuleDataProvider;
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onDistributionSetUpdateEvents(final SoftwareModuleUpdatedEventContainer eventContainer) {
-        if (!eventContainer.getEvents().isEmpty()) {
-            // TODO: Consider updating only corresponding distribution sets with
-            // dataProvider.refreshItem() based on distribution set ids instead
-            // of full refresh (evaluate getDataCommunicator().getKeyMapper())
-            refreshContainer();
-        }
-
-        // TODO: do we really need it?
-        publishSmSelectedEntityForRefresh(eventContainer.getEvents().stream());
-    }
-
-    private void publishSmSelectedEntityForRefresh(
-            final Stream<? extends RemoteEntityEvent<SoftwareModule>> smEntityEventStream) {
-        // TODO: check if we should work with AssignedSoftwareModule here
-        // directly from the event
-        smEntityEventStream.filter(event -> isLastSelectedSm(event.getEntityId())).filter(Objects::nonNull).findAny()
-                .ifPresent(event -> eventBus.publish(this,
-                        new SoftwareModuleEvent(BaseEntityEventType.SELECTED_ENTITY, assignedSoftwareModuleToProxyMapper
-                                .map(new AssignedSoftwareModule(event.getEntity(), false)))));
-    }
-
-    private boolean isLastSelectedSm(final Long swModuleId) {
-        return manageDistUIState.getLastSelectedSoftwareModule()
-                .map(lastSelectedSmId -> lastSelectedSmId.equals(swModuleId)).orElse(false);
-    }
-
-    /**
-     * DistributionTableFilterEvent.
-     *
-     * @param filterEvent
-     *            as instance of {@link RefreshDistributionTableByFilterEvent}
-     */
-    @EventBusListenerMethod(scope = EventScope.UI, filter = OnlyEventsFromDistributionsViewFilter.class)
-    void onEvent(final RefreshSoftwareModuleByFilterEvent filterEvent) {
-        UI.getCurrent().access(() -> {
-            refreshFilter();
-            styleRowOnDistSelection();
-        });
     }
 
     private void styleRowOnDistSelection() {
@@ -194,59 +152,54 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         });
     }
 
-    private void refreshFilter() {
-        final SwFilterParams filterParams = new SwFilterParams(getSearchTextFromUiState(),
-                getSwModuleTypeIdFromUiState(), getLastSelectedDistributionIdFromUiState());
-
-        getFilterDataProvider().setFilter(filterParams);
+    public void updateSearchFilter(final String searchFilter) {
+        smFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+        getFilterDataProvider().setFilter(smFilter);
     }
 
-    private String getSearchTextFromUiState() {
-        return manageDistUIState.getSoftwareModuleFilters().getSearchText()
-                .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
-                .orElse(null);
+    public void updateTypeFilter(final SoftwareModuleType typeFilter) {
+        smFilter.setSoftwareModuleTypeId(typeFilter != null ? typeFilter.getId() : null);
+        getFilterDataProvider().setFilter(smFilter);
     }
 
-    private Long getSwModuleTypeIdFromUiState() {
-        return manageDistUIState.getSoftwareModuleFilters().getSoftwareModuleType().map(SoftwareModuleType::getId)
-                .orElse(null);
-    }
-
-    private Long getLastSelectedDistributionIdFromUiState() {
-        return manageDistUIState.getLastSelectedDistribution().orElse(null);
+    public void updateMasterEntityFilter(final Long masterEntityId) {
+        smFilter.setLastSelectedDistributionId(masterEntityId);
+        getFilterDataProvider().setFilter(smFilter);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final SaveActionWindowEvent event) {
-        // TODO: should we also check
-        // SaveActionWindowEvent.SAVED_ASSIGNMENTS event?
-        // TODO: is it sufficient to call refreshContainer?
-        if (event == SaveActionWindowEvent.DELETE_ALL_SOFWARE) {
-            UI.getCurrent().access(this::refreshFilter);
+        if (event == SaveActionWindowEvent.SAVED_ASSIGNMENTS) {
+            UI.getCurrent().access(this::refreshContainer);
         }
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final SoftwareModuleEvent event) {
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMinimizedContent);
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMaximizedContent);
-        } else if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
+        if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
                 || BaseEntityEventType.REMOVE_ENTITY == event.getEventType()) {
             UI.getCurrent().access(this::refreshContainer);
+        } else if (BaseEntityEventType.UPDATED_ENTITY == event.getEventType()) {
+            UI.getCurrent().access(() -> updateSwModule(event.getEntity()));
+        }
+    }
+
+    @EventBusListenerMethod(scope = EventScope.UI)
+    void onDistributionSetUpdateEvents(final SoftwareModuleUpdatedEventContainer eventContainer) {
+        if (!eventContainer.getEvents().isEmpty()) {
+            // TODO: Consider updating only corresponding software modules with
+            // dataProvider.refreshItem() based on software module ids instead
+            // of full refresh (evaluate getDataCommunicator().getKeyMapper())
+            refreshContainer();
         }
 
-        if (BaseEntityEventType.UPDATED_ENTITY != event.getEventType()) {
-            return;
-        }
-        UI.getCurrent().access(() -> updateSwModule(event.getEntity()));
+        // TODO: Reselect previously selected entity after refresh?
     }
 
     /**
      * Creates the grid content for maximized-state.
      */
-    private void createMaximizedContent() {
+    public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
@@ -255,7 +208,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     /**
      * Creates the grid content for normal (minimized) state.
      */
-    private void createMinimizedContent() {
+    public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
@@ -273,14 +226,11 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         }
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionTableEvent event) {
-        UI.getCurrent().access(() -> {
-            if (BaseEntityEventType.SELECTED_ENTITY == event.getEventType()) {
-                refreshFilter();
-                styleRowOnDistSelection();
-            }
-        });
+    public void masterEntityChanged(final ProxyDistributionSet entity) {
+        updateMasterEntityFilter(entity != null ? entity.getId() : null);
+        // TODO: should we call it again here, or style is updated
+        // automatically?
+        styleRowOnDistSelection();
     }
 
     @Override

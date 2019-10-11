@@ -26,7 +26,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.tagdetails.DistributionTagToken;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -55,9 +54,8 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     private final MetadataDetailsLayout<ProxyDistributionSet> dsMetadataLayout;
 
     protected AbstractDistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final DistributionSetManagement distributionSetManagement, final UINotification uiNotification,
-            final DistributionSetTagManagement distributionSetTagManagement,
+            final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
+            final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
             final TenantConfigurationManagement tenantConfigurationManagement,
             final SystemSecurityContext systemSecurityContext, final EntityFactory entityFactory) {
         super(i18n, permissionChecker, eventBus);
@@ -69,7 +67,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
         this.systemSecurityContext = systemSecurityContext;
 
         this.distributionTagToken = new DistributionTagToken(permissionChecker, i18n, uiNotification, eventBus,
-                managementUIState, distributionSetTagManagement, distributionSetManagement);
+                distributionSetTagManagement, distributionSetManagement);
         binder.forField(distributionTagToken).bind(ds -> ds, null);
 
         this.dsMetadataLayout = new MetadataDetailsLayout<>(i18n, UIComponentIdProvider.DS_METADATA_DETAIL_LINK,

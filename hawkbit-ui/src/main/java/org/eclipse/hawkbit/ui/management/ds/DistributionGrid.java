@@ -43,6 +43,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.DsTagsToDistributio
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
+import org.eclipse.hawkbit.ui.management.DeploymentView;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
@@ -110,9 +111,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
         setResizeSupport(new DistributionResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, DistributionTableEvent.class,
-                selectedDs -> managementUIState
-                        .setLastSelectedEntityId(selectedDs != null ? selectedDs.getId() : null)));
+        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, DeploymentView.VIEW_NAME,
+                this::updateLastSelectedDsUiState));
         if (managementUIState.isDsTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -144,6 +144,14 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         this.dragAndDropSupport.addDragAndDrop();
 
         init();
+    }
+
+    private void updateLastSelectedDsUiState(final ProxyDistributionSet selectedDs) {
+        if (selectedDs.getId().equals(managementUIState.getLastSelectedDsIdName().orElse(null))) {
+            managementUIState.setLastSelectedEntityId(null);
+        } else {
+            managementUIState.setLastSelectedEntityId(selectedDs.getId());
+        }
     }
 
     private Optional<Long> getPinnedDsIdFromUiState() {

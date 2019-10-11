@@ -30,7 +30,7 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.event.DeploymentActionEvent;
+import org.eclipse.hawkbit.ui.management.DeploymentView;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
@@ -105,9 +105,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .withConfigurableFilter();
 
         setResizeSupport(new ActionHistoryResizeSupport());
-        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, DeploymentActionEvent.class,
-                selectedAction -> managementUIState
-                        .setLastSelectedActionId(selectedAction != null ? selectedAction.getId() : null)));
+        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, DeploymentView.VIEW_NAME,
+                this::updateLastSelectedActionUiState));
         if (managementUIState.isActionHistoryMaximized()) {
             getSelectionSupport().enableSingleSelection();
         } else {
@@ -119,6 +118,14 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         initActionTypeIconMap();
 
         init();
+    }
+
+    private void updateLastSelectedActionUiState(final ProxyAction selectedAction) {
+        if (selectedAction.getId().equals(managementUIState.getLastSelectedActionId().orElse(null))) {
+            managementUIState.setLastSelectedActionId(null);
+        } else {
+            managementUIState.setLastSelectedActionId(selectedAction.getId());
+        }
     }
 
     @Override

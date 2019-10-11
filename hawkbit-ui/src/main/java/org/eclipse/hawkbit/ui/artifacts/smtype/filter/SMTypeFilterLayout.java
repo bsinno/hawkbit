@@ -98,9 +98,4 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
             setVisible(true);
         }
     }
-
-    @Override
-    public Boolean isFilterLayoutClosedOnLoad() {
-        return artifactUploadState.isSwTypeFilterClosed();
-    }
 }

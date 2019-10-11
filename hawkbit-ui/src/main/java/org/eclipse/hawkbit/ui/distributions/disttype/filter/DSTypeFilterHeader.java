@@ -15,21 +15,18 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.event.DistributionSetTypeFilterHeaderEvent;
-import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.distributions.disttype.CreateDistributionSetTypeLayout;
-import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
@@ -41,14 +38,12 @@ import com.vaadin.ui.MenuBar.Command;
 public class DSTypeFilterHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
+    private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
+
     private final transient UINotification uiNotification;
     private final transient EntityFactory entityFactory;
     private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
     private final transient DistributionSetTypeManagement distributionSetTypeManagement;
-
-    private final ManageDistUIState manageDistUIState;
-
-    private final DSTypeFilterButtons dSTypeFilterButtons;
 
     private final transient CrudMenuHeaderSupport crudMenuHeaderSupport;
     private final transient CloseHeaderSupport closeHeaderSupport;
@@ -76,19 +71,17 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
      *            DSTypeFilterButtons
      */
     DSTypeFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final ManageDistUIState manageDistUIState, final EntityFactory entityFactory,
-            final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
+            final EntityFactory entityFactory, final UINotification uiNotification,
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement,
-            final DSTypeFilterButtons dSTypeFilterButtons) {
+            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
         super(i18n, permChecker, eventBus);
 
         this.uiNotification = uiNotification;
-        this.manageDistUIState = manageDistUIState;
         this.entityFactory = entityFactory;
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
         this.distributionSetTypeManagement = distributionSetTypeManagement;
-
-        this.dSTypeFilterButtons = dSTypeFilterButtons;
+        this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
 
         this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.DIST_TAG_MENU_BAR_ID,
                 permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
@@ -114,39 +107,32 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
 
     private Command getUpdateButtonCommand() {
         return command -> {
-            dSTypeFilterButtons.showEditColumn();
-            eventBus.publish(this, new DistributionSetTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+            eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
+                    FilterButtonsActionsChangedEventPayload.SHOW_EDIT);
+            crudMenuHeaderSupport.activateEditMode();
         };
     }
 
     private Command getDeleteButtonCommand() {
         return command -> {
-            dSTypeFilterButtons.showDeleteColumn();
-            eventBus.publish(this, new DistributionSetTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_CANCEL_BUTTON));
+            eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
+                    FilterButtonsActionsChangedEventPayload.SHOW_DELETE);
+            crudMenuHeaderSupport.activateEditMode();
         };
     }
 
     private Command getCloseButtonCommand() {
         return command -> {
-            dSTypeFilterButtons.hideActionColumns();
-            eventBus.publish(this, new DistributionSetTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+            eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
+                    FilterButtonsActionsChangedEventPayload.HIDE_ALL);
+            crudMenuHeaderSupport.activateSelectMode();
         };
     }
 
     private void hideFilterButtonLayout() {
-        manageDistUIState.setDistTypeFilterClosed(true);
-        eventBus.publish(this, DistributionsUIEvent.HIDE_DIST_FILTER_BY_TYPE);
-    }
+        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this,
+                LayoutVisibilityChangedEventPayload.LAYOUT_HIDDEN);
 
-    // TODO: Do we really need this listener, or should we activate mode in
-    // commands?
-    @EventBusListenerMethod(scope = EventScope.UI)
-    private void onEvent(final DistributionSetTypeFilterHeaderEvent event) {
-        if (FilterHeaderEnum.SHOW_MENUBAR == event.getFilterHeaderEnum()
-                && crudMenuHeaderSupport.isEditModeActivated()) {
-            crudMenuHeaderSupport.activateSelectMode();
-        } else if (FilterHeaderEnum.SHOW_CANCEL_BUTTON == event.getFilterHeaderEnum()) {
-            crudMenuHeaderSupport.activateEditMode();
-        }
+        dSTypeFilterLayoutUiState.setHidden(true);
     }
 }

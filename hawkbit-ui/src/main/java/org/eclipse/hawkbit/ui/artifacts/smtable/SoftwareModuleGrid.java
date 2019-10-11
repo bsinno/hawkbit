@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.artifacts.UploadArtifactView;
 import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
@@ -91,8 +92,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
         setResizeSupport(new SwModuleResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, SoftwareModuleEvent.class,
-                selectedSm -> uploadUIState.setLastSelectedEntityId(selectedSm != null ? selectedSm.getId() : null)));
+        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, UploadArtifactView.VIEW_NAME,
+                this::updateLastSelectedSmUiState));
         if (uploadUIState.isSwModuleTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -103,6 +104,14 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 permissionChecker, notification, this::swModulesDeletionCallback);
 
         init();
+    }
+
+    private void updateLastSelectedSmUiState(final ProxySoftwareModule selectedSm) {
+        if (selectedSm.getId().equals(uploadUIState.getSelectedBaseSwModuleId().orElse(null))) {
+            uploadUIState.setLastSelectedEntityId(null);
+        } else {
+            uploadUIState.setLastSelectedEntityId(selectedSm.getId());
+        }
     }
 
     private void swModulesDeletionCallback(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {

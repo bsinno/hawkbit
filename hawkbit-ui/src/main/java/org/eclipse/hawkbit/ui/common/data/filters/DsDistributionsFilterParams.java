@@ -15,8 +15,12 @@ import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetDistributions
  * Filter params for {@link DistributionSetDistributionsStateDataProvider}.
  */
 public class DsDistributionsFilterParams {
-    private final String searchText;
-    private final DistributionSetType clickedDistSetType;
+    private String searchText;
+    private DistributionSetType clickedDistSetType;
+
+    public DsDistributionsFilterParams() {
+        this(null, null);
+    }
 
     /**
      * Constructor.
@@ -25,15 +29,23 @@ public class DsDistributionsFilterParams {
      * @param clickedDistSetType
      */
     public DsDistributionsFilterParams(final String searchText, final DistributionSetType clickedDistSetType) {
-        this.searchText = searchText;
-        this.clickedDistSetType = clickedDistSetType;
+        this.setSearchText(searchText);
+        this.setClickedDistSetType(clickedDistSetType);
     }
 
     public String getSearchText() {
         return searchText;
     }
 
+    public void setSearchText(final String searchText) {
+        this.searchText = searchText;
+    }
+
     public DistributionSetType getClickedDistSetType() {
         return clickedDistSetType;
+    }
+
+    public void setClickedDistSetType(final DistributionSetType clickedDistSetType) {
+        this.clickedDistSetType = clickedDistSetType;
     }
 }

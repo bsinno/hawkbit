@@ -11,15 +11,12 @@ package org.eclipse.hawkbit.ui.distributions.dstable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetUpdatedEvent;
-import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
-import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.filters.DsDistributionsFilterParams;
@@ -35,9 +32,8 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.SwModulesToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
+import org.eclipse.hawkbit.ui.distributions.DistributionsView;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
-import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
 import org.eclipse.hawkbit.ui.push.DistributionSetUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -46,7 +42,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.eclipse.hawkbit.ui.view.filter.OnlyEventsFromDistributionsViewFilter;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -74,10 +69,11 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private static final String DS_DESC_ID = "dsDescription";
     private static final String DS_DELETE_BUTTON_ID = "dsDeleteButton";
 
-    private final ManageDistUIState manageDistUIState;
+    private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
     private final transient DistributionSetManagement distributionSetManagement;
 
     private final ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsDistributionsFilterParams> dsDataProvider;
+    private final DsDistributionsFilterParams dsFilter;
 
     private final transient DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
     private final transient DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
@@ -85,30 +81,30 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
     public DistributionSetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final ManageDistUIState manageDistUIState, final TargetManagement targetManagement,
-            final DistributionSetManagement distributionSetManagement) {
+            final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
+            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
-        this.manageDistUIState = manageDistUIState;
+        this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
         this.distributionSetManagement = distributionSetManagement;
 
         this.distributionSetToProxyDistributionMapper = new DistributionSetToProxyDistributionMapper();
         this.dsDataProvider = new DistributionSetDistributionsStateDataProvider(distributionSetManagement,
                 distributionSetToProxyDistributionMapper).withConfigurableFilter();
+        this.dsFilter = new DsDistributionsFilterParams();
 
         setResizeSupport(new DistributionSetResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, DistributionTableEvent.class,
-                selectedDs -> manageDistUIState
-                        .setLastSelectedEntityId(selectedDs != null ? selectedDs.getId() : null)));
-        if (manageDistUIState.isDsTableMaximized()) {
+        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, DistributionsView.VIEW_NAME,
+                this::updateLastSelectedDsUiState));
+        if (distributionSetGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
             getSelectionSupport().enableMultiSelection();
         }
 
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
-                permissionChecker, notification, this::setsDeletionCallback);
+                permissionChecker, notification, this::deleteDistributionSets);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
 
@@ -124,21 +120,27 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         init();
     }
 
-    private void setsDeletionCallback(final Collection<ProxyDistributionSet> setsToBeDeleted) {
+    private void updateLastSelectedDsUiState(final ProxyDistributionSet selectedDs) {
+        if (selectedDs.getId().equals(distributionSetGridLayoutUiState.getSelectedDsId())) {
+            distributionSetGridLayoutUiState.setSelectedDsId(null);
+        } else {
+            distributionSetGridLayoutUiState.setSelectedDsId(selectedDs.getId());
+        }
+    }
+
+    private void deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
         final Collection<Long> dsToBeDeletedIds = setsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         distributionSetManagement.delete(dsToBeDeletedIds);
-
-        // TODO: should we really pass the dsToBeDeletedIds? We call
-        // dataprovider refreshAll anyway after receiving the event
-        eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.REMOVE_ENTITY, dsToBeDeletedIds));
+        // We do not publish an event here, because deletion is managed by
+        // the grid itself
+        refreshContainer();
 
         // TODO: check if we need to notify Deployment View if deleted DS was
         // pinned
         // getPinnedDsIdFromUiState()
         // .ifPresent(pinnedDsId ->
         // pinSupport.unPinItemAfterDeletion(pinnedDsId, dsToBeDeletedIds));
-        manageDistUIState.getSelectedDistributions().clear();
     }
 
     private void initIsCompleteStyleGenerator() {
@@ -155,6 +157,33 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         return dsDataProvider;
     }
 
+    public void updateSearchFilter(final String searchFilter) {
+        dsFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+        getFilterDataProvider().setFilter(dsFilter);
+    }
+
+    public void updateTypeFilter(final DistributionSetType typeFilter) {
+        dsFilter.setClickedDistSetType(typeFilter);
+        getFilterDataProvider().setFilter(dsFilter);
+    }
+
+    @EventBusListenerMethod(scope = EventScope.UI)
+    void onEvent(final SaveActionWindowEvent event) {
+        if (event == SaveActionWindowEvent.SAVED_ASSIGNMENTS) {
+            UI.getCurrent().access(this::refreshContainer);
+        }
+    }
+
+    @EventBusListenerMethod(scope = EventScope.UI)
+    void onEvent(final DistributionTableEvent event) {
+        if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
+                || BaseEntityEventType.REMOVE_ENTITY == event.getEventType()) {
+            UI.getCurrent().access(this::refreshContainer);
+        } else if (BaseEntityEventType.UPDATED_ENTITY == event.getEventType()) {
+            UI.getCurrent().access(() -> updateDistributionSet(event.getEntity()));
+        }
+    }
+
     @EventBusListenerMethod(scope = EventScope.UI)
     void onDistributionSetUpdateEvents(final DistributionSetUpdatedEventContainer eventContainer) {
         deselectIncompleteDs(eventContainer.getEvents().stream());
@@ -166,90 +195,21 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
             refreshContainer();
         }
 
-        // TODO: do we really need it?
-        publishDsSelectedEntityForRefresh(eventContainer.getEvents().stream());
+        // TODO: Reselect previously selected entity after refresh?
     }
 
     private void deselectIncompleteDs(final Stream<DistributionSetUpdatedEvent> dsEntityUpdateEventStream) {
         if (dsEntityUpdateEventStream.filter(event -> !event.isComplete()).map(DistributionSetUpdatedEvent::getEntityId)
-                .anyMatch(this::isLastSelectedDs)) {
-            // TODO: consider renaming it to setLastSelectedDsIdName
-            manageDistUIState.setLastSelectedEntityId(null);
+                .anyMatch(dsId -> dsId.equals(distributionSetGridLayoutUiState.getSelectedDsId()))) {
+            // TODO: should we deselect row here?
+            distributionSetGridLayoutUiState.setSelectedDsId(null);
         }
-    }
-
-    private void publishDsSelectedEntityForRefresh(
-            final Stream<? extends RemoteEntityEvent<DistributionSet>> dsEntityEventStream) {
-        dsEntityEventStream.filter(event -> isLastSelectedDs(event.getEntityId())).filter(Objects::nonNull).findAny()
-                .ifPresent(
-                        event -> eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY,
-                                distributionSetToProxyDistributionMapper.map(event.getEntity()))));
-    }
-
-    private boolean isLastSelectedDs(final Long dsId) {
-        return manageDistUIState.getLastSelectedDistribution().map(lastSelectedDsId -> lastSelectedDsId.equals(dsId))
-                .orElse(false);
-    }
-
-    /**
-     * DistributionTableFilterEvent.
-     *
-     * @param filterEvent
-     *            as instance of {@link RefreshDistributionTableByFilterEvent}
-     */
-    @EventBusListenerMethod(scope = EventScope.UI, filter = OnlyEventsFromDistributionsViewFilter.class)
-    void onEvent(final RefreshDistributionTableByFilterEvent filterEvent) {
-        UI.getCurrent().access(this::refreshFilter);
-    }
-
-    private void refreshFilter() {
-        final DsDistributionsFilterParams filterParams = new DsDistributionsFilterParams(getSearchTextFromUiState(),
-                getClickedDistSetTypeFromUiState());
-
-        getFilterDataProvider().setFilter(filterParams);
-    }
-
-    private String getSearchTextFromUiState() {
-        return manageDistUIState.getManageDistFilters().getSearchText()
-                .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
-                .orElse(null);
-    }
-
-    private DistributionSetType getClickedDistSetTypeFromUiState() {
-        return manageDistUIState.getManageDistFilters().getClickedDistSetType();
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SaveActionWindowEvent event) {
-        // TODO: should we also check
-        // SaveActionWindowEvent.DELETED_DISTRIBUTIONS event?
-        // TODO: is it sufficient to call refreshContainer?
-        if (event == SaveActionWindowEvent.SAVED_ASSIGNMENTS) {
-            UI.getCurrent().access(this::refreshFilter);
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionTableEvent event) {
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMinimizedContent);
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMaximizedContent);
-        } else if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
-                || BaseEntityEventType.REMOVE_ENTITY == event.getEventType()) {
-            UI.getCurrent().access(this::refreshContainer);
-        }
-
-        if (BaseEntityEventType.UPDATED_ENTITY != event.getEventType()) {
-            return;
-        }
-        UI.getCurrent().access(() -> updateDistributionSet(event.getEntity()));
     }
 
     /**
      * Creates the grid content for maximized-state.
      */
-    private void createMaximizedContent() {
+    public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
@@ -258,7 +218,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     /**
      * Creates the grid content for normal (minimized) state.
      */
-    private void createMinimizedContent() {
+    public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();

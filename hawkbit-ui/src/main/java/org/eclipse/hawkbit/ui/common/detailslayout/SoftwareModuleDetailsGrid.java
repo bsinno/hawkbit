@@ -18,13 +18,9 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModuleDetails;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
-import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -55,7 +51,6 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
     private final transient DistributionSetManagement distributionSetManagement;
     private final VaadinMessageSource i18n;
     private final transient EventBus.UIEventBus eventBus;
-    private final ManageDistUIState manageDistUIState;
     private final UINotification uiNotification;
 
     /**
@@ -79,13 +74,11 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
      */
     public SoftwareModuleDetailsGrid(final VaadinMessageSource i18n, final boolean isUnassignSoftModAllowed,
             final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
-            final EventBus.UIEventBus eventBus, final ManageDistUIState manageDistUIState,
-            final UINotification uiNotification) {
+            final EventBus.UIEventBus eventBus, final UINotification uiNotification) {
         this.i18n = i18n;
         this.isUnassignSoftModAllowed = isUnassignSoftModAllowed;
         this.permissionChecker = permissionChecker;
         this.distributionSetManagement = distributionSetManagement;
-        this.manageDistUIState = manageDistUIState;
         this.eventBus = eventBus;
         this.uiNotification = uiNotification;
 
@@ -189,9 +182,12 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
                     i18n.getMessage("message.error.notification.ds.target.assigned", dsName, dsVersion));
         } else {
             final DistributionSet newDistributionSet = distributionSetManagement.unassignSoftwareModule(dsId, smId);
-            manageDistUIState.setLastSelectedEntityId(newDistributionSet.getId());
-            eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY,
-                    new DistributionSetToProxyDistributionMapper().map(newDistributionSet)));
+            // TODO: should we really publish selected event here?
+            // manageDistUIState.setLastSelectedEntityId(newDistributionSet.getId());
+            // eventBus.publish(this, new
+            // DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY,
+            // new
+            // DistributionSetToProxyDistributionMapper().map(newDistributionSet)));
             uiNotification.displaySuccess(i18n.getMessage("message.sw.unassigned", smNameAndVersion));
         }
     }

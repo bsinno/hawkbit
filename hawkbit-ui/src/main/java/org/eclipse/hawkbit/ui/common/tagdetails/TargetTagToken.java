@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
@@ -36,9 +35,9 @@ public class TargetTagToken extends AbstractTargetTagToken {
     private final transient TargetManagement targetManagement;
 
     public TargetTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
-            final UINotification uinotification, final UIEventBus eventBus, final ManagementUIState managementUIState,
-            final TargetTagManagement tagManagement, final TargetManagement targetManagement) {
-        super(checker, i18n, uinotification, eventBus, managementUIState, tagManagement);
+            final UINotification uinotification, final UIEventBus eventBus, final TargetTagManagement tagManagement,
+            final TargetManagement targetManagement) {
+        super(checker, i18n, uinotification, eventBus, tagManagement);
         this.targetManagement = targetManagement;
     }
 

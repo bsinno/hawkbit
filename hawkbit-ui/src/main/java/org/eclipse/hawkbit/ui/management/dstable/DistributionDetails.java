@@ -35,7 +35,7 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
             final DistributionSetTagManagement distributionSetTagManagement,
             final TenantConfigurationManagement tenantConfigurationManagement,
             final SystemSecurityContext systemSecurityContext, final EntityFactory entityFactory) {
-        super(i18n, eventBus, permissionChecker, managementUIState, distributionSetManagement, uiNotification,
+        super(i18n, eventBus, permissionChecker, distributionSetManagement, uiNotification,
                 distributionSetTagManagement, tenantConfigurationManagement, systemSecurityContext, entityFactory);
 
         this.managementUIState = managementUIState;
@@ -46,7 +46,7 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
 
     @Override
     protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
-        return new SoftwareModuleDetailsGrid(i18n, false, permChecker, null, null, null, uiNotification);
+        return new SoftwareModuleDetailsGrid(i18n, false, permChecker, null, null, uiNotification);
     }
 
     private void restoreState() {

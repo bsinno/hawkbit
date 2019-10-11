@@ -82,8 +82,8 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
 
         this.installedDsDetails = buildInstalledDsDetails();
 
-        this.targetTagToken = new TargetTagToken(permissionChecker, i18n, uiNotification, eventBus, managementUIState,
-                tagManagement, targetManagement);
+        this.targetTagToken = new TargetTagToken(permissionChecker, i18n, uiNotification, eventBus, tagManagement,
+                targetManagement);
         binder.forField(targetTagToken).bind(target -> target, null);
 
         this.targetMetadataLayout = new MetadataDetailsLayout<>(i18n, UIComponentIdProvider.TARGET_METADATA_DETAIL_LINK,

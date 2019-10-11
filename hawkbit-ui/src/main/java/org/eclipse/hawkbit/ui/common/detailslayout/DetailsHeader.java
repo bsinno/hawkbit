@@ -86,7 +86,7 @@ public abstract class DetailsHeader<T extends ProxyNamedEntity> extends Abstract
     }
 
     // TODO: Check if it could be done by binder
-    public void updateDetailsHeader(final T entity) {
+    public void masterEntityChanged(final T entity) {
         if (entity == null) {
             editDetailsHeaderSupport.disableEditIcon();
             metaDataDetailsHeaderSupport.disableMetaDataIcon();

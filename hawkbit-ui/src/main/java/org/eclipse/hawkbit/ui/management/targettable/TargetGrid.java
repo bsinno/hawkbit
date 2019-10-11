@@ -44,6 +44,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
+import org.eclipse.hawkbit.ui.management.DeploymentView;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
@@ -119,9 +120,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         setResizeSupport(new TargetResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, TargetTableEvent.class,
-                selectedTarget -> managementUIState
-                        .setLastSelectedTargetId(selectedTarget != null ? selectedTarget.getId() : null)));
+        setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, DeploymentView.VIEW_NAME,
+                this::updateLastSelectedTargetUiState));
         if (managementUIState.isTargetTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -153,6 +153,14 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         initTargetStatusIconMap();
 
         init();
+    }
+
+    private void updateLastSelectedTargetUiState(final ProxyTarget selectedTarget) {
+        if (selectedTarget.getId().equals(managementUIState.getLastSelectedTargetId().orElse(null))) {
+            managementUIState.setLastSelectedTargetId(null);
+        } else {
+            managementUIState.setLastSelectedTargetId(selectedTarget.getId());
+        }
     }
 
     @Override

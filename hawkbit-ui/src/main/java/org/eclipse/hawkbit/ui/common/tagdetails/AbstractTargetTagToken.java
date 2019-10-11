@@ -18,7 +18,6 @@ import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagUpdatedEvent;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.TargetTagCreatedEventContainer;
 import org.eclipse.hawkbit.ui.push.TargetTagDeletedEventContainer;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -36,9 +35,8 @@ public abstract class AbstractTargetTagToken extends AbstractTagToken<ProxyTarge
     protected final transient TargetTagManagement tagManagement;
 
     protected AbstractTargetTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
-            final UINotification uinotification, final UIEventBus eventBus, final ManagementUIState managementUIState,
-            final TargetTagManagement tagManagement) {
-        super(checker, i18n, uinotification, eventBus, managementUIState);
+            final UINotification uinotification, final UIEventBus eventBus, final TargetTagManagement tagManagement) {
+        super(checker, i18n, uinotification, eventBus);
         this.tagManagement = tagManagement;
     }
 

@@ -75,8 +75,8 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
     }
 
     @Override
-    public void updateDetailsHeader(final ProxySoftwareModule entity) {
-        super.updateDetailsHeader(entity);
+    public void masterEntityChanged(final ProxySoftwareModule entity) {
+        super.masterEntityChanged(entity);
 
         if (artifactDetailsHeaderSupport != null) {
             if (entity == null) {

@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.management.event.DeploymentActionStatusEvent;
+import org.eclipse.hawkbit.ui.management.DeploymentView;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -43,6 +43,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     private static final String STATUS_ID = "status";
     private static final String CREATED_AT_ID = "createdAt";
 
+    private final ManagementUIState managementUIState;
+
     private final Map<Status, FontIcon> statusIconMap = new EnumMap<>(Status.class);
 
     private final ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> actionStatusDataProvider;
@@ -58,17 +60,26 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
             final DeploymentManagement deploymentManagement, final ManagementUIState managementUIState) {
         super(i18n, eventBus, null);
 
+        this.managementUIState = managementUIState;
+
         this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
                 new ActionStatusToProxyActionStatusMapper()).withConfigurableFilter();
 
-        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, DeploymentActionStatusEvent.class,
-                selectedActionStatus -> managementUIState.setLastSelectedActionStatusId(
-                        selectedActionStatus != null ? selectedActionStatus.getId() : null)));
+        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, DeploymentView.VIEW_NAME,
+                this::updateLastSelectedActionStatusUiState));
         getSelectionSupport().enableSingleSelection();
 
         initStatusIconMap();
 
         init();
+    }
+
+    private void updateLastSelectedActionStatusUiState(final ProxyActionStatus selectedActionStatus) {
+        if (selectedActionStatus.getId().equals(managementUIState.getLastSelectedActionStatusId().orElse(null))) {
+            managementUIState.setLastSelectedActionStatusId(null);
+        } else {
+            managementUIState.setLastSelectedActionStatusId(selectedActionStatus.getId());
+        }
     }
 
     @Override

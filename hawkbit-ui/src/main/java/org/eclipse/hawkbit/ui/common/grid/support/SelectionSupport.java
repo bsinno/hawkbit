@@ -8,13 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Grid;
@@ -32,7 +32,7 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
 public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     private final Grid<T> grid;
     private final UIEventBus eventBus;
-    private final Class<? extends BaseUIEntityEvent<T>> selectedEventType;
+    private final Object selectedEventSender;
     private final Consumer<T> updateLastSelectedUiStateCallback;
 
     // for grids without selection or master-details support
@@ -40,13 +40,38 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         this(grid, null, null, null);
     }
 
-    public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus,
-            final Class<? extends BaseUIEntityEvent<T>> selectedEventType,
+    public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final Object selectedEventSender,
             final Consumer<T> updateLastSelectedUiStateCallback) {
         this.grid = grid;
         this.eventBus = eventBus;
-        this.selectedEventType = selectedEventType;
+        this.selectedEventSender = selectedEventSender;
         this.updateLastSelectedUiStateCallback = updateLastSelectedUiStateCallback;
+    }
+
+    public final void disableSelection() {
+        grid.setSelectionMode(SelectionMode.NONE);
+    }
+
+    public final void enableSingleSelection() {
+        grid.setSelectionMode(SelectionMode.SINGLE);
+
+        grid.asSingleSelect().addSingleSelectionListener(event -> {
+            final SelectionChangedEventType type = event.getSelectedItem().isPresent()
+                    ? SelectionChangedEventType.ENTITY_SELECTED
+                    : SelectionChangedEventType.ENTITY_DESELECTED;
+            final T itemToSend = event.getSelectedItem().orElse(event.getOldValue());
+
+            sendEvent(type, itemToSend);
+        });
+    }
+
+    private void sendEvent(final SelectionChangedEventType type, final T itemToSend) {
+        if (eventBus == null || itemToSend == null) {
+            return;
+        }
+
+        eventBus.publish(EventTopics.SELECTION_CHANGED, grid, new SelectionChangedEventPayload<>(type, itemToSend));
+        updateLastSelectedUiStateCallback.accept(itemToSend);
     }
 
     public final void enableMultiSelection() {
@@ -54,44 +79,36 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
 
         grid.asMultiSelect().addMultiSelectionListener(event -> {
             final Set<T> selectedItems = event.getAllSelectedItems();
+            final SelectionChangedEventType type = selectedItems.size() == 1 ? SelectionChangedEventType.ENTITY_SELECTED
+                    : SelectionChangedEventType.ENTITY_DESELECTED;
+            final T itemToSend = selectedItems.size() == 1 ? selectedItems.iterator().next()
+                    : event.getOldSelection().iterator().next();
 
-            sendSelectedEvent(selectedItems.size() == 1 ? selectedItems.iterator().next() : null);
+            sendEvent(type, itemToSend);
         });
     }
 
-    private void sendSelectedEvent(final T selectedItemToSend) {
-        if (eventBus == null || selectedEventType == null) {
+    public boolean isNoSelectionModel() {
+        return grid.getSelectionModel() instanceof NoSelectionModel;
+    }
+
+    public boolean isSingleSelectionModel() {
+        return grid.getSelectionModel() instanceof SingleSelectionModel;
+    }
+
+    public boolean isMultiSelectionModel() {
+        return grid.getSelectionModel() instanceof MultiSelectionModel;
+    }
+
+    /**
+     * Clears the selection.
+     */
+    public void clearSelection() {
+        if (isNoSelectionModel()) {
             return;
         }
 
-        // TODO: check if we should use this or grid as the sender
-        try {
-            if (selectedItemToSend == null) {
-                eventBus.publish(this, selectedEventType.getConstructor(BaseEntityEventType.class)
-                        .newInstance(BaseEntityEventType.SELECTED_ENTITY));
-            } else {
-                eventBus.publish(this,
-                        selectedEventType.getConstructor(BaseEntityEventType.class, selectedItemToSend.getClass())
-                                .newInstance(BaseEntityEventType.SELECTED_ENTITY, selectedItemToSend));
-            }
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
-            // TODO: refactor
-            throw new RuntimeException(e);
-        }
-
-        updateLastSelectedUiStateCallback.accept(selectedItemToSend);
-    }
-
-    public final void enableSingleSelection() {
-        grid.setSelectionMode(SelectionMode.SINGLE);
-
-        grid.asSingleSelect()
-                .addSingleSelectionListener(event -> sendSelectedEvent(event.getSelectedItem().orElse(null)));
-    }
-
-    public final void disableSelection() {
-        grid.setSelectionMode(SelectionMode.NONE);
+        grid.deselectAll();
     }
 
     /**
@@ -118,28 +135,5 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         }
 
         grid.asMultiSelect().selectAll();
-    }
-
-    public boolean isMultiSelectionModel() {
-        return grid.getSelectionModel() instanceof MultiSelectionModel;
-    }
-
-    public boolean isSingleSelectionModel() {
-        return grid.getSelectionModel() instanceof SingleSelectionModel;
-    }
-
-    public boolean isNoSelectionModel() {
-        return grid.getSelectionModel() instanceof NoSelectionModel;
-    }
-
-    /**
-     * Clears the selection.
-     */
-    public void clearSelection() {
-        if (isNoSelectionModel()) {
-            return;
-        }
-
-        grid.deselectAll();
     }
 }

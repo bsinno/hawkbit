@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.repository.event.remote.entity.ActionUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutGroupCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutGroupUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutUpdatedEvent;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
 import org.slf4j.Logger;
@@ -201,7 +202,8 @@ public class DelayedEventBusPushStrategy implements EventPushStrategy, Applicati
                         return;
                     }
                     LOG.debug("UI EventBus aggregator of UI {} got lock on session.", vaadinUI.getUIId());
-                    groupedEvents.forEach(holder -> eventBus.publish(vaadinUI, holder));
+                    groupedEvents.forEach(eventContainer -> eventBus.publish(EventTopics.REMOTE_EVENT_RECEIVED,
+                            vaadinUI, eventContainer));
                     LOG.debug("UI EventBus aggregator of UI {} left lock on session.", vaadinUI.getUIId());
                 }).get();
             } catch (InterruptedException | ExecutionException e) {
@@ -218,19 +220,19 @@ public class DelayedEventBusPushStrategy implements EventPushStrategy, Applicati
 
             return events.stream().filter(event -> eventSecurityCheck(userContext, event))
                     .collect(Collectors.groupingBy(TenantAwareEvent::getClass)).entrySet().stream().map(entry -> {
-                        EventContainer<TenantAwareEvent> holder = null;
+                        EventContainer<TenantAwareEvent> eventContainer = null;
                         try {
                             final Constructor<TenantAwareEvent> declaredConstructor = (Constructor<TenantAwareEvent>) eventProvider
                                     .getEvents().get(entry.getKey()).getDeclaredConstructor(List.class);
                             declaredConstructor.setAccessible(true);
 
-                            holder = (EventContainer<TenantAwareEvent>) declaredConstructor
+                            eventContainer = (EventContainer<TenantAwareEvent>) declaredConstructor
                                     .newInstance(entry.getValue());
                         } catch (final ReflectiveOperationException e) {
-                            LOG.error("Failed to create EventHolder!", e);
+                            LOG.error("Failed to create EventContainer!", e);
                         }
 
-                        return holder;
+                        return eventContainer;
                     }).collect(Collectors.toList());
         }
     }

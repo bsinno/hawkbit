@@ -151,11 +151,6 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
     }
 
     @Override
-    public Boolean isFilterLayoutClosedOnLoad() {
-        return managementUIState.isDistTagFilterClosed();
-    }
-
-    @Override
     public void refreshContainer() {
         distributionTagButtons.refreshContainer();
     }

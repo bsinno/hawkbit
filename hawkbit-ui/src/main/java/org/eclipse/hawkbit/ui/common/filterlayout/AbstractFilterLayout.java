@@ -14,7 +14,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Parent class for filter button layout.
@@ -63,20 +63,11 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
     }
 
     protected void restoreState() {
-        if (isFilterLayoutClosedOnLoad()) {
-            setVisible(false);
-        }
+        // TODO: check if needed, adapt as neccessary
     }
 
     protected abstract AbstractGridHeader getFilterHeader();
 
     // we use Component here due to NO TAG button
     protected abstract Component getFilterButtons();
-
-    /**
-     * Check if filter layout should be closed on load.
-     * 
-     * @return true if filter should be initially closed.
-     */
-    public abstract Boolean isFilterLayoutClosedOnLoad();
 }

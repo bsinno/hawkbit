@@ -15,13 +15,9 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
-import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -34,10 +30,10 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
 
     private static final long serialVersionUID = 1L;
 
-    private final ManageDistUIState manageDistUIState;
-
     private final DSTypeFilterHeader dsTypeFilterHeader;
     private final DSTypeFilterButtons dSTypeFilterButtons;
+
+    private final DSTypeFilterLayoutEventListener eventListener;
 
     /**
      * Constructor
@@ -59,20 +55,21 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
      * @param distributionSetTypeManagement
      *            DistributionSetTypeManagement
      */
-    public DSTypeFilterLayout(final ManageDistUIState manageDistUIState, final VaadinMessageSource i18n,
-            final SpPermissionChecker permChecker, final UIEventBus eventBus, final EntityFactory entityFactory,
-            final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
+    public DSTypeFilterLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final EntityFactory entityFactory, final UINotification uiNotification,
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement,
-            final DistributionSetManagement distributionSetManagement, final SystemManagement systemManagement) {
+            final DistributionSetManagement distributionSetManagement, final SystemManagement systemManagement,
+            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
         super(eventBus);
 
-        this.manageDistUIState = manageDistUIState;
+        this.dsTypeFilterHeader = new DSTypeFilterHeader(i18n, permChecker, eventBus, entityFactory, uiNotification,
+                softwareModuleTypeManagement, distributionSetTypeManagement, dSTypeFilterLayoutUiState);
+        this.dSTypeFilterButtons = new DSTypeFilterButtons(eventBus, distributionSetTypeManagement, i18n, entityFactory,
+                permChecker, uiNotification, softwareModuleTypeManagement, distributionSetManagement, systemManagement,
+                dSTypeFilterLayoutUiState);
 
-        this.dSTypeFilterButtons = new DSTypeFilterButtons(eventBus, manageDistUIState, distributionSetTypeManagement,
-                i18n, entityFactory, permChecker, uiNotification, softwareModuleTypeManagement,
-                distributionSetManagement, systemManagement);
-        this.dsTypeFilterHeader = new DSTypeFilterHeader(i18n, permChecker, eventBus, manageDistUIState, entityFactory,
-                uiNotification, softwareModuleTypeManagement, distributionSetTypeManagement, dSTypeFilterButtons);
+        this.eventListener = new DSTypeFilterLayoutEventListener(this, eventBus);
 
         buildLayout();
         restoreState();
@@ -97,18 +94,23 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
         return filterButtonsLayout;
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionsUIEvent event) {
-        if (event == DistributionsUIEvent.HIDE_DIST_FILTER_BY_TYPE) {
-            setVisible(false);
-        }
-        if (event == DistributionsUIEvent.SHOW_DIST_FILTER_BY_TYPE) {
-            setVisible(true);
-        }
+    public void showFilterButtonsEditIcon() {
+        dSTypeFilterButtons.showEditColumn();
     }
 
-    @Override
-    public Boolean isFilterLayoutClosedOnLoad() {
-        return manageDistUIState.isDistTypeFilterClosed();
+    public void showFilterButtonsDeleteIcon() {
+        dSTypeFilterButtons.showDeleteColumn();
+    }
+
+    public void hideFilterButtonsActionIcons() {
+        dSTypeFilterButtons.hideActionColumns();
+    }
+
+    public void refreshFilterButtons() {
+        dSTypeFilterButtons.refreshContainer();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

@@ -24,8 +24,6 @@ import org.eclipse.hawkbit.ui.common.detailslayout.AbstractDistributionSetDetail
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsGrid;
 import org.eclipse.hawkbit.ui.common.detailslayout.TargetFilterQueryDetailsGrid;
 import org.eclipse.hawkbit.ui.distributions.event.SaveActionWindowEvent;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -38,20 +36,20 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 public class DistributionSetDetails extends AbstractDistributionSetDetails {
     private static final long serialVersionUID = 1L;
 
-    private final ManageDistUIState manageDistUIState;
+    private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
 
     private final TargetFilterQueryDetailsGrid tfqDetailsGrid;
 
     DistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManageDistUIState manageDistUIState,
-            final ManagementUIState managementUIState, final DistributionSetManagement distributionSetManagement,
+            final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
             final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
-            final EntityFactory entityFactory) {
-        super(i18n, eventBus, permissionChecker, managementUIState, distributionSetManagement, uiNotification,
+            final EntityFactory entityFactory,
+            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
+        super(i18n, eventBus, permissionChecker, distributionSetManagement, uiNotification,
                 distributionSetTagManagement, configManagement, systemSecurityContext, entityFactory);
 
-        this.manageDistUIState = manageDistUIState;
+        this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
 
         tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n);
 
@@ -64,7 +62,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
     @Override
     protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
         return new SoftwareModuleDetailsGrid(i18n, true, permChecker, distributionSetManagement, eventBus,
-                manageDistUIState, uiNotification);
+                uiNotification);
     }
 
     // TODO: implement
@@ -73,7 +71,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
     // }
 
     private void restoreState() {
-        if (manageDistUIState.isDsTableMaximized()) {
+        if (distributionSetGridLayoutUiState.isMaximized()) {
             setVisible(false);
         }
     }

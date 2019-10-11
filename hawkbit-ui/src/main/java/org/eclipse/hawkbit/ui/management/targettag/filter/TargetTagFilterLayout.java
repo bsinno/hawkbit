@@ -107,11 +107,6 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
     }
 
     @Override
-    public Boolean isFilterLayoutClosedOnLoad() {
-        return managementUIState.isTargetTagFilterClosed();
-    }
-
-    @Override
     public void refreshContainer() {
         multipleTargetFilter.getTargetTagFilterButtons().refreshContainer();
     }

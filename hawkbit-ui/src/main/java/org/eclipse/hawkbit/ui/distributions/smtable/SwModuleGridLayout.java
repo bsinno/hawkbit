@@ -12,13 +12,16 @@ import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
+import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -34,20 +37,24 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SwModuleDetails swModuleDetails;
 
+    private final SwModuleGridLayoutEventListener eventListener;
+
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
-            final ManageDistUIState manageDistUIState, final SpPermissionChecker permChecker,
-            final ArtifactUploadState artifactUploadState, final ArtifactManagement artifactManagement) {
+            final SpPermissionChecker permChecker, final ArtifactUploadState artifactUploadState,
+            final ArtifactManagement artifactManagement,
+            final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
+            final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
         super(i18n, eventBus);
 
         final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow = new SoftwareModuleAddUpdateWindow(i18n,
                 uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory);
 
-        this.swModuleGridHeader = new SwModuleGridHeader(i18n, permChecker, eventBus, manageDistUIState,
-                softwareModuleAddUpdateWindow);
-        this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, manageDistUIState,
-                softwareModuleManagement);
+        this.swModuleGridHeader = new SwModuleGridHeader(i18n, permChecker, eventBus, softwareModuleAddUpdateWindow,
+                distSMTypeFilterLayoutUiState, swModuleGridLayoutUiState);
+        this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, softwareModuleManagement,
+                swModuleGridLayoutUiState);
 
         // TODO: change to load ArtifactDetailsGridLayout only after button
         // click
@@ -55,13 +62,60 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 artifactUploadState, uiNotification, artifactManagement, permChecker);
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 entityFactory, softwareModuleManagement, softwareModuleAddUpdateWindow, artifactDetailsLayout);
-        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, manageDistUIState,
-                softwareModuleManagement, entityFactory, uiNotification);
+        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleManagement, entityFactory,
+                uiNotification, swModuleGridLayoutUiState);
+
+        this.eventListener = new SwModuleGridLayoutEventListener(this, eventBus);
 
         buildLayout(swModuleGridHeader, swModuleGrid, softwareModuleDetailsHeader, swModuleDetails);
     }
 
     public SwModuleGrid getSwModuleGrid() {
         return swModuleGrid;
+    }
+
+    public void onDsSelected(final ProxyDistributionSet selectedDs) {
+        swModuleGrid.masterEntityChanged(selectedDs);
+    }
+
+    public void onSmSelected(final ProxySoftwareModule selectedSm) {
+        softwareModuleDetailsHeader.masterEntityChanged(selectedSm);
+        swModuleDetails.masterEntityChanged(selectedSm);
+    }
+
+    public void showSmTypeHeaderIcon() {
+        swModuleGridHeader.showSmTypeIcon();
+    }
+
+    public void hideSmTypeHeaderIcon() {
+        swModuleGridHeader.hideSmTypeIcon();
+    }
+
+    public void filterGridBySearch(final String searchFilter) {
+        swModuleGrid.updateSearchFilter(searchFilter);
+    }
+
+    public void filterGridByType(final SoftwareModuleType typeFilter) {
+        swModuleGrid.updateTypeFilter(typeFilter);
+    }
+
+    public void maximize() {
+        swModuleGrid.createMaximizedContent();
+        softwareModuleDetailsHeader.setVisible(false);
+        swModuleDetails.setVisible(false);
+    }
+
+    public void minimize() {
+        swModuleGrid.createMinimizedContent();
+        softwareModuleDetailsHeader.setVisible(true);
+        swModuleDetails.setVisible(true);
+    }
+
+    public void refreshGrid() {
+        swModuleGrid.refreshContainer();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

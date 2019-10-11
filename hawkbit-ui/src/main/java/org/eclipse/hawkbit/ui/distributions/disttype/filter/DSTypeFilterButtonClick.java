@@ -8,13 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
-import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import java.util.function.BiConsumer;
+
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
-import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
  * Single button click behaviour of filter buttons layout.
@@ -23,30 +21,20 @@ public class DSTypeFilterButtonClick extends AbstractFilterSingleButtonClick<Pro
 
     private static final long serialVersionUID = 1L;
 
-    private final transient EventBus.UIEventBus eventBus;
+    private final BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback;
 
-    private final ManageDistUIState manageDistUIState;
-
-    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
-
-    DSTypeFilterButtonClick(final UIEventBus eventBus, final ManageDistUIState manageDistUIState,
-            final DistributionSetTypeManagement distributionSetManagement) {
-        this.eventBus = eventBus;
-        this.manageDistUIState = manageDistUIState;
-        this.distributionSetTypeManagement = distributionSetManagement;
+    DSTypeFilterButtonClick(final BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback) {
+        this.filterChangedCallback = filterChangedCallback;
     }
 
     @Override
     protected void filterUnClicked(final ProxyType clickedFilter) {
-        manageDistUIState.getManageDistFilters().setClickedDistSetType(null);
-        eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
+        filterChangedCallback.accept(clickedFilter, TypeFilterChangedEventType.TYPE_UNCLICKED);
     }
 
     @Override
     protected void filterClicked(final ProxyType clickedFilter) {
-        distributionSetTypeManagement.getByName(clickedFilter.getName())
-                .ifPresent(manageDistUIState.getManageDistFilters()::setClickedDistSetType);
-        eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
+        filterChangedCallback.accept(clickedFilter, TypeFilterChangedEventType.TYPE_CLICKED);
     }
 
 }

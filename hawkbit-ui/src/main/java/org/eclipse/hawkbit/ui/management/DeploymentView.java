@@ -62,6 +62,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.events.EventBus.UIEventBus;
+import org.vaadin.spring.events.EventBusListenerMethodFilter;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
@@ -164,6 +165,11 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         }
     }
 
+    @Override
+    protected DashboardMenuItem getDashboardMenuItem() {
+        return deploymentViewMenuItem;
+    }
+
     @PostConstruct
     void init() {
         buildLayout();
@@ -184,11 +190,13 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
 
     private void createMainLayout() {
         mainLayout = new GridLayout();
-        layoutWidgets();
         mainLayout.setSizeFull();
         mainLayout.setSpacing(true);
-        mainLayout.setRowExpandRatio(0, 1.0F);
         mainLayout.setStyleName("fullSize");
+
+        mainLayout.setRowExpandRatio(0, 1.0F);
+
+        layoutWidgets();
     }
 
     private void layoutWidgets() {
@@ -334,11 +342,6 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         }
     }
 
-    @Override
-    protected DashboardMenuItem getDashboardMenuItem() {
-        return deploymentViewMenuItem;
-    }
-
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final DistributionTableEvent event) {
         if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
@@ -408,4 +411,12 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         return supportedEvents;
     }
 
+    public static class DeploymentViewEventFilter implements EventBusListenerMethodFilter {
+
+        @Override
+        public boolean filter(final org.vaadin.spring.events.Event<?> event) {
+            return DeploymentView.VIEW_NAME.equals(event.getSource());
+        }
+
+    }
 }

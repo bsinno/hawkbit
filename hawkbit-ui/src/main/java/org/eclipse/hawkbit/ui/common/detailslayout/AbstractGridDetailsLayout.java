@@ -155,10 +155,6 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         this.detailsComponents.addAll(detailsComponents);
     }
 
-    protected void populateDetails(final T entity) {
-        binder.setBean(entity);
-    }
-
     protected void buildDetails() {
         detailsComponents.forEach(detailsComponentEntry -> {
             final String detailsComponentCaption = detailsComponentEntry.getKey();
@@ -189,11 +185,15 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         final BaseEntityEventType eventType = baseEntityEvent.getEventType();
         if (BaseEntityEventType.SELECTED_ENTITY == eventType || BaseEntityEventType.UPDATED_ENTITY == eventType
                 || BaseEntityEventType.REMOVE_ENTITY == eventType) {
-            UI.getCurrent().access(() -> populateDetails(baseEntityEvent.getEntity()));
+            UI.getCurrent().access(() -> masterEntityChanged(baseEntityEvent.getEntity()));
         } else if (BaseEntityEventType.MINIMIZED == eventType) {
             UI.getCurrent().access(() -> setVisible(true));
         } else if (BaseEntityEventType.MAXIMIZED == eventType) {
             UI.getCurrent().access(() -> setVisible(false));
         }
+    }
+
+    public void masterEntityChanged(final T entity) {
+        binder.setBean(entity);
     }
 }
