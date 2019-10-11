@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 import com.vaadin.server.StreamVariable;
-import com.vaadin.v7.ui.Upload.FinishedEvent;
-import com.vaadin.v7.ui.Upload.SucceededEvent;
+import com.vaadin.ui.Upload.FinishedEvent;
+import com.vaadin.ui.Upload.SucceededEvent;
 
 /**
  * {@link StreamVariable} implementation to read and upload a file. One instance

@@ -1228,6 +1228,16 @@ public final class UIComponentIdProvider {
     public static final String UPLOAD_STATUS_BUTTON = "artficat.upload.status.button.id";
 
     /**
+     * Artifact upload view - Artifact details and Drag and Drop area layout id.
+     */
+    public static final String UPLOAD_ARTIFACT_DETAILS_AND_UPLOAD_LAYOUT = "artficat.upload.artifactdetailsandupload.layout";
+
+    /**
+     * Artifact upload view - Drop area for file upload layout id.
+     */
+    public static final String UPLOAD_ARTIFACT_FILE_DROP_LAYOUT = "artficat.upload.filedrop.layout";
+
+    /**
      * Artifact upload view - uplod status popup id.
      */
     public static final String UPLOAD_STATUS_POPUP_ID = "artifact.upload.status.popup.id";

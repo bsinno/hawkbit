@@ -75,12 +75,13 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     void onEvent(final SoftwareModuleEvent swModuleUIEvent) {
         final Optional<Long> swModuleId = artifactUploadState.getSelectedBaseSwModuleId();
 
-        if (BaseEntityEventType.SELECTED_ENTITY == swModuleUIEvent.getEventType()
-                || SoftwareModuleEventType.ARTIFACTS_CHANGED == swModuleUIEvent.getSoftwareModuleEventType()) {
+        if (BaseEntityEventType.SELECTED_ENTITY == swModuleUIEvent.getEventType()) {
             UI.getCurrent().access(() -> populateArtifactDetails(swModuleUIEvent.getEntity()));
         } else if (BaseEntityEventType.REMOVE_ENTITY == swModuleUIEvent.getEventType() && swModuleId.isPresent()
                 && swModuleUIEvent.getEntityIds().contains(swModuleId.get())) {
             UI.getCurrent().access(() -> populateArtifactDetails(null));
+        } else if (SoftwareModuleEventType.ARTIFACTS_CHANGED == swModuleUIEvent.getSoftwareModuleEventType()) {
+            UI.getCurrent().access(() -> refreshArtifactDetails());
         }
     }
 
@@ -94,10 +95,16 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         if (swModule != null) {
             artifactDetailsHeader.updateArtifactDetailsHeader(swModule.getNameAndVersion());
             masterDetailsSupport.masterItemChangedCallback(swModule);
+            artifactUploadState.setLastSelectedEntityId(swModule.getId());
         } else {
             artifactDetailsHeader.updateArtifactDetailsHeader(" ");
             masterDetailsSupport.masterItemChangedCallback(null);
+            artifactUploadState.setLastSelectedEntityId(null);
         }
+    }
+
+    private void refreshArtifactDetails() {
+        artifactDetailsGrid.refreshContainer();
     }
 
     public MasterDetailsSupport<ProxySoftwareModule, Long> getMasterDetailsSupport() {

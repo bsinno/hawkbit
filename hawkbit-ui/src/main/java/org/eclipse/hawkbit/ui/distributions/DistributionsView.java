@@ -130,7 +130,6 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
             setMargin(false);
             setSpacing(false);
             setSizeFull();
-            setStyleName("rootLayout");
 
             createMainLayout();
 
@@ -142,6 +141,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     private void createMainLayout() {
         mainLayout = new GridLayout(4, 1);
         mainLayout.setSizeFull();
+        mainLayout.setMargin(false);
         mainLayout.setSpacing(true);
         mainLayout.setStyleName("fullSize");
 
