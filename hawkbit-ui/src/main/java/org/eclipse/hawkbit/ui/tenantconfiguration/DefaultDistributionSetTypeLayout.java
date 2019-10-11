@@ -39,6 +39,12 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     private final transient SystemManagement systemManagement;
 
+    private final VaadinMessageSource i18n;
+
+    private final SpPermissionChecker permissionChecker;
+
+    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
+
     private Long currentDefaultDisSetType;
 
     private Long selectedDefaultDisSetType;
@@ -47,17 +53,22 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     private ComboBox<ProxyType> dsSetComboBox;
 
-    private final Label changeIcon;
+    private Label changeIcon;
+
+    private TypeToProxyTypeMapper<DistributionSetType> mapper = new TypeToProxyTypeMapper<>();
 
     DefaultDistributionSetTypeLayout(final SystemManagement systemManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker) {
         this.systemManagement = systemManagement;
-        dsSetComboBox = new ComboBox<>();
-        dsSetComboBox.setDescription(i18n.getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG));
-        changeIcon = new Label();
+        this.i18n = i18n;
+        this.permissionChecker = permChecker;
+        this.distributionSetTypeManagement = distributionSetTypeManagement;
+        initDsSetTypeComponent();
+    }
 
-        if (!permChecker.hasReadRepositoryPermission()) {
+    private void initDsSetTypeComponent() {
+        if (!permissionChecker.hasReadRepositoryPermission()) {
             return;
         }
         final Panel rootPanel = new Panel();
@@ -77,20 +88,14 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
 
-        final Label configurationLabel = new LabelBuilderV7()
-                .name(i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
+        final Label configurationLabel = new LabelBuilderV7().name(
+                i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
         hlayout.addComponent(configurationLabel);
 
-        dsSetComboBox.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_DEFAULTDIS_COMBOBOX);
-        dsSetComboBox.addStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE);
-        dsSetComboBox.addStyleName(ValoTheme.COMBOBOX_TINY);
-        dsSetComboBox.setEmptySelectionAllowed(false);
-        dsSetComboBox.setItemCaptionGenerator(ProxyType::getName);
-        dsSetComboBox.setDataProvider(new DistributionSetTypeDataProvider(distributionSetTypeManagement, new TypeToProxyTypeMapper<>()));
-
-        dsSetComboBox.addValueChangeListener(event -> selectDistributionSetValue());
+        initDsSetComboBox();
         hlayout.addComponent(dsSetComboBox);
 
+        changeIcon = new Label();
         changeIcon.setIcon(VaadinIcons.CHECK);
         hlayout.addComponent(changeIcon);
         changeIcon.setVisible(false);
@@ -98,6 +103,20 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         vlayout.addComponent(hlayout);
         rootPanel.setContent(vlayout);
         setCompositionRoot(rootPanel);
+    }
+
+    private void initDsSetComboBox() {
+        dsSetComboBox = new ComboBox<>();
+        dsSetComboBox.setDescription(i18n.getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG));
+        dsSetComboBox.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_DEFAULTDIS_COMBOBOX);
+        dsSetComboBox.addStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE);
+        dsSetComboBox.addStyleName(ValoTheme.COMBOBOX_TINY);
+        dsSetComboBox.setEmptySelectionAllowed(false);
+        dsSetComboBox.setItemCaptionGenerator(ProxyType::getName);
+        dsSetComboBox.setDataProvider(
+                new DistributionSetTypeDataProvider(distributionSetTypeManagement, new TypeToProxyTypeMapper<>()));
+        dsSetComboBox.setValue(mapper.map(getCurrentDistributionSetType()));
+        dsSetComboBox.addValueChangeListener(event -> selectDistributionSetValue());
     }
 
     private DistributionSetType getCurrentDistributionSetType() {
@@ -116,7 +135,6 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     @Override
     public void undo() {
-        TypeToProxyTypeMapper<DistributionSetType> mapper = new TypeToProxyTypeMapper<>();
         dsSetComboBox.setValue(mapper.map(getCurrentDistributionSetType()));
         selectedDefaultDisSetType = currentDefaultDisSetType;
         changeIcon.setVisible(false);
