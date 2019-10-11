@@ -26,7 +26,7 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * View to configure the authentication mode.
