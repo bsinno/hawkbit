@@ -18,7 +18,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.hawkbit.repository.event.remote.DistributionSetTypeDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.RemoteIdEvent;
+import org.eclipse.hawkbit.repository.event.remote.SoftwareModuleTypeDeletedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeUpdatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeUpdatedEvent;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher;
@@ -45,11 +51,13 @@ public class DistributionsViewRemoteEventListener {
     private final Cache<EntityModifiedEventPayloadIdentifier, Collection<Long>> uiOriginatedEventsCache;
     private final List<Object> eventListeners;
 
-    // TODO: add ds and sm types
-    private final List<Class<?>> supportedEvents = Arrays.asList(DistributionSetCreatedEventContainer.class,
-            DistributionSetUpdatedEventContainer.class, DistributionSetDeletedEventContainer.class,
-            SoftwareModuleCreatedEventContainer.class, SoftwareModuleUpdatedEventContainer.class,
-            SoftwareModuleDeletedEventContainer.class);
+    private final List<Class<?>> supportedEvents = Arrays.asList(DistributionSetTypeCreatedEvent.class,
+            DistributionSetTypeDeletedEvent.class, DistributionSetTypeUpdatedEvent.class,
+            DistributionSetCreatedEventContainer.class, DistributionSetUpdatedEventContainer.class,
+            DistributionSetDeletedEventContainer.class, SoftwareModuleCreatedEventContainer.class,
+            SoftwareModuleUpdatedEventContainer.class, SoftwareModuleDeletedEventContainer.class,
+            SoftwareModuleTypeCreatedEvent.class, SoftwareModuleTypeDeletedEvent.class,
+            SoftwareModuleTypeUpdatedEvent.class);
 
     DistributionsViewRemoteEventListener(final UIEventBus eventBus,
             final NotificationUnreadButton notificationUnreadButton) {

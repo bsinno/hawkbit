@@ -13,16 +13,22 @@ import java.util.Map;
 import org.eclipse.hawkbit.repository.event.TenantAwareEvent;
 import org.eclipse.hawkbit.repository.event.remote.DistributionSetDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.DistributionSetTagDeletedEvent;
+import org.eclipse.hawkbit.repository.event.remote.DistributionSetTypeDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.RolloutDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.SoftwareModuleDeletedEvent;
+import org.eclipse.hawkbit.repository.event.remote.SoftwareModuleTypeDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.TargetDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.TargetTagDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.CancelTargetAssignmentEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTagCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTagUpdatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagCreatedEvent;
@@ -50,6 +56,10 @@ public class HawkbitEventProvider implements UIEventProvider {
         EVENTS.put(DistributionSetTagDeletedEvent.class, DistributionSetTagDeletedEventContainer.class);
         EVENTS.put(DistributionSetTagUpdatedEvent.class, DistributionSetTagUpdatedEventContainer.class);
 
+        EVENTS.put(DistributionSetTypeCreatedEvent.class, DistributionSetTypeCreatedEventContainer.class);
+        EVENTS.put(DistributionSetTypeDeletedEvent.class, DistributionSetTypeDeletedEventContainer.class);
+        EVENTS.put(DistributionSetTypeUpdatedEvent.class, DistributionSetTypeUpdatedEventContainer.class);
+
         EVENTS.put(TargetCreatedEvent.class, TargetCreatedEventContainer.class);
         EVENTS.put(TargetDeletedEvent.class, TargetDeletedEventContainer.class);
         EVENTS.put(TargetUpdatedEvent.class, TargetUpdatedEventContainer.class);
@@ -66,6 +76,10 @@ public class HawkbitEventProvider implements UIEventProvider {
         EVENTS.put(SoftwareModuleCreatedEvent.class, SoftwareModuleCreatedEventContainer.class);
         EVENTS.put(SoftwareModuleDeletedEvent.class, SoftwareModuleDeletedEventContainer.class);
         EVENTS.put(SoftwareModuleUpdatedEvent.class, SoftwareModuleUpdatedEventContainer.class);
+
+        EVENTS.put(SoftwareModuleTypeCreatedEvent.class, SoftwareModuleTypeCreatedEventContainer.class);
+        EVENTS.put(SoftwareModuleTypeDeletedEvent.class, SoftwareModuleTypeDeletedEventContainer.class);
+        EVENTS.put(SoftwareModuleTypeUpdatedEvent.class, SoftwareModuleTypeUpdatedEventContainer.class);
 
     }
 

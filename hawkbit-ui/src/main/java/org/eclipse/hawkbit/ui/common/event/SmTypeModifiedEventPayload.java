@@ -12,6 +12,14 @@ import java.util.Collection;
 
 public class SmTypeModifiedEventPayload extends EntityModifiedEventPayload {
 
+    public SmTypeModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType) {
+        super(entityModifiedEventType);
+    }
+
+    public SmTypeModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType, final Long entityId) {
+        super(entityModifiedEventType, entityId);
+    }
+
     public SmTypeModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType,
             final Collection<Long> entityIds) {
         super(entityModifiedEventType, entityIds);

@@ -125,6 +125,10 @@ public class NotificationUnreadButton extends Button {
     }
 
     private void toggleWindow(final ClickEvent event) {
+        if (currentView == null) {
+            return;
+        }
+
         if (notificationsWindow.isAttached()) {
             getUI().removeWindow(notificationsWindow);
             return;
@@ -134,9 +138,7 @@ public class NotificationUnreadButton extends Button {
         notificationsWindow.setPositionY(event.getClientY() - event.getRelativeY() + 40);
         getUI().addWindow(notificationsWindow);
 
-        if (currentView != null) {
-            currentView.refreshView(unreadNotifications.keySet());
-        }
+        currentView.refreshView(unreadNotifications.keySet());
 
         clear();
         notificationsWindow.focus();

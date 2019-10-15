@@ -12,6 +12,14 @@ import java.util.Collection;
 
 public class DsTypeModifiedEventPayload extends EntityModifiedEventPayload {
 
+    public DsTypeModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType) {
+        super(entityModifiedEventType);
+    }
+
+    public DsTypeModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType, final Long entityId) {
+        super(entityModifiedEventType, entityId);
+    }
+
     public DsTypeModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType,
             final Collection<Long> entityIds) {
         super(entityModifiedEventType, entityIds);
