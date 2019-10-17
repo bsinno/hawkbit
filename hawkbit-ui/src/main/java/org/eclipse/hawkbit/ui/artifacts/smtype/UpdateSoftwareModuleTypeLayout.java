@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent.SoftwareModuleTypeEnum;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
-import org.eclipse.hawkbit.ui.layouts.UpdateTag;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -29,7 +28,7 @@ import com.vaadin.ui.Window.CloseListener;
  * Type on the Upload View.
  *
  */
-public class UpdateSoftwareModuleTypeLayout extends AbstractSoftwareModuleTypeLayout implements UpdateTag {
+public class UpdateSoftwareModuleTypeLayout extends AbstractSoftwareModuleTypeLayout {
 
     private static final long serialVersionUID = 1L;
 

@@ -25,7 +25,6 @@ import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionSetTypeEvent;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionSetTypeEvent.DistributionSetTypeEnum;
-import org.eclipse.hawkbit.ui.layouts.UpdateTag;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
@@ -38,8 +37,7 @@ import com.vaadin.ui.Window.CloseListener;
  * Set Type on the Distributions View.
  *
  */
-public class UpdateDistributionSetTypeLayout extends AbstractDistributionSetTypeLayout implements UpdateTag {
-
+public class UpdateDistributionSetTypeLayout extends AbstractDistributionSetTypeLayout {
     private static final long serialVersionUID = 1L;
 
     private final transient DistributionSetManagement distributionSetManagement;
@@ -80,9 +78,11 @@ public class UpdateDistributionSetTypeLayout extends AbstractDistributionSetType
             final CloseListener closeListener) {
         super(i18n, entityFactory, eventBus, permChecker, uiNotification, distributionSetTypeManagement,
                 softwareModuleTypeManagement);
+
         this.distributionSetManagement = distributionSetManagement;
         this.selectedTypeName = selectedTypeName;
         this.closeListener = closeListener;
+
         initUpdatePopup();
     }
 

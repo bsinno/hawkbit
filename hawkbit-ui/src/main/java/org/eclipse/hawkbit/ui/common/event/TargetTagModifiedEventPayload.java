@@ -10,17 +10,17 @@ package org.eclipse.hawkbit.ui.common.event;
 
 import java.util.Collection;
 
-public class TargetModifiedEventPayload extends EntityModifiedEventPayload {
+public class TargetTagModifiedEventPayload extends EntityModifiedEventPayload {
 
-    public TargetModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType) {
+    public TargetTagModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType) {
         super(entityModifiedEventType);
     }
 
-    public TargetModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType, final Long entityId) {
+    public TargetTagModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType, final Long entityId) {
         super(entityModifiedEventType, entityId);
     }
 
-    public TargetModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType,
+    public TargetTagModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType,
             final Collection<Long> entityIds) {
         super(entityModifiedEventType, entityIds);
     }

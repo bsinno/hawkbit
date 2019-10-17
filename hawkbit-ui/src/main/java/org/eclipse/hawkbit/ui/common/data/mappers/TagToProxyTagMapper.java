@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.common.data.mappers;
 
 import org.eclipse.hawkbit.repository.model.Tag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.management.tag.TagIdName;
 
 /**
  * Maps {@link Tag} entities, fetched from backend, to the {@link ProxyTag}
@@ -25,8 +24,6 @@ public class TagToProxyTagMapper<T extends Tag> extends AbstractNamedEntityToPro
         mapNamedEntityAttributes(tag, proxyTag);
 
         proxyTag.setColour(tag.getColour());
-        final TagIdName tagIdName = new TagIdName(tag.getName(), tag.getId());
-        proxyTag.setTagIdName(tagIdName);
 
         return proxyTag;
     }

@@ -116,8 +116,9 @@ public class UpdateRolloutWindowController implements RolloutWindowController {
         try {
             updatedRollout = rolloutManagement.update(rolloutUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
-            uiNotification.displayWarning(
-                    "Rollout with name " + proxyRolloutWindow.getName() + " was deleted. Update is not possible");
+            // TODO: use i18n
+            uiNotification.displayWarning("Rollout with name " + proxyRolloutWindow.getName()
+                    + " was deleted or you are not allowed to update it");
             eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
             return;
         }
@@ -138,6 +139,7 @@ public class UpdateRolloutWindowController implements RolloutWindowController {
         }
         if (!rolloutNameBeforeEdit.equals(getTrimmedRolloutName())
                 && rolloutManagement.getByName(getTrimmedRolloutName()).isPresent()) {
+            // TODO: is the notification right here?
             uiNotification.displayValidationError(
                     i18n.getMessage("message.rollout.duplicate.check", getTrimmedRolloutName()));
             return false;

@@ -1297,6 +1297,11 @@ public final class UIComponentIdProvider {
     public static final String ROLLOUT_POPUP_ID = "add.update.rollout.popup";
 
     /**
+     * Tag popup id.
+     */
+    public static final String TAG_POPUP_ID = "add.update.tag.popup";
+
+    /**
      * Create popup id.
      */
     public static final String CREATE_POPUP_ID = "create.popup.id";

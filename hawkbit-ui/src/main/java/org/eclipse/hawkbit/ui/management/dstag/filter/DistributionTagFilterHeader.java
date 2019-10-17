@@ -10,8 +10,6 @@ package org.eclipse.hawkbit.ui.management.dstag.filter;
 
 import java.util.Arrays;
 
-import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.DistributionSetTagFilterHeaderEvent;
@@ -19,11 +17,10 @@ import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
-import org.eclipse.hawkbit.ui.management.dstag.CreateDistributionSetTagLayout;
+import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -31,6 +28,8 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Table header for filtering distribution set tags
@@ -40,9 +39,7 @@ import com.vaadin.ui.MenuBar.Command;
 public class DistributionTagFilterHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final UINotification uiNotification;
-    private final transient EntityFactory entityFactory;
-    private final transient DistributionSetTagManagement distributionSetTagManagement;
+    private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
     private final ManagementUIState managementUIState;
 
@@ -53,14 +50,11 @@ public class DistributionTagFilterHeader extends AbstractGridHeader {
 
     public DistributionTagFilterHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
             final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final DistributionSetTagManagement distributionSetTagManagement, final EntityFactory entityFactory,
-            final UINotification uiNotification, final DistributionTagButtons distributionTagButtons) {
+            final DistributionTagButtons distributionTagButtons, final DsTagWindowBuilder dsTagWindowBuilder) {
         super(i18n, permChecker, eventBus);
 
-        this.entityFactory = entityFactory;
         this.managementUIState = managementUIState;
-        this.uiNotification = uiNotification;
-        this.distributionSetTagManagement = distributionSetTagManagement;
+        this.dsTagWindowBuilder = dsTagWindowBuilder;
 
         this.distributionTagButtons = distributionTagButtons;
 
@@ -82,8 +76,13 @@ public class DistributionTagFilterHeader extends AbstractGridHeader {
     }
 
     private Command getAddButtonCommand() {
-        return menuItem -> new CreateDistributionSetTagLayout(i18n, distributionSetTagManagement, entityFactory,
-                eventBus, permChecker, uiNotification);
+        return menuItem -> {
+            final Window addWindow = dsTagWindowBuilder.getWindowForAddDsTag();
+
+            addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.tag")));
+            UI.getCurrent().addWindow(addWindow);
+            addWindow.setVisible(Boolean.TRUE);
+        };
     }
 
     private Command getUpdateButtonCommand() {

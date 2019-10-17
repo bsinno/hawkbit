@@ -10,8 +10,6 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import java.util.Arrays;
 
-import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
@@ -21,9 +19,8 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.targettag.CreateTargetTagLayout;
+import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -31,6 +28,8 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Target Tag filter by Tag Header.
@@ -39,9 +38,7 @@ import com.vaadin.ui.MenuBar.Command;
 public class TargetTagFilterHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final UINotification uiNotification;
-    private final transient EntityFactory entityFactory;
-    private final transient TargetTagManagement targetTagManagement;
+    private final transient TargetTagWindowBuilder targetTagWindowBuilder;
 
     private final ManagementUIState managementUIState;
 
@@ -51,15 +48,12 @@ public class TargetTagFilterHeader extends AbstractGridHeader {
     private final transient CloseHeaderSupport closeHeaderSupport;
 
     public TargetTagFilterHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
-            final SpPermissionChecker permChecker, final UIEventBus eventBus, final UINotification uiNotification,
-            final EntityFactory entityFactory, final TargetTagManagement targetTagManagement,
-            final TargetTagFilterButtons targetTagButtons) {
+            final SpPermissionChecker permChecker, final UIEventBus eventBus,
+            final TargetTagFilterButtons targetTagButtons, final TargetTagWindowBuilder targetTagWindowBuilder) {
         super(i18n, permChecker, eventBus);
 
         this.managementUIState = managementUIState;
-        this.uiNotification = uiNotification;
-        this.entityFactory = entityFactory;
-        this.targetTagManagement = targetTagManagement;
+        this.targetTagWindowBuilder = targetTagWindowBuilder;
 
         this.targetTagButtons = targetTagButtons;
 
@@ -81,8 +75,13 @@ public class TargetTagFilterHeader extends AbstractGridHeader {
     }
 
     protected Command getAddButtonCommand() {
-        return menuItem -> new CreateTargetTagLayout(i18n, targetTagManagement, entityFactory, eventBus, permChecker,
-                uiNotification);
+        return menuItem -> {
+            final Window addWindow = targetTagWindowBuilder.getWindowForAddTargetTag();
+
+            addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.tag")));
+            UI.getCurrent().addWindow(addWindow);
+            addWindow.setVisible(Boolean.TRUE);
+        };
     }
 
     protected Command getUpdateButtonCommand() {

@@ -62,8 +62,7 @@ public final class RolloutWindowBuilder {
     private Window getWindowForRollout(final ProxyRollout proxyRollout, final RolloutWindowController controller) {
         controller.populateWithData(proxyRollout);
 
-        final CommonDialogWindow window = createWindow(controller.getLayout(),
-                controller.getSaveDialogCloseListener());
+        final CommonDialogWindow window = createWindow(controller.getLayout(), controller.getSaveDialogCloseListener());
 
         controller.getLayout().addValidationListener(window::setSaveButtonEnabled);
 
@@ -74,11 +73,8 @@ public final class RolloutWindowBuilder {
     private CommonDialogWindow createWindow(final Component content,
             final SaveDialogCloseListener saveDialogCloseListener) {
         return new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).id(UIComponentIdProvider.ROLLOUT_POPUP_ID)
-                .caption(dependencies.getI18n().getMessage("caption.create.new",
-                        dependencies.getI18n().getMessage("caption.rollout")))
                 .content(content).i18n(dependencies.getI18n())
                 .helpLink(dependencies.getUiProperties().getLinks().getDocumentation().getRolloutView())
                 .saveDialogCloseListener(saveDialogCloseListener).buildCommonDialogWindow();
     }
-
 }

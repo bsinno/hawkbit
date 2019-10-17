@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerConstants;
 import org.eclipse.hawkbit.ui.colorpicker.ColorPickerHelper;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
+import org.eclipse.hawkbit.ui.management.tag.AbstractTagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -36,7 +37,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * @param <E>
  *            entity
  */
-public abstract class AbstractTypeLayout<E extends NamedEntity> extends AbstractTagLayout<E> {
+public abstract class AbstractTypeLayout<E extends NamedEntity> extends AbstractTagWindowLayout<E> {
 
     private static final long serialVersionUID = 1L;
 

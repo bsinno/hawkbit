@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.TargetTag;
@@ -29,7 +28,7 @@ import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.targettag.UpdateTargetTagLayout;
+import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -40,6 +39,8 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Target Tag filter buttons table.
@@ -49,26 +50,24 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
 
     private final ManagementUIState managementUIState;
     private final UINotification uiNotification;
-    private final SpPermissionChecker permChecker;
 
-    private final transient EntityFactory entityFactory;
     private final transient TargetTagManagement targetTagManagement;
     private final transient TargetTagFilterButtonClick targetTagFilterButtonClickBehaviour;
+    private final transient TargetTagWindowBuilder targetTagWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyTag, Void, Void> targetTagDataProvider;
     private final DragAndDropSupport<ProxyTag> dragAndDropSupport;
 
     TargetTagFilterButtons(final UIEventBus eventBus, final ManagementUIState managementUIState,
             final VaadinMessageSource i18n, final UINotification notification, final SpPermissionChecker permChecker,
-            final EntityFactory entityFactory, final TargetTagManagement targetTagManagement,
-            final TargetManagement targetManagement) {
+            final TargetTagManagement targetTagManagement, final TargetManagement targetManagement,
+            final TargetTagWindowBuilder targetTagWindowBuilder) {
         super(eventBus, i18n, notification, permChecker);
 
         this.managementUIState = managementUIState;
         this.uiNotification = notification;
-        this.permChecker = permChecker;
-        this.entityFactory = entityFactory;
         this.targetTagManagement = targetTagManagement;
+        this.targetTagWindowBuilder = targetTagWindowBuilder;
 
         this.targetTagFilterButtonClickBehaviour = new TargetTagFilterButtonClick(eventBus, managementUIState);
         this.targetTagDataProvider = new TargetTagDataProvider(targetTagManagement,
@@ -123,12 +122,11 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
 
     @Override
     protected void editButtonClickListener(final ProxyTag clickedFilter) {
-        new UpdateTargetTagLayout(i18n, targetTagManagement, entityFactory, eventBus, permChecker, uiNotification,
-                clickedFilter.getName(), closeEvent -> {
-                    // TODO: check if it is needed
-                    hideActionColumns();
-                    eventBus.publish(this, new TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
-                });
+        final Window updateWindow = targetTagWindowBuilder.getWindowForUpdateTargetTag(clickedFilter);
+
+        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.tag")));
+        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setVisible(Boolean.TRUE);
     }
 
     @Override

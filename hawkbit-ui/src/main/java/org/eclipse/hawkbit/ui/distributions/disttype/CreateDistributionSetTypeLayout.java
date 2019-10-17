@@ -30,7 +30,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * Distribution View. Logic for storing the new entity.
  */
 public class CreateDistributionSetTypeLayout extends AbstractDistributionSetTypeLayout {
-
     private static final long serialVersionUID = 1L;
 
     /**

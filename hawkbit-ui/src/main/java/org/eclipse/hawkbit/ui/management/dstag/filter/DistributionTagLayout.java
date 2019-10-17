@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
+import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -77,12 +78,15 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
         this.managementUIState = managementUIState;
 
         this.noTagButton = buildNoTagButton();
+
+        final DsTagWindowBuilder dsTagWindowBuilder = new DsTagWindowBuilder(i18n, entityFactory, eventBus,
+                uiNotification, distributionSetTagManagement);
         // TODO: check if we could find better solution as to pass
         // distributionTagButtons into distributionTagFilterHeader
-        this.distributionTagButtons = new DistributionTagButtons(eventBus, managementUIState, entityFactory, i18n,
-                uiNotification, permChecker, distributionSetTagManagement, distributionSetManagement);
+        this.distributionTagButtons = new DistributionTagButtons(eventBus, managementUIState, i18n, uiNotification,
+                permChecker, distributionSetTagManagement, distributionSetManagement, dsTagWindowBuilder);
         this.distributionTagFilterHeader = new DistributionTagFilterHeader(i18n, managementUIState, permChecker,
-                eventBus, distributionSetTagManagement, entityFactory, uiNotification, distributionTagButtons);
+                eventBus, distributionTagButtons, dsTagWindowBuilder);
 
         buildLayout();
         restoreState();

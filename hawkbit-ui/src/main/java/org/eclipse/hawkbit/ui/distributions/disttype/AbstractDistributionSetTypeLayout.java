@@ -27,14 +27,12 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * Type
  */
 public abstract class AbstractDistributionSetTypeLayout extends AbstractTypeLayout<DistributionSetType> {
-
     private static final long serialVersionUID = 1L;
 
     private final transient DistributionSetTypeManagement distributionSetTypeManagement;
+    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
 
     private DistributionSetTypeSoftwareModuleSelectLayout twinTables;
-
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
 
     /**
      * Constructor
@@ -59,8 +57,10 @@ public abstract class AbstractDistributionSetTypeLayout extends AbstractTypeLayo
             final DistributionSetTypeManagement distributionSetTypeManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
         super(i18n, entityFactory, eventBus, permChecker, uiNotification);
+
         this.distributionSetTypeManagement = distributionSetTypeManagement;
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
+
         createTwinTables();
     }
 

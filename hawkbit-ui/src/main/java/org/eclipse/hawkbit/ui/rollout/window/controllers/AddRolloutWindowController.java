@@ -36,7 +36,7 @@ import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
-import org.vaadin.spring.events.EventBus;
+import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
  * Controller for populating and saving data in Add Rollout Window.
@@ -46,7 +46,7 @@ public class AddRolloutWindowController implements RolloutWindowController {
     private final RolloutManagement rolloutManagement;
     private final UINotification uiNotification;
     private final EntityFactory entityFactory;
-    private final EventBus.UIEventBus eventBus;
+    private final UIEventBus eventBus;
     protected final VaadinMessageSource i18n;
 
     protected final AddRolloutWindowLayout layout;

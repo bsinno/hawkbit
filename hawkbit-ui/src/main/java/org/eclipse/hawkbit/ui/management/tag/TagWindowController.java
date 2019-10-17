@@ -6,17 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.rollout.window.controllers;
+package org.eclipse.hawkbit.ui.management.tag;
 
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
-import org.eclipse.hawkbit.ui.rollout.window.layouts.AbstractRolloutWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 
-public interface RolloutWindowController {
+public interface TagWindowController {
 
-    AbstractRolloutWindowLayout getLayout();
+    AbstractTagWindowLayout getLayout();
 
-    void populateWithData(final ProxyRollout proxyRollout);
+    void populateWithData(final ProxyTag proxyTag);
 
     SaveDialogCloseListener getSaveDialogCloseListener();
 }

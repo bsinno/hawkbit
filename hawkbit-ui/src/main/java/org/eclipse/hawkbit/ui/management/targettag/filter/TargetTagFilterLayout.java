@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -67,12 +68,15 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
 
         this.managementUIState = managementUIState;
 
+        final TargetTagWindowBuilder targetTagWindowBuilder = new TargetTagWindowBuilder(i18n, entityFactory, eventBus,
+                notification, targetTagManagement);
         // TODO: check if we could find better solution as to pass
         // targetTagButtons into targetTagFilterHeader
         this.multipleTargetFilter = new MultipleTargetFilter(permChecker, managementUIState, i18n, eventBus,
-                notification, entityFactory, targetFilterQueryManagement, targetTagManagement, targetManagement);
+                notification, targetFilterQueryManagement, targetTagManagement, targetManagement,
+                targetTagWindowBuilder);
         this.targetTagFilterHeader = new TargetTagFilterHeader(i18n, managementUIState, permChecker, eventBus,
-                notification, entityFactory, targetTagManagement, multipleTargetFilter.getTargetTagFilterButtons());
+                multipleTargetFilter.getTargetTagFilterButtons(), targetTagWindowBuilder);
 
         buildLayout();
         restoreState();
