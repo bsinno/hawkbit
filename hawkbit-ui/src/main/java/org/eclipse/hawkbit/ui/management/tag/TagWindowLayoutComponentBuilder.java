@@ -12,7 +12,8 @@ import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.components.CustomColorPicker;
+import org.eclipse.hawkbit.ui.components.ColorPickerComponent;
+import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
@@ -54,18 +55,17 @@ public class TagWindowLayoutComponentBuilder {
         return tagDescription;
     }
 
-    public CustomColorPicker createColorPickerButton(final String id, final Binder<ProxyTag> binder) {
-        final CustomColorPicker colorPicker = new CustomColorPicker();
-        colorPicker.setId(id);
-        colorPicker.setCaption(i18n.getMessage("label.choose.tag.color"));
+    public ColorPickerComponent createColorPickerComponent(final Binder<ProxyTag> binder) {
+        final ColorPickerComponent colorPickerComponent = new ColorPickerComponent(
+                UIComponentIdProvider.TAG_COLOR_PREVIEW_ID, i18n.getMessage("label.choose.tag.color"));
 
         // TODO: check if we need to convert the value to colour css insted of
         // rgb string
-        binder.forField(colorPicker)
+        binder.forField(colorPickerComponent)
                 .withConverter(color -> "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")",
                         ColorUtil::stringToColor)
                 .bind(ProxyTag::getColour, ProxyTag::setColour);
 
-        return colorPicker;
+        return colorPickerComponent;
     }
 }

@@ -45,7 +45,7 @@ public abstract class AbstractTagWindowLayout extends HorizontalLayout {
     }
 
     private void initLayout() {
-        setSpacing(false);
+        setSpacing(true);
         setMargin(false);
         setSizeUndefined();
     }

@@ -66,6 +66,8 @@ public class UpdateTargetTagWindowController implements TagWindowController {
         tag.setDescription(proxyTag.getDescription());
         tag.setColour(StringUtils.hasText(proxyTag.getColour()) ? proxyTag.getColour() : "#2c9720");
 
+        tagNameBeforeEdit = proxyTag.getName();
+
         layout.getProxyTagBinder().setBean(tag);
     }
 

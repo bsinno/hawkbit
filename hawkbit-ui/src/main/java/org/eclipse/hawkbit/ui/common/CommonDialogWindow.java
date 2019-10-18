@@ -44,7 +44,7 @@ public class CommonDialogWindow extends Window {
 
     private static final long serialVersionUID = 1L;
 
-    private final VerticalLayout mainLayout = new VerticalLayout();
+    private final VerticalLayout mainLayout;
 
     private final String caption;
 
@@ -60,7 +60,7 @@ public class CommonDialogWindow extends Window {
 
     private final ClickListener cancelButtonClickListener;
 
-    private final ClickListener closeClickListener = this::onCloseEvent;
+    private final ClickListener closeClickListener;
 
     private final VaadinMessageSource i18n;
 
@@ -86,12 +86,17 @@ public class CommonDialogWindow extends Window {
             final SaveDialogCloseListener closeListener, final ClickListener cancelButtonClickListener,
             final VaadinMessageSource i18n) {
         checkNotNull(closeListener);
+
         this.caption = caption;
         this.content = content;
         this.helpLink = helpLink;
         this.closeListener = closeListener;
         this.cancelButtonClickListener = cancelButtonClickListener;
         this.i18n = i18n;
+
+        this.mainLayout = new VerticalLayout();
+        this.closeClickListener = this::onCloseEvent;
+
         init();
     }
 
@@ -119,6 +124,8 @@ public class CommonDialogWindow extends Window {
     }
 
     private final void init() {
+        mainLayout.setMargin(false);
+        mainLayout.setSpacing(false);
 
         if (content instanceof GridLayout) {
             addStyleName("marginTop");

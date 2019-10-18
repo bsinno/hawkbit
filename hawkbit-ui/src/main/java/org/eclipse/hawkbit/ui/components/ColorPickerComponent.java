@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.google.common.primitives.Doubles;
 import com.vaadin.shared.ui.colorpicker.Color;
+import com.vaadin.ui.ColorPicker;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.GridLayout;
@@ -29,7 +30,7 @@ public class ColorPickerComponent extends CustomField<Color> {
     private static final int RGB_START = 0;
     private static final int RGB_END = 255;
 
-    private final Color defaultColor;
+    private final CustomColorPicker colorPickerBtn;
 
     private final Slider redSlider;
     private final Slider greenSlider;
@@ -43,14 +44,14 @@ public class ColorPickerComponent extends CustomField<Color> {
     private Color selectedColor;
     private boolean isColorUpdateInProgress;
 
-    public ColorPickerComponent() {
-        this.defaultColor = new Color(44, 151, 32);
+    public ColorPickerComponent(final String coloPickerBtnId, final String coloPickerBtnCaption) {
+        this.colorPickerBtn = new CustomColorPicker(coloPickerBtnId, coloPickerBtnCaption);
 
-        this.redSlider = createRGBSlider("Red", "red");
-        this.greenSlider = createRGBSlider("Green", "green");
-        this.blueSlider = createRGBSlider("Blue", "blue");
+        this.redSlider = createRGBSlider("red");
+        this.greenSlider = createRGBSlider("green");
+        this.blueSlider = createRGBSlider("blue");
 
-        this.preview = new ColorPickerPreview(defaultColor);
+        this.preview = new ColorPickerPreview(Color.WHITE);
         this.gradient = new ColorPickerGradient("rgb-gradient", new CoordinatesToColor());
 
         this.layout = new GridLayout(2, 4);
@@ -59,8 +60,24 @@ public class ColorPickerComponent extends CustomField<Color> {
         addValueChangeListeners();
     }
 
-    private static Slider createRGBSlider(final String caption, final String styleName) {
-        final Slider slider = new Slider(caption, RGB_START, RGB_END);
+    private class CustomColorPicker extends ColorPicker {
+        private static final long serialVersionUID = 1L;
+
+        public CustomColorPicker(final String id, final String caption) {
+            super();
+
+            setId(id);
+            setCaption(caption);
+        }
+
+        @Override
+        protected void showPopup(final boolean open) {
+            layout.setVisible(open);
+        }
+    }
+
+    private static Slider createRGBSlider(final String styleName) {
+        final Slider slider = new Slider(RGB_START, RGB_END);
 
         slider.setWidth("150px");
         slider.addStyleName(styleName);
@@ -73,6 +90,7 @@ public class ColorPickerComponent extends CustomField<Color> {
 
         layout.setId(UIComponentIdProvider.COLOR_PICKER_LAYOUT);
         layout.setStyleName("rgb-vertical-layout");
+        layout.setVisible(false);
 
         layout.addComponent(redSlider, 0, 1);
         layout.addComponent(greenSlider, 0, 2);
@@ -80,9 +98,6 @@ public class ColorPickerComponent extends CustomField<Color> {
 
         layout.addComponent(preview, 1, 0);
         layout.addComponent(gradient, 1, 1, 1, 3);
-
-        // TODO: check if this is already done by binder proxy initial value
-        doSetValue(defaultColor);
     }
 
     private void addValueChangeListeners() {
@@ -119,6 +134,8 @@ public class ColorPickerComponent extends CustomField<Color> {
 
         selectedColor = value;
 
+        colorPickerBtn.setValue(selectedColor);
+
         redSlider.setValue(sanitizeSliderRGBValue(selectedColor.getRed()));
         greenSlider.setValue(sanitizeSliderRGBValue(selectedColor.getGreen()));
         blueSlider.setValue(sanitizeSliderRGBValue(selectedColor.getBlue()));
@@ -131,5 +148,9 @@ public class ColorPickerComponent extends CustomField<Color> {
 
     private double sanitizeSliderRGBValue(final int colorValue) {
         return Doubles.constrainToRange(colorValue, RGB_START, RGB_END);
+    }
+
+    public CustomColorPicker getColorPickerBtn() {
+        return colorPickerBtn;
     }
 }

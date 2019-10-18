@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag;
 
-import org.eclipse.hawkbit.ui.components.CustomColorPicker;
+import org.eclipse.hawkbit.ui.components.ColorPickerComponent;
 import org.eclipse.hawkbit.ui.management.tag.AbstractTagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -38,12 +38,12 @@ public class AddTargetTagWindowLayout extends AbstractTagWindowLayout {
         formLayout.addComponent(
                 componentBuilder.createDescription(UIComponentIdProvider.NEW_TARGET_TAG_DESC, proxyTagBinder));
 
-        final CustomColorPicker colorPickerBtn = componentBuilder
-                .createColorPickerButton(UIComponentIdProvider.TAG_COLOR_PREVIEW_ID, proxyTagBinder);
-        formLayout.addComponent(colorPickerBtn);
+        final ColorPickerComponent colorPickerComponent = componentBuilder.createColorPickerComponent(proxyTagBinder);
+
+        formLayout.addComponent(colorPickerComponent.getColorPickerBtn());
 
         addComponent(formLayout);
-        addComponent(colorPickerBtn.getColorPickerLayout());
+        addComponent(colorPickerComponent);
     }
 
 }
