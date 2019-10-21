@@ -6,48 +6,49 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.artifacts.smtype;
+package org.eclipse.hawkbit.ui.distributions.disttype;
 
+import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 
-public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
+public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
     private static final long serialVersionUID = 1L;
 
-    private final SmTypeWindowLayoutComponentBuilder componentBuilder;
+    private final DsTypeWindowLayoutComponentBuilder componentBuilder;
 
     private final TextField typeKey;
-    private final RadioButtonGroup<SmTypeAssign> smTypeAssignOptionGroup;
+    private final DsTypeSmSelectLayout dsTypeSmSelectLayout;
 
-    public SmTypeWindowLayout(final VaadinMessageSource i18n) {
+    public DsTypeWindowLayout(final VaadinMessageSource i18n,
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
         super(i18n);
 
-        this.componentBuilder = new SmTypeWindowLayoutComponentBuilder(i18n);
+        this.componentBuilder = new DsTypeWindowLayoutComponentBuilder(i18n, softwareModuleTypeManagement);
 
         this.typeKey = componentBuilder.createKeyField(binder);
-        this.smTypeAssignOptionGroup = componentBuilder.createSmTypeAssignOptionGroup(binder);
+        this.dsTypeSmSelectLayout = componentBuilder.createDsTypeSmSelectLayout(binder);
 
         extendLayout();
     }
 
     private void extendLayout() {
         formLayout.addComponent(typeKey, formLayout.getComponentCount() - 1);
-        formLayout.addComponent(smTypeAssignOptionGroup, formLayout.getComponentCount() - 1);
 
         // TODO: consider changing it in constructor
         colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));
+
+        addComponent(dsTypeSmSelectLayout);
     }
 
     public void disableTypeKey() {
         typeKey.setEnabled(false);
     }
 
-    public void disableTypeAssignOptionGroup() {
-        smTypeAssignOptionGroup.setEnabled(false);
+    public void disableDsTypeSmSelectLayout() {
+        dsTypeSmSelectLayout.setEnabled(false);
     }
 }

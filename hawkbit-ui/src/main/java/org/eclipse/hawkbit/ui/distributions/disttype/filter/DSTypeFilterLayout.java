@@ -15,6 +15,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
+import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -38,8 +39,6 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     /**
      * Constructor
      * 
-     * @param manageDistUIState
-     *            ManageDistUIState
      * @param i18n
      *            VaadinMessageSource
      * @param permChecker
@@ -63,11 +62,13 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
         super(eventBus);
 
-        this.dsTypeFilterHeader = new DSTypeFilterHeader(i18n, permChecker, eventBus, entityFactory, uiNotification,
-                softwareModuleTypeManagement, distributionSetTypeManagement, dSTypeFilterLayoutUiState);
-        this.dSTypeFilterButtons = new DSTypeFilterButtons(eventBus, distributionSetTypeManagement, i18n, entityFactory,
-                permChecker, uiNotification, softwareModuleTypeManagement, distributionSetManagement, systemManagement,
-                dSTypeFilterLayoutUiState);
+        final DsTypeWindowBuilder dsTypeWindowBuilder = new DsTypeWindowBuilder(i18n, entityFactory, eventBus,
+                uiNotification, distributionSetTypeManagement, distributionSetManagement, softwareModuleTypeManagement);
+
+        this.dsTypeFilterHeader = new DSTypeFilterHeader(i18n, permChecker, eventBus, dSTypeFilterLayoutUiState,
+                dsTypeWindowBuilder);
+        this.dSTypeFilterButtons = new DSTypeFilterButtons(eventBus, distributionSetTypeManagement, i18n, permChecker,
+                uiNotification, systemManagement, dSTypeFilterLayoutUiState, dsTypeWindowBuilder);
 
         this.eventListener = new DSTypeFilterLayoutEventListener(this, eventBus);
 

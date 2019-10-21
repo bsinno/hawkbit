@@ -10,9 +10,6 @@ package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
 import java.util.Arrays;
 
-import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -21,15 +18,16 @@ import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
-import org.eclipse.hawkbit.ui.distributions.disttype.CreateDistributionSetTypeLayout;
+import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
-import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Distribution Set Type filter buttons header.
@@ -40,10 +38,7 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
 
     private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
 
-    private final transient UINotification uiNotification;
-    private final transient EntityFactory entityFactory;
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
+    private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
 
     private final transient CrudMenuHeaderSupport crudMenuHeaderSupport;
     private final transient CloseHeaderSupport closeHeaderSupport;
@@ -71,17 +66,11 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
      *            DSTypeFilterButtons
      */
     DSTypeFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final EntityFactory entityFactory, final UINotification uiNotification,
-            final SoftwareModuleTypeManagement softwareModuleTypeManagement,
-            final DistributionSetTypeManagement distributionSetTypeManagement,
-            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
+            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState, final DsTypeWindowBuilder dsTypeWindowBuilder) {
         super(i18n, permChecker, eventBus);
 
-        this.uiNotification = uiNotification;
-        this.entityFactory = entityFactory;
-        this.softwareModuleTypeManagement = softwareModuleTypeManagement;
-        this.distributionSetTypeManagement = distributionSetTypeManagement;
         this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
+        this.dsTypeWindowBuilder = dsTypeWindowBuilder;
 
         this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.DIST_TAG_MENU_BAR_ID,
                 permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
@@ -101,12 +90,17 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
     }
 
     private Command getAddButtonCommand() {
-        return command -> new CreateDistributionSetTypeLayout(i18n, entityFactory, eventBus, permChecker,
-                uiNotification, softwareModuleTypeManagement, distributionSetTypeManagement);
+        return menuItem -> {
+            final Window addWindow = dsTypeWindowBuilder.getWindowForAddDsType();
+
+            addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.type")));
+            UI.getCurrent().addWindow(addWindow);
+            addWindow.setVisible(Boolean.TRUE);
+        };
     }
 
     private Command getUpdateButtonCommand() {
-        return command -> {
+        return menuItem -> {
             eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
                     FilterButtonsActionsChangedEventPayload.SHOW_EDIT);
             crudMenuHeaderSupport.activateEditMode();
@@ -114,7 +108,7 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
     }
 
     private Command getDeleteButtonCommand() {
-        return command -> {
+        return menuItem -> {
             eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
                     FilterButtonsActionsChangedEventPayload.SHOW_DELETE);
             crudMenuHeaderSupport.activateEditMode();
@@ -122,7 +116,7 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
     }
 
     private Command getCloseButtonCommand() {
-        return command -> {
+        return menuItem -> {
             eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
                     FilterButtonsActionsChangedEventPayload.HIDE_ALL);
             crudMenuHeaderSupport.activateSelectMode();

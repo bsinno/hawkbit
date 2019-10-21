@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -41,8 +42,6 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
      *            VaadinMessageSource
      * @param permChecker
      *            SpPermissionChecker
-     * @param manageDistUIState
-     *            ManageDistUIState
      * @param entityFactory
      *            EntityFactory
      * @param uiNotification
@@ -56,10 +55,13 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
             final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState) {
         super(eventBus);
 
-        this.distSMTypeFilterHeader = new DistSMTypeFilterHeader(i18n, permChecker, eventBus, entityFactory,
-                uiNotification, softwareModuleTypeManagement, distSMTypeFilterLayoutUiState);
+        final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
+                uiNotification, softwareModuleTypeManagement);
+
+        this.distSMTypeFilterHeader = new DistSMTypeFilterHeader(i18n, permChecker, eventBus,
+                distSMTypeFilterLayoutUiState, smTypeWindowBuilder);
         this.distSMTypeFilterButtons = new DistSMTypeFilterButtons(eventBus, softwareModuleTypeManagement, i18n,
-                entityFactory, permChecker, uiNotification, distSMTypeFilterLayoutUiState);
+                entityFactory, permChecker, uiNotification, distSMTypeFilterLayoutUiState, smTypeWindowBuilder);
 
         this.eventListener = new DistSMTypeFilterLayoutEventListener(this, eventBus);
 

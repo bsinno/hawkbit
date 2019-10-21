@@ -11,10 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -26,7 +23,7 @@ import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
-import org.eclipse.hawkbit.ui.distributions.disttype.UpdateDistributionSetTypeLayout;
+import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.event.DistributionSetTypeEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -38,6 +35,8 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Distribution Set Type filter buttons.
@@ -46,14 +45,10 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     private static final long serialVersionUID = 1L;
 
     private final UINotification uiNotification;
-    private final SpPermissionChecker permChecker;
-
-    private final transient EntityFactory entityFactory;
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-    private final transient DistributionSetManagement distributionSetManagement;
     private final transient DistributionSetTypeManagement distributionSetTypeManagement;
     private final transient SystemManagement systemManagement;
     private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
+    private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
 
     private final transient DSTypeFilterButtonClick dsTypeFilterButtonClickBehaviour;
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> dsTypeDataProvider;
@@ -63,41 +58,29 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
      * 
      * @param eventBus
      *            UIEventBus
-     * @param manageDistUIState
-     *            ManageDistUIState
      * @param distributionSetTypeManagement
      *            DistributionSetTypeManagement
      * @param i18n
      *            VaadinMessageSource
-     * @param entityFactory
-     *            EntityFactory
      * @param permChecker
      *            SpPermissionChecker
      * @param uiNotification
      *            UINotification
-     * @param softwareModuleTypeManagement
-     *            SoftwareModuleTypeManagement
-     * @param distributionSetManagement
-     *            DistributionSetManagement
      * @param systemManagement
      *            SystemManagement
      */
     public DSTypeFilterButtons(final UIEventBus eventBus,
             final DistributionSetTypeManagement distributionSetTypeManagement, final VaadinMessageSource i18n,
-            final EntityFactory entityFactory, final SpPermissionChecker permChecker,
-            final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
-            final DistributionSetManagement distributionSetManagement, final SystemManagement systemManagement,
-            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
+            final SpPermissionChecker permChecker, final UINotification uiNotification,
+            final SystemManagement systemManagement, final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
+            final DsTypeWindowBuilder dsTypeWindowBuilder) {
         super(eventBus, i18n, uiNotification, permChecker);
 
         this.uiNotification = uiNotification;
-        this.permChecker = permChecker;
-        this.entityFactory = entityFactory;
-        this.softwareModuleTypeManagement = softwareModuleTypeManagement;
-        this.distributionSetManagement = distributionSetManagement;
         this.distributionSetTypeManagement = distributionSetTypeManagement;
         this.systemManagement = systemManagement;
         this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
+        this.dsTypeWindowBuilder = dsTypeWindowBuilder;
 
         this.dsTypeFilterButtonClickBehaviour = new DSTypeFilterButtonClick(this::publishFilterChangedEvent);
         this.dsTypeDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement,
@@ -168,11 +151,11 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     @Override
     protected void editButtonClickListener(final ProxyType clickedFilter) {
-        new UpdateDistributionSetTypeLayout(i18n, entityFactory, eventBus, permChecker, uiNotification,
-                softwareModuleTypeManagement, distributionSetTypeManagement, distributionSetManagement,
-                // TODO: check if we can get rid of closeListener
-                clickedFilter.getName(), closeEvent -> {
-                });
+        final Window updateWindow = dsTypeWindowBuilder.getWindowForUpdateDsType(clickedFilter);
+
+        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
+        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setVisible(Boolean.TRUE);
     }
 
     @Override
