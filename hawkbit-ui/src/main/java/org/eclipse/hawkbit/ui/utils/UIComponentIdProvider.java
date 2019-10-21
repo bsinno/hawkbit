@@ -823,29 +823,19 @@ public final class UIComponentIdProvider {
     public static final String CONFIGURE_DISTRIBUTION_TAG = "distribution.tag.configure";
 
     /**
-     * New Target tag name field id.
+     * Tag name popup field id.
      */
-    public static final String NEW_TARGET_TAG_NAME = "target.tag.add.name";
+    public static final String TAG_POPUP_NAME = "tag.popup.name";
 
     /**
-     * New Distribution tag name field id.
+     * Tag description popup field id.
      */
-    public static final String NEW_DISTRIBUTION_TAG_NAME = "distribution.tag.add.name";
+    public static final String TAG_POPUP_DESCRIPTION = "tag.popup.description";
 
     /**
-     * New Software Module name field id.
+     * Tag description popup field id.
      */
-    public static final String NEW_SOFTWARE_TYPE_NAME = "software.type.add.name";
-
-    /**
-     * New Distribution Type name field id.
-     */
-    public static final String NEW_DISTRIBUTION_TYPE_NAME = "distribution.set.type.add.name";
-
-    /**
-     * New Distribution Type key field id.
-     */
-    public static final String NEW_DISTRIBUTION_TYPE_KEY = "distribution.set.type.add.key";
+    public static final String TYPE_POPUP_KEY = "type.popup.key";
 
     /**
      * New Create Update option group id.
@@ -858,37 +848,14 @@ public final class UIComponentIdProvider {
     public static final String ASSIGN_OPTION_GROUP_SOFTWARE_MODULE_TYPE_ID = "assign.option.group.soft.module.type.id";
 
     /**
-     * New Software Module desc field id.
-     */
-    public static final String NEW_SOFTWARE_TYPE_DESC = "software.type.add.desc";
-    /**
      * Hide filter by dist type layout button.
      */
     public static final String HIDE_FILTER_DIST_TYPE = "hide.filter.dist.type.layout";
-    /**
-     * New Distribution Type distribution field id.
-     */
-    public static final String NEW_DISTRIBUTION_TYPE_DESC = "distribution.set.type.add.desc";
 
     /**
      * New Distribution Type distribution field id.
      */
     public static final String NEW_DISTRIBUTION_SET_TYPE_NAME_COMBO = "distribution.set.type.name.combo";
-
-    /**
-     * New Software Module key field id.
-     */
-    public static final String NEW_SOFTWARE_TYPE_KEY = "software.type.add.key";
-
-    /**
-     * New Target tag desc field id.
-     */
-    public static final String NEW_TARGET_TAG_DESC = "target.tag.add.desc";
-
-    /**
-     * New Distribution tag desc field id.
-     */
-    public static final String NEW_DISTRIBUTION_TAG_DESC = "distribution.tag.add.desc";
 
     /**
      * New distribution Type set tag add icon id.

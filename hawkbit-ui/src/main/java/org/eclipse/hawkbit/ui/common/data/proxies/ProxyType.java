@@ -23,6 +23,8 @@ public class ProxyType extends ProxyFilterButton {
 
     private boolean mandatory;
 
+    private SmTypeAssign smTypeAssign;
+
     public String getKey() {
         return key;
     }
@@ -45,6 +47,18 @@ public class ProxyType extends ProxyFilterButton {
 
     public void setMandatory(final boolean mandatory) {
         this.mandatory = mandatory;
+    }
+
+    public SmTypeAssign getSmTypeAssign() {
+        return smTypeAssign;
+    }
+
+    public void setSmTypeAssign(final SmTypeAssign smTypeAssign) {
+        this.smTypeAssign = smTypeAssign;
+    }
+
+    public enum SmTypeAssign {
+        SINGLE, MULTI;
     }
 
 }

@@ -60,7 +60,7 @@ public class ColorPickerComponent extends CustomField<Color> {
         addValueChangeListeners();
     }
 
-    private class CustomColorPicker extends ColorPicker {
+    public class CustomColorPicker extends ColorPicker {
         private static final long serialVersionUID = 1L;
 
         public CustomColorPicker(final String id, final String caption) {

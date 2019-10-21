@@ -12,6 +12,7 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
+import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -61,10 +62,13 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
 
         this.artifactUploadState = artifactUploadState;
 
+        final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
+                uiNotification, softwareModuleTypeManagement);
+
         this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, artifactUploadState, softwareModuleTypeManagement,
-                i18n, entityFactory, permChecker, uiNotification);
+                i18n, permChecker, uiNotification, smTypeWindowBuilder);
         this.smTypeFilterHeader = new SMTypeFilterHeader(i18n, permChecker, eventBus, artifactUploadState,
-                entityFactory, uiNotification, softwareModuleTypeManagement, sMTypeFilterButtons);
+                sMTypeFilterButtons, smTypeWindowBuilder);
 
         buildLayout();
         restoreState();

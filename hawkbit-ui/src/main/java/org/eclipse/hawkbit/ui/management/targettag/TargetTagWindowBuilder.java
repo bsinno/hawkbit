@@ -15,6 +15,7 @@ import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowController;
+import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -45,13 +46,13 @@ public class TargetTagWindowBuilder {
 
     public Window getWindowForAddTargetTag() {
         return getWindowForTag(null, new AddTargetTagWindowController(i18n, entityFactory, eventBus, uiNotification,
-                targetTagManagement, new AddTargetTagWindowLayout(i18n)));
+                targetTagManagement, new TagWindowLayout<ProxyTag>(i18n)));
 
     }
 
     public Window getWindowForUpdateTargetTag(final ProxyTag proxyTag) {
         return getWindowForTag(proxyTag, new UpdateTargetTagWindowController(i18n, entityFactory, eventBus,
-                uiNotification, targetTagManagement, new UpdateTargetTagWindowLayout(i18n)));
+                uiNotification, targetTagManagement, new TagWindowLayout<ProxyTag>(i18n)));
     }
 
     private Window getWindowForTag(final ProxyTag proxyTag, final TagWindowController controller) {

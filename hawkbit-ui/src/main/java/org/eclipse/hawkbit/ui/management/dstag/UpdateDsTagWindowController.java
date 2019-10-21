@@ -19,8 +19,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.management.tag.AbstractTagWindowLayout;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowController;
+import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -35,14 +35,14 @@ public class UpdateDsTagWindowController implements TagWindowController {
 
     private final DistributionSetTagManagement dsTagManagement;
 
-    private final UpdateDsTagWindowLayout layout;
+    private final TagWindowLayout<ProxyTag> layout;
 
     private ProxyTag tag;
     private String tagNameBeforeEdit;
 
     public UpdateDsTagWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
-            final DistributionSetTagManagement dsTagManagement, final UpdateDsTagWindowLayout layout) {
+            final DistributionSetTagManagement dsTagManagement, final TagWindowLayout<ProxyTag> layout) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.eventBus = eventBus;
@@ -54,7 +54,7 @@ public class UpdateDsTagWindowController implements TagWindowController {
     }
 
     @Override
-    public AbstractTagWindowLayout getLayout() {
+    public TagWindowLayout<ProxyTag> getLayout() {
         return layout;
     }
 
@@ -69,7 +69,8 @@ public class UpdateDsTagWindowController implements TagWindowController {
 
         tagNameBeforeEdit = proxyTag.getName();
 
-        layout.getProxyTagBinder().setBean(tag);
+        layout.getBinder().setBean(tag);
+        layout.disableTagName();
     }
 
     @Override

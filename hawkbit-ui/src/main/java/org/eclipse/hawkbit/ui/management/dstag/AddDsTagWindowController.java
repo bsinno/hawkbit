@@ -16,8 +16,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.management.tag.AbstractTagWindowLayout;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowController;
+import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -32,13 +32,13 @@ public class AddDsTagWindowController implements TagWindowController {
 
     private final DistributionSetTagManagement dsTagManagement;
 
-    private final AddDsTagWindowLayout layout;
+    private final TagWindowLayout<ProxyTag> layout;
 
     private ProxyTag tag;
 
     public AddDsTagWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
-            final DistributionSetTagManagement dsTagManagement, final AddDsTagWindowLayout layout) {
+            final DistributionSetTagManagement dsTagManagement, final TagWindowLayout<ProxyTag> layout) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.eventBus = eventBus;
@@ -50,7 +50,7 @@ public class AddDsTagWindowController implements TagWindowController {
     }
 
     @Override
-    public AbstractTagWindowLayout getLayout() {
+    public TagWindowLayout<ProxyTag> getLayout() {
         return layout;
     }
 
@@ -62,7 +62,7 @@ public class AddDsTagWindowController implements TagWindowController {
         // TODO: either extract the constant, or define it as a default in model
         tag.setColour("#2c9720");
 
-        layout.getProxyTagBinder().setBean(tag);
+        layout.getBinder().setBean(tag);
     }
 
     @Override

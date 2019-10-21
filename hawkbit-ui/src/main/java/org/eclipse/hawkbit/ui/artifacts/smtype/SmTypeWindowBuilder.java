@@ -6,16 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management.dstag;
+package org.eclipse.hawkbit.ui.artifacts.smtype;
 
-import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.management.tag.TagWindowController;
-import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -25,38 +23,39 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Window;
 
-public class DsTagWindowBuilder {
+//TODO: remove duplication with other window builders
+public class SmTypeWindowBuilder {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
     private final UINotification uiNotification;
 
-    private final DistributionSetTagManagement dsTagManagement;
+    private final SoftwareModuleTypeManagement smTypeManagement;
 
-    public DsTagWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory,
+    public SmTypeWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
-            final DistributionSetTagManagement dsTagManagement) {
+            final SoftwareModuleTypeManagement smTypeManagement) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.eventBus = eventBus;
         this.uiNotification = uiNotification;
 
-        this.dsTagManagement = dsTagManagement;
+        this.smTypeManagement = smTypeManagement;
     }
 
-    public Window getWindowForAddDsTag() {
-        return getWindowForTag(null, new AddDsTagWindowController(i18n, entityFactory, eventBus, uiNotification,
-                dsTagManagement, new TagWindowLayout<ProxyTag>(i18n)));
+    public Window getWindowForAddSmType() {
+        return getWindowForTag(null, new AddSmTypeWindowController(i18n, entityFactory, eventBus, uiNotification,
+                smTypeManagement, new SmTypeWindowLayout(i18n)));
 
     }
 
-    public Window getWindowForUpdateDsTag(final ProxyTag proxyTag) {
-        return getWindowForTag(proxyTag, new UpdateDsTagWindowController(i18n, entityFactory, eventBus, uiNotification,
-                dsTagManagement, new TagWindowLayout<ProxyTag>(i18n)));
+    public Window getWindowForUpdateSmType(final ProxyType proxyType) {
+        return getWindowForTag(proxyType, new UpdateSmTypeWindowController(i18n, entityFactory, eventBus,
+                uiNotification, smTypeManagement, new SmTypeWindowLayout(i18n)));
     }
 
-    private Window getWindowForTag(final ProxyTag proxyTag, final TagWindowController controller) {
-        controller.populateWithData(proxyTag);
+    private Window getWindowForTag(final ProxyType proxyType, final TypeWindowController controller) {
+        controller.populateWithData(proxyType);
 
         final CommonDialogWindow window = createWindow(controller.getLayout(), controller.getSaveDialogCloseListener());
 

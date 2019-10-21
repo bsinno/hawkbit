@@ -10,11 +10,9 @@ package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
 import java.util.Arrays;
 
-import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
-import org.eclipse.hawkbit.ui.artifacts.smtype.CreateSoftwareModuleTypeLayout;
+import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
@@ -24,7 +22,6 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
-import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -32,6 +29,8 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Software module type filter buttons header.
@@ -40,9 +39,7 @@ import com.vaadin.ui.MenuBar.Command;
 public class SMTypeFilterHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final UINotification uiNotification;
-    private final transient EntityFactory entityFactory;
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
+    private final transient SmTypeWindowBuilder smTypeWindowBuilder;
 
     private final ArtifactUploadState artifactUploadState;
 
@@ -52,15 +49,12 @@ public class SMTypeFilterHeader extends AbstractGridHeader {
     private final transient CloseHeaderSupport closeHeaderSupport;
 
     SMTypeFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final ArtifactUploadState artifactUploadState, final EntityFactory entityFactory,
-            final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
-            final SMTypeFilterButtons smTypeFilterButtons) {
+            final ArtifactUploadState artifactUploadState, final SMTypeFilterButtons smTypeFilterButtons,
+            final SmTypeWindowBuilder smTypeWindowBuilder) {
         super(i18n, permChecker, eventBus);
 
         this.artifactUploadState = artifactUploadState;
-        this.entityFactory = entityFactory;
-        this.uiNotification = uiNotification;
-        this.softwareModuleTypeManagement = softwareModuleTypeManagement;
+        this.smTypeWindowBuilder = smTypeWindowBuilder;
 
         this.smTypeFilterButtons = smTypeFilterButtons;
 
@@ -82,8 +76,13 @@ public class SMTypeFilterHeader extends AbstractGridHeader {
     }
 
     private Command getAddButtonCommand() {
-        return command -> new CreateSoftwareModuleTypeLayout(i18n, entityFactory, eventBus, permChecker, uiNotification,
-                softwareModuleTypeManagement);
+        return menuItem -> {
+            final Window addWindow = smTypeWindowBuilder.getWindowForAddSmType();
+
+            addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.type")));
+            UI.getCurrent().addWindow(addWindow);
+            addWindow.setVisible(Boolean.TRUE);
+        };
     }
 
     private Command getUpdateButtonCommand() {
