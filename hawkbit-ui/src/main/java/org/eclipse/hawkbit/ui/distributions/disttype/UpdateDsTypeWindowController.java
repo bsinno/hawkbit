@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.distributions.disttype;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -97,7 +98,7 @@ public class UpdateDsTypeWindowController implements TypeWindowController {
         layout.disableTypeKey();
     }
 
-    private List<ProxyType> getSmTypesByDsTypeId(final Long id) {
+    private Set<ProxyType> getSmTypesByDsTypeId(final Long id) {
         return dsTypeManagement.get(id).map(dsType -> {
             final Stream<ProxyType> mandatorySmTypeStream = dsType.getMandatoryModuleTypes().stream()
                     .map(mandatorySmType -> {
@@ -115,7 +116,7 @@ public class UpdateDsTypeWindowController implements TypeWindowController {
                         return mappedType;
                     });
 
-            return Stream.concat(mandatorySmTypeStream, optionalSmTypeStream).collect(Collectors.toList());
+            return Stream.concat(mandatorySmTypeStream, optionalSmTypeStream).collect(Collectors.toSet());
         }).orElse(null);
     }
 

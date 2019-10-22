@@ -8,13 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -23,6 +25,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.collect.Sets;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -35,7 +38,7 @@ import com.vaadin.ui.VerticalLayout;
  * Layout for the software modules select grids for managing Distribution Set
  * Types on the Distributions View.
  */
-public class DsTypeSmSelectLayout extends CustomField<List<ProxyType>> {
+public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
     private static final long serialVersionUID = 1L;
 
     // TODO: consider using lazy loading with dataprovider
@@ -43,16 +46,15 @@ public class DsTypeSmSelectLayout extends CustomField<List<ProxyType>> {
 
     private final VaadinMessageSource i18n;
 
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
     private final transient TypeToProxyTypeMapper<SoftwareModuleType> smTypeToProxyTypeMapper;
 
     private SmTypeSelectedGrid selectedGrid;
     private SmTypeSourceGrid sourceGrid;
 
-    private List<ProxyType> selectedGridTypesList;
-    private List<ProxyType> sourceGridTypesList;
+    private final List<ProxyType> allSmTypes;
+    private Set<ProxyType> selectedSmTypes;
 
-    private final HorizontalLayout dsTypeSmSelectLayout;
+    private final HorizontalLayout layout;
 
     /**
      * Constructor
@@ -65,14 +67,17 @@ public class DsTypeSmSelectLayout extends CustomField<List<ProxyType>> {
     public DsTypeSmSelectLayout(final VaadinMessageSource i18n,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
         this.i18n = i18n;
-        this.softwareModuleTypeManagement = softwareModuleTypeManagement;
         this.smTypeToProxyTypeMapper = new TypeToProxyTypeMapper<>();
 
-        this.dsTypeSmSelectLayout = new HorizontalLayout();
-        this.dsTypeSmSelectLayout.setSpacing(false);
-        this.dsTypeSmSelectLayout.setMargin(false);
-        this.dsTypeSmSelectLayout.setSizeFull();
-        this.dsTypeSmSelectLayout.setWidth("400px");
+        this.allSmTypes = softwareModuleTypeManagement.findAll(PageRequest.of(0, MAX_SM_TYPE_QUERY))
+                .map(smTypeToProxyTypeMapper::map).getContent();
+        this.selectedSmTypes = new HashSet<>();
+
+        this.layout = new HorizontalLayout();
+        this.layout.setSpacing(false);
+        this.layout.setMargin(false);
+        this.layout.setSizeFull();
+        this.layout.setWidth("400px");
 
         buildLayout();
     }
@@ -98,15 +103,15 @@ public class DsTypeSmSelectLayout extends CustomField<List<ProxyType>> {
         sourceGrid = buildSourceGrid();
         selectedGrid = buildSelectedGrid();
 
-        dsTypeSmSelectLayout.addComponent(sourceGrid);
-        dsTypeSmSelectLayout.addComponent(selectButtonLayout);
-        dsTypeSmSelectLayout.addComponent(selectedGrid);
-        dsTypeSmSelectLayout.setComponentAlignment(sourceGrid, Alignment.MIDDLE_LEFT);
-        dsTypeSmSelectLayout.setComponentAlignment(selectButtonLayout, Alignment.MIDDLE_CENTER);
-        dsTypeSmSelectLayout.setComponentAlignment(selectedGrid, Alignment.MIDDLE_RIGHT);
-        dsTypeSmSelectLayout.setExpandRatio(sourceGrid, 0.45F);
-        dsTypeSmSelectLayout.setExpandRatio(selectButtonLayout, 0.07F);
-        dsTypeSmSelectLayout.setExpandRatio(selectedGrid, 0.48F);
+        layout.addComponent(sourceGrid);
+        layout.addComponent(selectButtonLayout);
+        layout.addComponent(selectedGrid);
+        layout.setComponentAlignment(sourceGrid, Alignment.MIDDLE_LEFT);
+        layout.setComponentAlignment(selectButtonLayout, Alignment.MIDDLE_CENTER);
+        layout.setComponentAlignment(selectedGrid, Alignment.MIDDLE_RIGHT);
+        layout.setExpandRatio(sourceGrid, 0.45F);
+        layout.setExpandRatio(selectButtonLayout, 0.07F);
+        layout.setExpandRatio(selectedGrid, 0.48F);
     }
 
     private void addSmTypeToSelectedGrid() {
@@ -115,11 +120,7 @@ public class DsTypeSmSelectLayout extends CustomField<List<ProxyType>> {
             return;
         }
 
-        for (final ProxyType selectedSourceSmType : selectedSourceSmTypes) {
-            selectedGridTypesList.add(selectedSourceSmType);
-            sourceGridTypesList.remove(selectedSourceSmType);
-            // TODO: should we call refreshAll on both grids here?
-        }
+        setValue(Sets.union(selectedSmTypes, selectedSourceSmTypes));
     }
 
     private void removeSmTypeFromSelectedGrid() {
@@ -128,62 +129,53 @@ public class DsTypeSmSelectLayout extends CustomField<List<ProxyType>> {
             return;
         }
 
-        for (final ProxyType selectedSelectedSmType : selectedSelectedSmTypes) {
-            selectedGridTypesList.remove(selectedSelectedSmType);
-            sourceGridTypesList.add(selectedSelectedSmType);
-            // TODO: should we call refreshAll on both grids here?
-        }
+        setValue(Sets.difference(selectedSmTypes, selectedSelectedSmTypes));
     }
 
     private SmTypeSourceGrid buildSourceGrid() {
         final SmTypeSourceGrid grid = new SmTypeSourceGrid(i18n);
-        populateSmTypeSourceGrid();
-        grid.setItems(sourceGridTypesList);
+        grid.setItems(allSmTypes);
 
-        if (!CollectionUtils.isEmpty(sourceGridTypesList)) {
-            grid.select(sourceGridTypesList.get(0));
+        if (!CollectionUtils.isEmpty(allSmTypes)) {
+            grid.select(allSmTypes.get(0));
         }
 
         return grid;
-    }
-
-    private void populateSmTypeSourceGrid() {
-        if (sourceGridTypesList == null) {
-            sourceGridTypesList = new ArrayList<>();
-        } else {
-            sourceGridTypesList.clear();
-        }
-
-        softwareModuleTypeManagement.findAll(PageRequest.of(0, MAX_SM_TYPE_QUERY))
-                .forEach(smType -> sourceGridTypesList.add(smTypeToProxyTypeMapper.map(smType)));
     }
 
     private SmTypeSelectedGrid buildSelectedGrid() {
-        final SmTypeSelectedGrid grid = new SmTypeSelectedGrid(i18n);
-        selectedGridTypesList = new ArrayList<>();
-        grid.setItems(selectedGridTypesList);
+        final SmTypeSelectedGrid smTypeSelectedGrid = new SmTypeSelectedGrid(i18n);
+        smTypeSelectedGrid.setItems(selectedSmTypes);
 
-        return grid;
+        return smTypeSelectedGrid;
     }
 
     @Override
-    public List<ProxyType> getValue() {
-        return selectedGridTypesList;
+    public Set<ProxyType> getValue() {
+        return selectedSmTypes;
     }
 
     @Override
     protected Component initContent() {
-        return dsTypeSmSelectLayout;
+        return layout;
     }
 
     @Override
-    protected void doSetValue(final List<ProxyType> value) {
+    protected void doSetValue(final Set<ProxyType> value) {
         if (value == null) {
             return;
         }
 
-        selectedGridTypesList = value;
-        value.forEach(sourceGridTypesList::remove);
-        // TODO: should we call refreshAll on both grids here?
+        selectedSmTypes = value;
+
+        selectedGrid.setItems(selectedSmTypes);
+        sourceGrid.setItems(getSourceSmTypes());
+    }
+
+    private List<ProxyType> getSourceSmTypes() {
+        final Set<Long> selectedSmTypeIds = selectedSmTypes.stream().map(ProxyIdentifiableEntity::getId)
+                .collect(Collectors.toSet());
+        return allSmTypes.stream().filter(smType -> !selectedSmTypeIds.contains(smType.getId()))
+                .collect(Collectors.toList());
     }
 }

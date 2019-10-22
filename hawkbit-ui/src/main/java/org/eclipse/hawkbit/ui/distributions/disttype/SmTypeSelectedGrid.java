@@ -39,16 +39,16 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
     }
 
     private void init() {
+        setSizeFull();
+        setHeightUndefined();
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_SMALL);
-        addStyleName("dist_type_twin-table");
+        // addStyleName("dist_type_twin-table");
 
         setId(SPUIDefinitions.TWIN_TABLE_SELECTED_ID);
         setSelectionMode(SelectionMode.MULTI);
-        setSizeFull();
-        setRequiredIndicatorVisible(true);
 
         addColumns();
     }
