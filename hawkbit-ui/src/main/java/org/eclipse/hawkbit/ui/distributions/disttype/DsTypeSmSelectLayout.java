@@ -120,7 +120,7 @@ public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
             return;
         }
 
-        setValue(Sets.union(selectedSmTypes, selectedSourceSmTypes));
+        setValue(Sets.union(selectedSmTypes, selectedSourceSmTypes).immutableCopy());
     }
 
     private void removeSmTypeFromSelectedGrid() {
@@ -129,7 +129,7 @@ public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
             return;
         }
 
-        setValue(Sets.difference(selectedSmTypes, selectedSelectedSmTypes));
+        setValue(Sets.difference(selectedSmTypes, selectedSelectedSmTypes).immutableCopy());
     }
 
     private SmTypeSourceGrid buildSourceGrid() {
@@ -144,7 +144,11 @@ public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
     }
 
     private SmTypeSelectedGrid buildSelectedGrid() {
-        final SmTypeSelectedGrid smTypeSelectedGrid = new SmTypeSelectedGrid(i18n);
+        // we fire value change event to validate binder in case of mandatory
+        // property change because binder itself does not track modified
+        // software module types within collection
+        final SmTypeSelectedGrid smTypeSelectedGrid = new SmTypeSelectedGrid(i18n,
+                () -> fireEvent(createValueChange(selectedSmTypes, false)));
         smTypeSelectedGrid.setItems(selectedSmTypes);
 
         return smTypeSelectedGrid;
