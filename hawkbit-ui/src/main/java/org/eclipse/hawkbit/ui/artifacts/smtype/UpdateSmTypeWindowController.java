@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SmTypeModifiedEventPayload;
@@ -65,8 +66,7 @@ public class UpdateSmTypeWindowController implements TypeWindowController {
         type.setDescription(proxyType.getDescription());
         type.setColour(StringUtils.hasText(proxyType.getColour()) ? proxyType.getColour() : "#2c9720");
         type.setKey(proxyType.getKey());
-        // TODO: check if it is working
-        type.setSmTypeAssign(proxyType.getSmTypeAssign());
+        type.setSmTypeAssign(getSmTypeAssignById(proxyType.getId()));
 
         typeNameBeforeEdit = proxyType.getName();
         typeKeyBeforeEdit = proxyType.getKey();
@@ -75,6 +75,12 @@ public class UpdateSmTypeWindowController implements TypeWindowController {
         layout.disableTagName();
         layout.disableTypeKey();
         layout.disableTypeAssignOptionGroup();
+    }
+
+    private SmTypeAssign getSmTypeAssignById(final Long id) {
+        return smTypeManagement.get(id)
+                .map(smType -> smType.getMaxAssignments() == 1 ? SmTypeAssign.SINGLE : SmTypeAssign.MULTI)
+                .orElse(SmTypeAssign.SINGLE);
     }
 
     @Override

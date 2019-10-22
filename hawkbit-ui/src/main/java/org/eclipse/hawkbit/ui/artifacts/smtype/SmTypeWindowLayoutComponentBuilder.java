@@ -69,6 +69,7 @@ public class SmTypeWindowLayoutComponentBuilder {
 
         // TODO: should we mark it as required?
         binder.forField(smTypeAssignOptionGroup).bind(ProxyType::getSmTypeAssign, ProxyType::setSmTypeAssign);
+        smTypeAssignOptionGroup.setItems(SmTypeAssign.values());
 
         return smTypeAssignOptionGroup;
     }
