@@ -13,12 +13,11 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.TextField;
 
 public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
-    private static final long serialVersionUID = 1L;
-
-    private final DsTypeWindowLayoutComponentBuilder componentBuilder;
+    private final DsTypeWindowLayoutComponentBuilder dsTypeComponentBuilder;
 
     private final TextField typeKey;
     private final DsTypeSmSelectLayout dsTypeSmSelectLayout;
@@ -27,21 +26,28 @@ public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
             final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
         super(i18n);
 
-        this.componentBuilder = new DsTypeWindowLayoutComponentBuilder(i18n, softwareModuleTypeManagement);
+        this.dsTypeComponentBuilder = new DsTypeWindowLayoutComponentBuilder(i18n, softwareModuleTypeManagement);
 
-        this.typeKey = componentBuilder.createKeyField(binder);
-        this.dsTypeSmSelectLayout = componentBuilder.createDsTypeSmSelectLayout(binder);
+        this.typeKey = dsTypeComponentBuilder.createKeyField(binder);
+        this.dsTypeSmSelectLayout = dsTypeComponentBuilder.createDsTypeSmSelectLayout(binder);
 
-        extendLayout();
+        this.colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));
     }
 
-    private void extendLayout() {
+    @Override
+    protected void buildFormLayout() {
+        super.buildFormLayout();
+
         formLayout.addComponent(typeKey, formLayout.getComponentCount() - 1);
+    }
 
-        // TODO: consider changing it in constructor
-        colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));
+    @Override
+    public ComponentContainer getRootComponent() {
+        final ComponentContainer rootLayout = super.getRootComponent();
 
-        addComponent(dsTypeSmSelectLayout);
+        rootLayout.addComponent(dsTypeSmSelectLayout);
+
+        return rootLayout;
     }
 
     public void disableTypeKey() {

@@ -253,7 +253,7 @@ public class CommonDialogWindow extends Window {
         boolean canWindowSaveOrUpdate();
 
         /**
-         * Checks if the window can closed after the safe action is executed
+         * Checks if the window can be closed after the save action is executed
          *
          * @return <true> = window will close <false> = will not closed.
          */

@@ -10,23 +10,17 @@ package org.eclipse.hawkbit.ui.management.targettag;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.management.tag.TagWindowController;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Window;
 
-public class TargetTagWindowBuilder {
-    private final VaadinMessageSource i18n;
+public class TargetTagWindowBuilder extends AbstractEntityWindowBuilder<ProxyTag> {
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
     private final UINotification uiNotification;
@@ -36,7 +30,8 @@ public class TargetTagWindowBuilder {
     public TargetTagWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final TargetTagManagement targetTagManagement) {
-        this.i18n = i18n;
+        super(i18n);
+
         this.entityFactory = entityFactory;
         this.eventBus = eventBus;
         this.uiNotification = uiNotification;
@@ -44,31 +39,19 @@ public class TargetTagWindowBuilder {
         this.targetTagManagement = targetTagManagement;
     }
 
+    @Override
+    protected String getWindowId() {
+        return UIComponentIdProvider.TAG_POPUP_ID;
+    }
+
     public Window getWindowForAddTargetTag() {
-        return getWindowForTag(null, new AddTargetTagWindowController(i18n, entityFactory, eventBus, uiNotification,
+        return getWindowForNewEntity(new AddTargetTagWindowController(i18n, entityFactory, eventBus, uiNotification,
                 targetTagManagement, new TagWindowLayout<ProxyTag>(i18n)));
 
     }
 
     public Window getWindowForUpdateTargetTag(final ProxyTag proxyTag) {
-        return getWindowForTag(proxyTag, new UpdateTargetTagWindowController(i18n, entityFactory, eventBus,
+        return getWindowForEntity(proxyTag, new UpdateTargetTagWindowController(i18n, entityFactory, eventBus,
                 uiNotification, targetTagManagement, new TagWindowLayout<ProxyTag>(i18n)));
-    }
-
-    private Window getWindowForTag(final ProxyTag proxyTag, final TagWindowController controller) {
-        controller.populateWithData(proxyTag);
-
-        final CommonDialogWindow window = createWindow(controller.getLayout(), controller.getSaveDialogCloseListener());
-
-        controller.getLayout().addValidationListener(window::setSaveButtonEnabled);
-
-        return window;
-
-    }
-
-    private CommonDialogWindow createWindow(final Component content,
-            final SaveDialogCloseListener saveDialogCloseListener) {
-        return new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).id(UIComponentIdProvider.TAG_POPUP_ID)
-                .content(content).i18n(i18n).saveDialogCloseListener(saveDialogCloseListener).buildCommonDialogWindow();
     }
 }

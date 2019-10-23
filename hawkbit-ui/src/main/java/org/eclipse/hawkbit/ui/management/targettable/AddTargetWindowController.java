@@ -11,7 +11,8 @@ package org.eclipse.hawkbit.ui.management.targettable;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -21,7 +22,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-public class AddTargetWindowController implements TargetWindowController {
+public class AddTargetWindowController extends AbstractEntityWindowController<ProxyTarget, ProxyTarget> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -30,8 +31,6 @@ public class AddTargetWindowController implements TargetWindowController {
     private final TargetManagement targetManagement;
 
     private final TargetWindowLayout layout;
-
-    private ProxyTarget target;
 
     public AddTargetWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final TargetManagement targetManagement,
@@ -47,37 +46,21 @@ public class AddTargetWindowController implements TargetWindowController {
     }
 
     @Override
-    public TargetWindowLayout getLayout() {
+    public AbstractEntityWindowLayout<ProxyTarget> getLayout() {
         return layout;
     }
 
     @Override
-    public void populateWithData(final ProxyTarget proxyTarget) {
+    protected ProxyTarget buildEntityFromProxy(final ProxyTarget proxyEntity) {
         // We ignore the method parameter, because we are interested in the
         // empty object, that we can populate with defaults
-        target = new ProxyTarget();
-
-        layout.getBinder().setBean(target);
+        return new ProxyTarget();
     }
 
     @Override
-    public SaveDialogCloseListener getSaveDialogCloseListener() {
-        return new SaveDialogCloseListener() {
-            @Override
-            public void saveOrUpdate() {
-                saveTarget();
-            }
-
-            @Override
-            public boolean canWindowSaveOrUpdate() {
-                return duplicateCheck();
-            }
-        };
-    }
-
-    private void saveTarget() {
+    protected void persistEntity(final ProxyTarget entity) {
         final Target newTarget = targetManagement.create(entityFactory.target().create()
-                .controllerId(target.getControllerId()).name(target.getName()).description(target.getDescription()));
+                .controllerId(entity.getControllerId()).name(entity.getName()).description(entity.getDescription()));
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", newTarget.getName()));
         // TODO: verify if sender is correct
@@ -85,16 +68,20 @@ public class AddTargetWindowController implements TargetWindowController {
                 new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newTarget.getId()));
     }
 
-    private boolean duplicateCheck() {
-        if (targetManagement.getByControllerID(getTrimmedTargetControllerId()).isPresent()) {
-            uiNotification.displayValidationError(
-                    i18n.getMessage("message.target.duplicate.check", getTrimmedTargetControllerId()));
+    @Override
+    protected boolean isEntityValid(final ProxyTarget entity) {
+        if (!StringUtils.hasText(entity.getControllerId())) {
+            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.controllerId"));
             return false;
         }
-        return true;
-    }
 
-    private String getTrimmedTargetControllerId() {
-        return StringUtils.trimWhitespace(target.getControllerId());
+        final String trimmedControllerId = StringUtils.trimWhitespace(entity.getControllerId());
+        if (targetManagement.getByControllerID(trimmedControllerId).isPresent()) {
+            uiNotification
+                    .displayValidationError(i18n.getMessage("message.target.duplicate.check", trimmedControllerId));
+            return false;
+        }
+
+        return true;
     }
 }

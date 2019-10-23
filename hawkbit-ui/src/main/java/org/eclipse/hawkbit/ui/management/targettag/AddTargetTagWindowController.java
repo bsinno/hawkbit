@@ -11,19 +11,19 @@ package org.eclipse.hawkbit.ui.management.targettag;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.TargetTag;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
-import org.eclipse.hawkbit.ui.management.tag.TagWindowController;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-public class AddTargetTagWindowController implements TagWindowController {
+public class AddTargetTagWindowController extends AbstractEntityWindowController<ProxyTag, ProxyTag> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -32,8 +32,6 @@ public class AddTargetTagWindowController implements TagWindowController {
     private final TargetTagManagement targetTagManagement;
 
     private final TagWindowLayout<ProxyTag> layout;
-
-    private ProxyTag tag;
 
     public AddTargetTagWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
@@ -49,39 +47,25 @@ public class AddTargetTagWindowController implements TagWindowController {
     }
 
     @Override
-    public TagWindowLayout<ProxyTag> getLayout() {
+    public AbstractEntityWindowLayout<ProxyTag> getLayout() {
         return layout;
     }
 
     @Override
-    public void populateWithData(final ProxyTag proxyTag) {
+    protected ProxyTag buildEntityFromProxy(final ProxyTag proxyEntity) {
         // We ignore the method parameter, because we are interested in the
         // empty object, that we can populate with defaults
-        tag = new ProxyTag();
+        final ProxyTag targetTag = new ProxyTag();
         // TODO: either extract the constant, or define it as a default in model
-        tag.setColour("#2c9720");
+        targetTag.setColour("#2c9720");
 
-        layout.getBinder().setBean(tag);
+        return targetTag;
     }
 
     @Override
-    public SaveDialogCloseListener getSaveDialogCloseListener() {
-        return new SaveDialogCloseListener() {
-            @Override
-            public void saveOrUpdate() {
-                saveTargetTag();
-            }
-
-            @Override
-            public boolean canWindowSaveOrUpdate() {
-                return duplicateCheck();
-            }
-        };
-    }
-
-    private void saveTargetTag() {
-        final TargetTag newTargetTag = targetTagManagement.create(entityFactory.tag().create().name(tag.getName())
-                .description(tag.getDescription()).colour(tag.getColour()));
+    protected void persistEntity(final ProxyTag entity) {
+        final TargetTag newTargetTag = targetTagManagement.create(entityFactory.tag().create().name(entity.getName())
+                .description(entity.getDescription()).colour(entity.getColour()));
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", newTargetTag.getName()));
         // TODO: verify if sender is correct
@@ -89,19 +73,19 @@ public class AddTargetTagWindowController implements TagWindowController {
                 new TargetTagModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newTargetTag.getId()));
     }
 
-    private boolean duplicateCheck() {
-        if (!StringUtils.hasText(tag.getName())) {
+    @Override
+    protected boolean isEntityValid(final ProxyTag entity) {
+        if (!StringUtils.hasText(entity.getName())) {
             uiNotification.displayValidationError(i18n.getMessage("message.error.missing.tagname"));
             return false;
         }
-        if (targetTagManagement.getByName(getTrimmedTagName()).isPresent()) {
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", getTrimmedTagName()));
+
+        final String trimmedName = StringUtils.trimWhitespace(entity.getName());
+        if (targetTagManagement.getByName(trimmedName).isPresent()) {
+            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
             return false;
         }
-        return true;
-    }
 
-    private String getTrimmedTagName() {
-        return StringUtils.trimWhitespace(tag.getName());
+        return true;
     }
 }

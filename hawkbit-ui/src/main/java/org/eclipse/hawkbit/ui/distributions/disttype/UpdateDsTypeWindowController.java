@@ -21,8 +21,8 @@ import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
-import org.eclipse.hawkbit.ui.artifacts.smtype.TypeWindowController;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.DsTypeModifiedEventPayload;
@@ -34,7 +34,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-public class UpdateDsTypeWindowController implements TypeWindowController {
+public class UpdateDsTypeWindowController extends AbstractEntityWindowController<ProxyType, ProxyType> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -46,9 +46,9 @@ public class UpdateDsTypeWindowController implements TypeWindowController {
 
     private final DsTypeWindowLayout layout;
 
-    private ProxyType type;
-    private String typeNameBeforeEdit;
-    private String typeKeyBeforeEdit;
+    private String nameBeforeEdit;
+    private String keyBeforeEdit;
+    private boolean isDsTypeAssigned;
 
     public UpdateDsTypeWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
@@ -68,34 +68,26 @@ public class UpdateDsTypeWindowController implements TypeWindowController {
     }
 
     @Override
-    public DsTypeWindowLayout getLayout() {
+    public AbstractEntityWindowLayout<ProxyType> getLayout() {
         return layout;
     }
 
     @Override
-    public void populateWithData(final ProxyType proxyType) {
-        type = new ProxyType();
+    protected ProxyType buildEntityFromProxy(final ProxyType proxyEntity) {
+        final ProxyType dsType = new ProxyType();
 
-        type.setId(proxyType.getId());
-        type.setName(proxyType.getName());
-        type.setDescription(proxyType.getDescription());
-        type.setColour(StringUtils.hasText(proxyType.getColour()) ? proxyType.getColour() : "#2c9720");
-        type.setKey(proxyType.getKey());
+        dsType.setId(proxyEntity.getId());
+        dsType.setName(proxyEntity.getName());
+        dsType.setDescription(proxyEntity.getDescription());
+        dsType.setColour(StringUtils.hasText(proxyEntity.getColour()) ? proxyEntity.getColour() : "#2c9720");
+        dsType.setKey(proxyEntity.getKey());
+        dsType.setSelectedSmTypes(getSmTypesByDsTypeId(proxyEntity.getId()));
 
-        if (dsManagement.countByTypeId(proxyType.getId()) <= 0) {
-            type.setSelectedSmTypes(getSmTypesByDsTypeId(proxyType.getId()));
-        } else {
-            uiNotification.displayValidationError(
-                    proxyType.getName() + "  " + i18n.getMessage("message.error.dist.set.type.update"));
-            layout.disableDsTypeSmSelectLayout();
-        }
+        nameBeforeEdit = proxyEntity.getName();
+        keyBeforeEdit = proxyEntity.getKey();
+        isDsTypeAssigned = dsManagement.countByTypeId(proxyEntity.getId()) > 0;
 
-        typeNameBeforeEdit = proxyType.getName();
-        typeKeyBeforeEdit = proxyType.getKey();
-
-        layout.getBinder().setBean(type);
-        layout.disableTagName();
-        layout.disableTypeKey();
+        return dsType;
     }
 
     private Set<ProxyType> getSmTypesByDsTypeId(final Long id) {
@@ -121,38 +113,30 @@ public class UpdateDsTypeWindowController implements TypeWindowController {
     }
 
     @Override
-    public SaveDialogCloseListener getSaveDialogCloseListener() {
-        return new SaveDialogCloseListener() {
-            @Override
-            public void saveOrUpdate() {
-                editType();
-            }
+    protected void adaptLayout() {
+        layout.disableTagName();
+        layout.disableTypeKey();
 
-            @Override
-            public boolean canWindowSaveOrUpdate() {
-                return duplicateCheckForEdit();
-            }
-        };
+        if (isDsTypeAssigned) {
+            uiNotification.displayValidationError(
+                    nameBeforeEdit + "  " + i18n.getMessage("message.error.dist.set.type.update"));
+            layout.disableDsTypeSmSelectLayout();
+        }
     }
 
-    private void editType() {
-        if (type == null) {
-            return;
-        }
+    @Override
+    protected void persistEntity(final ProxyType entity) {
+        final DistributionSetTypeUpdate dsTypeUpdate = entityFactory.distributionSetType().update(entity.getId())
+                .description(entity.getDescription()).colour(entity.getColour());
 
-        final DistributionSetTypeUpdate dsTypeUpdate = entityFactory.distributionSetType().update(type.getId())
-                .description(type.getDescription()).colour(type.getColour());
+        final List<Long> mandatorySmTypeIds = entity.getSelectedSmTypes().stream().filter(ProxyType::isMandatory)
+                .map(ProxyType::getId).collect(Collectors.toList());
 
-        if (dsManagement.countByTypeId(type.getId()) <= 0 && !CollectionUtils.isEmpty(type.getSelectedSmTypes())) {
-            final List<Long> mandatorySmTypeIds = type.getSelectedSmTypes().stream().filter(ProxyType::isMandatory)
-                    .map(ProxyType::getId).collect(Collectors.toList());
+        final List<Long> optionalSmTypeIds = entity.getSelectedSmTypes().stream()
+                .filter(selectedSmType -> !selectedSmType.isMandatory()).map(ProxyType::getId)
+                .collect(Collectors.toList());
 
-            final List<Long> optionalSmTypeIds = type.getSelectedSmTypes().stream()
-                    .filter(selectedSmType -> !selectedSmType.isMandatory()).map(ProxyType::getId)
-                    .collect(Collectors.toList());
-
-            dsTypeUpdate.mandatory(mandatorySmTypeIds).optional(optionalSmTypeIds);
-        }
+        dsTypeUpdate.mandatory(mandatorySmTypeIds).optional(optionalSmTypeIds);
 
         final DistributionSetType updatedDsType;
         try {
@@ -160,7 +144,7 @@ public class UpdateDsTypeWindowController implements TypeWindowController {
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             // TODO: use i18n
             uiNotification.displayWarning(
-                    "Type with name " + type.getName() + " was deleted or you are not allowed to update it");
+                    "Type with name " + entity.getName() + " was deleted or you are not allowed to update it");
             return;
         }
 
@@ -170,35 +154,30 @@ public class UpdateDsTypeWindowController implements TypeWindowController {
                 new DsTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, updatedDsType.getId()));
     }
 
-    private boolean duplicateCheckForEdit() {
+    @Override
+    protected boolean isEntityValid(final ProxyType entity) {
         // TODO: check if another message should be shown when selected sm types
         // are empty
-        if (!StringUtils.hasText(type.getName()) || !StringUtils.hasText(type.getKey())
-                || CollectionUtils.isEmpty(type.getSelectedSmTypes())) {
+        if (!StringUtils.hasText(entity.getName()) || !StringUtils.hasText(entity.getKey())
+                || CollectionUtils.isEmpty(entity.getSelectedSmTypes())) {
             uiNotification.displayValidationError(i18n.getMessage("message.error.missing.typenameorkey"));
             return false;
         }
-        if (!typeNameBeforeEdit.equals(getTrimmedTypeName())
-                && dsTypeManagement.getByName(getTrimmedTypeName()).isPresent()) {
+
+        final String trimmedName = StringUtils.trimWhitespace(entity.getName());
+        final String trimmedKey = StringUtils.trimWhitespace(entity.getKey());
+        if (!nameBeforeEdit.equals(trimmedName) && dsTypeManagement.getByName(trimmedName).isPresent()) {
             // TODO: is the notification right here?
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", getTrimmedTypeName()));
+            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
             return false;
         }
-        if (!typeKeyBeforeEdit.equals(getTrimmedTypeKey())
-                && dsTypeManagement.getByKey(getTrimmedTypeKey()).isPresent()) {
+        if (!keyBeforeEdit.equals(trimmedKey) && dsTypeManagement.getByKey(trimmedKey).isPresent()) {
             // TODO: is the notification right here?
-            uiNotification.displayValidationError(
-                    i18n.getMessage("message.type.key.swmodule.duplicate.check", getTrimmedTypeKey()));
+            uiNotification
+                    .displayValidationError(i18n.getMessage("message.type.key.swmodule.duplicate.check", trimmedKey));
             return false;
         }
+
         return true;
-    }
-
-    private String getTrimmedTypeName() {
-        return StringUtils.trimWhitespace(type.getName());
-    }
-
-    private String getTrimmedTypeKey() {
-        return StringUtils.trimWhitespace(type.getKey());
     }
 }

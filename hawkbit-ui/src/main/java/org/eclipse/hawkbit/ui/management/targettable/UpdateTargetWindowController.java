@@ -14,7 +14,8 @@ import org.eclipse.hawkbit.repository.builder.TargetUpdate;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.Target;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -24,7 +25,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-public class UpdateTargetWindowController implements TargetWindowController {
+public class UpdateTargetWindowController extends AbstractEntityWindowController<ProxyTarget, ProxyTarget> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -34,7 +35,6 @@ public class UpdateTargetWindowController implements TargetWindowController {
 
     private final TargetWindowLayout layout;
 
-    private ProxyTarget target;
     private String controllerIdBeforeEdit;
 
     public UpdateTargetWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
@@ -51,48 +51,34 @@ public class UpdateTargetWindowController implements TargetWindowController {
     }
 
     @Override
-    public TargetWindowLayout getLayout() {
+    public AbstractEntityWindowLayout<ProxyTarget> getLayout() {
         return layout;
     }
 
     @Override
-    public void populateWithData(final ProxyTarget proxyTarget) {
-        target = new ProxyTarget();
+    protected ProxyTarget buildEntityFromProxy(final ProxyTarget proxyEntity) {
+        final ProxyTarget target = new ProxyTarget();
 
-        target.setId(proxyTarget.getId());
-        target.setControllerId(proxyTarget.getControllerId());
-        target.setName(proxyTarget.getName());
-        target.setDescription(proxyTarget.getDescription());
+        target.setId(proxyEntity.getId());
+        target.setControllerId(proxyEntity.getControllerId());
+        target.setName(proxyEntity.getName());
+        target.setDescription(proxyEntity.getDescription());
 
-        controllerIdBeforeEdit = proxyTarget.getControllerId();
+        controllerIdBeforeEdit = proxyEntity.getControllerId();
 
-        layout.getBinder().setBean(target);
+        return target;
+    }
+
+    @Override
+    protected void adaptLayout() {
         layout.disableControllerId();
         layout.setNameAsRequired();
     }
 
     @Override
-    public SaveDialogCloseListener getSaveDialogCloseListener() {
-        return new SaveDialogCloseListener() {
-            @Override
-            public void saveOrUpdate() {
-                editTarget();
-            }
-
-            @Override
-            public boolean canWindowSaveOrUpdate() {
-                return duplicateCheckForEdit();
-            }
-        };
-    }
-
-    private void editTarget() {
-        if (target == null) {
-            return;
-        }
-
-        final TargetUpdate targetUpdate = entityFactory.target().update(target.getControllerId()).name(target.getName())
-                .description(target.getDescription());
+    protected void persistEntity(final ProxyTarget entity) {
+        final TargetUpdate targetUpdate = entityFactory.target().update(entity.getControllerId()).name(entity.getName())
+                .description(entity.getDescription());
 
         final Target updatedTarget;
         try {
@@ -100,7 +86,7 @@ public class UpdateTargetWindowController implements TargetWindowController {
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             // TODO: use i18n
             uiNotification.displayWarning(
-                    "Target with name " + target.getName() + " was deleted or you are not allowed to update it");
+                    "Target with name " + entity.getName() + " was deleted or you are not allowed to update it");
             return;
         }
 
@@ -110,18 +96,22 @@ public class UpdateTargetWindowController implements TargetWindowController {
                 new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, updatedTarget.getId()));
     }
 
-    private boolean duplicateCheckForEdit() {
-        if (!controllerIdBeforeEdit.equals(getTrimmedTargetControllerId())
-                && targetManagement.getByControllerID(getTrimmedTargetControllerId()).isPresent()) {
-            // TODO: is the notification right here?
-            uiNotification.displayValidationError(
-                    i18n.getMessage("message.target.duplicate.check", getTrimmedTargetControllerId()));
+    @Override
+    protected boolean isEntityValid(final ProxyTarget entity) {
+        if (!StringUtils.hasText(entity.getControllerId())) {
+            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.controllerId"));
             return false;
         }
-        return true;
-    }
 
-    private String getTrimmedTargetControllerId() {
-        return StringUtils.trimWhitespace(target.getControllerId());
+        final String trimmedControllerId = StringUtils.trimWhitespace(entity.getControllerId());
+        if (!controllerIdBeforeEdit.equals(trimmedControllerId)
+                && targetManagement.getByControllerID(trimmedControllerId).isPresent()) {
+            // TODO: is the notification right here?
+            uiNotification
+                    .displayValidationError(i18n.getMessage("message.target.duplicate.check", trimmedControllerId));
+            return false;
+        }
+
+        return true;
     }
 }

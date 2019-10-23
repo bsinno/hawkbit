@@ -8,12 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import java.util.function.Consumer;
-
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.Binder;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -21,14 +20,10 @@ import com.vaadin.ui.TextField;
 /**
  * Target add/update window layout.
  */
-public class TargetWindowLayout extends FormLayout {
-    private static final long serialVersionUID = 1L;
-
-    protected final Binder<ProxyTarget> binder;
-
-    protected final TargetWindowLayoutComponentBuilder componentBuilder;
-
+public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> {
     protected final VaadinMessageSource i18n;
+
+    protected final TargetWindowLayoutComponentBuilder targetComponentBuilder;
 
     protected final TextField targetControllerId;
     protected final TextField targetName;
@@ -41,39 +36,33 @@ public class TargetWindowLayout extends FormLayout {
      *            I18N
      */
     public TargetWindowLayout(final VaadinMessageSource i18n) {
+        super();
+
         this.i18n = i18n;
-        this.binder = new Binder<>();
-        this.componentBuilder = new TargetWindowLayoutComponentBuilder(i18n);
 
-        this.targetControllerId = componentBuilder.createControllerIdField(binder);
-        this.targetName = componentBuilder.createNameField(binder);
-        this.targetDescription = componentBuilder.createDescriptionField(binder);
+        this.targetComponentBuilder = new TargetWindowLayoutComponentBuilder(i18n);
 
-        initLayout();
-        buildLayout();
+        this.targetControllerId = targetComponentBuilder.createControllerIdField(binder);
+        this.targetName = targetComponentBuilder.createNameField(binder);
+        this.targetDescription = targetComponentBuilder.createDescriptionField(binder);
     }
 
-    private void initLayout() {
-        setSpacing(true);
-        setMargin(true);
-        setSizeUndefined();
-    }
+    @Override
+    public ComponentContainer getRootComponent() {
+        final FormLayout targetWindowLayout = new FormLayout();
 
-    private void buildLayout() {
-        addComponent(targetControllerId);
+        targetWindowLayout.setSpacing(true);
+        targetWindowLayout.setMargin(true);
+        targetWindowLayout.setSizeUndefined();
+
+        targetWindowLayout.addComponent(targetControllerId);
         targetControllerId.focus();
 
-        addComponent(targetName);
+        targetWindowLayout.addComponent(targetName);
 
-        addComponent(targetDescription);
-    }
+        targetWindowLayout.addComponent(targetDescription);
 
-    public Binder<ProxyTarget> getBinder() {
-        return binder;
-    }
-
-    public void addValidationListener(final Consumer<Boolean> validationCallback) {
-        binder.addStatusChangeListener(event -> validationCallback.accept(event.getBinder().isValid()));
+        return targetWindowLayout;
     }
 
     public void disableControllerId() {
@@ -83,7 +72,7 @@ public class TargetWindowLayout extends FormLayout {
     public void setNameAsRequired() {
         // as of now vaadin does not allow modifying existing bindings, so we
         // need to rebind name field again with required validator
-        componentBuilder.getTargetNameBinding().unbind();
+        targetComponentBuilder.getTargetNameBinding().unbind();
         // TODO: use i18n for all the required fields messages
         binder.forField(targetName).asRequired("You must provide target name").bind(ProxyTarget::getName,
                 ProxyTarget::setName);

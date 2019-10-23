@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
 
 /**
@@ -27,8 +28,6 @@ import com.vaadin.ui.TextField;
  */
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
-    private static final long serialVersionUID = 1L;
-
     private final ComboBox<ProxyDistributionSet> distributionSet;
     private final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout;
     private final AutoStartOptionGroupLayout autoStartOptionGroupLayout;
@@ -38,41 +37,47 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     public UpdateRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         super(dependencies);
 
-        this.distributionSet = componentBuilder.createDistributionSetCombo(proxyRolloutBinder);
-        this.actionTypeOptionGroupLayout = componentBuilder.createActionTypeOptionGroupLayout(proxyRolloutBinder);
-        this.autoStartOptionGroupLayout = componentBuilder.createAutoStartOptionGroupLayout(proxyRolloutBinder);
-        this.groupsPieChart = componentBuilder.createGroupsPieChart();
-        this.groupsLegendLayout = componentBuilder.createGroupsLegendLayout();
-
-        buildLayout(componentBuilder);
+        this.distributionSet = rolloutComponentBuilder.createDistributionSetCombo(binder);
+        this.actionTypeOptionGroupLayout = rolloutComponentBuilder.createActionTypeOptionGroupLayout(binder);
+        this.autoStartOptionGroupLayout = rolloutComponentBuilder.createAutoStartOptionGroupLayout(binder);
+        this.groupsPieChart = rolloutComponentBuilder.createGroupsPieChart();
+        this.groupsLegendLayout = rolloutComponentBuilder.createGroupsLegendLayout();
     }
 
-    public void buildLayout(final RolloutWindowLayoutComponentBuilder builder) {
-        setRows(6);
+    @Override
+    protected void addComponents(final GridLayout rootLayout) {
+        rootLayout.setRows(6);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.TEXTFIELD_NAME), 0, 0);
-        final TextField rolloutName = builder.createRolloutNameField(proxyRolloutBinder);
-        addComponent(rolloutName, 1, 0);
+        rootLayout.addComponent(rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.TEXTFIELD_NAME), 0,
+                0);
+        final TextField rolloutName = rolloutComponentBuilder.createRolloutNameField(binder);
+        rootLayout.addComponent(rolloutName, 1, 0);
         rolloutName.focus();
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.PROMPT_DISTRIBUTION_SET), 0, 1);
-        addComponent(distributionSet, 1, 1);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.PROMPT_DISTRIBUTION_SET), 0, 1);
+        rootLayout.addComponent(distributionSet, 1, 1);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.PROMPT_TARGET_FILTER), 0, 2);
-        addComponent(builder.createTargetFilterQuery(proxyRolloutBinder), 1, 2);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.PROMPT_TARGET_FILTER), 0, 2);
+        rootLayout.addComponent(rolloutComponentBuilder.createTargetFilterQuery(binder), 1, 2);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.TEXTFIELD_DESCRIPTION), 0, 3);
-        addComponent(builder.createDescription(proxyRolloutBinder), 1, 3, 1, 3);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.TEXTFIELD_DESCRIPTION), 0, 3);
+        rootLayout.addComponent(rolloutComponentBuilder.createDescription(binder), 1, 3, 1, 3);
 
-        addComponent(groupsLegendLayout, 3, 0, 3, 3);
+        rootLayout.addComponent(groupsLegendLayout, 3, 0, 3, 3);
 
-        addComponent(groupsPieChart, 2, 0, 2, 3);
+        rootLayout.addComponent(groupsPieChart, 2, 0, 2, 3);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_ACTION_TYPE), 0, 4);
-        addComponent(actionTypeOptionGroupLayout, 1, 4, 3, 4);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_ACTION_TYPE), 0,
+                4);
+        rootLayout.addComponent(actionTypeOptionGroupLayout, 1, 4, 3, 4);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_START_TYPE), 0, 5);
-        addComponent(autoStartOptionGroupLayout, 1, 5, 3, 5);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_START_TYPE), 0, 5);
+        rootLayout.addComponent(autoStartOptionGroupLayout, 1, 5, 3, 5);
     }
 
     public void disableRequiredFieldsOnEdit() {
@@ -92,6 +97,6 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     public void populateTotalTargetsLegend() {
-        groupsLegendLayout.populateTotalTargets(getTotalTargets());
+        groupsLegendLayout.populateTotalTargets(getEntity().getTotalTargets());
     }
 }

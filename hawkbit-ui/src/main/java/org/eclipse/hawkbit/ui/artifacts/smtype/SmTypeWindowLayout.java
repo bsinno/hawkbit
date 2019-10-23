@@ -17,9 +17,7 @@ import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 
 public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
-    private static final long serialVersionUID = 1L;
-
-    private final SmTypeWindowLayoutComponentBuilder componentBuilder;
+    private final SmTypeWindowLayoutComponentBuilder smTypeComponentBuilder;
 
     private final TextField typeKey;
     private final RadioButtonGroup<SmTypeAssign> smTypeAssignOptionGroup;
@@ -27,20 +25,20 @@ public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
     public SmTypeWindowLayout(final VaadinMessageSource i18n) {
         super(i18n);
 
-        this.componentBuilder = new SmTypeWindowLayoutComponentBuilder(i18n);
+        this.smTypeComponentBuilder = new SmTypeWindowLayoutComponentBuilder(i18n);
 
-        this.typeKey = componentBuilder.createKeyField(binder);
-        this.smTypeAssignOptionGroup = componentBuilder.createSmTypeAssignOptionGroup(binder);
+        this.typeKey = smTypeComponentBuilder.createKeyField(binder);
+        this.smTypeAssignOptionGroup = smTypeComponentBuilder.createSmTypeAssignOptionGroup(binder);
 
-        extendLayout();
+        this.colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));
     }
 
-    private void extendLayout() {
+    @Override
+    protected void buildFormLayout() {
+        super.buildFormLayout();
+
         formLayout.addComponent(typeKey, formLayout.getComponentCount() - 1);
         formLayout.addComponent(smTypeAssignOptionGroup, formLayout.getComponentCount() - 1);
-
-        // TODO: consider changing it in constructor
-        colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));
     }
 
     public void disableTypeKey() {
