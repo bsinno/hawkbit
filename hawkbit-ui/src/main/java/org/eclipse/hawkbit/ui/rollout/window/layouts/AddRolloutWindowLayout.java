@@ -29,6 +29,7 @@ import com.google.common.base.Strings;
 import com.vaadin.data.Binder.Binding;
 import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TabSheet;
@@ -40,10 +41,8 @@ import com.vaadin.ui.TextField;
  */
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
-    private static final long serialVersionUID = 1L;
-
     private final VaadinMessageSource i18n;
-    private final transient TargetManagement targetManagement;
+    private final TargetManagement targetManagement;
 
     private final ComboBox<ProxyTargetFilterQuery> targetFilterQueryCombo;
     private final TextField noOfGroups;
@@ -62,53 +61,60 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         this.i18n = dependencies.getI18n();
         this.targetManagement = dependencies.getTargetManagement();
 
-        this.targetFilterQueryCombo = componentBuilder.createTargetFilterQueryCombo(proxyRolloutBinder);
-        final Entry<TextField, Binding<ProxyRolloutWindow, Integer>> noOfGroupsWithBinding = componentBuilder
-                .createNoOfGroupsField(proxyRolloutBinder);
+        this.targetFilterQueryCombo = rolloutComponentBuilder.createTargetFilterQueryCombo(binder);
+        final Entry<TextField, Binding<ProxyRolloutWindow, Integer>> noOfGroupsWithBinding = rolloutComponentBuilder
+                .createNoOfGroupsField(binder);
         this.noOfGroups = noOfGroupsWithBinding.getKey();
         this.noOfGroupsFieldBinding = noOfGroupsWithBinding.getValue();
-        this.groupSizeLabel = componentBuilder.createCountLabel();
-        this.errorThreshold = componentBuilder.createErrorThreshold(proxyRolloutBinder);
-        this.errorThresholdOptionGroup = componentBuilder.createErrorThresholdOptionGroup(proxyRolloutBinder);
-        this.defineGroupsLayout = componentBuilder.createAdvancedGroupDefinitionTab();
-        this.groupsDefinitionTabs = componentBuilder
-                .createGroupDefinitionTabs(componentBuilder.createSimpleGroupDefinitionTab(noOfGroups, groupSizeLabel,
-                        errorThreshold, errorThresholdOptionGroup, proxyRolloutBinder), defineGroupsLayout);
-        this.groupsPieChart = componentBuilder.createGroupsPieChart();
-        this.groupsLegendLayout = componentBuilder.createGroupsLegendLayout();
+        this.groupSizeLabel = rolloutComponentBuilder.createCountLabel();
+        this.errorThreshold = rolloutComponentBuilder.createErrorThreshold(binder);
+        this.errorThresholdOptionGroup = rolloutComponentBuilder.createErrorThresholdOptionGroup(binder);
+        this.defineGroupsLayout = rolloutComponentBuilder.createAdvancedGroupDefinitionTab();
+        this.groupsDefinitionTabs = rolloutComponentBuilder
+                .createGroupDefinitionTabs(rolloutComponentBuilder.createSimpleGroupDefinitionTab(noOfGroups,
+                        groupSizeLabel, errorThreshold, errorThresholdOptionGroup, binder), defineGroupsLayout);
+        this.groupsPieChart = rolloutComponentBuilder.createGroupsPieChart();
+        this.groupsLegendLayout = rolloutComponentBuilder.createGroupsLegendLayout();
 
-        buildLayout(componentBuilder);
         addValueChangeListeners();
     }
 
-    public void buildLayout(final RolloutWindowLayoutComponentBuilder builder) {
-        setRows(7);
+    @Override
+    protected void addComponents(final GridLayout rootLayout) {
+        rootLayout.setRows(7);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.TEXTFIELD_NAME), 0, 0);
-        final TextField rolloutName = builder.createRolloutNameField(proxyRolloutBinder);
-        addComponent(rolloutName, 1, 0);
+        rootLayout.addComponent(rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.TEXTFIELD_NAME), 0,
+                0);
+        final TextField rolloutName = rolloutComponentBuilder.createRolloutNameField(binder);
+        rootLayout.addComponent(rolloutName, 1, 0);
         rolloutName.focus();
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.PROMPT_DISTRIBUTION_SET), 0, 1);
-        addComponent(builder.createDistributionSetCombo(proxyRolloutBinder), 1, 1);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.PROMPT_DISTRIBUTION_SET), 0, 1);
+        rootLayout.addComponent(rolloutComponentBuilder.createDistributionSetCombo(binder), 1, 1);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.PROMPT_TARGET_FILTER), 0, 2);
-        addComponent(targetFilterQueryCombo, 1, 2);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.PROMPT_TARGET_FILTER), 0, 2);
+        rootLayout.addComponent(targetFilterQueryCombo, 1, 2);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.TEXTFIELD_DESCRIPTION), 0, 3);
-        addComponent(builder.createDescription(proxyRolloutBinder), 1, 3, 1, 3);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.TEXTFIELD_DESCRIPTION), 0, 3);
+        rootLayout.addComponent(rolloutComponentBuilder.createDescription(binder), 1, 3, 1, 3);
 
-        addComponent(groupsLegendLayout, 3, 0, 3, 3);
+        rootLayout.addComponent(groupsLegendLayout, 3, 0, 3, 3);
 
-        addComponent(groupsPieChart, 2, 0, 2, 3);
+        rootLayout.addComponent(groupsPieChart, 2, 0, 2, 3);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_ACTION_TYPE), 0, 4);
-        addComponent(builder.createActionTypeOptionGroupLayout(proxyRolloutBinder), 1, 4, 3, 4);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_ACTION_TYPE), 0,
+                4);
+        rootLayout.addComponent(rolloutComponentBuilder.createActionTypeOptionGroupLayout(binder), 1, 4, 3, 4);
 
-        addComponent(builder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_START_TYPE), 0, 5);
-        addComponent(builder.createAutoStartOptionGroupLayout(proxyRolloutBinder), 1, 5, 3, 5);
+        rootLayout.addComponent(
+                rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_START_TYPE), 0, 5);
+        rootLayout.addComponent(rolloutComponentBuilder.createAutoStartOptionGroupLayout(binder), 1, 5, 3, 5);
 
-        addComponent(groupsDefinitionTabs, 0, 6, 3, 6);
+        rootLayout.addComponent(groupsDefinitionTabs, 0, 6, 3, 6);
     }
 
     public void addAdvancedGroupRowAndValidate() {
@@ -128,8 +134,8 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     public void populateAdvancedRolloutGroups() {
-        defineGroupsLayout.setTargetFilter(proxyRolloutBinder.getBean().getTargetFilterQuery());
-        defineGroupsLayout.populateByRolloutId(proxyRolloutBinder.getBean().getId());
+        defineGroupsLayout.setTargetFilter(getEntity().getTargetFilterQuery());
+        defineGroupsLayout.populateByRolloutId(getEntity().getId());
     }
 
     public void selectAdvancedRolloutGroupsTab() {
@@ -137,7 +143,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     public void populateTotalTargetsLegend() {
-        groupsLegendLayout.populateTotalTargets(getTotalTargets());
+        groupsLegendLayout.populateTotalTargets(getEntity().getTotalTargets());
     }
 
     public void resetGroupsLegendLayout() {
@@ -165,22 +171,22 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
         final String filterQueryString = event.getValue() != null ? event.getValue().getQuery() : null;
         if (StringUtils.isEmpty(filterQueryString)) {
-            proxyRolloutBinder.getBean().setTotalTargets(0L);
-            proxyRolloutBinder.getBean().setTargetFilterQuery(null);
+            getEntity().setTotalTargets(0L);
+            getEntity().setTargetFilterQuery(null);
             groupsLegendLayout.populateTotalTargets(null);
             defineGroupsLayout.setTargetFilter(null);
         } else {
-            proxyRolloutBinder.getBean().setTotalTargets(targetManagement.countByRsql(filterQueryString));
-            proxyRolloutBinder.getBean().setTargetFilterQuery(filterQueryString);
-            groupsLegendLayout.populateTotalTargets(getTotalTargets());
+            getEntity().setTotalTargets(targetManagement.countByRsql(filterQueryString));
+            getEntity().setTargetFilterQuery(filterQueryString);
+            groupsLegendLayout.populateTotalTargets(getEntity().getTotalTargets());
             defineGroupsLayout.setTargetFilter(filterQueryString);
         }
         updateTargetsPerGroup(noOfGroups.getValue());
     }
 
     private void updateTargetsPerGroup(final String numberOfGroups) {
-        if (!Strings.isNullOrEmpty(numberOfGroups) && isNoOfGroupsValid() && getTotalTargets() != null
-                && getTotalTargets() > 0L && isNumberOfGroups()) {
+        if (!Strings.isNullOrEmpty(numberOfGroups) && isNoOfGroupsValid() && getEntity().getTotalTargets() != null
+                && getEntity().getTotalTargets() > 0L && isNumberOfGroups()) {
             groupSizeLabel
                     .setValue(getTargetPerGroupMessage(String.valueOf(getGroupSize(Integer.parseInt(numberOfGroups)))));
             groupSizeLabel.setVisible(true);
@@ -202,7 +208,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     private int getGroupSize(final Integer numberOfGroups) {
-        return (int) Math.ceil((double) getTotalTargets() / (double) numberOfGroups);
+        return (int) Math.ceil((double) getEntity().getTotalTargets() / (double) numberOfGroups);
     }
 
     private void validateGroups() {
@@ -244,19 +250,19 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
             groupsPieChart.setChartState(targetsPerGroup, validation.getTotalTargets());
         }
 
-        proxyRolloutBinder.getBean().setTotalTargets(validation.getTotalTargets());
+        getEntity().setTotalTargets(validation.getTotalTargets());
         groupsLegendLayout.populateTotalTargets(validation.getTotalTargets());
         groupsLegendLayout.populateGroupsLegendByValidation(validation, defineGroupsLayout.getSavedRolloutGroups());
 
     }
 
     private void updateGroupsChart(final int amountOfGroups) {
-        if (getTotalTargets() == null || getTotalTargets() == 0L || amountOfGroups == 0) {
+        if (getEntity().getTotalTargets() == null || getEntity().getTotalTargets() == 0L || amountOfGroups == 0) {
             groupsPieChart.setChartState(Collections.emptyList(), 0L);
             groupsLegendLayout.populateGroupsLegendByTargetCounts(Collections.emptyList());
         } else {
             final List<Long> targetsPerGroup = new ArrayList<>(amountOfGroups);
-            long leftTargets = getTotalTargets();
+            long leftTargets = getEntity().getTotalTargets();
             for (int i = 0; i < amountOfGroups; i++) {
                 final float percentage = 1.0F / (amountOfGroups - i);
                 final long targetsInGroup = Math.round(percentage * (double) leftTargets);
@@ -264,7 +270,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
                 targetsPerGroup.add(targetsInGroup);
             }
 
-            groupsPieChart.setChartState(targetsPerGroup, getTotalTargets());
+            groupsPieChart.setChartState(targetsPerGroup, getEntity().getTotalTargets());
             groupsLegendLayout.populateGroupsLegendByTargetCounts(targetsPerGroup);
         }
     }

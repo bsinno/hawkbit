@@ -14,12 +14,12 @@ import org.eclipse.hawkbit.repository.builder.TagUpdate;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.DistributionSetTag;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.management.tag.TagWindowController;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -27,7 +27,7 @@ import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 //TODO: remove duplication with target tag
-public class UpdateDsTagWindowController implements TagWindowController {
+public class UpdateDsTagWindowController extends AbstractEntityWindowController<ProxyTag, ProxyTag> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -37,8 +37,7 @@ public class UpdateDsTagWindowController implements TagWindowController {
 
     private final TagWindowLayout<ProxyTag> layout;
 
-    private ProxyTag tag;
-    private String tagNameBeforeEdit;
+    private String nameBeforeEdit;
 
     public UpdateDsTagWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
@@ -54,47 +53,33 @@ public class UpdateDsTagWindowController implements TagWindowController {
     }
 
     @Override
-    public TagWindowLayout<ProxyTag> getLayout() {
+    public AbstractEntityWindowLayout<ProxyTag> getLayout() {
         return layout;
     }
 
     @Override
-    public void populateWithData(final ProxyTag proxyTag) {
-        tag = new ProxyTag();
+    protected ProxyTag buildEntityFromProxy(final ProxyTag proxyEntity) {
+        final ProxyTag dsTag = new ProxyTag();
 
-        tag.setId(proxyTag.getId());
-        tag.setName(proxyTag.getName());
-        tag.setDescription(proxyTag.getDescription());
-        tag.setColour(StringUtils.hasText(proxyTag.getColour()) ? proxyTag.getColour() : "#2c9720");
+        dsTag.setId(proxyEntity.getId());
+        dsTag.setName(proxyEntity.getName());
+        dsTag.setDescription(proxyEntity.getDescription());
+        dsTag.setColour(StringUtils.hasText(proxyEntity.getColour()) ? proxyEntity.getColour() : "#2c9720");
 
-        tagNameBeforeEdit = proxyTag.getName();
+        nameBeforeEdit = proxyEntity.getName();
 
-        layout.getBinder().setBean(tag);
+        return dsTag;
+    }
+
+    @Override
+    protected void adaptLayout() {
         layout.disableTagName();
     }
 
     @Override
-    public SaveDialogCloseListener getSaveDialogCloseListener() {
-        return new SaveDialogCloseListener() {
-            @Override
-            public void saveOrUpdate() {
-                editTag();
-            }
-
-            @Override
-            public boolean canWindowSaveOrUpdate() {
-                return duplicateCheckForEdit();
-            }
-        };
-    }
-
-    private void editTag() {
-        if (tag == null) {
-            return;
-        }
-
-        final TagUpdate tagUpdate = entityFactory.tag().update(tag.getId()).name(tag.getName())
-                .description(tag.getDescription()).colour(tag.getColour());
+    protected void persistEntity(final ProxyTag entity) {
+        final TagUpdate tagUpdate = entityFactory.tag().update(entity.getId()).name(entity.getName())
+                .description(entity.getDescription()).colour(entity.getColour());
 
         DistributionSetTag updatedTag;
         try {
@@ -102,7 +87,7 @@ public class UpdateDsTagWindowController implements TagWindowController {
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             // TODO: use i18n
             uiNotification.displayWarning(
-                    "Tag with name " + tag.getName() + " was deleted or you are not allowed to update it");
+                    "Tag with name " + entity.getName() + " was deleted or you are not allowed to update it");
             return;
         }
 
@@ -112,21 +97,20 @@ public class UpdateDsTagWindowController implements TagWindowController {
                 new DsTagModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, updatedTag.getId()));
     }
 
-    private boolean duplicateCheckForEdit() {
-        if (!StringUtils.hasText(tag.getName())) {
+    @Override
+    protected boolean isEntityValid(final ProxyTag entity) {
+        if (!StringUtils.hasText(entity.getName())) {
             uiNotification.displayValidationError(i18n.getMessage("message.error.missing.tagname"));
             return false;
         }
-        if (!tagNameBeforeEdit.equals(getTrimmedTagName())
-                && dsTagManagement.getByName(getTrimmedTagName()).isPresent()) {
+
+        final String trimmedName = StringUtils.trimWhitespace(entity.getName());
+        if (!nameBeforeEdit.equals(trimmedName) && dsTagManagement.getByName(trimmedName).isPresent()) {
             // TODO: is the notification right here?
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", getTrimmedTagName()));
+            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
             return false;
         }
-        return true;
-    }
 
-    private String getTrimmedTagName() {
-        return StringUtils.trimWhitespace(tag.getName());
+        return true;
     }
 }

@@ -19,10 +19,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
-import org.eclipse.hawkbit.ui.management.targettable.TargetAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -431,12 +429,6 @@ public class CommonDialogWindowV7 extends Window {
 
         final Label mandatoryLabel = new Label(i18n.getMessage("label.mandatory.field"));
         mandatoryLabel.addStyleName(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR + " " + ValoTheme.LABEL_TINY);
-
-        if (content instanceof TargetAddUpdateWindowLayout) {
-            ((TargetAddUpdateWindowLayout) content).getFormLayout().addComponent(mandatoryLabel);
-        } else if (content instanceof SoftwareModuleAddUpdateWindow) {
-            ((SoftwareModuleAddUpdateWindow) content).getFormLayout().addComponent(mandatoryLabel);
-        }
 
         mainLayout.addComponent(mandatoryLabel);
     }

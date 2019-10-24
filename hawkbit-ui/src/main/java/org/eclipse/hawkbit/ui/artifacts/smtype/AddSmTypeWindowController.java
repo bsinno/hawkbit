@@ -11,7 +11,8 @@ package org.eclipse.hawkbit.ui.artifacts.smtype;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
@@ -22,7 +23,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-public class AddSmTypeWindowController implements TypeWindowController {
+public class AddSmTypeWindowController extends AbstractEntityWindowController<ProxyType, ProxyType> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -31,8 +32,6 @@ public class AddSmTypeWindowController implements TypeWindowController {
     private final SoftwareModuleTypeManagement smTypeManagement;
 
     private final SmTypeWindowLayout layout;
-
-    private ProxyType type;
 
     public AddSmTypeWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
@@ -48,43 +47,29 @@ public class AddSmTypeWindowController implements TypeWindowController {
     }
 
     @Override
-    public SmTypeWindowLayout getLayout() {
+    public AbstractEntityWindowLayout<ProxyType> getLayout() {
         return layout;
     }
 
     @Override
-    public void populateWithData(final ProxyType proxyType) {
+    protected ProxyType buildEntityFromProxy(final ProxyType proxyEntity) {
         // We ignore the method parameter, because we are interested in the
         // empty object, that we can populate with defaults
-        type = new ProxyType();
+        final ProxyType smType = new ProxyType();
         // TODO: either extract the constant, or define it as a default in model
-        type.setColour("#2c9720");
-        type.setSmTypeAssign(SmTypeAssign.SINGLE);
+        smType.setColour("#2c9720");
+        smType.setSmTypeAssign(SmTypeAssign.SINGLE);
 
-        layout.getBinder().setBean(type);
+        return smType;
     }
 
     @Override
-    public SaveDialogCloseListener getSaveDialogCloseListener() {
-        return new SaveDialogCloseListener() {
-            @Override
-            public void saveOrUpdate() {
-                saveSmType();
-            }
-
-            @Override
-            public boolean canWindowSaveOrUpdate() {
-                return duplicateCheck();
-            }
-        };
-    }
-
-    private void saveSmType() {
-        final int assignNumber = type.getSmTypeAssign() == SmTypeAssign.SINGLE ? 1 : Integer.MAX_VALUE;
+    protected void persistEntity(final ProxyType entity) {
+        final int assignNumber = entity.getSmTypeAssign() == SmTypeAssign.SINGLE ? 1 : Integer.MAX_VALUE;
 
         final SoftwareModuleType newSmType = smTypeManagement
-                .create(entityFactory.softwareModuleType().create().key(type.getKey()).name(type.getName())
-                        .description(type.getDescription()).colour(type.getColour()).maxAssignments(assignNumber));
+                .create(entityFactory.softwareModuleType().create().key(entity.getKey()).name(entity.getName())
+                        .description(entity.getDescription()).colour(entity.getColour()).maxAssignments(assignNumber));
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", newSmType.getName()));
         // TODO: verify if sender is correct
@@ -92,29 +77,26 @@ public class AddSmTypeWindowController implements TypeWindowController {
                 new SmTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newSmType.getId()));
     }
 
-    private boolean duplicateCheck() {
-        if (!StringUtils.hasText(type.getName()) || !StringUtils.hasText(type.getKey())) {
+    @Override
+    protected boolean isEntityValid(final ProxyType entity) {
+        if (!StringUtils.hasText(entity.getName()) || !StringUtils.hasText(entity.getKey())) {
             uiNotification.displayValidationError(i18n.getMessage("message.error.missing.typenameorkey"));
             return false;
         }
+
+        final String trimmedName = StringUtils.trimWhitespace(entity.getName());
+        final String trimmedKey = StringUtils.trimWhitespace(entity.getKey());
         // TODO: check if this is correct
-        if (smTypeManagement.getByName(getTrimmedTypeName()).isPresent()) {
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", getTrimmedTypeName()));
+        if (smTypeManagement.getByName(trimmedName).isPresent()) {
+            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
             return false;
         }
-        if (smTypeManagement.getByKey(getTrimmedTypeKey()).isPresent()) {
-            uiNotification.displayValidationError(
-                    i18n.getMessage("message.type.key.swmodule.duplicate.check", getTrimmedTypeKey()));
+        if (smTypeManagement.getByKey(trimmedKey).isPresent()) {
+            uiNotification
+                    .displayValidationError(i18n.getMessage("message.type.key.swmodule.duplicate.check", trimmedKey));
             return false;
         }
+
         return true;
-    }
-
-    private String getTrimmedTypeName() {
-        return StringUtils.trimWhitespace(type.getName());
-    }
-
-    private String getTrimmedTypeKey() {
-        return StringUtils.trimWhitespace(type.getKey());
     }
 }

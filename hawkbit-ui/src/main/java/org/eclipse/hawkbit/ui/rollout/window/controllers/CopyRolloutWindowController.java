@@ -34,20 +34,23 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
     public CopyRolloutWindowController(final RolloutWindowDependencies dependencies,
             final AddRolloutWindowLayout layout) {
         super(dependencies, layout);
+
         this.targetManagement = dependencies.getTargetManagement();
         this.targetFilterQueryManagement = dependencies.getTargetFilterQueryManagement();
     }
 
     @Override
-    public void populateWithData(final ProxyRollout proxyRollout) {
-        proxyRolloutWindow = new ProxyRolloutWindow(proxyRollout);
+    protected ProxyRolloutWindow buildEntityFromProxy(final ProxyRollout proxyEntity) {
+        final ProxyRolloutWindow proxyRolloutWindow = new ProxyRolloutWindow(proxyEntity);
 
         proxyRolloutWindow.setName(i18n.getMessage("textfield.rollout.copied.name", proxyRolloutWindow.getName()));
+
         final Page<TargetFilterQuery> filterQueries = targetFilterQueryManagement.findByQuery(PageRequest.of(0, 1),
                 proxyRolloutWindow.getTargetFilterQuery());
         if (filterQueries.getTotalElements() > 0) {
             proxyRolloutWindow.setTargetFilterId(filterQueries.getContent().get(0).getId());
         }
+
         proxyRolloutWindow.setTotalTargets(targetManagement.countByRsql(proxyRolloutWindow.getTargetFilterQuery()));
 
         if (proxyRolloutWindow.getForcedTime() == null) {
@@ -55,12 +58,17 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
                     .atZone(SPDateTimeUtil.getTimeZoneId(SPDateTimeUtil.getBrowserTimeZone())).toInstant()
                     .toEpochMilli());
         }
+
         final RolloutGroupConditions defaultRolloutGroupConditions = RolloutWindowLayoutComponentBuilder
                 .getDefaultRolloutGroupConditions();
         proxyRolloutWindow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
         proxyRolloutWindow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
 
-        layout.getProxyRolloutBinder().setBean(proxyRolloutWindow);
+        return proxyRolloutWindow;
+    }
+
+    @Override
+    protected void adaptLayout() {
         layout.populateTotalTargetsLegend();
         layout.populateAdvancedRolloutGroups();
         layout.selectAdvancedRolloutGroupsTab();

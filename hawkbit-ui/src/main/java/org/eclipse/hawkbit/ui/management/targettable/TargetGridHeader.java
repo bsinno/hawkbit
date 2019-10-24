@@ -55,7 +55,7 @@ public class TargetGridHeader extends AbstractGridHeader {
     private final UINotification notification;
     private final ManagementUIState managementUIState;
 
-    private final TargetAddUpdateWindowLayout targetAddUpdateWindow;
+    private final TargetWindowBuilder targetWindowBuilder;
     private final TargetBulkUpdateWindowLayout targetBulkUpdateWindow;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
@@ -70,13 +70,13 @@ public class TargetGridHeader extends AbstractGridHeader {
             final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
             final UiProperties uiproperties, final EntityFactory entityFactory, final UINotification uiNotification,
             final TargetTagManagement tagManagement, final DistributionSetManagement distributionSetManagement,
-            final Executor uiExecutor, final TargetAddUpdateWindowLayout targetAddUpdateWindow) {
+            final Executor uiExecutor, final TargetWindowBuilder targetWindowBuilder) {
         super(i18n, permChecker, eventBus);
 
         this.notification = notification;
         this.managementUIState = managementUIState;
 
-        this.targetAddUpdateWindow = targetAddUpdateWindow;
+        this.targetWindowBuilder = targetWindowBuilder;
         this.targetBulkUpdateWindow = new TargetBulkUpdateWindowLayout(i18n, targetManagement, eventBus,
                 managementUIState, deploymentManagement, uiproperties, permChecker, uiNotification, tagManagement,
                 distributionSetManagement, entityFactory, uiExecutor);
@@ -163,14 +163,12 @@ public class TargetGridHeader extends AbstractGridHeader {
         return managementUIState.isTargetTagFilterClosed();
     }
 
-    // TODO: refactor window handling
     private void addNewItem() {
-        targetAddUpdateWindow.resetComponents();
+        final Window addWindow = targetWindowBuilder.getWindowForAddTarget();
 
-        final Window addTargetWindow = targetAddUpdateWindow.createNewWindow();
-        addTargetWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.target")));
-        UI.getCurrent().addWindow(addTargetWindow);
-        addTargetWindow.setVisible(true);
+        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.target")));
+        UI.getCurrent().addWindow(addWindow);
+        addWindow.setVisible(Boolean.TRUE);
     }
 
     private Boolean onLoadIsTableMaximized() {

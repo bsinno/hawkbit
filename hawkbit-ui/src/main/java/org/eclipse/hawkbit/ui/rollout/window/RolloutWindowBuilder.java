@@ -8,73 +8,58 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window;
 
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.rollout.window.controllers.AddRolloutWindowController;
 import org.eclipse.hawkbit.ui.rollout.window.controllers.CopyRolloutWindowController;
-import org.eclipse.hawkbit.ui.rollout.window.controllers.RolloutWindowController;
 import org.eclipse.hawkbit.ui.rollout.window.controllers.UpdateRolloutWindowController;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AddRolloutWindowLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.ApproveRolloutWindowLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.UpdateRolloutWindowLayout;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Window;
 
 /**
  * Builder for Add/Approve/Update/Copy Rollout windows.
  */
-public final class RolloutWindowBuilder {
+public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<ProxyRollout> {
 
     private final RolloutWindowDependencies dependencies;
 
     public RolloutWindowBuilder(final RolloutWindowDependencies rolloutWindowDependencies) {
+        super(rolloutWindowDependencies.getI18n());
+
         this.dependencies = rolloutWindowDependencies;
     }
 
+    @Override
+    protected String getWindowId() {
+        return UIComponentIdProvider.ROLLOUT_POPUP_ID;
+    }
+
+    @Override
+    protected String getHelpLink() {
+        return dependencies.getUiProperties().getLinks().getDocumentation().getRolloutView();
+    }
+
     public Window getWindowForAddRollout() {
-        return getWindowForRollout(null,
+        return getWindowForNewEntity(
                 new AddRolloutWindowController(dependencies, new AddRolloutWindowLayout(dependencies)));
     }
 
     public Window getWindowForCopyRollout(final ProxyRollout proxyRollout) {
-
-        return getWindowForRollout(proxyRollout,
+        return getWindowForEntity(proxyRollout,
                 new CopyRolloutWindowController(dependencies, new AddRolloutWindowLayout(dependencies)));
     }
 
     public Window getWindowForUpdateRollout(final ProxyRollout proxyRollout) {
-
-        return getWindowForRollout(proxyRollout,
+        return getWindowForEntity(proxyRollout,
                 new UpdateRolloutWindowController(dependencies, new UpdateRolloutWindowLayout(dependencies)));
     }
 
     public Window getWindowForApproveRollout(final ProxyRollout proxyRollout) {
-
-        return getWindowForRollout(proxyRollout,
+        return getWindowForEntity(proxyRollout,
                 new UpdateRolloutWindowController(dependencies, new ApproveRolloutWindowLayout(dependencies)));
-    }
-
-    private Window getWindowForRollout(final ProxyRollout proxyRollout, final RolloutWindowController controller) {
-        controller.populateWithData(proxyRollout);
-
-        final CommonDialogWindow window = createWindow(controller.getLayout(), controller.getSaveDialogCloseListener());
-
-        controller.getLayout().addValidationListener(window::setSaveButtonEnabled);
-
-        return window;
-
-    }
-
-    private CommonDialogWindow createWindow(final Component content,
-            final SaveDialogCloseListener saveDialogCloseListener) {
-        return new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).id(UIComponentIdProvider.ROLLOUT_POPUP_ID)
-                .content(content).i18n(dependencies.getI18n())
-                .helpLink(dependencies.getUiProperties().getLinks().getDocumentation().getRolloutView())
-                .saveDialogCloseListener(saveDialogCloseListener).buildCommonDialogWindow();
     }
 }

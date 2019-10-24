@@ -30,16 +30,16 @@ public class TargetDetailsHeader extends DetailsHeader<ProxyTarget> {
     private final transient EntityFactory entityFactory;
     private final transient TargetManagement targetManagement;
 
-    private final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout;
+    private final TargetWindowBuilder targetWindowBuilder;
 
     public TargetDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification, final EntityFactory entityFactory,
-            final TargetManagement targetManagement, final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout) {
+            final TargetManagement targetManagement, final TargetWindowBuilder targetWindowBuilder) {
         super(i18n, permChecker, eventBus, uiNotification);
 
         this.entityFactory = entityFactory;
         this.targetManagement = targetManagement;
-        this.targetAddUpdateWindowLayout = targetAddUpdateWindowLayout;
+        this.targetWindowBuilder = targetWindowBuilder;
 
         restoreHeaderState();
         buildHeader();
@@ -71,13 +71,11 @@ public class TargetDetailsHeader extends DetailsHeader<ProxyTarget> {
             return;
         }
 
-        final Window targetWindow = targetAddUpdateWindowLayout.getWindow(selectedEntity.getControllerId());
-        if (targetWindow == null) {
-            return;
-        }
-        targetWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
-        UI.getCurrent().addWindow(targetWindow);
-        targetWindow.setVisible(Boolean.TRUE);
+        final Window updateWindow = targetWindowBuilder.getWindowForUpdateTarget(selectedEntity);
+
+        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
+        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setVisible(Boolean.TRUE);
     }
 
     @Override

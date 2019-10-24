@@ -14,8 +14,10 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
 import com.vaadin.ui.TextField;
 
 public class DsTypeWindowLayoutComponentBuilder {
@@ -45,10 +47,13 @@ public class DsTypeWindowLayoutComponentBuilder {
 
     public DsTypeSmSelectLayout createDsTypeSmSelectLayout(final Binder<ProxyType> binder) {
         final DsTypeSmSelectLayout dsTypeSmSelectLayout = new DsTypeSmSelectLayout(i18n, softwareModuleTypeManagement);
+        dsTypeSmSelectLayout.setRequiredIndicatorVisible(true);
 
         // TODO: use i18n for all the required fields messages
-        // TODO: check validation and adapt as needed
-        binder.forField(dsTypeSmSelectLayout).asRequired("You must select at least one software module")
+        binder.forField(dsTypeSmSelectLayout)
+                .withValidator((selectedSmTypes, context) -> CollectionUtils.isEmpty(selectedSmTypes)
+                        ? ValidationResult.error("You must select at least one software module")
+                        : ValidationResult.ok())
                 .bind(ProxyType::getSelectedSmTypes, ProxyType::setSelectedSmTypes);
 
         return dsTypeSmSelectLayout;
