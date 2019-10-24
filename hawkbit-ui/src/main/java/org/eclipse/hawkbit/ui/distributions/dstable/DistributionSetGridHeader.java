@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupp
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -40,7 +39,7 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
     private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
     private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
 
-    private final DistributionAddUpdateWindowLayout addUpdateWindowLayout;
+    private final transient DsWindowBuilder dsWindowBuilder;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
@@ -48,7 +47,7 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
     DistributionSetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final DistributionAddUpdateWindowLayout addUpdateWindowLayout,
+            final UIEventBus eventBus, final DsWindowBuilder dsWindowBuilder,
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         super(i18n, permChecker, eventBus);
@@ -56,7 +55,7 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
         this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
         this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
 
-        this.addUpdateWindowLayout = addUpdateWindowLayout;
+        this.dsWindowBuilder = dsWindowBuilder;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.DIST_SEARCH_TEXTFIELD,
                 UIComponentIdProvider.DIST_SEARCH_ICON, this::getSearchTextFromUiState, this::searchBy,
@@ -113,9 +112,11 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
     }
 
     private void addNewItem() {
-        final Window newDistWindow = addUpdateWindowLayout.getWindowForCreateDistributionSet();
-        UI.getCurrent().addWindow(newDistWindow);
-        newDistWindow.setVisible(Boolean.TRUE);
+        final Window addWindow = dsWindowBuilder.getWindowForAddDs();
+
+        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.distribution")));
+        UI.getCurrent().addWindow(addWindow);
+        addWindow.setVisible(Boolean.TRUE);
     }
 
     private Boolean onLoadIsTableMaximized() {

@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
 import org.eclipse.hawkbit.ui.management.ds.DistributionGrid;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -48,16 +49,16 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
             final SystemSecurityContext systemSecurityContext, final UiProperties uiProperties) {
         super(i18n, eventBus);
 
-        final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout = new DistributionAddUpdateWindowLayout(
-                i18n, notification, eventBus, distributionSetManagement, distributionSetTypeManagement,
-                systemManagement, entityFactory, null, systemSecurityContext);
-
         this.distributionGridHeader = new DistributionGridHeader(i18n, permissionChecker, eventBus, managementUIState);
         this.distributionGrid = new DistributionGrid(eventBus, i18n, permissionChecker, notification, managementUIState,
                 targetManagement, distributionSetManagement, deploymentManagement, uiProperties);
 
+        final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, notification,
+                systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
+                distributionSetTypeManagement);
+
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
-                notification, entityFactory, distributionSetManagement, distributionAddUpdateWindowLayout);
+                notification, entityFactory, distributionSetManagement, dsWindowBuilder);
         this.distributionDetails = new DistributionDetails(i18n, eventBus, permissionChecker, managementUIState,
                 distributionSetManagement, notification, distributionSetTagManagement, configManagement,
                 systemSecurityContext, entityFactory);

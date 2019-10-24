@@ -27,8 +27,10 @@ public class ProxyDistributionSet extends ProxyNamedEntity {
 
     private String nameVersion;
 
-    // TODO: can ProxyType be used here?
+    // TODO: consider removing
     private DistributionSetType type;
+
+    private ProxyType proxyType;
 
     private boolean requiredMigrationStep;
 
@@ -92,5 +94,13 @@ public class ProxyDistributionSet extends ProxyNamedEntity {
 
     public void setAutoAssignFilters(final List<ProxyTargetFilterQuery> autoAssignFilters) {
         this.autoAssignFilters = autoAssignFilters;
+    }
+
+    public ProxyType getProxyType() {
+        return proxyType;
+    }
+
+    public void setProxyType(ProxyType proxyType) {
+        this.proxyType = proxyType;
     }
 }

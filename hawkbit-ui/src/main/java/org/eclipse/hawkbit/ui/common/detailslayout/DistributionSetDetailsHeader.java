@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionAddUpdateWindowLayout;
+import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -31,17 +31,16 @@ public class DistributionSetDetailsHeader extends DetailsHeader<ProxyDistributio
     private final transient EntityFactory entityFactory;
     private final transient DistributionSetManagement distributionSetManagement;
 
-    private final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout;
+    private final transient DsWindowBuilder dsWindowBuilder;
 
     public DistributionSetDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification, final EntityFactory entityFactory,
-            final DistributionSetManagement distributionSetManagement,
-            final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout) {
+            final DistributionSetManagement distributionSetManagement, final DsWindowBuilder dsWindowBuilder) {
         super(i18n, permChecker, eventBus, uiNotification);
 
         this.entityFactory = entityFactory;
         this.distributionSetManagement = distributionSetManagement;
-        this.distributionAddUpdateWindowLayout = distributionAddUpdateWindowLayout;
+        this.dsWindowBuilder = dsWindowBuilder;
 
         restoreHeaderState();
         buildHeader();
@@ -74,10 +73,15 @@ public class DistributionSetDetailsHeader extends DetailsHeader<ProxyDistributio
 
     @Override
     protected void onEdit() {
-        final Window newDistWindow = distributionAddUpdateWindowLayout
-                .getWindowForUpdateDistributionSet(selectedEntity.getId());
-        UI.getCurrent().addWindow(newDistWindow);
-        newDistWindow.setVisible(Boolean.TRUE);
+        if (selectedEntity == null) {
+            return;
+        }
+
+        final Window updateWindow = dsWindowBuilder.getWindowForUpdateDs(selectedEntity);
+
+        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.distribution")));
+        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setVisible(Boolean.TRUE);
     }
 
     @Override

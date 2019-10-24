@@ -22,7 +22,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -50,17 +49,17 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         super(i18n, eventBus);
 
-        final DistributionAddUpdateWindowLayout distributionAddUpdateWindowLayout = new DistributionAddUpdateWindowLayout(
-                i18n, uiNotification, eventBus, distributionSetManagement, distributionSetTypeManagement,
-                systemManagement, entityFactory, configManagement, systemSecurityContext);
+        final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
+                systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
+                distributionSetTypeManagement);
 
         this.distributionSetGridHeader = new DistributionSetGridHeader(i18n, permissionChecker, eventBus,
-                distributionAddUpdateWindowLayout, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
+                dsWindowBuilder, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
         this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
                 targetManagement, distributionSetManagement, distributionSetGridLayoutUiState);
 
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
-                uiNotification, entityFactory, distributionSetManagement, distributionAddUpdateWindowLayout);
+                uiNotification, entityFactory, distributionSetManagement, dsWindowBuilder);
         this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker,
                 distributionSetManagement, uiNotification, distributionSetTagManagement, configManagement,
                 systemSecurityContext, entityFactory, distributionSetGridLayoutUiState);

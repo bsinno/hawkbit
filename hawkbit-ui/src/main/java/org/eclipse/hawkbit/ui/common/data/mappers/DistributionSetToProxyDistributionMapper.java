@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.data.mappers;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.model.DistributionSet;
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.springframework.util.CollectionUtils;
@@ -34,6 +35,7 @@ public class DistributionSetToProxyDistributionMapper
                 HawkbitCommonUtil.getFormattedNameVersion(distributionSet.getName(), distributionSet.getVersion()));
         proxyDistribution.setIsComplete(distributionSet.isComplete());
         proxyDistribution.setType(distributionSet.getType());
+        proxyDistribution.setProxyType(new TypeToProxyTypeMapper<DistributionSetType>().map(distributionSet.getType()));
         proxyDistribution.setRequiredMigrationStep(distributionSet.isRequiredMigrationStep());
 
         // TODO: check if really needed

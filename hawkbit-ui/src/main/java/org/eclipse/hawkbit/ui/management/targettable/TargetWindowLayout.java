@@ -21,13 +21,11 @@ import com.vaadin.ui.TextField;
  * Target add/update window layout.
  */
 public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> {
-    protected final VaadinMessageSource i18n;
+    private final TargetWindowLayoutComponentBuilder targetComponentBuilder;
 
-    protected final TargetWindowLayoutComponentBuilder targetComponentBuilder;
-
-    protected final TextField targetControllerId;
-    protected final TextField targetName;
-    protected final TextArea targetDescription;
+    private final TextField targetControllerId;
+    private final TextField targetName;
+    private final TextArea targetDescription;
 
     /**
      * Constructor for AbstractTagWindowLayout
@@ -37,8 +35,6 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
      */
     public TargetWindowLayout(final VaadinMessageSource i18n) {
         super();
-
-        this.i18n = i18n;
 
         this.targetComponentBuilder = new TargetWindowLayoutComponentBuilder(i18n);
 
