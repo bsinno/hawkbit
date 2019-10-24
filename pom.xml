@@ -545,6 +545,12 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot</artifactId>
             <version>${vaadin.spring.version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>com.vaadin</groupId>
+                  <artifactId>vaadin-server</artifactId>
+               </exclusion>
+            </exclusions>            
          </dependency>
          <dependency>
             <groupId>org.vaadin.spring.addons</groupId>
@@ -565,13 +571,19 @@
                <exclusion>
                   <groupId>com.vaadin</groupId>
                   <artifactId>vaadin-spring</artifactId>
-               </exclusion>
+               </exclusion>            
             </exclusions>
          </dependency>
          <dependency>
             <groupId>org.vaadin.alump.distributionbar</groupId>
             <artifactId>dbar-addon</artifactId>
             <version>${vaadin.addon.dbar-addon.version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>com.vaadin</groupId>
+                  <artifactId>vaadin-server</artifactId>
+               </exclusion>
+            </exclusions>
          </dependency>
 
          <!-- Misc -->
