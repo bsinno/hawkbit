@@ -29,8 +29,10 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
 
     private String vendor;
 
-    // TODO: can ProxyType be used here?
+    // TODO: consider removing
     private SoftwareModuleType type;
+
+    private ProxyType proxyType;
 
     private boolean assigned;
 
@@ -77,7 +79,15 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
         return assigned;
     }
 
-    public void setAssigned(boolean assigned) {
+    public void setAssigned(final boolean assigned) {
         this.assigned = assigned;
+    }
+
+    public ProxyType getProxyType() {
+        return proxyType;
+    }
+
+    public void setProxyType(final ProxyType proxyType) {
+        this.proxyType = proxyType;
     }
 }

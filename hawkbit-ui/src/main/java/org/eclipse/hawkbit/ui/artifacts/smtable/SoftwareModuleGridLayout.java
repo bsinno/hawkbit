@@ -36,16 +36,16 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory) {
         super(i18n, eventBus);
 
-        final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow = new SoftwareModuleAddUpdateWindow(i18n,
-                uiNotification, eventBus, softwareModuleManagement, softwareModuleTypeManagement, entityFactory);
+        final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
+                softwareModuleManagement, softwareModuleTypeManagement);
 
         this.softwareModuleGridHeader = new SoftwareModuleGridHeader(i18n, permChecker, eventBus, artifactUploadState,
-                softwareModuleAddUpdateWindow);
+                smWindowBuilder);
         this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
                 artifactUploadState, softwareModuleManagement);
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
-                entityFactory, softwareModuleManagement, softwareModuleAddUpdateWindow);
+                entityFactory, softwareModuleManagement, smWindowBuilder);
         this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, permChecker, artifactUploadState,
                 softwareModuleManagement, entityFactory, uiNotification);
 

@@ -40,7 +40,7 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
 
     private final ArtifactUploadState artifactUploadState;
 
-    private final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow;
+    private final SmWindowBuilder smWindowBuilder;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
@@ -49,12 +49,12 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
 
     SoftwareModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final ArtifactUploadState artifactUploadState,
-            final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow) {
+            final SmWindowBuilder smWindowBuilder) {
         super(i18n, permChecker, eventBus);
 
         this.artifactUploadState = artifactUploadState;
 
-        this.softwareModuleAddUpdateWindow = softwareModuleAddUpdateWindow;
+        this.smWindowBuilder = smWindowBuilder;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.SW_MODULE_SEARCH_TEXT_FIELD,
                 UIComponentIdProvider.SW_MODULE_SEARCH_RESET_ICON, this::getSearchTextFromUiState, this::searchBy,
@@ -110,10 +110,11 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     }
 
     private void addNewItem() {
-        final Window addSoftwareModule = softwareModuleAddUpdateWindow.createAddSoftwareModuleWindow();
-        addSoftwareModule.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module")));
-        UI.getCurrent().addWindow(addSoftwareModule);
-        addSoftwareModule.setVisible(Boolean.TRUE);
+        final Window addWindow = smWindowBuilder.getWindowForAddSm();
+
+        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module")));
+        UI.getCurrent().addWindow(addWindow);
+        addWindow.setVisible(Boolean.TRUE);
     }
 
     private Boolean onLoadIsTableMaximized() {

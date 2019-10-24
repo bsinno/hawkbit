@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
@@ -37,29 +37,27 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
     private final transient EntityFactory entityFactory;
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
-    private final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow;
+    private final SmWindowBuilder smWindowBuilder;
     private final ArtifactDetailsGridLayout artifactDetailsLayout;
 
     private final transient ArtifactDetailsHeaderSupport artifactDetailsHeaderSupport;
 
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification, final EntityFactory entityFactory,
-            final SoftwareModuleManagement softwareModuleManagement,
-            final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow) {
-        this(i18n, permChecker, eventBus, uiNotification, entityFactory, softwareModuleManagement,
-                softwareModuleAddUpdateWindow, null);
+            final SoftwareModuleManagement softwareModuleManagement, final SmWindowBuilder smWindowBuilder) {
+        this(i18n, permChecker, eventBus, uiNotification, entityFactory, softwareModuleManagement, smWindowBuilder,
+                null);
     }
 
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification, final EntityFactory entityFactory,
-            final SoftwareModuleManagement softwareModuleManagement,
-            final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow,
+            final SoftwareModuleManagement softwareModuleManagement, final SmWindowBuilder smWindowBuilder,
             final ArtifactDetailsGridLayout artifactDetailsLayout) {
         super(i18n, permChecker, eventBus, uiNotification);
 
         this.entityFactory = entityFactory;
         this.softwareModuleManagement = softwareModuleManagement;
-        this.softwareModuleAddUpdateWindow = softwareModuleAddUpdateWindow;
+        this.smWindowBuilder = smWindowBuilder;
         this.artifactDetailsLayout = artifactDetailsLayout;
 
         if (artifactDetailsLayout != null) {
@@ -114,11 +112,15 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
 
     @Override
     protected void onEdit() {
-        final Window addSoftwareModule = softwareModuleAddUpdateWindow
-                .createUpdateSoftwareModuleWindow(selectedEntity.getId());
-        addSoftwareModule.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
-        UI.getCurrent().addWindow(addSoftwareModule);
-        addSoftwareModule.setVisible(Boolean.TRUE);
+        if (selectedEntity == null) {
+            return;
+        }
+
+        final Window updateWindow = smWindowBuilder.getWindowForUpdateSm(selectedEntity);
+
+        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
+        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setVisible(Boolean.TRUE);
     }
 
     @Override

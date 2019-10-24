@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 
@@ -31,6 +32,7 @@ public class SoftwareModuleToProxyMapper
         proxySoftwareModule.setNameAndVersion(swNameVersion);
         proxySoftwareModule.setVendor(softwareModule.getVendor());
         proxySoftwareModule.setType(softwareModule.getType());
+        proxySoftwareModule.setProxyType(new TypeToProxyTypeMapper<SoftwareModuleType>().map(softwareModule.getType()));
 
         return proxySoftwareModule;
     }

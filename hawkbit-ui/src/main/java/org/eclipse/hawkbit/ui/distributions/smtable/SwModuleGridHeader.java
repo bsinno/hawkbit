@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.smtable;
 import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
@@ -41,7 +41,7 @@ public class SwModuleGridHeader extends AbstractGridHeader {
     private final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState;
     private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
 
-    private final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow;
+    private final SmWindowBuilder smWindowBuilder;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
@@ -49,15 +49,14 @@ public class SwModuleGridHeader extends AbstractGridHeader {
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
     SwModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow,
-            final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
+            final SmWindowBuilder smWindowBuilder, final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
             final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
         super(i18n, permChecker, eventBus);
 
         this.distSMTypeFilterLayoutUiState = distSMTypeFilterLayoutUiState;
         this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
 
-        this.softwareModuleAddUpdateWindow = softwareModuleAddUpdateWindow;
+        this.smWindowBuilder = smWindowBuilder;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.SW_MODULE_SEARCH_TEXT_FIELD,
                 UIComponentIdProvider.SW_MODULE_SEARCH_RESET_ICON, this::getSearchTextFromUiState, this::searchBy,
@@ -114,10 +113,11 @@ public class SwModuleGridHeader extends AbstractGridHeader {
     }
 
     private void addNewItem() {
-        final Window addSoftwareModule = softwareModuleAddUpdateWindow.createAddSoftwareModuleWindow();
-        addSoftwareModule.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module")));
-        UI.getCurrent().addWindow(addSoftwareModule);
-        addSoftwareModule.setVisible(Boolean.TRUE);
+        final Window addWindow = smWindowBuilder.getWindowForAddSm();
+
+        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module")));
+        UI.getCurrent().addWindow(addWindow);
+        addWindow.setVisible(Boolean.TRUE);
     }
 
     private Boolean onLoadIsTableMaximized() {
