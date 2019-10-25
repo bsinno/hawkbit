@@ -131,8 +131,10 @@ public class DistributionsViewRemoteEventListener {
             }
 
             final Collection<Long> commonEntityIds = getCommonEntityIds(cachedEventEntityIds, remoteEventEntityIds);
-            updateCache(eventPayloadIdentifier, cachedEventEntityIds, commonEntityIds);
-            remoteEventEntityIds.removeAll(commonEntityIds);
+            if (!commonEntityIds.isEmpty()) {
+                updateCache(eventPayloadIdentifier, cachedEventEntityIds, commonEntityIds);
+                remoteEventEntityIds.removeAll(commonEntityIds);
+            }
 
             return remoteEventEntityIds;
         }
@@ -147,10 +149,13 @@ public class DistributionsViewRemoteEventListener {
 
         private void updateCache(final EntityModifiedEventPayloadIdentifier matchingUiEventPayloadIdentifier,
                 final Collection<Long> matchingCachedEventEntityIds, final Collection<Long> commonEntityIds) {
-            matchingCachedEventEntityIds.removeAll(commonEntityIds);
+            final List<Long> updatedMatchingCachedEventEntityIds = new ArrayList<>(matchingCachedEventEntityIds);
+            updatedMatchingCachedEventEntityIds.removeAll(commonEntityIds);
 
-            if (matchingCachedEventEntityIds.isEmpty()) {
+            if (updatedMatchingCachedEventEntityIds.isEmpty()) {
                 uiOriginatedEventsCache.invalidate(matchingUiEventPayloadIdentifier);
+            } else {
+                uiOriginatedEventsCache.put(matchingUiEventPayloadIdentifier, updatedMatchingCachedEventEntityIds);
             }
         }
     }
