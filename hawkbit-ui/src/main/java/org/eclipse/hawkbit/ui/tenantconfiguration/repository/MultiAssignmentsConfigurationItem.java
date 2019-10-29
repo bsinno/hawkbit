@@ -17,8 +17,16 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.RolloutManagement;
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.builder.AutoAssignDistributionSetUpdate;
+import org.eclipse.hawkbit.repository.builder.RolloutUpdate;
 import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.model.Rollout;
+import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
@@ -26,6 +34,9 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -45,6 +56,10 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     private static final String MSG_KEY_DEFAULT_WEIGHT = "label.configuration.repository.multiassignments.default.notice";
     private static final String MSG_KEY_DEFAULT_WEIGHT_INPUT_HINT = "prompt.weight.min.max";
     private static final String MSG_KEY_DEFAULT_WEIGHT_INPUT_INVALID = "label.configuration.repository.multiassignments.default.invalid";
+    private RolloutManagement rolloutManagement;
+    private DeploymentManagement deploymentManagement;
+    private TargetFilterQueryManagement targetFilterQueryManagement;
+    private EntityFactory entityFactory;
     private UiProperties uiProperties;
     private final VaadinMessageSource i18n;
     private VerticalLayout container;
@@ -61,8 +76,14 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
      * @param i18n                          to obtain localized strings
      */
     public MultiAssignmentsConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-                                             final VaadinMessageSource i18n, final UiProperties uiProperties) {
+                                             final VaadinMessageSource i18n, final UiProperties uiProperties,
+                                             final RolloutManagement rolloutManagement, final EntityFactory entityFactory,
+                                             final TargetFilterQueryManagement targetFilterQueryManagement, final DeploymentManagement deploymentManagement) {
         super(MULTI_ASSIGNMENTS_ENABLED, tenantConfigurationManagement, i18n);
+        this.rolloutManagement = rolloutManagement;
+        this.targetFilterQueryManagement = targetFilterQueryManagement;
+        this.deploymentManagement = deploymentManagement;
+        this.entityFactory = entityFactory;
         this.i18n = i18n;
         this.uiProperties = uiProperties;
         super.init(MSG_KEY_CHECKBOX);
@@ -134,8 +155,43 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
         if (!multiAssignmentsEnabledChanged) {
             return;
         }
-        //TODO: What should we do with the default value?
+
+        final Pageable PAGE = createRolloutPageable();
+
         writeConfigValue(MULTI_ASSIGNMENTS_ENABLED, isMultiAssignmentsEnabled);
+
+        rolloutManagement.findAll(PAGE, false).getContent().forEach(this::updateRolloutWeight);
+        targetFilterQueryManagement.findWithAutoAssignDS(PAGE).getContent().forEach(this::updateTargetFilterWeight);
+        deploymentManagement.findActionsAll(PAGE).getContent().forEach(this::updateTargetActions);
+
+        //TODO: What should we do with the default value?
+    }
+
+    private Pageable createRolloutPageable() {
+        return PageRequest.of(0, 400, new Sort(Sort.Direction.ASC, "id"));
+    }
+
+    private void updateRolloutWeight(Rollout rollout) {
+        RolloutUpdate updatedRollout = entityFactory.rollout().update(rollout.getId()).weight(getWeightFromTextField());
+        rolloutManagement.update(updatedRollout);
+    }
+
+    private void updateTargetFilterWeight(TargetFilterQuery targetFilterQuery) {
+        AutoAssignDistributionSetUpdate autoAssignDistributionSetUpdate = entityFactory.targetFilterQuery()
+                .updateAutoAssign(targetFilterQuery.getId())
+                .ds(targetFilterQuery.getAutoAssignDistributionSet().getId())
+                .actionType(targetFilterQuery.getAutoAssignActionType())
+                .weight(getWeightFromTextField());
+        targetFilterQueryManagement.updateAutoAssignDS(autoAssignDistributionSetUpdate);
+    }
+
+    private void updateTargetActions(Action action) {
+       //TODO: Update Actions (with deploymentManagement?)
+        return;
+    }
+
+    private int getWeightFromTextField() {
+        return Integer.parseInt(defaultWeightTextField.getValue());
     }
 
     private <T extends Serializable> void writeConfigValue(final String key, final T value) {
