@@ -38,7 +38,22 @@ public interface Action extends TenantAwareBaseEntity {
      * Maximum length of external reference.
      */
     int EXTERNAL_REF_MAX_LENGTH = 512;
-    
+
+    /**
+     * Minimum weight to indicate the priority of {@link Action}.
+     */
+    int WEIGHT_MIN = 0;
+
+    /**
+     * Maximum weight to indicate the priority of {@link Action}.
+     */
+    int WEIGHT_MAX = 1000;
+
+    /**
+     * Maximum weight to indicate the priority of {@link Action}.
+     */
+    int WEIGHT_DEFAULT = 500;
+
     /**
      * @return the distributionSet
      */
@@ -81,6 +96,11 @@ public interface Action extends TenantAwareBaseEntity {
     long getForcedTime();
 
     /**
+     * @return priority of the {@link Action}.
+     */
+    Optional<Integer> getWeight();
+
+    /**
      * @return rolloutGroup related to this {@link Action}.
      */
     RolloutGroup getRolloutGroup();
@@ -106,10 +126,11 @@ public interface Action extends TenantAwareBaseEntity {
     String getMaintenanceWindowTimeZone();
 
     /**
-     * @param externalRef associated with this action
+     * @param externalRef
+     *            associated with this action
      */
     void setExternalRef(@NotEmpty String externalRef);
-    
+
     /**
      * @return externalRef of the action
      */

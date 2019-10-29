@@ -63,7 +63,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
                 i18n);
         this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
-                i18n);
+                i18n,uiProperties);
 
         init();
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
- *
+ * <p>
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,14 +8,29 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
+import com.vaadin.data.Validator;
+import com.vaadin.data.util.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
+import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
+import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.StringUtils;
 
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import java.io.Serializable;
+
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED;
 
 /**
  * This class represents the UI item for enabling /disabling the
@@ -27,38 +42,73 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
 
     private static final String MSG_KEY_CHECKBOX = "label.configuration.repository.multiassignments";
     private static final String MSG_KEY_NOTICE = "label.configuration.repository.multiassignments.notice";
-
-    private final VerticalLayout container;
+    private static final String MSG_KEY_DEFAULT_WEIGHT = "label.configuration.repository.multiassignments.default.notice";
+    private static final String MSG_KEY_DEFAULT_WEIGHT_INPUT_HINT = "prompt.weight.min.max";
+    private static final String MSG_KEY_DEFAULT_WEIGHT_INPUT_INVALID = "label.configuration.repository.multiassignments.default.invalid";
+    private UiProperties uiProperties;
     private final VaadinMessageSource i18n;
+    private VerticalLayout container;
+    private TextField defaultWeightTextField;
+
 
     private boolean isMultiAssignmentsEnabled;
     private boolean multiAssignmentsEnabledChanged;
 
     /**
      * Constructor.
-     * 
-     * @param tenantConfigurationManagement
-     *            to read /write tenant-specific configuration properties
-     * @param i18n
-     *            to obtain localized strings
+     *
+     * @param tenantConfigurationManagement to read /write tenant-specific configuration properties
+     * @param i18n                          to obtain localized strings
      */
     public MultiAssignmentsConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-            final VaadinMessageSource i18n) {
-        super(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED, tenantConfigurationManagement, i18n);
+                                             final VaadinMessageSource i18n, final UiProperties uiProperties) {
+        super(MULTI_ASSIGNMENTS_ENABLED, tenantConfigurationManagement, i18n);
         this.i18n = i18n;
-
+        this.uiProperties = uiProperties;
         super.init(MSG_KEY_CHECKBOX);
         isMultiAssignmentsEnabled = isConfigEnabled();
 
+        createContainer();
+        setSettingsVisible(isMultiAssignmentsEnabled);
+
+    }
+
+    private void createContainer() {
         container = new VerticalLayout();
         container.setImmediate(true);
+        createComponents();
+    }
 
-        container.addComponent(newLabel(MSG_KEY_NOTICE));
+    private void createComponents() {
+        final HorizontalLayout row1 = newHorizontalLayout();
+        Label defaultWeightHintLabel = newLabel(MSG_KEY_DEFAULT_WEIGHT);
+        row1.addComponent(defaultWeightHintLabel);
+        row1.setComponentAlignment(defaultWeightHintLabel, Alignment.MIDDLE_CENTER);
+        row1.addComponent(createIntegerTextField(MSG_KEY_DEFAULT_WEIGHT_INPUT_HINT, Action.WEIGHT_DEFAULT));
 
-        if (isMultiAssignmentsEnabled) {
-            setSettingsVisible(isMultiAssignmentsEnabled);
-        }
+        final Link linkToDefaultWeightHelp = SPUIComponentProvider.getHelpLink(i18n,
+                uiProperties.getLinks().getDocumentation().getRollout()); //TODO: Link right do
+        linkToDefaultWeightHelp.setId("weight-help-link");
+        row1.addComponent(linkToDefaultWeightHelp);
+        row1.setComponentAlignment(linkToDefaultWeightHelp, Alignment.MIDDLE_LEFT);
 
+        container.addComponent(row1);
+
+        final HorizontalLayout row2 = new HorizontalLayout();
+        row2.addComponent(newLabel(MSG_KEY_NOTICE));
+        container.addComponent(row2);
+    }
+
+    private static HorizontalLayout newHorizontalLayout() {
+        final HorizontalLayout layout = new HorizontalLayout();
+        layout.setSpacing(true);
+        layout.setImmediate(true);
+        return layout;
+    }
+
+    @Override
+    public boolean isUserInputValid() {
+        return isMultiAssignmentsEnabled ? defaultWeightTextField.isValid() : true;
     }
 
     @Override
@@ -84,14 +134,23 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
         if (!multiAssignmentsEnabledChanged) {
             return;
         }
-        getTenantConfigurationManagement().addOrUpdateConfiguration(getConfigurationKey(), isMultiAssignmentsEnabled);
+        //TODO: What should we do with the default value?
+        writeConfigValue(MULTI_ASSIGNMENTS_ENABLED, isMultiAssignmentsEnabled);
+    }
+
+    private <T extends Serializable> void writeConfigValue(final String key, final T value) {
+        getTenantConfigurationManagement().addOrUpdateConfiguration(key, value);
+    }
+
+    private <T extends Serializable> TenantConfigurationValue<T> readConfigValue(final String key,
+                                                                                 final Class<T> valueType) {
+        return getTenantConfigurationManagement().getConfigurationValue(key, valueType);
     }
 
     @Override
     public void undo() {
-        multiAssignmentsEnabledChanged = false;
-        isMultiAssignmentsEnabled = getTenantConfigurationManagement()
-                .getConfigurationValue(getConfigurationKey(), Boolean.class).getValue();
+        isMultiAssignmentsEnabled = readConfigValue(MULTI_ASSIGNMENTS_ENABLED, Boolean.class).getValue();
+        defaultWeightTextField.setValue(String.valueOf(Action.WEIGHT_DEFAULT));
     }
 
     private void setSettingsVisible(final boolean visible) {
@@ -104,8 +163,50 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
 
     private Label newLabel(final String msgKey) {
         final Label label = new LabelBuilder().name(i18n.getMessage(msgKey)).buildLabel();
-        label.setWidthUndefined();
         return label;
     }
 
+    private TextField createTextField(final String in18Key, final int maxLength) {
+        return new TextFieldBuilder(maxLength).prompt(i18n.getMessage(in18Key)).buildTextComponent();
+    }
+
+    private TextField createIntegerTextField(final String in18Key, final Integer value) {
+        defaultWeightTextField = createTextField(i18n.getMessage(in18Key, Action.WEIGHT_MIN, Action.WEIGHT_MAX), 4);
+        defaultWeightTextField.setConverter(new StringToIntegerConverter());
+        defaultWeightTextField.addValidator(new ActionWeightValidator(i18n.getMessage(MSG_KEY_DEFAULT_WEIGHT_INPUT_INVALID)));
+        defaultWeightTextField.setWidthUndefined();
+        defaultWeightTextField.setDescription("(0 - 1000)");
+        defaultWeightTextField.setValue(value.toString());
+        return defaultWeightTextField;
+
+    }
+
+    static class ActionWeightValidator implements Validator {
+
+        private static final long serialVersionUID = 1L;
+
+        private final String message;
+
+        private final Validator rangeValidator;
+
+        ActionWeightValidator(final String message) {
+            this.message = message;
+            this.rangeValidator = new IntegerRangeValidator(message, Action.WEIGHT_MIN, Action.WEIGHT_MAX);
+        }
+
+        @Override
+        public void validate(final Object value) {
+
+            if (StringUtils.isEmpty(value)) {
+                throw new InvalidValueException(message);
+            }
+
+            try {
+                rangeValidator.validate(Integer.parseInt(value.toString()));
+            } catch (final RuntimeException e) {
+                throw new InvalidValueException(message);
+            }
+        }
+
+    }
 }
