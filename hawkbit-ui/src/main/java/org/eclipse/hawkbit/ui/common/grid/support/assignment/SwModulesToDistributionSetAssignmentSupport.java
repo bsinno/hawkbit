@@ -18,11 +18,13 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
@@ -33,18 +35,18 @@ public class SwModulesToDistributionSetAssignmentSupport
         extends DeploymentAssignmentSupport<ProxySoftwareModule, ProxyDistributionSet> {
 
     private final TargetManagement targetManagement;
-    private final DistributionSetManagement distributionSetManagement;
+    private final DistributionSetManagement dsManagement;
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
 
     public SwModulesToDistributionSetAssignmentSupport(final UINotification notification,
             final VaadinMessageSource i18n, final TargetManagement targetManagement,
-            final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus,
+            final DistributionSetManagement dsManagement, final UIEventBus eventBus,
             final SpPermissionChecker permChecker) {
         super(notification, i18n);
 
         this.targetManagement = targetManagement;
-        this.distributionSetManagement = distributionSetManagement;
+        this.dsManagement = dsManagement;
         this.eventBus = eventBus;
         this.permChecker = permChecker;
     }
@@ -67,7 +69,7 @@ public class SwModulesToDistributionSetAssignmentSupport
             return false;
         }
 
-        if (distributionSetManagement.isInUse(ds.getId())) {
+        if (dsManagement.isInUse(ds.getId())) {
             notification.displayValidationError(
                     i18n.getMessage("message.error.notification.ds.target.assigned", ds.getName(), ds.getVersion()));
             return false;
@@ -83,19 +85,21 @@ public class SwModulesToDistributionSetAssignmentSupport
         // return false;
         // }
 
+        // TODO: check if < 1 is corect
         if (sm.getType().getMaxAssignments() < 1) {
             return false;
         }
 
-        if (ds.getModules().contains(sm)) {
-            /* Already has software module */
+        // TODO: Check if it is better to load software modules from DB here,
+        // instead of eager load from DS in Mapper
+        if (!CollectionUtils.isEmpty(ds.getModules())
+                && ds.getModules().stream().map(ProxyIdentifiableEntity::getId).anyMatch(id -> id.equals(sm.getId()))) {
             notification.displayValidationError(i18n.getMessage("message.software.dist.already.assigned",
                     sm.getNameAndVersion(), ds.getNameVersion()));
             return false;
         }
 
         if (!ds.getType().containsModuleType(sm.getType())) {
-            /* Invalid type of the software module */
             notification.displayValidationError(i18n.getMessage("message.software.dist.type.notallowed",
                     sm.getNameAndVersion(), ds.getNameVersion(), sm.getType().getName()));
             return false;
@@ -126,7 +130,7 @@ public class SwModulesToDistributionSetAssignmentSupport
             final ProxyDistributionSet ds) {
         final Set<Long> swModuleIdsToAssign = swModules.stream().map(ProxySoftwareModule::getId)
                 .collect(Collectors.toSet());
-        distributionSetManagement.assignSoftwareModules(ds.getId(), swModuleIdsToAssign);
+        dsManagement.assignSoftwareModules(ds.getId(), swModuleIdsToAssign);
 
         notification.displaySuccess(i18n.getMessage("message.software.assignment", swModuleIdsToAssign.size()));
         eventBus.publish(this, SaveActionWindowEvent.SAVED_ASSIGNMENTS);

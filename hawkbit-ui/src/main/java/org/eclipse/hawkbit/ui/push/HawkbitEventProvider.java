@@ -47,40 +47,39 @@ public class HawkbitEventProvider implements UIEventProvider {
     private static final Map<Class<? extends TenantAwareEvent>, Class<?>> EVENTS = Maps.newHashMapWithExpectedSize(19);
 
     static {
-
-        EVENTS.put(TargetTagDeletedEvent.class, TargetTagDeletedEventContainer.class);
-        EVENTS.put(TargetTagCreatedEvent.class, TargetTagCreatedEventContainer.class);
-        EVENTS.put(TargetTagUpdatedEvent.class, TargetTagUpdatedEventContainer.class);
-
-        EVENTS.put(DistributionSetTagCreatedEvent.class, DistributionSetTagCreatedEventContainer.class);
-        EVENTS.put(DistributionSetTagDeletedEvent.class, DistributionSetTagDeletedEventContainer.class);
-        EVENTS.put(DistributionSetTagUpdatedEvent.class, DistributionSetTagUpdatedEventContainer.class);
-
-        EVENTS.put(DistributionSetTypeCreatedEvent.class, DistributionSetTypeCreatedEventContainer.class);
-        EVENTS.put(DistributionSetTypeDeletedEvent.class, DistributionSetTypeDeletedEventContainer.class);
-        EVENTS.put(DistributionSetTypeUpdatedEvent.class, DistributionSetTypeUpdatedEventContainer.class);
-
         EVENTS.put(TargetCreatedEvent.class, TargetCreatedEventContainer.class);
-        EVENTS.put(TargetDeletedEvent.class, TargetDeletedEventContainer.class);
         EVENTS.put(TargetUpdatedEvent.class, TargetUpdatedEventContainer.class);
-        EVENTS.put(CancelTargetAssignmentEvent.class, CancelTargetAssignmentEventContainer.class);
+        EVENTS.put(TargetDeletedEvent.class, TargetDeletedEventContainer.class);
 
+        EVENTS.put(DistributionSetCreatedEvent.class, DistributionSetCreatedEventContainer.class);
         EVENTS.put(DistributionSetUpdatedEvent.class, DistributionSetUpdatedEventContainer.class);
         EVENTS.put(DistributionSetDeletedEvent.class, DistributionSetDeletedEventContainer.class);
-        EVENTS.put(DistributionSetCreatedEvent.class, DistributionSetCreatedEventContainer.class);
-
-        EVENTS.put(RolloutGroupChangedEvent.class, RolloutGroupChangedEventContainer.class);
-        EVENTS.put(RolloutChangedEvent.class, RolloutChangeEventContainer.class);
-        EVENTS.put(RolloutDeletedEvent.class, RolloutDeletedEventContainer.class);
 
         EVENTS.put(SoftwareModuleCreatedEvent.class, SoftwareModuleCreatedEventContainer.class);
-        EVENTS.put(SoftwareModuleDeletedEvent.class, SoftwareModuleDeletedEventContainer.class);
         EVENTS.put(SoftwareModuleUpdatedEvent.class, SoftwareModuleUpdatedEventContainer.class);
+        EVENTS.put(SoftwareModuleDeletedEvent.class, SoftwareModuleDeletedEventContainer.class);
+
+        EVENTS.put(TargetTagCreatedEvent.class, TargetTagCreatedEventContainer.class);
+        EVENTS.put(TargetTagUpdatedEvent.class, TargetTagUpdatedEventContainer.class);
+        EVENTS.put(TargetTagDeletedEvent.class, TargetTagDeletedEventContainer.class);
+
+        EVENTS.put(DistributionSetTagCreatedEvent.class, DistributionSetTagCreatedEventContainer.class);
+        EVENTS.put(DistributionSetTagUpdatedEvent.class, DistributionSetTagUpdatedEventContainer.class);
+        EVENTS.put(DistributionSetTagDeletedEvent.class, DistributionSetTagDeletedEventContainer.class);
+
+        EVENTS.put(DistributionSetTypeCreatedEvent.class, DistributionSetTypeCreatedEventContainer.class);
+        EVENTS.put(DistributionSetTypeUpdatedEvent.class, DistributionSetTypeUpdatedEventContainer.class);
+        EVENTS.put(DistributionSetTypeDeletedEvent.class, DistributionSetTypeDeletedEventContainer.class);
 
         EVENTS.put(SoftwareModuleTypeCreatedEvent.class, SoftwareModuleTypeCreatedEventContainer.class);
-        EVENTS.put(SoftwareModuleTypeDeletedEvent.class, SoftwareModuleTypeDeletedEventContainer.class);
         EVENTS.put(SoftwareModuleTypeUpdatedEvent.class, SoftwareModuleTypeUpdatedEventContainer.class);
+        EVENTS.put(SoftwareModuleTypeDeletedEvent.class, SoftwareModuleTypeDeletedEventContainer.class);
 
+        EVENTS.put(RolloutChangedEvent.class, RolloutChangeEventContainer.class);
+        EVENTS.put(RolloutDeletedEvent.class, RolloutDeletedEventContainer.class);
+        EVENTS.put(RolloutGroupChangedEvent.class, RolloutGroupChangedEventContainer.class);
+
+        EVENTS.put(CancelTargetAssignmentEvent.class, CancelTargetAssignmentEventContainer.class);
     }
 
     @Override

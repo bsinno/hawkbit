@@ -12,109 +12,161 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
+import org.eclipse.hawkbit.repository.rsql.ValidationOracleContext;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.server.FontAwesome;
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.v7.ui.AbstractTextField.TextChangeEventMode;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 
 /**
  * An textfield with the {@link TextFieldSuggestionBox} extension which shows
  * suggestions in a suggestion-pop-up window while typing.
  */
-@SpringComponent
-@UIScope
-public class AutoCompleteTextFieldComponent extends HorizontalLayout {
-
+public class AutoCompleteTextFieldComponent extends CustomField<String> {
     private static final long serialVersionUID = 1L;
 
     private final FilterManagementUIState filterManagementUIState;
 
-    private final transient EventBus.UIEventBus eventBus;
-
+    private final transient UIEventBus eventBus;
     private final transient RsqlValidationOracle rsqlValidationOracle;
-
     private final transient Executor executor;
 
-    private final transient List<FilterQueryChangeListener> listeners = new LinkedList<>();
+    private final transient List<ValidationListener> listeners = new LinkedList<>();
 
-    private Label validationIcon;
-    private TextField queryTextField;
+    private final Label validationIcon;
+    private final TextField queryTextField;
+    private final HorizontalLayout autoCompleteLayout;
 
-    @Autowired
+    private boolean isValid;
+    private String targetFilterQuery;
+
     public AutoCompleteTextFieldComponent(final FilterManagementUIState filterManagementUIState,
-            final UIEventBus eventBus, final RsqlValidationOracle rsqlValidationOracle,
-            @Qualifier("uiExecutor") final Executor executor) {
+            final UIEventBus eventBus, final RsqlValidationOracle rsqlValidationOracle, final Executor executor) {
         this.filterManagementUIState = filterManagementUIState;
         this.eventBus = eventBus;
         this.rsqlValidationOracle = rsqlValidationOracle;
         this.executor = executor;
+
+        this.validationIcon = createStatusIcon();
+        this.queryTextField = createSearchField();
+        this.autoCompleteLayout = new HorizontalLayout();
+
+        this.isValid = false;
+        this.targetFilterQuery = "";
+
+        init();
     }
 
-    /**
-     * Constructor.
-     */
-    @PostConstruct
-    void init() {
+    private void init() {
+        autoCompleteLayout.setSizeUndefined();
+        autoCompleteLayout.setSpacing(false);
+        autoCompleteLayout.setMargin(false);
+        autoCompleteLayout.addStyleName("custom-search-layout");
 
-        queryTextField = createSearchField();
-        validationIcon = createStatusIcon();
+        autoCompleteLayout.addComponents(validationIcon, queryTextField);
+        autoCompleteLayout.setComponentAlignment(validationIcon, Alignment.TOP_CENTER);
 
-        setSizeUndefined();
-        setSpacing(true);
-        addStyleName("custom-search-layout");
-        addComponents(validationIcon, queryTextField);
-        setComponentAlignment(validationIcon, Alignment.TOP_CENTER);
-
-        eventBus.subscribe(this);
         new TextFieldSuggestionBox(rsqlValidationOracle, this).extend(queryTextField);
     }
 
-    @PreDestroy
-    void destroy() {
-        eventBus.unsubscribe(this);
+    @Override
+    protected Component initContent() {
+        return autoCompleteLayout;
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final CustomFilterUIEvent custFUIEvent) {
-        if (custFUIEvent == CustomFilterUIEvent.UPDATE_TARGET_FILTER_SEARCH_ICON) {
-            validationIcon.setValue(FontAwesome.CHECK_CIRCLE.getHtml());
-            if (!isValidationError()) {
-                validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
-            } else {
-                validationIcon.setStyleName(SPUIStyleDefinitions.ERROR_ICON);
-            }
+    @Override
+    protected void doSetValue(final String value) {
+        if (value == null) {
+            queryTextField.setValue("");
+
+            // TODO: remove duplication with onQueryFilterChange
+            targetFilterQuery = "";
+            isValid = false;
+
+            validationIcon.setValue(null);
+            validationIcon.setDescription(null);
+            validationIcon.removeStyleName(validationIcon.getStyleName());
+
+            listeners.forEach(listener -> listener.validationChanged(false, ""));
+        } else {
+            queryTextField.setValue(value);
+            // TODO: remove duplication with
+            // TextFieldSuggestionBox#updateValidationIcon
+            final ValidationOracleContext suggest = rsqlValidationOracle.suggest(value, value.length());
+            final String errorMessage = (suggest.getSyntaxErrorContext() != null)
+                    ? suggest.getSyntaxErrorContext().getErrorMessage()
+                    : null;
+
+            onQueryFilterChange(value, !suggest.isSyntaxError(), errorMessage);
         }
     }
+
+    @Override
+    public String getValue() {
+        return targetFilterQuery;
+    }
+
+    private Label createStatusIcon() {
+        final Label statusIcon = new Label();
+
+        statusIcon.setId(UIComponentIdProvider.VALIDATION_STATUS_ICON_ID);
+        statusIcon.setContentMode(ContentMode.HTML);
+        statusIcon.setSizeFull();
+        statusIcon.setStyleName("hide-status-label");
+
+        statusIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
+
+        return statusIcon;
+    }
+
+    private TextField createSearchField() {
+        final TextField textField = new TextFieldBuilder(TargetFilterQuery.QUERY_MAX_SIZE)
+                .id(UIComponentIdProvider.CUSTOM_FILTER_QUERY).buildTextComponent();
+
+        textField.addStyleName("target-filter-textfield");
+        textField.setWidth(900.0F, Unit.PIXELS);
+
+        textField.setValueChangeMode(ValueChangeMode.EAGER);
+        textField.setValueChangeTimeout(100);
+
+        return textField;
+    }
+
+    // @EventBusListenerMethod(scope = EventScope.UI)
+    // void onEvent(final CustomFilterUIEvent custFUIEvent) {
+    // if (custFUIEvent == CustomFilterUIEvent.UPDATE_TARGET_FILTER_SEARCH_ICON)
+    // {
+    // validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
+    // if (!isValidationError()) {
+    // validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
+    // } else {
+    // validationIcon.setStyleName(SPUIStyleDefinitions.ERROR_ICON);
+    // }
+    // }
+    // }
 
     /**
      * Clears the textfield and resets the validation icon.
      */
+    @Override
     public void clear() {
         queryTextField.clear();
-        validationIcon.setValue(FontAwesome.CHECK_CIRCLE.getHtml());
+        validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
         validationIcon.setStyleName("hide-status-label");
     }
 
@@ -126,19 +178,11 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
     /**
      * Adds the given listener
      * 
-     * @param textChangeListener
-     *            the listener to be called in case of text changed
+     * @param validationListener
+     *            the listener to be called in case of validation status change
      */
-    public void addTextChangeListener(final FilterQueryChangeListener textChangeListener) {
-        listeners.add(textChangeListener);
-    }
-
-    public void setValue(final String textValue) {
-        queryTextField.setValue(textValue);
-    }
-
-    public String getValue() {
-        return queryTextField.getValue();
+    public void addValidationListener(final ValidationListener validationListener) {
+        listeners.add(validationListener);
     }
 
     /**
@@ -154,12 +198,18 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
      *            a message shown in case of syntax errors as tooltip
      */
     public void onQueryFilterChange(final String currentText, final boolean valid, final String validationMessage) {
-        if (valid) {
-            showValidationSuccesIcon(currentText);
+        targetFilterQuery = currentText;
+        isValid = valid;
+
+        final String message = isValid ? currentText : validationMessage;
+        if (isValid) {
+            showValidationSuccesIcon(message);
         } else {
-            showValidationFailureIcon(validationMessage);
+            showValidationFailureIcon(message);
         }
-        listeners.forEach(listener -> listener.queryChanged(valid, currentText));
+
+        fireEvent(createValueChange(targetFilterQuery, false));
+        listeners.forEach(listener -> listener.validationChanged(isValid, message));
     }
 
     /**
@@ -169,8 +219,9 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
      *            the text to store in the UI state object
      */
     public void showValidationSuccesIcon(final String text) {
-        validationIcon.setValue(FontAwesome.CHECK_CIRCLE.getHtml());
+        validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
         validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
+        // TODO: do we need to update state here?
         filterManagementUIState.setFilterQueryValue(text);
         filterManagementUIState.setIsFilterByInvalidFilterQuery(Boolean.FALSE);
     }
@@ -183,40 +234,16 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
      *            tooltip
      */
     public void showValidationFailureIcon(final String validationMessage) {
-        validationIcon.setValue(FontAwesome.TIMES_CIRCLE.getHtml());
+        validationIcon.setValue(VaadinIcons.CLOSE_CIRCLE.getHtml());
         validationIcon.setStyleName(SPUIStyleDefinitions.ERROR_ICON);
         validationIcon.setDescription(validationMessage);
+        // TODO: do we need to update state here?
         filterManagementUIState.setFilterQueryValue(null);
         filterManagementUIState.setIsFilterByInvalidFilterQuery(Boolean.TRUE);
     }
 
-    public boolean isValidationError() {
-        return validationIcon.getStyleName().equals(SPUIStyleDefinitions.ERROR_ICON);
-    }
-
-    private TextField createSearchField() {
-        final TextField textField = new TextFieldBuilderV7(TargetFilterQuery.QUERY_MAX_SIZE)
-                .id(UIComponentIdProvider.CUSTOM_FILTER_QUERY).buildTextComponent();
-        textField.addStyleName("target-filter-textfield");
-        textField.setWidth(900.0F, Unit.PIXELS);
-        textField.setTextChangeEventMode(TextChangeEventMode.EAGER);
-        textField.setTextChangeTimeout(100);
-        return textField;
-    }
-
-    private static Label createStatusIcon() {
-        final Label statusIcon = new Label();
-
-        statusIcon.setContentMode(ContentMode.HTML);
-        statusIcon.setSizeFull();
-        setInitialStatusIconStyle(statusIcon);
-        statusIcon.setId(UIComponentIdProvider.VALIDATION_STATUS_ICON_ID);
-        return statusIcon;
-    }
-
-    private static void setInitialStatusIconStyle(final Label statusIcon) {
-        statusIcon.setValue(FontAwesome.CHECK_CIRCLE.getHtml());
-        statusIcon.setStyleName("hide-status-label");
+    public boolean isValid() {
+        return isValid;
     }
 
     class StatusCircledAsync implements Runnable {
@@ -250,7 +277,7 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
      * Change listener on the textfield.
      */
     @FunctionalInterface
-    public interface FilterQueryChangeListener {
+    public interface ValidationListener {
         /**
          * Called when the text has been changed and validated.
          * 
@@ -259,6 +286,6 @@ public class AutoCompleteTextFieldComponent extends HorizontalLayout {
          * @param query
          *            the entered query text
          */
-        void queryChanged(final boolean valid, final String query);
+        void validationChanged(final boolean valid, final String validationMessage);
     }
 }

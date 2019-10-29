@@ -73,6 +73,8 @@ public final class UIMessageIdProvider {
 
     public static final String LABEL_CREATE_FILTER = "label.create.filter";
 
+    public static final String LABEL_EDIT_FILTER = "label.edit.filter";
+
     public static final String LABEL_UNKNOWN = "label.unknown";
 
     public static final String LABEL_AUTO_ASSIGNMENT_DESC = "label.auto.assign.description";

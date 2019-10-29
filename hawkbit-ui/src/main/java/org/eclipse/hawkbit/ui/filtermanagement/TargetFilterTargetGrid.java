@@ -38,7 +38,7 @@ import com.vaadin.ui.UI;
 /**
  * Shows the targets as a result of the executed filter query.
  */
-public class CreateOrUpdateFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
+public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -56,7 +56,7 @@ public class CreateOrUpdateFilterTargetGrid extends AbstractGrid<ProxyTarget, St
 
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, String> targetDataProvider;
 
-    CreateOrUpdateFilterTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    TargetFilterTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final TargetManagement targetManagement, final FilterManagementUIState filterManagementUIState) {
         super(i18n, eventBus);
 
@@ -150,17 +150,20 @@ public class CreateOrUpdateFilterTargetGrid extends AbstractGrid<ProxyTarget, St
         addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"))
                 .setExpandRatio(2);
 
-        addColumn(ProxyTarget::getName).setId(TARGET_CREATED_BY_ID).setCaption(i18n.getMessage("header.createdBy"));
+        addColumn(ProxyTarget::getCreatedBy).setId(TARGET_CREATED_BY_ID)
+                .setCaption(i18n.getMessage("header.createdBy"));
 
-        addColumn(ProxyTarget::getName).setId(TARGET_CREATED_DATE_ID).setCaption(i18n.getMessage("header.createdDate"));
+        addColumn(ProxyTarget::getCreatedDate).setId(TARGET_CREATED_DATE_ID)
+                .setCaption(i18n.getMessage("header.createdDate"));
 
-        addColumn(ProxyTarget::getName).setId(TARGET_MODIFIED_BY_ID).setCaption(i18n.getMessage("header.modifiedBy"))
-                .setHidable(true).setHidden(true);
+        addColumn(ProxyTarget::getLastModifiedBy).setId(TARGET_MODIFIED_BY_ID)
+                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
 
-        addColumn(ProxyTarget::getName).setId(TARGET_MODIFIED_DATE_ID)
+        addColumn(ProxyTarget::getModifiedDate).setId(TARGET_MODIFIED_DATE_ID)
                 .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
 
-        addColumn(ProxyTarget::getName).setId(TARGET_DESCRIPTION_ID).setCaption(i18n.getMessage("header.description"));
+        addColumn(ProxyTarget::getDescription).setId(TARGET_DESCRIPTION_ID)
+                .setCaption(i18n.getMessage("header.description"));
 
         addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID)
                 .setCaption(i18n.getMessage("header.status")).setMinimumWidth(50d).setMaximumWidth(50d)

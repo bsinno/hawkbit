@@ -20,8 +20,8 @@ import com.vaadin.client.ComponentConnector;
 import com.vaadin.client.ServerConnector;
 import com.vaadin.client.extensions.AbstractExtensionConnector;
 import com.vaadin.client.ui.VOverlay;
+import com.vaadin.client.ui.VTextField;
 import com.vaadin.shared.ui.Connect;
-import com.vaadin.v7.client.ui.VTextField;
 
 /**
  * Connector for the AutoCompleteTextField which automatically listens to
@@ -75,7 +75,6 @@ public class AutoCompleteTextFieldConnector extends AbstractExtensionConnector {
     protected void extend(final ServerConnector target) {
         textFieldWidget = (VTextField) ((ComponentConnector) target).getWidget();
 
-        textFieldWidget.textChangeEventMode = "EAGER";
         panel.setWidget(select);
         panel.setStyleName("suggestion-popup");
         panel.setOwner(textFieldWidget);

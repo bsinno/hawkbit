@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.filtermanagement.client.TextFieldSuggestionBoxClie
 import org.eclipse.hawkbit.ui.filtermanagement.client.TextFieldSuggestionBoxServerRpc;
 
 import com.vaadin.server.AbstractExtension;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 
 /**
@@ -67,7 +67,7 @@ public class TextFieldSuggestionBox extends AbstractExtension implements TextFie
 
     @Override
     public void executeQuery(final String text, final int cursor) {
-        if (!autoCompleteTextFieldComponent.isValidationError()) {
+        if (autoCompleteTextFieldComponent.isValid()) {
             autoCompleteTextFieldComponent.showValidationInProgress();
             autoCompleteTextFieldComponent.getExecutor()
                     .execute(autoCompleteTextFieldComponent.new StatusCircledAsync(UI.getCurrent()));
