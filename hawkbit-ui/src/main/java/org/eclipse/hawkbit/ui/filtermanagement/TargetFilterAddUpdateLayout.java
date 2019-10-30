@@ -81,6 +81,9 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
 
         filterQueryLayout.addComponent(autoCompleteComponent);
         filterQueryLayout.addComponent(helpLink);
+
+        searchButton.setEnabled(false);
+        saveButton.setEnabled(false);
         filterQueryLayout.addComponent(searchButton);
         filterQueryLayout.addComponent(saveButton);
 
@@ -119,5 +122,9 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
 
             saveCallback.saveOrUpdate();
         });
+    }
+
+    public void disableSearchButton() {
+        searchButton.setEnabled(false);
     }
 }

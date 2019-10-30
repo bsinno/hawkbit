@@ -53,7 +53,7 @@ public class TargetFilterCountMessageLabel extends AbstractFooterSupport {
         targetCountLabel.addStyleName(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
 
         targetCountLabel
-                .setValue(new StringBuilder(i18n.getMessage("label.target.filtered.total")).append(0).toString());
+                .setCaption(new StringBuilder(i18n.getMessage("label.target.filtered.total")).append(0).toString());
     }
 
     @Override
@@ -71,32 +71,34 @@ public class TargetFilterCountMessageLabel extends AbstractFooterSupport {
         }
     }
 
-    // TODO: rework
+    // TODO: consider removing
     public void displayTargetFilterMessage() {
-        long totalTargets = 0;
-        if (filterManagementUIState.isCreateFilterViewDisplayed() || filterManagementUIState.isEditViewDisplayed()) {
-            if (filterManagementUIState.getFilterQueryValue() != null) {
-                totalTargets = filterManagementUIState.getTargetsCountAll().get();
-            }
-            final StringBuilder targetMessage = new StringBuilder(i18n.getMessage("label.target.filtered.total"));
-            if (filterManagementUIState.getTargetsTruncated() != null) {
-                // set the icon
-                targetCountLabel.setIcon(VaadinIcons.INFO_CIRCLE);
-                targetCountLabel.setDescription(i18n.getMessage("label.target.filter.truncated",
-                        filterManagementUIState.getTargetsTruncated(), SPUIDefinitions.MAX_TABLE_ENTRIES));
+        updateTotalFilteredTargetsCount(filterManagementUIState.getFilterQueryValue() != null
+                ? filterManagementUIState.getTargetsCountAll().get()
+                : 0);
+    }
 
-            } else {
-                targetCountLabel.setIcon(null);
-                targetCountLabel.setDescription(null);
-            }
-            targetMessage.append(totalTargets);
+    // TODO: rework
+    public void updateTotalFilteredTargetsCount(final long count) {
+        final StringBuilder targetMessage = new StringBuilder(i18n.getMessage("label.target.filtered.total"));
 
-            if (totalTargets > SPUIDefinitions.MAX_TABLE_ENTRIES) {
-                targetMessage.append(HawkbitCommonUtil.SP_STRING_PIPE);
-                targetMessage.append(i18n.getMessage("label.filter.shown"));
-                targetMessage.append(SPUIDefinitions.MAX_TABLE_ENTRIES);
-            }
-            targetCountLabel.setCaption(targetMessage.toString());
+        if (filterManagementUIState.getTargetsTruncated() != null) {
+            targetCountLabel.setIcon(VaadinIcons.INFO_CIRCLE);
+            targetCountLabel.setDescription(i18n.getMessage("label.target.filter.truncated",
+                    filterManagementUIState.getTargetsTruncated(), SPUIDefinitions.MAX_TABLE_ENTRIES));
+        } else {
+            targetCountLabel.setIcon(null);
+            targetCountLabel.setDescription(null);
         }
+
+        targetMessage.append(count);
+
+        if (count > SPUIDefinitions.MAX_TABLE_ENTRIES) {
+            targetMessage.append(HawkbitCommonUtil.SP_STRING_PIPE);
+            targetMessage.append(i18n.getMessage("label.filter.shown"));
+            targetMessage.append(SPUIDefinitions.MAX_TABLE_ENTRIES);
+        }
+
+        targetCountLabel.setCaption(targetMessage.toString());
     }
 }

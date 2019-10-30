@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.hawkbit.repository.model.DistributionSet;
@@ -36,9 +35,6 @@ public class ProxyDistributionSet extends ProxyNamedEntity {
 
     // TODO: check if really needed
     private Set<ProxySoftwareModule> modules;
-
-    // TODO: check if really needed
-    private List<ProxyTargetFilterQuery> autoAssignFilters;
 
     public String getNameVersion() {
         return nameVersion;
@@ -88,19 +84,11 @@ public class ProxyDistributionSet extends ProxyNamedEntity {
         this.modules = modules;
     }
 
-    public List<ProxyTargetFilterQuery> getAutoAssignFilters() {
-        return autoAssignFilters;
-    }
-
-    public void setAutoAssignFilters(final List<ProxyTargetFilterQuery> autoAssignFilters) {
-        this.autoAssignFilters = autoAssignFilters;
-    }
-
     public ProxyType getProxyType() {
         return proxyType;
     }
 
-    public void setProxyType(ProxyType proxyType) {
+    public void setProxyType(final ProxyType proxyType) {
         this.proxyType = proxyType;
     }
 }

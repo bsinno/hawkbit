@@ -110,6 +110,7 @@ public final class RolloutWindowLayoutComponentBuilder {
         distributionSet.setItemCaptionGenerator(ProxyDistributionSet::getNameVersion);
         distributionSet.setDataProvider(dependencies.getDistributionSetDataProvider());
 
+        // TODO: use i18n for all the required fields messages
         binder.forField(distributionSet).asRequired("You must provide the distribution set").withConverter(ds -> {
             if (ds == null) {
                 return null;
@@ -140,6 +141,7 @@ public final class RolloutWindowLayoutComponentBuilder {
         targetFilterQueryCombo.setItemCaptionGenerator(ProxyTargetFilterQuery::getName);
         targetFilterQueryCombo.setDataProvider(dependencies.getTargetFilterQueryDataProvider());
 
+        // TODO: use i18n for all the required fields messages
         binder.forField(targetFilterQueryCombo).asRequired("You must provide the target filter")
                 .withValidator((filterQuery,
                         context) -> new LongRangeValidator(

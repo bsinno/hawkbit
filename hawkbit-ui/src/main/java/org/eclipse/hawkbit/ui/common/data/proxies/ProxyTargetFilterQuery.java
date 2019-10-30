@@ -15,10 +15,11 @@ import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
  * Proxy for {@link TargetFilterQuery}.
  */
 public class ProxyTargetFilterQuery extends ProxyNamedEntity {
-
-    private static final long serialVersionUID = 6622060929679084419L;
+    private static final long serialVersionUID = 1L;
 
     private String query;
+
+    private boolean isAutoAssignmentEnabled;
 
     private ProxyDistributionSet autoAssignDistributionSet;
 
@@ -44,7 +45,15 @@ public class ProxyTargetFilterQuery extends ProxyNamedEntity {
         return autoAssignActionType;
     }
 
-    public void setAutoAssignActionType(ActionType autoAssignActionType) {
+    public void setAutoAssignActionType(final ActionType autoAssignActionType) {
         this.autoAssignActionType = autoAssignActionType;
+    }
+
+    public boolean isAutoAssignmentEnabled() {
+        return isAutoAssignmentEnabled;
+    }
+
+    public void setAutoAssignmentEnabled(final boolean isAutoAssignmentEnabled) {
+        this.isAutoAssignmentEnabled = isAutoAssignmentEnabled;
     }
 }

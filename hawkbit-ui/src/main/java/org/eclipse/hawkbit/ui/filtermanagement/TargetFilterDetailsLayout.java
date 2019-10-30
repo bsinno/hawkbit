@@ -63,10 +63,19 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
 
     public void showAddFilterLayout() {
         targetFilterDetailsGridHeader.showAddFilterLayout();
+        targetFilterTargetGrid.updateTargetFilterQueryFilter(null);
+        targetFilterCountMessageLabel.updateTotalFilteredTargetsCount(0);
     }
 
     public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
         targetFilterDetailsGridHeader.showEditFilterLayout(proxyEntity);
+        targetFilterTargetGrid.updateTargetFilterQueryFilter(proxyEntity.getQuery());
+        // TODO: consider reworking to use #updateTotalFilteredTargetsCount
+        // instead because data provider is running in separate thread and ui
+        // state can be not up-to-date, resulting in wrong filtered targets
+        // count. Possible solution is to define grid data provider refresh
+        // listener
+        targetFilterCountMessageLabel.displayTargetFilterMessage();
     }
 
     // public void unsubscribeListener() {

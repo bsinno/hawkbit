@@ -14,6 +14,7 @@ import java.util.Collections;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -43,6 +44,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
     DistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
             final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
+            final TargetFilterQueryManagement targetFilterQueryManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
             final EntityFactory entityFactory,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
@@ -51,7 +53,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
 
         this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
 
-        tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n);
+        tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n, targetFilterQueryManagement);
 
         addDetailsComponents(Collections
                 .singletonList(new SimpleEntry<>(i18n.getMessage("caption.auto.assignment.ds"), tfqDetailsGrid)));

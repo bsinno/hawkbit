@@ -145,6 +145,10 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         }
     }
 
+    public void updateTargetFilterQueryFilter(final String targetFilterQuery) {
+        getFilterDataProvider().setFilter(targetFilterQuery);
+    }
+
     @Override
     public void addColumns() {
         addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"))

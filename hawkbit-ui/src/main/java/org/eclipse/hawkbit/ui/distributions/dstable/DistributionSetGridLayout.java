@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SystemManagement;
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
@@ -42,9 +43,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     public DistributionSetGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final TargetManagement targetManagement,
-            final EntityFactory entityFactory, final UINotification uiNotification,
-            final DistributionSetTagManagement distributionSetTagManagement, final SystemManagement systemManagement,
-            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
+            final TargetFilterQueryManagement targetFilterQueryManagement, final EntityFactory entityFactory,
+            final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
+            final SystemManagement systemManagement, final TenantConfigurationManagement configManagement,
+            final SystemSecurityContext systemSecurityContext,
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         super(i18n, eventBus);
@@ -61,8 +63,8 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
                 uiNotification, entityFactory, distributionSetManagement, dsWindowBuilder);
         this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker,
-                distributionSetManagement, uiNotification, distributionSetTagManagement, configManagement,
-                systemSecurityContext, entityFactory, distributionSetGridLayoutUiState);
+                distributionSetManagement, uiNotification, distributionSetTagManagement, targetFilterQueryManagement,
+                configManagement, systemSecurityContext, entityFactory, distributionSetGridLayoutUiState);
 
         this.eventListener = new DistributionSetGridLayoutEventListener(this, eventBus);
 

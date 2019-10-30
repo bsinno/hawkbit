@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.Arrays;
 
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
@@ -93,17 +94,21 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     }
 
     public void showAddFilterLayout() {
-        headerCaptionDetails.setValue(i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER));
+        showAddUpdateFilterLayout(UIMessageIdProvider.LABEL_CREATE_FILTER, addTargetFilterController, null);
+    }
 
-        addTargetFilterController.populateWithData(null);
-        targetFilterAddUpdateLayout.setSaveCallback(addTargetFilterController.getSaveDialogCloseListener());
+    private void showAddUpdateFilterLayout(final String captionMsgKey,
+            final AbstractEntityWindowController<ProxyTargetFilterQuery, ProxyTargetFilterQuery> controller,
+            final ProxyTargetFilterQuery proxyEntity) {
+        headerCaptionDetails.setValue(i18n.getMessage(captionMsgKey));
+
+        controller.populateWithData(proxyEntity);
+        targetFilterAddUpdateLayout.setSaveCallback(controller.getSaveDialogCloseListener());
+        targetFilterAddUpdateLayout.disableSearchButton();
     }
 
     public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
-        headerCaptionDetails.setValue(i18n.getMessage(UIMessageIdProvider.LABEL_EDIT_FILTER));
-
-        updateTargetFilterController.populateWithData(proxyEntity);
-        targetFilterAddUpdateLayout.setSaveCallback(updateTargetFilterController.getSaveDialogCloseListener());
+        showAddUpdateFilterLayout(UIMessageIdProvider.LABEL_EDIT_FILTER, updateTargetFilterController, proxyEntity);
     }
 
     private Label createHeaderCaptionDetails() {

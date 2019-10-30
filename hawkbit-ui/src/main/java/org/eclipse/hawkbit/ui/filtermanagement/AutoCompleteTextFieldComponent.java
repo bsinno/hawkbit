@@ -93,26 +93,20 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     protected void doSetValue(final String value) {
         if (value == null) {
             queryTextField.setValue("");
+            resetIcon();
 
-            // TODO: remove duplication with onQueryFilterChange
             targetFilterQuery = "";
             isValid = false;
-
-            validationIcon.setValue(null);
-            validationIcon.setDescription(null);
-            validationIcon.removeStyleName(validationIcon.getStyleName());
-
-            listeners.forEach(listener -> listener.validationChanged(false, ""));
         } else {
             queryTextField.setValue(value);
             // TODO: remove duplication with
             // TextFieldSuggestionBox#updateValidationIcon
             final ValidationOracleContext suggest = rsqlValidationOracle.suggest(value, value.length());
-            final String errorMessage = (suggest.getSyntaxErrorContext() != null)
+            final String errorMessage = suggest.getSyntaxErrorContext() != null
                     ? suggest.getSyntaxErrorContext().getErrorMessage()
-                    : null;
+                    : value;
 
-            onQueryFilterChange(value, !suggest.isSyntaxError(), errorMessage);
+            updateComponents(value, !suggest.isSyntaxError(), errorMessage);
         }
     }
 
@@ -198,18 +192,28 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
      *            a message shown in case of syntax errors as tooltip
      */
     public void onQueryFilterChange(final String currentText, final boolean valid, final String validationMessage) {
+        final String message = valid ? currentText : validationMessage;
+        updateComponents(currentText, valid, message);
+
+        fireEvent(createValueChange(currentText, false));
+        listeners.forEach(listener -> listener.validationChanged(valid, message));
+    }
+
+    private void updateComponents(final String currentText, final boolean valid, final String message) {
         targetFilterQuery = currentText;
         isValid = valid;
 
-        final String message = isValid ? currentText : validationMessage;
-        if (isValid) {
+        if (valid) {
             showValidationSuccesIcon(message);
         } else {
             showValidationFailureIcon(message);
         }
+    }
 
-        fireEvent(createValueChange(targetFilterQuery, false));
-        listeners.forEach(listener -> listener.validationChanged(isValid, message));
+    private void resetIcon() {
+        validationIcon.setValue(null);
+        validationIcon.setDescription(null);
+        validationIcon.removeStyleName(validationIcon.getStyleName());
     }
 
     /**

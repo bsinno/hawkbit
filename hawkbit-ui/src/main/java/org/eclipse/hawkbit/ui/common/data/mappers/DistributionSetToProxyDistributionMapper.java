@@ -44,12 +44,6 @@ public class DistributionSetToProxyDistributionMapper
                     .map(sm -> new SoftwareModuleToProxyMapper().map(sm)).collect(Collectors.toSet()));
         }
 
-        // TODO: check if really needed
-        if (!CollectionUtils.isEmpty(distributionSet.getAutoAssignFilters())) {
-            proxyDistribution.setAutoAssignFilters(distributionSet.getAutoAssignFilters().stream()
-                    .map(tf -> new TargetFilterQueryToProxyTargetFilterMapper().map(tf)).collect(Collectors.toList()));
-        }
-
         return proxyDistribution;
     }
 

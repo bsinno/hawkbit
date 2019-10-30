@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
@@ -83,6 +84,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
             final DistributionSetManagement distributionSetManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final DistributionSetTagManagement distributionSetTagManagement,
+            final TargetFilterQueryManagement targetFilterQueryManagement,
             final DistributionsViewClientCriterion distributionsViewClientCriterion,
             final ArtifactUploadState artifactUploadState, final SystemManagement systemManagement,
             final ArtifactManagement artifactManagement, final NotificationUnreadButton notificationUnreadButton,
@@ -96,9 +98,10 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
                     softwareModuleTypeManagement, distributionSetTypeManagement, distributionSetManagement,
                     systemManagement, manageDistUIState.getDSTypeFilterLayoutUiState());
             this.distributionSetGridLayout = new DistributionSetGridLayout(i18n, eventBus, permChecker,
-                    distributionSetManagement, distributionSetTypeManagement, targetManagement, entityFactory,
-                    uiNotification, distributionSetTagManagement, systemManagement, configManagement,
-                    systemSecurityContext, manageDistUIState.getDSTypeFilterLayoutUiState(),
+                    distributionSetManagement, distributionSetTypeManagement, targetManagement,
+                    targetFilterQueryManagement, entityFactory, uiNotification, distributionSetTagManagement,
+                    systemManagement, configManagement, systemSecurityContext,
+                    manageDistUIState.getDSTypeFilterLayoutUiState(),
                     manageDistUIState.getDistributionSetGridLayoutUiState());
             this.swModuleGridLayout = new SwModuleGridLayout(i18n, uiNotification, eventBus, softwareModuleManagement,
                     softwareModuleTypeManagement, entityFactory, permChecker, artifactUploadState, artifactManagement,
