@@ -15,11 +15,11 @@ import java.util.List;
 import org.eclipse.hawkbit.repository.model.MetaData;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.CommonDialogWindowV7.SaveDialogCloseListener;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilderV7;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilderV7;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -32,18 +32,18 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.event.selection.SelectionEvent;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
-import com.vaadin.v7.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
 import com.vaadin.v7.ui.VerticalLayout;
 
 /**
@@ -76,7 +76,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
     private List<ProxyMetaData> metaDataList;
     private MetaDataGrid metaDataGrid;
     private Label headerCaption;
-    private CommonDialogWindowV7 metadataWindow;
+    private CommonDialogWindow metadataWindow;
 
     private E selectedEntity;
 
@@ -122,14 +122,14 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
      *            entity for which metadata data is displayed
      * @param metaDatakey
      *            metadata key to be selected
-     * @return {@link CommonDialogWindowV7}
+     * @return {@link CommonDialogWindow}
      */
-    public CommonDialogWindowV7 getWindow(final E entity, final String metaDatakey) {
+    public CommonDialogWindow getWindow(final E entity, final String metaDatakey) {
         selectedEntity = entity;
 
-        metadataWindow = new WindowBuilderV7(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption(getMetadataCaption())
+        metadataWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption(getMetadataCaption())
                 .content(this).cancelButtonClickListener(event -> onCancel())
-                .id(UIComponentIdProvider.METADATA_POPUP_ID).layout(mainLayout).i18n(i18n)
+                .id(UIComponentIdProvider.METADATA_POPUP_ID).i18n(i18n)
                 .saveDialogCloseListener(new SaveOnDialogCloseListener()).buildCommonDialogWindow();
 
         metadataWindow.setHeight(550, Unit.PIXELS);
@@ -142,7 +142,6 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
 
     private void setUpDetails(final Long swId, final String metaDatakey) {
         resetDetails();
-        metadataWindow.clearOriginalValues();
         if (swId != null) {
             metaDataList.clear();
             populateGrid();
@@ -255,24 +254,25 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
     }
 
     private TextField createKeyTextField() {
-        final TextField keyField = new TextFieldBuilderV7(MetaData.KEY_MAX_SIZE)
-                .caption(i18n.getMessage("textfield.key")).required(true, i18n)
-                .id(UIComponentIdProvider.METADATA_KEY_FIELD_ID).buildTextComponent();
-        keyField.addTextChangeListener(this::onKeyChange);
-        keyField.setTextChangeEventMode(TextChangeEventMode.LAZY);
-        keyField.setTextChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
+        final TextField keyField = new TextFieldBuilder(MetaData.KEY_MAX_SIZE).caption(i18n.getMessage("textfield.key"))
+                .id(UIComponentIdProvider.METADATA_KEY_FIELD_ID).buildTextComponent();// .required(true,
+                                                                                      // i18n)
+        keyField.addValueChangeListener(this::onKeyChange);
+        keyField.setValueChangeMode(ValueChangeMode.LAZY);
+        keyField.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
         keyField.setWidth("100%");
         return keyField;
     }
 
     private TextArea createValueTextField() {
-        valueTextArea = new TextAreaBuilderV7(MetaData.VALUE_MAX_SIZE).caption(i18n.getMessage("textfield.value"))
-                .required(true, i18n).id(UIComponentIdProvider.METADATA_VALUE_ID).buildTextComponent();
+        valueTextArea = new TextAreaBuilder(MetaData.VALUE_MAX_SIZE).caption(i18n.getMessage("textfield.value"))
+                .id(UIComponentIdProvider.METADATA_VALUE_ID).buildTextComponent();// .required(true,
+                                                                                  // i18n)
         valueTextArea.setSizeFull();
         valueTextArea.setHeight(100, Unit.PERCENTAGE);
-        valueTextArea.addTextChangeListener(this::onValueChange);
-        valueTextArea.setTextChangeEventMode(TextChangeEventMode.LAZY);
-        valueTextArea.setTextChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
+        valueTextArea.addValueChangeListener(this::onValueChange);
+        valueTextArea.setValueChangeMode(ValueChangeMode.LAZY);
+        valueTextArea.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
         return valueTextArea;
     }
 
@@ -359,13 +359,13 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
 
     private Button createAddIcon() {
         addIcon = SPUIComponentProvider.getButton(UIComponentIdProvider.METADTA_ADD_ICON_ID,
-                i18n.getMessage("button.save"), null, null, false, FontAwesome.PLUS, SPUIButtonStyleNoBorder.class);
+                i18n.getMessage("button.save"), null, null, false, VaadinIcons.PLUS, SPUIButtonStyleNoBorder.class);
         addIcon.addClickListener(event -> onAdd());
         return addIcon;
     }
 
     private Label createHeaderCaption() {
-        return new LabelBuilderV7().name(i18n.getMessage("caption.metadata")).buildCaptionLabel();
+        return new LabelBuilder().name(i18n.getMessage("caption.metadata")).buildCaptionLabel();
     }
 
     private void populateGrid() {
@@ -474,15 +474,15 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
         UI.getCurrent().removeWindow(metadataWindow);
     }
 
-    private void onKeyChange(final TextChangeEvent event) {
+    private void onKeyChange(final ValueChangeEvent<String> event) {
         if (hasCreatePermission() || hasUpdatePermission()) {
-            metadataWindow.setSaveButtonEnabled(!valueTextArea.getValue().isEmpty() && !event.getText().isEmpty());
+            metadataWindow.setSaveButtonEnabled(!valueTextArea.getValue().isEmpty() && !event.getValue().isEmpty());
         }
     }
 
-    private void onValueChange(final TextChangeEvent event) {
+    private void onValueChange(final ValueChangeEvent<String> event) {
         if (hasCreatePermission() || hasUpdatePermission()) {
-            metadataWindow.setSaveButtonEnabled(!keyTextField.getValue().isEmpty() && !event.getText().isEmpty());
+            metadataWindow.setSaveButtonEnabled(!keyTextField.getValue().isEmpty() && !event.getValue().isEmpty());
         }
     }
 
@@ -494,7 +494,7 @@ public abstract class AbstractMetadataPopupLayout<E extends NamedEntity, M exten
         return keyTextField;
     }
 
-    protected CommonDialogWindowV7 getMetadataWindow() {
+    protected CommonDialogWindow getMetadataWindow() {
         return metadataWindow;
     }
 

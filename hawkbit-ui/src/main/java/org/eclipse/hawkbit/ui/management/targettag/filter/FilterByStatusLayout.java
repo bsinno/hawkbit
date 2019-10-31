@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
@@ -24,12 +24,12 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Label;
 import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.VerticalLayout;
 
 /**
@@ -86,7 +86,7 @@ public class FilterByStatusLayout extends VerticalLayout implements Button.Click
         addStyleName("target-status-filters");
         setMargin(false);
 
-        final Label targetFilterStatusLabel = new LabelBuilderV7().name(i18n.getMessage("label.filter.by.status"))
+        final Label targetFilterStatusLabel = new LabelBuilder().name(i18n.getMessage("label.filter.by.status"))
                 .buildLabel();
 
         targetFilterStatusLabel.addStyleName("target-status-filters-title");
@@ -109,7 +109,7 @@ public class FilterByStatusLayout extends VerticalLayout implements Button.Click
         setComponentAlignment(buttonLayout, Alignment.MIDDLE_LEFT);
 
         final HorizontalLayout overdueLayout = new HorizontalLayout();
-        final Label overdueLabel = new LabelBuilderV7().name(i18n.getMessage("label.filter.by.overdue")).buildLabel();
+        final Label overdueLabel = new LabelBuilder().name(i18n.getMessage("label.filter.by.overdue")).buildLabel();
         overdueLayout.setStyleName("overdue-button-layout");
         overdueLayout.addComponent(overdue);
         overdueLayout.setComponentAlignment(overdue, Alignment.MIDDLE_LEFT);
@@ -155,23 +155,23 @@ public class FilterByStatusLayout extends VerticalLayout implements Button.Click
         unknown = SPUIComponentProvider.getButton(UIComponentIdProvider.UNKNOWN_STATUS_ICON,
                 TargetUpdateStatus.UNKNOWN.toString(),
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_TARGET_STATUS_UNKNOWN),
-                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, FontAwesome.SQUARE, SPUIButtonStyleSmall.class);
+                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, VaadinIcons.THIN_SQUARE, SPUIButtonStyleSmall.class);
         inSync = SPUIComponentProvider.getButton(UIComponentIdProvider.INSYNCH_STATUS_ICON,
                 TargetUpdateStatus.IN_SYNC.toString(), i18n.getMessage(UIMessageIdProvider.TOOLTIP_STATUS_INSYNC),
-                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, FontAwesome.SQUARE, SPUIButtonStyleSmall.class);
+                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, VaadinIcons.THIN_SQUARE, SPUIButtonStyleSmall.class);
         pending = SPUIComponentProvider.getButton(UIComponentIdProvider.PENDING_STATUS_ICON,
                 TargetUpdateStatus.PENDING.toString(), i18n.getMessage(UIMessageIdProvider.TOOLTIP_STATUS_PENDING),
-                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, FontAwesome.SQUARE, SPUIButtonStyleSmall.class);
+                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, VaadinIcons.THIN_SQUARE, SPUIButtonStyleSmall.class);
         error = SPUIComponentProvider.getButton(UIComponentIdProvider.ERROR_STATUS_ICON,
                 TargetUpdateStatus.ERROR.toString(), i18n.getMessage(UIMessageIdProvider.TOOLTIP_STATUS_ERROR),
-                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, FontAwesome.SQUARE, SPUIButtonStyleSmall.class);
+                SPUIDefinitions.SP_BUTTON_STATUS_STYLE, false, VaadinIcons.THIN_SQUARE, SPUIButtonStyleSmall.class);
         registered = SPUIComponentProvider.getButton(UIComponentIdProvider.REGISTERED_STATUS_ICON,
                 TargetUpdateStatus.REGISTERED.toString(),
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_STATUS_REGISTERED), SPUIDefinitions.SP_BUTTON_STATUS_STYLE,
-                false, FontAwesome.SQUARE, SPUIButtonStyleSmall.class);
+                false, VaadinIcons.THIN_SQUARE, SPUIButtonStyleSmall.class);
         overdue = SPUIComponentProvider.getButton(UIComponentIdProvider.OVERDUE_STATUS_ICON, OVERDUE_CAPTION,
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_STATUS_OVERDUE), SPUIDefinitions.SP_BUTTON_STATUS_STYLE,
-                false, FontAwesome.SQUARE, SPUIButtonStyleSmall.class);
+                false, VaadinIcons.THIN_SQUARE, SPUIButtonStyleSmall.class);
         applyStatusBtnStyle();
         unknown.setData("filterStatusOne");
         inSync.setData("filterStatusTwo");
