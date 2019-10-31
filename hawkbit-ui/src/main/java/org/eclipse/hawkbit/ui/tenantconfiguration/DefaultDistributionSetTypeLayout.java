@@ -8,27 +8,30 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
+
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import com.vaadin.v7.ui.Label;
 
 /**
  * Default DistributionSet Panel.
@@ -53,8 +56,10 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     private ComboBox<ProxyType> dsSetComboBox;
 
-    private Label changeIcon;
+    private Binder<ProxyType> binder;
 
+    private Label changeIcon;
+//    private Binder<ProxySystemConfigWindow> binder;
     private TypeToProxyTypeMapper<DistributionSetType> mapper = new TypeToProxyTypeMapper<>();
 
     DefaultDistributionSetTypeLayout(final SystemManagement systemManagement,
@@ -64,6 +69,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         this.i18n = i18n;
         this.permissionChecker = permChecker;
         this.distributionSetTypeManagement = distributionSetTypeManagement;
+        this.binder = new Binder<>();
         initDsSetTypeComponent();
     }
 
@@ -88,7 +94,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
 
-        final Label configurationLabel = new LabelBuilderV7().name(
+        final Label configurationLabel = new LabelBuilder().name(
                 i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
         hlayout.addComponent(configurationLabel);
 
@@ -111,6 +117,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         dsSetComboBox.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_DEFAULTDIS_COMBOBOX);
         dsSetComboBox.addStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE);
         dsSetComboBox.addStyleName(ValoTheme.COMBOBOX_TINY);
+        dsSetComboBox.setWidth(300f, Unit.PIXELS);
         dsSetComboBox.setEmptySelectionAllowed(false);
         dsSetComboBox.setItemCaptionGenerator(ProxyType::getName);
         dsSetComboBox.setDataProvider(
