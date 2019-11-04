@@ -13,7 +13,6 @@ public class DistributionSetTypeToProxyDistributionSetTypeMapper
         proxyDistributionSetType.setDistSetTypeId(distributionSetType.getId());
         proxyDistributionSetType.setName(distributionSetType.getName());
         proxyDistributionSetType.setDescription(distributionSetType.getDescription());
-
         proxyDistributionSetType.setMandatoryModuleTypes(distributionSetType.getMandatoryModuleTypes());
         proxyDistributionSetType.setOptionalModuleTypes(distributionSetType.getOptionalModuleTypes());
 

@@ -8,20 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
-
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
-import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetTypeToProxyDistributionSetTypeMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetProxyTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
+import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowDependencies;
+import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
@@ -31,7 +29,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Default DistributionSet Panel.
@@ -45,31 +42,27 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
     private final VaadinMessageSource i18n;
 
     private final SpPermissionChecker permissionChecker;
-
-    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
-
     private Long currentDefaultDisSetType;
-
     private Long selectedDefaultDisSetType;
-
     private TenantMetaData tenantMetaData;
-
-    private ComboBox<ProxyType> dsSetComboBox;
-
-    private Binder<ProxyType> binder;
-
+    private ComboBox<ProxyDistributionSetType> dsSetComboBox = new ComboBox<>();
+    private Binder<ProxySystemConfigWindow> binder;
+    private final SystemConfigWindowLayoutComponentBuilder builder;
+    final SystemConfigWindowDependencies dependencies;
     private Label changeIcon;
-//    private Binder<ProxySystemConfigWindow> binder;
-    private TypeToProxyTypeMapper<DistributionSetType> mapper = new TypeToProxyTypeMapper<>();
 
-    DefaultDistributionSetTypeLayout(final SystemManagement systemManagement,
-            final DistributionSetTypeManagement distributionSetTypeManagement, final VaadinMessageSource i18n,
-            final SpPermissionChecker permChecker) {
+    private DistributionSetTypeToProxyDistributionSetTypeMapper mapper = new DistributionSetTypeToProxyDistributionSetTypeMapper();
+
+    DefaultDistributionSetTypeLayout(final SystemManagement systemManagement, final VaadinMessageSource i18n,
+            final SpPermissionChecker permChecker,final Binder<ProxySystemConfigWindow> binder,
+            final DistributionSetTypeManagement typeManagement) {
         this.systemManagement = systemManagement;
         this.i18n = i18n;
         this.permissionChecker = permChecker;
-        this.distributionSetTypeManagement = distributionSetTypeManagement;
-        this.binder = new Binder<>();
+        this.binder = binder;
+        final DistributionSetProxyTypeDataProvider dataProvider = new DistributionSetProxyTypeDataProvider(typeManagement, new DistributionSetTypeToProxyDistributionSetTypeMapper());
+        this.dependencies = new SystemConfigWindowDependencies(systemManagement, i18n, permChecker, typeManagement, dataProvider, tenantMetaData);
+        this.builder = new SystemConfigWindowLayoutComponentBuilder(this.dependencies);
         initDsSetTypeComponent();
     }
 
@@ -112,29 +105,20 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
     }
 
     private void initDsSetComboBox() {
-        dsSetComboBox = new ComboBox<>();
-        dsSetComboBox.setDescription(i18n.getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG));
-        dsSetComboBox.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_DEFAULTDIS_COMBOBOX);
-        dsSetComboBox.addStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE);
-        dsSetComboBox.addStyleName(ValoTheme.COMBOBOX_TINY);
-        dsSetComboBox.setWidth(300f, Unit.PIXELS);
-        dsSetComboBox.setEmptySelectionAllowed(false);
-        dsSetComboBox.setItemCaptionGenerator(ProxyType::getName);
-        dsSetComboBox.setDataProvider(
-                new DistributionSetTypeDataProvider(distributionSetTypeManagement, new TypeToProxyTypeMapper<>()));
-        dsSetComboBox.setValue(mapper.map(getCurrentDistributionSetType()));
-        dsSetComboBox.addValueChangeListener(event -> selectDistributionSetValue());
+        dsSetComboBox = builder.createDistributionSetCombo(binder);
+      //  dsSetComboBox.setValue(mapper.map(getCurrentDistributionSetType()));
+//        dsSetComboBox.addValueChangeListener(event -> selectDistributionSetValue());
     }
 
     private DistributionSetType getCurrentDistributionSetType() {
-        tenantMetaData = systemManagement.getTenantMetadata();
+        tenantMetaData = this.systemManagement.getTenantMetadata();
         return tenantMetaData.getDefaultDsType();
     }
 
     @Override
     public void save() {
         if (!currentDefaultDisSetType.equals(selectedDefaultDisSetType) && selectedDefaultDisSetType != null) {
-            tenantMetaData = systemManagement.updateTenantMetadata(selectedDefaultDisSetType);
+            tenantMetaData = this.systemManagement.updateTenantMetadata(binder.getBean().getDistributionSetTypeId());
             currentDefaultDisSetType = selectedDefaultDisSetType;
         }
         changeIcon.setVisible(false);
@@ -151,7 +135,9 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
      * Method that is called when combobox event is performed.
      */
     private void selectDistributionSetValue() {
-        selectedDefaultDisSetType = dsSetComboBox.getSelectedItem().map(ProxyType::getId).orElse(null);
+        selectedDefaultDisSetType = dsSetComboBox.getSelectedItem()
+                .map(ProxyDistributionSetType::getDistSetTypeId)
+                .orElse(null);
         if (!selectedDefaultDisSetType.equals(currentDefaultDisSetType)) {
             changeIcon.setVisible(true);
             notifyConfigurationChanged();

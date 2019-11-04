@@ -1,4 +1,4 @@
-package org.eclipse.hawkbit.ui.tenantconfiguration.rollout.controller;
+package org.eclipse.hawkbit.ui.tenantconfiguration.window.controller;
 
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;

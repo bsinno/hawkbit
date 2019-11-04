@@ -22,21 +22,26 @@ import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetProxyTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfig;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.tenantconfiguration.ConfigurationItem.ConfigurationItemChangeListener;
+import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowDependencies;
+import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
+import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.spring.annotation.ViewScope;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -73,7 +78,8 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     private Button saveConfigurationBtn;
     private Button undoConfigurationBtn;
-
+    private final SystemManagement systemManagement;
+    private final Binder<ProxySystemConfigWindow> binder;
     private final List<ConfigurationGroup> configurationViews = Lists.newArrayListWithExpectedSize(3);
 
     @Autowired(required = false)
@@ -86,8 +92,10 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             final TenantConfigurationManagement tenantConfigurationManagement,
             final SecurityTokenGenerator securityTokenGenerator,
             final ControllerPollProperties controllerPollProperties, final SpPermissionChecker permChecker) {
-        this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement,
-                distributionSetTypeManagement, i18n, permChecker);
+        this.systemManagement = systemManagement;
+        this.binder = new Binder<>();
+        this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n, permChecker, binder,
+                 distributionSetTypeManagement);
         this.authenticationConfigurationView = new AuthenticationConfigurationView(i18n, tenantConfigurationManagement,
                 securityTokenGenerator, uiProperties);
         this.pollingConfigurationView = new PollingConfigurationView(i18n, controllerPollProperties,
@@ -135,6 +143,18 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         setCompositionRoot(rootPanel);
 
         configurationViews.forEach(view -> view.addChangeListener(this));
+
+        binder.setBean(populateAndGetSystemConfig());
+        binder.addStatusChangeListener(event -> saveConfigurationBtn.setEnabled(event.getBinder().isValid()));
+    }
+
+    private ProxySystemConfigWindow populateAndGetSystemConfig() {
+        final ProxySystemConfigWindow configBean = new ProxySystemConfigWindow();
+
+        configBean.setDistributionSetTypeId(systemManagement.getTenantMetadata().getDefaultDsType().getId());
+//        configBean.setAuthConfigId();
+
+        return configBean;
     }
 
     private HorizontalLayout saveConfigurationButtonsLayout() {
@@ -163,6 +183,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     }
 
     private void saveConfiguration() {
+//        final ProxySystemConfigWindow configBean = binder.getBean();
 
         final boolean isUserInputValid = configurationViews.stream().allMatch(ConfigurationGroup::isUserInputValid);
 

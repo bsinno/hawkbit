@@ -9,6 +9,12 @@
 package org.eclipse.hawkbit.ui;
 
 import org.eclipse.hawkbit.im.authentication.PermissionService;
+import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import org.eclipse.hawkbit.repository.SystemManagement;
+import org.eclipse.hawkbit.repository.model.TenantMetaData;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetProxyTypeDataProvider;
+import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowDependencies;
+import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -41,5 +47,15 @@ public class MgmtUiConfiguration {
     VaadinMessageSource messageSourceVaadin(final MessageSource source) {
         return new VaadinMessageSource(source);
     }
+
+//    @Bean
+//    @ConditionalOnMissingBean
+//    SystemConfigWindowLayoutComponentBuilder builder(SystemManagement systemManagement, VaadinMessageSource i18n ,
+//            SpPermissionChecker permChecker, DistributionSetTypeManagement distributionSetTypeManagement,
+//            DistributionSetProxyTypeDataProvider distributionSetProxyTypeDataProvider, TenantMetaData tenantMetaData){
+//        final SystemConfigWindowDependencies dependencies = new SystemConfigWindowDependencies(systemManagement, i18n,
+//                permChecker, distributionSetTypeManagement, distributionSetProxyTypeDataProvider, tenantMetaData);
+//        return new SystemConfigWindowLayoutComponentBuilder(dependencies);
+//    }
 
 }

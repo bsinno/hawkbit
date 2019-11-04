@@ -34,7 +34,6 @@ public class SystemConfigWindowLayoutComponentBuilder {
         distributionSetType.setEmptySelectionAllowed(false);
         distributionSetType.setItemCaptionGenerator(ProxyDistributionSetType::getName);
         distributionSetType.setDataProvider(dependencies.getDistributionSetTypeDataProvider());
-        binder = new Binder<>(ProxySystemConfigWindow.class);
 
         binder.forField(distributionSetType).asRequired("select").withConverter(dst -> {
             if (dst == null) {
@@ -52,6 +51,11 @@ public class SystemConfigWindowLayoutComponentBuilder {
 
             return dst;
         }).bind(ProxySystemConfigWindow::getDistributionSetTypeId, ProxySystemConfigWindow::setDistributionSetTypeId);
+
         return distributionSetType;
+    }
+
+    public SystemConfigWindowDependencies getDependencies() {
+        return dependencies;
     }
 }
