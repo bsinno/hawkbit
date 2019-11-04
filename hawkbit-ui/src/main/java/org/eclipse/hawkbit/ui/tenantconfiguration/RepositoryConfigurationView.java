@@ -59,9 +59,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView
     private CheckBox multiAssignmentsCheckBox;
 
     RepositoryConfigurationView(final VaadinMessageSource i18n,
-                                final TenantConfigurationManagement tenantConfigurationManagement, final UiProperties uiProperties,
-                                final RolloutManagement rolloutManagement, final EntityFactory entityFactory,
-                                final TargetFilterQueryManagement targetFilterQueryManagement, final DeploymentManagement deploymentManagement) {
+                                final TenantConfigurationManagement tenantConfigurationManagement, final UiProperties uiProperties) {
         this.i18n = i18n;
         this.uiProperties = uiProperties;
         this.actionAutocloseConfigurationItem = new ActionAutocloseConfigurationItem(tenantConfigurationManagement,
@@ -69,7 +67,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
                 i18n);
         this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
-                i18n,uiProperties, rolloutManagement,entityFactory,targetFilterQueryManagement,deploymentManagement);
+                i18n,uiProperties);
 
         init();
     }

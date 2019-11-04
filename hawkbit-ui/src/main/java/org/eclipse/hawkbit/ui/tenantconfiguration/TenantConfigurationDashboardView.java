@@ -88,9 +88,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
                                      final DistributionSetTypeManagement distributionSetTypeManagement,
                                      final TenantConfigurationManagement tenantConfigurationManagement,
                                      final SecurityTokenGenerator securityTokenGenerator,
-                                     final ControllerPollProperties controllerPollProperties, final SpPermissionChecker permChecker,
-                                     final RolloutManagement rolloutManagement, final EntityFactory entityFactory,
-                                     final TargetFilterQueryManagement targetFilterQueryManagement, final DeploymentManagement deploymentManagement) {
+                                     final ControllerPollProperties controllerPollProperties, final SpPermissionChecker permChecker) {
         this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement,
                 distributionSetTypeManagement, i18n, permChecker);
         this.authenticationConfigurationView = new AuthenticationConfigurationView(i18n, tenantConfigurationManagement,
@@ -98,7 +96,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.pollingConfigurationView = new PollingConfigurationView(i18n, controllerPollProperties,
                 tenantConfigurationManagement);
         this.repositoryConfigurationView = new RepositoryConfigurationView(i18n, tenantConfigurationManagement,
-                uiProperties, rolloutManagement,entityFactory,targetFilterQueryManagement,deploymentManagement);
+                uiProperties);
         this.rolloutConfigurationView = new RolloutConfigurationView(i18n, tenantConfigurationManagement, uiProperties);
 
         this.i18n = i18n;
