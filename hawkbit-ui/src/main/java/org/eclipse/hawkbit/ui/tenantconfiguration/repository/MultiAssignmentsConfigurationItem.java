@@ -52,7 +52,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     private final VaadinMessageSource i18n;
     private VerticalLayout container;
     private TextField defaultWeightTextField;
-
+    private Label msgBoxLabel;
 
     private boolean isMultiAssignmentsEnabled;
     private boolean multiAssignmentsEnabledChanged;
@@ -70,7 +70,8 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
         this.i18n = i18n;
         this.repositoryProperties = repositoryProperties;
         this.uiProperties = uiProperties;
-        super.init(MSG_KEY_CHECKBOX);
+        setImmediate(true);
+        createMsgBoxLabel();
         isMultiAssignmentsEnabled = isConfigEnabled();
 
         createContainer();
@@ -82,6 +83,11 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
         container = new VerticalLayout();
         container.setImmediate(true);
         createComponents();
+    }
+
+    private void createMsgBoxLabel() {
+        msgBoxLabel = newLabel(MSG_KEY_CHECKBOX);
+        addComponent(msgBoxLabel);
     }
 
     private int getWeightForTenantOrDefault() {
@@ -140,20 +146,30 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
         setSettingsVisible(false);
     }
 
+    public void setEnabled(boolean enable) {
+        this.msgBoxLabel.setEnabled(enable);
+        this.container.setEnabled(true);
+    }
+
     @Override
     public void save() {
+        if (isMultiAssignmentsEnabled) {
+            writeConfigValue(MULTI_ASSIGNMENTS_WEIGHT_DEFAULT, getWeightFromTextField());
+        }
+
         if (!multiAssignmentsEnabledChanged) {
             return;
         }
 
         writeConfigValue(MULTI_ASSIGNMENTS_ENABLED, isMultiAssignmentsEnabled);
-
-        writeConfigValue(MULTI_ASSIGNMENTS_WEIGHT_DEFAULT, getWeightFromTextField());
-
     }
 
     private int getWeightFromTextField() {
-        return Integer.parseInt(defaultWeightTextField.getValue());
+        return Integer.parseInt(defaultWeightTextField.getValue().replaceAll("[^0-9]", ""));
+    }
+
+    public boolean weightFromInputChanged() {
+        return (getWeightFromTextField() == getWeightForTenantOrDefault());
     }
 
     private <T extends Serializable> void writeConfigValue(final String key, final T value) {
@@ -197,6 +213,10 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
         defaultWeightTextField.setValue(value.toString());
         return defaultWeightTextField;
 
+    }
+
+    public TextField getWeightTextField() {
+        return defaultWeightTextField;
     }
 
     static class ActionWeightValidator implements Validator {
