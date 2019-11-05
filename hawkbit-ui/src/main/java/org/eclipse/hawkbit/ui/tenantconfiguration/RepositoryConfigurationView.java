@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.tenantconfiguration;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.RepositoryProperties;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
@@ -59,7 +60,8 @@ public class RepositoryConfigurationView extends BaseConfigurationView
     private CheckBox multiAssignmentsCheckBox;
 
     RepositoryConfigurationView(final VaadinMessageSource i18n,
-                                final TenantConfigurationManagement tenantConfigurationManagement, final UiProperties uiProperties) {
+                                final TenantConfigurationManagement tenantConfigurationManagement,
+                                final UiProperties uiProperties, final RepositoryProperties repositoryProperties) {
         this.i18n = i18n;
         this.uiProperties = uiProperties;
         this.actionAutocloseConfigurationItem = new ActionAutocloseConfigurationItem(tenantConfigurationManagement,
@@ -67,7 +69,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
                 i18n);
         this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
-                i18n,uiProperties);
+                i18n,uiProperties, repositoryProperties);
 
         init();
     }

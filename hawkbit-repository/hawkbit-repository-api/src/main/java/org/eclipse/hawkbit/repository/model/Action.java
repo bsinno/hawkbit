@@ -50,11 +50,6 @@ public interface Action extends TenantAwareBaseEntity {
     int WEIGHT_MAX = 1000;
 
     /**
-     * Maximum weight to indicate the priority of {@link Action}.
-     */
-    int WEIGHT_DEFAULT = 500;
-
-    /**
      * @return the distributionSet
      */
     DistributionSet getDistributionSet();

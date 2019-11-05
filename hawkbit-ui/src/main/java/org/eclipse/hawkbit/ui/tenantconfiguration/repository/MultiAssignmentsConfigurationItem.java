@@ -17,9 +17,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import org.eclipse.hawkbit.repository.RepositoryProperties;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Action;
-import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
@@ -47,7 +47,8 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     private static final String MSG_KEY_DEFAULT_WEIGHT = "label.configuration.repository.multiassignments.default.notice";
     private static final String MSG_KEY_DEFAULT_WEIGHT_INPUT_HINT = "prompt.weight.min.max";
     private static final String MSG_KEY_DEFAULT_WEIGHT_INPUT_INVALID = "label.configuration.repository.multiassignments.default.invalid";
-    private UiProperties uiProperties;
+    private final RepositoryProperties repositoryProperties;
+    private final UiProperties uiProperties;
     private final VaadinMessageSource i18n;
     private VerticalLayout container;
     private TextField defaultWeightTextField;
@@ -63,9 +64,11 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
      * @param i18n                          to obtain localized strings
      */
     public MultiAssignmentsConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-                                             final VaadinMessageSource i18n, final UiProperties uiProperties) {
+                                             final VaadinMessageSource i18n, final UiProperties uiProperties,
+                                             final RepositoryProperties repositoryProperties) {
         super(MULTI_ASSIGNMENTS_ENABLED, tenantConfigurationManagement, i18n);
         this.i18n = i18n;
+        this.repositoryProperties = repositoryProperties;
         this.uiProperties = uiProperties;
         super.init(MSG_KEY_CHECKBOX);
         isMultiAssignmentsEnabled = isConfigEnabled();
@@ -81,13 +84,18 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
         createComponents();
     }
 
+    private int getWeightForTenantOrDefault() {
+        return readConfigValue(MULTI_ASSIGNMENTS_WEIGHT_DEFAULT, Integer.class)
+                .orElse(repositoryProperties.getActionWeightIfAbsent());
+    }
+
     private void createComponents() {
         final HorizontalLayout row1 = newHorizontalLayout();
         Label defaultWeightHintLabel = newLabel(MSG_KEY_DEFAULT_WEIGHT);
         row1.addComponent(defaultWeightHintLabel);
         row1.setComponentAlignment(defaultWeightHintLabel, Alignment.MIDDLE_CENTER);
         row1.addComponent(createIntegerTextField(MSG_KEY_DEFAULT_WEIGHT_INPUT_HINT,
-                readConfigValue(MULTI_ASSIGNMENTS_WEIGHT_DEFAULT, Integer.class).orElse(Action.WEIGHT_DEFAULT)));
+                getWeightForTenantOrDefault()));
 
         final Link linkToDefaultWeightHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getRollout()); //TODO: Link right do
@@ -160,7 +168,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     @Override
     public void undo() {
         isMultiAssignmentsEnabled = readConfigValue(MULTI_ASSIGNMENTS_ENABLED, Boolean.class).get();
-        defaultWeightTextField.setValue(String.valueOf(Action.WEIGHT_DEFAULT));
+        defaultWeightTextField.setValue(String.valueOf(getWeightForTenantOrDefault()));
     }
 
     private void setSettingsVisible(final boolean visible) {
@@ -181,7 +189,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     }
 
     private TextField createIntegerTextField(final String in18Key, final Integer value) {
-        defaultWeightTextField = createTextField(i18n.getMessage(in18Key, Action.WEIGHT_MIN, Action.WEIGHT_MAX), 4);
+        defaultWeightTextField = createTextField(i18n.getMessage(in18Key, Action.WEIGHT_MIN, Action.WEIGHT_MAX), 5);
         defaultWeightTextField.setConverter(new StringToIntegerConverter());
         defaultWeightTextField.addValidator(new ActionWeightValidator(i18n.getMessage(MSG_KEY_DEFAULT_WEIGHT_INPUT_INVALID)));
         defaultWeightTextField.setWidthUndefined();

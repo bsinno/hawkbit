@@ -8,15 +8,20 @@
  */
 package org.eclipse.hawkbit.repository.jpa;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.RepositoryProperties;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.springframework.data.domain.PageRequest;
+
+import static org.eclipse.hawkbit.repository.TimestampCalculator.getTenantConfigurationManagement;
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.MULTI_ASSIGNMENTS_WEIGHT_DEFAULT;
 
 /**
  * Implements utility methods for managing {@link Action}s
@@ -27,13 +32,13 @@ public class JpaActionManagement {
     protected final RepositoryProperties repositoryProperties;
 
     protected JpaActionManagement(final ActionRepository actionRepository,
-            final RepositoryProperties repositoryProperties) {
+                                  final RepositoryProperties repositoryProperties) {
         this.actionRepository = actionRepository;
         this.repositoryProperties = repositoryProperties;
     }
-    
+
     protected List<Action> findActiveActionsWithHighestWeightConsideringDefault(final String controllerId,
-            final int maxActionCount) {
+                                                                                final int maxActionCount) {
         if (!actionRepository.activeActionExistsForControllerId(controllerId)) {
             return Collections.emptyList();
         }
@@ -50,8 +55,14 @@ public class JpaActionManagement {
         return actions.stream().sorted(actionImportance).limit(maxActionCount).collect(Collectors.toList());
     }
 
+    private <T extends Serializable> Optional<T> readConfigValue(final String key, final Class<T> valueType) {
+        return Optional.ofNullable(getTenantConfigurationManagement().getConfigurationValue(key, valueType).getValue());
+    }
+
     protected int getWeightConsideringDefault(final Action action) {
-        return action.getWeight().orElse(repositoryProperties.getActionWeightIfAbsent());
+        return action.getWeight()
+                .orElse(readConfigValue(MULTI_ASSIGNMENTS_WEIGHT_DEFAULT, Integer.class)
+                .orElse(repositoryProperties.getActionWeightIfAbsent()));
     }
 
 }
