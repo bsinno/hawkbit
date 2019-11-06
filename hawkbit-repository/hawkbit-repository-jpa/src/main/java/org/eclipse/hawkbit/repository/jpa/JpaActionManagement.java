@@ -17,7 +17,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.RepositoryProperties;
+import org.eclipse.hawkbit.repository.jpa.utils.TenantConfigHelper;
 import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.springframework.data.domain.PageRequest;
 
 import static org.eclipse.hawkbit.repository.TimestampCalculator.getTenantConfigurationManagement;
@@ -30,11 +32,14 @@ public class JpaActionManagement {
 
     protected final ActionRepository actionRepository;
     protected final RepositoryProperties repositoryProperties;
+    protected final SystemSecurityContext systemSecurityContext;
 
     protected JpaActionManagement(final ActionRepository actionRepository,
-                                  final RepositoryProperties repositoryProperties) {
+                                  final RepositoryProperties repositoryProperties,
+                                  final SystemSecurityContext systemSecurityContext) {
         this.actionRepository = actionRepository;
         this.repositoryProperties = repositoryProperties;
+        this.systemSecurityContext = systemSecurityContext;
     }
 
     protected List<Action> findActiveActionsWithHighestWeightConsideringDefault(final String controllerId,
@@ -56,13 +61,13 @@ public class JpaActionManagement {
     }
 
     private <T extends Serializable> Optional<T> readConfigValue(final String key, final Class<T> valueType) {
-        return Optional.ofNullable(getTenantConfigurationManagement().getConfigurationValue(key, valueType).getValue());
+        return Optional.ofNullable(TenantConfigHelper.usingContext(systemSecurityContext,
+                getTenantConfigurationManagement()).getConfigValue(key, valueType));
     }
 
     protected int getWeightConsideringDefault(final Action action) {
-        return action.getWeight()
-                .orElse(readConfigValue(MULTI_ASSIGNMENTS_WEIGHT_DEFAULT, Integer.class)
-                .orElse(repositoryProperties.getActionWeightIfAbsent()));
+        return action.getWeight().orElse(readConfigValue(MULTI_ASSIGNMENTS_WEIGHT_DEFAULT, Integer.class)
+                        .orElse(repositoryProperties.getActionWeightIfAbsent()));
     }
 
 }
