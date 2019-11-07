@@ -136,7 +136,6 @@ public class JpaDeploymentManagement extends JpaActionManagement implements Depl
     private final OfflineDsAssignmentStrategy offlineDsAssignmentStrategy;
     private final TenantConfigurationManagement tenantConfigurationManagement;
     private final QuotaManagement quotaManagement;
-    private final SystemSecurityContext systemSecurityContext;
     private final TenantAware tenantAware;
     private final Database database;
     private final RetryTemplate retryTemplate;
@@ -164,7 +163,6 @@ public class JpaDeploymentManagement extends JpaActionManagement implements Depl
                 this::isMultiAssignmentsEnabled);
         this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.quotaManagement = quotaManagement;
-        this.systemSecurityContext = systemSecurityContext;
         this.tenantAware = tenantAware;
         this.database = database;
         retryTemplate = createRetryTemplate();

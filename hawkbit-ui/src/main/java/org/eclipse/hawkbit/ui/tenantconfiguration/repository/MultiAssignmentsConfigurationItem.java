@@ -183,7 +183,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
 
     @Override
     public void undo() {
-        isMultiAssignmentsEnabled = readConfigValue(MULTI_ASSIGNMENTS_ENABLED, Boolean.class).get();
+        isMultiAssignmentsEnabled = readConfigValue(MULTI_ASSIGNMENTS_ENABLED, Boolean.class).orElse(false);
         defaultWeightTextField.setValue(String.valueOf(getWeightForTenantOrDefault()));
     }
 
@@ -222,25 +222,21 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     static class ActionWeightValidator implements Validator {
 
         private static final long serialVersionUID = 1L;
-
         private final String message;
-
-        private final Validator rangeValidator;
+        private final Validator integerRangeValidator;
 
         ActionWeightValidator(final String message) {
             this.message = message;
-            this.rangeValidator = new IntegerRangeValidator(message, Action.WEIGHT_MIN, Action.WEIGHT_MAX);
+            this.integerRangeValidator = new IntegerRangeValidator(message, Action.WEIGHT_MIN, Action.WEIGHT_MAX);
         }
 
         @Override
         public void validate(final Object value) {
-
             if (StringUtils.isEmpty(value)) {
                 throw new InvalidValueException(message);
             }
-
             try {
-                rangeValidator.validate(Integer.parseInt(value.toString()));
+                integerRangeValidator.validate(Integer.parseInt(value.toString()));
             } catch (final RuntimeException e) {
                 throw new InvalidValueException(message);
             }
