@@ -134,9 +134,6 @@ public class JpaControllerManagement extends JpaActionManagement implements Cont
     private TenantConfigurationManagement tenantConfigurationManagement;
 
     @Autowired
-    private SystemSecurityContext systemSecurityContext;
-
-    @Autowired
     private EntityFactory entityFactory;
 
     @Autowired

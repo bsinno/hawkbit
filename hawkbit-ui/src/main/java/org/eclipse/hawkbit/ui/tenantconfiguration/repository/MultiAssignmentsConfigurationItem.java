@@ -26,6 +26,8 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -40,6 +42,8 @@ import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationPrope
  */
 public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConfigurationItem {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MultiAssignmentsConfigurationItem.class);
+
     private static final long serialVersionUID = 1L;
 
     private static final String MSG_KEY_CHECKBOX = "label.configuration.repository.multiassignments";
@@ -47,7 +51,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     private static final String MSG_KEY_DEFAULT_WEIGHT = "label.configuration.repository.multiassignments.default.notice";
     private static final String MSG_KEY_DEFAULT_WEIGHT_INPUT_HINT = "prompt.weight.min.max";
     private static final String MSG_KEY_DEFAULT_WEIGHT_INPUT_INVALID = "label.configuration.repository.multiassignments.default.invalid";
-    private final RepositoryProperties repositoryProperties;
+    private final transient RepositoryProperties repositoryProperties;
     private final UiProperties uiProperties;
     private final VaadinMessageSource i18n;
     private VerticalLayout container;
@@ -125,7 +129,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
 
     @Override
     public boolean isUserInputValid() {
-        return isMultiAssignmentsEnabled ? defaultWeightTextField.isValid() : true;
+        return !isMultiAssignmentsEnabled || defaultWeightTextField.isValid();
     }
 
     @Override
@@ -173,6 +177,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     }
 
     private <T extends Serializable> void writeConfigValue(final String key, final T value) {
+        LOGGER.debug("Write tenant configuration value: key={} value={}", key,value);
         getTenantConfigurationManagement().addOrUpdateConfiguration(key, value);
     }
 
@@ -238,6 +243,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
             try {
                 integerRangeValidator.validate(Integer.parseInt(value.toString()));
             } catch (final RuntimeException e) {
+                LOGGER.debug("Integer range validation failed", e);
                 throw new InvalidValueException(message);
             }
         }
