@@ -10,12 +10,12 @@ package org.eclipse.hawkbit.ui.management.dstable;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractDistributionSetDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsGrid;
+import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -34,9 +34,10 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
             final DistributionSetManagement distributionSetManagement, final UINotification uiNotification,
             final DistributionSetTagManagement distributionSetTagManagement,
             final TenantConfigurationManagement tenantConfigurationManagement,
-            final SystemSecurityContext systemSecurityContext, final EntityFactory entityFactory) {
+            final SystemSecurityContext systemSecurityContext, final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
         super(i18n, eventBus, permissionChecker, distributionSetManagement, uiNotification,
-                distributionSetTagManagement, tenantConfigurationManagement, systemSecurityContext, entityFactory);
+                distributionSetTagManagement, tenantConfigurationManagement, systemSecurityContext,
+                dsMetaDataWindowBuilder);
 
         this.managementUIState = managementUIState;
 

@@ -54,6 +54,8 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
         final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
                 distributionSetTypeManagement);
+        final DsMetaDataWindowBuilder dsMetaDataWindowBuilder = new DsMetaDataWindowBuilder(i18n, entityFactory,
+                eventBus, uiNotification, permissionChecker, distributionSetManagement);
 
         this.distributionSetGridHeader = new DistributionSetGridHeader(i18n, permissionChecker, eventBus,
                 dsWindowBuilder, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
@@ -61,10 +63,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 targetManagement, distributionSetManagement, distributionSetGridLayoutUiState);
 
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
-                uiNotification, entityFactory, distributionSetManagement, dsWindowBuilder);
+                uiNotification, dsWindowBuilder, dsMetaDataWindowBuilder);
         this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker,
                 distributionSetManagement, uiNotification, distributionSetTagManagement, targetFilterQueryManagement,
-                configManagement, systemSecurityContext, entityFactory, distributionSetGridLayoutUiState);
+                configManagement, systemSecurityContext, distributionSetGridLayoutUiState, dsMetaDataWindowBuilder);
 
         this.eventListener = new DistributionSetGridLayoutEventListener(this, eventBus);
 

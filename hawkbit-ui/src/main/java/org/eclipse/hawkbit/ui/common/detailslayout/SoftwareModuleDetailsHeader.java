@@ -10,16 +10,14 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.Collections;
 
-import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -34,30 +32,27 @@ import com.vaadin.ui.Window;
 public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
-    private final transient EntityFactory entityFactory;
-    private final transient SoftwareModuleManagement softwareModuleManagement;
-
     private final SmWindowBuilder smWindowBuilder;
+    private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
+
     private final ArtifactDetailsGridLayout artifactDetailsLayout;
 
     private final transient ArtifactDetailsHeaderSupport artifactDetailsHeaderSupport;
 
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final UINotification uiNotification, final EntityFactory entityFactory,
-            final SoftwareModuleManagement softwareModuleManagement, final SmWindowBuilder smWindowBuilder) {
-        this(i18n, permChecker, eventBus, uiNotification, entityFactory, softwareModuleManagement, smWindowBuilder,
-                null);
+            final UIEventBus eventBus, final UINotification uiNotification, final SmWindowBuilder smWindowBuilder,
+            final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
+        this(i18n, permChecker, eventBus, uiNotification, smWindowBuilder, smMetaDataWindowBuilder, null);
     }
 
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final UINotification uiNotification, final EntityFactory entityFactory,
-            final SoftwareModuleManagement softwareModuleManagement, final SmWindowBuilder smWindowBuilder,
+            final UIEventBus eventBus, final UINotification uiNotification, final SmWindowBuilder smWindowBuilder,
+            final SmMetaDataWindowBuilder smMetaDataWindowBuilder,
             final ArtifactDetailsGridLayout artifactDetailsLayout) {
         super(i18n, permChecker, eventBus, uiNotification);
 
-        this.entityFactory = entityFactory;
-        this.softwareModuleManagement = softwareModuleManagement;
         this.smWindowBuilder = smWindowBuilder;
+        this.smMetaDataWindowBuilder = smMetaDataWindowBuilder;
         this.artifactDetailsLayout = artifactDetailsLayout;
 
         if (artifactDetailsLayout != null) {
@@ -130,11 +125,15 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
 
     @Override
     protected void showMetaData() {
-        softwareModuleManagement.get(selectedEntity.getId()).ifPresent(swmodule -> {
-            final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification,
-                    eventBus, softwareModuleManagement, entityFactory, permChecker);
-            UI.getCurrent().addWindow(swMetadataPopupLayout.getWindow(swmodule, null));
-        });
+        if (selectedEntity == null) {
+            return;
+        }
+
+        final Window metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(selectedEntity.getId());
+
+        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + selectedEntity.getNameAndVersion());
+        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.setVisible(Boolean.TRUE);
     }
 
     // TODO: check if it could be substituted with artifactDetailsLayout

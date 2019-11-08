@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.vaadin.data.Binder;
@@ -15,6 +16,8 @@ import com.vaadin.ui.ComponentContainer;
 
 public abstract class AbstractEntityWindowLayout<T> {
     protected final Binder<T> binder;
+
+    protected Consumer<Boolean> validationCallback;
 
     protected AbstractEntityWindowLayout() {
         this.binder = new Binder<>();
@@ -32,5 +35,10 @@ public abstract class AbstractEntityWindowLayout<T> {
 
     public void addValidationListener(final Consumer<Boolean> validationCallback) {
         binder.addStatusChangeListener(event -> validationCallback.accept(event.getBinder().isValid()));
+        this.validationCallback = validationCallback;
+    }
+
+    public Optional<Consumer<Boolean>> getValidationCallback() {
+        return Optional.ofNullable(validationCallback);
     }
 }

@@ -15,6 +15,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
@@ -50,6 +51,8 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 softwareModuleManagement, softwareModuleTypeManagement);
+        final SmMetaDataWindowBuilder smMetaDataWindowBuilder = new SmMetaDataWindowBuilder(i18n, entityFactory,
+                eventBus, uiNotification, permChecker, softwareModuleManagement);
 
         this.swModuleGridHeader = new SwModuleGridHeader(i18n, permChecker, eventBus, smWindowBuilder,
                 distSMTypeFilterLayoutUiState, swModuleGridLayoutUiState);
@@ -61,9 +64,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         final ArtifactDetailsGridLayout artifactDetailsLayout = new ArtifactDetailsGridLayout(i18n, eventBus,
                 artifactUploadState, uiNotification, artifactManagement, permChecker);
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
-                entityFactory, softwareModuleManagement, smWindowBuilder, artifactDetailsLayout);
-        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleManagement, entityFactory,
-                uiNotification, swModuleGridLayoutUiState);
+                smWindowBuilder, smMetaDataWindowBuilder, artifactDetailsLayout);
+        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleManagement,
+                swModuleGridLayoutUiState, smMetaDataWindowBuilder);
 
         this.eventListener = new SwModuleGridLayoutEventListener(this, eventBus);
 

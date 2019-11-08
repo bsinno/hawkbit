@@ -47,6 +47,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         final TargetWindowBuilder targetWindowBuilder = new TargetWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, targetManagement);
+        final TargetMetaDataWindowBuilder targetMetaDataWindowBuilder = new TargetMetaDataWindowBuilder(i18n,
+                entityFactory, eventBus, uiNotification, permissionChecker, targetManagement);
 
         this.targetGridHeader = new TargetGridHeader(i18n, permissionChecker, eventBus, uiNotification,
                 managementUIState, targetManagement, deploymentManagement, uiProperties, entityFactory, uiNotification,
@@ -55,9 +57,9 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 permissionChecker, deploymentManagement, configManagement, systemSecurityContext, uiProperties);
 
         this.targetDetailsHeader = new TargetDetailsHeader(i18n, permissionChecker, eventBus, uiNotification,
-                entityFactory, targetManagement, targetWindowBuilder);
+                targetWindowBuilder, targetMetaDataWindowBuilder);
         this.targetDetails = new TargetDetails(i18n, eventBus, permissionChecker, managementUIState, uiNotification,
-                targetTagManagement, targetManagement, deploymentManagement, entityFactory);
+                targetTagManagement, targetManagement, deploymentManagement, targetMetaDataWindowBuilder);
 
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }

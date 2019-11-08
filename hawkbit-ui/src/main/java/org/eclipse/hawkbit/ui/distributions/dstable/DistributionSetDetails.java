@@ -13,7 +13,6 @@ import java.util.Collections;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
@@ -46,10 +45,10 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
             final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
             final TargetFilterQueryManagement targetFilterQueryManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
-            final EntityFactory entityFactory,
-            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
+            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState,
+            final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
         super(i18n, eventBus, permissionChecker, distributionSetManagement, uiNotification,
-                distributionSetTagManagement, configManagement, systemSecurityContext, entityFactory);
+                distributionSetTagManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
         this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
 

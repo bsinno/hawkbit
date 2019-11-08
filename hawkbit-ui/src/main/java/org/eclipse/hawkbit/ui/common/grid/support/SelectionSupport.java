@@ -114,19 +114,25 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     /**
      * Selects the first row if available and enabled.
      */
-    public void selectFirstRow() {
+    public boolean selectFirstRow() {
         if (isNoSelectionModel()) {
-            return;
+            return false;
         }
 
         final int size = grid.getDataCommunicator().getDataProviderSize();
         if (size > 0) {
             final T firstItem = grid.getDataCommunicator().fetchItemsWithRange(0, 1).get(0);
-            grid.getDataProvider().refreshItem(firstItem);
-            grid.select(firstItem);
-        } else {
-            grid.deselectAll();
+
+            if (firstItem != null) {
+                grid.select(firstItem);
+
+                return true;
+            }
         }
+
+        grid.deselectAll();
+
+        return false;
     }
 
     public void selectAll() {

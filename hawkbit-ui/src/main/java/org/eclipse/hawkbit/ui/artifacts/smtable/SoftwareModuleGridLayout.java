@@ -38,6 +38,8 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 softwareModuleManagement, softwareModuleTypeManagement);
+        final SmMetaDataWindowBuilder smMetaDataWindowBuilder = new SmMetaDataWindowBuilder(i18n, entityFactory,
+                eventBus, uiNotification, permChecker, softwareModuleManagement);
 
         this.softwareModuleGridHeader = new SoftwareModuleGridHeader(i18n, permChecker, eventBus, artifactUploadState,
                 smWindowBuilder);
@@ -45,9 +47,9 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
                 artifactUploadState, softwareModuleManagement);
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
-                entityFactory, softwareModuleManagement, smWindowBuilder);
+                smWindowBuilder, smMetaDataWindowBuilder);
         this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, permChecker, artifactUploadState,
-                softwareModuleManagement, entityFactory, uiNotification);
+                softwareModuleManagement, smMetaDataWindowBuilder);
 
         buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetailsHeader, softwareModuleDetails);
     }

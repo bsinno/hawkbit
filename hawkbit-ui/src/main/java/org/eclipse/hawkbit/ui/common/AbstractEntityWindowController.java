@@ -38,10 +38,19 @@ public abstract class AbstractEntityWindowController<T, E> {
             public boolean canWindowSaveOrUpdate() {
                 return isEntityValid(getLayout().getEntity());
             }
+
+            @Override
+            public boolean canWindowClose() {
+                return closeWindowAfterSave();
+            }
         };
     }
 
     protected abstract void persistEntity(final E entity);
 
     protected abstract boolean isEntityValid(final E entity);
+
+    protected boolean closeWindowAfterSave() {
+        return true;
+    }
 }

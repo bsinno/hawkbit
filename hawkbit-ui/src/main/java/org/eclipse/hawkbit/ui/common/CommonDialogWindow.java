@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -85,8 +83,6 @@ public class CommonDialogWindow extends Window {
     public CommonDialogWindow(final String caption, final Component content, final String helpLink,
             final SaveDialogCloseListener closeListener, final ClickListener cancelButtonClickListener,
             final VaadinMessageSource i18n) {
-        checkNotNull(closeListener);
-
         this.caption = caption;
         this.content = content;
         this.helpLink = helpLink;
@@ -235,6 +231,10 @@ public class CommonDialogWindow extends Window {
 
     public void setCancelButtonEnabled(final boolean enabled) {
         cancelButton.setEnabled(enabled);
+    }
+
+    public void setCloseListener(final SaveDialogCloseListener closeListener) {
+        this.closeListener = closeListener;
     }
 
     /**
