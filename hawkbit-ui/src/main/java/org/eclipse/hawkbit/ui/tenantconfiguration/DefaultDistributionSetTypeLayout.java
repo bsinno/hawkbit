@@ -51,8 +51,6 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
     final SystemConfigWindowDependencies dependencies;
     private Label changeIcon;
 
-    private DistributionSetTypeToProxyDistributionSetTypeMapper mapper = new DistributionSetTypeToProxyDistributionSetTypeMapper();
-
     DefaultDistributionSetTypeLayout(final SystemManagement systemManagement, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker,final Binder<ProxySystemConfigWindow> binder,
             final DistributionSetTypeManagement typeManagement) {
@@ -106,8 +104,6 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     private void initDsSetComboBox() {
         dsSetComboBox = builder.createDistributionSetCombo(binder);
-      //  dsSetComboBox.setValue(mapper.map(getCurrentDistributionSetType()));
-//        dsSetComboBox.addValueChangeListener(event -> selectDistributionSetValue());
     }
 
     private DistributionSetType getCurrentDistributionSetType() {
@@ -117,6 +113,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     @Override
     public void save() {
+        selectedDefaultDisSetType = binder.getBean().getDistributionSetTypeId();
         if (!currentDefaultDisSetType.equals(selectedDefaultDisSetType) && selectedDefaultDisSetType != null) {
             tenantMetaData = this.systemManagement.updateTenantMetadata(binder.getBean().getDistributionSetTypeId());
             currentDefaultDisSetType = selectedDefaultDisSetType;
@@ -126,24 +123,8 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     @Override
     public void undo() {
-        dsSetComboBox.setValue(mapper.map(getCurrentDistributionSetType()));
         selectedDefaultDisSetType = currentDefaultDisSetType;
         changeIcon.setVisible(false);
-    }
-
-    /**
-     * Method that is called when combobox event is performed.
-     */
-    private void selectDistributionSetValue() {
-        selectedDefaultDisSetType = dsSetComboBox.getSelectedItem()
-                .map(ProxyDistributionSetType::getDistSetTypeId)
-                .orElse(null);
-        if (!selectedDefaultDisSetType.equals(currentDefaultDisSetType)) {
-            changeIcon.setVisible(true);
-            notifyConfigurationChanged();
-        } else {
-            changeIcon.setVisible(false);
-        }
     }
 
 }

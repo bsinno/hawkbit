@@ -12,6 +12,10 @@ public class ProxySystemConfigWindow implements Serializable {
     private Long distributionSetTypeId;
     private Long repositoryConfigId;
     private Long rolloutConfigId;
+    private boolean rolloutApproval;
+    private boolean actionAutoclose;
+    private boolean actionAutocleanup;
+    private boolean multiAssignments;
     private Long authConfigId;
     private Long pollingConfigId;
 
@@ -41,6 +45,38 @@ public class ProxySystemConfigWindow implements Serializable {
 
     public Long getDistributionSetTypeId() {
         return distributionSetTypeId;
+    }
+
+    public boolean isActionAutocleanup() {
+        return actionAutocleanup;
+    }
+
+    public void setActionAutocleanup(boolean actionAutocleanup) {
+        this.actionAutocleanup = actionAutocleanup;
+    }
+
+    public boolean isMultiAssignments() {
+        return multiAssignments;
+    }
+
+    public void setMultiAssignments(boolean multiAssignments) {
+        this.multiAssignments = multiAssignments;
+    }
+
+    public boolean isActionAutoclose() {
+        return actionAutoclose;
+    }
+
+    public void setActionAutoclose(boolean actionAutoclose) {
+        this.actionAutoclose = actionAutoclose;
+    }
+
+    public boolean isRolloutApproval() {
+        return rolloutApproval;
+    }
+
+    public void setRolloutApproval(boolean rolloutApproval) {
+        this.rolloutApproval = rolloutApproval;
     }
 
     public void setDistributionSetTypeId(Long distributionSetTypeId) {

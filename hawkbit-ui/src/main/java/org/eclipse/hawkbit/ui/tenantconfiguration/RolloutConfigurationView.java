@@ -10,14 +10,16 @@ package org.eclipse.hawkbit.ui.tenantconfiguration;
 
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.rollout.ApprovalConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.data.Property;
+import com.vaadin.data.Binder;
+import com.vaadin.data.HasValue;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
@@ -29,7 +31,7 @@ import com.vaadin.ui.VerticalLayout;
  * of the approval workflow.
  */
 public class RolloutConfigurationView extends BaseConfigurationView
-        implements Property.ValueChangeListener, ConfigurationItem.ConfigurationItemChangeListener {
+        implements ConfigurationItem.ConfigurationItemChangeListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,14 +39,17 @@ public class RolloutConfigurationView extends BaseConfigurationView
     private final VaadinMessageSource i18n;
     private final UiProperties uiProperties;
     private CheckBox approvalCheckbox;
+    private final Binder<ProxySystemConfigWindow> binder;
 
-    RolloutConfigurationView(final VaadinMessageSource i18n,
-            final TenantConfigurationManagement tenantConfigurationManagement, final UiProperties uiProperties) {
+    RolloutConfigurationView(final VaadinMessageSource i18n, ApprovalConfigurationItem approvalConfigurationItem, final UiProperties uiProperties,
+            Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
+        this.approvalConfigurationItem = approvalConfigurationItem;
         this.uiProperties = uiProperties;
-        this.approvalConfigurationItem = new ApprovalConfigurationItem(tenantConfigurationManagement, i18n);
+        this.binder = binder;
         this.init();
     }
+
 
     private void init() {
 
@@ -67,11 +72,11 @@ public class RolloutConfigurationView extends BaseConfigurationView
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 
-        approvalCheckbox = SPUIComponentProvider.getCheckBox("", "", null, false, "");
+        approvalCheckbox = new CheckBox();
         approvalCheckbox.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX);
-        approvalCheckbox.setValue(approvalConfigurationItem.isConfigEnabled());
-        approvalCheckbox.addValueChangeListener(this);
-        approvalConfigurationItem.addChangeListener(this);
+        binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval, ProxySystemConfigWindow::setRolloutApproval);
+        binder.addValueChangeListener(this::eventChange);
+
         gridLayout.addComponent(approvalCheckbox, 0, 0);
         gridLayout.addComponent(approvalConfigurationItem, 1, 0);
 
@@ -85,26 +90,25 @@ public class RolloutConfigurationView extends BaseConfigurationView
         setCompositionRoot(rootPanel);
     }
 
-    @Override
-    public void save() {
-        this.approvalConfigurationItem.save();
-    }
-
-    @Override
-    public void undo() {
-        this.approvalConfigurationItem.undo();
-    }
-
-    @Override
-    public void valueChange(final Property.ValueChangeEvent event) {
-        if (approvalCheckbox.equals(event.getProperty())) {
-            if (approvalCheckbox.getValue()) {
+    private void eventChange(HasValue.ValueChangeEvent<Object> event) {
+        if (event.getComponent().equals(approvalCheckbox) ) {
+            if (event.getValue().equals(Boolean.TRUE)) {
                 approvalConfigurationItem.configEnable();
             } else {
                 approvalConfigurationItem.configDisable();
             }
             notifyConfigurationChanged();
         }
+    }
+
+    @Override
+    public void save() {
+        approvalConfigurationItem.save();
+    }
+
+    @Override
+    public void undo() {
+        approvalConfigurationItem.undo();
     }
 
     @Override

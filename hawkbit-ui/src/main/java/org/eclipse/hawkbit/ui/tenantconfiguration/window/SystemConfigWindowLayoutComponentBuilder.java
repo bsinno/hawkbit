@@ -9,6 +9,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
 import com.vaadin.data.Binder;
 import com.vaadin.server.Sizeable;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
@@ -53,6 +54,13 @@ public class SystemConfigWindowLayoutComponentBuilder {
         }).bind(ProxySystemConfigWindow::getDistributionSetTypeId, ProxySystemConfigWindow::setDistributionSetTypeId);
 
         return distributionSetType;
+    }
+
+    public CheckBox createRolloutConfigurationView(Binder<ProxySystemConfigWindow> binder){
+        final CheckBox approvalCheckbox = new CheckBox();
+        approvalCheckbox.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX);
+        binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval, ProxySystemConfigWindow::setRolloutApproval);
+        return new CheckBox();
     }
 
     public SystemConfigWindowDependencies getDependencies() {
