@@ -104,6 +104,9 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
         certificateAuthCheckbox.setStyleName(DIST_CHECKBOX_STYLE);
         binder.bind(certificateAuthCheckbox, ProxySystemConfigWindow::isCertificateAuth,
                 ProxySystemConfigWindow::setCertificateAuth);
+
+
+
         //        certificateAuthCheckbox.setValue(certificateAuthenticationConfigurationItem.isConfigEnabled());
 //        certificateAuthCheckbox.addValueChangeListener(this);
         certificateAuthenticationConfigurationItem.addChangeListener(this);
@@ -112,6 +115,9 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
 
         targetSecTokenCheckBox = new CheckBox();
         targetSecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
+        targetSecTokenCheckBox.addValueChangeListener(event -> {
+
+        });
         binder.bind(targetSecTokenCheckBox, ProxySystemConfigWindow::isTargetSecToken,
                 ProxySystemConfigWindow::setTargetSecToken);
         //        targetSecTokenCheckBox.setValue(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
@@ -139,7 +145,6 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
         //        downloadAnonymousCheckBox.setValue(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
 //        downloadAnonymousCheckBox.addValueChangeListener(this);
 
-        binder.addValueChangeListener(this::changeEvent);
         anonymousDownloadAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(downloadAnonymousCheckBox, 0, 3);
         gridLayout.addComponent(anonymousDownloadAuthenticationConfigurationItem, 1, 3);

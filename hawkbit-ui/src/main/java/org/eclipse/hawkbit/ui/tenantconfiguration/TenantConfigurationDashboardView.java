@@ -106,6 +106,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             final SecurityTokenGenerator securityTokenGenerator,
             final ControllerPollProperties controllerPollProperties, final SpPermissionChecker permChecker) {
         this.systemManagement = systemManagement;
+        this.binder = new Binder<>();
         this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
                 tenantConfigurationManagement, i18n);
         this.actionAutocloseConfigurationItem = new ActionAutocloseConfigurationItem(tenantConfigurationManagement,
@@ -113,9 +114,9 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
                 i18n);
         this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
-                i18n);
+                i18n, binder);
         this.approvalConfigurationItem = new ApprovalConfigurationItem(tenantConfigurationManagement, i18n);
-        this.binder = new Binder<>();
+
         this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n,
                 permChecker, binder, distributionSetTypeManagement);
         this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(
