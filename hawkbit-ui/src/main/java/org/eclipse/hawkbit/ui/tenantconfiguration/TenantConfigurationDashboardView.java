@@ -26,6 +26,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.tenantconfiguration.ConfigurationItem.ConfigurationItemChangeListener;
+import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.AnonymousDownloadAuthenticationConfigurationItem;
+import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.CertificateAuthenticationConfigurationItem;
+import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.GatewaySecurityTokenAuthenticationConfigurationItem;
+import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.TargetSecurityTokenAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocloseConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.MultiAssignmentsConfigurationItem;
@@ -75,6 +79,9 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     private final UiProperties uiProperties;
 
     private final UINotification uINotification;
+    private final CertificateAuthenticationConfigurationItem certificateAuthenticationConfigurationItem;
+    private final GatewaySecurityTokenAuthenticationConfigurationItem gatewaySecurityTokenAuthenticationConfigurationItem;
+    private final AnonymousDownloadAuthenticationConfigurationItem anonymousDownloadAuthenticationConfigurationItem;
 
     private Button saveConfigurationBtn;
     private Button undoConfigurationBtn;
@@ -83,6 +90,8 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     private final ActionAutocloseConfigurationItem actionAutocloseConfigurationItem;
     private final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem;
     private final ActionAutocleanupConfigurationItem actionAutocleanupConfigurationItem;
+    private final TargetSecurityTokenAuthenticationConfigurationItem targetSecurityTokenAuthenticationConfigurationItem;
+
     private final Binder<ProxySystemConfigWindow> binder;
     private final List<ConfigurationGroup> configurationViews = Lists.newArrayListWithExpectedSize(3);
 
@@ -97,6 +106,8 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             final SecurityTokenGenerator securityTokenGenerator,
             final ControllerPollProperties controllerPollProperties, final SpPermissionChecker permChecker) {
         this.systemManagement = systemManagement;
+        this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
+                tenantConfigurationManagement, i18n);
         this.actionAutocloseConfigurationItem = new ActionAutocloseConfigurationItem(tenantConfigurationManagement,
                 i18n);
         this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
@@ -107,13 +118,21 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.binder = new Binder<>();
         this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n,
                 permChecker, binder, distributionSetTypeManagement);
-        this.authenticationConfigurationView = new AuthenticationConfigurationView(i18n, tenantConfigurationManagement,
-                securityTokenGenerator, uiProperties);
+        this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(
+                tenantConfigurationManagement, i18n);
+
+        this.gatewaySecurityTokenAuthenticationConfigurationItem = new GatewaySecurityTokenAuthenticationConfigurationItem(
+                tenantConfigurationManagement, i18n, securityTokenGenerator);
+        this.anonymousDownloadAuthenticationConfigurationItem = new AnonymousDownloadAuthenticationConfigurationItem(
+                tenantConfigurationManagement, i18n);
+        this.authenticationConfigurationView = new AuthenticationConfigurationView(i18n,
+                targetSecurityTokenAuthenticationConfigurationItem, certificateAuthenticationConfigurationItem, gatewaySecurityTokenAuthenticationConfigurationItem,
+                anonymousDownloadAuthenticationConfigurationItem, uiProperties, binder);
         this.pollingConfigurationView = new PollingConfigurationView(i18n, controllerPollProperties,
                 tenantConfigurationManagement);
         this.repositoryConfigurationView = new RepositoryConfigurationView(i18n, uiProperties,
-                actionAutocloseConfigurationItem, actionAutocleanupConfigurationItem,
-                multiAssignmentsConfigurationItem, binder);
+                actionAutocloseConfigurationItem, actionAutocleanupConfigurationItem, multiAssignmentsConfigurationItem,
+                binder);
         this.rolloutConfigurationView = new RolloutConfigurationView(i18n, approvalConfigurationItem, uiProperties,
                 binder);
 
@@ -173,6 +192,11 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         configBean.setActionAutoclose(actionAutocloseConfigurationItem.isConfigEnabled());
         configBean.setMultiAssignments(multiAssignmentsConfigurationItem.isConfigEnabled());
         configBean.setActionAutocleanup(actionAutocleanupConfigurationItem.isConfigEnabled());
+        configBean.setCertificateAuth(certificateAuthenticationConfigurationItem.isConfigEnabled());
+        configBean.setTargetSecToken(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
+        configBean.setGatewaySecToken(gatewaySecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
+        configBean.setDownloadAnonymous(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
+
         return configBean;
     }
 

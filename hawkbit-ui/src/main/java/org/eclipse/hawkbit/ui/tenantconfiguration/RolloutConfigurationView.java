@@ -74,8 +74,15 @@ public class RolloutConfigurationView extends BaseConfigurationView
 
         approvalCheckbox = new CheckBox();
         approvalCheckbox.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX);
+        approvalCheckbox.addValueChangeListener(event -> {
+            if (event.getValue().equals(Boolean.TRUE)) {
+                approvalConfigurationItem.configEnable();
+            } else {
+                approvalConfigurationItem.configDisable();
+            }
+            notifyConfigurationChanged();
+        });
         binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval, ProxySystemConfigWindow::setRolloutApproval);
-        binder.addValueChangeListener(this::eventChange);
 
         gridLayout.addComponent(approvalCheckbox, 0, 0);
         gridLayout.addComponent(approvalConfigurationItem, 1, 0);
@@ -88,17 +95,6 @@ public class RolloutConfigurationView extends BaseConfigurationView
         vLayout.addComponent(gridLayout);
         rootPanel.setContent(vLayout);
         setCompositionRoot(rootPanel);
-    }
-
-    private void eventChange(HasValue.ValueChangeEvent<Object> event) {
-        if (event.getComponent().equals(approvalCheckbox) ) {
-            if (event.getValue().equals(Boolean.TRUE)) {
-                approvalConfigurationItem.configEnable();
-            } else {
-                approvalConfigurationItem.configDisable();
-            }
-            notifyConfigurationChanged();
-        }
     }
 
     @Override

@@ -4,13 +4,8 @@ import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetProxyTypeDataProvider;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.spring.events.EventBus;
-
-import com.vaadin.data.provider.DataProvider;
 
 public class SystemConfigWindowDependencies {
 
@@ -49,8 +44,9 @@ public class SystemConfigWindowDependencies {
     }
 
     public DistributionSetProxyTypeDataProvider getDistributionSetTypeDataProvider() {
-       return distributionSetTypeDataProvider;
+        return distributionSetTypeDataProvider;
     }
+
     public TenantMetaData getTenantMetaData() {
         return tenantMetaData;
     }

@@ -9,7 +9,6 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
 import com.vaadin.data.Binder;
 import com.vaadin.server.Sizeable;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
@@ -20,13 +19,15 @@ public class SystemConfigWindowLayoutComponentBuilder {
     public SystemConfigWindowLayoutComponentBuilder(SystemConfigWindowDependencies dependencies) {
         this.dependencies = dependencies;
     }
+
     public Label getLabel(final String key) {
         return new LabelBuilder().name(dependencies.getI18n().getMessage(key)).buildLabel();
     }
 
-    public ComboBox<ProxyDistributionSetType> createDistributionSetCombo(Binder<ProxySystemConfigWindow> binder ) {
+    public ComboBox<ProxyDistributionSetType> createDistributionSetCombo(Binder<ProxySystemConfigWindow> binder) {
         final ComboBox<ProxyDistributionSetType> distributionSetType = new ComboBox<>();
-        distributionSetType.setDescription(dependencies.getI18n().getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG));
+        distributionSetType.setDescription(
+                dependencies.getI18n().getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG));
         distributionSetType.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_DEFAULTDIS_COMBOBOX);
         distributionSetType.addStyleName(ValoTheme.COMBOBOX_SMALL);
         distributionSetType.addStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE);
@@ -54,13 +55,6 @@ public class SystemConfigWindowLayoutComponentBuilder {
         }).bind(ProxySystemConfigWindow::getDistributionSetTypeId, ProxySystemConfigWindow::setDistributionSetTypeId);
 
         return distributionSetType;
-    }
-
-    public CheckBox createRolloutConfigurationView(Binder<ProxySystemConfigWindow> binder){
-        final CheckBox approvalCheckbox = new CheckBox();
-        approvalCheckbox.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX);
-        binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval, ProxySystemConfigWindow::setRolloutApproval);
-        return new CheckBox();
     }
 
     public SystemConfigWindowDependencies getDependencies() {
