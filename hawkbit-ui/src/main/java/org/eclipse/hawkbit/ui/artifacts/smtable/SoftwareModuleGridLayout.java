@@ -90,14 +90,12 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     public void maximize() {
         softwareModuleGrid.createMaximizedContent();
-        softwareModuleDetailsHeader.setVisible(false);
-        softwareModuleDetails.setVisible(false);
+        detailsHeaderLayout.setVisible(false);
     }
 
     public void minimize() {
         softwareModuleGrid.createMinimizedContent();
-        softwareModuleDetailsHeader.setVisible(true);
-        softwareModuleDetails.setVisible(true);
+        detailsHeaderLayout.setVisible(true);
     }
 
     public void refreshGrid() {

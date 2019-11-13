@@ -173,18 +173,20 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     void maximizeSmGridLayout() {
-        mainLayout.removeComponent(detailAndUploadLayout);
-        mainLayout.setColumnExpandRatio(1, 1F);
-        mainLayout.setColumnExpandRatio(2, 0F);
+        detailAndUploadLayout.setVisible(false);
+
+        mainLayout.setColumnExpandRatio(1, 1.0F);
+        mainLayout.setColumnExpandRatio(2, 0.0F);
 
         smGridLayout.maximize();
     }
 
     void maximizeArtifactGridLayout() {
+        smTypeFilterLayout.setVisible(false);
+        smGridLayout.setVisible(false);
+        uploadDropAreaLayout.getDropAreaLayout().setVisible(false);
+
         mainLayout.setSpacing(false);
-        mainLayout.removeComponent(smTypeFilterLayout);
-        mainLayout.removeComponent(smGridLayout);
-        detailAndUploadLayout.removeComponent(uploadDropAreaLayout.getDropAreaLayout());
         mainLayout.setColumnExpandRatio(1, 0F);
         mainLayout.setColumnExpandRatio(2, 1F);
 
@@ -236,7 +238,8 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     void minimizeSmGridLayout() {
-        mainLayout.addComponent(detailAndUploadLayout, 2, 0);
+        detailAndUploadLayout.setVisible(true);
+
         mainLayout.setColumnExpandRatio(1, 0.5F);
         mainLayout.setColumnExpandRatio(2, 0.5F);
 
@@ -244,10 +247,13 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     void minimizeArtifactGridLayout() {
+        if (!artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
+            smTypeFilterLayout.setVisible(true);
+        }
+        smGridLayout.setVisible(true);
+        uploadDropAreaLayout.getDropAreaLayout().setVisible(true);
+
         mainLayout.setSpacing(true);
-        detailAndUploadLayout.addComponent(uploadDropAreaLayout.getDropAreaLayout());
-        mainLayout.addComponent(smTypeFilterLayout, 0, 0);
-        mainLayout.addComponent(smGridLayout, 1, 0);
         mainLayout.setColumnExpandRatio(1, 0.5F);
         mainLayout.setColumnExpandRatio(2, 0.5F);
 

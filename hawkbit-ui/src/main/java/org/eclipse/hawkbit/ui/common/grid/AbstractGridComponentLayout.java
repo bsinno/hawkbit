@@ -31,6 +31,8 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
     protected final VaadinMessageSource i18n;
     protected final transient EventBus.UIEventBus eventBus;
 
+    protected VerticalLayout detailsHeaderLayout;
+
     /**
      * Constructor.
      *
@@ -94,7 +96,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
             final DetailsHeader<?> detailsHeader, final AbstractGridDetailsLayout<?> detailsLayout) {
         buildLayout(gridHeader, grid);
 
-        final VerticalLayout detailsHeaderLayout = new VerticalLayout();
+        detailsHeaderLayout = new VerticalLayout();
         detailsHeaderLayout.setSizeFull();
         detailsHeaderLayout.setSpacing(false);
         detailsHeaderLayout.setMargin(false);
