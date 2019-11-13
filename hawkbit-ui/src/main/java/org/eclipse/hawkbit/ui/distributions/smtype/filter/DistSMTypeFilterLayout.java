@@ -53,8 +53,6 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
             final SpPermissionChecker permChecker, final EntityFactory entityFactory,
             final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState) {
-        super(eventBus);
-
         final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, softwareModuleTypeManagement);
 

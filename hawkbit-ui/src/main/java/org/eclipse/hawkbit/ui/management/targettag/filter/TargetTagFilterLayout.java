@@ -13,8 +13,6 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
-import org.eclipse.hawkbit.ui.common.event.TargetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
@@ -64,8 +62,6 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
             final SpPermissionChecker permChecker, final UIEventBus eventBus, final UINotification notification,
             final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
             final TargetTagManagement targetTagManagement, final TargetManagement targetManagement) {
-        super(eventBus);
-
         this.managementUIState = managementUIState;
 
         final TargetTagWindowBuilder targetTagWindowBuilder = new TargetTagWindowBuilder(i18n, entityFactory, eventBus,
@@ -107,7 +103,9 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
     @EventBusListenerMethod(scope = EventScope.UI)
     void onTargetTagTableEvent(final TargetTagTableEvent tableEvent) {
         refreshContainer();
-        eventBus.publish(this, new TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+        // TODO
+        // eventBus.publish(this, new
+        // TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
     }
 
     @Override

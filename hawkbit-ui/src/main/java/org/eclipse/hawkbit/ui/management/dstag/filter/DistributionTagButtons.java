@@ -131,9 +131,13 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
     }
 
     @Override
-    protected boolean isClickedByDefault(final String tagName) {
-        return null != managementUIState.getDistributionTableFilters().getClickedDistSetTags()
-                && managementUIState.getDistributionTableFilters().getClickedDistSetTags().contains(tagName);
+    protected boolean isClickedByDefault(final Long filterButtonId) {
+        return false;
+        // TODO
+        // return null !=
+        // managementUIState.getDistributionTableFilters().getClickedDistSetTags()
+        // &&
+        // managementUIState.getDistributionTableFilters().getClickedDistSetTags().contains(tagName);
     }
 
     @Override

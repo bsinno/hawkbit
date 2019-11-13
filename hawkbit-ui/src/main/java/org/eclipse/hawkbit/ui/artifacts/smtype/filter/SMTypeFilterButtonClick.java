@@ -8,47 +8,33 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
-import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
-import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import java.util.function.BiConsumer;
+
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
  * Single button click behavior of filter buttons layout for software module
  * table on the Upload view.
  */
+// TODO: remove duplication with DSTypeFilterButtonClick
 public class SMTypeFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyType> {
-
     private static final long serialVersionUID = 1L;
 
-    private final transient EventBus.UIEventBus eventBus;
+    private final BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback;
 
-    private final ArtifactUploadState artifactUploadState;
-
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-
-    SMTypeFilterButtonClick(final UIEventBus eventBus, final ArtifactUploadState artifactUploadState,
-            final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
-        this.eventBus = eventBus;
-        this.artifactUploadState = artifactUploadState;
-        this.softwareModuleTypeManagement = softwareModuleTypeManagement;
+    SMTypeFilterButtonClick(final BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback) {
+        this.filterChangedCallback = filterChangedCallback;
     }
 
     @Override
     protected void filterUnClicked(final ProxyType clickedFilter) {
-        artifactUploadState.getSoftwareModuleFilters().setSoftwareModuleType(null);
-        eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
+        filterChangedCallback.accept(clickedFilter, TypeFilterChangedEventType.TYPE_UNCLICKED);
     }
 
     @Override
     protected void filterClicked(final ProxyType clickedFilter) {
-        softwareModuleTypeManagement.getByName(clickedFilter.getName()).ifPresent(softwareModuleType -> {
-            artifactUploadState.getSoftwareModuleFilters().setSoftwareModuleType(softwareModuleType);
-            eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
-        });
+        filterChangedCallback.accept(clickedFilter, TypeFilterChangedEventType.TYPE_CLICKED);
     }
-
 }

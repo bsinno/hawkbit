@@ -18,7 +18,6 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClic
  * Single button click behaviour of filter buttons layout.
  */
 public class DSTypeFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyType> {
-
     private static final long serialVersionUID = 1L;
 
     private final BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback;

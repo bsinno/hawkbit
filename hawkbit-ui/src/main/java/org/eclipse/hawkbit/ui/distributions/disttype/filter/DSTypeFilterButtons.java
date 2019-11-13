@@ -24,15 +24,12 @@ import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFil
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
-import org.eclipse.hawkbit.ui.distributions.event.DistributionSetTypeEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.hateoas.Identifiable;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.ui.UI;
@@ -159,21 +156,13 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     }
 
     @Override
-    protected boolean isClickedByDefault(final String typeName) {
+    protected boolean isClickedByDefault(final Long filterButtonId) {
         return dSTypeFilterLayoutUiState.getClickedDsType() != null
-                && dSTypeFilterLayoutUiState.getClickedDsType().getName().equals(typeName);
+                && dSTypeFilterLayoutUiState.getClickedDsType().getId().equals(filterButtonId);
     }
 
     @Override
     protected String getFilterButtonIdPrefix() {
         return SPUIDefinitions.DISTRIBUTION_SET_TYPE_ID_PREFIXS;
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionSetTypeEvent event) {
-        if (event.getDistributionSetTypeEnum() == DistributionSetTypeEvent.DistributionSetTypeEnum.ADD_DIST_SET_TYPE
-                || event.getDistributionSetTypeEnum() == DistributionSetTypeEvent.DistributionSetTypeEnum.UPDATE_DIST_SET_TYPE) {
-            refreshContainer();
-        }
     }
 }

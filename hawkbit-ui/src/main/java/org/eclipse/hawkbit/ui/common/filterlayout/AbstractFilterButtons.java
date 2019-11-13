@@ -92,7 +92,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         filterButton.addClickListener(
                 event -> getFilterButtonClickBehaviour().processFilterButtonClick(event.getButton(), clickedFilter));
 
-        if (isClickedByDefault(clickedFilter.getName())) {
+        if (isClickedByDefault(clickedFilter.getId())) {
             getFilterButtonClickBehaviour().setDefaultClickedButton(filterButton);
         }
 
@@ -116,7 +116,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
      *            button caption
      * @return true if button is clicked
      */
-    protected abstract boolean isClickedByDefault(final String buttonCaption);
+    protected abstract boolean isClickedByDefault(final Long filterButtonId);
 
     private Button buildEditFilterButton(final T clickedFilter) {
         // TODO: check permissions for enable/disable

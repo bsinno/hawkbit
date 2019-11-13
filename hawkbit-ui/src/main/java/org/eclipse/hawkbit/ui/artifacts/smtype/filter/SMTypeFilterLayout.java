@@ -11,15 +11,11 @@ package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -29,13 +25,12 @@ import com.vaadin.ui.VerticalLayout;
  * Software module type filter buttons layout.
  */
 public class SMTypeFilterLayout extends AbstractFilterLayout {
-
     private static final long serialVersionUID = 1L;
-
-    private final ArtifactUploadState artifactUploadState;
 
     private final SMTypeFilterHeader smTypeFilterHeader;
     private final SMTypeFilterButtons sMTypeFilterButtons;
+
+    private final SMTypeFilterLayoutEventListener eventListener;
 
     /**
      * Constructor
@@ -55,20 +50,19 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
      */
-    public SMTypeFilterLayout(final ArtifactUploadState artifactUploadState, final VaadinMessageSource i18n,
-            final SpPermissionChecker permChecker, final UIEventBus eventBus, final EntityFactory entityFactory,
-            final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
-        super(eventBus);
-
-        this.artifactUploadState = artifactUploadState;
-
+    public SMTypeFilterLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final EntityFactory entityFactory, final UINotification uiNotification,
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement,
+            final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState) {
         final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, softwareModuleTypeManagement);
 
-        this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, artifactUploadState, softwareModuleTypeManagement,
-                i18n, permChecker, uiNotification, smTypeWindowBuilder);
-        this.smTypeFilterHeader = new SMTypeFilterHeader(i18n, permChecker, eventBus, artifactUploadState,
-                sMTypeFilterButtons, smTypeWindowBuilder);
+        this.smTypeFilterHeader = new SMTypeFilterHeader(i18n, permChecker, eventBus, smTypeFilterLayoutUiState,
+                smTypeWindowBuilder);
+        this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, smTypeFilterLayoutUiState,
+                softwareModuleTypeManagement, i18n, permChecker, uiNotification, smTypeWindowBuilder);
+
+        this.eventListener = new SMTypeFilterLayoutEventListener(this, eventBus);
 
         buildLayout();
         restoreState();
@@ -93,13 +87,23 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
         return filterButtonsLayout;
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final UploadArtifactUIEvent event) {
-        if (event == UploadArtifactUIEvent.HIDE_FILTER_BY_TYPE) {
-            setVisible(false);
-        }
-        if (event == UploadArtifactUIEvent.SHOW_FILTER_BY_TYPE) {
-            setVisible(true);
-        }
+    public void showFilterButtonsEditIcon() {
+        sMTypeFilterButtons.showEditColumn();
+    }
+
+    public void showFilterButtonsDeleteIcon() {
+        sMTypeFilterButtons.showDeleteColumn();
+    }
+
+    public void hideFilterButtonsActionIcons() {
+        sMTypeFilterButtons.hideActionColumns();
+    }
+
+    public void refreshFilterButtons() {
+        sMTypeFilterButtons.refreshContainer();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

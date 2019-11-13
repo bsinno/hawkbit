@@ -149,9 +149,9 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
     }
 
     @Override
-    protected boolean isClickedByDefault(final String typeName) {
+    protected boolean isClickedByDefault(final Long filterButtonId) {
         return distSMTypeFilterLayoutUiState.getClickedSmType() != null
-                && distSMTypeFilterLayoutUiState.getClickedSmType().getName().equals(typeName);
+                && distSMTypeFilterLayoutUiState.getClickedSmType().getId().equals(filterButtonId);
     }
 
     @Override

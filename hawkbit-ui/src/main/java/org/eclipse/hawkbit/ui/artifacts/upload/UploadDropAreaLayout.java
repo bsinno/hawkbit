@@ -43,7 +43,6 @@ import com.vaadin.ui.dnd.event.FileDropEvent;
  * Container for drag and drop area in the upload view.
  */
 public class UploadDropAreaLayout extends AbstractComponent {
-
     private static final long serialVersionUID = 1L;
 
     private VerticalLayout dropAreaLayout;
@@ -157,8 +156,10 @@ public class UploadDropAreaLayout extends AbstractComponent {
             if (validate(event)) {
                 // selected software module at the time of file drop is
                 // considered for upload
-                artifactUploadState.getSelectedBaseSwModuleId()
-                        .ifPresent(selectedSwId -> uploadFilesForSoftwareModule(event.getFiles(), selectedSwId));
+                final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedSmId();
+                if (lastSelectedSmId != null) {
+                    uploadFilesForSoftwareModule(event.getFiles(), lastSelectedSmId);
+                }
             }
         }
 
@@ -196,14 +197,16 @@ public class UploadDropAreaLayout extends AbstractComponent {
         }
 
         private boolean validateSoftwareModuleSelection() {
-            if (artifactUploadState.isNoSoftwareModuleSelected()) {
+            final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedSmId();
+
+            if (lastSelectedSmId == null) {
                 uiNotification.displayValidationError(i18n.getMessage("message.error.noSwModuleSelected"));
                 return false;
             }
-            if (artifactUploadState.isMoreThanOneSoftwareModulesSelected()) {
-                uiNotification.displayValidationError(i18n.getMessage("message.error.multiSwModuleSelected"));
-                return false;
-            }
+            // if (artifactUploadState.isMoreThanOneSoftwareModulesSelected()) {
+            // uiNotification.displayValidationError(i18n.getMessage("message.error.multiSwModuleSelected"));
+            // return false;
+            // }
             return true;
         }
     }

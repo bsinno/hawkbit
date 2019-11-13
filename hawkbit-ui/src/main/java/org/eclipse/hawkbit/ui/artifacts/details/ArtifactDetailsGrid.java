@@ -111,10 +111,14 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         }
     }
 
+    public void updateMasterEntityFilter(final Long masterEntityId) {
+        getFilterDataProvider().setFilter(masterEntityId);
+    }
+
     /**
      * Creates the grid content for maximized-state.
      */
-    private void createMaximizedContent() {
+    public void createMaximizedContent() {
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
     }
@@ -122,7 +126,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     /**
      * Creates the grid content for normal (minimized) state.
      */
-    private void createMinimizedContent() {
+    public void createMinimizedContent() {
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
     }

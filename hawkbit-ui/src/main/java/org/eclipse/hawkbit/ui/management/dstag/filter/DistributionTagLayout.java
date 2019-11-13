@@ -13,8 +13,6 @@ import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.DistributionSetTagFilterHeaderEvent;
-import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -72,8 +70,6 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
             final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final DistributionSetTagManagement distributionSetTagManagement, final EntityFactory entityFactory,
             final UINotification uiNotification, final DistributionSetManagement distributionSetManagement) {
-        super(eventBus);
-
         this.i18n = i18n;
         this.managementUIState = managementUIState;
 
@@ -151,7 +147,9 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
     @EventBusListenerMethod(scope = EventScope.UI)
     void onDistributionSetTagTableEvent(final DistributionSetTagTableEvent distributionSetTagTableEvent) {
         refreshContainer();
-        eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+        // TODO
+        // eventBus.publish(this, new
+        // DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
     }
 
     @Override

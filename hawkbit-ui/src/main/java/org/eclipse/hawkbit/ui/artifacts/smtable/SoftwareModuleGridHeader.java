@@ -11,22 +11,19 @@ package org.eclipse.hawkbit.ui.artifacts.smtable;
 import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
@@ -38,7 +35,8 @@ import com.vaadin.ui.Window;
 public class SoftwareModuleGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final ArtifactUploadState artifactUploadState;
+    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
+    private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
 
     private final SmWindowBuilder smWindowBuilder;
 
@@ -48,11 +46,12 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
     SoftwareModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final ArtifactUploadState artifactUploadState,
-            final SmWindowBuilder smWindowBuilder) {
+            final UIEventBus eventBus, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
+            final SoftwareModuleGridLayoutUiState smGridLayoutUiState, final SmWindowBuilder smWindowBuilder) {
         super(i18n, permChecker, eventBus);
 
-        this.artifactUploadState = artifactUploadState;
+        this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
+        this.smGridLayoutUiState = smGridLayoutUiState;
 
         this.smWindowBuilder = smWindowBuilder;
 
@@ -84,29 +83,30 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     }
 
     private String getSearchTextFromUiState() {
-        return artifactUploadState.getSoftwareModuleFilters().getSearchText().orElse(null);
+        return smGridLayoutUiState.getSearchFilter();
     }
 
     private void searchBy(final String newSearchText) {
-        artifactUploadState.getSoftwareModuleFilters().setSearchText(newSearchText);
-        eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
+
+        smGridLayoutUiState.setSearchFilter(newSearchText);
     }
 
     // TODO: check if needed or can be done by searchBy
     private void resetSearchText() {
-        if (artifactUploadState.getSoftwareModuleFilters().getSearchText().isPresent()) {
-            artifactUploadState.getSoftwareModuleFilters().setSearchText(null);
-            eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
-        }
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, "");
+
+        smGridLayoutUiState.setSearchFilter(null);
     }
 
     private void showFilterButtonsLayout() {
-        artifactUploadState.setSwTypeFilterClosed(false);
-        eventBus.publish(this, UploadArtifactUIEvent.SHOW_FILTER_BY_TYPE);
+        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this, LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN);
+
+        smTypeFilterLayoutUiState.setHidden(false);
     }
 
     private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return artifactUploadState.isSwTypeFilterClosed();
+        return !smTypeFilterLayoutUiState.isHidden();
     }
 
     private void addNewItem() {
@@ -118,31 +118,34 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     }
 
     private Boolean onLoadIsTableMaximized() {
-        return artifactUploadState.isSwModuleTableMaximized();
+        return smGridLayoutUiState.isMaximized();
     }
 
     private void maximizeTable() {
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+
         if (addHeaderSupport != null) {
             addHeaderSupport.hideAddIcon();
         }
 
-        artifactUploadState.setSwModuleTableMaximized(Boolean.TRUE);
-        eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.MAXIMIZED));
+        smGridLayoutUiState.setMaximized(true);
     }
 
     private void minimizeTable() {
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+
         if (addHeaderSupport != null) {
             addHeaderSupport.showAddIcon();
         }
 
-        artifactUploadState.setSwModuleTableMaximized(Boolean.FALSE);
-        eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.MINIMIZED));
+        smGridLayoutUiState.setMaximized(false);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final UploadArtifactUIEvent event) {
-        if (event == UploadArtifactUIEvent.HIDE_FILTER_BY_TYPE) {
-            filterButtonsHeaderSupport.showFilterButtonsIcon();
-        }
+    public void showSmTypeIcon() {
+        filterButtonsHeaderSupport.showFilterButtonsIcon();
+    }
+
+    public void hideSmTypeIcon() {
+        filterButtonsHeaderSupport.hideFilterButtonsIcon();
     }
 }

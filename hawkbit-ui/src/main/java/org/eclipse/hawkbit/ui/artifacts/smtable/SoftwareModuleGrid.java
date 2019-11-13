@@ -9,19 +9,12 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
-import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.UploadArtifactView;
-import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
@@ -32,25 +25,18 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
-import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.eclipse.hawkbit.ui.view.filter.OnlyEventsFromUploadArtifactViewFilter;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.UI;
 
 //TODO: remove duplication with SwModuleGrid
 /**
@@ -69,32 +55,38 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private static final String SM_VENDOR_ID = "smVendor";
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
 
-    private final ArtifactUploadState uploadUIState;
+    private final ArtifactUploadState artifactUploadState;
+    private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
     private final UINotification notification;
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
     private final ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> swModuleDataProvider;
+    private final SwFilterParams smFilter;
+
     private final SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
     private final DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
 
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final ArtifactUploadState uploadUIState, final SoftwareModuleManagement softwareModuleManagement) {
+            final ArtifactUploadState artifactUploadState, final SoftwareModuleGridLayoutUiState smGridLayoutUiState,
+            final SoftwareModuleManagement softwareModuleManagement) {
         super(i18n, eventBus, permissionChecker);
 
-        this.uploadUIState = uploadUIState;
+        this.artifactUploadState = artifactUploadState;
+        this.smGridLayoutUiState = smGridLayoutUiState;
         this.notification = notification;
         this.softwareModuleManagement = softwareModuleManagement;
 
         this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
         this.swModuleDataProvider = new SoftwareModuleArtifactsStateDataProvider(softwareModuleManagement,
                 softwareModuleToProxyMapper).withConfigurableFilter();
+        this.smFilter = new SwFilterParams();
 
         setResizeSupport(new SwModuleResizeSupport());
 
         setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, UploadArtifactView.VIEW_NAME,
                 this::updateLastSelectedSmUiState));
-        if (uploadUIState.isSwModuleTableMaximized()) {
+        if (smGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
             getSelectionSupport().enableMultiSelection();
@@ -107,10 +99,10 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     private void updateLastSelectedSmUiState(final ProxySoftwareModule selectedSm) {
-        if (selectedSm.getId().equals(uploadUIState.getSelectedBaseSwModuleId().orElse(null))) {
-            uploadUIState.setLastSelectedEntityId(null);
+        if (selectedSm.getId().equals(smGridLayoutUiState.getSelectedSmId())) {
+            smGridLayoutUiState.setSelectedSmId(null);
         } else {
-            uploadUIState.setLastSelectedEntityId(selectedSm.getId());
+            smGridLayoutUiState.setSelectedSmId(selectedSm.getId());
         }
     }
 
@@ -123,19 +115,19 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
 
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
+        // We do not publish an event here, because deletion is managed by
+        // the grid itself
+        refreshContainer();
 
-        // TODO: should we really pass the swModuleToBeDeletedIds? We call
-        // dataprovider refreshAll anyway after receiving the event
-        eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.REMOVE_ENTITY, swModuleToBeDeletedIds));
-
-        uploadUIState.getSelectedSoftwareModules().clear();
-
-        eventBus.publish(this, UploadArtifactUIEvent.DELETED_ALL_SOFTWARE);
+        // TODO
+        // uploadUIState.getSelectedSoftwareModules().clear();
+        //
+        // eventBus.publish(this, UploadArtifactUIEvent.DELETED_ALL_SOFTWARE);
     }
 
     private boolean isUploadInProgressForSoftwareModule(final Collection<Long> swModuleToBeDeletedIds) {
         for (final Long id : swModuleToBeDeletedIds) {
-            if (uploadUIState.isUploadInProgressForSelectedSoftwareModule(id)) {
+            if (artifactUploadState.isUploadInProgressForSelectedSoftwareModule(id)) {
                 return true;
             }
         }
@@ -152,81 +144,20 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         return swModuleDataProvider;
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onDistributionSetUpdateEvents(final SoftwareModuleUpdatedEventContainer eventContainer) {
-        if (!eventContainer.getEvents().isEmpty()) {
-            // TODO: Consider updating only corresponding distribution sets with
-            // dataProvider.refreshItem() based on distribution set ids instead
-            // of full refresh (evaluate getDataCommunicator().getKeyMapper())
-            refreshContainer();
-        }
-
-        // TODO: do we really need it?
-        publishSmSelectedEntityForRefresh(eventContainer.getEvents().stream());
+    public void updateSearchFilter(final String searchFilter) {
+        smFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+        getFilterDataProvider().setFilter(smFilter);
     }
 
-    private void publishSmSelectedEntityForRefresh(
-            final Stream<? extends RemoteEntityEvent<SoftwareModule>> smEntityEventStream) {
-        smEntityEventStream.filter(event -> isLastSelectedSm(event.getEntityId())).filter(Objects::nonNull).findAny()
-                .ifPresent(event -> eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.SELECTED_ENTITY,
-                        softwareModuleToProxyMapper.map(event.getEntity()))));
-    }
-
-    private boolean isLastSelectedSm(final Long swModuleId) {
-        return uploadUIState.getSelectedBaseSwModuleId().map(lastSelectedSmId -> lastSelectedSmId.equals(swModuleId))
-                .orElse(false);
-    }
-
-    /**
-     * DistributionTableFilterEvent.
-     *
-     * @param filterEvent
-     *            as instance of {@link RefreshDistributionTableByFilterEvent}
-     */
-    @EventBusListenerMethod(scope = EventScope.UI, filter = OnlyEventsFromUploadArtifactViewFilter.class)
-    void onEvent(final RefreshSoftwareModuleByFilterEvent filterEvent) {
-        UI.getCurrent().access(this::refreshFilter);
-    }
-
-    private void refreshFilter() {
-        final SwFilterParams filterParams = new SwFilterParams(getSearchTextFromUiState(),
-                getSwModuleTypeIdFromUiState(), null);
-
-        getFilterDataProvider().setFilter(filterParams);
-    }
-
-    private String getSearchTextFromUiState() {
-        return uploadUIState.getSoftwareModuleFilters().getSearchText()
-                .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
-                .orElse(null);
-    }
-
-    private Long getSwModuleTypeIdFromUiState() {
-        return uploadUIState.getSoftwareModuleFilters().getSoftwareModuleType().map(SoftwareModuleType::getId)
-                .orElse(null);
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent event) {
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMinimizedContent);
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMaximizedContent);
-        } else if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
-                || BaseEntityEventType.REMOVE_ENTITY == event.getEventType()) {
-            UI.getCurrent().access(this::refreshContainer);
-        }
-
-        if (BaseEntityEventType.UPDATED_ENTITY != event.getEventType()) {
-            return;
-        }
-        UI.getCurrent().access(() -> updateSwModule(event.getEntity()));
+    public void updateTypeFilter(final SoftwareModuleType typeFilter) {
+        smFilter.setSoftwareModuleTypeId(typeFilter != null ? typeFilter.getId() : null);
+        getFilterDataProvider().setFilter(smFilter);
     }
 
     /**
      * Creates the grid content for maximized-state.
      */
-    private void createMaximizedContent() {
+    public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
@@ -235,32 +166,10 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     /**
      * Creates the grid content for normal (minimized) state.
      */
-    private void createMinimizedContent() {
+    public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
-    }
-
-    /**
-     * To update software module details in the grid.
-     *
-     * @param updatedSwModule
-     *            as reference
-     */
-    public void updateSwModule(final ProxySoftwareModule updatedSwModule) {
-        if (updatedSwModule != null) {
-            // TODO: fix casting (will not work) - use
-            // ProxyAssignedSoftwareModule directly
-            // in event
-            getDataProvider().refreshItem(updatedSwModule);
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final UploadArtifactUIEvent event) {
-        if (event == UploadArtifactUIEvent.DELETED_ALL_SOFTWARE) {
-            UI.getCurrent().access(this::refreshFilter);
-        }
     }
 
     @Override

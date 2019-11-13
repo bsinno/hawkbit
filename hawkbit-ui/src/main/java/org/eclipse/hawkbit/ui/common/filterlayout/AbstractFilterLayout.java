@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -21,25 +20,6 @@ import com.vaadin.ui.VerticalLayout;
  */
 public abstract class AbstractFilterLayout extends VerticalLayout {
     private static final long serialVersionUID = 1L;
-
-    protected final transient UIEventBus eventBus;
-
-    protected AbstractFilterLayout(final UIEventBus eventBus) {
-        this.eventBus = eventBus;
-
-        if (doSubscribeToEventBus()) {
-            eventBus.subscribe(this);
-        }
-    }
-
-    /**
-     * Subscribes the view to the eventBus. Method has to be overriden (return
-     * false) if the view does not contain any listener to avoid Vaadin blowing
-     * up our logs with warnings.
-     */
-    protected boolean doSubscribeToEventBus() {
-        return true;
-    }
 
     protected void buildLayout() {
         setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH, Unit.PIXELS);

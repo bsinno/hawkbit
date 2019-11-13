@@ -62,7 +62,8 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         // TODO: change to load ArtifactDetailsGridLayout only after button
         // click
         final ArtifactDetailsGridLayout artifactDetailsLayout = new ArtifactDetailsGridLayout(i18n, eventBus,
-                artifactUploadState, uiNotification, artifactManagement, permChecker);
+                artifactUploadState.getArtifactDetailsGridLayoutUiState(), uiNotification, artifactManagement,
+                permChecker);
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder, artifactDetailsLayout);
         this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleManagement,

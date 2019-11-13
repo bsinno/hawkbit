@@ -28,7 +28,6 @@ import com.vaadin.ui.VerticalLayout;
  * Distribution Set Type filter buttons layout.
  */
 public class DSTypeFilterLayout extends AbstractFilterLayout {
-
     private static final long serialVersionUID = 1L;
 
     private final DSTypeFilterHeader dsTypeFilterHeader;
@@ -60,8 +59,6 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
             final DistributionSetTypeManagement distributionSetTypeManagement,
             final DistributionSetManagement distributionSetManagement, final SystemManagement systemManagement,
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
-        super(eventBus);
-
         final DsTypeWindowBuilder dsTypeWindowBuilder = new DsTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, distributionSetTypeManagement, distributionSetManagement, softwareModuleTypeManagement);
 

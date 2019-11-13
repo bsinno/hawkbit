@@ -127,7 +127,7 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
         eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
 
         if (addHeaderSupport != null) {
-            addHeaderSupport.showAddIcon();
+            addHeaderSupport.hideAddIcon();
         }
 
         distributionSetGridLayoutUiState.setMaximized(true);

@@ -153,7 +153,7 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
         // TODO: check if neccessary
         // artifactDetailsLayout.setFullWindowMode(false);
 
-        artifactDetailsLayout.populateArtifactDetails(selectedEntity);
+        artifactDetailsLayout.onSmSelected(selectedEntity);
         final ArtifactDetailsGrid artifactDetailsGrid = artifactDetailsLayout.getArtifactDetailsGrid();
         artifactDetailsGrid.setWidth(700, Unit.PIXELS);
         artifactDetailsGrid.setHeight(500, Unit.PIXELS);

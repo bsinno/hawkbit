@@ -98,12 +98,13 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
     }
 
     private SoftwareModule getSelectedSoftwareModule() {
-        if (getUploadState().isMoreThanOneSoftwareModulesSelected()) {
-            throw new IllegalStateException("More than one SoftwareModul selected but only one is allowed");
-        }
-        final long selectedId = getUploadState().getSelectedBaseSwModuleId()
-                .orElseThrow(() -> new IllegalStateException("No SoftwareModul selected"));
-        return softwareModuleManagement.get(selectedId)
+        final Long lastSelectedSmId = getUploadState().getSmGridLayoutUiState().getSelectedSmId();
+
+        // if (getUploadState().isMoreThanOneSoftwareModulesSelected()) {
+        // throw new IllegalStateException("More than one SoftwareModul selected
+        // but only one is allowed");
+        // }
+        return softwareModuleManagement.get(lastSelectedSmId)
                 .orElseThrow(() -> new IllegalStateException("SoftwareModul with unknown ID selected"));
     }
 

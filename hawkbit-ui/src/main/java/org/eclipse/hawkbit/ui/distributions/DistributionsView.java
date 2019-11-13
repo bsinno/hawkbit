@@ -168,6 +168,25 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         }
     }
 
+    void maximizeDsGridLayout() {
+        mainLayout.removeComponent(swModuleGridLayout);
+        mainLayout.removeComponent(distSMTypeFilterLayout);
+        mainLayout.setColumnExpandRatio(2, 0F);
+        mainLayout.setColumnExpandRatio(3, 0F);
+
+        distributionSetGridLayout.maximize();
+    }
+
+    void maximizeSmGridLayout() {
+        mainLayout.removeComponent(dsTypeFilterLayout);
+        mainLayout.removeComponent(distributionSetGridLayout);
+        mainLayout.setColumnExpandRatio(2, 1F);
+        mainLayout.setColumnExpandRatio(0, 0F);
+        mainLayout.setColumnExpandRatio(1, 0F);
+
+        swModuleGridLayout.maximize();
+    }
+
     @Override
     public void browserWindowResized(final BrowserWindowResizeEvent event) {
         showOrHideFilterButtons(event.getWidth());
@@ -191,6 +210,26 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
                 showSmTypeLayout();
             }
         }
+    }
+
+    void hideDsTypeLayout() {
+        dsTypeFilterLayout.setVisible(false);
+        distributionSetGridLayout.showDsTypeHeaderIcon();
+    }
+
+    void hideSmTypeLayout() {
+        distSMTypeFilterLayout.setVisible(false);
+        swModuleGridLayout.showSmTypeHeaderIcon();
+    }
+
+    void showDsTypeLayout() {
+        dsTypeFilterLayout.setVisible(true);
+        distributionSetGridLayout.hideDsTypeHeaderIcon();
+    }
+
+    void showSmTypeLayout() {
+        distSMTypeFilterLayout.setVisible(true);
+        swModuleGridLayout.hideSmTypeHeaderIcon();
     }
 
     // TODO: move to grid layout restore state
@@ -217,45 +256,6 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
 
     void onDsSelected(final ProxyDistributionSet ds) {
         swModuleGridLayout.onDsSelected(ds);
-    }
-
-    void hideDsTypeLayout() {
-        dsTypeFilterLayout.setVisible(false);
-        distributionSetGridLayout.showDsTypeHeaderIcon();
-    }
-
-    void hideSmTypeLayout() {
-        distSMTypeFilterLayout.setVisible(false);
-        swModuleGridLayout.showSmTypeHeaderIcon();
-    }
-
-    void showDsTypeLayout() {
-        dsTypeFilterLayout.setVisible(true);
-        distributionSetGridLayout.hideDsTypeHeaderIcon();
-    }
-
-    void showSmTypeLayout() {
-        distSMTypeFilterLayout.setVisible(true);
-        swModuleGridLayout.hideSmTypeHeaderIcon();
-    }
-
-    void maximizeDsGridLayout() {
-        mainLayout.removeComponent(swModuleGridLayout);
-        mainLayout.removeComponent(distSMTypeFilterLayout);
-        mainLayout.setColumnExpandRatio(2, 0F);
-        mainLayout.setColumnExpandRatio(3, 0F);
-
-        distributionSetGridLayout.maximize();
-    }
-
-    void maximizeSmGridLayout() {
-        mainLayout.removeComponent(dsTypeFilterLayout);
-        mainLayout.removeComponent(distributionSetGridLayout);
-        mainLayout.setColumnExpandRatio(2, 1F);
-        mainLayout.setColumnExpandRatio(0, 0F);
-        mainLayout.setColumnExpandRatio(1, 0F);
-
-        swModuleGridLayout.maximize();
     }
 
     void minimizeDsGridLayout() {

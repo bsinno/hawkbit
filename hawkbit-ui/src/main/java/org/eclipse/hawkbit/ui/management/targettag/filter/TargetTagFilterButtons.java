@@ -130,9 +130,14 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
     }
 
     @Override
-    protected boolean isClickedByDefault(final String tagName) {
-        return managementUIState.getTargetTableFilters().getClickedTargetTags() != null
-                && managementUIState.getTargetTableFilters().getClickedTargetTags().contains(tagName);
+    protected boolean isClickedByDefault(final Long filterButtonId) {
+        return false;
+        // TODO:
+        // return
+        // managementUIState.getTargetTableFilters().getClickedTargetTags() !=
+        // null
+        // &&
+        // managementUIState.getTargetTableFilters().getClickedTargetTags().contains(tagName);
     }
 
     @Override
