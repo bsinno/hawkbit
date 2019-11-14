@@ -38,7 +38,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SwModuleDetails swModuleDetails;
 
-    private final SwModuleGridLayoutEventListener eventListener;
+    private final transient SwModuleGridLayoutEventListener eventListener;
 
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
@@ -47,8 +47,6 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
             final ArtifactManagement artifactManagement,
             final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
             final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
-        super(i18n, eventBus);
-
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 softwareModuleManagement, softwareModuleTypeManagement);
         final SmMetaDataWindowBuilder smMetaDataWindowBuilder = new SmMetaDataWindowBuilder(i18n, entityFactory,
@@ -60,14 +58,12 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 swModuleGridLayoutUiState);
 
         // TODO: change to load ArtifactDetailsGridLayout only after button
-        // click
-        final ArtifactDetailsGridLayout artifactDetailsLayout = new ArtifactDetailsGridLayout(i18n, eventBus,
-                artifactUploadState.getArtifactDetailsGridLayoutUiState(), uiNotification, artifactManagement,
-                permChecker);
+        // click and only Grid Header and Grid without upload layout
+        final ArtifactDetailsGridLayout artifactDetailsLayout = null;
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder, artifactDetailsLayout);
-        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, permChecker, softwareModuleManagement,
-                swModuleGridLayoutUiState, smMetaDataWindowBuilder);
+        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, swModuleGridLayoutUiState,
+                smMetaDataWindowBuilder);
 
         this.eventListener = new SwModuleGridLayoutEventListener(this, eventBus);
 

@@ -87,18 +87,6 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         setColumnReorderingAllowed(true);
         setDataProvider(getFilterDataProvider());
         addColumns();
-        if (doSubscribeToEventBus()) {
-            eventBus.subscribe(this);
-        }
-    }
-
-    /**
-     * Subscribes the view to the eventBus. Method has to be overriden (return
-     * false) if the view does not contain any listener to avoid Vaadin blowing
-     * up our logs with warnings.
-     */
-    protected boolean doSubscribeToEventBus() {
-        return true;
     }
 
     // TODO: check if it is needed or could be called directly

@@ -67,11 +67,6 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     protected Component getHeaderCaption() {
         return headerCaption;
     }

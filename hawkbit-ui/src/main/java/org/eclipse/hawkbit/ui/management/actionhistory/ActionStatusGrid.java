@@ -116,11 +116,6 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     public String getGridId() {
         return UIComponentIdProvider.ACTION_HISTORY_DETAILS_GRID_ID;
     }

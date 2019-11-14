@@ -20,7 +20,9 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 public class SMTypeFilterLayoutEventListener {
     private final SMTypeFilterLayout smTypeFilterLayout;
+
     private final UIEventBus eventBus;
+
     private final List<Object> eventListeners;
 
     SMTypeFilterLayoutEventListener(final SMTypeFilterLayout smTypeFilterLayout, final UIEventBus eventBus) {

@@ -34,14 +34,14 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
     private static final long serialVersionUID = 1L;
 
     private final UINotification uiNotification;
-    private final SoftwareModuleManagement smManagement;
-    private final EntityFactory entityFactory;
+    private final transient SoftwareModuleManagement smManagement;
+    private final transient EntityFactory entityFactory;
 
     private final MetaDataWindowGrid<Long> smMetaDataWindowGrid;
 
-    private final SmMetaDataAddUpdateWindowLayout smMetaDataAddUpdateWindowLayout;
-    private final AddMetaDataWindowController addSmMetaDataWindowController;
-    private final UpdateMetaDataWindowController updateSmMetaDataWindowController;
+    private final transient SmMetaDataAddUpdateWindowLayout smMetaDataAddUpdateWindowLayout;
+    private final transient AddMetaDataWindowController addSmMetaDataWindowController;
+    private final transient UpdateMetaDataWindowController updateSmMetaDataWindowController;
 
     /**
      * Constructor for AbstractTagWindowLayout

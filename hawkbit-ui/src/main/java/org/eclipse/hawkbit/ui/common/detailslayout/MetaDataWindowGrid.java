@@ -68,11 +68,6 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> {
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     public String getGridId() {
         return UIComponentIdProvider.METDATA_TABLE_ID;
     }

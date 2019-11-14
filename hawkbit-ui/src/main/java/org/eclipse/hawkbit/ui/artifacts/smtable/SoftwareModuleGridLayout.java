@@ -33,7 +33,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SoftwareModuleDetails softwareModuleDetails;
 
-    private final SoftwareModuleGridLayoutEventListener eventListener;
+    private final transient SoftwareModuleGridLayoutEventListener eventListener;
 
     public SoftwareModuleGridLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UINotification uiNotification, final UIEventBus eventBus,
@@ -41,8 +41,6 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
             final ArtifactUploadState artifactUploadState, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleGridLayoutUiState smGridLayoutUiState) {
-        super(i18n, eventBus);
-
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 softwareModuleManagement, softwareModuleTypeManagement);
         final SmMetaDataWindowBuilder smMetaDataWindowBuilder = new SmMetaDataWindowBuilder(i18n, entityFactory,
@@ -55,7 +53,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder);
-        this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, permChecker, softwareModuleManagement,
+        this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, softwareModuleManagement,
                 smGridLayoutUiState, smMetaDataWindowBuilder);
 
         this.eventListener = new SoftwareModuleGridLayoutEventListener(this, eventBus);
@@ -90,12 +88,12 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     public void maximize() {
         softwareModuleGrid.createMaximizedContent();
-        detailsHeaderLayout.setVisible(false);
+        hideDetailsLayout();
     }
 
     public void minimize() {
         softwareModuleGrid.createMinimizedContent();
-        detailsHeaderLayout.setVisible(true);
+        showDetailsLayout();
     }
 
     public void refreshGrid() {

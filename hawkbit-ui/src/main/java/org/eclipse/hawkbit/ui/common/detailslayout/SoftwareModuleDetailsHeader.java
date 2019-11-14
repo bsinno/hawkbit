@@ -32,7 +32,7 @@ import com.vaadin.ui.Window;
 public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
-    private final SmWindowBuilder smWindowBuilder;
+    private final transient SmWindowBuilder smWindowBuilder;
     private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
 
     private final ArtifactDetailsGridLayout artifactDetailsLayout;

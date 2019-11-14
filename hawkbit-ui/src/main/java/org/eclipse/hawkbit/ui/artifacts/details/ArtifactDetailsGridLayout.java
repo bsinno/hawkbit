@@ -8,8 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.details;
 
+import javax.servlet.MultipartConfigElement;
+
 import org.eclipse.hawkbit.repository.ArtifactManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -24,6 +29,7 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
 
     private final ArtifactDetailsGridHeader artifactDetailsHeader;
     private final ArtifactDetailsGrid artifactDetailsGrid;
+    private final UploadDropAreaLayout uploadDropAreaLayout;
 
     // TODO: should we introduce listener for Artifact Changed (Artifact
     // Modified) ?
@@ -34,23 +40,33 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
      *            VaadinMessageSource
      * @param eventBus
      *            UIEventBus
-     * @param artifactUploadState
-     *            ArtifactUploadState
+     * @param artifactDetailsGridLayoutUiState
+     *            ArtifactDetailsGridLayoutUiState
      * @param notification
      *            UINotification
      * @param artifactManagement
      *            ArtifactManagement
+     * @param permChecker
+     *            SpPermissionChecker
      */
     public ArtifactDetailsGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState, final UINotification notification,
-            final ArtifactManagement artifactManagement, final SpPermissionChecker permChecker) {
-        super(i18n, eventBus);
-
+            final SpPermissionChecker permChecker, final UINotification notification,
+            final ArtifactUploadState artifactUploadState,
+            final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState,
+            final ArtifactManagement artifactManagement, final SoftwareModuleManagement softwareManagement,
+            final MultipartConfigElement multipartConfigElement) {
         this.artifactDetailsHeader = new ArtifactDetailsGridHeader(i18n, eventBus, artifactDetailsGridLayoutUiState);
         this.artifactDetailsGrid = new ArtifactDetailsGrid(eventBus, i18n, permChecker, notification,
                 artifactManagement);
 
-        buildLayout(artifactDetailsHeader, artifactDetailsGrid);
+        this.uploadDropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, notification, artifactUploadState,
+                multipartConfigElement, softwareManagement, artifactManagement);
+
+        if (permChecker.hasCreateRepositoryPermission()) {
+            buildLayout(artifactDetailsHeader, artifactDetailsGrid, uploadDropAreaLayout);
+        } else {
+            buildLayout(artifactDetailsHeader, artifactDetailsGrid);
+        }
     }
 
     public ArtifactDetailsGrid getArtifactDetailsGrid() {
@@ -64,10 +80,12 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
 
     public void maximize() {
         artifactDetailsGrid.createMaximizedContent();
+        hideDetailsLayout();
     }
 
     public void minimize() {
         artifactDetailsGrid.createMinimizedContent();
+        showDetailsLayout();
     }
 
     public void refreshGrid() {

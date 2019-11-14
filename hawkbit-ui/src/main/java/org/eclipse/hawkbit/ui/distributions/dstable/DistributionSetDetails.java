@@ -36,6 +36,9 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 public class DistributionSetDetails extends AbstractDistributionSetDetails {
     private static final long serialVersionUID = 1L;
 
+    private final transient UIEventBus eventBus;
+    private final SpPermissionChecker permissionChecker;
+
     private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
 
     private final TargetFilterQueryDetailsGrid tfqDetailsGrid;
@@ -50,6 +53,9 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
         super(i18n, eventBus, permissionChecker, distributionSetManagement, uiNotification,
                 distributionSetTagManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
+        this.eventBus = eventBus;
+        this.permissionChecker = permissionChecker;
+
         this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
 
         tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n, targetFilterQueryManagement);
@@ -62,7 +68,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
 
     @Override
     protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
-        return new SoftwareModuleDetailsGrid(i18n, true, permChecker, distributionSetManagement, eventBus,
+        return new SoftwareModuleDetailsGrid(i18n, true, permissionChecker, distributionSetManagement, eventBus,
                 uiNotification);
     }
 

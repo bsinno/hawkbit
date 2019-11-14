@@ -30,13 +30,11 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     private final SMTypeFilterHeader smTypeFilterHeader;
     private final SMTypeFilterButtons sMTypeFilterButtons;
 
-    private final SMTypeFilterLayoutEventListener eventListener;
+    private final transient SMTypeFilterLayoutEventListener eventListener;
 
     /**
      * Constructor
      * 
-     * @param artifactUploadState
-     *            ArtifactUploadState
      * @param i18n
      *            VaadinMessageSource
      * @param permChecker
@@ -49,6 +47,8 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
      *            UINotification
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
+     * @param smTypeFilterLayoutUiState
+     *            SMTypeFilterLayoutUiState
      */
     public SMTypeFilterLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final EntityFactory entityFactory, final UINotification uiNotification,

@@ -30,7 +30,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Html5File;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
@@ -42,7 +42,7 @@ import com.vaadin.ui.dnd.event.FileDropEvent;
 /**
  * Container for drag and drop area in the upload view.
  */
-public class UploadDropAreaLayout extends AbstractComponent {
+public class UploadDropAreaLayout extends CustomComponent {
     private static final long serialVersionUID = 1L;
 
     private VerticalLayout dropAreaLayout;
@@ -95,8 +95,6 @@ public class UploadDropAreaLayout extends AbstractComponent {
                 multipartConfigElement, artifactManagement, softwareManagement);
 
         buildLayout();
-
-        eventBus.subscribe(this);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -141,6 +139,8 @@ public class UploadDropAreaLayout extends AbstractComponent {
         dropAreaLayout.addComponent(uploadButtonLayout);
 
         new FileDropTarget<>(dropAreaLayout, new UploadFileDropHandler());
+
+        setCompositionRoot(dropAreaLayout);
     }
 
     public VerticalLayout getDropAreaLayout() {

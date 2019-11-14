@@ -28,11 +28,6 @@ public class ActionStatusMsgGridHeader extends AbstractGridHeader {
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     protected Component getHeaderCaption() {
         return new LabelBuilder().name(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_MESSAGES))
                 .buildCaptionLabel();

@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractSoftwareModuleDetails;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -23,10 +22,10 @@ public class SoftwareModuleDetails extends AbstractSoftwareModuleDetails {
     private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
 
     SoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final SoftwareModuleManagement softwareManagement,
+            final SoftwareModuleManagement softwareManagement,
             final SoftwareModuleGridLayoutUiState smGridLayoutUiState,
             final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
-        super(i18n, eventBus, permissionChecker, softwareManagement, smMetaDataWindowBuilder);
+        super(i18n, eventBus, softwareManagement, smMetaDataWindowBuilder);
 
         this.smGridLayoutUiState = smGridLayoutUiState;
 

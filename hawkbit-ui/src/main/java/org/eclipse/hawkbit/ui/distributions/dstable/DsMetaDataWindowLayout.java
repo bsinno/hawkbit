@@ -34,14 +34,14 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
     private static final long serialVersionUID = 1L;
 
     private final UINotification uiNotification;
-    private final DistributionSetManagement dsManagement;
-    private final EntityFactory entityFactory;
+    private final transient DistributionSetManagement dsManagement;
+    private final transient EntityFactory entityFactory;
 
     private final MetaDataWindowGrid<Long> dsMetaDataWindowGrid;
 
-    private final MetaDataAddUpdateWindowLayout metaDataAddUpdateWindowLayout;
-    private final AddMetaDataWindowController addDsMetaDataWindowController;
-    private final UpdateMetaDataWindowController updateDsMetaDataWindowController;
+    private final transient MetaDataAddUpdateWindowLayout metaDataAddUpdateWindowLayout;
+    private final transient AddMetaDataWindowController addDsMetaDataWindowController;
+    private final transient UpdateMetaDataWindowController updateDsMetaDataWindowController;
 
     /**
      * Constructor for AbstractTagWindowLayout

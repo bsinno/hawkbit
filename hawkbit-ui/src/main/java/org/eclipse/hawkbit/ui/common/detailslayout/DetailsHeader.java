@@ -76,11 +76,6 @@ public abstract class DetailsHeader<T extends ProxyNamedEntity> extends Abstract
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     protected Component getHeaderCaption() {
         return headerCaption;
     }

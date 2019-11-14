@@ -38,7 +38,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     private final DistributionSetDetailsHeader distributionSetDetailsHeader;
     private final DistributionSetDetails distributionSetDetails;
 
-    private final DistributionSetGridLayoutEventListener eventListener;
+    private final transient DistributionSetGridLayoutEventListener eventListener;
 
     public DistributionSetGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
@@ -49,8 +49,6 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
             final SystemSecurityContext systemSecurityContext,
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
-        super(i18n, eventBus);
-
         final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
                 distributionSetTypeManagement);

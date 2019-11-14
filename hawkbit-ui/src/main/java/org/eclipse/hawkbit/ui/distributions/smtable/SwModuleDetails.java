@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.distributions.smtable;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractSoftwareModuleDetails;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -25,10 +24,10 @@ public class SwModuleDetails extends AbstractSoftwareModuleDetails {
     private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
 
     SwModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final SoftwareModuleManagement softwareManagement,
+            final SoftwareModuleManagement softwareManagement,
             final SwModuleGridLayoutUiState swModuleGridLayoutUiState,
             final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
-        super(i18n, eventBus, permissionChecker, softwareManagement, smMetaDataWindowBuilder);
+        super(i18n, eventBus, softwareManagement, smMetaDataWindowBuilder);
 
         this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
 

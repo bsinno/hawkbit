@@ -86,11 +86,6 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     public void refreshContainer() {
         // TODO: what about sortOrders/filters, are they respected here, should
         // we also set the limit? Evaluate

@@ -48,8 +48,6 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
             final SystemManagement systemManagement, final TargetManagement targetManagement,
             final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,
             final SystemSecurityContext systemSecurityContext, final UiProperties uiProperties) {
-        super(i18n, eventBus);
-
         this.distributionGridHeader = new DistributionGridHeader(i18n, permissionChecker, eventBus, managementUIState);
         this.distributionGrid = new DistributionGrid(eventBus, i18n, permissionChecker, notification, managementUIState,
                 targetManagement, distributionSetManagement, deploymentManagement, uiProperties);

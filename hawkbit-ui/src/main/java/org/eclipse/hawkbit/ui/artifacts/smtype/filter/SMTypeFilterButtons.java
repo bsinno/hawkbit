@@ -52,8 +52,8 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
      * 
      * @param eventBus
      *            UIEventBus
-     * @param artifactUploadState
-     *            ArtifactUploadState
+     * @param smTypeFilterLayoutUiState
+     *            SMTypeFilterLayoutUiState
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
      * @param i18n
@@ -62,6 +62,8 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
      *            SpPermissionChecker
      * @param uiNotification
      *            UINotification
+     * @param smTypeWindowBuilder
+     *            SmTypeWindowBuilder
      */
     public SMTypeFilterButtons(final UIEventBus eventBus, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final VaadinMessageSource i18n,
@@ -113,7 +115,7 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     @Override
     protected void deleteFilterButtons(final Collection<ProxyType> filterButtonsToDelete) {
-        // TODO: we do not allow multiple deletion yet
+        // we do not allow multiple deletion yet
         final ProxyType distSMTypeToDelete = filterButtonsToDelete.iterator().next();
         final String distSMTypeToDeleteName = distSMTypeToDelete.getName();
         final Long distSMTypeToDeleteId = distSMTypeToDelete.getId();

@@ -23,11 +23,9 @@ import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayout;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.dd.criteria.UploadViewClientCriterion;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +38,6 @@ import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.VerticalLayout;
 
@@ -60,12 +57,10 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     private final SMTypeFilterLayout smTypeFilterLayout;
     private final SoftwareModuleGridLayout smGridLayout;
     private final ArtifactDetailsGridLayout artifactDetailsGridLayout;
-    private final UploadDropAreaLayout uploadDropAreaLayout;
-    private final VerticalLayout detailAndUploadLayout;
 
     private GridLayout mainLayout;
 
-    private final UploadArtifactViewEventListener eventListener;
+    private final transient UploadArtifactViewEventListener eventListener;
 
     @Autowired
     UploadArtifactView(final UIEventBus eventBus, final SpPermissionChecker permChecker, final VaadinMessageSource i18n,
@@ -83,43 +78,16 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
             this.smGridLayout = new SoftwareModuleGridLayout(i18n, permChecker, uiNotification, eventBus,
                     softwareModuleManagement, softwareModuleTypeManagement, entityFactory, artifactUploadState,
                     artifactUploadState.getSmTypeFilterLayoutUiState(), artifactUploadState.getSmGridLayoutUiState());
-            this.artifactDetailsGridLayout = new ArtifactDetailsGridLayout(i18n, eventBus,
-                    artifactUploadState.getArtifactDetailsGridLayoutUiState(), uiNotification, artifactManagement,
-                    permChecker);
-            this.uploadDropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, uiNotification, artifactUploadState,
-                    multipartConfigElement, softwareModuleManagement, artifactManagement);
-            this.detailAndUploadLayout = createDetailsAndUploadLayout(artifactDetailsGridLayout,
-                    uploadDropAreaLayout.getDropAreaLayout());
+            this.artifactDetailsGridLayout = new ArtifactDetailsGridLayout(i18n, eventBus, permChecker, uiNotification,
+                    artifactUploadState, artifactUploadState.getArtifactDetailsGridLayoutUiState(), artifactManagement,
+                    softwareModuleManagement, multipartConfigElement);
         } else {
             this.smTypeFilterLayout = null;
             this.smGridLayout = null;
             this.artifactDetailsGridLayout = null;
-            this.uploadDropAreaLayout = null;
-            this.detailAndUploadLayout = null;
         }
 
         this.eventListener = new UploadArtifactViewEventListener(this, eventBus);
-    }
-
-    private VerticalLayout createDetailsAndUploadLayout(final ArtifactDetailsGridLayout artifactDetailsLayout,
-            final VerticalLayout dropAreaLayout) {
-        final VerticalLayout layout = new VerticalLayout();
-        layout.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_DETAILS_AND_UPLOAD_LAYOUT);
-        layout.setMargin(false);
-        layout.setSpacing(true);
-        layout.setSizeFull();
-        layout.addStyleName("group");
-        layout.addStyleName("detail-and-upload-layout");
-
-        layout.addComponent(artifactDetailsLayout);
-        layout.setComponentAlignment(artifactDetailsLayout, Alignment.TOP_CENTER);
-        layout.setExpandRatio(artifactDetailsLayout, 1.0F);
-
-        if (permChecker.hasCreateRepositoryPermission()) {
-            layout.addComponent(dropAreaLayout);
-        }
-
-        return layout;
     }
 
     @PostConstruct
@@ -156,7 +124,7 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
 
         mainLayout.addComponent(smTypeFilterLayout, 0, 0);
         mainLayout.addComponent(smGridLayout, 1, 0);
-        mainLayout.addComponent(detailAndUploadLayout, 2, 0);
+        mainLayout.addComponent(artifactDetailsGridLayout, 2, 0);
 
         return mainLayout;
     }
@@ -169,11 +137,11 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
             maximizeArtifactGridLayout();
         }
 
-        uploadDropAreaLayout.getUploadButtonLayout().restoreState();
+        // uploadDropAreaLayout.getUploadButtonLayout().restoreState();
     }
 
     void maximizeSmGridLayout() {
-        detailAndUploadLayout.setVisible(false);
+        artifactDetailsGridLayout.setVisible(false);
 
         mainLayout.setColumnExpandRatio(1, 1.0F);
         mainLayout.setColumnExpandRatio(2, 0.0F);
@@ -184,11 +152,10 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     void maximizeArtifactGridLayout() {
         smTypeFilterLayout.setVisible(false);
         smGridLayout.setVisible(false);
-        uploadDropAreaLayout.getDropAreaLayout().setVisible(false);
 
         mainLayout.setSpacing(false);
-        mainLayout.setColumnExpandRatio(1, 0F);
-        mainLayout.setColumnExpandRatio(2, 1F);
+        mainLayout.setColumnExpandRatio(1, 0.0F);
+        mainLayout.setColumnExpandRatio(2, 1.0F);
 
         artifactDetailsGridLayout.maximize();
     }
@@ -238,7 +205,7 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     void minimizeSmGridLayout() {
-        detailAndUploadLayout.setVisible(true);
+        artifactDetailsGridLayout.setVisible(true);
 
         mainLayout.setColumnExpandRatio(1, 0.5F);
         mainLayout.setColumnExpandRatio(2, 0.5F);
@@ -251,7 +218,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
             smTypeFilterLayout.setVisible(true);
         }
         smGridLayout.setVisible(true);
-        uploadDropAreaLayout.getDropAreaLayout().setVisible(true);
 
         mainLayout.setSpacing(true);
         mainLayout.setColumnExpandRatio(1, 0.5F);

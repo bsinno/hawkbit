@@ -27,6 +27,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DistributionDetails extends AbstractDistributionSetDetails {
     private static final long serialVersionUID = 1L;
 
+    private final SpPermissionChecker permissionChecker;
+
     private final ManagementUIState managementUIState;
 
     DistributionDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -39,6 +41,8 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
                 distributionSetTagManagement, tenantConfigurationManagement, systemSecurityContext,
                 dsMetaDataWindowBuilder);
 
+        this.permissionChecker = permissionChecker;
+
         this.managementUIState = managementUIState;
 
         buildDetails();
@@ -47,7 +51,7 @@ public class DistributionDetails extends AbstractDistributionSetDetails {
 
     @Override
     protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
-        return new SoftwareModuleDetailsGrid(i18n, false, permChecker, null, null, uiNotification);
+        return new SoftwareModuleDetailsGrid(i18n, false, permissionChecker, null, null, uiNotification);
     }
 
     private void restoreState() {

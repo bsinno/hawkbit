@@ -52,14 +52,14 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     private final DistributionTagToken distributionTagToken;
     private final MetadataDetailsGrid<Long> dsMetadataGrid;
 
-    private final DsMetaDataWindowBuilder dsMetaDataWindowBuilder;
+    private final transient DsMetaDataWindowBuilder dsMetaDataWindowBuilder;
 
     protected AbstractDistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
             final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
             final TenantConfigurationManagement tenantConfigurationManagement,
             final SystemSecurityContext systemSecurityContext, final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
-        super(i18n, permissionChecker, eventBus);
+        super(i18n);
 
         this.uiNotification = uiNotification;
         this.distributionSetManagement = distributionSetManagement;

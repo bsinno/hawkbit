@@ -52,8 +52,6 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     public ActionHistoryGridLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
             final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
             final SpPermissionChecker permChecker) {
-        super(i18n, eventBus);
-
         this.managementUIState = managementUIState;
 
         this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, managementUIState, eventBus);

@@ -16,7 +16,6 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
@@ -40,15 +39,13 @@ public class RolloutGroupTargetsCountLabelMessage extends Label {
     private final VaadinMessageSource i18n;
 
     RolloutGroupTargetsCountLabelMessage(final RolloutUIState rolloutUIState,
-            final Grid<ProxyTarget> rolloutGroupTargetsListGrid, final VaadinMessageSource i18n,
-            final UIEventBus eventBus) {
+            final Grid<ProxyTarget> rolloutGroupTargetsListGrid, final VaadinMessageSource i18n) {
         this.rolloutUIState = rolloutUIState;
         this.rolloutGroupTargetsListGrid = rolloutGroupTargetsListGrid;
         this.i18n = i18n;
 
         applyStyle();
         displayRolloutGroupTargetMessage();
-        eventBus.subscribe(this);
     }
 
     /**

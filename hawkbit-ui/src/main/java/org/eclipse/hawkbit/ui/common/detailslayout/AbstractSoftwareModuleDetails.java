@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.SmMetaDataDataProvider;
@@ -41,9 +40,8 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
     private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
 
     protected AbstractSoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final SoftwareModuleManagement softwareManagement,
-            final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
-        super(i18n, permissionChecker, eventBus);
+            final SoftwareModuleManagement softwareManagement, final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
+        super(i18n);
 
         this.smMetaDataWindowBuilder = smMetaDataWindowBuilder;
 

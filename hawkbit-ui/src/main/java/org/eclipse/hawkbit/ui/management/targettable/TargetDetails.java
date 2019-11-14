@@ -67,7 +67,7 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
             final UINotification uiNotification, final TargetTagManagement tagManagement,
             final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
             final TargetMetaDataWindowBuilder targetMetaDataWindowBuilder) {
-        super(i18n, permissionChecker, eventBus);
+        super(i18n);
 
         this.managementUIState = managementUIState;
         this.targetManagement = targetManagement;

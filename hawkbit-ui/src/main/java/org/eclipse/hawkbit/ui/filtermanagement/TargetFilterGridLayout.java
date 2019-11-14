@@ -34,8 +34,6 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
             final TargetFilterQueryManagement targetFilterQueryManagement, final TargetManagement targetManagement,
             final DistributionSetManagement distributionSetManagement,
             final FilterManagementUIState filterManagementUIState) {
-        super(i18n, eventBus);
-
         this.targetFilterGridHeader = new TargetFilterGridHeader(eventBus, filterManagementUIState, permissionChecker,
                 i18n);
 

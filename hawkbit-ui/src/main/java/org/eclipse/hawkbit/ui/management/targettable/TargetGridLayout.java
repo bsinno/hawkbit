@@ -43,8 +43,6 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
             final TargetTagManagement targetTagManagement, final DistributionSetManagement distributionSetManagement,
             final Executor uiExecutor, final TenantConfigurationManagement configManagement,
             final SystemSecurityContext systemSecurityContext) {
-        super(i18n, eventBus);
-
         final TargetWindowBuilder targetWindowBuilder = new TargetWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, targetManagement);
         final TargetMetaDataWindowBuilder targetMetaDataWindowBuilder = new TargetMetaDataWindowBuilder(i18n,

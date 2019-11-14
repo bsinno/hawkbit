@@ -27,14 +27,11 @@ import com.vaadin.ui.HorizontalLayout;
 public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
     private static final long serialVersionUID = 1L;
 
-    protected final VaadinMessageSource i18n;
-    protected final UIEventBus eventBus;
-
     private final MetadataWindowGridHeader metadataWindowGridHeader;
 
-    private Consumer<SaveDialogCloseListener> saveCallback;
+    private transient Consumer<SaveDialogCloseListener> saveCallback;
 
-    protected F masterEntityFilter;
+    protected transient F masterEntityFilter;
 
     /**
      * Constructor for AbstractTagWindowLayout
@@ -44,9 +41,6 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
      */
     public AbstractMetaDataWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permChecker) {
-        this.i18n = i18n;
-        this.eventBus = eventBus;
-
         this.metadataWindowGridHeader = new MetadataWindowGridHeader(i18n, permChecker, eventBus,
                 this::showAddMetaDataLayout);
     }
@@ -100,8 +94,8 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
         setMargin(false);
         setSizeFull();
 
-        final MetaDataWindowGridLayout metaDataWindowGridLayout = new MetaDataWindowGridLayout(i18n, eventBus,
-                metadataWindowGridHeader, getMetaDataWindowGrid());
+        final MetaDataWindowGridLayout metaDataWindowGridLayout = new MetaDataWindowGridLayout(metadataWindowGridHeader,
+                getMetaDataWindowGrid());
         final ComponentContainer addUpdateWindowLayout = getMetaDataAddUpdateWindowLayout().getRootComponent();
 
         addComponent(metaDataWindowGridLayout);
@@ -141,11 +135,8 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
     private static class MetaDataWindowGridLayout extends AbstractGridComponentLayout {
         private static final long serialVersionUID = 1L;
 
-        public MetaDataWindowGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-                final MetadataWindowGridHeader metadataWindowGridHeader,
+        public MetaDataWindowGridLayout(final MetadataWindowGridHeader metadataWindowGridHeader,
                 final MetaDataWindowGrid<?> metaDataWindowGrid) {
-            super(i18n, eventBus);
-
             super.buildLayout(metadataWindowGridHeader, metaDataWindowGrid);
         }
     }

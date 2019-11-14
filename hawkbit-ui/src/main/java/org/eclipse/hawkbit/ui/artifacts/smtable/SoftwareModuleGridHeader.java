@@ -38,7 +38,7 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
 
-    private final SmWindowBuilder smWindowBuilder;
+    private final transient SmWindowBuilder smWindowBuilder;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;

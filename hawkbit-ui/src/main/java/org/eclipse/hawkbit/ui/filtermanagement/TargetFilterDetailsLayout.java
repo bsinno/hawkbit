@@ -31,7 +31,7 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
 
     private final TargetFilterDetailsGridHeader targetFilterDetailsGridHeader;
     private final TargetFilterTargetGrid targetFilterTargetGrid;
-    private final TargetFilterCountMessageLabel targetFilterCountMessageLabel;
+    private final transient TargetFilterCountMessageLabel targetFilterCountMessageLabel;
 
     // private final TargetFilterDetailsLayoutEventListener eventListener;
 
@@ -40,8 +40,6 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
             final RsqlValidationOracle rsqlValidationOracle, final Executor executor,
             final TargetManagement targetManagement, final TargetFilterQueryManagement targetFilterManagement,
             final FilterManagementUIState filterManagementUIState) {
-        super(i18n, eventBus);
-
         final TargetFilterAddUpdateLayout targetFilterAddUpdateLayout = new TargetFilterAddUpdateLayout(i18n,
                 uiProperties, filterManagementUIState, eventBus, rsqlValidationOracle, executor);
         final AddTargetFilterController addTargetFilterController = new AddTargetFilterController(i18n, entityFactory,

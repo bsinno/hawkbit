@@ -12,11 +12,9 @@ import org.eclipse.hawkbit.ui.common.detailslayout.AbstractGridDetailsLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.DetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
-import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
@@ -28,34 +26,13 @@ import com.vaadin.ui.VerticalLayout;
 public abstract class AbstractGridComponentLayout extends VerticalLayout {
     private static final long serialVersionUID = 1L;
 
-    protected final VaadinMessageSource i18n;
-    protected final transient EventBus.UIEventBus eventBus;
-
-    protected VerticalLayout detailsHeaderLayout;
+    private Component detailsLayout;
 
     /**
      * Constructor.
-     *
-     * @param i18n
-     * @param eventBus
      */
-    public AbstractGridComponentLayout(final VaadinMessageSource i18n, final UIEventBus eventBus) {
-        this.i18n = i18n;
-        this.eventBus = eventBus;
-
+    public AbstractGridComponentLayout() {
         init();
-        if (doSubscribeToEventBus()) {
-            eventBus.subscribe(this);
-        }
-    }
-
-    /**
-     * Subscribes the view to the eventBus. Method has to be overriden (return
-     * false) if the view does not contain any listener to avoid Vaadin blowing
-     * up our logs with warnings.
-     */
-    protected boolean doSubscribeToEventBus() {
-        return true;
     }
 
     private void init() {
@@ -93,25 +70,36 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      * and grid details.
      */
     protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
-            final DetailsHeader<?> detailsHeader, final AbstractGridDetailsLayout<?> detailsLayout) {
+            final Component detailsLayout) {
         buildLayout(gridHeader, grid);
 
-        detailsHeaderLayout = new VerticalLayout();
+        addComponent(detailsLayout);
+        setComponentAlignment(detailsLayout, Alignment.TOP_CENTER);
+
+        this.detailsLayout = detailsLayout;
+    }
+
+    /**
+     * Initializes this layout that presents a header, a grid, details header
+     * and grid details.
+     */
+    protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
+            final DetailsHeader<?> gridDetailsHeader, final AbstractGridDetailsLayout<?> gridDetailsLayout) {
+        final VerticalLayout detailsHeaderLayout = new VerticalLayout();
         detailsHeaderLayout.setSizeFull();
         detailsHeaderLayout.setSpacing(false);
         detailsHeaderLayout.setMargin(false);
         detailsHeaderLayout.setHeightUndefined();
         detailsHeaderLayout.addStyleName(SPUIStyleDefinitions.WIDGET_STYLE);
 
-        detailsHeaderLayout.addComponent(detailsHeader);
-        detailsHeaderLayout.setComponentAlignment(detailsHeader, Alignment.TOP_CENTER);
+        detailsHeaderLayout.addComponent(gridDetailsHeader);
+        detailsHeaderLayout.setComponentAlignment(gridDetailsHeader, Alignment.TOP_CENTER);
 
-        detailsHeaderLayout.addComponent(detailsLayout);
-        detailsHeaderLayout.setComponentAlignment(detailsLayout, Alignment.TOP_CENTER);
-        detailsHeaderLayout.setExpandRatio(detailsLayout, 1.0F);
+        detailsHeaderLayout.addComponent(gridDetailsLayout);
+        detailsHeaderLayout.setComponentAlignment(gridDetailsLayout, Alignment.TOP_CENTER);
+        detailsHeaderLayout.setExpandRatio(gridDetailsLayout, 1.0F);
 
-        addComponent(detailsHeaderLayout);
-        setComponentAlignment(detailsHeaderLayout, Alignment.TOP_CENTER);
+        buildLayout(gridHeader, grid, detailsHeaderLayout);
     }
 
     /**
@@ -131,12 +119,20 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      * a footer.
      */
     protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
-            final DetailsHeader<?> detailsHeader, final AbstractGridDetailsLayout<?> detailsLayout,
+            final DetailsHeader<?> gridDetailsHeader, final AbstractGridDetailsLayout<?> gridDetailsLayout,
             final AbstractFooterSupport footerSupport) {
-        buildLayout(gridHeader, grid, detailsHeader, detailsLayout);
+        buildLayout(gridHeader, grid, gridDetailsHeader, gridDetailsLayout);
 
         final Layout footerLayout = footerSupport.createFooterMessageComponent();
         addComponent(footerLayout);
         setComponentAlignment(footerLayout, Alignment.BOTTOM_CENTER);
+    }
+
+    protected void showDetailsLayout() {
+        detailsLayout.setVisible(true);
+    }
+
+    protected void hideDetailsLayout() {
+        detailsLayout.setVisible(false);
     }
 }
