@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.filtermanagement;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
+import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -31,14 +32,14 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
 
     public TargetFilterGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final TargetFilterQueryManagement targetFilterQueryManagement, final TargetManagement targetManagement,
-            final DistributionSetManagement distributionSetManagement,
+            final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
+            final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
             final FilterManagementUIState filterManagementUIState) {
         this.targetFilterGridHeader = new TargetFilterGridHeader(eventBus, filterManagementUIState, permissionChecker,
                 i18n);
 
         final AutoAssignmentWindowBuilder autoAssignmentWindowBuilder = new AutoAssignmentWindowBuilder(i18n, eventBus,
-                notification, targetManagement, targetFilterQueryManagement, distributionSetManagement);
+                notification, entityFactory, targetManagement, targetFilterQueryManagement, distributionSetManagement);
 
         this.targetFilterGrid = new TargetFilterGrid(i18n, notification, eventBus, filterManagementUIState,
                 targetFilterQueryManagement, permissionChecker, autoAssignmentWindowBuilder);

@@ -66,7 +66,8 @@ public class FilterManagementView extends VerticalLayout implements View {
         this.eventBus = eventBus;
 
         this.targetFilterGridLayout = new TargetFilterGridLayout(i18n, eventBus, permissionChecker, notification,
-                targetFilterQueryManagement, targetManagement, distributionSetManagement, filterManagementUIState);
+                entityFactory, targetFilterQueryManagement, targetManagement, distributionSetManagement,
+                filterManagementUIState);
 
         this.targetFilterDetailsLayout = new TargetFilterDetailsLayout(i18n, eventBus, notification, uiProperties,
                 entityFactory, rsqlValidationOracle, executor, targetManagement, targetFilterQueryManagement,

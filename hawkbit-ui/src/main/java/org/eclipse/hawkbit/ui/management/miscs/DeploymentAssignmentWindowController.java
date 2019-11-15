@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.miscs;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -17,10 +18,12 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.MaintenanceScheduleHelper;
 import org.eclipse.hawkbit.repository.exception.InvalidMaintenanceScheduleException;
+import org.eclipse.hawkbit.repository.exception.MultiAssignmentIsNotEnabledException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
+import org.eclipse.hawkbit.repository.model.DeploymentRequest;
+import org.eclipse.hawkbit.repository.model.DeploymentRequestBuilder;
 import org.eclipse.hawkbit.repository.model.DistributionSetAssignmentResult;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
-import org.eclipse.hawkbit.repository.model.TargetWithActionType;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
@@ -33,6 +36,8 @@ import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
@@ -40,6 +45,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * distribution sets.
  */
 public class DeploymentAssignmentWindowController {
+    private static final Logger LOG = LoggerFactory.getLogger(DeploymentAssignmentWindowController.class);
+
     private final VaadinMessageSource i18n;
     private final ManagementUIState managementUIState;
     private final UIEventBus eventBus;
@@ -100,23 +107,33 @@ public class DeploymentAssignmentWindowController {
 
         final Set<Long> dsIdsToAssign = proxyDistributionSets.stream().map(ProxyDistributionSet::getId)
                 .collect(Collectors.toSet());
-        final List<TargetWithActionType> targetsWithActionTypesToAssign = proxyTargets.stream()
-                .map(t -> proxyAssignmentWindow.isMaintenanceWindowEnabled()
-                        ? new TargetWithActionType(t.getControllerId(), actionType, forcedTimeStamp,
-                                maintenanceSchedule, maintenanceDuration, maintenanceTimeZone)
-                        : new TargetWithActionType(t.getControllerId(), actionType, forcedTimeStamp))
-                .collect(Collectors.toList());
 
-        final List<DistributionSetAssignmentResult> assignmentResults = deploymentManagement
-                .assignDistributionSets(dsIdsToAssign, targetsWithActionTypesToAssign);
+        final List<DeploymentRequest> deploymentRequests = new ArrayList<>();
+        dsIdsToAssign.forEach(dsId -> proxyTargets.forEach(t -> {
+            final DeploymentRequestBuilder request = DeploymentManagement.deploymentRequest(t.getControllerId(), dsId)
+                    .setActionType(actionType).setForceTime(forcedTimeStamp);
+            if (proxyAssignmentWindow.isMaintenanceWindowEnabled()) {
+                request.setMaintenance(maintenanceSchedule, maintenanceDuration, maintenanceTimeZone);
+            }
+            deploymentRequests.add(request.build());
+        }));
 
-        // use the last one for the notification box
-        showAssignmentResultNotifications(assignmentResults.get(assignmentResults.size() - 1));
+        try {
+            final List<DistributionSetAssignmentResult> assignmentResults = deploymentManagement
+                    .assignDistributionSets(deploymentRequests);
 
-        final Set<Long> assignedTargetIds = proxyTargets.stream().map(ProxyTarget::getId).collect(Collectors.toSet());
-        refreshPinnedDetails(dsIdsToAssign, assignedTargetIds);
+            // use the last one for the notification box
+            showAssignmentResultNotifications(assignmentResults.get(assignmentResults.size() - 1));
 
-        eventBus.publish(this, SaveActionWindowEvent.SAVED_ASSIGNMENTS);
+            final Set<Long> assignedTargetIds = proxyTargets.stream().map(ProxyTarget::getId)
+                    .collect(Collectors.toSet());
+            refreshPinnedDetails(dsIdsToAssign, assignedTargetIds);
+
+            eventBus.publish(this, SaveActionWindowEvent.SAVED_ASSIGNMENTS);
+        } catch (final MultiAssignmentIsNotEnabledException e) {
+            notification.displayValidationError(i18n.getMessage("message.target.ds.multiassign.error"));
+            LOG.error("UI allowed multiassignment although it is not enabled: {}", e);
+        }
     }
 
     private void showAssignmentResultNotifications(final DistributionSetAssignmentResult assignmentResult) {
@@ -126,6 +143,7 @@ public class DeploymentAssignmentWindowController {
         if (assignmentResult.getAssigned() > 0) {
             notification.displaySuccess(i18n.getMessage("message.target.assignment", assignmentResult.getAssigned()));
         }
+
         if (assignmentResult.getAlreadyAssigned() > 0) {
             notification.displaySuccess(
                     i18n.getMessage("message.target.alreadyAssigned", assignmentResult.getAlreadyAssigned()));

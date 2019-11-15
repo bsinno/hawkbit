@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.hawkbit.repository.model.AssignmentResult;
+import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -47,7 +47,7 @@ public abstract class TagsAssignmentSupport<T, R extends NamedEntity> extends As
         // TODO: fix (we are taking first tag because multi-tag assignment is
         // not supported)
         final String tagName = sourceItemsToAssign.get(0).getName();
-        final AssignmentResult<R> tagsAssignmentResult = toggleTagAssignment(tagName, targetItem);
+        final AbstractAssignmentResult<R> tagsAssignmentResult = toggleTagAssignment(tagName, targetItem);
 
         // TODO: check if it could be extracted from HawkbitCommonUtil
         notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
@@ -55,7 +55,7 @@ public abstract class TagsAssignmentSupport<T, R extends NamedEntity> extends As
         publishFilterEvent(tagsAssignmentResult);
     }
 
-    protected abstract AssignmentResult<R> toggleTagAssignment(final String tagName, final T targetItem);
+    protected abstract AbstractAssignmentResult<R> toggleTagAssignment(final String tagName, final T targetItem);
 
-    protected abstract void publishFilterEvent(final AssignmentResult<R> tagsAssignmentResult);
+    protected abstract void publishFilterEvent(final AbstractAssignmentResult<R> tagsAssignmentResult);
 }

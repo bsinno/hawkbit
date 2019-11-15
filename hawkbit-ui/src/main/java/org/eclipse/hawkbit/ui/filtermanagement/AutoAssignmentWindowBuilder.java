@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.filtermanagement;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
+import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowBuilder;
@@ -23,19 +24,21 @@ import com.vaadin.ui.Window;
 public class AutoAssignmentWindowBuilder extends AbstractEntityWindowBuilder<ProxyTargetFilterQuery> {
     private final UIEventBus eventBus;
     private final UINotification uiNotification;
+    private final EntityFactory entityFactory;
 
     private final TargetManagement targetManagement;
     private final TargetFilterQueryManagement targetFilterQueryManagement;
     private final DistributionSetManagement dsManagement;
 
     public AutoAssignmentWindowBuilder(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final UINotification uiNotification, final TargetManagement targetManagement,
-            final TargetFilterQueryManagement targetFilterQueryManagement,
+            final UINotification uiNotification, final EntityFactory entityFactory,
+            final TargetManagement targetManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
             final DistributionSetManagement dsManagement) {
         super(i18n);
 
         this.eventBus = eventBus;
         this.uiNotification = uiNotification;
+        this.entityFactory = entityFactory;
 
         this.targetManagement = targetManagement;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
@@ -48,7 +51,8 @@ public class AutoAssignmentWindowBuilder extends AbstractEntityWindowBuilder<Pro
     }
 
     public Window getWindowForAutoAssignment(final ProxyTargetFilterQuery proxyTargetFilter) {
-        return getWindowForEntity(proxyTargetFilter, new AutoAssignmentWindowController(i18n, eventBus, uiNotification,
-                targetManagement, targetFilterQueryManagement, new AutoAssignmentWindowLayout(i18n, dsManagement)));
+        return getWindowForEntity(proxyTargetFilter,
+                new AutoAssignmentWindowController(i18n, eventBus, uiNotification, entityFactory, targetManagement,
+                        targetFilterQueryManagement, new AutoAssignmentWindowLayout(i18n, dsManagement)));
     }
 }

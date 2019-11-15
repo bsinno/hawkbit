@@ -32,6 +32,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 
+import java.util.concurrent.locks.Lock;
+
 /**
  * Container for upload and progress button.
  */
@@ -57,6 +59,8 @@ public class UploadProgressButtonLayout extends VerticalLayout {
 
     private final ArtifactUploadState artifactUploadState;
 
+    private final transient Lock uploadLock;
+
     /**
      * Creates a new {@link UploadProgressButtonLayout} instance.
      * 
@@ -74,10 +78,12 @@ public class UploadProgressButtonLayout extends VerticalLayout {
      * @param artifactManagement
      *            the {@link ArtifactManagement} for storing the uploaded
      *            artifacts
+     * @param uploadLock
+     *            A common upload lock that enforced sequential upload within an UI instance
      */
     public UploadProgressButtonLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ArtifactUploadState artifactUploadState, final MultipartConfigElement multipartConfigElement,
-            final ArtifactManagement artifactManagement, final SoftwareModuleManagement softwareManagement) {
+            final ArtifactManagement artifactManagement, final SoftwareModuleManagement softwareManagement, final Lock uploadLock) {
         this.artifactUploadState = artifactUploadState;
         this.artifactManagement = artifactManagement;
         this.uploadInfoWindow = new UploadProgressInfoWindow(eventBus, artifactUploadState, i18n);
@@ -92,6 +98,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         this.multipartConfigElement = multipartConfigElement;
         this.softwareModuleManagement = softwareManagement;
         this.upload = new UploadFixed();
+        this.uploadLock = uploadLock;
 
         createComponents();
         buildLayout();
@@ -150,7 +157,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
 
     private void buildLayout() {
         final FileTransferHandlerVaadinUpload uploadHandler = new FileTransferHandlerVaadinUpload(
-                multipartConfigElement.getMaxFileSize(), softwareModuleManagement, artifactManagement, i18n);
+                multipartConfigElement.getMaxFileSize(), softwareModuleManagement, artifactManagement, i18n, uploadLock);
         upload.setButtonCaption(i18n.getMessage("upload.file"));
         upload.setReceiver(uploadHandler);
         upload.addSucceededListener(uploadHandler);

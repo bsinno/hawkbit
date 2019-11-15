@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.model.AssignmentResult;
+import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
@@ -41,12 +41,12 @@ public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<P
     }
 
     @Override
-    protected AssignmentResult<Target> toggleTagAssignment(final String tagName, final ProxyTarget targetItem) {
+    protected AbstractAssignmentResult<Target> toggleTagAssignment(final String tagName, final ProxyTarget targetItem) {
         return targetManagement.toggleTagAssignment(Collections.singletonList(targetItem.getControllerId()), tagName);
     }
 
     @Override
-    protected void publishFilterEvent(final AssignmentResult<Target> tagsAssignmentResult) {
+    protected void publishFilterEvent(final AbstractAssignmentResult<Target> tagsAssignmentResult) {
         final List<String> tagsClickedList = managementUIState.getTargetTableFilters().getClickedTargetTags();
         if (tagsAssignmentResult.getUnassigned() > 0 && !tagsClickedList.isEmpty()) {
             eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);

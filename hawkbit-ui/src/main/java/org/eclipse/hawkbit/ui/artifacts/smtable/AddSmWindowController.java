@@ -8,8 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
+import javax.validation.ConstraintViolationException;
+
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
+import org.eclipse.hawkbit.repository.builder.SoftwareModuleCreate;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
@@ -59,14 +62,23 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
 
     @Override
     protected void persistEntity(final ProxySoftwareModule entity) {
-        final SoftwareModule newSm = smManagement.create(
-                entityFactory.softwareModule().create().type(entity.getProxyType().getKey()).name(entity.getName())
-                        .version(entity.getVersion()).vendor(entity.getVendor()).description(entity.getDescription()));
+        final SoftwareModuleCreate smCreate = entityFactory.softwareModule().create()
+                .type(entity.getProxyType().getKey()).name(entity.getName()).version(entity.getVersion())
+                .vendor(entity.getVendor()).description(entity.getDescription());
 
-        uiNotification.displaySuccess(i18n.getMessage("message.save.success", newSm.getName()));
+        final SoftwareModule newSoftwareModule;
+        try {
+            newSoftwareModule = smManagement.create(smCreate);
+        } catch (final ConstraintViolationException ex) {
+            uiNotification.displayValidationError(
+                    i18n.getMessage("message.save.fail", entity.getName() + ":" + entity.getVersion()));
+            return;
+        }
+
+        uiNotification.displaySuccess(i18n.getMessage("message.save.success", newSoftwareModule.getName()));
         // TODO: verify if sender is correct
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newSm.getId()));
+                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newSoftwareModule.getId()));
     }
 
     @Override

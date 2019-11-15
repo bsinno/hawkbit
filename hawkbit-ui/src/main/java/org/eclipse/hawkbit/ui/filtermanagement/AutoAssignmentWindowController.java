@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
+import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
@@ -30,6 +31,7 @@ public class AutoAssignmentWindowController
     private final VaadinMessageSource i18n;
     private final UIEventBus eventBus;
     private final UINotification uiNotification;
+    private final EntityFactory entityFactory;
 
     private final TargetManagement targetManagement;
     private final TargetFilterQueryManagement targetFilterQueryManagement;
@@ -37,11 +39,13 @@ public class AutoAssignmentWindowController
     private final AutoAssignmentWindowLayout layout;
 
     public AutoAssignmentWindowController(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final UINotification uiNotification, final TargetManagement targetManagement,
-            final TargetFilterQueryManagement targetFilterQueryManagement, final AutoAssignmentWindowLayout layout) {
+            final UINotification uiNotification, final EntityFactory entityFactory,
+            final TargetManagement targetManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
+            final AutoAssignmentWindowLayout layout) {
         this.i18n = i18n;
         this.eventBus = eventBus;
         this.uiNotification = uiNotification;
+        this.entityFactory = entityFactory;
 
         this.targetManagement = targetManagement;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
@@ -96,7 +100,8 @@ public class AutoAssignmentWindowController
             showConsequencesDialog(confirmationCaption, confirmationQuestion, entity.getId(), autoAssignDsId,
                     entity.getAutoAssignActionType());
         } else {
-            targetFilterQueryManagement.updateAutoAssignDS(entity.getId(), null);
+            targetFilterQueryManagement
+                    .updateAutoAssignDS(entityFactory.targetFilterQuery().updateAutoAssign(entity.getId()).ds(null));
             eventBus.publish(this, CustomFilterUIEvent.UPDATED_TARGET_FILTER_QUERY);
         }
     }
@@ -107,8 +112,8 @@ public class AutoAssignmentWindowController
                 i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
                 ok -> {
                     if (ok) {
-                        targetFilterQueryManagement.updateAutoAssignDSWithActionType(targetFilterId, autoAssignDsId,
-                                autoAssignActionType);
+                        targetFilterQueryManagement.updateAutoAssignDS(entityFactory.targetFilterQuery()
+                                .updateAutoAssign(targetFilterId).ds(autoAssignDsId).actionType(autoAssignActionType));
                         eventBus.publish(this, CustomFilterUIEvent.UPDATED_TARGET_FILTER_QUERY);
                     }
                 }, UIComponentIdProvider.DIST_SET_SELECT_CONS_WINDOW_ID);
