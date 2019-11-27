@@ -31,8 +31,8 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     private final ArtifactDetailsGrid artifactDetailsGrid;
     private final UploadDropAreaLayout uploadDropAreaLayout;
 
-    // TODO: should we introduce listener for Artifact Changed (Artifact
-    // Modified) ?
+    private final transient ArtifactDetailsGridLayoutEventListener eventListener;
+
     /**
      * Constructor for ArtifactDetailsLayout
      * 
@@ -62,6 +62,8 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         this.uploadDropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, notification, artifactUploadState,
                 multipartConfigElement, softwareManagement, artifactManagement);
 
+        this.eventListener = new ArtifactDetailsGridLayoutEventListener(this, eventBus);
+
         if (permChecker.hasCreateRepositoryPermission()) {
             buildLayout(artifactDetailsHeader, artifactDetailsGrid, uploadDropAreaLayout);
         } else {
@@ -76,6 +78,7 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     public void onSmSelected(final ProxySoftwareModule selectedSm) {
         artifactDetailsHeader.updateArtifactDetailsHeader(selectedSm != null ? selectedSm.getNameAndVersion() : "");
         artifactDetailsGrid.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
+        uploadDropAreaLayout.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
     }
 
     public void maximize() {
@@ -90,5 +93,9 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
 
     public void refreshGrid() {
         artifactDetailsGrid.refreshContainer();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

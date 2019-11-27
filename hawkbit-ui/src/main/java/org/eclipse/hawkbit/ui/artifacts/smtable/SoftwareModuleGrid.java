@@ -63,8 +63,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private final ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> swModuleDataProvider;
     private final SwFilterParams smFilter;
 
-    private final SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
-    private final DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
+    private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
+    private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
 
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -174,32 +174,31 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     @Override
     public void addColumns() {
-        // TODO: check width
         addColumn(ProxySoftwareModule::getName).setId(SM_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setMinimumWidth(100d).setMaximumWidth(150d).setHidable(false).setHidden(false);
+                .setMinimumWidth(100d).setExpandRatio(1);
 
         addColumn(ProxySoftwareModule::getVersion).setId(SM_VERSION_ID).setCaption(i18n.getMessage("header.version"))
-                .setMinimumWidth(50d).setMaximumWidth(100d).setHidable(false).setHidden(false);
+                .setMinimumWidth(100d);
 
         addActionColumns();
 
         addColumn(ProxySoftwareModule::getCreatedBy).setId(SM_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.createdBy")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getCreatedDate).setId(SM_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.createdDate")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getLastModifiedBy).setId(SM_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedBy")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getModifiedDate).setId(SM_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedDate")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getDescription).setId(SM_DESC_ID)
-                .setCaption(i18n.getMessage("header.description")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.description")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getVendor).setId(SM_VENDOR_ID).setCaption(i18n.getMessage("header.vendor"))
-                .setHidable(true).setHidden(true);
+                .setHidden(true);
     }
 
     private void addActionColumns() {
@@ -208,7 +207,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(), swModuleDeleteSupport.hasDeletePermission()))
                         .setId(SM_DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete"))
-                        .setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
+                        .setMinimumWidth(80d);
     }
 
     private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
@@ -253,10 +252,16 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
             getColumn(SM_MODIFIED_DATE_ID).setHidden(false);
             getColumn(SM_DESC_ID).setHidden(false);
             getColumn(SM_VENDOR_ID).setHidden(false);
+
+            getColumns().forEach(column -> column.setHidable(true));
         }
 
         @Override
         public void setMaximizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(0));
+
+            getColumn(SM_NAME_ID).setExpandRatio(1);
+            getColumn(SM_DESC_ID).setExpandRatio(1);
         }
 
         @Override
@@ -272,11 +277,16 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
             getColumn(SM_MODIFIED_BY_ID).setHidden(true);
             getColumn(SM_MODIFIED_DATE_ID).setHidden(true);
             getColumn(SM_DESC_ID).setHidden(true);
-            getColumn(SM_VENDOR_ID).setHidden(false);
+            getColumn(SM_VENDOR_ID).setHidden(true);
+
+            getColumns().forEach(column -> column.setHidable(false));
         }
 
         @Override
         public void setMinimizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(0));
+
+            getColumn(SM_NAME_ID).setExpandRatio(1);
         }
     }
 }

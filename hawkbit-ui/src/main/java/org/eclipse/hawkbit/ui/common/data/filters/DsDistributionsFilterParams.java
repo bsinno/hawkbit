@@ -8,13 +8,17 @@
  */
 package org.eclipse.hawkbit.ui.common.data.filters;
 
+import java.io.Serializable;
+
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetDistributionsStateDataProvider;
 
 /**
  * Filter params for {@link DistributionSetDistributionsStateDataProvider}.
  */
-public class DsDistributionsFilterParams {
+public class DsDistributionsFilterParams implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String searchText;
     private DistributionSetType clickedDistSetType;
 

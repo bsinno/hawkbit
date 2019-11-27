@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.push;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,19 +63,21 @@ import com.vaadin.ui.UI;
  * in the event and only forwards event from the right tenant to the UI.
  *
  */
-public class DelayedEventBusPushStrategy implements EventPushStrategy, ApplicationListener<ApplicationEvent> {
+public class DelayedEventBusPushStrategy
+        implements EventPushStrategy, ApplicationListener<ApplicationEvent>, Serializable {
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DelayedEventBusPushStrategy.class);
 
     private static final int BLOCK_SIZE = 10_000;
-    private final BlockingDeque<TenantAwareEvent> queue = new LinkedBlockingDeque<>(BLOCK_SIZE);
+    private final transient BlockingDeque<TenantAwareEvent> queue = new LinkedBlockingDeque<>(BLOCK_SIZE);
 
-    private final ScheduledExecutorService executorService;
-    private final EventBus.UIEventBus eventBus;
-    private final UIEventProvider eventProvider;
+    private final transient ScheduledExecutorService executorService;
+    private final transient UIEventBus eventBus;
+    private final transient UIEventProvider eventProvider;
     private final long delay;
 
-    private ScheduledFuture<?> jobHandle;
+    private transient ScheduledFuture<?> jobHandle;
     private UI vaadinUI;
 
     /**

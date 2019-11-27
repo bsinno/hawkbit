@@ -8,12 +8,16 @@
  */
 package org.eclipse.hawkbit.ui.common.data.filters;
 
+import java.io.Serializable;
+
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsStateDataProvider;
 
 /**
  * Filter params for {@link SoftwareModuleDistributionsStateDataProvider}.
  */
-public class SwFilterParams {
+public class SwFilterParams implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String searchText;
     private Long softwareModuleTypeId;
     private Long lastSelectedDistributionId;

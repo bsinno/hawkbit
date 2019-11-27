@@ -95,7 +95,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         buildLayout();
         restoreState();
         Page.getCurrent().addBrowserWindowResizeListener(this);
-        showOrHideFilterButtons(Page.getCurrent().getBrowserWindowWidth());
     }
 
     private void buildLayout() {
@@ -130,6 +129,12 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     private void restoreState() {
+        if (artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
+            hideSmTypeLayout();
+        } else {
+            showSmTypeLayout();
+        }
+
         if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
             maximizeSmGridLayout();
         }
@@ -189,15 +194,21 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
 
     @Override
     public void enter(final ViewChangeEvent event) {
-        if (permChecker.hasReadRepositoryPermission()) {
-            final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedSmId();
-            if (lastSelectedSmId != null) {
-                final ProxySoftwareModule smToSelect = new ProxySoftwareModule();
-                smToSelect.setId(lastSelectedSmId);
-
-                smGridLayout.getSoftwareModuleGrid().select(smToSelect);
-            }
-        }
+        // TODO: not working
+        // smGridLayout.getSoftwareModuleGrid().getDataProvider().addDataProviderListener(dataEvent
+        // -> {
+        // if (permChecker.hasReadRepositoryPermission()) {
+        // final Long lastSelectedSmId =
+        // artifactUploadState.getSmGridLayoutUiState().getSelectedSmId();
+        // if (lastSelectedSmId != null) {
+        // final ProxySoftwareModule smToSelect = new ProxySoftwareModule();
+        // smToSelect.setId(lastSelectedSmId);
+        //
+        // smGridLayout.getSoftwareModuleGrid().select(smToSelect);
+        // }
+        // }
+        // });
+        // smGridLayout.getSoftwareModuleGrid().refreshContainer();
     }
 
     void onSmSelected(final ProxySoftwareModule sm) {
@@ -234,6 +245,7 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     void destroy() {
         smTypeFilterLayout.unsubscribeListener();
         smGridLayout.unsubscribeListener();
+        artifactDetailsGridLayout.unsubscribeListener();
 
         eventListener.unsubscribeListeners();
     }

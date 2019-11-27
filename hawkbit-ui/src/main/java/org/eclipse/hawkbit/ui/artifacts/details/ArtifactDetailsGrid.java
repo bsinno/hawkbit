@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.common.data.mappers.ArtifactToProxyArtifactMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ArtifactDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyArtifact;
@@ -21,21 +20,17 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.UI;
 
 /**
  * Artifact Details grid which is shown on the Upload View.
@@ -54,8 +49,8 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     private final transient ArtifactManagement artifactManagement;
 
     private final ConfigurableFilterDataProvider<ProxyArtifact, Void, Long> artifactDataProvider;
-    private final ArtifactToProxyArtifactMapper artifactToProxyMapper;
-    private final DeleteSupport<ProxyArtifact> artifactDeleteSupport;
+    private final transient ArtifactToProxyArtifactMapper artifactToProxyMapper;
+    private final transient DeleteSupport<ProxyArtifact> artifactDeleteSupport;
 
     public ArtifactDetailsGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -70,9 +65,6 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
 
         setResizeSupport(new ArtifactDetailsResizeSupport());
 
-        // TODO: consider moving to AbstractGrid as default
-        setSelectionMode(SelectionMode.NONE);
-
         this.artifactDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("artifact.details.header"),
                 permissionChecker, notification, this::artifactsDeletionCallback);
 
@@ -83,10 +75,9 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         final Collection<Long> artifactToBeDeletedIds = artifactsToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         artifactToBeDeletedIds.forEach(artifactManagement::delete);
-
-        // TODO: should we really pass the artifactsToBeDeleted? We call
-        // dataprovider refreshAll anyway after receiving the event
-        eventBus.publish(this, new ArtifactDetailsEvent(BaseEntityEventType.REMOVE_ENTITY, artifactToBeDeletedIds));
+        // We do not publish an event here, because deletion is managed by
+        // the grid itself
+        refreshContainer();
     }
 
     @Override
@@ -97,18 +88,6 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     @Override
     public ConfigurableFilterDataProvider<ProxyArtifact, Void, Long> getFilterDataProvider() {
         return artifactDataProvider;
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final ArtifactDetailsEvent event) {
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMinimizedContent);
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMaximizedContent);
-        } else if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
-                || BaseEntityEventType.REMOVE_ENTITY == event.getEventType()) {
-            UI.getCurrent().access(this::refreshContainer);
-        }
     }
 
     public void updateMasterEntityFilter(final Long masterEntityId) {
@@ -135,26 +114,24 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     public void addColumns() {
         // TODO: check width
         addColumn(ProxyArtifact::getFilename).setId(ARTIFACT_NAME_ID)
-                .setCaption(i18n.getMessage("artifact.filename.caption")).setMinimumWidth(100d).setMaximumWidth(150d)
-                .setHidable(false).setHidden(false);
+                .setCaption(i18n.getMessage("artifact.filename.caption")).setMinimumWidth(100d).setExpandRatio(1);
 
         addColumn(ProxyArtifact::getSize).setId(ARTIFACT_SIZE_ID)
-                .setCaption(i18n.getMessage("artifact.filesize.bytes.caption")).setMinimumWidth(50d)
-                .setMaximumWidth(100d).setHidable(false).setHidden(false);
+                .setCaption(i18n.getMessage("artifact.filesize.bytes.caption")).setMinimumWidth(50d);
 
         addColumn(ProxyArtifact::getModifiedDate).setId(ARTIFACT_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("upload.last.modified.date")).setHidable(false).setHidden(false);
+                .setCaption(i18n.getMessage("upload.last.modified.date")).setMinimumWidth(100d);
 
         addActionColumns();
 
         addColumn(ProxyArtifact::getSha1Hash).setId(ARTIFACT_SHA1_ID).setCaption(i18n.getMessage("upload.sha1"))
-                .setHidable(true).setHidden(true);
+                .setHidden(true);
 
         addColumn(ProxyArtifact::getMd5Hash).setId(ARTIFACT_MD5_ID).setCaption(i18n.getMessage("upload.md5"))
-                .setHidable(true).setHidden(true);
+                .setHidden(true);
 
         addColumn(ProxyArtifact::getSha256Hash).setId(ARTIFACT_SHA256_ID).setCaption(i18n.getMessage("upload.sha256"))
-                .setHidable(true).setHidden(true);
+                .setHidden(true);
     }
 
     private void addActionColumns() {
@@ -164,8 +141,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ARTIFACT_DELET_ICON + "." + artifact.getId(),
                 artifactDeleteSupport.hasDeletePermission())).setId(ARTIFACT_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d).setMaximumWidth(50d)
-                        .setHidable(false).setHidden(false);
+                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
     }
 
     private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
@@ -208,10 +184,15 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
             getColumn(ARTIFACT_SHA1_ID).setHidden(false);
             getColumn(ARTIFACT_MD5_ID).setHidden(false);
             getColumn(ARTIFACT_SHA256_ID).setHidden(false);
+
+            getColumns().forEach(column -> column.setHidable(true));
         }
 
         @Override
         public void setMaximizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(1));
+
+            getColumn(ARTIFACT_NAME_ID).setExpandRatio(2);
         }
 
         @Override
@@ -225,10 +206,15 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
             getColumn(ARTIFACT_SHA1_ID).setHidden(true);
             getColumn(ARTIFACT_MD5_ID).setHidden(true);
             getColumn(ARTIFACT_SHA256_ID).setHidden(true);
+
+            getColumns().forEach(column -> column.setHidable(false));
         }
 
         @Override
         public void setMinimizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(0));
+
+            getColumn(ARTIFACT_NAME_ID).setExpandRatio(1);
         }
     }
 }

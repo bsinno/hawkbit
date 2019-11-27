@@ -9,38 +9,31 @@
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
 import java.util.Collection;
-import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Html5File;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.FileDropHandler;
 import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.dnd.event.FileDropEvent;
-
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Container for drag and drop area in the upload view.
@@ -48,23 +41,19 @@ import java.util.concurrent.locks.ReentrantLock;
 public class UploadDropAreaLayout extends CustomComponent {
     private static final long serialVersionUID = 1L;
 
-    private VerticalLayout dropAreaLayout;
-
     private final VaadinMessageSource i18n;
-
     private final UINotification uiNotification;
 
     private final ArtifactUploadState artifactUploadState;
 
-    private final transient MultipartConfigElement multipartConfigElement;
-
+    private final transient ArtifactManagement artifactManagement;
     private final transient SoftwareModuleManagement softwareManagement;
 
-    private final transient ArtifactManagement artifactManagement;
+    private final transient MultipartConfigElement multipartConfigElement;
+    private final transient Lock uploadLock = new ReentrantLock();
 
     private final UploadProgressButtonLayout uploadButtonLayout;
-
-    private final transient Lock uploadLock = new ReentrantLock();
+    private VerticalLayout dropAreaLayout;
 
     /**
      * Creates a new {@link UploadDropAreaLayout} instance.
@@ -96,28 +85,16 @@ public class UploadDropAreaLayout extends CustomComponent {
         this.multipartConfigElement = multipartConfigElement;
         this.softwareManagement = softwareManagement;
         this.artifactManagement = artifactManagement;
+
         this.uploadButtonLayout = new UploadProgressButtonLayout(i18n, eventBus, artifactUploadState,
                 multipartConfigElement, artifactManagement, softwareManagement, uploadLock);
 
         buildLayout();
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent event) {
-        final BaseEntityEventType eventType = event.getEventType();
-        if (eventType == BaseEntityEventType.SELECTED_ENTITY) {
-            UI.getCurrent().access(() -> {
-                if (isNoSoftwareModuleOrMoreThanOneSelected(event)) {
-                    dropAreaLayout.setEnabled(false);
-                } else {
-                    dropAreaLayout.setEnabled(true);
-                }
-            });
-        }
-    }
-
-    private boolean isNoSoftwareModuleOrMoreThanOneSelected(final SoftwareModuleEvent event) {
-        return Objects.nonNull(event.getEntityIds()) && event.getEntityIds().size() != 1;
+    public void updateMasterEntityFilter(final Long masterEntityId) {
+        dropAreaLayout.setEnabled(masterEntityId != null);
+        uploadButtonLayout.updateMasterEntityFilter(masterEntityId);
     }
 
     private void buildLayout() {

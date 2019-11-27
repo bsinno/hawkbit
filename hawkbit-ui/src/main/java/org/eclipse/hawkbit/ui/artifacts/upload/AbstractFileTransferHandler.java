@@ -28,10 +28,11 @@ import org.eclipse.hawkbit.repository.exception.StorageQuotaExceededException;
 import org.eclipse.hawkbit.repository.model.Artifact;
 import org.eclipse.hawkbit.repository.model.ArtifactUpload;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent.SoftwareModuleEventType;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress.FileUploadStatus;
+import org.eclipse.hawkbit.ui.common.event.ArtifactModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.SpringContextHelper;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -192,8 +193,8 @@ public abstract class AbstractFileTransferHandler implements Serializable {
     }
 
     protected void publishArtifactsChanged(final FileUploadId fileUploadId) {
-        eventBus.publish(this,
-                new SoftwareModuleEvent(SoftwareModuleEventType.ARTIFACTS_CHANGED, fileUploadId.getSoftwareModuleId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new ArtifactModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED));
     }
 
     protected void publishUploadFailedAndFinishedEvent(final FileUploadId fileUploadId) {
