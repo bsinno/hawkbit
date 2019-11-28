@@ -18,7 +18,6 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private String name;
-    private String version;
     private String description;
     private String createdBy;
     private String lastModifiedBy;
@@ -52,14 +51,6 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity {
         this.name = name;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(final String version) {
-        this.version = version;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -88,7 +79,7 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(final Long createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -96,7 +87,7 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity {
         return lastModifiedAt;
     }
 
-    public void setLastModifiedAt(Long lastModifiedAt) {
+    public void setLastModifiedAt(final Long lastModifiedAt) {
         this.lastModifiedAt = lastModifiedAt;
     }
 }

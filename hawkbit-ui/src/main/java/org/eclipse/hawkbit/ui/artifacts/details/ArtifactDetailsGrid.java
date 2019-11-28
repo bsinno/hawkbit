@@ -17,6 +17,9 @@ import org.eclipse.hawkbit.ui.common.data.mappers.ArtifactToProxyArtifactMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ArtifactDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyArtifact;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
@@ -52,6 +55,8 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     private final transient ArtifactToProxyArtifactMapper artifactToProxyMapper;
     private final transient DeleteSupport<ProxyArtifact> artifactDeleteSupport;
 
+    private Long masterEntityId;
+
     public ArtifactDetailsGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final ArtifactManagement artifactManagement) {
@@ -75,9 +80,9 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         final Collection<Long> artifactToBeDeletedIds = artifactsToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         artifactToBeDeletedIds.forEach(artifactManagement::delete);
-        // We do not publish an event here, because deletion is managed by
-        // the grid itself
-        refreshContainer();
+
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, masterEntityId));
     }
 
     @Override
@@ -91,6 +96,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     }
 
     public void updateMasterEntityFilter(final Long masterEntityId) {
+        this.masterEntityId = masterEntityId;
         getFilterDataProvider().setFilter(masterEntityId);
     }
 
@@ -112,7 +118,6 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
 
     @Override
     public void addColumns() {
-        // TODO: check width
         addColumn(ProxyArtifact::getFilename).setId(ARTIFACT_NAME_ID)
                 .setCaption(i18n.getMessage("artifact.filename.caption")).setMinimumWidth(100d).setExpandRatio(1);
 

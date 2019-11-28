@@ -18,15 +18,14 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetTagDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
-import org.eclipse.hawkbit.ui.common.event.TargetTagFilterHeaderEvent;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToTagAssignmentSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -113,10 +112,9 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", targetTagToDeleteName));
         } else {
             targetTagManagement.delete(targetTagToDeleteName);
-            eventBus.publish(this, new TargetTagTableEvent(BaseEntityEventType.REMOVE_ENTITY, targetTagToDelete));
-            // TODO: check if it is needed
-            hideActionColumns();
-            eventBus.publish(this, new TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new TargetTagModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_REMOVED, targetTagToDelete.getId()));
         }
     }
 

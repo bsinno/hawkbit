@@ -17,7 +17,9 @@ import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SmTypeModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
@@ -126,9 +128,9 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", distSMTypeToDeleteName));
         } else {
             softwareModuleTypeManagement.delete(distSMTypeToDeleteId);
-            // We do not publish an event here, because deletion is managed by
-            // the grid itself
-            refreshContainer();
+
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new SmTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, distSMTypeToDeleteId));
         }
     }
 

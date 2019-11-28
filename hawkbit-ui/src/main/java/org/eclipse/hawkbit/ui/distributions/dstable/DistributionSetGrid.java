@@ -24,6 +24,10 @@ import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistribu
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetDistributionsStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
@@ -120,8 +124,9 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         init();
     }
 
-    private void updateLastSelectedDsUiState(final ProxyDistributionSet selectedDs) {
-        if (selectedDs.getId().equals(distributionSetGridLayoutUiState.getSelectedDsId())) {
+    private void updateLastSelectedDsUiState(final SelectionChangedEventType type,
+            final ProxyDistributionSet selectedDs) {
+        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
             distributionSetGridLayoutUiState.setSelectedDsId(null);
         } else {
             distributionSetGridLayoutUiState.setSelectedDsId(selectedDs.getId());
@@ -132,9 +137,9 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         final Collection<Long> dsToBeDeletedIds = setsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         distributionSetManagement.delete(dsToBeDeletedIds);
-        // We do not publish an event here, because deletion is managed by
-        // the grid itself
-        refreshContainer();
+
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, dsToBeDeletedIds));
 
         // TODO: check if we need to notify Deployment View if deleted DS was
         // pinned

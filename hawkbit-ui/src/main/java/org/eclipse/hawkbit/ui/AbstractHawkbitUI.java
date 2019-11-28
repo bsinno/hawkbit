@@ -22,7 +22,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.annotations.Theme;
@@ -35,7 +34,6 @@ import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.spring.navigator.SpringNavigator;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -61,25 +59,18 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
 
     private static final String EMPTY_VIEW = "";
 
-    private transient EventPushStrategy pushStrategy;
-
-    protected final transient EventBus.UIEventBus eventBus;
-
-    private final SpringViewProvider viewProvider;
-
-    private final transient ApplicationContext context;
-
-    private final DashboardMenu dashboardMenu;
-
-    private final ErrorView errorview;
-
-    private final NotificationUnreadButton notificationUnreadButton;
+    private final VaadinMessageSource i18n;
+    private final UiProperties uiProperties;
 
     private Label viewTitle;
 
-    private final UiProperties uiProperties;
+    private final DashboardMenu dashboardMenu;
+    private final ErrorView errorview;
+    private final NotificationUnreadButton notificationUnreadButton;
 
-    private final VaadinMessageSource i18n;
+    private final SpringViewProvider viewProvider;;
+    private final transient ApplicationContext context;
+    private final transient EventPushStrategy pushStrategy;
 
     private final transient RemoteEventsListener remoteEventsListener;
 
@@ -88,7 +79,6 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
             final ErrorView errorview, final NotificationUnreadButton notificationUnreadButton,
             final UiProperties uiProperties, final VaadinMessageSource i18n) {
         this.pushStrategy = pushStrategy;
-        this.eventBus = eventBus;
         this.viewProvider = viewProvider;
         this.context = context;
         this.dashboardMenu = dashboardMenu;
@@ -175,9 +165,9 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         });
 
         navigator.setErrorView(errorview);
+        navigator.addView(EMPTY_VIEW, new Navigator.EmptyView());
         navigator.addProvider(new ManagementViewProvider());
         setNavigator(navigator);
-        navigator.addView(EMPTY_VIEW, new Navigator.EmptyView());
 
         if (UI.getCurrent().getErrorHandler() == null) {
             UI.getCurrent().setErrorHandler(new HawkbitUIErrorHandler());
@@ -216,8 +206,7 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         return cssLayout;
     }
 
-    private class ManagementViewProvider extends SpringNavigator implements ViewProvider {
-
+    private class ManagementViewProvider implements ViewProvider {
         private static final long serialVersionUID = 1L;
 
         @Override

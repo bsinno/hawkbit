@@ -18,10 +18,11 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
  * table.
  */
 public class ProxySoftwareModule extends ProxyNamedEntity {
-
     private static final long serialVersionUID = 1L;
 
     private static final SecureRandom RANDOM_OBJ = new SecureRandom();
+
+    private String version;
 
     private String nameAndVersion;
 
@@ -89,5 +90,13 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
 
     public void setProxyType(final ProxyType proxyType) {
         this.proxyType = proxyType;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(final String version) {
+        this.version = version;
     }
 }

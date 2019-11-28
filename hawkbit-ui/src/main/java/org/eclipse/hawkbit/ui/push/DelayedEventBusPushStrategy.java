@@ -108,7 +108,7 @@ public class DelayedEventBusPushStrategy
     @Override
     public void init(final UI vaadinUI) {
         this.vaadinUI = vaadinUI;
-        LOG.info("Initialize delayed event push strategy for UI {}", vaadinUI.getUIId());
+        LOG.debug("Initialize delayed event push strategy for UI {}", vaadinUI.getUIId());
         if (vaadinUI.getSession() == null) {
             LOG.error("Vaadin session of UI {} is null! Event push disabled!", vaadinUI.getUIId());
         }
@@ -119,7 +119,7 @@ public class DelayedEventBusPushStrategy
 
     @Override
     public void clean() {
-        LOG.info("Cleanup delayed event push strategy for UI {}", vaadinUI.getUIId());
+        LOG.debug("Cleanup delayed event push strategy for UI {}", vaadinUI.getUIId());
         jobHandle.cancel(true);
         queue.clear();
     }

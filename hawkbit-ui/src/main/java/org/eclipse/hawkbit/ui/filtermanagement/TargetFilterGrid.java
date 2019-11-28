@@ -23,6 +23,9 @@ import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvide
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
@@ -115,6 +118,9 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         final Collection<Long> targetFilterIdsToBeDeleted = targetFiltersToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         targetFilterIdsToBeDeleted.forEach(targetFilterQueryManagement::delete);
+
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new TargetFilterModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_REMOVED, targetFilterIdsToBeDeleted));
     }
 
     // TODO: remove duplication with ActionHistoryGrid

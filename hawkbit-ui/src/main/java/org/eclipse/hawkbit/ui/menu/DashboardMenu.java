@@ -15,7 +15,6 @@ package org.eclipse.hawkbit.ui.menu;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.HawkbitServerProperties;
@@ -43,12 +42,12 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.v7.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * A responsive menu component providing user information and the controls for
@@ -338,8 +337,7 @@ public final class DashboardMenu extends CustomComponent {
      */
     public DashboardMenuItem getByViewName(final String viewName) {
 
-        return dashboardVaadinViews.stream()
-                .filter(view -> view.getViewName().equals(viewName)).findAny().orElse(null);
+        return dashboardVaadinViews.stream().filter(view -> view.getViewName().equals(viewName)).findAny().orElse(null);
     }
 
     /**
@@ -407,7 +405,7 @@ public final class DashboardMenu extends CustomComponent {
          */
         public void postViewChange(final PostViewChangeEvent event) {
             removeStyleName(STYLE_SELECTED);
-            if (event.getView().equals(view)) {
+            if (event.getView() != null && event.getView().equals(view)) {
                 addStyleName(STYLE_SELECTED);
                 /* disable current selected view */
                 setEnabled(false);

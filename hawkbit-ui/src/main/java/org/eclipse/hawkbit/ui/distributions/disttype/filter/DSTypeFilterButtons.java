@@ -18,6 +18,8 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.event.DsTypeModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
@@ -132,9 +134,9 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
             uiNotification.displayValidationError(i18n.getMessage("message.cannot.delete.default.dstype"));
         } else {
             distributionSetTypeManagement.delete(dsTypeToDeleteId);
-            // We do not publish an event here, because deletion is managed by
-            // the grid itself
-            refreshContainer();
+
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new DsTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, dsTypeToDeleteId));
         }
     }
 

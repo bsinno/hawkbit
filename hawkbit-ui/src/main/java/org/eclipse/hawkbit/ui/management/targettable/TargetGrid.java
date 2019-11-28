@@ -34,6 +34,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
@@ -155,8 +159,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         init();
     }
 
-    private void updateLastSelectedTargetUiState(final ProxyTarget selectedTarget) {
-        if (selectedTarget.getId().equals(managementUIState.getLastSelectedTargetId().orElse(null))) {
+    private void updateLastSelectedTargetUiState(final SelectionChangedEventType type,
+            final ProxyTarget selectedTarget) {
+        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
             managementUIState.setLastSelectedTargetId(null);
         } else {
             managementUIState.setLastSelectedTargetId(selectedTarget.getId());
@@ -187,9 +192,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 .collect(Collectors.toList());
         targetManagement.delete(targetToBeDeletedIds);
 
-        // TODO: should we really pass the targetsToBeDeletedIds? We call
-        // dataprovider refreshAll anyway after receiving the event
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.REMOVE_ENTITY, targetToBeDeletedIds));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, targetToBeDeletedIds));
 
         getPinnedTargetIdFromUiState()
                 .ifPresent(pinnedTargetId -> pinSupport.unPinItemAfterDeletion(pinnedTargetId, targetToBeDeletedIds));

@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Page.BrowserWindowResizeListener;
@@ -129,20 +128,22 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     private void restoreState() {
-        if (artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
-            hideSmTypeLayout();
-        } else {
-            showSmTypeLayout();
-        }
+        if (permChecker.hasReadRepositoryPermission()) {
+            if (artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
+                hideSmTypeLayout();
+            } else {
+                showSmTypeLayout();
+            }
 
-        if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
-            maximizeSmGridLayout();
-        }
-        if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
-            maximizeArtifactGridLayout();
-        }
+            if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
+                maximizeSmGridLayout();
+            }
+            if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
+                maximizeArtifactGridLayout();
+            }
 
-        // uploadDropAreaLayout.getUploadButtonLayout().restoreState();
+            smGridLayout.restoreState();
+        }
     }
 
     void maximizeSmGridLayout() {
@@ -190,25 +191,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     void showSmTypeLayout() {
         smTypeFilterLayout.setVisible(true);
         smGridLayout.hideSmTypeHeaderIcon();
-    }
-
-    @Override
-    public void enter(final ViewChangeEvent event) {
-        // TODO: not working
-        // smGridLayout.getSoftwareModuleGrid().getDataProvider().addDataProviderListener(dataEvent
-        // -> {
-        // if (permChecker.hasReadRepositoryPermission()) {
-        // final Long lastSelectedSmId =
-        // artifactUploadState.getSmGridLayoutUiState().getSelectedSmId();
-        // if (lastSelectedSmId != null) {
-        // final ProxySoftwareModule smToSelect = new ProxySoftwareModule();
-        // smToSelect.setId(lastSelectedSmId);
-        //
-        // smGridLayout.getSoftwareModuleGrid().select(smToSelect);
-        // }
-        // }
-        // });
-        // smGridLayout.getSoftwareModuleGrid().refreshContainer();
     }
 
     void onSmSelected(final ProxySoftwareModule sm) {

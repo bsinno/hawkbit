@@ -27,6 +27,7 @@ public class SoftwareModuleToProxyMapper
         mapNamedEntityAttributes(softwareModule, proxySoftwareModule);
 
         proxySoftwareModule.setSwId(softwareModule.getId());
+        proxySoftwareModule.setVersion(softwareModule.getVersion());
         final String swNameVersion = HawkbitCommonUtil.concatStrings(":", softwareModule.getName(),
                 softwareModule.getVersion());
         proxySoftwareModule.setNameAndVersion(swNameVersion);

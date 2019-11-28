@@ -18,15 +18,14 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTagDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.DistributionSetTagFilterHeaderEvent;
-import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
+import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTagAssignmentSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
-import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -114,10 +113,9 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", dsTagToDeleteName));
         } else {
             distributionSetTagManagement.delete(dsTagToDeleteName);
-            eventBus.publish(this, new DistributionSetTagTableEvent(BaseEntityEventType.REMOVE_ENTITY, dsTagToDelete));
-            // TODO: check if it is needed
-            hideActionColumns();
-            eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new DsTagModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, dsTagToDelete.getId()));
         }
     }
 

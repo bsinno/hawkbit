@@ -23,6 +23,10 @@ import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsS
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
@@ -108,8 +112,9 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         init();
     }
 
-    private void updateLastSelectedSmUiState(final ProxySoftwareModule selectedSm) {
-        if (selectedSm.getId().equals(swModuleGridLayoutUiState.getSelectedSmId())) {
+    private void updateLastSelectedSmUiState(final SelectionChangedEventType type,
+            final ProxySoftwareModule selectedSm) {
+        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
             swModuleGridLayoutUiState.setSelectedSmId(null);
         } else {
             swModuleGridLayoutUiState.setSelectedSmId(selectedSm.getId());
@@ -120,9 +125,9 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         final Collection<Long> swModuleToBeDeletedIds = swModulesToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
-        // We do not publish an event here, because deletion is managed by
-        // the grid itself
-        refreshContainer();
+
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, swModuleToBeDeletedIds));
     }
 
     @Override

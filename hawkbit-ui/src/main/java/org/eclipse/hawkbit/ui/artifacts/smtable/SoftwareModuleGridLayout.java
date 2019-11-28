@@ -65,6 +65,10 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         return softwareModuleGrid;
     }
 
+    public void restoreState() {
+        softwareModuleGrid.restoreSelection();
+    }
+
     public void onSmSelected(final ProxySoftwareModule selectedSm) {
         softwareModuleDetailsHeader.masterEntityChanged(selectedSm);
         softwareModuleDetails.masterEntityChanged(selectedSm);

@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
@@ -120,8 +121,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         init();
     }
 
-    private void updateLastSelectedActionUiState(final ProxyAction selectedAction) {
-        if (selectedAction.getId().equals(managementUIState.getLastSelectedActionId().orElse(null))) {
+    private void updateLastSelectedActionUiState(final SelectionChangedEventType type,
+            final ProxyAction selectedAction) {
+        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
             managementUIState.setLastSelectedActionId(null);
         } else {
             managementUIState.setLastSelectedActionId(selectedAction.getId());

@@ -21,6 +21,10 @@ import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleArtifactsStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
@@ -98,8 +102,9 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         init();
     }
 
-    private void updateLastSelectedSmUiState(final ProxySoftwareModule selectedSm) {
-        if (selectedSm.getId().equals(smGridLayoutUiState.getSelectedSmId())) {
+    private void updateLastSelectedSmUiState(final SelectionChangedEventType type,
+            final ProxySoftwareModule selectedSm) {
+        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
             smGridLayoutUiState.setSelectedSmId(null);
         } else {
             smGridLayoutUiState.setSelectedSmId(selectedSm.getId());
@@ -115,14 +120,12 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
 
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
-        // We do not publish an event here, because deletion is managed by
-        // the grid itself
-        refreshContainer();
+
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, swModuleToBeDeletedIds));
 
         // TODO
         // uploadUIState.getSelectedSoftwareModules().clear();
-        //
-        // eventBus.publish(this, UploadArtifactUIEvent.DELETED_ALL_SOFTWARE);
     }
 
     private boolean isUploadInProgressForSoftwareModule(final Collection<Long> swModuleToBeDeletedIds) {
@@ -132,6 +135,16 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
             }
         }
         return false;
+    }
+
+    public void restoreSelection() {
+        final Long lastSelectedSmId = smGridLayoutUiState.getSelectedSmId();
+        if (lastSelectedSmId != null) {
+            softwareModuleManagement.get(lastSelectedSmId).map(softwareModuleToProxyMapper::map)
+                    .ifPresent(this::select);
+        } else {
+            getSelectionSupport().selectFirstRow();
+        }
     }
 
     @Override

@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.common.grid.support;
 
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -33,7 +33,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     private final Grid<T> grid;
     private final UIEventBus eventBus;
     private final Object selectedEventSender;
-    private final Consumer<T> updateLastSelectedUiStateCallback;
+    private final BiConsumer<SelectionChangedEventType, T> updateLastSelectedUiStateCallback;
 
     // for grids without selection or master-details support
     public SelectionSupport(final Grid<T> grid) {
@@ -41,7 +41,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     }
 
     public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final Object selectedEventSender,
-            final Consumer<T> updateLastSelectedUiStateCallback) {
+            final BiConsumer<SelectionChangedEventType, T> updateLastSelectedUiStateCallback) {
         this.grid = grid;
         this.eventBus = eventBus;
         this.selectedEventSender = selectedEventSender;
@@ -71,7 +71,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         }
 
         eventBus.publish(EventTopics.SELECTION_CHANGED, grid, new SelectionChangedEventPayload<>(type, itemToSend));
-        updateLastSelectedUiStateCallback.accept(itemToSend);
+        updateLastSelectedUiStateCallback.accept(type, itemToSend);
     }
 
     public final void enableMultiSelection() {

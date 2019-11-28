@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatusMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.management.DeploymentView;
@@ -74,8 +75,9 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
         init();
     }
 
-    private void updateLastSelectedActionStatusUiState(final ProxyActionStatus selectedActionStatus) {
-        if (selectedActionStatus.getId().equals(managementUIState.getLastSelectedActionStatusId().orElse(null))) {
+    private void updateLastSelectedActionStatusUiState(final SelectionChangedEventType type,
+            final ProxyActionStatus selectedActionStatus) {
+        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
             managementUIState.setLastSelectedActionStatusId(null);
         } else {
             managementUIState.setLastSelectedActionStatusId(selectedActionStatus.getId());
