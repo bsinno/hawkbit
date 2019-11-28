@@ -22,8 +22,6 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
@@ -78,7 +76,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
             final Lock uploadLock) {
         this.artifactUploadState = artifactUploadState;
         this.artifactManagement = artifactManagement;
-        this.uploadInfoWindow = new UploadProgressInfoWindow(eventBus, artifactUploadState, i18n);
+        this.uploadInfoWindow = new UploadProgressInfoWindow(i18n, artifactUploadState);
         this.uploadInfoWindow.addCloseListener(event -> {
             // ensure that the progress button is hidden when the progress
             // window is closed and no more uploads running
@@ -95,23 +93,28 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         createComponents();
         buildLayout();
         restoreState();
-
-        eventBus.subscribe(this);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final FileUploadProgress fileUploadProgress) {
+    public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         final FileUploadProgress.FileUploadStatus uploadProgressEventType = fileUploadProgress.getFileUploadStatus();
+
         switch (uploadProgressEventType) {
         case UPLOAD_STARTED:
-            UI.getCurrent().access(this::onStartOfUpload);
+            UI.getCurrent().access(() -> {
+                onStartOfUpload();
+                uploadInfoWindow.onUploadStarted(fileUploadProgress);
+            });
             break;
         case UPLOAD_FAILED:
         case UPLOAD_SUCCESSFUL:
         case UPLOAD_IN_PROGRESS:
+            UI.getCurrent().access(() -> uploadInfoWindow.updateUploadProgressInfoRowObject(fileUploadProgress));
             break;
         case UPLOAD_FINISHED:
-            UI.getCurrent().access(this::onUploadFinished);
+            UI.getCurrent().access(() -> {
+                onUploadFinished();
+                uploadInfoWindow.onUploadFinished();
+            });
             break;
         default:
             throw new IllegalArgumentException("Enum " + FileUploadProgress.FileUploadStatus.class.getSimpleName()

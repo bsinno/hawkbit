@@ -129,6 +129,10 @@ public class UploadDropAreaLayout extends CustomComponent {
         return dropAreaLayout;
     }
 
+    public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
+        uploadButtonLayout.onUploadChanged(fileUploadProgress);
+    }
+
     private class UploadFileDropHandler implements FileDropHandler<VerticalLayout> {
 
         private static final long serialVersionUID = 1L;

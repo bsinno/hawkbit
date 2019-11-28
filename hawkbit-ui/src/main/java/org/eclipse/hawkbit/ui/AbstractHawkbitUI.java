@@ -40,11 +40,11 @@ import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -81,6 +81,8 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
 
     private final VaadinMessageSource i18n;
 
+    private final transient RemoteEventsListener remoteEventsListener;
+
     protected AbstractHawkbitUI(final EventPushStrategy pushStrategy, final UIEventBus eventBus,
             final SpringViewProvider viewProvider, final ApplicationContext context, final DashboardMenu dashboardMenu,
             final ErrorView errorview, final NotificationUnreadButton notificationUnreadButton,
@@ -94,12 +96,16 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         this.notificationUnreadButton = notificationUnreadButton;
         this.uiProperties = uiProperties;
         this.i18n = i18n;
+
+        this.remoteEventsListener = new RemoteEventsListener(eventBus, notificationUnreadButton);
     }
 
     @Override
     public void detach(final DetachEvent event) {
-        LOG.info("ManagementUI is detached uiid - {}", getUIId());
-        eventBus.unsubscribe(this);
+        LOG.debug("ManagementUI is detached uiid - {}", getUIId());
+
+        remoteEventsListener.unsubscribeListeners();
+
         if (pushStrategy != null) {
             pushStrategy.clean();
         }
@@ -107,7 +113,7 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
 
     @Override
     protected void init(final VaadinRequest vaadinRequest) {
-        LOG.info("ManagementUI init starts uiid - {}", getUI().getUIId());
+        LOG.debug("ManagementUI init starts uiid - {}", getUI().getUIId());
         if (pushStrategy != null) {
             pushStrategy.init(getUI());
         }
@@ -119,6 +125,8 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         setResponsive(Boolean.TRUE);
 
         final HorizontalLayout rootLayout = new HorizontalLayout();
+        rootLayout.setMargin(false);
+        rootLayout.setSpacing(false);
         rootLayout.setSizeFull();
 
         HawkbitCommonUtil.initLocalization(this, uiProperties.getLocalization(), i18n);
@@ -128,6 +136,8 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         dashboardMenu.setResponsive(true);
 
         final VerticalLayout contentVerticalLayout = new VerticalLayout();
+        contentVerticalLayout.setMargin(false);
+        contentVerticalLayout.setSpacing(false);
         contentVerticalLayout.setSizeFull();
         contentVerticalLayout.setStyleName("main-content");
         contentVerticalLayout.addComponent(buildHeader());
@@ -173,7 +183,7 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
             UI.getCurrent().setErrorHandler(new HawkbitUIErrorHandler());
         }
 
-        LOG.info("Current locale of the application is : {}", getLocale());
+        LOG.debug("Current locale of the application is : {}", getLocale());
     }
 
     private Panel buildContent() {
@@ -185,6 +195,8 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
 
     private HorizontalLayout buildViewTitle() {
         final HorizontalLayout viewHeadercontent = new HorizontalLayout();
+        viewHeadercontent.setMargin(false);
+        viewHeadercontent.setSpacing(false);
         viewHeadercontent.setWidth("100%");
         viewHeadercontent.addStyleName("view-header-layout");
 

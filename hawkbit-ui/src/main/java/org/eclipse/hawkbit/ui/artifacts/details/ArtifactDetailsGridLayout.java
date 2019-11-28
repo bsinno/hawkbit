@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
@@ -79,6 +80,10 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         artifactDetailsHeader.updateArtifactDetailsHeader(selectedSm != null ? selectedSm.getNameAndVersion() : "");
         artifactDetailsGrid.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
         uploadDropAreaLayout.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
+    }
+
+    public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
+        uploadDropAreaLayout.onUploadChanged(fileUploadProgress);
     }
 
     public void maximize() {

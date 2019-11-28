@@ -11,8 +11,10 @@ package org.eclipse.hawkbit.ui.artifacts.details;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.event.ArtifactModifiedEventPayload;
+import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -33,6 +35,7 @@ public class ArtifactDetailsGridLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new EntityModifiedListener());
+        eventListeners.add(new FileUploadChangedListener());
     }
 
     private class EntityModifiedListener {
@@ -42,8 +45,24 @@ public class ArtifactDetailsGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onArtifactEvent(final ArtifactModifiedEventPayload eventPayload) {
-            artifactDetailsGridLayout.refreshGrid();
+        private void onSmUpdatedEvent(final SmModifiedEventPayload eventPayload) {
+            // we do not know if Software Module was updated due to Artifacts
+            // change or fields change, so we always refresh the Artifacts grid
+            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+                artifactDetailsGridLayout.refreshGrid();
+            }
+        }
+    }
+
+    private class FileUploadChangedListener {
+
+        public FileUploadChangedListener() {
+            eventBus.subscribe(this, EventTopics.FILE_UPLOAD_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onArtifactEvent(final FileUploadProgress fileUploadProgress) {
+            artifactDetailsGridLayout.onUploadChanged(fileUploadProgress);
         }
     }
 

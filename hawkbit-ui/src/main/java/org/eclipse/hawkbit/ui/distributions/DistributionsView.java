@@ -74,7 +74,6 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     private GridLayout mainLayout;
 
     private final DistributionsViewEventListener eventListener;
-    private final DistributionsViewRemoteEventListener remoteEventListener;
 
     @Autowired
     DistributionsView(final SpPermissionChecker permChecker, final UIEventBus eventBus, final VaadinMessageSource i18n,
@@ -117,7 +116,6 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         }
 
         this.eventListener = new DistributionsViewEventListener(this, eventBus);
-        this.remoteEventListener = new DistributionsViewRemoteEventListener(eventBus, notificationUnreadButton);
     }
 
     @PostConstruct
@@ -292,6 +290,5 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         distSMTypeFilterLayout.unsubscribeListener();
 
         eventListener.unsubscribeListeners();
-        remoteEventListener.unsubscribeListeners();
     }
 }

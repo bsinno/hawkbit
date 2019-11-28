@@ -30,9 +30,9 @@ import org.eclipse.hawkbit.repository.model.ArtifactUpload;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress.FileUploadStatus;
-import org.eclipse.hawkbit.ui.common.event.ArtifactModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.SpringContextHelper;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -153,7 +153,7 @@ public abstract class AbstractFileTransferHandler implements Serializable {
         final FileUploadProgress fileUploadProgress = new FileUploadProgress(fileUploadId,
                 FileUploadStatus.UPLOAD_STARTED);
         artifactUploadState.updateFileUploadProgress(fileUploadId, fileUploadProgress);
-        eventBus.publish(this, fileUploadProgress);
+        eventBus.publish(EventTopics.FILE_UPLOAD_CHANGED, this, fileUploadProgress);
     }
 
     protected void publishUploadProgressEvent(final FileUploadId fileUploadId, final long bytesReceived,
@@ -165,14 +165,14 @@ public abstract class AbstractFileTransferHandler implements Serializable {
         final FileUploadProgress fileUploadProgress = new FileUploadProgress(fileUploadId,
                 FileUploadStatus.UPLOAD_IN_PROGRESS, bytesReceived, fileSize);
         artifactUploadState.updateFileUploadProgress(fileUploadId, fileUploadProgress);
-        eventBus.publish(this, fileUploadProgress);
+        eventBus.publish(EventTopics.FILE_UPLOAD_CHANGED, this, fileUploadProgress);
     }
 
     protected void publishUploadFinishedEvent(final FileUploadId fileUploadId) {
         LOG.debug("Upload finished for file {}", fileUploadId);
         final FileUploadProgress fileUploadProgress = new FileUploadProgress(fileUploadId,
                 FileUploadStatus.UPLOAD_FINISHED);
-        eventBus.publish(this, fileUploadProgress);
+        eventBus.publish(EventTopics.FILE_UPLOAD_CHANGED, this, fileUploadProgress);
     }
 
     protected void publishUploadSucceeded(final FileUploadId fileUploadId, final long fileSize) {
@@ -180,7 +180,7 @@ public abstract class AbstractFileTransferHandler implements Serializable {
         final FileUploadProgress fileUploadProgress = new FileUploadProgress(fileUploadId,
                 FileUploadStatus.UPLOAD_SUCCESSFUL, fileSize, fileSize);
         artifactUploadState.updateFileUploadProgress(fileUploadId, fileUploadProgress);
-        eventBus.publish(this, fileUploadProgress);
+        eventBus.publish(EventTopics.FILE_UPLOAD_CHANGED, this, fileUploadProgress);
     }
 
     protected void publishUploadFailedEvent(final FileUploadId fileUploadId) {
@@ -189,12 +189,12 @@ public abstract class AbstractFileTransferHandler implements Serializable {
                 FileUploadStatus.UPLOAD_FAILED,
                 StringUtils.isBlank(failureReason) ? i18n.getMessage(MESSAGE_UPLOAD_FAILED) : failureReason);
         artifactUploadState.updateFileUploadProgress(fileUploadId, fileUploadProgress);
-        eventBus.publish(this, fileUploadProgress);
+        eventBus.publish(EventTopics.FILE_UPLOAD_CHANGED, this, fileUploadProgress);
     }
 
     protected void publishArtifactsChanged(final FileUploadId fileUploadId) {
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new ArtifactModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED));
+                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, fileUploadId.getSoftwareModuleId()));
     }
 
     protected void publishUploadFailedAndFinishedEvent(final FileUploadId fileUploadId) {

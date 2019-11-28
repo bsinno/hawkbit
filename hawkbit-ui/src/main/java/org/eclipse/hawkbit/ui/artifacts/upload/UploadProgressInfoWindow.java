@@ -22,9 +22,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
-import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.window.WindowMode;
@@ -40,27 +37,23 @@ import com.vaadin.ui.themes.ValoTheme;
  * Window that shows the progress of all uploads.
  */
 public class UploadProgressInfoWindow extends Window {
-
     private static final long serialVersionUID = 1L;
-
-    private final ArtifactUploadState artifactUploadState;
 
     private final VaadinMessageSource i18n;
 
+    private final ArtifactUploadState artifactUploadState;
+
     private final UploadProgressGrid uploadProgressGrid;
-
-    private final List<ProxyUploadProgress> uploads;
-
     private final VerticalLayout mainLayout;
 
     private Label windowCaption;
-
     private Button closeButton;
 
-    UploadProgressInfoWindow(final UIEventBus eventBus, final ArtifactUploadState artifactUploadState,
-            final VaadinMessageSource i18n) {
-        this.artifactUploadState = artifactUploadState;
+    private final List<ProxyUploadProgress> uploads;
+
+    UploadProgressInfoWindow(final VaadinMessageSource i18n, final ArtifactUploadState artifactUploadState) {
         this.i18n = i18n;
+        this.artifactUploadState = artifactUploadState;
 
         setPopupProperties();
         createStatusPopupHeaderComponents();
@@ -77,29 +70,9 @@ public class UploadProgressInfoWindow extends Window {
         mainLayout.addComponents(getCaptionLayout(), uploadProgressGrid);
         mainLayout.setExpandRatio(uploadProgressGrid, 1.0F);
         setContent(mainLayout);
-        eventBus.subscribe(this);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final FileUploadProgress fileUploadProgress) {
-        switch (fileUploadProgress.getFileUploadStatus()) {
-        case UPLOAD_STARTED:
-            UI.getCurrent().access(() -> onUploadStarted(fileUploadProgress));
-            break;
-        case UPLOAD_IN_PROGRESS:
-        case UPLOAD_FAILED:
-        case UPLOAD_SUCCESSFUL:
-            UI.getCurrent().access(() -> updateUploadProgressInfoRowObject(fileUploadProgress));
-            break;
-        case UPLOAD_FINISHED:
-            UI.getCurrent().access(this::onUploadFinished);
-            break;
-        default:
-            break;
-        }
-    }
-
-    private void updateUploadProgressInfoRowObject(final FileUploadProgress fileUploadProgress) {
+    public void updateUploadProgressInfoRowObject(final FileUploadProgress fileUploadProgress) {
         final FileUploadId fileUploadId = fileUploadProgress.getFileUploadId();
         final ProxyUploadProgress gridUploadItem = uploads.stream()
                 .filter(upload -> upload.getFileUploadId().equals(fileUploadId)).findAny()
@@ -150,7 +123,7 @@ public class UploadProgressInfoWindow extends Window {
         return failureReason;
     }
 
-    private void onUploadStarted(final FileUploadProgress fileUploadProgress) {
+    public void onUploadStarted(final FileUploadProgress fileUploadProgress) {
         updateUploadProgressInfoRowObject(fileUploadProgress);
 
         if (isWindowNotAlreadyAttached()) {
@@ -218,7 +191,7 @@ public class UploadProgressInfoWindow extends Window {
     /**
      * Called for every finished (succeeded or failed) upload.
      */
-    private void onUploadFinished() {
+    public void onUploadFinished() {
         if (artifactUploadState.areAllUploadsFinished() && artifactUploadState.isStatusPopupMinimized()) {
             if (artifactUploadState.getFilesInFailedState().isEmpty()) {
                 cleanupStates();
@@ -262,6 +235,6 @@ public class UploadProgressInfoWindow extends Window {
         // TODO: do we need this?
         // setColumnWidth();
         setPopupSizeInMinMode();
-        this.close();
+        close();
     }
 }
