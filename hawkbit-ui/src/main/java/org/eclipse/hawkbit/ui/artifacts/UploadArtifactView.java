@@ -80,33 +80,33 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
             this.artifactDetailsGridLayout = new ArtifactDetailsGridLayout(i18n, eventBus, permChecker, uiNotification,
                     artifactUploadState, artifactUploadState.getArtifactDetailsGridLayoutUiState(), artifactManagement,
                     softwareModuleManagement, multipartConfigElement);
+            this.eventListener = new UploadArtifactViewEventListener(this, eventBus);
         } else {
             this.smTypeFilterLayout = null;
             this.smGridLayout = null;
             this.artifactDetailsGridLayout = null;
+            this.eventListener = null;
         }
-
-        this.eventListener = new UploadArtifactViewEventListener(this, eventBus);
     }
 
     @PostConstruct
     void init() {
-        buildLayout();
-        restoreState();
-        Page.getCurrent().addBrowserWindowResizeListener(this);
+        if (permChecker.hasReadRepositoryPermission()) {
+            buildLayout();
+            restoreState();
+            Page.getCurrent().addBrowserWindowResizeListener(this);
+        }
     }
 
     private void buildLayout() {
-        if (permChecker.hasReadRepositoryPermission()) {
-            setMargin(false);
-            setSpacing(false);
-            setSizeFull();
+        setMargin(false);
+        setSpacing(false);
+        setSizeFull();
 
-            createMainLayout();
+        createMainLayout();
 
-            addComponent(mainLayout);
-            setExpandRatio(mainLayout, 1.0F);
-        }
+        addComponent(mainLayout);
+        setExpandRatio(mainLayout, 1.0F);
     }
 
     private GridLayout createMainLayout() {
@@ -128,22 +128,20 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     private void restoreState() {
-        if (permChecker.hasReadRepositoryPermission()) {
-            if (artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
-                hideSmTypeLayout();
-            } else {
-                showSmTypeLayout();
-            }
-
-            if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
-                maximizeSmGridLayout();
-            }
-            if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
-                maximizeArtifactGridLayout();
-            }
-
-            smGridLayout.restoreState();
+        if (artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
+            hideSmTypeLayout();
+        } else {
+            showSmTypeLayout();
         }
+
+        if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
+            maximizeSmGridLayout();
+        }
+        if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
+            maximizeArtifactGridLayout();
+        }
+
+        smGridLayout.restoreState();
     }
 
     void maximizeSmGridLayout() {
@@ -225,10 +223,12 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
 
     @PreDestroy
     void destroy() {
-        smTypeFilterLayout.unsubscribeListener();
-        smGridLayout.unsubscribeListener();
-        artifactDetailsGridLayout.unsubscribeListener();
-
-        eventListener.unsubscribeListeners();
+        if (smTypeFilterLayout != null && smGridLayout != null && artifactDetailsGridLayout != null
+                && eventListener != null) {
+            smTypeFilterLayout.unsubscribeListener();
+            smGridLayout.unsubscribeListener();
+            artifactDetailsGridLayout.unsubscribeListener();
+            eventListener.unsubscribeListeners();
+        }
     }
 }
