@@ -48,6 +48,7 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     private final transient SmTypeWindowBuilder smTypeWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> sMTypeDataProvider;
+    private final transient TypeToProxyTypeMapper<SoftwareModuleType> smTypeMapper;
 
     /**
      * Constructor
@@ -79,10 +80,19 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         this.smTypeWindowBuilder = smTypeWindowBuilder;
 
         this.sMTypeFilterButtonClickBehaviour = new SMTypeFilterButtonClick(this::publishFilterChangedEvent);
-        this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement,
-                new TypeToProxyTypeMapper<SoftwareModuleType>()).withConfigurableFilter();
+        this.smTypeMapper = new TypeToProxyTypeMapper<>();
+        this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, smTypeMapper)
+                .withConfigurableFilter();
 
         init();
+    }
+
+    public void selectEntityById(final Long entityId) {
+        if (entityId != null) {
+            softwareModuleTypeManagement.get(entityId).map(smTypeMapper::map).ifPresent(this::select);
+        } else {
+            deselectAll();
+        }
     }
 
     @Override

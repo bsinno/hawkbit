@@ -30,15 +30,12 @@ import org.eclipse.hawkbit.ui.common.detailslayout.AbstractGridDetailsLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.KeyValueDetailsComponent;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetadataDetailsGrid;
 import org.eclipse.hawkbit.ui.common.tagdetails.TargetTagToken;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
@@ -219,11 +216,6 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     // protected void populateMetaData() {
     // targetMetadataLayout.populateMetadata(entity);
     // }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent targetTableEvent) {
-        onBaseEntityEvent(targetTableEvent);
-    }
 
     @Override
     public void masterEntityChanged(final ProxyTarget entity) {

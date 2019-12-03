@@ -21,6 +21,9 @@ import org.eclipse.hawkbit.ui.common.detailslayout.AddMetaDataWindowController;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetaDataAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetaDataWindowGrid;
 import org.eclipse.hawkbit.ui.common.detailslayout.UpdateMetaDataWindowController;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.eclipse.hawkbit.ui.distributions.smtable.SmMetaDataAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -62,9 +65,9 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
                 new SmMetaDataDataProvider(smManagement), this::deleteMetaData);
 
         this.smMetaDataAddUpdateWindowLayout = new SmMetaDataAddUpdateWindowLayout(i18n);
-        this.addSmMetaDataWindowController = new AddMetaDataWindowController(i18n, eventBus, uiNotification,
+        this.addSmMetaDataWindowController = new AddMetaDataWindowController(i18n, uiNotification,
                 smMetaDataAddUpdateWindowLayout, this::createMetaData, this::onMetaDataModified, this::isDuplicate);
-        this.updateSmMetaDataWindowController = new UpdateMetaDataWindowController(i18n, eventBus, uiNotification,
+        this.updateSmMetaDataWindowController = new UpdateMetaDataWindowController(i18n, uiNotification,
                 smMetaDataAddUpdateWindowLayout, this::updateMetaData, this::onMetaDataModified);
 
         buildLayout();
@@ -77,8 +80,9 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
             final String metaDataKey = metaDataToDelete.iterator().next().getKey();
             smManagement.deleteMetaData(masterEntityFilter, metaDataKey);
 
-            // TODO: check if we should publish the event here
             smMetaDataWindowGrid.refreshContainer();
+
+            publishEntityModifiedEvent();
         } else {
             // TODO: use i18n
             uiNotification.displayValidationError(
@@ -119,5 +123,11 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
     @Override
     public MetaDataAddUpdateWindowLayout getMetaDataAddUpdateWindowLayout() {
         return smMetaDataAddUpdateWindowLayout;
+    }
+
+    @Override
+    protected void publishEntityModifiedEvent() {
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, masterEntityFilter));
     }
 }

@@ -17,8 +17,6 @@ import java.util.Map.Entry;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -28,7 +26,6 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -154,24 +151,6 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         tabWrapperDetailsLayout.addComponent(detailsComponent);
 
         return tabWrapperDetailsLayout;
-    }
-
-    /**
-     * Default implementation to handle an entity event.
-     * 
-     * @param baseEntityEvent
-     *            the event
-     */
-    protected void onBaseEntityEvent(final BaseUIEntityEvent<T> baseEntityEvent) {
-        final BaseEntityEventType eventType = baseEntityEvent.getEventType();
-        if (BaseEntityEventType.SELECTED_ENTITY == eventType || BaseEntityEventType.UPDATED_ENTITY == eventType
-                || BaseEntityEventType.REMOVE_ENTITY == eventType) {
-            UI.getCurrent().access(() -> masterEntityChanged(baseEntityEvent.getEntity()));
-        } else if (BaseEntityEventType.MINIMIZED == eventType) {
-            UI.getCurrent().access(() -> setVisible(true));
-        } else if (BaseEntityEventType.MAXIMIZED == eventType) {
-            UI.getCurrent().access(() -> setVisible(false));
-        }
     }
 
     public void masterEntityChanged(final T entity) {

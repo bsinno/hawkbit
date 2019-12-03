@@ -53,17 +53,13 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
         this.filterButtonDeleteSupport = new DeleteSupport<>(this, i18n, getFilterButtonsType(), permChecker,
                 notification, this::deleteFilterButtons);
-
-        // TODO: check if sufficient
-        removeHeaderRow(0);
-        setStyles();
     }
 
-    protected abstract String getFilterButtonsType();
+    @Override
+    protected void init() {
+        super.init();
 
-    protected abstract void deleteFilterButtons(Collection<T> filterButtonsToDelete);
-
-    private void setStyles() {
+        setHeaderVisible(false);
         setStyleName("type-button-layout");
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
@@ -71,6 +67,10 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         addStyleName(ValoTheme.TABLE_BORDERLESS);
         addStyleName(ValoTheme.TABLE_COMPACT);
     }
+
+    protected abstract String getFilterButtonsType();
+
+    protected abstract void deleteFilterButtons(Collection<T> filterButtonsToDelete);
 
     @Override
     public void addColumns() {

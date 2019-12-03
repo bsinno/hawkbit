@@ -85,7 +85,6 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
                 eventBus, distributionTagButtons, dsTagWindowBuilder);
 
         buildLayout();
-        restoreState();
     }
 
     @Override

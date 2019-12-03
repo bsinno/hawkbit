@@ -30,6 +30,8 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     private final SMTypeFilterHeader smTypeFilterHeader;
     private final SMTypeFilterButtons sMTypeFilterButtons;
 
+    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
+
     private final transient SMTypeFilterLayoutEventListener eventListener;
 
     /**
@@ -54,6 +56,8 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
             final UIEventBus eventBus, final EntityFactory entityFactory, final UINotification uiNotification,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState) {
+        this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
+
         final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, softwareModuleTypeManagement);
 
@@ -85,6 +89,10 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
         filterButtonsLayout.setExpandRatio(sMTypeFilterButtons, 1.0F);
 
         return filterButtonsLayout;
+    }
+
+    public void restoreState() {
+        sMTypeFilterButtons.selectEntityById(smTypeFilterLayoutUiState.getClickedSmTypeId());
     }
 
     public void showFilterButtonsEditIcon() {

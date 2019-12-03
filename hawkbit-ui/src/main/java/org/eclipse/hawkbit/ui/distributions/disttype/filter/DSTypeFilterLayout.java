@@ -70,7 +70,6 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
         this.eventListener = new DSTypeFilterLayoutEventListener(this, eventBus);
 
         buildLayout();
-        restoreState();
     }
 
     @Override

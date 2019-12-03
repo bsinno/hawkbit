@@ -19,7 +19,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.cronutils.utils.StringUtils;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Metadata grid for entities.
@@ -43,6 +45,21 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> {
         this.metaDataDataProvider = metaDataDataProvider.withConfigurableFilter();
 
         init();
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        setHeaderVisible(false);
+        setHeightMode(HeightMode.UNDEFINED);
+
+        addStyleName("metadata-details");
+        addStyleName(ValoTheme.TABLE_NO_STRIPES);
+        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
+        addStyleName(ValoTheme.TABLE_BORDERLESS);
+        addStyleName(ValoTheme.TABLE_COMPACT);
     }
 
     @Override

@@ -75,7 +75,6 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
                 multipleTargetFilter.getTargetTagFilterButtons(), targetTagWindowBuilder);
 
         buildLayout();
-        restoreState();
     }
 
     @Override

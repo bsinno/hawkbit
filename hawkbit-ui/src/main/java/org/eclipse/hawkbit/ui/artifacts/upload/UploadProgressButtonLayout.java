@@ -132,7 +132,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         uploadProgressButton.addStyleName(SPUIStyleDefinitions.UPLOAD_PROGRESS_INDICATOR_STYLE);
         uploadProgressButton.setIcon(null);
         uploadProgressButton.setCaptionAsHtml(true);
-        uploadProgressButton.addClickListener(event -> onClickOfUploadProgressButton());
+        uploadProgressButton.addClickListener(event -> showUploadInfoWindow());
     }
 
     private void buildLayout() {
@@ -181,7 +181,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         }
     }
 
-    private void onClickOfUploadProgressButton() {
+    public void showUploadInfoWindow() {
         uploadInfoWindow.maximizeWindow();
     }
 

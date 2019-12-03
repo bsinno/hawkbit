@@ -14,6 +14,7 @@ import java.util.Collections;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.MetaData;
+import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
@@ -22,6 +23,9 @@ import org.eclipse.hawkbit.ui.common.detailslayout.AddMetaDataWindowController;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetaDataAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetaDataWindowGrid;
 import org.eclipse.hawkbit.ui.common.detailslayout.UpdateMetaDataWindowController;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
@@ -63,9 +67,9 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
                 new TargetMetaDataDataProvider(targetManagement), this::deleteMetaData);
 
         this.metaDataAddUpdateWindowLayout = new MetaDataAddUpdateWindowLayout(i18n);
-        this.addTargetMetaDataWindowController = new AddMetaDataWindowController(i18n, eventBus, uiNotification,
+        this.addTargetMetaDataWindowController = new AddMetaDataWindowController(i18n, uiNotification,
                 metaDataAddUpdateWindowLayout, this::createMetaData, this::onMetaDataModified, this::isDuplicate);
-        this.updateTargetMetaDataWindowController = new UpdateMetaDataWindowController(i18n, eventBus, uiNotification,
+        this.updateTargetMetaDataWindowController = new UpdateMetaDataWindowController(i18n, uiNotification,
                 metaDataAddUpdateWindowLayout, this::updateMetaData, this::onMetaDataModified);
 
         buildLayout();
@@ -78,8 +82,9 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
             final String metaDataKey = metaDataToDelete.iterator().next().getKey();
             targetManagement.deleteMetaData(masterEntityFilter, metaDataKey);
 
-            // TODO: check if we should publish the event here
             targetMetaDataWindowGrid.refreshContainer();
+
+            publishEntityModifiedEvent();
         } else {
             // TODO: use i18n
             uiNotification.displayValidationError("No Target is currently selected or metadata to delete is missing");
@@ -120,5 +125,12 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
     @Override
     public MetaDataAddUpdateWindowLayout getMetaDataAddUpdateWindowLayout() {
         return metaDataAddUpdateWindowLayout;
+    }
+
+    @Override
+    protected void publishEntityModifiedEvent() {
+        targetManagement.getByControllerID(masterEntityFilter).map(Target::getId)
+                .ifPresent(targetId -> eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                        new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, targetId)));
     }
 }

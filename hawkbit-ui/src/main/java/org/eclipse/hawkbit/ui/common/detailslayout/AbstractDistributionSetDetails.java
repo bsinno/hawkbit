@@ -25,13 +25,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.tagdetails.DistributionTagToken;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
-import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
@@ -144,11 +141,6 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     // protected void populateSmDetails() {
     // softwareModuleDetailsGrid.populateGrid(getSelectedBaseEntity());
     // }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionTableEvent distributionTableEvent) {
-        onBaseEntityEvent(distributionTableEvent);
-    }
 
     @Override
     public void masterEntityChanged(final ProxyDistributionSet entity) {

@@ -27,6 +27,9 @@ import com.vaadin.ui.HorizontalLayout;
 public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
     private static final long serialVersionUID = 1L;
 
+    protected final VaadinMessageSource i18n;
+    protected final UIEventBus eventBus;
+
     private final MetadataWindowGridHeader metadataWindowGridHeader;
 
     private transient Consumer<SaveDialogCloseListener> saveCallback;
@@ -41,6 +44,9 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
      */
     public AbstractMetaDataWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permChecker) {
+        this.i18n = i18n;
+        this.eventBus = eventBus;
+
         this.metadataWindowGridHeader = new MetadataWindowGridHeader(i18n, permChecker, eventBus,
                 this::showAddMetaDataLayout);
     }
@@ -130,7 +136,11 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
         getMetaDataWindowGrid().select(metaData);
 
         resetSaveButton();
+
+        publishEntityModifiedEvent();
     }
+
+    protected abstract void publishEntityModifiedEvent();
 
     private static class MetaDataWindowGridLayout extends AbstractGridComponentLayout {
         private static final long serialVersionUID = 1L;

@@ -84,7 +84,7 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
             selectionSupport = new SelectionSupport<>(this);
             selectionSupport.disableSelection();
         }
-        setColumnReorderingAllowed(true);
+        setColumnReorderingAllowed(false);
         setDataProvider(getFilterDataProvider());
         addColumns();
     }

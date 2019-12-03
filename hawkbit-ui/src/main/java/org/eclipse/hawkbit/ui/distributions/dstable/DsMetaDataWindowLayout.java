@@ -22,6 +22,9 @@ import org.eclipse.hawkbit.ui.common.detailslayout.AddMetaDataWindowController;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetaDataAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetaDataWindowGrid;
 import org.eclipse.hawkbit.ui.common.detailslayout.UpdateMetaDataWindowController;
+import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
@@ -62,9 +65,9 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
                 new DsMetaDataDataProvider(dsManagement), this::deleteMetaData);
 
         this.metaDataAddUpdateWindowLayout = new MetaDataAddUpdateWindowLayout(i18n);
-        this.addDsMetaDataWindowController = new AddMetaDataWindowController(i18n, eventBus, uiNotification,
+        this.addDsMetaDataWindowController = new AddMetaDataWindowController(i18n, uiNotification,
                 metaDataAddUpdateWindowLayout, this::createMetaData, this::onMetaDataModified, this::isDuplicate);
-        this.updateDsMetaDataWindowController = new UpdateMetaDataWindowController(i18n, eventBus, uiNotification,
+        this.updateDsMetaDataWindowController = new UpdateMetaDataWindowController(i18n, uiNotification,
                 metaDataAddUpdateWindowLayout, this::updateMetaData, this::onMetaDataModified);
 
         buildLayout();
@@ -77,8 +80,9 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
             final String metaDataKey = metaDataToDelete.iterator().next().getKey();
             dsManagement.deleteMetaData(masterEntityFilter, metaDataKey);
 
-            // TODO: check if we should publish the event here
             dsMetaDataWindowGrid.refreshContainer();
+
+            publishEntityModifiedEvent();
         } else {
             // TODO: use i18n
             uiNotification.displayValidationError(
@@ -120,5 +124,11 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
     @Override
     public MetaDataAddUpdateWindowLayout getMetaDataAddUpdateWindowLayout() {
         return metaDataAddUpdateWindowLayout;
+    }
+
+    @Override
+    protected void publishEntityModifiedEvent() {
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, masterEntityFilter));
     }
 }

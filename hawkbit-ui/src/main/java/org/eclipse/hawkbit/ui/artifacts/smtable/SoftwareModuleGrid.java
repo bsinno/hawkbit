@@ -67,13 +67,13 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private final ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> swModuleDataProvider;
     private final SwFilterParams smFilter;
 
-    private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
     private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
 
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final ArtifactUploadState artifactUploadState, final SoftwareModuleGridLayoutUiState smGridLayoutUiState,
-            final SoftwareModuleManagement softwareModuleManagement) {
+            final SoftwareModuleManagement softwareModuleManagement,
+            final SoftwareModuleToProxyMapper softwareModuleToProxyMapper) {
         super(i18n, eventBus, permissionChecker);
 
         this.artifactUploadState = artifactUploadState;
@@ -81,7 +81,6 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         this.notification = notification;
         this.softwareModuleManagement = softwareModuleManagement;
 
-        this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
         this.swModuleDataProvider = new SoftwareModuleArtifactsStateDataProvider(softwareModuleManagement,
                 softwareModuleToProxyMapper).withConfigurableFilter();
         this.smFilter = new SwFilterParams();
@@ -135,16 +134,6 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
             }
         }
         return false;
-    }
-
-    public void restoreSelection() {
-        final Long lastSelectedSmId = smGridLayoutUiState.getSelectedSmId();
-        if (lastSelectedSmId != null) {
-            softwareModuleManagement.get(lastSelectedSmId).map(softwareModuleToProxyMapper::map)
-                    .ifPresent(this::select);
-        } else {
-            getSelectionSupport().selectFirstRow();
-        }
     }
 
     @Override

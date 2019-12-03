@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
@@ -49,9 +50,9 @@ public class SoftwareModuleGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI, source = SoftwareModuleGrid.class)
         private void onSmEvent(final SelectionChangedEventPayload<ProxySoftwareModule> eventPayload) {
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                softwareModuleGridLayout.onSmSelected(eventPayload.getEntity());
+                softwareModuleGridLayout.onSmChanged(eventPayload.getEntity());
             } else {
-                softwareModuleGridLayout.onSmSelected(null);
+                softwareModuleGridLayout.onSmChanged(null);
             }
         }
     }
@@ -77,6 +78,9 @@ public class SoftwareModuleGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onSmEvent(final SmModifiedEventPayload eventPayload) {
             softwareModuleGridLayout.refreshGrid();
+            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+                softwareModuleGridLayout.onSmUpdated(eventPayload.getEntityIds());
+            }
         }
     }
 

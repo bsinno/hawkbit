@@ -137,11 +137,14 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
             maximizeSmGridLayout();
         }
+
         if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
             maximizeArtifactGridLayout();
         }
 
+        smTypeFilterLayout.restoreState();
         smGridLayout.restoreState();
+        artifactDetailsGridLayout.restoreState();
     }
 
     void maximizeSmGridLayout() {

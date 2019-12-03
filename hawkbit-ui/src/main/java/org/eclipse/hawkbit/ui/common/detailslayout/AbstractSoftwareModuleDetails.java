@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.SmMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
@@ -22,8 +21,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
@@ -47,6 +44,7 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
 
         this.smMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.SW_METADATA_DETAIL_LINK,
                 this::showMetadataDetails, new SmMetaDataDataProvider(softwareManagement));
+        this.smMetadataGrid.setVisible(false);
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),
@@ -94,11 +92,6 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
         metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + binder.getBean().getNameAndVersion());
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent softwareModuleEvent) {
-        onBaseEntityEvent(softwareModuleEvent);
     }
 
     @Override

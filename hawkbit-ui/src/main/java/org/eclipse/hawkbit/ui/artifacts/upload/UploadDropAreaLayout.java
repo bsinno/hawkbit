@@ -92,6 +92,10 @@ public class UploadDropAreaLayout extends CustomComponent {
         buildLayout();
     }
 
+    public void restoreState() {
+        uploadButtonLayout.restoreState();
+    }
+
     public void updateMasterEntityFilter(final Long masterEntityId) {
         dropAreaLayout.setEnabled(masterEntityId != null);
         uploadButtonLayout.updateMasterEntityFilter(masterEntityId);

@@ -76,6 +76,10 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         return artifactDetailsGrid;
     }
 
+    public void restoreState() {
+        uploadDropAreaLayout.restoreState();
+    }
+
     public void onSmSelected(final ProxySoftwareModule selectedSm) {
         artifactDetailsHeader.updateArtifactDetailsHeader(selectedSm != null ? selectedSm.getNameAndVersion() : "");
         artifactDetailsGrid.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);

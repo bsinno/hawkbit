@@ -16,17 +16,12 @@ import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.MetaData;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.MetaDataModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 public class UpdateMetaDataWindowController extends AbstractEntityWindowController<ProxyMetaData, ProxyMetaData> {
     private final VaadinMessageSource i18n;
-    private final UIEventBus eventBus;
     private final UINotification uiNotification;
 
     private final MetaDataAddUpdateWindowLayout layout;
@@ -34,12 +29,10 @@ public class UpdateMetaDataWindowController extends AbstractEntityWindowControll
     private final Function<ProxyMetaData, MetaData> updateMetaDataCallback;
     private final Consumer<ProxyMetaData> saveMetaDataCallback;
 
-    public UpdateMetaDataWindowController(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final UINotification uiNotification, final MetaDataAddUpdateWindowLayout layout,
-            final Function<ProxyMetaData, MetaData> updateMetaDataCallback,
+    public UpdateMetaDataWindowController(final VaadinMessageSource i18n, final UINotification uiNotification,
+            final MetaDataAddUpdateWindowLayout layout, final Function<ProxyMetaData, MetaData> updateMetaDataCallback,
             final Consumer<ProxyMetaData> saveMetaDataCallback) {
         this.i18n = i18n;
-        this.eventBus = eventBus;
         this.uiNotification = uiNotification;
 
         this.layout = layout;
@@ -82,12 +75,10 @@ public class UpdateMetaDataWindowController extends AbstractEntityWindowControll
             return;
         }
 
+        // TODO: check if could be substituted by the event
         saveMetaDataCallback.accept(entity);
 
         uiNotification.displaySuccess(i18n.getMessage("message.metadata.updated", updatedMetaData.getKey()));
-        // TODO: verify if sender and payload is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new MetaDataModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_UPDATED, updatedMetaData.getEntityId()));
     }
 
     @Override

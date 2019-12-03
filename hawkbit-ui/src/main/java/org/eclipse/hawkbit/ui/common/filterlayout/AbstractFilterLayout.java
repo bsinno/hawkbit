@@ -42,10 +42,6 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
         setExpandRatio(filterButtons, 1.0F);
     }
 
-    protected void restoreState() {
-        // TODO: check if needed, adapt as neccessary
-    }
-
     protected abstract AbstractGridHeader getFilterHeader();
 
     // we use Component here due to NO TAG button

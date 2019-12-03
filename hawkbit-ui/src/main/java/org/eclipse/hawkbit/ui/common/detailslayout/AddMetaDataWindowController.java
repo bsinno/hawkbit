@@ -15,17 +15,12 @@ import java.util.function.Predicate;
 import org.eclipse.hawkbit.repository.model.MetaData;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.MetaDataModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 public class AddMetaDataWindowController extends AbstractEntityWindowController<ProxyMetaData, ProxyMetaData> {
     private final VaadinMessageSource i18n;
-    private final UIEventBus eventBus;
     private final UINotification uiNotification;
 
     private final MetaDataAddUpdateWindowLayout layout;
@@ -34,12 +29,10 @@ public class AddMetaDataWindowController extends AbstractEntityWindowController<
     private final Consumer<ProxyMetaData> saveMetaDataCallback;
     private final Predicate<String> duplicateCheckCallback;
 
-    public AddMetaDataWindowController(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final UINotification uiNotification, final MetaDataAddUpdateWindowLayout layout,
-            final Function<ProxyMetaData, MetaData> createMetaDataCallback,
+    public AddMetaDataWindowController(final VaadinMessageSource i18n, final UINotification uiNotification,
+            final MetaDataAddUpdateWindowLayout layout, final Function<ProxyMetaData, MetaData> createMetaDataCallback,
             final Consumer<ProxyMetaData> saveMetaDataCallback, final Predicate<String> duplicateCheckCallback) {
         this.i18n = i18n;
-        this.eventBus = eventBus;
         this.uiNotification = uiNotification;
 
         this.layout = layout;
@@ -74,9 +67,6 @@ public class AddMetaDataWindowController extends AbstractEntityWindowController<
         saveMetaDataCallback.accept(entity);
 
         uiNotification.displaySuccess(i18n.getMessage("message.metadata.saved", newMetaData.getKey()));
-        // TODO: verify if sender and payload is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new MetaDataModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newMetaData.getEntityId()));
     }
 
     @Override

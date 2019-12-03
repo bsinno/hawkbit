@@ -64,7 +64,6 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
         this.eventListener = new DistSMTypeFilterLayoutEventListener(this, eventBus);
 
         buildLayout();
-        restoreState();
     }
 
     @Override
