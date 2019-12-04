@@ -11,10 +11,10 @@ package org.eclipse.hawkbit.ui;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,13 +24,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher;
 import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher.EntityModifiedEventPayloadIdentifier;
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
-import org.eclipse.hawkbit.ui.push.DistributionSetCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.push.EventContainer;
-import org.eclipse.hawkbit.ui.push.SoftwareModuleCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.SoftwareModuleDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -45,11 +39,8 @@ public class RemoteEventsListener {
     private final Cache<EntityModifiedEventPayloadIdentifier, Collection<Long>> uiOriginatedEventsCache;
     private final List<Object> eventListeners;
 
-    // TODO: adapt
-    private final List<Class<?>> supportedEvents = Arrays.asList(DistributionSetCreatedEventContainer.class,
-            DistributionSetUpdatedEventContainer.class, DistributionSetDeletedEventContainer.class,
-            SoftwareModuleCreatedEventContainer.class, SoftwareModuleUpdatedEventContainer.class,
-            SoftwareModuleDeletedEventContainer.class);
+    private final Set<Class<? extends EventContainer<?>>> supportedEvents = RemoteEventsMatcher.getEventMatchers()
+            .keySet();
 
     RemoteEventsListener(final UIEventBus eventBus, final NotificationUnreadButton notificationUnreadButton) {
         this.eventBus = eventBus;

@@ -44,7 +44,7 @@ import com.google.common.collect.Maps;
  */
 public class HawkbitEventProvider implements UIEventProvider {
 
-    private static final Map<Class<? extends TenantAwareEvent>, Class<?>> EVENTS = Maps.newHashMapWithExpectedSize(19);
+    private static final Map<Class<? extends TenantAwareEvent>, Class<?>> EVENTS = Maps.newHashMapWithExpectedSize(25);
 
     static {
         EVENTS.put(TargetCreatedEvent.class, TargetCreatedEventContainer.class);
