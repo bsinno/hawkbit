@@ -25,7 +25,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 
 /**
  * Target Tag filter layout.
@@ -83,7 +83,7 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
     }
 
     @Override
-    protected Component getFilterButtons() {
+    protected ComponentContainer getFilterContent() {
         return multipleTargetFilter;
     }
 

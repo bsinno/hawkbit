@@ -20,9 +20,7 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.ComponentContainer;
 
 /**
  * Distribution Set Type filter buttons layout.
@@ -77,18 +75,9 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
         return dsTypeFilterHeader;
     }
 
-    // TODO: remove duplication with other type layouts
     @Override
-    protected Component getFilterButtons() {
-        final VerticalLayout filterButtonsLayout = new VerticalLayout();
-        filterButtonsLayout.setMargin(false);
-        filterButtonsLayout.setSpacing(false);
-
-        filterButtonsLayout.addComponent(dSTypeFilterButtons);
-        filterButtonsLayout.setComponentAlignment(dSTypeFilterButtons, Alignment.TOP_LEFT);
-        filterButtonsLayout.setExpandRatio(dSTypeFilterButtons, 1.0F);
-
-        return filterButtonsLayout;
+    protected ComponentContainer getFilterContent() {
+        return wrapFilterContent(dSTypeFilterButtons);
     }
 
     public void showFilterButtonsEditIcon() {

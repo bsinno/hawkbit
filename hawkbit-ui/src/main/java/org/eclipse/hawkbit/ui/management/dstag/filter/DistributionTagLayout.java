@@ -31,7 +31,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -92,20 +92,12 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
         return distributionTagFilterHeader;
     }
 
-    // TODO: remove duplication with other type layouts
     @Override
-    protected Component getFilterButtons() {
-        final VerticalLayout filterButtonsLayout = new VerticalLayout();
-        filterButtonsLayout.setMargin(false);
-        filterButtonsLayout.setSpacing(false);
+    protected ComponentContainer getFilterContent() {
+        final VerticalLayout filterButtonsLayout = wrapFilterContent(distributionTagButtons);
 
-        filterButtonsLayout.addComponent(noTagButton);
-        filterButtonsLayout.addComponent(distributionTagButtons);
-
+        filterButtonsLayout.addComponent(noTagButton, 0);
         filterButtonsLayout.setComponentAlignment(noTagButton, Alignment.TOP_LEFT);
-        filterButtonsLayout.setComponentAlignment(distributionTagButtons, Alignment.TOP_LEFT);
-
-        filterButtonsLayout.setExpandRatio(distributionTagButtons, 1.0F);
 
         return filterButtonsLayout;
     }

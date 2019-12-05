@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -29,7 +30,7 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
         setMargin(false);
 
         final Component filterHeader = getFilterHeader();
-        final Component filterButtons = getFilterButtons();
+        final ComponentContainer filterButtons = getFilterContent();
         // adding border
         filterButtons.addStyleName("filter-btns-layout");
         filterButtons.setSizeFull();
@@ -44,6 +45,17 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
 
     protected abstract AbstractGridHeader getFilterHeader();
 
-    // we use Component here due to NO TAG button
-    protected abstract Component getFilterButtons();
+    protected abstract ComponentContainer getFilterContent();
+
+    protected static VerticalLayout wrapFilterContent(final Component filterContent) {
+        final VerticalLayout filterContentWrapper = new VerticalLayout();
+        filterContentWrapper.setMargin(false);
+        filterContentWrapper.setSpacing(false);
+
+        filterContentWrapper.addComponent(filterContent);
+        filterContentWrapper.setComponentAlignment(filterContent, Alignment.TOP_LEFT);
+        filterContentWrapper.setExpandRatio(filterContent, 1.0F);
+
+        return filterContentWrapper;
+    }
 }
