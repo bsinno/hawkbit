@@ -153,8 +153,11 @@ public final class UIComponentIdProvider {
     /**
      * ID for menubar for configuring distribution set tags
      */
-    public static final String DIST_TAG_MENU_BAR_ID = "distribution.set.menu.bar.id";
-
+    public static final String DIST_TAG_MENU_BAR_ID = "distribution.set.tag.menu.bar.id";
+    /**
+     * ID for menubar for configuring distribution set types
+     */
+    public static final String DIST_TYPE_MENU_BAR_ID = "distribution.set.type.menu.bar.id";
     /**
      * ID for NO TAG for distribution sets
      */
@@ -534,6 +537,16 @@ public final class UIComponentIdProvider {
     public static final String HIDE_DS_TAGS = "hide.distribution.tags";
 
     /**
+     * Distribution type close button.
+     */
+    public static final String HIDE_DS_TYPES = "hide.distribution.types";
+
+    /**
+     * Software Module type close button.
+     */
+    public static final String HIDE_SM_TYPES = "hide.sm.types";
+
+    /**
      * Show target tag layout icon.
      */
     public static final String SHOW_TARGET_TAGS = "show.target.tags.icon";
@@ -846,11 +859,6 @@ public final class UIComponentIdProvider {
      * Assign option group id(Firmware/Software).
      */
     public static final String ASSIGN_OPTION_GROUP_SOFTWARE_MODULE_TYPE_ID = "assign.option.group.soft.module.type.id";
-
-    /**
-     * Hide filter by dist type layout button.
-     */
-    public static final String HIDE_FILTER_DIST_TYPE = "hide.filter.dist.type.layout";
 
     /**
      * New Distribution Type distribution field id.

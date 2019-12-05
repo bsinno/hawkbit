@@ -8,40 +8,25 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
-import java.util.Arrays;
-
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
-import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.MenuBar.Command;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 /**
  * Distribution Set Type filter buttons header.
  */
-// TODO: remove duplication with other FilterHeader classes
-public class DSTypeFilterHeader extends AbstractGridHeader {
+public class DSTypeFilterHeader extends AbstractFilterHeader {
     private static final long serialVersionUID = 1L;
 
     private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
 
     private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
-
-    private final transient CrudMenuHeaderSupport crudMenuHeaderSupport;
-    private final transient CloseHeaderSupport closeHeaderSupport;
 
     /**
      * Constructor
@@ -72,61 +57,37 @@ public class DSTypeFilterHeader extends AbstractGridHeader {
         this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
         this.dsTypeWindowBuilder = dsTypeWindowBuilder;
 
-        this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, UIComponentIdProvider.DIST_TAG_MENU_BAR_ID,
-                permChecker.hasCreateTargetPermission(), permChecker.hasUpdateTargetPermission(),
-                permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
-                getDeleteButtonCommand(), getCloseButtonCommand());
-        this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.HIDE_FILTER_DIST_TYPE,
-                this::hideFilterButtonLayout);
-        addHeaderSupports(Arrays.asList(crudMenuHeaderSupport, closeHeaderSupport));
-
-        restoreHeaderState();
         buildHeader();
+        restoreHeaderState();
     }
 
     @Override
-    protected Component getHeaderCaption() {
-        return new LabelBuilder().name(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_BY_TYPE)).buildCaptionLabel();
+    protected String getHeaderCaptionMsgKey() {
+        return UIMessageIdProvider.CAPTION_FILTER_BY_TYPE;
     }
 
-    private Command getAddButtonCommand() {
-        return menuItem -> {
-            final Window addWindow = dsTypeWindowBuilder.getWindowForAddDsType();
-
-            addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.type")));
-            UI.getCurrent().addWindow(addWindow);
-            addWindow.setVisible(Boolean.TRUE);
-        };
+    @Override
+    protected String getCrudMenuBarId() {
+        return UIComponentIdProvider.DIST_TYPE_MENU_BAR_ID;
     }
 
-    private Command getUpdateButtonCommand() {
-        return menuItem -> {
-            eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
-                    FilterButtonsActionsChangedEventPayload.SHOW_EDIT);
-            crudMenuHeaderSupport.activateEditMode();
-        };
+    @Override
+    protected Window getWindowForAdd() {
+        return dsTypeWindowBuilder.getWindowForAddDsType();
     }
 
-    private Command getDeleteButtonCommand() {
-        return menuItem -> {
-            eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
-                    FilterButtonsActionsChangedEventPayload.SHOW_DELETE);
-            crudMenuHeaderSupport.activateEditMode();
-        };
+    @Override
+    protected String getAddEntityWindowCaptionMsgKey() {
+        return "caption.type";
     }
 
-    private Command getCloseButtonCommand() {
-        return menuItem -> {
-            eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
-                    FilterButtonsActionsChangedEventPayload.HIDE_ALL);
-            crudMenuHeaderSupport.activateSelectMode();
-        };
+    @Override
+    protected String getCloseIconId() {
+        return UIComponentIdProvider.HIDE_DS_TYPES;
     }
 
-    private void hideFilterButtonLayout() {
-        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this,
-                LayoutVisibilityChangedEventPayload.LAYOUT_HIDDEN);
-
+    @Override
+    protected void updateHiddenUiState() {
         dSTypeFilterLayoutUiState.setHidden(true);
     }
 }

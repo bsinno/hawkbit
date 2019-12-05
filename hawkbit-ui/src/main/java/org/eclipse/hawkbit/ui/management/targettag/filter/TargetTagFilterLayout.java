@@ -66,13 +66,12 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
 
         final TargetTagWindowBuilder targetTagWindowBuilder = new TargetTagWindowBuilder(i18n, entityFactory, eventBus,
                 notification, targetTagManagement);
-        // TODO: check if we could find better solution as to pass
-        // targetTagButtons into targetTagFilterHeader
+
+        this.targetTagFilterHeader = new TargetTagFilterHeader(i18n, managementUIState, permChecker, eventBus,
+                targetTagWindowBuilder);
         this.multipleTargetFilter = new MultipleTargetFilter(permChecker, managementUIState, i18n, eventBus,
                 notification, targetFilterQueryManagement, targetTagManagement, targetManagement,
                 targetTagWindowBuilder);
-        this.targetTagFilterHeader = new TargetTagFilterHeader(i18n, managementUIState, permChecker, eventBus,
-                multipleTargetFilter.getTargetTagFilterButtons(), targetTagWindowBuilder);
 
         buildLayout();
     }

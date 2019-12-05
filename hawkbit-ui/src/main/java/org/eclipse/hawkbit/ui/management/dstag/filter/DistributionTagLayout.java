@@ -77,12 +77,11 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
 
         final DsTagWindowBuilder dsTagWindowBuilder = new DsTagWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, distributionSetTagManagement);
-        // TODO: check if we could find better solution as to pass
-        // distributionTagButtons into distributionTagFilterHeader
+
+        this.distributionTagFilterHeader = new DistributionTagFilterHeader(i18n, managementUIState, permChecker,
+                eventBus, dsTagWindowBuilder);
         this.distributionTagButtons = new DistributionTagButtons(eventBus, managementUIState, i18n, uiNotification,
                 permChecker, distributionSetTagManagement, distributionSetManagement, dsTagWindowBuilder);
-        this.distributionTagFilterHeader = new DistributionTagFilterHeader(i18n, managementUIState, permChecker,
-                eventBus, distributionTagButtons, dsTagWindowBuilder);
 
         buildLayout();
     }
