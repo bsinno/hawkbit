@@ -13,11 +13,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.ui.Button;
 
 /**
  * Single button click behaviour of custom target filter buttons layout.
@@ -66,15 +63,12 @@ public class CustomTargetTagFilterButtonClick extends AbstractFilterSingleButton
     }
 
     protected void clearAppliedTargetFilterQuery() {
-        if (getAlreadyClickedButton() != null) {
-            getAlreadyClickedButton().removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
-            setAlreadyClickedButton(null);
-        }
+        // TODO
+        // if (getAlreadyClickedButton() != null) {
+        // getAlreadyClickedButton().removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
+        // setAlreadyClickedButton(null);
+        // }
         this.managementUIState.getTargetTableFilters().setTargetFilterQuery(null);
         this.eventBus.publish(this, TargetFilterEvent.REMOVE_FILTER_BY_TARGET_FILTER_QUERY);
-    }
-
-    protected void setDefaultButtonClicked(final Button button) {
-        super.setDefaultClickedButton(button);
     }
 }

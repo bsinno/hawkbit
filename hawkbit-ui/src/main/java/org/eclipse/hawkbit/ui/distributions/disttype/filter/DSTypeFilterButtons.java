@@ -15,6 +15,7 @@ import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.artifacts.smtype.filter.TypeFilterButtonClick;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
@@ -49,7 +50,7 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
     private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
 
-    private final transient DSTypeFilterButtonClick dsTypeFilterButtonClickBehaviour;
+    private final transient TypeFilterButtonClick typeFilterButtonClickBehaviour;
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> dsTypeDataProvider;
 
     /**
@@ -81,7 +82,7 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
         this.dsTypeWindowBuilder = dsTypeWindowBuilder;
 
-        this.dsTypeFilterButtonClickBehaviour = new DSTypeFilterButtonClick(this::publishFilterChangedEvent);
+        this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
         this.dsTypeDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement,
                 new TypeToProxyTypeMapper<DistributionSetType>()).withConfigurableFilter();
 
@@ -105,7 +106,7 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     @Override
     protected AbstractFilterButtonClickBehaviour<ProxyType> getFilterButtonClickBehaviour() {
-        return dsTypeFilterButtonClickBehaviour;
+        return typeFilterButtonClickBehaviour;
     }
 
     private void publishFilterChangedEvent(final ProxyType typeFilter, final TypeFilterChangedEventType eventType) {
@@ -156,12 +157,13 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         UI.getCurrent().addWindow(updateWindow);
         updateWindow.setVisible(Boolean.TRUE);
     }
-
-    @Override
-    protected boolean isClickedByDefault(final Long filterButtonId) {
-        return dSTypeFilterLayoutUiState.getClickedDsType() != null
-                && dSTypeFilterLayoutUiState.getClickedDsType().getId().equals(filterButtonId);
-    }
+    // TODO
+    // @Override
+    // protected boolean isClickedByDefault(final Long filterButtonId) {
+    // return dSTypeFilterLayoutUiState.getClickedDsType() != null
+    // &&
+    // dSTypeFilterLayoutUiState.getClickedDsType().getId().equals(filterButtonId);
+    // }
 
     @Override
     protected String getFilterButtonIdPrefix() {

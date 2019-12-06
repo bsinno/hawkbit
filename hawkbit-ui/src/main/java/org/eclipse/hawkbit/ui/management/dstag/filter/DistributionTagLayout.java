@@ -112,12 +112,14 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
         final ProxyTag dummyNoTag = new ProxyTag();
         dummyNoTag.setNoTag(true);
 
-        noTagButton.addClickListener(event -> distributionTagButtons.getFilterButtonClickBehaviour()
-                .processFilterButtonClick(event.getButton(), dummyNoTag));
+        noTagButton.addClickListener(
+                event -> distributionTagButtons.getFilterButtonClickBehaviour().processFilterClick(dummyNoTag));
 
-        if (managementUIState.getDistributionTableFilters().isNoTagSelected()) {
-            distributionTagButtons.getFilterButtonClickBehaviour().setDefaultClickedButton(noTagButton);
-        }
+        // TODO
+        // if
+        // (managementUIState.getDistributionTableFilters().isNoTagSelected()) {
+        // distributionTagButtons.getFilterButtonClickBehaviour().setDefaultClickedButton(noTagButton);
+        // }
 
         return noTagButton;
     }

@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.distributions.smtype.filter;
+package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
 import java.util.function.BiConsumer;
 
@@ -17,12 +17,12 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClic
 /**
  * Single button click behaviour of filter buttons layout.
  */
-public class DistSMTypeFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyType> {
+public class TypeFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyType> {
     private static final long serialVersionUID = 1L;
 
-    private final BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback;
+    private final transient BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback;
 
-    DistSMTypeFilterButtonClick(final BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback) {
+    public TypeFilterButtonClick(final BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback) {
         this.filterChangedCallback = filterChangedCallback;
     }
 
@@ -35,5 +35,4 @@ public class DistSMTypeFilterButtonClick extends AbstractFilterSingleButtonClick
     protected void filterClicked(final ProxyType clickedFilter) {
         filterChangedCallback.accept(clickedFilter, TypeFilterChangedEventType.TYPE_CLICKED);
     }
-
 }

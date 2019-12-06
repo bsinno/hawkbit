@@ -128,15 +128,14 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         updateWindow.setVisible(Boolean.TRUE);
     }
 
-    @Override
-    protected boolean isClickedByDefault(final Long filterButtonId) {
-        return false;
-        // TODO
-        // return null !=
-        // managementUIState.getDistributionTableFilters().getClickedDistSetTags()
-        // &&
-        // managementUIState.getDistributionTableFilters().getClickedDistSetTags().contains(tagName);
-    }
+    // TODO
+    // @Override
+    // protected boolean isClickedByDefault(final Long filterButtonId) {
+    // return null !=
+    // managementUIState.getDistributionTableFilters().getClickedDistSetTags()
+    // &&
+    // managementUIState.getDistributionTableFilters().getClickedDistSetTags().contains(tagName);
+    // }
 
     @Override
     protected String getFilterButtonIdPrefix() {

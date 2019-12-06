@@ -137,12 +137,13 @@ public class MultipleTargetFilter extends Accordion implements SelectedTabChange
         final ProxyTag dummyNoTag = new ProxyTag();
         dummyNoTag.setNoTag(true);
 
-        noTagButton.addClickListener(event -> filterByButtons.getFilterButtonClickBehaviour()
-                .processFilterButtonClick(event.getButton(), dummyNoTag));
+        noTagButton.addClickListener(
+                event -> filterByButtons.getFilterButtonClickBehaviour().processFilterClick(dummyNoTag));
 
-        if (managementUIState.getTargetTableFilters().isNoTagSelected()) {
-            filterByButtons.getFilterButtonClickBehaviour().setDefaultClickedButton(noTagButton);
-        }
+        // TODO
+        // if (managementUIState.getTargetTableFilters().isNoTagSelected()) {
+        // filterByButtons.getFilterButtonClickBehaviour().setDefaultClickedButton(noTagButton);
+        // }
 
         return noTagButton;
     }

@@ -44,7 +44,7 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     private final UINotification uiNotification;
 
     private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-    private final transient SMTypeFilterButtonClick sMTypeFilterButtonClickBehaviour;
+    private final transient TypeFilterButtonClick typeFilterButtonClickBehaviour;
     private final transient SmTypeWindowBuilder smTypeWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> sMTypeDataProvider;
@@ -79,20 +79,12 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
         this.smTypeWindowBuilder = smTypeWindowBuilder;
 
-        this.sMTypeFilterButtonClickBehaviour = new SMTypeFilterButtonClick(this::publishFilterChangedEvent);
+        this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
         this.smTypeMapper = new TypeToProxyTypeMapper<>();
         this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, smTypeMapper)
                 .withConfigurableFilter();
 
         init();
-    }
-
-    public void selectEntityById(final Long entityId) {
-        if (entityId != null) {
-            softwareModuleTypeManagement.get(entityId).map(smTypeMapper::map).ifPresent(this::select);
-        } else {
-            deselectAll();
-        }
     }
 
     @Override
@@ -112,7 +104,7 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     @Override
     protected AbstractFilterButtonClickBehaviour<ProxyType> getFilterButtonClickBehaviour() {
-        return sMTypeFilterButtonClickBehaviour;
+        return typeFilterButtonClickBehaviour;
     }
 
     private void publishFilterChangedEvent(final ProxyType typeFilter, final TypeFilterChangedEventType eventType) {
@@ -151,12 +143,6 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
         UI.getCurrent().addWindow(updateWindow);
         updateWindow.setVisible(Boolean.TRUE);
-    }
-
-    @Override
-    protected boolean isClickedByDefault(final Long filterButtonId) {
-        return smTypeFilterLayoutUiState.getClickedSmTypeId() != null
-                && smTypeFilterLayoutUiState.getClickedSmTypeId().equals(filterButtonId);
     }
 
     @Override

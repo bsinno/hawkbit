@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent;
 import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent.SoftwareModuleTypeEnum;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
+import org.eclipse.hawkbit.ui.artifacts.smtype.filter.TypeFilterButtonClick;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
@@ -51,7 +52,7 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
     private final UINotification uiNotification;
 
     private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-    private final transient DistSMTypeFilterButtonClick distSMTypeFilterButtonClickBehaviour;
+    private final transient TypeFilterButtonClick typeFilterButtonClickBehaviour;
     private final transient SmTypeWindowBuilder smTypeWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> distSMTypeDataProvider;
@@ -84,7 +85,7 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
         this.smTypeWindowBuilder = smTypeWindowBuilder;
 
-        this.distSMTypeFilterButtonClickBehaviour = new DistSMTypeFilterButtonClick(this::publishFilterChangedEvent);
+        this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
         this.distSMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement,
                 new TypeToProxyTypeMapper<SoftwareModuleType>()).withConfigurableFilter();
 
@@ -108,7 +109,7 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
 
     @Override
     protected AbstractFilterButtonClickBehaviour<ProxyType> getFilterButtonClickBehaviour() {
-        return distSMTypeFilterButtonClickBehaviour;
+        return typeFilterButtonClickBehaviour;
     }
 
     private void publishFilterChangedEvent(final ProxyType typeFilter, final TypeFilterChangedEventType eventType) {
@@ -150,11 +151,13 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
         updateWindow.setVisible(Boolean.TRUE);
     }
 
-    @Override
-    protected boolean isClickedByDefault(final Long filterButtonId) {
-        return distSMTypeFilterLayoutUiState.getClickedSmType() != null
-                && distSMTypeFilterLayoutUiState.getClickedSmType().getId().equals(filterButtonId);
-    }
+    // TODO
+    // @Override
+    // protected boolean isClickedByDefault(final Long filterButtonId) {
+    // return distSMTypeFilterLayoutUiState.getClickedSmType() != null
+    // &&
+    // distSMTypeFilterLayoutUiState.getClickedSmType().getId().equals(filterButtonId);
+    // }
 
     @Override
     protected String getFilterButtonIdPrefix() {

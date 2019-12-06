@@ -84,6 +84,11 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         }
     }
 
+    // TODO: extract to parent abstract #mapIdToProxyEntity?
+    private Optional<ProxySoftwareModule> mapIdToProxyEntity(final Long entityId) {
+        return softwareModuleManagement.get(entityId).map(softwareModuleToProxyMapper::map);
+    }
+
     // TODO: extract to parent #onMasterEntityChanged?
     public void onSmChanged(final ProxySoftwareModule sm) {
         softwareModuleDetailsHeader.masterEntityChanged(sm);
@@ -94,11 +99,6 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     public void onSmUpdated(final Collection<Long> entityIds) {
         entityIds.stream().filter(entityId -> entityId.equals(smGridLayoutUiState.getSelectedSmId())).findAny()
                 .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onSmChanged));
-    }
-
-    // TODO: extract to parent abstract #mapIdToProxyEntity?
-    private Optional<ProxySoftwareModule> mapIdToProxyEntity(final Long entityId) {
-        return softwareModuleManagement.get(entityId).map(softwareModuleToProxyMapper::map);
     }
 
     public void showSmTypeHeaderIcon() {

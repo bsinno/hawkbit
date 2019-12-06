@@ -74,7 +74,14 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildFilterButton).setId(FILTER_BUTTON_COLUMN_ID).setMinimumWidth(120d);
+        addComponentColumn(this::buildFilterButton).setId(FILTER_BUTTON_COLUMN_ID).setMinimumWidth(120d)
+                .setStyleGenerator(item -> {
+                    if (getFilterButtonClickBehaviour().isFilterPreviouslyClicked(item)) {
+                        return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
+                    } else {
+                        return null;
+                    }
+                });
         addComponentColumn(this::buildEditFilterButton).setId(FILTER_BUTTON_EDIT_ID).setHidden(true);
         addComponentColumn(this::buildDeleteFilterButton).setId(FILTER_BUTTON_DELETE_ID).setHidden(true);
     }
@@ -89,14 +96,15 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
                 + "</span>" + " " + clickedFilter.getName());
         filterButton.setCaptionAsHtml(true);
 
-        filterButton.addClickListener(
-                event -> getFilterButtonClickBehaviour().processFilterButtonClick(event.getButton(), clickedFilter));
-
-        if (isClickedByDefault(clickedFilter.getId())) {
-            getFilterButtonClickBehaviour().setDefaultClickedButton(filterButton);
-        }
+        filterButton.addClickListener(event -> selectFilter(clickedFilter));
 
         return filterButton;
+    }
+
+    public void selectFilter(final T filter) {
+        getFilterButtonClickBehaviour().processFilterClick(filter);
+        // needed to trigger style generator
+        getDataCommunicator().reset();
     }
 
     /**
@@ -108,15 +116,6 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     protected abstract String getFilterButtonIdPrefix();
 
     protected abstract AbstractFilterButtonClickBehaviour<T> getFilterButtonClickBehaviour();
-
-    /**
-     * Check if button should be displayed as clicked by default.
-     *
-     * @param buttonCaption
-     *            button caption
-     * @return true if button is clicked
-     */
-    protected abstract boolean isClickedByDefault(final Long filterButtonId);
 
     private Button buildEditFilterButton(final T clickedFilter) {
         // TODO: check permissions for enable/disable

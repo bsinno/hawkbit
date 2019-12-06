@@ -127,16 +127,15 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         updateWindow.setVisible(Boolean.TRUE);
     }
 
-    @Override
-    protected boolean isClickedByDefault(final Long filterButtonId) {
-        return false;
-        // TODO:
-        // return
-        // managementUIState.getTargetTableFilters().getClickedTargetTags() !=
-        // null
-        // &&
-        // managementUIState.getTargetTableFilters().getClickedTargetTags().contains(tagName);
-    }
+    // TODO
+    // @Override
+    // protected boolean isClickedByDefault(final Long filterButtonId) {
+    // return
+    // managementUIState.getTargetTableFilters().getClickedTargetTags() !=
+    // null
+    // &&
+    // managementUIState.getTargetTableFilters().getClickedTargetTags().contains(tagName);
+    // }
 
     @Override
     protected String getFilterButtonIdPrefix() {
