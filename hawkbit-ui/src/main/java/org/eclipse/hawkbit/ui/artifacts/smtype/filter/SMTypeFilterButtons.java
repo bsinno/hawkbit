@@ -48,7 +48,6 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     private final transient SmTypeWindowBuilder smTypeWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> sMTypeDataProvider;
-    private final transient TypeToProxyTypeMapper<SoftwareModuleType> smTypeMapper;
 
     /**
      * Constructor
@@ -71,7 +70,8 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     public SMTypeFilterButtons(final UIEventBus eventBus, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final UINotification uiNotification,
-            final SmTypeWindowBuilder smTypeWindowBuilder) {
+            final SmTypeWindowBuilder smTypeWindowBuilder,
+            final TypeToProxyTypeMapper<SoftwareModuleType> smTypeMapper) {
         super(eventBus, i18n, uiNotification, permChecker);
 
         this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
@@ -80,7 +80,6 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         this.smTypeWindowBuilder = smTypeWindowBuilder;
 
         this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
-        this.smTypeMapper = new TypeToProxyTypeMapper<>();
         this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, smTypeMapper)
                 .withConfigurableFilter();
 
@@ -109,6 +108,10 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     private void publishFilterChangedEvent(final ProxyType typeFilter, final TypeFilterChangedEventType eventType) {
         softwareModuleTypeManagement.getByName(typeFilter.getName()).ifPresent(smType -> {
+            // TODO: somehow move it to abstract class/TypeFilterButtonClick
+            // needed to trigger style generator
+            getDataCommunicator().reset();
+
             eventBus.publish(EventTopics.TYPE_FILTER_CHANGED, this,
                     new TypeFilterChangedEventPayload<SoftwareModuleType>(eventType, smType));
 

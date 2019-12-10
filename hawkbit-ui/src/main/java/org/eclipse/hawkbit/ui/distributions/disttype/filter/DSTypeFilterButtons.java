@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
@@ -31,7 +30,6 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.hateoas.Identifiable;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
@@ -44,14 +42,16 @@ import com.vaadin.ui.Window;
 public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String> {
     private static final long serialVersionUID = 1L;
 
-    private final UINotification uiNotification;
-    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
-    private final transient SystemManagement systemManagement;
     private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
-    private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
+    private final UINotification uiNotification;
 
+    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
     private final transient TypeFilterButtonClick typeFilterButtonClickBehaviour;
+    private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
+    private final transient SystemManagement systemManagement;
+
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> dsTypeDataProvider;
+    private final transient TypeToProxyTypeMapper<DistributionSetType> dsTypeMapper;
 
     /**
      * Constructor
@@ -76,15 +76,16 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
             final DsTypeWindowBuilder dsTypeWindowBuilder) {
         super(eventBus, i18n, uiNotification, permChecker);
 
+        this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
         this.uiNotification = uiNotification;
         this.distributionSetTypeManagement = distributionSetTypeManagement;
-        this.systemManagement = systemManagement;
-        this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
         this.dsTypeWindowBuilder = dsTypeWindowBuilder;
+        this.systemManagement = systemManagement;
 
         this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
-        this.dsTypeDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement,
-                new TypeToProxyTypeMapper<DistributionSetType>()).withConfigurableFilter();
+        this.dsTypeMapper = new TypeToProxyTypeMapper<>();
+        this.dsTypeDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement, dsTypeMapper)
+                .withConfigurableFilter();
 
         init();
     }
@@ -111,23 +112,26 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     private void publishFilterChangedEvent(final ProxyType typeFilter, final TypeFilterChangedEventType eventType) {
         distributionSetTypeManagement.getByName(typeFilter.getName()).ifPresent(dsType -> {
+            // TODO: somehow move it to abstract class/TypeFilterButtonClick
+            // needed to trigger style generator
+            getDataCommunicator().reset();
+
             eventBus.publish(EventTopics.TYPE_FILTER_CHANGED, this,
                     new TypeFilterChangedEventPayload<DistributionSetType>(eventType, dsType));
 
             dSTypeFilterLayoutUiState
-                    .setClickedDsType(TypeFilterChangedEventType.TYPE_CLICKED == eventType ? dsType : null);
+                    .setClickedDsTypeId(TypeFilterChangedEventType.TYPE_CLICKED == eventType ? dsType.getId() : null);
         });
     }
 
     @Override
     protected void deleteFilterButtons(final Collection<ProxyType> filterButtonsToDelete) {
-        // We do not allow multiple deletion yet
+        // we do not allow multiple deletion yet
         final ProxyType dsTypeToDelete = filterButtonsToDelete.iterator().next();
         final String dsTypeToDeleteName = dsTypeToDelete.getName();
         final Long dsTypeToDeleteId = dsTypeToDelete.getId();
 
-        final Long clickedDsTypeId = Optional.ofNullable(dSTypeFilterLayoutUiState.getClickedDsType())
-                .map(Identifiable::getId).orElse(null);
+        final Long clickedDsTypeId = dSTypeFilterLayoutUiState.getClickedDsTypeId();
 
         if (clickedDsTypeId != null && clickedDsTypeId.equals(dsTypeToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", dsTypeToDeleteName));
@@ -157,13 +161,6 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         UI.getCurrent().addWindow(updateWindow);
         updateWindow.setVisible(Boolean.TRUE);
     }
-    // TODO
-    // @Override
-    // protected boolean isClickedByDefault(final Long filterButtonId) {
-    // return dSTypeFilterLayoutUiState.getClickedDsType() != null
-    // &&
-    // dSTypeFilterLayoutUiState.getClickedDsType().getId().equals(filterButtonId);
-    // }
 
     @Override
     protected String getFilterButtonIdPrefix() {

@@ -72,7 +72,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
         this.smTypeFilterHeader = new SMTypeFilterHeader(i18n, permChecker, eventBus, smTypeFilterLayoutUiState,
                 smTypeWindowBuilder);
         this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, smTypeFilterLayoutUiState,
-                softwareModuleTypeManagement, i18n, permChecker, uiNotification, smTypeWindowBuilder);
+                softwareModuleTypeManagement, i18n, permChecker, uiNotification, smTypeWindowBuilder, smTypeMapper);
 
         this.eventListener = new SMTypeFilterLayoutEventListener(this, eventBus);
 

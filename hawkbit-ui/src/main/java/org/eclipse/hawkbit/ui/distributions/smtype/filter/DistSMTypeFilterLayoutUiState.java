@@ -10,13 +10,11 @@ package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 
 import java.io.Serializable;
 
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
-
 public class DistSMTypeFilterLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean hidden;
-    private SoftwareModuleType clickedSmType;
+    private Long clickedSmTypeId;
 
     public boolean isHidden() {
         return hidden;
@@ -26,11 +24,11 @@ public class DistSMTypeFilterLayoutUiState implements Serializable {
         this.hidden = hidden;
     }
 
-    public SoftwareModuleType getClickedSmType() {
-        return clickedSmType;
+    public Long getClickedSmTypeId() {
+        return clickedSmTypeId;
     }
 
-    public void setClickedSmType(final SoftwareModuleType clickedSmType) {
-        this.clickedSmType = clickedSmType;
+    public void setClickedSmTypeId(final Long clickedSmTypeId) {
+        this.clickedSmTypeId = clickedSmTypeId;
     }
 }

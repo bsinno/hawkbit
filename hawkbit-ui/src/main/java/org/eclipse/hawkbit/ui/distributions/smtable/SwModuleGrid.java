@@ -15,12 +15,10 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.AssignedSoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsStateDataProvider;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
@@ -32,10 +30,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.distributions.DistributionsView;
-import org.eclipse.hawkbit.ui.distributions.event.SaveActionWindowEvent;
-import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -43,14 +38,11 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.UI;
 
 /**
  * Software Module grid which is shown on the Distributions View.
@@ -71,24 +63,24 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
+    private final transient AssignedSoftwareModuleToProxyMapper assignedSoftwareModuleToProxyMapper;
     private final ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> swModuleDataProvider;
     private final SwFilterParams smFilter;
 
-    private final AssignedSoftwareModuleToProxyMapper assignedSoftwareModuleToProxyMapper;
-    private final DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
-    private final DragAndDropSupport<ProxySoftwareModule> dragAndDropSupport;
+    private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
+    private final transient DragAndDropSupport<ProxySoftwareModule> dragAndDropSupport;
 
     public SwModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final SoftwareModuleManagement softwareModuleManagement,
-            final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
+            final SwModuleGridLayoutUiState swModuleGridLayoutUiState,
+            final SoftwareModuleToProxyMapper softwareModuleToProxyMapper) {
         super(i18n, eventBus, permissionChecker);
 
         this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
         this.softwareModuleManagement = softwareModuleManagement;
 
-        this.assignedSoftwareModuleToProxyMapper = new AssignedSoftwareModuleToProxyMapper(
-                new SoftwareModuleToProxyMapper());
+        this.assignedSoftwareModuleToProxyMapper = new AssignedSoftwareModuleToProxyMapper(softwareModuleToProxyMapper);
         this.swModuleDataProvider = new SoftwareModuleDistributionsStateDataProvider(softwareModuleManagement,
                 assignedSoftwareModuleToProxyMapper).withConfigurableFilter();
         this.smFilter = new SwFilterParams();
@@ -109,6 +101,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap());
         this.dragAndDropSupport.addDragSource();
 
+        initMasterDsStyleGenerator();
         init();
     }
 
@@ -130,18 +123,11 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
                 new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, swModuleToBeDeletedIds));
     }
 
-    @Override
-    public String getGridId() {
-        return UIComponentIdProvider.SOFTWARE_MODULE_TABLE;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> getFilterDataProvider() {
-        return swModuleDataProvider;
-    }
-
-    private void styleRowOnDistSelection() {
+    private void initMasterDsStyleGenerator() {
         setStyleGenerator(sm -> {
+            if (smFilter.getLastSelectedDistributionId() == null) {
+                return null;
+            }
             // TODO: do something with color: {background-color:" + color + "
             // !important;background-image:none !important }
             // final String color = sm.getType().getColour() != null ?
@@ -157,6 +143,16 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         });
     }
 
+    @Override
+    public String getGridId() {
+        return UIComponentIdProvider.SOFTWARE_MODULE_TABLE;
+    }
+
+    @Override
+    public ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> getFilterDataProvider() {
+        return swModuleDataProvider;
+    }
+
     public void updateSearchFilter(final String searchFilter) {
         smFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
         getFilterDataProvider().setFilter(smFilter);
@@ -170,35 +166,6 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     public void updateMasterEntityFilter(final Long masterEntityId) {
         smFilter.setLastSelectedDistributionId(masterEntityId);
         getFilterDataProvider().setFilter(smFilter);
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SaveActionWindowEvent event) {
-        if (event == SaveActionWindowEvent.SAVED_ASSIGNMENTS) {
-            UI.getCurrent().access(this::refreshContainer);
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent event) {
-        if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
-                || BaseEntityEventType.REMOVE_ENTITY == event.getEventType()) {
-            UI.getCurrent().access(this::refreshContainer);
-        } else if (BaseEntityEventType.UPDATED_ENTITY == event.getEventType()) {
-            UI.getCurrent().access(() -> updateSwModule(event.getEntity()));
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onDistributionSetUpdateEvents(final SoftwareModuleUpdatedEventContainer eventContainer) {
-        if (!eventContainer.getEvents().isEmpty()) {
-            // TODO: Consider updating only corresponding software modules with
-            // dataProvider.refreshItem() based on software module ids instead
-            // of full refresh (evaluate getDataCommunicator().getKeyMapper())
-            refreshContainer();
-        }
-
-        // TODO: Reselect previously selected entity after refresh?
     }
 
     /**
@@ -219,53 +186,33 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         recalculateColumnWidths();
     }
 
-    /**
-     * To update software module details in the grid.
-     *
-     * @param updatedSwModule
-     *            as reference
-     */
-    public void updateSwModule(final ProxySoftwareModule updatedSwModule) {
-        if (updatedSwModule != null) {
-            getDataProvider().refreshItem(updatedSwModule);
-        }
-    }
-
-    public void masterEntityChanged(final ProxyDistributionSet entity) {
-        updateMasterEntityFilter(entity != null ? entity.getId() : null);
-        // TODO: should we call it again here, or style is updated
-        // automatically?
-        styleRowOnDistSelection();
-    }
-
     @Override
     public void addColumns() {
-        // TODO: check width
         addColumn(ProxySoftwareModule::getName).setId(SM_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setMinimumWidth(100d).setMaximumWidth(150d).setHidable(false).setHidden(false);
+                .setMinimumWidth(100d).setExpandRatio(1);
 
         addColumn(ProxySoftwareModule::getVersion).setId(SM_VERSION_ID).setCaption(i18n.getMessage("header.version"))
-                .setMinimumWidth(50d).setMaximumWidth(100d).setHidable(false).setHidden(false);
+                .setMinimumWidth(100d);
 
         addActionColumns();
 
         addColumn(ProxySoftwareModule::getCreatedBy).setId(SM_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.createdBy")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getCreatedDate).setId(SM_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.createdDate")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getLastModifiedBy).setId(SM_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedBy")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getModifiedDate).setId(SM_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedDate")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getDescription).setId(SM_DESC_ID)
-                .setCaption(i18n.getMessage("header.description")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.description")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getVendor).setId(SM_VENDOR_ID).setCaption(i18n.getMessage("header.vendor"))
-                .setHidable(true).setHidden(true);
+                .setHidden(true);
     }
 
     private void addActionColumns() {
@@ -274,9 +221,10 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(), swModuleDeleteSupport.hasDeletePermission()))
                         .setId(SM_DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete"))
-                        .setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
+                        .setMinimumWidth(80d);
     }
 
+    // TODO: remove duplication
     private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
             final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
         final Button actionButton = new Button();
@@ -319,10 +267,16 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
             getColumn(SM_MODIFIED_DATE_ID).setHidden(false);
             getColumn(SM_DESC_ID).setHidden(false);
             getColumn(SM_VENDOR_ID).setHidden(false);
+
+            getColumns().forEach(column -> column.setHidable(true));
         }
 
         @Override
         public void setMaximizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(0));
+
+            getColumn(SM_NAME_ID).setExpandRatio(1);
+            getColumn(SM_DESC_ID).setExpandRatio(1);
         }
 
         @Override
@@ -338,11 +292,16 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
             getColumn(SM_MODIFIED_BY_ID).setHidden(true);
             getColumn(SM_MODIFIED_DATE_ID).setHidden(true);
             getColumn(SM_DESC_ID).setHidden(true);
-            getColumn(SM_VENDOR_ID).setHidden(false);
+            getColumn(SM_VENDOR_ID).setHidden(true);
+
+            getColumns().forEach(column -> column.setHidable(false));
         }
 
         @Override
         public void setMinimizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(0));
+
+            getColumn(SM_NAME_ID).setExpandRatio(1);
         }
     }
 }

@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.data.providers;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
+import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter.DistributionSetFilterBuilder;
@@ -31,12 +32,15 @@ public class DistributionSetDistributionsStateDataProvider
     private static final long serialVersionUID = 1L;
 
     private final transient DistributionSetManagement distributionSetManagement;
+    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
 
     public DistributionSetDistributionsStateDataProvider(final DistributionSetManagement distributionSetManagement,
+            final DistributionSetTypeManagement distributionSetTypeManagement,
             final DistributionSetToProxyDistributionMapper entityMapper) {
         super(entityMapper);
 
         this.distributionSetManagement = distributionSetManagement;
+        this.distributionSetTypeManagement = distributionSetTypeManagement;
     }
 
     @Override
@@ -50,7 +54,8 @@ public class DistributionSetDistributionsStateDataProvider
         return filter
                 .map(filterParams -> new DistributionSetFilterBuilder().setIsDeleted(false)
                         .setSearchText(filterParams.getSearchText()).setSelectDSWithNoTag(false)
-                        .setType(filterParams.getClickedDistSetType()))
+                        // TODO: fix null pointer exception
+                        .setType(distributionSetTypeManagement.get(filterParams.getDsTypeId()).orElse(null)))
                 .orElse(new DistributionSetFilterBuilder().setIsDeleted(false)).build();
     }
 

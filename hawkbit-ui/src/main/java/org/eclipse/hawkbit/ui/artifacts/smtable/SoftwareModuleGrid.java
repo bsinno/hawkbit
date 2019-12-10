@@ -96,7 +96,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
 
         this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.software.module"),
-                permissionChecker, notification, this::swModulesDeletionCallback);
+                permissionChecker, notification, this::deleteSoftwareModules);
 
         init();
     }
@@ -110,7 +110,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
     }
 
-    private void swModulesDeletionCallback(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
+    private void deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
         final Collection<Long> swModuleToBeDeletedIds = swModulesToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         if (isUploadInProgressForSoftwareModule(swModuleToBeDeletedIds)) {
@@ -122,9 +122,6 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                 new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, swModuleToBeDeletedIds));
-
-        // TODO
-        // uploadUIState.getSelectedSoftwareModules().clear();
     }
 
     private boolean isUploadInProgressForSoftwareModule(final Collection<Long> swModuleToBeDeletedIds) {
@@ -212,6 +209,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                         .setMinimumWidth(80d);
     }
 
+    // TODO: remove duplication
     private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
             final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
         final Button actionButton = new Button();

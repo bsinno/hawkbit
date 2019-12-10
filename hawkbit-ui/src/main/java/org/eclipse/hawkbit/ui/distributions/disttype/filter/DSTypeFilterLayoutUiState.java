@@ -17,6 +17,7 @@ public class DSTypeFilterLayoutUiState implements Serializable {
 
     private boolean hidden;
     private DistributionSetType clickedDsType;
+    private Long clickedDsTypeId;
 
     public boolean isHidden() {
         return hidden;
@@ -32,5 +33,13 @@ public class DSTypeFilterLayoutUiState implements Serializable {
 
     public void setClickedDsType(final DistributionSetType clickedDsType) {
         this.clickedDsType = clickedDsType;
+    }
+
+    public Long getClickedDsTypeId() {
+        return clickedDsTypeId;
+    }
+
+    public void setClickedDsTypeId(final Long clickedDsTypeId) {
+        this.clickedDsTypeId = clickedDsTypeId;
     }
 }

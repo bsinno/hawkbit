@@ -41,7 +41,7 @@ public class SwModuleGridHeader extends AbstractGridHeader {
     private final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState;
     private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
 
-    private final SmWindowBuilder smWindowBuilder;
+    private final transient SmWindowBuilder smWindowBuilder;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;

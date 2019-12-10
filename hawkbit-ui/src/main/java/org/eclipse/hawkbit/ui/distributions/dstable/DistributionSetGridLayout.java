@@ -8,6 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.distributions.dstable;
 
+import java.util.Collection;
+import java.util.Optional;
+
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
@@ -19,6 +22,7 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
@@ -33,10 +37,15 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
+    private final transient DistributionSetManagement distributionSetManagement;
+    private final transient DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper;
+
     private final DistributionSetGridHeader distributionSetGridHeader;
     private final DistributionSetGrid distributionSetGrid;
     private final DistributionSetDetailsHeader distributionSetDetailsHeader;
     private final DistributionSetDetails distributionSetDetails;
+
+    private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
 
     private final transient DistributionSetGridLayoutEventListener eventListener;
 
@@ -49,6 +58,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
             final SystemSecurityContext systemSecurityContext,
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
+        this.distributionSetManagement = distributionSetManagement;
+        this.dsToProxyDistributionMapper = new DistributionSetToProxyDistributionMapper();
+        this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
+
         final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
                 distributionSetTypeManagement);
@@ -58,7 +71,8 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
         this.distributionSetGridHeader = new DistributionSetGridHeader(i18n, permissionChecker, eventBus,
                 dsWindowBuilder, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
         this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
-                targetManagement, distributionSetManagement, distributionSetGridLayoutUiState);
+                targetManagement, distributionSetManagement, distributionSetTypeManagement,
+                distributionSetGridLayoutUiState, dsToProxyDistributionMapper);
 
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
                 uiNotification, dsWindowBuilder, dsMetaDataWindowBuilder);
@@ -72,14 +86,32 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 distributionSetDetails);
     }
 
-    public DistributionSetGrid getDistributionSetGrid() {
-        return distributionSetGrid;
+    public void restoreState() {
+        final Long lastSelectedEntityId = distributionSetGridLayoutUiState.getSelectedDsId();
+
+        if (lastSelectedEntityId != null) {
+            mapIdToProxyEntity(lastSelectedEntityId).ifPresent(distributionSetGrid::select);
+        } else {
+            distributionSetGrid.getSelectionSupport().selectFirstRow();
+        }
     }
 
-    public void onDsSelected(final ProxyDistributionSet selectedDs) {
-        distributionSetDetailsHeader.masterEntityChanged(selectedDs);
-        distributionSetDetails.masterEntityChanged(selectedDs);
+    // TODO: extract to parent abstract #mapIdToProxyEntity?
+    private Optional<ProxyDistributionSet> mapIdToProxyEntity(final Long entityId) {
+        return distributionSetManagement.get(entityId).map(dsToProxyDistributionMapper::map);
+    }
 
+    // TODO: extract to parent #onMasterEntityChanged?
+    public void onDsChanged(final ProxyDistributionSet ds) {
+        distributionSetDetailsHeader.masterEntityChanged(ds);
+        distributionSetDetails.masterEntityChanged(ds);
+    }
+
+    // TODO: extract to parent #onMasterEntityUpdated?
+    public void onDsUpdated(final Collection<Long> entityIds) {
+        entityIds.stream().filter(entityId -> entityId.equals(distributionSetGridLayoutUiState.getSelectedDsId()))
+                .findAny()
+                .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onDsChanged));
     }
 
     public void showDsTypeHeaderIcon() {
@@ -92,22 +124,22 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     public void filterGridBySearch(final String searchFilter) {
         distributionSetGrid.updateSearchFilter(searchFilter);
+        distributionSetGrid.deselectAll();
     }
 
     public void filterGridByType(final DistributionSetType typeFilter) {
         distributionSetGrid.updateTypeFilter(typeFilter);
+        distributionSetGrid.deselectAll();
     }
 
     public void maximize() {
         distributionSetGrid.createMaximizedContent();
-        distributionSetDetailsHeader.setVisible(false);
-        distributionSetDetails.setVisible(false);
+        hideDetailsLayout();
     }
 
     public void minimize() {
         distributionSetGrid.createMinimizedContent();
-        distributionSetDetailsHeader.setVisible(true);
-        distributionSetDetails.setVisible(true);
+        showDetailsLayout();
     }
 
     public void refreshGrid() {

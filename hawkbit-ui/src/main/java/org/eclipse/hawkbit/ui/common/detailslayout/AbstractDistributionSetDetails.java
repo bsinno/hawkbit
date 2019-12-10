@@ -40,6 +40,10 @@ import com.vaadin.ui.Window;
 public abstract class AbstractDistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistributionSet> {
     private static final long serialVersionUID = 1L;
 
+    private final MetadataDetailsGrid<Long> dsMetadataGrid;
+
+    private final transient DsMetaDataWindowBuilder dsMetaDataWindowBuilder;
+
     protected final UINotification uiNotification;
     protected final transient DistributionSetManagement distributionSetManagement;
 
@@ -47,9 +51,6 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     private final transient SystemSecurityContext systemSecurityContext;
 
     private final DistributionTagToken distributionTagToken;
-    private final MetadataDetailsGrid<Long> dsMetadataGrid;
-
-    private final transient DsMetaDataWindowBuilder dsMetaDataWindowBuilder;
 
     protected AbstractDistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
@@ -70,6 +71,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
 
         this.dsMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.DS_METADATA_DETAIL_LINK,
                 this::showMetadataDetails, new DsMetaDataDataProvider(distributionSetManagement));
+        this.dsMetadataGrid.setVisible(false);
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),

@@ -8,12 +8,17 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
+import java.util.Optional;
+
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -28,10 +33,15 @@ import com.vaadin.ui.ComponentContainer;
 public class DSTypeFilterLayout extends AbstractFilterLayout {
     private static final long serialVersionUID = 1L;
 
+    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
+    private final transient TypeToProxyTypeMapper<DistributionSetType> dsTypeMapper;
+
     private final DSTypeFilterHeader dsTypeFilterHeader;
     private final DSTypeFilterButtons dSTypeFilterButtons;
 
-    private final DSTypeFilterLayoutEventListener eventListener;
+    private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
+
+    private final transient DSTypeFilterLayoutEventListener eventListener;
 
     /**
      * Constructor
@@ -57,6 +67,10 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
             final DistributionSetTypeManagement distributionSetTypeManagement,
             final DistributionSetManagement distributionSetManagement, final SystemManagement systemManagement,
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
+        this.distributionSetTypeManagement = distributionSetTypeManagement;
+        this.dsTypeMapper = new TypeToProxyTypeMapper<>();
+        this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
+
         final DsTypeWindowBuilder dsTypeWindowBuilder = new DsTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, distributionSetTypeManagement, distributionSetManagement, softwareModuleTypeManagement);
 
@@ -78,6 +92,19 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     @Override
     protected ComponentContainer getFilterContent() {
         return wrapFilterContent(dSTypeFilterButtons);
+    }
+
+    public void restoreState() {
+        final Long lastClickedTypeId = dSTypeFilterLayoutUiState.getClickedDsTypeId();
+
+        if (lastClickedTypeId != null) {
+            mapIdToProxyEntity(lastClickedTypeId).ifPresent(dSTypeFilterButtons::selectFilter);
+        }
+    }
+
+    // TODO: extract to parent abstract #mapIdToProxyEntity?
+    private Optional<ProxyType> mapIdToProxyEntity(final Long entityId) {
+        return distributionSetTypeManagement.get(entityId).map(dsTypeMapper::map);
     }
 
     public void showFilterButtonsEditIcon() {

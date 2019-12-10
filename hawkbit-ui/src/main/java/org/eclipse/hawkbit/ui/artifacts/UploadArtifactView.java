@@ -109,7 +109,7 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         setExpandRatio(mainLayout, 1.0F);
     }
 
-    private GridLayout createMainLayout() {
+    private void createMainLayout() {
         mainLayout = new GridLayout(3, 1);
         mainLayout.setSizeFull();
         mainLayout.setMargin(false);
@@ -123,8 +123,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         mainLayout.addComponent(smTypeFilterLayout, 0, 0);
         mainLayout.addComponent(smGridLayout, 1, 0);
         mainLayout.addComponent(artifactDetailsGridLayout, 2, 0);
-
-        return mainLayout;
     }
 
     private void restoreState() {

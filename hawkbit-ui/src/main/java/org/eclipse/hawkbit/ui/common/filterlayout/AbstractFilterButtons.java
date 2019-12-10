@@ -103,8 +103,6 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
     public void selectFilter(final T filter) {
         getFilterButtonClickBehaviour().processFilterClick(filter);
-        // needed to trigger style generator
-        getDataCommunicator().reset();
     }
 
     /**

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
@@ -34,8 +35,6 @@ public class SwModuleGridLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        // TODO: should we listen for the event directly in
-        // layouts/components instead of calling methods here?
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
@@ -50,9 +49,9 @@ public class SwModuleGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI, source = SwModuleGrid.class)
         private void onSmEvent(final SelectionChangedEventPayload<ProxySoftwareModule> eventPayload) {
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                swModuleGridLayout.onSmSelected(eventPayload.getEntity());
+                swModuleGridLayout.onSmChanged(eventPayload.getEntity());
             } else {
-                swModuleGridLayout.onSmSelected(null);
+                swModuleGridLayout.onSmChanged(null);
             }
         }
     }
@@ -78,6 +77,9 @@ public class SwModuleGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onSmEvent(final SmModifiedEventPayload eventPayload) {
             swModuleGridLayout.refreshGrid();
+            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+                swModuleGridLayout.onSmUpdated(eventPayload.getEntityIds());
+            }
         }
     }
 

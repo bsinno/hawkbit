@@ -9,14 +9,11 @@
 package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent.SoftwareModuleTypeEnum;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.TypeFilterButtonClick;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
@@ -33,10 +30,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.hateoas.Identifiable;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.ui.UI;
@@ -77,7 +71,8 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final VaadinMessageSource i18n,
             final EntityFactory entityFactory, final SpPermissionChecker permChecker,
             final UINotification uiNotification, final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
-            final SmTypeWindowBuilder smTypeWindowBuilder) {
+            final SmTypeWindowBuilder smTypeWindowBuilder,
+            final TypeToProxyTypeMapper<SoftwareModuleType> smTypeMapper) {
         super(eventBus, i18n, uiNotification, permChecker);
 
         this.distSMTypeFilterLayoutUiState = distSMTypeFilterLayoutUiState;
@@ -86,8 +81,8 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
         this.smTypeWindowBuilder = smTypeWindowBuilder;
 
         this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
-        this.distSMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement,
-                new TypeToProxyTypeMapper<SoftwareModuleType>()).withConfigurableFilter();
+        this.distSMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, smTypeMapper)
+                .withConfigurableFilter();
 
         init();
     }
@@ -114,11 +109,15 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
 
     private void publishFilterChangedEvent(final ProxyType typeFilter, final TypeFilterChangedEventType eventType) {
         softwareModuleTypeManagement.getByName(typeFilter.getName()).ifPresent(smType -> {
+            // TODO: somehow move it to abstract class/TypeFilterButtonClick
+            // needed to trigger style generator
+            getDataCommunicator().reset();
+
             eventBus.publish(EventTopics.TYPE_FILTER_CHANGED, this,
                     new TypeFilterChangedEventPayload<SoftwareModuleType>(eventType, smType));
 
             distSMTypeFilterLayoutUiState
-                    .setClickedSmType(TypeFilterChangedEventType.TYPE_CLICKED == eventType ? smType : null);
+                    .setClickedSmTypeId(TypeFilterChangedEventType.TYPE_CLICKED == eventType ? smType.getId() : null);
         });
     }
 
@@ -129,8 +128,7 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
         final String distSMTypeToDeleteName = distSMTypeToDelete.getName();
         final Long distSMTypeToDeleteId = distSMTypeToDelete.getId();
 
-        final Long clickedDistSMTypeId = Optional.ofNullable(distSMTypeFilterLayoutUiState.getClickedSmType())
-                .map(Identifiable::getId).orElse(null);
+        final Long clickedDistSMTypeId = distSMTypeFilterLayoutUiState.getClickedSmTypeId();
 
         if (clickedDistSMTypeId != null && clickedDistSMTypeId.equals(distSMTypeToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", distSMTypeToDeleteName));
@@ -151,24 +149,8 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
         updateWindow.setVisible(Boolean.TRUE);
     }
 
-    // TODO
-    // @Override
-    // protected boolean isClickedByDefault(final Long filterButtonId) {
-    // return distSMTypeFilterLayoutUiState.getClickedSmType() != null
-    // &&
-    // distSMTypeFilterLayoutUiState.getClickedSmType().getId().equals(filterButtonId);
-    // }
-
     @Override
     protected String getFilterButtonIdPrefix() {
         return SPUIDefinitions.SOFTWARE_MODULE_TAG_ID_PREFIXS;
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleTypeEvent event) {
-        if (event.getSoftwareModuleTypeEnum() == SoftwareModuleTypeEnum.ADD_SOFTWARE_MODULE_TYPE
-                || event.getSoftwareModuleTypeEnum() == SoftwareModuleTypeEnum.UPDATE_SOFTWARE_MODULE_TYPE) {
-            refreshContainer();
-        }
     }
 }

@@ -35,9 +35,9 @@ public class SwFilterParams implements Serializable {
      */
     public SwFilterParams(final String searchText, final Long softwareModuleTypeId,
             final Long lastSelectedDistributionId) {
-        this.setSearchText(searchText);
-        this.setSoftwareModuleTypeId(softwareModuleTypeId);
-        this.setLastSelectedDistributionId(lastSelectedDistributionId);
+        this.searchText = searchText;
+        this.softwareModuleTypeId = softwareModuleTypeId;
+        this.lastSelectedDistributionId = lastSelectedDistributionId;
     }
 
     public String getSearchText() {
