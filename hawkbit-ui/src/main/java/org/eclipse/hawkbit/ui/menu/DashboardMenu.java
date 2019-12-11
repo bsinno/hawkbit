@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
@@ -147,7 +148,7 @@ public final class DashboardMenu extends CustomComponent {
         if (!uiProperties.getLinks().getDocumentation().getRoot().isEmpty()) {
             final Link docuLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_DOCUMENTATION,
                     i18n.getMessage("link.documentation.name"), uiProperties.getLinks().getDocumentation().getRoot(),
-                    FontAwesome.QUESTION_CIRCLE, "_blank", linkStyle);
+                    VaadinIcons.QUESTION_CIRCLE, "_blank", linkStyle);
             docuLink.setSizeFull();
             links.addComponent(docuLink);
             links.setComponentAlignment(docuLink, Alignment.BOTTOM_CENTER);
@@ -156,7 +157,7 @@ public final class DashboardMenu extends CustomComponent {
         if (!uiProperties.getLinks().getUserManagement().isEmpty()) {
             final Link userManagementLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_USERMANAGEMENT,
                     i18n.getMessage("link.usermanagement.name"), uiProperties.getLinks().getUserManagement(),
-                    FontAwesome.USERS, "_blank", linkStyle);
+                    VaadinIcons.USERS, "_blank", linkStyle);
             links.addComponent(userManagementLink);
             userManagementLink.setSizeFull();
             links.setComponentAlignment(userManagementLink, Alignment.BOTTOM_CENTER);
@@ -164,7 +165,7 @@ public final class DashboardMenu extends CustomComponent {
 
         if (!uiProperties.getLinks().getSupport().isEmpty()) {
             final Link supportLink = SPUIComponentProvider.getLink(UIComponentIdProvider.LINK_SUPPORT,
-                    i18n.getMessage("link.support.name"), uiProperties.getLinks().getSupport(), FontAwesome.ENVELOPE_O,
+                    i18n.getMessage("link.support.name"), uiProperties.getLinks().getSupport(), VaadinIcons.ENVELOPE_O,
                     "", linkStyle);
             supportLink.setSizeFull();
             links.addComponent(supportLink);

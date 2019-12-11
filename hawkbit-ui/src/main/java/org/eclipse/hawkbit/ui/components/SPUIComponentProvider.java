@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ExternalResource;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Link;
@@ -300,7 +300,7 @@ public final class SPUIComponentProvider {
      *            should be used
      * @return a link UI component
      */
-    public static Link getLink(final String id, final String name, final String resource, final FontAwesome icon,
+    public static Link getLink(final String id, final String name, final String resource, final VaadinIcons icon,
             final String targetOpen, final String style) {
 
         final Link link = new Link(name, new ExternalResource(resource));
@@ -331,7 +331,7 @@ public final class SPUIComponentProvider {
 
         final Link link = new Link("", new ExternalResource(uri));
         link.setTargetName("_blank");
-        link.setIcon(FontAwesome.QUESTION_CIRCLE);
+        link.setIcon(VaadinIcons.QUESTION_CIRCLE);
         link.setDescription(i18n.getMessage("tooltip.documentation.link"));
         return link;
 
