@@ -1406,6 +1406,10 @@ public final class UIComponentIdProvider {
 
     public static final String SAVE_ACTION_RADIO_FORCED = "save.action.radio.forced";
 
+    public static final String SM_TYPE_COLOR_STYLE = "sm-type-colors";
+
+    public static final String SM_TYPE_COLOR_CLASS = "sm-type-color";
+
     /**
      * /* Private Constructor.
      */

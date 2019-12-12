@@ -42,6 +42,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.annotations.JavaScript;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
@@ -56,6 +57,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 @UIScope
 @SpringView(name = DistributionsView.VIEW_NAME, ui = AbstractHawkbitUI.class)
+@JavaScript("theme://js/dynamicStylesheet.js")
 public class DistributionsView extends VerticalLayout implements View, BrowserWindowResizeListener {
     private static final long serialVersionUID = 1L;
 
@@ -252,7 +254,9 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
 
     void minimizeDsGridLayout() {
         swModuleGridLayout.setVisible(true);
-        distSMTypeFilterLayout.setVisible(true);
+        if (!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
+            distSMTypeFilterLayout.setVisible(true);
+        }
 
         mainLayout.setColumnExpandRatio(1, 0.5F);
         mainLayout.setColumnExpandRatio(2, 0.5F);
@@ -261,7 +265,9 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     }
 
     void minimizeSmGridLayout() {
-        dsTypeFilterLayout.setVisible(true);
+        if (!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
+            dsTypeFilterLayout.setVisible(true);
+        }
         distributionSetGridLayout.setVisible(true);
 
         mainLayout.setColumnExpandRatio(1, 0.5F);

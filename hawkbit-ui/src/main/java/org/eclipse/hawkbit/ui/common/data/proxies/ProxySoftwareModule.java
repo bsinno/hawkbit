@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
-import java.security.SecureRandom;
-
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 
@@ -20,13 +18,9 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 public class ProxySoftwareModule extends ProxyNamedEntity {
     private static final long serialVersionUID = 1L;
 
-    private static final SecureRandom RANDOM_OBJ = new SecureRandom();
-
     private String version;
 
     private String nameAndVersion;
-
-    private Long swId;
 
     private String vendor;
 
@@ -37,27 +31,12 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
 
     private boolean assigned;
 
-    /**
-     * Default constructor.
-     */
-    public ProxySoftwareModule() {
-        swId = RANDOM_OBJ.nextLong();
-    }
-
     public String getVendor() {
         return vendor;
     }
 
     public void setVendor(final String vendor) {
         this.vendor = vendor;
-    }
-
-    public Long getSwId() {
-        return swId;
-    }
-
-    public void setSwId(final Long swId) {
-        this.swId = swId;
     }
 
     public String getNameAndVersion() {

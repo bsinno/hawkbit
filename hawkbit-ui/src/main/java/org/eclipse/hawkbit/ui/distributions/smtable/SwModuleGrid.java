@@ -125,21 +125,12 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
 
     private void initMasterDsStyleGenerator() {
         setStyleGenerator(sm -> {
-            if (smFilter.getLastSelectedDistributionId() == null) {
+            if (smFilter.getLastSelectedDistributionId() == null || !sm.isAssigned()) {
                 return null;
             }
-            // TODO: do something with color: {background-color:" + color + "
-            // !important;background-image:none !important }
-            // final String color = sm.getType().getColour() != null ?
-            // sm.getType().getColour() :
-            // SPUIDefinitions.DEFAULT_COLOR;
-            // https://vaadin.com/docs/v8/framework/articles/DynamicallyInjectingCSS.html
 
-            if (sm.isAssigned()) {
-                return "distribution-upload-type-" + sm.getType().getId();
-            }
-
-            return null;
+            return String.join("-", UIComponentIdProvider.SM_TYPE_COLOR_CLASS,
+                    String.valueOf(sm.getProxyType().getId()));
         });
     }
 
