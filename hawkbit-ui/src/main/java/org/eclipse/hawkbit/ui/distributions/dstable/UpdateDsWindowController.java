@@ -89,7 +89,8 @@ public class UpdateDsWindowController
             return;
         }
 
-        uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedDs.getName()));
+        uiNotification.displaySuccess(
+                i18n.getMessage("message.update.success", updatedDs.getName() + ":" + updatedDs.getVersion()));
         // TODO: verify if sender is correct
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                 new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, updatedDs.getId()));

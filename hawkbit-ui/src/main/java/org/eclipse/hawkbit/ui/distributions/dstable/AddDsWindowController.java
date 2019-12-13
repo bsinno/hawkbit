@@ -73,7 +73,8 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
                 .type(entity.getProxyType().getKey()).name(entity.getName()).version(entity.getVersion())
                 .description(entity.getDescription()).requiredMigrationStep(entity.isRequiredMigrationStep()));
 
-        uiNotification.displaySuccess(i18n.getMessage("message.save.success", newDs.getName()));
+        uiNotification
+                .displaySuccess(i18n.getMessage("message.save.success", newDs.getName() + ":" + newDs.getVersion()));
         // TODO: verify if sender is correct
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                 new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newDs.getId()));

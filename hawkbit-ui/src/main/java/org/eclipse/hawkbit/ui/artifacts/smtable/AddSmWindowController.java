@@ -75,7 +75,8 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
             return;
         }
 
-        uiNotification.displaySuccess(i18n.getMessage("message.save.success", newSoftwareModule.getName()));
+        uiNotification.displaySuccess(i18n.getMessage("message.save.success",
+                newSoftwareModule.getName() + ":" + newSoftwareModule.getVersion()));
         // TODO: verify if sender is correct
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                 new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newSoftwareModule.getId()));

@@ -89,7 +89,8 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
             return;
         }
 
-        uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedSm.getName()));
+        uiNotification.displaySuccess(
+                i18n.getMessage("message.update.success", updatedSm.getName() + ":" + updatedSm.getVersion()));
         // TODO: verify if sender is correct
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                 new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, updatedSm.getId()));
