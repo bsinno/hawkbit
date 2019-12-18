@@ -20,7 +20,9 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
+import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -63,7 +65,7 @@ public class SwModulesToDistributionSetAssignmentSupport
     }
 
     private boolean isTargetDsValid(final ProxyDistributionSet ds) {
-        if (targetManagement.countByFilters(null, null, null, ds.getId(), Boolean.FALSE, new String[] {}) > 0) {
+        if (targetManagement.countByFilters(null, null, null, ds.getId(), Boolean.FALSE, "") > 0) {
             /* Distribution is already assigned */
             notification.displayValidationError(i18n.getMessage("message.dist.inuse", ds.getNameVersion()));
             return false;
@@ -79,12 +81,6 @@ public class SwModulesToDistributionSetAssignmentSupport
     }
 
     private boolean validateAssignment(final ProxySoftwareModule sm, final ProxyDistributionSet ds) {
-        // TODO: do we need this check here (for isSoftwareModuleDragged
-        // impelementation check master)?
-        // if (!isSoftwareModuleDragged(ds.getId(), sm)) {
-        // return false;
-        // }
-
         // TODO: check if < 1 is corect
         if (sm.getType().getMaxAssignments() < 1) {
             return false;
@@ -117,9 +113,6 @@ public class SwModulesToDistributionSetAssignmentSupport
     @Override
     protected void performAssignment(final List<ProxySoftwareModule> sourceItemsToAssign,
             final ProxyDistributionSet targetItem) {
-        // TODO: check if we need to manage Ui State here (getAssignedList(),
-        // getConsolidatedDistSoftwareList())
-
         final List<String> softwareModuleNames = sourceItemsToAssign.stream()
                 .map(ProxySoftwareModule::getNameAndVersion).collect(Collectors.toList());
         openConfirmationWindowForAssignments(softwareModuleNames, targetItem.getNameVersion(), null, true,
@@ -133,7 +126,8 @@ public class SwModulesToDistributionSetAssignmentSupport
         dsManagement.assignSoftwareModules(ds.getId(), swModuleIdsToAssign);
 
         notification.displaySuccess(i18n.getMessage("message.software.assignment", swModuleIdsToAssign.size()));
-        eventBus.publish(this, SaveActionWindowEvent.SAVED_ASSIGNMENTS);
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ds.getId()));
     }
 
     @Override

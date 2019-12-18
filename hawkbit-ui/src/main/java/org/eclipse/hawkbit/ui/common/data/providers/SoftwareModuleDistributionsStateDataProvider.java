@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.AssignedSoftwareModule;
+import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.AssignedSoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
@@ -41,22 +42,38 @@ public class SoftwareModuleDistributionsStateDataProvider
     @Override
     protected Optional<Slice<AssignedSoftwareModule>> loadBackendEntities(final PageRequest pageRequest,
             final Optional<SwFilterParams> filter) {
-        if (!filter.isPresent() || !filter.map(SwFilterParams::getLastSelectedDistributionId).isPresent()) {
-            return Optional
-                    .of(softwareModuleManagement.findAll(pageRequest).map(sm -> new AssignedSoftwareModule(sm, false)));
+        if (!filter.isPresent()) {
+            return Optional.of(mapToAssignedSoftwareModule(softwareModuleManagement.findAll(pageRequest)));
         }
 
-        return filter.map(
-                filterParams -> softwareModuleManagement.findAllOrderBySetAssignmentAndModuleNameAscModuleVersionAsc(
-                        pageRequest, filterParams.getLastSelectedDistributionId(), filterParams.getSearchText(),
-                        filterParams.getSoftwareModuleTypeId()));
+        return filter.map(filterParams -> {
+            final String searchText = filterParams.getSearchText();
+            final Long typeId = filterParams.getSoftwareModuleTypeId();
+            final Long selectedDsId = filterParams.getLastSelectedDistributionId();
+
+            if (selectedDsId != null) {
+                return softwareModuleManagement.findAllOrderBySetAssignmentAndModuleNameAscModuleVersionAsc(pageRequest,
+                        selectedDsId, searchText, typeId);
+            }
+
+            if (typeId != null || !StringUtils.isEmpty(searchText)) {
+                return mapToAssignedSoftwareModule(
+                        softwareModuleManagement.findByTextAndType(pageRequest, searchText, typeId));
+            }
+
+            return mapToAssignedSoftwareModule(softwareModuleManagement.findAll(pageRequest));
+        });
+    }
+
+    private Slice<AssignedSoftwareModule> mapToAssignedSoftwareModule(final Slice<SoftwareModule> smSlice) {
+        return smSlice.map(sm -> new AssignedSoftwareModule(sm, false));
     }
 
     @Override
     protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<SwFilterParams> filter) {
         return filter.map(filterParams -> {
-            final Long typeId = filterParams.getSoftwareModuleTypeId();
             final String searchText = filterParams.getSearchText();
+            final Long typeId = filterParams.getSoftwareModuleTypeId();
 
             if (typeId == null && StringUtils.isEmpty(searchText)) {
                 return softwareModuleManagement.count();

@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.distributions;
 
+import java.util.Collection;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -250,6 +252,14 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
 
     void onDsSelected(final ProxyDistributionSet ds) {
         swModuleGridLayout.onDsSelected(ds);
+    }
+
+    void onDsUpdated(final Collection<Long> entityIds) {
+        final Long lastSelectedDsId = manageDistUIState.getDistributionSetGridLayoutUiState().getSelectedDsId();
+
+        if (lastSelectedDsId != null && entityIds.contains(lastSelectedDsId)) {
+            swModuleGridLayout.refreshGrid();
+        }
     }
 
     void minimizeDsGridLayout() {
