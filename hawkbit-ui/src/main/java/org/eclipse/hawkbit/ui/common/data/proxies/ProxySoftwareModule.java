@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 
 /**
  * Proxy for {@link SoftwareModule} to display details in Software modules
@@ -24,9 +23,9 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
 
     private String vendor;
 
-    // TODO: consider removing
-    private SoftwareModuleType type;
+    private Long typeId;
 
+    // TODO: consider removing or refactoring ProxyType
     private ProxyType proxyType;
 
     private boolean assigned;
@@ -45,14 +44,6 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
 
     public void setNameAndVersion(final String nameAndVersion) {
         this.nameAndVersion = nameAndVersion;
-    }
-
-    public SoftwareModuleType getType() {
-        return type;
-    }
-
-    public void setType(final SoftwareModuleType type) {
-        this.type = type;
     }
 
     public boolean isAssigned() {
@@ -77,5 +68,13 @@ public class ProxySoftwareModule extends ProxyNamedEntity {
 
     public void setVersion(final String version) {
         this.version = version;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(final Long typeId) {
+        this.typeId = typeId;
     }
 }

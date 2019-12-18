@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -89,22 +91,33 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     private void updateSmTypeStyles() {
+        final String recreateStylesheetScript = String.format("const stylesheet = recreateStylesheet('%s').sheet;",
+                UIComponentIdProvider.SM_TYPE_COLOR_STYLE);
+        final String addStyleRulesScript = buildStyleRulesScript(getSmTypeIdWithColor(getAllSmTypes()));
+
+        Page.getCurrent().getJavaScript().execute(recreateStylesheetScript + addStyleRulesScript);
+    }
+
+    private List<SoftwareModuleType> getAllSmTypes() {
         Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
         Slice<SoftwareModuleType> smTypeSlice;
+        final List<SoftwareModuleType> smTypes = new ArrayList<>();
 
         do {
             smTypeSlice = softwareModuleTypeManagement.findAll(query);
-
-            executeUpdateSmTypeStyles(smTypeSlice.getContent().stream().collect(Collectors.toMap(Type::getId,
-                    type -> Optional.ofNullable(type.getColour()).orElse(SPUIDefinitions.DEFAULT_COLOR))));
+            smTypes.addAll(smTypeSlice.getContent());
         } while ((query = smTypeSlice.nextPageable()) != Pageable.unpaged());
+
+        return smTypes;
     }
 
-    private void executeUpdateSmTypeStyles(final Map<Long, String> typeIdWithColor) {
-        final String recreateStylesheet = String.format("const stylesheet = recreateStylesheet('%s').sheet;",
-                UIComponentIdProvider.SM_TYPE_COLOR_STYLE);
+    private Map<Long, String> getSmTypeIdWithColor(final List<SoftwareModuleType> smTypes) {
+        return smTypes.stream().collect(Collectors.toMap(Type::getId,
+                type -> Optional.ofNullable(type.getColour()).orElse(SPUIDefinitions.DEFAULT_COLOR)));
+    }
 
-        final String addSmTypeColorStyles = typeIdWithColor.entrySet().stream().map(entry -> {
+    private String buildStyleRulesScript(final Map<Long, String> typeIdWithColor) {
+        return typeIdWithColor.entrySet().stream().map(entry -> {
             final String typeClass = String.join("-", UIComponentIdProvider.SM_TYPE_COLOR_CLASS,
                     String.valueOf(entry.getKey()));
             final String typeColor = entry.getValue();
@@ -115,8 +128,6 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
                     "addStyleRule(stylesheet, '.%1$s, .%1$s > td, .%1$s .v-grid-cell', 'background-color:%2$s !important;')",
                     typeClass, typeColor);
         }).collect(Collectors.joining(";"));
-
-        Page.getCurrent().getJavaScript().execute(recreateStylesheet + addSmTypeColorStyles);
     }
 
     @Override

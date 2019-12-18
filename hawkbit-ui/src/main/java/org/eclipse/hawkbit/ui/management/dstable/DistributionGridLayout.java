@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
@@ -41,11 +42,12 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     private final DistributionDetails distributionDetails;
 
     public DistributionGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final DistributionSetManagement distributionSetManagement,
-            final DistributionSetTypeManagement distributionSetTypeManagement, final EntityFactory entityFactory,
-            final UINotification notification, final DistributionSetTagManagement distributionSetTagManagement,
-            final SystemManagement systemManagement, final TargetManagement targetManagement,
+            final SpPermissionChecker permissionChecker, final EntityFactory entityFactory,
+            final UINotification notification, final ManagementUIState managementUIState,
+            final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
+            final SoftwareModuleManagement smManagement,
+            final DistributionSetTypeManagement distributionSetTypeManagement,
+            final DistributionSetTagManagement distributionSetTagManagement, final SystemManagement systemManagement,
             final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,
             final SystemSecurityContext systemSecurityContext, final UiProperties uiProperties) {
         this.distributionGridHeader = new DistributionGridHeader(i18n, permissionChecker, eventBus, managementUIState);
@@ -60,9 +62,9 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
                 notification, dsWindowBuilder, dsMetaDataWindowBuilder);
-        this.distributionDetails = new DistributionDetails(i18n, eventBus, permissionChecker, managementUIState,
-                distributionSetManagement, notification, distributionSetTagManagement, configManagement,
-                systemSecurityContext, dsMetaDataWindowBuilder);
+        this.distributionDetails = new DistributionDetails(i18n, eventBus, permissionChecker, notification,
+                distributionSetManagement, smManagement, distributionSetTypeManagement, distributionSetTagManagement,
+                configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
         buildLayout(distributionGridHeader, distributionGrid, distributionSetDetailsHeader, distributionDetails);
     }

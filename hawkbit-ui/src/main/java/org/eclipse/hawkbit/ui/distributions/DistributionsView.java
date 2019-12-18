@@ -98,10 +98,10 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
             this.dsTypeFilterLayout = new DSTypeFilterLayout(i18n, permChecker, eventBus, entityFactory, uiNotification,
                     softwareModuleTypeManagement, distributionSetTypeManagement, distributionSetManagement,
                     systemManagement, manageDistUIState.getDSTypeFilterLayoutUiState());
-            this.distributionSetGridLayout = new DistributionSetGridLayout(i18n, eventBus, permChecker,
-                    distributionSetManagement, distributionSetTypeManagement, targetManagement,
-                    targetFilterQueryManagement, entityFactory, uiNotification, distributionSetTagManagement,
-                    systemManagement, configManagement, systemSecurityContext,
+            this.distributionSetGridLayout = new DistributionSetGridLayout(i18n, eventBus, permChecker, uiNotification,
+                    entityFactory, targetManagement, targetFilterQueryManagement, distributionSetManagement,
+                    softwareModuleManagement, distributionSetTypeManagement, distributionSetTagManagement,
+                    softwareModuleTypeManagement, systemManagement, configManagement, systemSecurityContext,
                     manageDistUIState.getDSTypeFilterLayoutUiState(),
                     manageDistUIState.getDistributionSetGridLayoutUiState());
             this.swModuleGridLayout = new SwModuleGridLayout(i18n, uiNotification, eventBus, softwareModuleManagement,

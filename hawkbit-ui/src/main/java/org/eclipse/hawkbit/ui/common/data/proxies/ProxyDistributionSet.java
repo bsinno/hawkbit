@@ -8,10 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
-import java.util.Set;
-
 import org.eclipse.hawkbit.repository.model.DistributionSet;
-import org.eclipse.hawkbit.repository.model.DistributionSetType;
 
 /**
  * Proxy for {@link DistributionSet}.
@@ -19,23 +16,18 @@ import org.eclipse.hawkbit.repository.model.DistributionSetType;
 public class ProxyDistributionSet extends ProxyNamedEntity {
     private static final long serialVersionUID = 1L;
 
-    private Long distId;
-
     private Boolean isComplete;
 
     private String version;
 
     private String nameVersion;
 
-    // TODO: consider removing
-    private DistributionSetType type;
+    private Long typeId;
 
+    // TODO: consider removing or refactoring ProxyType
     private ProxyType proxyType;
 
     private boolean requiredMigrationStep;
-
-    // TODO: check if really needed
-    private Set<ProxySoftwareModule> modules;
 
     public String getNameVersion() {
         return nameVersion;
@@ -53,36 +45,12 @@ public class ProxyDistributionSet extends ProxyNamedEntity {
         this.isComplete = isComplete;
     }
 
-    public Long getDistId() {
-        return distId;
-    }
-
-    public void setDistId(final Long distId) {
-        this.distId = distId;
-    }
-
-    public DistributionSetType getType() {
-        return type;
-    }
-
-    public void setType(final DistributionSetType type) {
-        this.type = type;
-    }
-
     public boolean isRequiredMigrationStep() {
         return requiredMigrationStep;
     }
 
     public void setRequiredMigrationStep(final boolean requiredMigrationStep) {
         this.requiredMigrationStep = requiredMigrationStep;
-    }
-
-    public Set<ProxySoftwareModule> getModules() {
-        return modules;
-    }
-
-    public void setModules(final Set<ProxySoftwareModule> modules) {
-        this.modules = modules;
     }
 
     public ProxyType getProxyType() {
@@ -99,5 +67,13 @@ public class ProxyDistributionSet extends ProxyNamedEntity {
 
     public void setVersion(final String version) {
         this.version = version;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(final Long typeId) {
+        this.typeId = typeId;
     }
 }

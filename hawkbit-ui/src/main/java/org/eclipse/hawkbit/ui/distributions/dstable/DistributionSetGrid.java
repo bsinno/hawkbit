@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -66,7 +68,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private static final String DS_DELETE_BUTTON_ID = "dsDeleteButton";
 
     private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
-    private final transient DistributionSetManagement distributionSetManagement;
+    private final transient DistributionSetManagement dsManagement;
 
     private final ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsDistributionsFilterParams> dsDataProvider;
     private final DsDistributionsFilterParams dsFilter;
@@ -76,17 +78,18 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
     public DistributionSetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
-            final DistributionSetTypeManagement distributionSetTypeManagement,
+            final TargetManagement targetManagement, final DistributionSetManagement dsManagement,
+            final SoftwareModuleManagement smManagement, final DistributionSetTypeManagement dsTypeManagement,
+            final SoftwareModuleTypeManagement smTypeManagement,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState,
             final DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper) {
         super(i18n, eventBus, permissionChecker);
 
         this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
-        this.distributionSetManagement = distributionSetManagement;
+        this.dsManagement = dsManagement;
 
-        this.dsDataProvider = new DistributionSetDistributionsStateDataProvider(distributionSetManagement,
-                distributionSetTypeManagement, dsToProxyDistributionMapper).withConfigurableFilter();
+        this.dsDataProvider = new DistributionSetDistributionsStateDataProvider(dsManagement, dsTypeManagement,
+                dsToProxyDistributionMapper).withConfigurableFilter();
         this.dsFilter = new DsDistributionsFilterParams();
 
         setResizeSupport(new DistributionSetResizeSupport());
@@ -104,7 +107,8 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
         final SwModulesToDistributionSetAssignmentSupport swModulesToDsAssignment = new SwModulesToDistributionSetAssignmentSupport(
-                notification, i18n, targetManagement, distributionSetManagement, eventBus, permissionChecker);
+                notification, i18n, eventBus, permissionChecker, targetManagement, dsManagement, smManagement,
+                dsTypeManagement, smTypeManagement);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.SOFTWARE_MODULE_TABLE, swModulesToDsAssignment);
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies);
@@ -126,7 +130,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private void deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
         final Collection<Long> dsToBeDeletedIds = setsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
-        distributionSetManagement.delete(dsToBeDeletedIds);
+        dsManagement.delete(dsToBeDeletedIds);
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                 new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, dsToBeDeletedIds));

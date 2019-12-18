@@ -13,6 +13,8 @@ import java.util.Collections;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
+import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
@@ -30,29 +32,26 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DistributionSetDetails extends AbstractDistributionSetDetails {
     private static final long serialVersionUID = 1L;
 
-    private final transient UIEventBus eventBus;
-    private final SpPermissionChecker permissionChecker;
-
-    private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
+    private final transient SoftwareModuleManagement smManagement;
+    private final transient DistributionSetTypeManagement dsTypeManagement;
 
     private final TargetFilterQueryDetailsGrid tfqDetailsGrid;
 
     DistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
-            final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
+            final SpPermissionChecker permissionChecker, final UINotification uiNotification,
+            final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
+            final DistributionSetTypeManagement dsTypeManagement,
+            final DistributionSetTagManagement distributionSetTagManagement,
             final TargetFilterQueryManagement targetFilterQueryManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
-            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState,
             final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
         super(i18n, eventBus, permissionChecker, distributionSetManagement, uiNotification,
                 distributionSetTagManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
-        this.eventBus = eventBus;
-        this.permissionChecker = permissionChecker;
+        this.smManagement = smManagement;
+        this.dsTypeManagement = dsTypeManagement;
 
-        this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
-
-        tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n, targetFilterQueryManagement);
+        this.tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n, targetFilterQueryManagement);
 
         addDetailsComponents(Collections
                 .singletonList(new SimpleEntry<>(i18n.getMessage("caption.auto.assignment.ds"), tfqDetailsGrid)));
@@ -62,7 +61,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
 
     @Override
     protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
-        return new SoftwareModuleDetailsGrid(i18n, true, permissionChecker, distributionSetManagement, eventBus,
-                uiNotification);
+        return new SoftwareModuleDetailsGrid(i18n, eventBus, uiNotification, permissionChecker,
+                distributionSetManagement, smManagement, dsTypeManagement, true);
     }
 }

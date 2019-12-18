@@ -44,6 +44,8 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
 
     private final transient DsMetaDataWindowBuilder dsMetaDataWindowBuilder;
 
+    protected final transient UIEventBus eventBus;
+    protected final SpPermissionChecker permissionChecker;
     protected final UINotification uiNotification;
     protected final transient DistributionSetManagement distributionSetManagement;
 
@@ -59,6 +61,8 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
             final SystemSecurityContext systemSecurityContext, final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
         super(i18n);
 
+        this.eventBus = eventBus;
+        this.permissionChecker = permissionChecker;
         this.uiNotification = uiNotification;
         this.distributionSetManagement = distributionSetManagement;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
@@ -89,7 +93,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     @Override
     protected List<ProxyKeyValueDetails> getEntityDetails(final ProxyDistributionSet entity) {
         final ProxyKeyValueDetails typeLabel = new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
-                i18n.getMessage("label.dist.details.type"), entity.getType().getName());
+                i18n.getMessage("label.dist.details.type"), entity.getProxyType().getName());
 
         if (isMultiAssignmentEnabled()) {
             return Collections.singletonList(typeLabel);

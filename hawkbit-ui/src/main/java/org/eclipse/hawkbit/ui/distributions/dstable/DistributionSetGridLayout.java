@@ -15,6 +15,8 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
@@ -50,12 +52,14 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     private final transient DistributionSetGridLayoutEventListener eventListener;
 
     public DistributionSetGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
-            final DistributionSetTypeManagement distributionSetTypeManagement, final TargetManagement targetManagement,
-            final TargetFilterQueryManagement targetFilterQueryManagement, final EntityFactory entityFactory,
-            final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
-            final SystemManagement systemManagement, final TenantConfigurationManagement configManagement,
-            final SystemSecurityContext systemSecurityContext,
+            final SpPermissionChecker permissionChecker, final UINotification uiNotification,
+            final EntityFactory entityFactory, final TargetManagement targetManagement,
+            final TargetFilterQueryManagement targetFilterQueryManagement,
+            final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
+            final DistributionSetTypeManagement distributionSetTypeManagement,
+            final DistributionSetTagManagement distributionSetTagManagement,
+            final SoftwareModuleTypeManagement smTypeManagement, final SystemManagement systemManagement,
+            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         this.distributionSetManagement = distributionSetManagement;
@@ -71,14 +75,14 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
         this.distributionSetGridHeader = new DistributionSetGridHeader(i18n, permissionChecker, eventBus,
                 dsWindowBuilder, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
         this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
-                targetManagement, distributionSetManagement, distributionSetTypeManagement,
-                distributionSetGridLayoutUiState, dsToProxyDistributionMapper);
+                targetManagement, distributionSetManagement, smManagement, distributionSetTypeManagement,
+                smTypeManagement, distributionSetGridLayoutUiState, dsToProxyDistributionMapper);
 
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
                 uiNotification, dsWindowBuilder, dsMetaDataWindowBuilder);
-        this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker,
-                distributionSetManagement, uiNotification, distributionSetTagManagement, targetFilterQueryManagement,
-                configManagement, systemSecurityContext, distributionSetGridLayoutUiState, dsMetaDataWindowBuilder);
+        this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker, uiNotification,
+                distributionSetManagement, smManagement, distributionSetTypeManagement, distributionSetTagManagement,
+                targetFilterQueryManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
         this.eventListener = new DistributionSetGridLayoutEventListener(this, eventBus);
 
