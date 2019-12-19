@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -17,7 +16,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.HasValue;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.GridLayout;
@@ -41,15 +39,14 @@ public class RolloutConfigurationView extends BaseConfigurationView
     private CheckBox approvalCheckbox;
     private final Binder<ProxySystemConfigWindow> binder;
 
-    RolloutConfigurationView(final VaadinMessageSource i18n, ApprovalConfigurationItem approvalConfigurationItem, final UiProperties uiProperties,
-            Binder<ProxySystemConfigWindow> binder) {
+    RolloutConfigurationView(final VaadinMessageSource i18n, final ApprovalConfigurationItem approvalConfigurationItem,
+            final UiProperties uiProperties, final Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
         this.approvalConfigurationItem = approvalConfigurationItem;
         this.uiProperties = uiProperties;
         this.binder = binder;
         this.init();
     }
-
 
     private void init() {
 
@@ -82,7 +79,8 @@ public class RolloutConfigurationView extends BaseConfigurationView
             }
             notifyConfigurationChanged();
         });
-        binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval, ProxySystemConfigWindow::setRolloutApproval);
+        binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval,
+                ProxySystemConfigWindow::setRolloutApproval);
 
         gridLayout.addComponent(approvalCheckbox, 0, 0);
         gridLayout.addComponent(approvalConfigurationItem, 1, 0);

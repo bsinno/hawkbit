@@ -14,10 +14,10 @@ import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetTypeToProxyDistributionSetTypeMapper;
-import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetProxyTypeDataProvider;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSetType;
+import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowDependencies;
 import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -45,21 +45,23 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
     private Long currentDefaultDisSetType;
     private Long selectedDefaultDisSetType;
     private TenantMetaData tenantMetaData;
-    private ComboBox<ProxyDistributionSetType> dsSetComboBox = new ComboBox<>();
-    private Binder<ProxySystemConfigWindow> binder;
+    private ComboBox<ProxyType> dsSetComboBox = new ComboBox<>();
+    private final Binder<ProxySystemConfigWindow> binder;
     private final SystemConfigWindowLayoutComponentBuilder builder;
     final SystemConfigWindowDependencies dependencies;
     private Label changeIcon;
 
     DefaultDistributionSetTypeLayout(final SystemManagement systemManagement, final VaadinMessageSource i18n,
-            final SpPermissionChecker permChecker,final Binder<ProxySystemConfigWindow> binder,
+            final SpPermissionChecker permChecker, final Binder<ProxySystemConfigWindow> binder,
             final DistributionSetTypeManagement typeManagement) {
         this.systemManagement = systemManagement;
         this.i18n = i18n;
         this.permissionChecker = permChecker;
         this.binder = binder;
-        final DistributionSetProxyTypeDataProvider dataProvider = new DistributionSetProxyTypeDataProvider(typeManagement, new DistributionSetTypeToProxyDistributionSetTypeMapper());
-        this.dependencies = new SystemConfigWindowDependencies(systemManagement, i18n, permChecker, typeManagement, dataProvider, tenantMetaData);
+        final DistributionSetTypeDataProvider dataProvider = new DistributionSetTypeDataProvider(typeManagement,
+                new TypeToProxyTypeMapper<DistributionSetType>());
+        this.dependencies = new SystemConfigWindowDependencies(systemManagement, i18n, permChecker, typeManagement,
+                dataProvider, tenantMetaData);
         this.builder = new SystemConfigWindowLayoutComponentBuilder(this.dependencies);
         initDsSetTypeComponent();
     }
@@ -85,8 +87,8 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
 
-        final Label configurationLabel = new LabelBuilder().name(
-                i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
+        final Label configurationLabel = new LabelBuilder()
+                .name(i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
         hlayout.addComponent(configurationLabel);
 
         initDsSetComboBox();

@@ -4,7 +4,7 @@ import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetProxyTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 public class SystemConfigWindowDependencies {
@@ -13,12 +13,14 @@ public class SystemConfigWindowDependencies {
     private final VaadinMessageSource i18n;
     private final SpPermissionChecker permissionChecker;
     private final DistributionSetTypeManagement distributionSetTypeManagement;
-    private final DistributionSetProxyTypeDataProvider distributionSetTypeDataProvider;
-    private TenantMetaData tenantMetaData;
+    private final DistributionSetTypeDataProvider distributionSetTypeDataProvider;
+    private final TenantMetaData tenantMetaData;
 
-    public SystemConfigWindowDependencies(SystemManagement systemManagement, VaadinMessageSource i18n,
-            SpPermissionChecker permissionChecker, DistributionSetTypeManagement distributionSetTypeManagement,
-            DistributionSetProxyTypeDataProvider distributionSetTypeDataProvider, TenantMetaData tenantMetaData) {
+    public SystemConfigWindowDependencies(final SystemManagement systemManagement, final VaadinMessageSource i18n,
+            final SpPermissionChecker permissionChecker,
+            final DistributionSetTypeManagement distributionSetTypeManagement,
+            final DistributionSetTypeDataProvider distributionSetTypeDataProvider,
+            final TenantMetaData tenantMetaData) {
         this.systemManagement = systemManagement;
         this.i18n = i18n;
         this.permissionChecker = permissionChecker;
@@ -43,7 +45,7 @@ public class SystemConfigWindowDependencies {
         return distributionSetTypeManagement;
     }
 
-    public DistributionSetProxyTypeDataProvider getDistributionSetTypeDataProvider() {
+    public DistributionSetTypeDataProvider getDistributionSetTypeDataProvider() {
         return distributionSetTypeDataProvider;
     }
 

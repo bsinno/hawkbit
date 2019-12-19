@@ -8,12 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
-import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_STATUS;
-
-import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,8 +18,6 @@ import org.eclipse.hawkbit.ControllerPollProperties;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.Action;
-import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -133,8 +126,9 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.anonymousDownloadAuthenticationConfigurationItem = new AnonymousDownloadAuthenticationConfigurationItem(
                 tenantConfigurationManagement, i18n);
         this.authenticationConfigurationView = new AuthenticationConfigurationView(i18n,
-                targetSecurityTokenAuthenticationConfigurationItem, certificateAuthenticationConfigurationItem, gatewaySecurityTokenAuthenticationConfigurationItem,
-                anonymousDownloadAuthenticationConfigurationItem, uiProperties, binder);
+                targetSecurityTokenAuthenticationConfigurationItem, certificateAuthenticationConfigurationItem,
+                gatewaySecurityTokenAuthenticationConfigurationItem, anonymousDownloadAuthenticationConfigurationItem,
+                uiProperties, binder);
         this.pollingConfigurationView = new PollingConfigurationView(i18n, controllerPollProperties,
                 tenantConfigurationManagement);
         this.repositoryConfigurationView = new RepositoryConfigurationView(i18n, uiProperties,
@@ -205,6 +199,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         configBean.setDownloadAnonymous(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
         return configBean;
     }
+
     private HorizontalLayout saveConfigurationButtonsLayout() {
 
         final HorizontalLayout hlayout = new HorizontalLayout();

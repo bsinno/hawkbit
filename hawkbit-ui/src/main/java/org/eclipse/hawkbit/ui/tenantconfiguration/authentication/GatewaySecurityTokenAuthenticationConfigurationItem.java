@@ -12,7 +12,6 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
@@ -20,7 +19,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -59,9 +57,9 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
 
         detailLayout = new VerticalLayout();
 
-
-        final Button gatewaytokenBtn = SPUIComponentProvider.getButton(null, i18n.getMessage("configuration.button.regenerateKey"), "",
-                ValoTheme.BUTTON_TINY + " " + "redicon", true, null, SPUIButtonStyleSmall.class);
+        final Button gatewaytokenBtn = SPUIComponentProvider.getButton(null,
+                i18n.getMessage("configuration.button.regenerateKey"), "", ValoTheme.BUTTON_TINY + " " + "redicon",
+                true, null, SPUIButtonStyleSmall.class);
 
         gatewaytokenBtn.setIcon(VaadinIcons.REFRESH);
         gatewaytokenBtn.addClickListener(event -> generateGatewayToken());
@@ -69,10 +67,8 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
         gatewayTokenkeyLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();
         gatewayTokenkeyLabel.addStyleName("gateway-token-label");
 
-
         final HorizontalLayout keyGenerationLayout = new HorizontalLayout();
         keyGenerationLayout.setSpacing(true);
-
 
         keyGenerationLayout.addComponent(gatewayTokenkeyLabel);
         keyGenerationLayout.addComponent(gatewaytokenBtn);
