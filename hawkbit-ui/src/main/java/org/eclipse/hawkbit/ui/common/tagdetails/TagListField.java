@@ -27,7 +27,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 
@@ -99,15 +99,15 @@ public class TagListField extends CssLayout {
 
     private Button createButton(final TagData tagData) {
         final Button button = SPUIComponentProvider.getButton(
-                UIComponentIdProvider.ASSIGNED_TAG_ID_PREFIX + tagData.getId(), tagData.getName(),
+                UIComponentIdProvider.ASSIGNED_TAG_ID_PREFIX + "." + tagData.getId(), tagData.getName(),
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_REMOVE), null, false, null,
                 SPUITagButtonStyle.class);
         button.addClickListener(e -> removeTagAssignment(tagData));
         button.addStyleName(SPUIStyleDefinitions.TAG_BUTTON_WITH_BACKGROUND);
         button.addStyleName(SPUIDefinitions.TEXT_STYLE + " " + SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
         button.setEnabled(!readOnlyMode);
-        button.setCaption("<span style=\" color:" + tagData.getColor() + " !important;\">"
-                + FontAwesome.CIRCLE.getHtml() + "</span>" + " " + tagData.getName().concat("  ×"));
+        button.setCaption("<span style=\" color:" + tagData.getColor() + " !important;\">" + VaadinIcons.CIRCLE
+                + "</span>" + " " + tagData.getName().concat("  ×"));
         button.setCaptionAsHtml(true);
         return button;
     }
