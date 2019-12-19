@@ -24,9 +24,9 @@ import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -34,13 +34,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.v7.data.Validator;
-import com.vaadin.v7.data.validator.IntegerRangeValidator;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.Validator;
+import com.vaadin.data.ValueContext;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.EmailValidator;
+import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.data.validator.RangeValidator;
+import com.vaadin.data.validator.StringLengthValidator;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * This class represents the UI item for configuring automatic action cleanup in
@@ -76,18 +83,21 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
     private boolean actionStatusChanged;
     private boolean actionExpiryChanged;
 
+    private final Binder<ProxySystemConfigWindow> binder;
+
+
     /**
      * Constructs the Action Cleanup configuration UI.
-     * 
-     * @param tenantConfigurationManagement
+     *  @param tenantConfigurationManagement
      *            Configuration service to read /write tenant-specific
      *            configuration settings.
      * @param i18n
-     *            The resource bundle to get all localized strings from.
+     * @param binder
      */
     public ActionAutocleanupConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-            final VaadinMessageSource i18n) {
+            final VaadinMessageSource i18n, Binder<ProxySystemConfigWindow> binder) {
         super(TenantConfigurationKey.ACTION_CLEANUP_ENABLED, tenantConfigurationManagement, i18n);
+        this.binder = binder;
         super.init("label.configuration.repository.autocleanup.action");
 
         this.i18n = i18n;
@@ -95,28 +105,34 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
 
         container = new VerticalLayout();
 
-
         final HorizontalLayout row1 = newHorizontalLayout();
+        actionStatusCombobox = new ComboBox();
+        actionStatusCombobox.setDescription("label.combobox.action.status.options");
 
-        actionStatusCombobox = SPUIComponentProvider.getComboBox(null, "200", null, null, false, "",
-                "label.combobox.action.status.options");
         actionStatusCombobox.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_TYPES);
-        actionStatusCombobox.setNullSelectionAllowed(false);
-
-        for (final ActionStatusOption statusOption : ACTION_STATUS_OPTIONS) {
-            actionStatusCombobox.addItem(statusOption);
-            actionStatusCombobox.setItemCaption(statusOption, statusOption.getName());
-        }
-
+        actionStatusCombobox.setWidth(200f, Unit.PIXELS);
+        actionStatusCombobox.setEmptySelectionAllowed(false);
+        actionStatusCombobox.setItems(ACTION_STATUS_OPTIONS.stream().map(ActionStatusOption::getName).collect(Collectors.toList()));
+        binder.bind(actionStatusCombobox, ProxySystemConfigWindow::getActionCleanupStatusId, ProxySystemConfigWindow::setActionCleanupStatusId);
         actionStatusCombobox.addValueChangeListener(e -> onActionStatusChanged());
-        actionStatusCombobox.select(getActionStatusOption());
 
-        actionExpiryInput = new TextFieldBuilderV7(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
+        actionStatusCombobox.isSelected(getActionStatusOption());
+//        actionStatusCombobox.select(getActionStatusOption());
+
+
+
+        actionExpiryInput = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         actionExpiryInput.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_EXPIRY);
         actionExpiryInput.setWidth(55, Unit.PIXELS);
-        actionExpiryInput.setNullSettingAllowed(false);
-        actionExpiryInput.addTextChangeListener(e -> onActionExpiryChanged());
-        actionExpiryInput.addValidator(new ActionExpiryValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY)));
+//        actionExpiryInput.setNullSettingAllowed(false);
+        binder.forField(actionExpiryInput)
+                .withValidator(new StringLengthValidator("",1,5))
+//                .withConverter(new StringToIntegerConverter("Must Enter a number"))
+//                .withValidator(days -> days >= 1 && days < 1000, i18n.getMessage(MSG_KEY_INVALID_EXPIRY))
+                .bind(ProxySystemConfigWindow::getActionExpiryDays, ProxySystemConfigWindow::setActionExpiryDays);
+        actionExpiryInput.addValueChangeListener(e -> onActionExpiryChanged());
+//        actionExpiryInput.addValidator(new ActionExpiryValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY)));
+
         actionExpiryInput.setValue(String.valueOf(getActionExpiry()));
 
         row1.addComponent(newLabel(MSG_KEY_PREFIX));
@@ -180,7 +196,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         cleanupEnabledChanged = false;
         cleanupEnabled = readConfigValue(getConfigurationKey(), Boolean.class).getValue();
         actionStatusChanged = false;
-        actionStatusCombobox.select(getActionStatusOption());
+        actionStatusCombobox.setValue(getActionStatusOption());
         actionExpiryChanged = false;
         actionExpiryInput.setValue(String.valueOf(getActionExpiry()));
     }
@@ -196,7 +212,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
     }
 
     private Label newLabel(final String msgKey) {
-        final Label label = new LabelBuilderV7().name(i18n.getMessage(msgKey)).buildLabel();
+        final Label label = new LabelBuilder().name(i18n.getMessage(msgKey)).buildLabel();
         label.setWidthUndefined();
         return label;
     }
@@ -204,7 +220,6 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
     private static HorizontalLayout newHorizontalLayout() {
         final HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
-
         return layout;
     }
 
@@ -288,7 +303,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
 
     }
 
-    static class ActionExpiryValidator implements Validator {
+     class ActionExpiryValidator implements Validator<String> {
 
         private static final long serialVersionUID = 1L;
 
@@ -301,19 +316,27 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
             this.rangeValidator = new IntegerRangeValidator(message, 1, MAX_EXPIRY_IN_DAYS);
         }
 
+//        public void validate(final Object value) {
+//
+//            if (StringUtils.isEmpty(value)) {
+//                throw new InvalidValueException(message);
+//            }
+//
+//            try {
+//                rangeValidator.validate(Integer.parseInt(value.toString()));
+//            } catch (final RuntimeException e) {
+//                LOGGER.debug("Action expiry validation failed", e);
+//                throw new InvalidValueException(message);
+//            }
+//        }
+
         @Override
-        public void validate(final Object value) {
-
-            if (StringUtils.isEmpty(value)) {
-                throw new InvalidValueException(message);
+        public ValidationResult apply(String value, ValueContext context) {
+            if (StringUtils.isEmpty(value)){
+                return ValidationResult.error(message);
             }
 
-            try {
-                rangeValidator.validate(Integer.parseInt(value.toString()));
-            } catch (final RuntimeException e) {
-                LOGGER.debug("Action expiry validation failed", e);
-                throw new InvalidValueException(message);
-            }
+            return null;
         }
 
     }

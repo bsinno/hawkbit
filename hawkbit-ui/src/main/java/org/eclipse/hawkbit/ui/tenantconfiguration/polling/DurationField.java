@@ -8,24 +8,26 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.polling;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.Date;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.validation.constraints.NotNull;
 
-import com.vaadin.v7.data.Property;
-import com.vaadin.v7.data.Validator.InvalidValueException;
-import com.vaadin.v7.data.util.converter.Converter.ConversionException;
-import com.vaadin.v7.shared.ui.datefield.Resolution;
-import com.vaadin.v7.ui.DateField;
+import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
+
+import com.vaadin.data.Result;
+import com.vaadin.shared.ui.datefield.DateTimeResolution;
+import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -36,7 +38,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * css-class "v-datefield-calendarpanel-header" and
  * "v-datefield-calendarpanel-body" (see systemconfig.scss}
  */
-public class DurationField extends DateField {
+public class DurationField extends DateTimeField {
 
     private static final long serialVersionUID = 1L;
 
@@ -52,20 +54,25 @@ public class DurationField extends DateField {
     private final SimpleDateFormat durationFormat = new SimpleDateFormat(DURATION_FORMAT_STIRNG);
     private final SimpleDateFormat additionalFormat = new SimpleDateFormat(ADDITIONAL_DURATION_STRING);
 
-    private Date minimumDuration;
-    private Date maximumDuration;
+    private LocalDateTime minimumDuration;
+    private LocalDateTime maximumDuration;
 
     /**
      * Creates a DurationField
      */
     protected DurationField() {
-        this.setTimeZone(TimeZone.getTimeZone(ZONEID_UTC));
+        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
+//        this.setTimeZone(TimeZone.getTimeZone(ZONEID_UTC));
+        this.setZoneId(SPDateTimeUtil.getTimeZoneId(tz));
         durationFormat.setTimeZone(TimeZone.getTimeZone(ZONEID_UTC));
         additionalFormat.setTimeZone(TimeZone.getTimeZone(ZONEID_UTC));
         durationFormat.setLenient(false);
         additionalFormat.setLenient(false);
 
-        this.setResolution(Resolution.SECOND);
+//        Binder<LocalDateTime> dateTimeBinder = new Binder<>();
+//        dateTimeBinder.forField(this).withValidator(new DateTimeRangeValidator("Invalid entry", minimumDuration, maximumDuration));
+
+        this.setResolution(DateTimeResolution.SECOND);
         this.setDateFormat(DURATION_FORMAT_STIRNG);
         this.addStyleName(CSS_STYLE_NAME);
         this.addStyleName(ValoTheme.TEXTFIELD_TINY);
@@ -74,7 +81,19 @@ public class DurationField extends DateField {
         // needed that popup shows a 24h clock
         this.setLocale(Locale.GERMANY);
 
-        this.addValueChangeListener(this);
+        this.addValueChangeListener(this::changeListener);
+
+
+    }
+
+    public boolean isValid() {
+        if (this.getValue() != null && maximumDuration != null && compareTimeOfDates(this.getValue(), maximumDuration) > 0) {
+            throw new DateTimeException("value is greater than the allowed maximum value");
+        }
+        if (this.getValue() != null && minimumDuration != null && compareTimeOfDates(minimumDuration, this.getValue()) > 0) {
+            throw new DateTimeException("value is smaller than the allowed minimum value");
+        }
+        return true;
     }
 
     /**
@@ -82,62 +101,59 @@ public class DurationField extends DateField {
      * if the client could not parse it as a Date. In the current case two
      * different parsing schemas are tried. If parsing is not possible a
      * ConversionException is thrown which marks the DurationField as invalid.
+     * @return
      */
     @Override
-    protected Date handleUnparsableDateString(final String value) throws ConversionException {
-
+    protected Result<LocalDateTime> handleUnparsableDateString(final String value){
         try {
-            return durationFormat.parse(value);
-
-        } catch (final ParseException e1) {
+            return Result.ok(LocalDateTime.parse(value, DateTimeFormatter.BASIC_ISO_DATE));
+        } catch (final DateTimeParseException e1) {
             try {
-
-                return additionalFormat.parse("000000".substring(value.length() <= 6 ? value.length() : 6) + value);
-            } catch (final ParseException e2) {
-                // if Parsing is not possible ConversionException is thrown
+                return Result.ok(LocalDateTime.parse("000000".substring(value.length() <= 6 ? value.length() : 6) + value, DateTimeFormatter.BASIC_ISO_DATE));
+            } catch (final DateTimeParseException e2) {
+                return Result.error("input is not in HH:MM:SS format.");
             }
         }
-        throw new ConversionException("input is not in HH:MM:SS format.");
     }
 
-    @Override
-    public void valueChange(final Property.ValueChangeEvent event) {
+    public void changeListener(final ValueChangeEvent event) {
         // do not delete this method, even when removing the code inside this
         // method. This method overwrites the super method, which is
         // necessary, that parsing works correctly on pressing enter key
 
-        if (!(event.getProperty() instanceof DurationField)) {
+        if (!(event.getComponent() instanceof DurationField)) {
             return;
         }
-        final Date value = (Date) event.getProperty().getValue();
+        final LocalDateTime value = (LocalDateTime) event.getValue();
 
         // setValue() calls valueChanged again, when the minimum is greater
         // than the maximum this can lead to an endless loop
         if (value != null && minimumDuration != null && maximumDuration != null
-                && minimumDuration.before(maximumDuration)) {
+                && minimumDuration.isBefore(maximumDuration)) {
 
             if (compareTimeOfDates(value, maximumDuration) > 0) {
-                ((DateField) event.getProperty()).setValue(maximumDuration);
+                ((DurationField) event.getComponent()).setValue(maximumDuration);
+//                ((DateField) event.getComponent()).setValue(maximumDuration);
             }
 
             if (compareTimeOfDates(minimumDuration, value) > 0) {
-                ((DateField) event.getProperty()).setValue(minimumDuration);
+                ((DurationField) event.getComponent()).setValue(minimumDuration);
             }
         }
     }
-
-    @Override
-    public void validate(final Date value) throws InvalidValueException {
-        super.validate(value);
-
-        if (value != null && maximumDuration != null && compareTimeOfDates(value, maximumDuration) > 0) {
-            throw new InvalidValueException("value is greater than the allowed maximum value");
-        }
-
-        if (value != null && minimumDuration != null && compareTimeOfDates(minimumDuration, value) > 0) {
-            throw new InvalidValueException("value is smaller than the allowed minimum value");
-        }
-    }
+//
+//    @Override
+//    public void validate(final Date value) throws InvalidValueException {
+//        super.validate(value);
+//
+//        if (value != null && maximumDuration != null && compareTimeOfDates(value, maximumDuration) > 0) {
+//            throw new InvalidValueException("value is greater than the allowed maximum value");
+//        }
+//
+//        if (value != null && minimumDuration != null && compareTimeOfDates(minimumDuration, value) > 0) {
+//            throw new InvalidValueException("value is smaller than the allowed minimum value");
+//        }
+//    }
 
     /**
      * Sets the duration value
@@ -190,17 +206,18 @@ public class DurationField extends DateField {
         this.maximumDuration = durationToDate(maximumDuration);
     }
 
-    private static Date durationToDate(final Duration duration) {
+    private static LocalDateTime durationToDate(final Duration duration) {
         if (duration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The duaration has to be smaller than 23:59:59.");
         }
 
+
         final LocalTime lt = LocalTime.ofNanoOfDay(duration.toNanos());
-        return Date.from(lt.atDate(LocalDate.now(ZONEID_UTC)).atZone(ZONEID_UTC).toInstant());
+        return LocalDateTime.from(lt.atDate(LocalDate.now(ZONEID_UTC)).atZone(ZONEID_UTC).toInstant());
     }
 
-    private static Duration dateToDuration(final Date date) {
-        final LocalTime endExclusive = LocalDateTime.ofInstant(date.toInstant(), ZONEID_UTC).toLocalTime();
+    private static Duration dateToDuration(final LocalDateTime date) {
+        final LocalTime endExclusive = LocalDateTime.ofInstant(date.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalTime();
         return Duration.between(LocalTime.MIDNIGHT, LocalTime.from(endExclusive));
     }
 
@@ -219,9 +236,10 @@ public class DurationField extends DateField {
      *         before the time of d2; and a value greater than 0 if the time of
      *         d1 is after the time represented by d2.
      */
-    private int compareTimeOfDates(final Date d1, final Date d2) {
-        final LocalTime lt1 = LocalDateTime.ofInstant(d1.toInstant(), ZONEID_UTC).toLocalTime();
-        final LocalTime lt2 = LocalDateTime.ofInstant(d2.toInstant(), ZONEID_UTC).toLocalTime();
+    private int compareTimeOfDates(final LocalDateTime d1, final LocalDateTime d2) {
+
+        final LocalDate lt1 =  LocalDateTime.ofInstant(d1.toInstant(ZoneOffset.UTC),ZONEID_UTC).toLocalDate();
+        final LocalDate lt2 = LocalDateTime.ofInstant(d2.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalDate();
 
         return lt1.compareTo(lt2);
     }

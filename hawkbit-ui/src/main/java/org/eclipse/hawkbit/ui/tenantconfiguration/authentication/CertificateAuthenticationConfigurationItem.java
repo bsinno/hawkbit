@@ -11,15 +11,17 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilderV7;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * This class represents the UI item for the certificate authenticated by an
@@ -49,14 +51,17 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         final HorizontalLayout caRootAuthorityLayout = new HorizontalLayout();
         caRootAuthorityLayout.setSpacing(true);
 
-        final Label caRootAuthorityLabel = new LabelBuilderV7().name(i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
+//        final Label caRootAuthorityLabel = new LabelBuilderV7().name(i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
+
+        final Label caRootAuthorityLabel = new LabelBuilder().name(i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
         caRootAuthorityLabel.setDescription(
                 i18n.getMessage("label.configuration.auth.hashField.tooltip"));
         caRootAuthorityLabel.setWidthUndefined();
 
-        caRootAuthorityTextField = new TextFieldBuilderV7(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
+        caRootAuthorityTextField = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         caRootAuthorityTextField.setWidth("100%");
-        caRootAuthorityTextField.addTextChangeListener(event -> caRootAuthorityChanged());
+//        caRootAuthorityTextField.addValueChangeListener(event -> caRootAuthorityChanged());
+//        caRootAuthorityTextField.addTextChangeListener(event -> caRootAuthorityChanged());
 
         caRootAuthorityLayout.addComponent(caRootAuthorityLabel);
         caRootAuthorityLayout.setExpandRatio(caRootAuthorityLabel, 0);
