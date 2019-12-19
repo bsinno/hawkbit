@@ -60,6 +60,7 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
 
         caRootAuthorityTextField = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         caRootAuthorityTextField.setWidth("100%");
+//        caRootAuthorityTextField.addValueChangeListener(event -> caRootAuthorityChanged());
 //        caRootAuthorityTextField.addTextChangeListener(event -> caRootAuthorityChanged());
 
         caRootAuthorityLayout.addComponent(caRootAuthorityLabel);

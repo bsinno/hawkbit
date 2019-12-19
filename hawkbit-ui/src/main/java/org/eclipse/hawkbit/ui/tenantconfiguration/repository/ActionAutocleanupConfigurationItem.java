@@ -32,14 +32,17 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.method.P;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.data.validator.RangeValidator;
+import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -112,7 +115,8 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         actionStatusCombobox.setItems(ACTION_STATUS_OPTIONS.stream().map(ActionStatusOption::getName).collect(Collectors.toList()));
         binder.bind(actionStatusCombobox, ProxySystemConfigWindow::getActionCleanupStatusId, ProxySystemConfigWindow::setActionCleanupStatusId);
         actionStatusCombobox.addValueChangeListener(e -> onActionStatusChanged());
-        actionStatusCombobox.setValue(getActionStatusOption());
+
+        actionStatusCombobox.isSelected(getActionStatusOption());
 //        actionStatusCombobox.select(getActionStatusOption());
 
 
@@ -121,11 +125,15 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         actionExpiryInput.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_EXPIRY);
         actionExpiryInput.setWidth(55, Unit.PIXELS);
 //        actionExpiryInput.setNullSettingAllowed(false);
-//        actionExpiryInput.addValueChangeListener(e -> onActionExpiryChanged());
-//        actionExpiryInput.
+        binder.forField(actionExpiryInput)
+                .withValidator(new StringLengthValidator("",1,5))
+//                .withConverter(new StringToIntegerConverter("Must Enter a number"))
+//                .withValidator(days -> days >= 1 && days < 1000, i18n.getMessage(MSG_KEY_INVALID_EXPIRY))
+                .bind(ProxySystemConfigWindow::getActionExpiryDays, ProxySystemConfigWindow::setActionExpiryDays);
+        actionExpiryInput.addValueChangeListener(e -> onActionExpiryChanged());
 //        actionExpiryInput.addValidator(new ActionExpiryValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY)));
-        actionExpiryInput.setValue(String.valueOf(getActionExpiry()));
 
+        actionExpiryInput.setValue(String.valueOf(getActionExpiry()));
 
         row1.addComponent(newLabel(MSG_KEY_PREFIX));
         row1.addComponent(actionStatusCombobox);
@@ -188,7 +196,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         cleanupEnabledChanged = false;
         cleanupEnabled = readConfigValue(getConfigurationKey(), Boolean.class).getValue();
         actionStatusChanged = false;
-//        actionStatusCombobox.select(getActionStatusOption());
+        actionStatusCombobox.setValue(getActionStatusOption());
         actionExpiryChanged = false;
         actionExpiryInput.setValue(String.valueOf(getActionExpiry()));
     }
@@ -212,7 +220,6 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
     private static HorizontalLayout newHorizontalLayout() {
         final HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
-
         return layout;
     }
 
@@ -296,13 +303,13 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
 
     }
 
-    static class ActionExpiryValidator implements Validator<String> {
+     class ActionExpiryValidator implements Validator<String> {
 
         private static final long serialVersionUID = 1L;
 
         private final String message;
 
-        private final IntegerRangeValidator rangeValidator;
+        private final Validator rangeValidator;
 
         ActionExpiryValidator(final String message) {
             this.message = message;
@@ -329,9 +336,9 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
                 return ValidationResult.error(message);
             }
 
-
             return null;
         }
+
     }
 
 }

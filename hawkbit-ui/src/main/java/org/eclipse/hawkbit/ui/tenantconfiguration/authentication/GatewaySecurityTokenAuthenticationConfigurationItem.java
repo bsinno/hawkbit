@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantC
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
@@ -62,7 +63,7 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
         final Button gatewaytokenBtn = SPUIComponentProvider.getButton(null, i18n.getMessage("configuration.button.regenerateKey"), "",
                 ValoTheme.BUTTON_TINY + " " + "redicon", true, null, SPUIButtonStyleSmall.class);
 
-        gatewaytokenBtn.setIcon(FontAwesome.REFRESH);
+        gatewaytokenBtn.setIcon(VaadinIcons.REFRESH);
         gatewaytokenBtn.addClickListener(event -> generateGatewayToken());
 
         gatewayTokenkeyLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();

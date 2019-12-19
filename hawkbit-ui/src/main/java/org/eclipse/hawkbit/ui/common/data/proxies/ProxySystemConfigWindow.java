@@ -13,8 +13,8 @@ public class ProxySystemConfigWindow implements Serializable {
     private Long repositoryConfigId;
     private Long rolloutConfigId;
     private Long caRootAuthorityId;
-    private Long actionCleanupStatusId;
-    private Integer actionExpiryDays;
+    private String actionCleanupStatusId;
+    private String actionExpiryDays;
     private boolean rolloutApproval;
     private boolean actionAutoclose;
     private boolean actionAutocleanup;
@@ -54,19 +54,19 @@ public class ProxySystemConfigWindow implements Serializable {
         return distributionSetTypeId;
     }
 
-    public Long getActionCleanupStatusId() {
+    public String getActionCleanupStatusId() {
         return actionCleanupStatusId;
     }
 
-    public void setActionCleanupStatusId(Long actionCleanupStatusId) {
+    public void setActionCleanupStatusId(String actionCleanupStatusId) {
         this.actionCleanupStatusId = actionCleanupStatusId;
     }
 
-    public Integer getActionExpiryDays() {
+    public String getActionExpiryDays() {
         return actionExpiryDays;
     }
 
-    public void setActionExpiryDays(Integer actionExpiryDays) {
+    public void setActionExpiryDays(String actionExpiryDays) {
         this.actionExpiryDays = actionExpiryDays;
     }
 

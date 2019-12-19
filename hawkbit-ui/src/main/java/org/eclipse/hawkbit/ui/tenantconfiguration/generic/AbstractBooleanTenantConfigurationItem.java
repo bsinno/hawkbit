@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.VerticalLayout;
@@ -52,7 +52,7 @@ public abstract class AbstractBooleanTenantConfigurationItem extends VerticalLay
      */
     protected void init(final String labelText) {
 
-        addComponent(new LabelBuilderV7().name(i18n.getMessage(labelText)).buildLabel());
+        addComponent(new LabelBuilder().name(i18n.getMessage(labelText)).buildLabel());
     }
 
     @Override

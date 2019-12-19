@@ -8,7 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_STATUS;
+
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +23,8 @@ import org.eclipse.hawkbit.ControllerPollProperties;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -63,7 +70,6 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     public static final String VIEW_NAME = "spSystemConfig";
     private static final long serialVersionUID = 1L;
-
     private final DefaultDistributionSetTypeLayout defaultDistributionSetTypeLayout;
 
     private final RepositoryConfigurationView repositoryConfigurationView;
@@ -197,10 +203,8 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         configBean.setTargetSecToken(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
         configBean.setGatewaySecToken(gatewaySecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
         configBean.setDownloadAnonymous(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
-
         return configBean;
     }
-
     private HorizontalLayout saveConfigurationButtonsLayout() {
 
         final HorizontalLayout hlayout = new HorizontalLayout();
