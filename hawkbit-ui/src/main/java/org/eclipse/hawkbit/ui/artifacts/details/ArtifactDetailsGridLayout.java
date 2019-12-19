@@ -8,25 +8,19 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.details;
 
-import java.util.Optional;
+import javax.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent.SoftwareModuleEventType;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
+import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
-import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupportIdentifiable;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
-
-import com.vaadin.ui.UI;
 
 /**
  * Display the details of the artifacts for a selected software module.
@@ -34,12 +28,11 @@ import com.vaadin.ui.UI;
 public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final ArtifactUploadState artifactUploadState;
-
     private final ArtifactDetailsGridHeader artifactDetailsHeader;
     private final ArtifactDetailsGrid artifactDetailsGrid;
+    private final UploadDropAreaLayout uploadDropAreaLayout;
 
-    private final MasterDetailsSupport<ProxySoftwareModule, Long> masterDetailsSupport;
+    private final transient ArtifactDetailsGridLayoutEventListener eventListener;
 
     /**
      * Constructor for ArtifactDetailsLayout
@@ -48,70 +41,70 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
      *            VaadinMessageSource
      * @param eventBus
      *            UIEventBus
-     * @param artifactUploadState
-     *            ArtifactUploadState
+     * @param artifactDetailsGridLayoutUiState
+     *            ArtifactDetailsGridLayoutUiState
      * @param notification
      *            UINotification
      * @param artifactManagement
      *            ArtifactManagement
+     * @param permChecker
+     *            SpPermissionChecker
      */
     public ArtifactDetailsGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final ArtifactUploadState artifactUploadState, final UINotification notification,
-            final ArtifactManagement artifactManagement, final SpPermissionChecker permChecker) {
-        super(i18n, eventBus);
-
-        this.artifactUploadState = artifactUploadState;
-
-        this.artifactDetailsHeader = new ArtifactDetailsGridHeader(i18n, artifactUploadState, eventBus);
+            final SpPermissionChecker permChecker, final UINotification notification,
+            final ArtifactUploadState artifactUploadState,
+            final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState,
+            final ArtifactManagement artifactManagement, final SoftwareModuleManagement softwareManagement,
+            final MultipartConfigElement multipartConfigElement) {
+        this.artifactDetailsHeader = new ArtifactDetailsGridHeader(i18n, eventBus, artifactDetailsGridLayoutUiState);
         this.artifactDetailsGrid = new ArtifactDetailsGrid(eventBus, i18n, permChecker, notification,
                 artifactManagement);
 
-        this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(artifactDetailsGrid);
+        this.uploadDropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, notification, artifactUploadState,
+                multipartConfigElement, softwareManagement, artifactManagement);
 
-        buildLayout(artifactDetailsHeader, artifactDetailsGrid);
-    }
+        this.eventListener = new ArtifactDetailsGridLayoutEventListener(this, eventBus);
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent swModuleUIEvent) {
-        final Optional<Long> swModuleId = artifactUploadState.getSelectedBaseSwModuleId();
-
-        if (BaseEntityEventType.SELECTED_ENTITY == swModuleUIEvent.getEventType()) {
-            UI.getCurrent().access(() -> populateArtifactDetails(swModuleUIEvent.getEntity()));
-        } else if (BaseEntityEventType.REMOVE_ENTITY == swModuleUIEvent.getEventType() && swModuleId.isPresent()
-                && swModuleUIEvent.getEntityIds().contains(swModuleId.get())) {
-            UI.getCurrent().access(() -> populateArtifactDetails(null));
-        } else if (SoftwareModuleEventType.ARTIFACTS_CHANGED == swModuleUIEvent.getSoftwareModuleEventType()) {
-            UI.getCurrent().access(() -> refreshArtifactDetails());
-        }
-    }
-
-    /**
-     * Populate artifact details header and grid for the software module.
-     *
-     * @param swModule
-     *            the Software Module
-     */
-    public void populateArtifactDetails(final ProxySoftwareModule swModule) {
-        if (swModule != null) {
-            artifactDetailsHeader.updateArtifactDetailsHeader(swModule.getNameAndVersion());
-            masterDetailsSupport.masterItemChangedCallback(swModule);
-            artifactUploadState.setLastSelectedEntityId(swModule.getId());
+        if (permChecker.hasCreateRepositoryPermission()) {
+            buildLayout(artifactDetailsHeader, artifactDetailsGrid, uploadDropAreaLayout);
         } else {
-            artifactDetailsHeader.updateArtifactDetailsHeader(" ");
-            masterDetailsSupport.masterItemChangedCallback(null);
-            artifactUploadState.setLastSelectedEntityId(null);
+            buildLayout(artifactDetailsHeader, artifactDetailsGrid);
         }
-    }
-
-    private void refreshArtifactDetails() {
-        artifactDetailsGrid.refreshContainer();
-    }
-
-    public MasterDetailsSupport<ProxySoftwareModule, Long> getMasterDetailsSupport() {
-        return masterDetailsSupport;
     }
 
     public ArtifactDetailsGrid getArtifactDetailsGrid() {
         return artifactDetailsGrid;
+    }
+
+    public void restoreState() {
+        uploadDropAreaLayout.restoreState();
+    }
+
+    public void onSmSelected(final ProxySoftwareModule selectedSm) {
+        artifactDetailsHeader.updateArtifactDetailsHeader(selectedSm != null ? selectedSm.getNameAndVersion() : "");
+        artifactDetailsGrid.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
+        uploadDropAreaLayout.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
+    }
+
+    public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
+        uploadDropAreaLayout.onUploadChanged(fileUploadProgress);
+    }
+
+    public void maximize() {
+        artifactDetailsGrid.createMaximizedContent();
+        hideDetailsLayout();
+    }
+
+    public void minimize() {
+        artifactDetailsGrid.createMinimizedContent();
+        showDetailsLayout();
+    }
+
+    public void refreshGrid() {
+        artifactDetailsGrid.refreshContainer();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

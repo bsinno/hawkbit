@@ -46,6 +46,18 @@ public interface DistributionSetType extends Type {
     }
 
     /**
+     * Checks if the given {@link SoftwareModuleType} is in this
+     * {@link DistributionSetType}.
+     *
+     * @param softwareModuleTypeId
+     *            search for by {@link SoftwareModuleType#getId()}
+     * @return <code>true</code> if found
+     */
+    default boolean containsModuleType(final Long softwareModuleTypeId) {
+        return containsMandatoryModuleType(softwareModuleTypeId) || containsOptionalModuleType(softwareModuleTypeId);
+    }
+
+    /**
      * Checks if the given {@link SoftwareModuleType} is in
      * {@link #getMandatoryModuleTypes()}.
      *

@@ -8,12 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.distributions.smtable;
 
-import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractSoftwareModuleDetails;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
-import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -24,22 +21,22 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class SwModuleDetails extends AbstractSoftwareModuleDetails {
     private static final long serialVersionUID = 1L;
 
-    private final ManageDistUIState manageDistUIState;
+    private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
 
     SwModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManageDistUIState manageDistUIState,
-            final SoftwareModuleManagement softwareManagement, final EntityFactory entityFactory,
-            final UINotification uiNotification) {
-        super(i18n, eventBus, permissionChecker, softwareManagement, entityFactory, uiNotification);
+            final SoftwareModuleManagement softwareManagement,
+            final SwModuleGridLayoutUiState swModuleGridLayoutUiState,
+            final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
+        super(i18n, eventBus, softwareManagement, smMetaDataWindowBuilder);
 
-        this.manageDistUIState = manageDistUIState;
+        this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
 
         buildDetails();
         restoreState();
     }
 
     private void restoreState() {
-        if (manageDistUIState.isSwModuleTableMaximized()) {
+        if (swModuleGridLayoutUiState.isMaximized()) {
             setVisible(false);
         }
     }

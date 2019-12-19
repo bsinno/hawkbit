@@ -26,17 +26,11 @@ import com.vaadin.ui.Label;
 public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final RolloutUIState rolloutUIState;
-
     private final RolloutGroupTargetGridHeader rolloutGroupTargetsListHeader;
     private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
 
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final RolloutUIState rolloutUIState, final RolloutGroupManagement rolloutGroupManagement) {
-        super(i18n, eventBus);
-
-        this.rolloutUIState = rolloutUIState;
-
         final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider = new RolloutGroupTargetsDataProvider(
                 rolloutGroupManagement, rolloutUIState, new TargetWithActionStatusToProxyTargetMapper());
 
@@ -44,21 +38,27 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
         this.rolloutGroupTargetsListGrid = new RolloutGroupTargetGrid(i18n, eventBus, rolloutUIState,
                 rolloutGroupTargetsDataProvider);
 
-        buildLayout(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid, new RolloutTargetsCountFooterSupport());
+        buildLayout(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid,
+                new RolloutTargetsCountFooterSupport(i18n, rolloutUIState, rolloutGroupTargetsListGrid));
     }
 
-    // TODO: check if it is correct
-    @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
+    private static class RolloutTargetsCountFooterSupport extends AbstractFooterSupport {
+        private final VaadinMessageSource i18n;
+        private final RolloutUIState rolloutUIState;
+        private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
 
-    class RolloutTargetsCountFooterSupport extends AbstractFooterSupport {
+        RolloutTargetsCountFooterSupport(final VaadinMessageSource i18n, final RolloutUIState rolloutUIState,
+                final RolloutGroupTargetGrid rolloutGroupTargetsListGrid) {
+            this.i18n = i18n;
+            this.rolloutUIState = rolloutUIState;
+            this.rolloutGroupTargetsListGrid = rolloutGroupTargetsListGrid;
+        }
 
         @Override
         protected Label getFooterMessageLabel() {
+            // TODO: do we really need to pass Grid here???
             final RolloutGroupTargetsCountLabelMessage countMessageLabel = new RolloutGroupTargetsCountLabelMessage(
-                    rolloutUIState, rolloutGroupTargetsListGrid, i18n, eventBus);
+                    rolloutUIState, rolloutGroupTargetsListGrid, i18n);
             countMessageLabel.setId(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_LABEL);
 
             return countMessageLabel;

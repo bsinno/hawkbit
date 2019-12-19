@@ -10,36 +10,17 @@ package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Parent class for filter button layout.
  */
 public abstract class AbstractFilterLayout extends VerticalLayout {
     private static final long serialVersionUID = 1L;
-
-    protected final transient UIEventBus eventBus;
-
-    protected AbstractFilterLayout(final UIEventBus eventBus) {
-        this.eventBus = eventBus;
-
-        if (doSubscribeToEventBus()) {
-            eventBus.subscribe(this);
-        }
-    }
-
-    /**
-     * Subscribes the view to the eventBus. Method has to be overriden (return
-     * false) if the view does not contain any listener to avoid Vaadin blowing
-     * up our logs with warnings.
-     */
-    protected boolean doSubscribeToEventBus() {
-        return true;
-    }
 
     protected void buildLayout() {
         setWidth(SPUIDefinitions.FILTER_BY_TYPE_WIDTH, Unit.PIXELS);
@@ -49,7 +30,7 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
         setMargin(false);
 
         final Component filterHeader = getFilterHeader();
-        final Component filterButtons = getFilterButtons();
+        final ComponentContainer filterButtons = getFilterContent();
         // adding border
         filterButtons.addStyleName("filter-btns-layout");
         filterButtons.setSizeFull();
@@ -62,21 +43,19 @@ public abstract class AbstractFilterLayout extends VerticalLayout {
         setExpandRatio(filterButtons, 1.0F);
     }
 
-    protected void restoreState() {
-        if (isFilterLayoutClosedOnLoad()) {
-            setVisible(false);
-        }
-    }
-
     protected abstract AbstractGridHeader getFilterHeader();
 
-    // we use Component here due to NO TAG button
-    protected abstract Component getFilterButtons();
+    protected abstract ComponentContainer getFilterContent();
 
-    /**
-     * Check if filter layout should be closed on load.
-     * 
-     * @return true if filter should be initially closed.
-     */
-    public abstract Boolean isFilterLayoutClosedOnLoad();
+    protected static VerticalLayout wrapFilterContent(final Component filterContent) {
+        final VerticalLayout filterContentWrapper = new VerticalLayout();
+        filterContentWrapper.setMargin(false);
+        filterContentWrapper.setSpacing(false);
+
+        filterContentWrapper.addComponent(filterContent);
+        filterContentWrapper.setComponentAlignment(filterContent, Alignment.TOP_LEFT);
+        filterContentWrapper.setExpandRatio(filterContent, 1.0F);
+
+        return filterContentWrapper;
+    }
 }

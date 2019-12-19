@@ -15,27 +15,23 @@ import java.util.List;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.DistributionSetMetadata;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.providers.DsMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.tagdetails.DistributionTagToken;
-import org.eclipse.hawkbit.ui.distributions.dstable.DsMetadataPopupLayout;
-import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Abstract class which contains common code for Distribution Set Details
@@ -44,44 +40,49 @@ import com.vaadin.ui.UI;
 public abstract class AbstractDistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistributionSet> {
     private static final long serialVersionUID = 1L;
 
+    private final MetadataDetailsGrid<Long> dsMetadataGrid;
+
+    private final transient DsMetaDataWindowBuilder dsMetaDataWindowBuilder;
+
+    protected final transient UIEventBus eventBus;
+    protected final SpPermissionChecker permissionChecker;
     protected final UINotification uiNotification;
     protected final transient DistributionSetManagement distributionSetManagement;
 
-    private final transient EntityFactory entityFactory;
     private final transient TenantConfigurationManagement tenantConfigurationManagement;
     private final transient SystemSecurityContext systemSecurityContext;
 
     private final DistributionTagToken distributionTagToken;
-    private final MetadataDetailsLayout<ProxyDistributionSet> dsMetadataLayout;
 
     protected AbstractDistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final DistributionSetManagement distributionSetManagement, final UINotification uiNotification,
-            final DistributionSetTagManagement distributionSetTagManagement,
+            final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
+            final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
             final TenantConfigurationManagement tenantConfigurationManagement,
-            final SystemSecurityContext systemSecurityContext, final EntityFactory entityFactory) {
-        super(i18n, permissionChecker, eventBus);
+            final SystemSecurityContext systemSecurityContext, final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
+        super(i18n);
 
+        this.eventBus = eventBus;
+        this.permissionChecker = permissionChecker;
         this.uiNotification = uiNotification;
-        this.entityFactory = entityFactory;
         this.distributionSetManagement = distributionSetManagement;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.systemSecurityContext = systemSecurityContext;
+        this.dsMetaDataWindowBuilder = dsMetaDataWindowBuilder;
 
         this.distributionTagToken = new DistributionTagToken(permissionChecker, i18n, uiNotification, eventBus,
-                managementUIState, distributionSetTagManagement, distributionSetManagement);
+                distributionSetTagManagement, distributionSetManagement);
         binder.forField(distributionTagToken).bind(ds -> ds, null);
 
-        this.dsMetadataLayout = new MetadataDetailsLayout<>(i18n, UIComponentIdProvider.DS_METADATA_DETAIL_LINK,
-                this::showMetadataDetails, this::getDsMetaData);
-        binder.forField(dsMetadataLayout).bind(ds -> ds, null);
+        this.dsMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.DS_METADATA_DETAIL_LINK,
+                this::showMetadataDetails, new DsMetaDataDataProvider(distributionSetManagement));
+        this.dsMetadataGrid.setVisible(false);
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),
                 new SimpleEntry<>(i18n.getMessage("caption.softwares.distdetail.tab"), getSoftwareModuleDetailsGrid()),
                 new SimpleEntry<>(i18n.getMessage("caption.tags.tab"), distributionTagToken),
                 new SimpleEntry<>(i18n.getMessage("caption.logs.tab"), logDetails),
-                new SimpleEntry<>(i18n.getMessage("caption.metadata"), dsMetadataLayout)));
+                new SimpleEntry<>(i18n.getMessage("caption.metadata"), dsMetadataGrid)));
     }
 
     @Override
@@ -92,7 +93,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     @Override
     protected List<ProxyKeyValueDetails> getEntityDetails(final ProxyDistributionSet entity) {
         final ProxyKeyValueDetails typeLabel = new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
-                i18n.getMessage("label.dist.details.type"), entity.getType().getName());
+                i18n.getMessage("label.dist.details.type"), entity.getProxyType().getName());
 
         if (isMultiAssignmentEnabled()) {
             return Collections.singletonList(typeLabel);
@@ -127,19 +128,17 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
         return "ds.";
     }
 
-    private void showMetadataDetails(final String metadataKey) {
-        // TODO: adapt after popup refactoring
-        distributionSetManagement.get(binder.getBean().getId()).ifPresent(ds -> {
-            final DsMetadataPopupLayout dsMetadataPopupLayout = new DsMetadataPopupLayout(i18n, uiNotification,
-                    eventBus, distributionSetManagement, entityFactory, permChecker);
-            UI.getCurrent().addWindow(dsMetadataPopupLayout.getWindow(ds, metadataKey));
-        });
-    }
+    private void showMetadataDetails(final ProxyMetaData metadata) {
+        if (binder.getBean() == null) {
+            return;
+        }
 
-    private List<DistributionSetMetadata> getDsMetaData(final ProxyDistributionSet ds) {
-        return distributionSetManagement
-                .findMetaDataByDistributionSetId(PageRequest.of(0, MetadataDetailsGrid.MAX_METADATA_QUERY), ds.getId())
-                .getContent();
+        final Window metaDataWindow = dsMetaDataWindowBuilder.getWindowForShowDsMetaData(binder.getBean().getId(),
+                metadata);
+
+        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + binder.getBean().getNameVersion());
+        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.setVisible(Boolean.TRUE);
     }
 
     protected abstract SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid();
@@ -149,8 +148,18 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     // softwareModuleDetailsGrid.populateGrid(getSelectedBaseEntity());
     // }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionTableEvent distributionTableEvent) {
-        onBaseEntityEvent(distributionTableEvent);
+    @Override
+    public void masterEntityChanged(final ProxyDistributionSet entity) {
+        super.masterEntityChanged(entity);
+
+        // TODO: consider populating the grid only when metadata tab is/becomes
+        // active (lazy loading)
+        if (entity == null) {
+            dsMetadataGrid.updateMasterEntityFilter(null);
+            dsMetadataGrid.setVisible(false);
+        } else {
+            dsMetadataGrid.updateMasterEntityFilter(entity.getId());
+            dsMetadataGrid.setVisible(true);
+        }
     }
 }

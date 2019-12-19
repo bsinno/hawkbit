@@ -13,20 +13,19 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
-import org.eclipse.hawkbit.ui.common.event.TargetTagFilterHeaderEvent;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 
 /**
  * Target Tag filter layout.
@@ -63,19 +62,18 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
             final SpPermissionChecker permChecker, final UIEventBus eventBus, final UINotification notification,
             final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
             final TargetTagManagement targetTagManagement, final TargetManagement targetManagement) {
-        super(eventBus);
-
         this.managementUIState = managementUIState;
 
-        // TODO: check if we could find better solution as to pass
-        // targetTagButtons into targetTagFilterHeader
-        this.multipleTargetFilter = new MultipleTargetFilter(permChecker, managementUIState, i18n, eventBus,
-                notification, entityFactory, targetFilterQueryManagement, targetTagManagement, targetManagement);
+        final TargetTagWindowBuilder targetTagWindowBuilder = new TargetTagWindowBuilder(i18n, entityFactory, eventBus,
+                notification, targetTagManagement);
+
         this.targetTagFilterHeader = new TargetTagFilterHeader(i18n, managementUIState, permChecker, eventBus,
-                notification, entityFactory, targetTagManagement, multipleTargetFilter.getTargetTagFilterButtons());
+                targetTagWindowBuilder);
+        this.multipleTargetFilter = new MultipleTargetFilter(permChecker, managementUIState, i18n, eventBus,
+                notification, targetFilterQueryManagement, targetTagManagement, targetManagement,
+                targetTagWindowBuilder);
 
         buildLayout();
-        restoreState();
     }
 
     @Override
@@ -84,7 +82,7 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
     }
 
     @Override
-    protected Component getFilterButtons() {
+    protected ComponentContainer getFilterContent() {
         return multipleTargetFilter;
     }
 
@@ -103,12 +101,9 @@ public class TargetTagFilterLayout extends AbstractFilterLayout implements Refre
     @EventBusListenerMethod(scope = EventScope.UI)
     void onTargetTagTableEvent(final TargetTagTableEvent tableEvent) {
         refreshContainer();
-        eventBus.publish(this, new TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
-    }
-
-    @Override
-    public Boolean isFilterLayoutClosedOnLoad() {
-        return managementUIState.isTargetTagFilterClosed();
+        // TODO
+        // eventBus.publish(this, new
+        // TargetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
     }
 
     @Override

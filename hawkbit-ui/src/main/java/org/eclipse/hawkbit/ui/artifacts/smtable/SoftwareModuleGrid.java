@@ -9,47 +9,38 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
-import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
+import org.eclipse.hawkbit.ui.artifacts.UploadArtifactView;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleArtifactsStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
-import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.eclipse.hawkbit.ui.view.filter.OnlyEventsFromUploadArtifactViewFilter;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.UI;
 
 //TODO: remove duplication with SwModuleGrid
 /**
@@ -68,44 +59,58 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private static final String SM_VENDOR_ID = "smVendor";
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
 
-    private final ArtifactUploadState uploadUIState;
+    private final ArtifactUploadState artifactUploadState;
+    private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
     private final UINotification notification;
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
     private final ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> swModuleDataProvider;
-    private final SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
-    private final DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
+    private final SwFilterParams smFilter;
+
+    private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
 
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final ArtifactUploadState uploadUIState, final SoftwareModuleManagement softwareModuleManagement) {
+            final ArtifactUploadState artifactUploadState, final SoftwareModuleGridLayoutUiState smGridLayoutUiState,
+            final SoftwareModuleManagement softwareModuleManagement,
+            final SoftwareModuleToProxyMapper softwareModuleToProxyMapper) {
         super(i18n, eventBus, permissionChecker);
 
-        this.uploadUIState = uploadUIState;
+        this.artifactUploadState = artifactUploadState;
+        this.smGridLayoutUiState = smGridLayoutUiState;
         this.notification = notification;
         this.softwareModuleManagement = softwareModuleManagement;
 
-        this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
         this.swModuleDataProvider = new SoftwareModuleArtifactsStateDataProvider(softwareModuleManagement,
                 softwareModuleToProxyMapper).withConfigurableFilter();
+        this.smFilter = new SwFilterParams();
 
         setResizeSupport(new SwModuleResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, SoftwareModuleEvent.class,
-                selectedSm -> uploadUIState.setLastSelectedEntityId(selectedSm != null ? selectedSm.getId() : null)));
-        if (uploadUIState.isSwModuleTableMaximized()) {
+        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, UploadArtifactView.VIEW_NAME,
+                this::updateLastSelectedSmUiState));
+        if (smGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
             getSelectionSupport().enableMultiSelection();
         }
 
         this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.software.module"),
-                permissionChecker, notification, this::swModulesDeletionCallback);
+                permissionChecker, notification, this::deleteSoftwareModules);
 
         init();
     }
 
-    private void swModulesDeletionCallback(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
+    private void updateLastSelectedSmUiState(final SelectionChangedEventType type,
+            final ProxySoftwareModule selectedSm) {
+        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
+            smGridLayoutUiState.setSelectedSmId(null);
+        } else {
+            smGridLayoutUiState.setSelectedSmId(selectedSm.getId());
+        }
+    }
+
+    private void deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
         final Collection<Long> swModuleToBeDeletedIds = swModulesToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         if (isUploadInProgressForSoftwareModule(swModuleToBeDeletedIds)) {
@@ -115,18 +120,13 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
 
-        // TODO: should we really pass the swModuleToBeDeletedIds? We call
-        // dataprovider refreshAll anyway after receiving the event
-        eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.REMOVE_ENTITY, swModuleToBeDeletedIds));
-
-        uploadUIState.getSelectedSoftwareModules().clear();
-
-        eventBus.publish(this, UploadArtifactUIEvent.DELETED_ALL_SOFTWARE);
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, swModuleToBeDeletedIds));
     }
 
     private boolean isUploadInProgressForSoftwareModule(final Collection<Long> swModuleToBeDeletedIds) {
         for (final Long id : swModuleToBeDeletedIds) {
-            if (uploadUIState.isUploadInProgressForSelectedSoftwareModule(id)) {
+            if (artifactUploadState.isUploadInProgressForSelectedSoftwareModule(id)) {
                 return true;
             }
         }
@@ -143,81 +143,20 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         return swModuleDataProvider;
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onDistributionSetUpdateEvents(final SoftwareModuleUpdatedEventContainer eventContainer) {
-        if (!eventContainer.getEvents().isEmpty()) {
-            // TODO: Consider updating only corresponding distribution sets with
-            // dataProvider.refreshItem() based on distribution set ids instead
-            // of full refresh (evaluate getDataCommunicator().getKeyMapper())
-            refreshContainer();
-        }
-
-        // TODO: do we really need it?
-        publishSmSelectedEntityForRefresh(eventContainer.getEvents().stream());
+    public void updateSearchFilter(final String searchFilter) {
+        smFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+        getFilterDataProvider().setFilter(smFilter);
     }
 
-    private void publishSmSelectedEntityForRefresh(
-            final Stream<? extends RemoteEntityEvent<SoftwareModule>> smEntityEventStream) {
-        smEntityEventStream.filter(event -> isLastSelectedSm(event.getEntityId())).filter(Objects::nonNull).findAny()
-                .ifPresent(event -> eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.SELECTED_ENTITY,
-                        softwareModuleToProxyMapper.map(event.getEntity()))));
-    }
-
-    private boolean isLastSelectedSm(final Long swModuleId) {
-        return uploadUIState.getSelectedBaseSwModuleId().map(lastSelectedSmId -> lastSelectedSmId.equals(swModuleId))
-                .orElse(false);
-    }
-
-    /**
-     * DistributionTableFilterEvent.
-     *
-     * @param filterEvent
-     *            as instance of {@link RefreshDistributionTableByFilterEvent}
-     */
-    @EventBusListenerMethod(scope = EventScope.UI, filter = OnlyEventsFromUploadArtifactViewFilter.class)
-    void onEvent(final RefreshSoftwareModuleByFilterEvent filterEvent) {
-        UI.getCurrent().access(this::refreshFilter);
-    }
-
-    private void refreshFilter() {
-        final SwFilterParams filterParams = new SwFilterParams(getSearchTextFromUiState(),
-                getSwModuleTypeIdFromUiState(), null);
-
-        getFilterDataProvider().setFilter(filterParams);
-    }
-
-    private String getSearchTextFromUiState() {
-        return uploadUIState.getSoftwareModuleFilters().getSearchText()
-                .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
-                .orElse(null);
-    }
-
-    private Long getSwModuleTypeIdFromUiState() {
-        return uploadUIState.getSoftwareModuleFilters().getSoftwareModuleType().map(SoftwareModuleType::getId)
-                .orElse(null);
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent event) {
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMinimizedContent);
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMaximizedContent);
-        } else if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
-                || BaseEntityEventType.REMOVE_ENTITY == event.getEventType()) {
-            UI.getCurrent().access(this::refreshContainer);
-        }
-
-        if (BaseEntityEventType.UPDATED_ENTITY != event.getEventType()) {
-            return;
-        }
-        UI.getCurrent().access(() -> updateSwModule(event.getEntity()));
+    public void updateTypeFilter(final SoftwareModuleType typeFilter) {
+        smFilter.setSoftwareModuleTypeId(typeFilter != null ? typeFilter.getId() : null);
+        getFilterDataProvider().setFilter(smFilter);
     }
 
     /**
      * Creates the grid content for maximized-state.
      */
-    private void createMaximizedContent() {
+    public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
@@ -226,62 +165,39 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     /**
      * Creates the grid content for normal (minimized) state.
      */
-    private void createMinimizedContent() {
+    public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
     }
 
-    /**
-     * To update software module details in the grid.
-     *
-     * @param updatedSwModule
-     *            as reference
-     */
-    public void updateSwModule(final ProxySoftwareModule updatedSwModule) {
-        if (updatedSwModule != null) {
-            // TODO: fix casting (will not work) - use
-            // ProxyAssignedSoftwareModule directly
-            // in event
-            getDataProvider().refreshItem(updatedSwModule);
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final UploadArtifactUIEvent event) {
-        if (event == UploadArtifactUIEvent.DELETED_ALL_SOFTWARE) {
-            UI.getCurrent().access(this::refreshFilter);
-        }
-    }
-
     @Override
     public void addColumns() {
-        // TODO: check width
         addColumn(ProxySoftwareModule::getName).setId(SM_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setMinimumWidth(100d).setMaximumWidth(150d).setHidable(false).setHidden(false);
+                .setMinimumWidth(100d).setExpandRatio(1);
 
         addColumn(ProxySoftwareModule::getVersion).setId(SM_VERSION_ID).setCaption(i18n.getMessage("header.version"))
-                .setMinimumWidth(50d).setMaximumWidth(100d).setHidable(false).setHidden(false);
+                .setMinimumWidth(100d);
 
         addActionColumns();
 
         addColumn(ProxySoftwareModule::getCreatedBy).setId(SM_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.createdBy")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getCreatedDate).setId(SM_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.createdDate")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getLastModifiedBy).setId(SM_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedBy")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getModifiedDate).setId(SM_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedDate")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getDescription).setId(SM_DESC_ID)
-                .setCaption(i18n.getMessage("header.description")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.description")).setHidden(true);
 
         addColumn(ProxySoftwareModule::getVendor).setId(SM_VENDOR_ID).setCaption(i18n.getMessage("header.vendor"))
-                .setHidable(true).setHidden(true);
+                .setHidden(true);
     }
 
     private void addActionColumns() {
@@ -290,9 +206,10 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(), swModuleDeleteSupport.hasDeletePermission()))
                         .setId(SM_DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete"))
-                        .setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
+                        .setMinimumWidth(80d);
     }
 
+    // TODO: remove duplication
     private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
             final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
         final Button actionButton = new Button();
@@ -335,10 +252,16 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
             getColumn(SM_MODIFIED_DATE_ID).setHidden(false);
             getColumn(SM_DESC_ID).setHidden(false);
             getColumn(SM_VENDOR_ID).setHidden(false);
+
+            getColumns().forEach(column -> column.setHidable(true));
         }
 
         @Override
         public void setMaximizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(0));
+
+            getColumn(SM_NAME_ID).setExpandRatio(1);
+            getColumn(SM_DESC_ID).setExpandRatio(1);
         }
 
         @Override
@@ -354,11 +277,16 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
             getColumn(SM_MODIFIED_BY_ID).setHidden(true);
             getColumn(SM_MODIFIED_DATE_ID).setHidden(true);
             getColumn(SM_DESC_ID).setHidden(true);
-            getColumn(SM_VENDOR_ID).setHidden(false);
+            getColumn(SM_VENDOR_ID).setHidden(true);
+
+            getColumns().forEach(column -> column.setHidable(false));
         }
 
         @Override
         public void setMinimizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(0));
+
+            getColumn(SM_NAME_ID).setExpandRatio(1);
         }
     }
 }

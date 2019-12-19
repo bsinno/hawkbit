@@ -8,15 +8,14 @@
  */
 package org.eclipse.hawkbit.ui.common;
 
-import com.vaadin.v7.shared.ui.colorpicker.Color;
-import com.vaadin.v7.ui.AbstractColorPicker.Coordinates2Color;
+import com.vaadin.shared.ui.colorpicker.Color;
+import com.vaadin.ui.AbstractColorPicker.Coordinates2Color;
 
 /**
  * Converts 2d-coordinates to a Color.
  */
 public class CoordinatesToColor implements Coordinates2Color {
-
-    private static final long serialVersionUID = 9145071998551210789L;
+    private static final long serialVersionUID = 1L;
 
     @Override
     public Color calculate(final int x, final int y) {

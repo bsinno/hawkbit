@@ -31,24 +31,26 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
     private static final String SM_TYPE_SELECTED_MANDATORY = "smTypeSelectedMandatory";
 
     private final VaadinMessageSource i18n;
+    private final Runnable mandatoryPropertyChangedCallback;
 
-    public SmTypeSelectedGrid(final VaadinMessageSource i18n) {
+    public SmTypeSelectedGrid(final VaadinMessageSource i18n, final Runnable mandatoryPropertyChangedCallback) {
         this.i18n = i18n;
+        this.mandatoryPropertyChangedCallback = mandatoryPropertyChangedCallback;
 
         init();
     }
 
     private void init() {
+        setSizeFull();
+        setHeightUndefined();
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_SMALL);
-        addStyleName("dist_type_twin-table");
+        // addStyleName("dist_type_twin-table");
 
         setId(SPUIDefinitions.TWIN_TABLE_SELECTED_ID);
         setSelectionMode(SelectionMode.MULTI);
-        setSizeFull();
-        setRequiredIndicatorVisible(true);
 
         addColumns();
     }
@@ -67,10 +69,10 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
         final CheckBox mandatoryTypeCheckBox = new CheckBox();
         mandatoryTypeCheckBox.setId("selected.sm.type." + smType.getId());
 
-        // TODO: check if it works
         final Binder<ProxyType> binder = new Binder<>();
         binder.forField(mandatoryTypeCheckBox).bind(ProxyType::isMandatory, ProxyType::setMandatory);
         binder.setBean(smType);
+        binder.addValueChangeListener(event -> mandatoryPropertyChangedCallback.run());
 
         return mandatoryTypeCheckBox;
     }

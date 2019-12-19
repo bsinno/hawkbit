@@ -51,11 +51,11 @@ public class SoftwareModuleArtifactsStateDataProvider
             final String searchText = filterParams.getSearchText();
             final Long typeId = filterParams.getSoftwareModuleTypeId();
 
-            if (typeId == null && StringUtils.isEmpty(searchText)) {
-                return softwareModuleManagement.findAll(pageRequest);
-            } else {
+            if (typeId != null || !StringUtils.isEmpty(searchText)) {
                 return softwareModuleManagement.findByTextAndType(pageRequest, searchText, typeId);
             }
+
+            return softwareModuleManagement.findAll(pageRequest);
         });
     }
 

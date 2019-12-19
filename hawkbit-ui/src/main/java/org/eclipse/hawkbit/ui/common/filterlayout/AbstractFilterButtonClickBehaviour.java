@@ -10,8 +10,6 @@ package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import java.io.Serializable;
 
-import com.vaadin.ui.Button;
-
 /**
  * Abstract button click behaviour of filter buttons layout.
  * 
@@ -19,14 +17,17 @@ import com.vaadin.ui.Button;
  *            The type of the Filter Button
  */
 public abstract class AbstractFilterButtonClickBehaviour<T> implements Serializable {
-
-    private static final long serialVersionUID = 5486557136906648322L;
+    private static final long serialVersionUID = 1L;
 
     /**
-     * @param clickedButton
      * @param clickedFilter
      */
-    public abstract void processFilterButtonClick(final Button clickedButton, final T clickedFilter);
+    public abstract void processFilterClick(final T clickedFilter);
+
+    /**
+     * @param clickedFilter
+     */
+    public abstract boolean isFilterPreviouslyClicked(final T clickedFilter);
 
     /**
      * @param clickedFilter
@@ -37,10 +38,4 @@ public abstract class AbstractFilterButtonClickBehaviour<T> implements Serializa
      * @param clickedFilter
      */
     protected abstract void filterClicked(final T clickedFilter);
-
-    /**
-     * 
-     * @param button
-     */
-    public abstract void setDefaultClickedButton(final Button button);
 }

@@ -11,9 +11,11 @@ package org.eclipse.hawkbit.ui.common.data.providers;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
+import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter.DistributionSetFilterBuilder;
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.filters.DsDistributionsFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
@@ -31,12 +33,15 @@ public class DistributionSetDistributionsStateDataProvider
     private static final long serialVersionUID = 1L;
 
     private final transient DistributionSetManagement distributionSetManagement;
+    private final transient DistributionSetTypeManagement distributionSetTypeManagement;
 
     public DistributionSetDistributionsStateDataProvider(final DistributionSetManagement distributionSetManagement,
+            final DistributionSetTypeManagement distributionSetTypeManagement,
             final DistributionSetToProxyDistributionMapper entityMapper) {
         super(entityMapper);
 
         this.distributionSetManagement = distributionSetManagement;
+        this.distributionSetTypeManagement = distributionSetTypeManagement;
     }
 
     @Override
@@ -47,11 +52,13 @@ public class DistributionSetDistributionsStateDataProvider
     }
 
     private DistributionSetFilter getDistributionSetFilter(final Optional<DsDistributionsFilterParams> filter) {
-        return filter
-                .map(filterParams -> new DistributionSetFilterBuilder().setIsDeleted(false)
-                        .setSearchText(filterParams.getSearchText()).setSelectDSWithNoTag(false)
-                        .setType(filterParams.getClickedDistSetType()))
-                .orElse(new DistributionSetFilterBuilder().setIsDeleted(false)).build();
+        return filter.map(filterParams -> {
+            final DistributionSetType type = filterParams.getDsTypeId() == null ? null
+                    : distributionSetTypeManagement.get(filterParams.getDsTypeId()).orElse(null);
+
+            return new DistributionSetFilterBuilder().setIsDeleted(false).setSearchText(filterParams.getSearchText())
+                    .setSelectDSWithNoTag(false).setType(type);
+        }).orElse(new DistributionSetFilterBuilder().setIsDeleted(false)).build();
     }
 
     @Override

@@ -127,10 +127,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, Void> {
 
     private final ConfigurableFilterDataProvider<ProxyRollout, Void, Void> rolloutDataProvider;
 
-    RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final RolloutManagement rolloutManagement, final UINotification uiNotification,
-            final RolloutUIState rolloutUIState, final SpPermissionChecker permissionChecker,
-            final TargetManagement targetManagement, final EntityFactory entityFactory, final UiProperties uiProperties,
+    RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final RolloutManagement rolloutManagement,
+            final UINotification uiNotification, final RolloutUIState rolloutUIState,
+            final SpPermissionChecker permissionChecker, final TargetManagement targetManagement,
+            final EntityFactory entityFactory, final UiProperties uiProperties,
             final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
             final TenantConfigurationManagement tenantConfigManagement, final RolloutDataProvider rolloutDataProvider,
@@ -492,7 +492,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, Void> {
     private void approveRollout(final ProxyRollout rollout) {
         final Window approveWindow = rolloutWindowBuilder.getWindowForApproveRollout(rollout);
 
-        approveWindow.setCaption(i18n.getMessage("caption.approve.rollout"));
+        approveWindow.setCaption(i18n.getMessage("caption.approve", i18n.getMessage("caption.rollout")));
         UI.getCurrent().addWindow(approveWindow);
         approveWindow.setVisible(Boolean.TRUE);
     }
@@ -508,7 +508,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, Void> {
     private void copyRollout(final ProxyRollout rollout) {
         final Window copyWindow = rolloutWindowBuilder.getWindowForCopyRollout(rollout);
 
-        copyWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.rollout")));
+        copyWindow.setCaption(i18n.getMessage("caption.copy", i18n.getMessage("caption.rollout")));
         UI.getCurrent().addWindow(copyWindow);
         copyWindow.setVisible(Boolean.TRUE);
     }

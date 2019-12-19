@@ -38,20 +38,12 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
      */
     public ActionStatusMsgGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
-        super(i18n, eventBus);
-
         this.actionStatusMsgHeader = new ActionStatusMsgGridHeader(i18n);
         this.actionStatusMsgGrid = new ActionStatusMsgGrid(i18n, eventBus, deploymentManagement);
 
         this.masterDetailsSupport = new MasterDetailsSupportIdentifiable<>(actionStatusMsgGrid);
 
         buildLayout(actionStatusMsgHeader, actionStatusMsgGrid);
-    }
-
-    // TODO: check if it is correct
-    @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
     }
 
     public MasterDetailsSupport<ProxyActionStatus, Long> getMasterDetailsSupport() {

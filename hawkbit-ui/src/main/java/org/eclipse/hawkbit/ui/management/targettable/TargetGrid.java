@@ -34,6 +34,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
@@ -44,9 +48,9 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
+import org.eclipse.hawkbit.ui.management.DeploymentView;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
-import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetAddUpdateWindowEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
@@ -119,9 +123,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         setResizeSupport(new TargetResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, TargetTableEvent.class,
-                selectedTarget -> managementUIState
-                        .setLastSelectedTargetId(selectedTarget != null ? selectedTarget.getId() : null)));
+        setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, DeploymentView.VIEW_NAME,
+                this::updateLastSelectedTargetUiState));
         if (managementUIState.isTargetTableMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -155,6 +158,15 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         init();
     }
 
+    private void updateLastSelectedTargetUiState(final SelectionChangedEventType type,
+            final ProxyTarget selectedTarget) {
+        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
+            managementUIState.setLastSelectedTargetId(null);
+        } else {
+            managementUIState.setLastSelectedTargetId(selectedTarget.getId());
+        }
+    }
+
     @Override
     public String getGridId() {
         return UIComponentIdProvider.TARGET_TABLE_ID;
@@ -179,9 +191,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 .collect(Collectors.toList());
         targetManagement.delete(targetToBeDeletedIds);
 
-        // TODO: should we really pass the targetsToBeDeletedIds? We call
-        // dataprovider refreshAll anyway after receiving the event
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.REMOVE_ENTITY, targetToBeDeletedIds));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, targetToBeDeletedIds));
 
         getPinnedTargetIdFromUiState()
                 .ifPresent(pinnedTargetId -> pinSupport.unPinItemAfterDeletion(pinnedTargetId, targetToBeDeletedIds));
@@ -369,14 +380,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private boolean tableIsFilteredByNoTagAndTagWasAssignedToTarget(final ManagementUIEvent managementUIEvent) {
         return managementUIEvent == ManagementUIEvent.ASSIGN_TARGET_TAG && isNoTagClickedFromUiState();
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SaveActionWindowEvent event) {
-        if (event == SaveActionWindowEvent.SAVED_ASSIGNMENTS) {
-            // TODO: is it sufficient to call refreshContainer?
-            UI.getCurrent().access(this::refreshFilter);
-        }
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

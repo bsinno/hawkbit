@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -44,7 +42,7 @@ public class CommonDialogWindow extends Window {
 
     private static final long serialVersionUID = 1L;
 
-    private final VerticalLayout mainLayout = new VerticalLayout();
+    private final VerticalLayout mainLayout;
 
     private final String caption;
 
@@ -60,7 +58,7 @@ public class CommonDialogWindow extends Window {
 
     private final ClickListener cancelButtonClickListener;
 
-    private final ClickListener closeClickListener = this::onCloseEvent;
+    private final ClickListener closeClickListener;
 
     private final VaadinMessageSource i18n;
 
@@ -85,13 +83,16 @@ public class CommonDialogWindow extends Window {
     public CommonDialogWindow(final String caption, final Component content, final String helpLink,
             final SaveDialogCloseListener closeListener, final ClickListener cancelButtonClickListener,
             final VaadinMessageSource i18n) {
-        checkNotNull(closeListener);
         this.caption = caption;
         this.content = content;
         this.helpLink = helpLink;
         this.closeListener = closeListener;
         this.cancelButtonClickListener = cancelButtonClickListener;
         this.i18n = i18n;
+
+        this.mainLayout = new VerticalLayout();
+        this.closeClickListener = this::onCloseEvent;
+
         init();
     }
 
@@ -119,6 +120,8 @@ public class CommonDialogWindow extends Window {
     }
 
     private final void init() {
+        mainLayout.setMargin(false);
+        mainLayout.setSpacing(false);
 
         if (content instanceof GridLayout) {
             addStyleName("marginTop");
@@ -230,6 +233,10 @@ public class CommonDialogWindow extends Window {
         cancelButton.setEnabled(enabled);
     }
 
+    public void setCloseListener(final SaveDialogCloseListener closeListener) {
+        this.closeListener = closeListener;
+    }
+
     /**
      * Check if the safe action can executed. After a the save action the
      * listener checks if the dialog can closed.
@@ -246,7 +253,7 @@ public class CommonDialogWindow extends Window {
         boolean canWindowSaveOrUpdate();
 
         /**
-         * Checks if the window can closed after the safe action is executed
+         * Checks if the window can be closed after the save action is executed
          *
          * @return <true> = window will close <false> = will not closed.
          */

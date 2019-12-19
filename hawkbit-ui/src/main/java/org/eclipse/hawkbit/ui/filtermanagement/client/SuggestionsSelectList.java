@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.vaadin.client.WidgetUtil;
-import com.vaadin.v7.client.ui.VTextField;
+import com.vaadin.client.ui.VTextField;
 
 /**
  * The suggestion list within the suggestion pop-up panel.

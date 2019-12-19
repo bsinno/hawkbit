@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.data.filters;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetManagementStateDataProvider;
@@ -16,7 +17,9 @@ import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 /**
  * Filter params for {@link DistributionSetManagementStateDataProvider}.
  */
-public class DsManagementFilterParams {
+public class DsManagementFilterParams implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final String searchText;
     private final Boolean isNoTagClicked;
     private final List<String> distributionSetTags;

@@ -23,8 +23,6 @@ import com.vaadin.ui.themes.ValoTheme;
 public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayout {
     private static final long serialVersionUID = 1L;
 
-    private static final String STYLE_DIST_WINDOW_ACTIONTYPE_LAYOUT = "dist-window-actiontype-horz-layout";
-
     protected final VaadinMessageSource i18n;
 
     protected RadioButtonGroup<ActionType> actionTypeOptionGroup;
@@ -41,8 +39,8 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
     }
 
     private void init() {
-        setStyleName(STYLE_DIST_WINDOW_ACTIONTYPE_LAYOUT);
         setSizeUndefined();
+        setHeight("42px");
 
         createOptionGroup();
         addOptionGroup();
@@ -50,7 +48,9 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
 
     private void createOptionGroup() {
         actionTypeOptionGroup = new RadioButtonGroup<>();
+        actionTypeOptionGroup.setSizeFull();
         actionTypeOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
+
         actionTypeOptionGroup.setItemIconGenerator(item -> {
             switch (item) {
             case FORCED:
@@ -65,6 +65,7 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
                 return null;
             }
         });
+
         actionTypeOptionGroup.setItemCaptionGenerator(item -> {
             switch (item) {
             case FORCED:
@@ -79,6 +80,7 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
                 return null;
             }
         });
+
         actionTypeOptionGroup.setItemDescriptionGenerator(item -> {
             switch (item) {
             case FORCED:

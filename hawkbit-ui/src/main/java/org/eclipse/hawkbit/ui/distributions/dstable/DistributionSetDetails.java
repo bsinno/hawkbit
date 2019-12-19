@@ -13,24 +13,18 @@ import java.util.Collections;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent.SoftwareModuleEventType;
-import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractDistributionSetDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsGrid;
 import org.eclipse.hawkbit.ui.common.detailslayout.TargetFilterQueryDetailsGrid;
-import org.eclipse.hawkbit.ui.distributions.event.SaveActionWindowEvent;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 /**
  * Distribution set details layout.
@@ -38,69 +32,36 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 public class DistributionSetDetails extends AbstractDistributionSetDetails {
     private static final long serialVersionUID = 1L;
 
-    private final ManageDistUIState manageDistUIState;
+    private final transient SoftwareModuleManagement smManagement;
+    private final transient DistributionSetTypeManagement dsTypeManagement;
 
     private final TargetFilterQueryDetailsGrid tfqDetailsGrid;
 
     DistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManageDistUIState manageDistUIState,
-            final ManagementUIState managementUIState, final DistributionSetManagement distributionSetManagement,
-            final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
+            final SpPermissionChecker permissionChecker, final UINotification uiNotification,
+            final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
+            final DistributionSetTypeManagement dsTypeManagement,
+            final DistributionSetTagManagement distributionSetTagManagement,
+            final TargetFilterQueryManagement targetFilterQueryManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
-            final EntityFactory entityFactory) {
-        super(i18n, eventBus, permissionChecker, managementUIState, distributionSetManagement, uiNotification,
-                distributionSetTagManagement, configManagement, systemSecurityContext, entityFactory);
+            final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
+        super(i18n, eventBus, permissionChecker, distributionSetManagement, uiNotification,
+                distributionSetTagManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
-        this.manageDistUIState = manageDistUIState;
+        this.smManagement = smManagement;
+        this.dsTypeManagement = dsTypeManagement;
 
-        tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n);
+        this.tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n, targetFilterQueryManagement);
 
         addDetailsComponents(Collections
                 .singletonList(new SimpleEntry<>(i18n.getMessage("caption.auto.assignment.ds"), tfqDetailsGrid)));
+
         buildDetails();
-        restoreState();
     }
 
     @Override
     protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
-        return new SoftwareModuleDetailsGrid(i18n, true, permChecker, distributionSetManagement, eventBus,
-                manageDistUIState, uiNotification);
-    }
-
-    // TODO: implement
-    // protected void populateTargetFilterQueries() {
-    // tfqDetailsGrid.populateGrid(getSelectedBaseEntity());
-    // }
-
-    private void restoreState() {
-        if (manageDistUIState.isDsTableMaximized()) {
-            setVisible(false);
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent event) {
-        if (event.getSoftwareModuleEventType() == SoftwareModuleEventType.ASSIGN_SOFTWARE_MODULE) {
-            // TODO: check if it works
-            distributionSetManagement.getWithDetails(binder.getBean().getId()).ifPresent(set -> {
-                binder.setBean(new DistributionSetToProxyDistributionMapper().map(set));
-                // TODO: check if this is needed
-                // UI.getCurrent().access(this::populateSmDetails);
-            });
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SaveActionWindowEvent saveActionWindowEvent) {
-        if ((saveActionWindowEvent == SaveActionWindowEvent.SAVED_ASSIGNMENTS
-                || saveActionWindowEvent == SaveActionWindowEvent.DISCARD_ALL_ASSIGNMENTS)
-                && binder.getBean() != null) {
-            // TODO: check if it works
-            distributionSetManagement.getWithDetails(binder.getBean().getId()).ifPresent(set -> {
-                binder.setBean(new DistributionSetToProxyDistributionMapper().map(set));
-                // TODO: check if this is needed
-                // UI.getCurrent().access(this::populateSmDetails);
-            });
-        }
+        return new SoftwareModuleDetailsGrid(i18n, eventBus, uiNotification, permissionChecker,
+                distributionSetManagement, smManagement, dsTypeManagement, true);
     }
 }

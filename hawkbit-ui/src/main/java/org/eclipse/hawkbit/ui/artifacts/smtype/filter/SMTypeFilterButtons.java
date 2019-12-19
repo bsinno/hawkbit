@@ -9,33 +9,29 @@
 package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
 import java.util.Collection;
-import java.util.EnumSet;
 
-import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleTypeEvent.SoftwareModuleTypeEnum;
-import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
-import org.eclipse.hawkbit.ui.artifacts.smtype.UpdateSoftwareModuleTypeLayout;
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
-import org.eclipse.hawkbit.ui.common.event.SoftwareModuleTypeFilterHeaderEvent;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SmTypeModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.hateoas.Identifiable;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Software module type filter buttons.
@@ -44,13 +40,12 @@ import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String> {
     private static final long serialVersionUID = 1L;
 
-    private final ArtifactUploadState artifactUploadState;
+    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final UINotification uiNotification;
-    private final SpPermissionChecker permChecker;
 
-    private final transient EntityFactory entityFactory;
     private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-    private final transient SMTypeFilterButtonClick sMTypeFilterButtonClickBehaviour;
+    private final transient TypeFilterButtonClick typeFilterButtonClickBehaviour;
+    private final transient SmTypeWindowBuilder smTypeWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> sMTypeDataProvider;
 
@@ -59,35 +54,34 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
      * 
      * @param eventBus
      *            UIEventBus
-     * @param artifactUploadState
-     *            ArtifactUploadState
+     * @param smTypeFilterLayoutUiState
+     *            SMTypeFilterLayoutUiState
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
      * @param i18n
      *            VaadinMessageSource
-     * @param entityFactory
-     *            EntityFactory
      * @param permChecker
      *            SpPermissionChecker
      * @param uiNotification
      *            UINotification
+     * @param smTypeWindowBuilder
+     *            SmTypeWindowBuilder
      */
-    public SMTypeFilterButtons(final UIEventBus eventBus, final ArtifactUploadState artifactUploadState,
+    public SMTypeFilterButtons(final UIEventBus eventBus, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final VaadinMessageSource i18n,
-            final EntityFactory entityFactory, final SpPermissionChecker permChecker,
-            final UINotification uiNotification) {
+            final SpPermissionChecker permChecker, final UINotification uiNotification,
+            final SmTypeWindowBuilder smTypeWindowBuilder,
+            final TypeToProxyTypeMapper<SoftwareModuleType> smTypeMapper) {
         super(eventBus, i18n, uiNotification, permChecker);
 
-        this.artifactUploadState = artifactUploadState;
+        this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
         this.uiNotification = uiNotification;
-        this.permChecker = permChecker;
-        this.entityFactory = entityFactory;
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
+        this.smTypeWindowBuilder = smTypeWindowBuilder;
 
-        this.sMTypeFilterButtonClickBehaviour = new SMTypeFilterButtonClick(eventBus, artifactUploadState,
-                softwareModuleTypeManagement);
-        this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement,
-                new TypeToProxyTypeMapper<SoftwareModuleType>()).withConfigurableFilter();
+        this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
+        this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, smTypeMapper)
+                .withConfigurableFilter();
 
         init();
     }
@@ -109,71 +103,53 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     @Override
     protected AbstractFilterButtonClickBehaviour<ProxyType> getFilterButtonClickBehaviour() {
-        return sMTypeFilterButtonClickBehaviour;
+        return typeFilterButtonClickBehaviour;
+    }
+
+    private void publishFilterChangedEvent(final ProxyType typeFilter, final TypeFilterChangedEventType eventType) {
+        softwareModuleTypeManagement.getByName(typeFilter.getName()).ifPresent(smType -> {
+            // TODO: somehow move it to abstract class/TypeFilterButtonClick
+            // needed to trigger style generator
+            getDataCommunicator().reset();
+
+            eventBus.publish(EventTopics.TYPE_FILTER_CHANGED, this,
+                    new TypeFilterChangedEventPayload<SoftwareModuleType>(eventType, smType));
+
+            smTypeFilterLayoutUiState
+                    .setClickedSmTypeId(TypeFilterChangedEventType.TYPE_CLICKED == eventType ? smType.getId() : null);
+        });
     }
 
     @Override
     protected void deleteFilterButtons(final Collection<ProxyType> filterButtonsToDelete) {
-        // TODO: we do not allow multiple deletion yet
+        // we do not allow multiple deletion yet
         final ProxyType distSMTypeToDelete = filterButtonsToDelete.iterator().next();
         final String distSMTypeToDeleteName = distSMTypeToDelete.getName();
         final Long distSMTypeToDeleteId = distSMTypeToDelete.getId();
 
-        final Long clickedDistSMTypeId = artifactUploadState.getSoftwareModuleFilters().getSoftwareModuleType()
-                .map(Identifiable::getId).orElse(null);
+        final Long clickedDistSMTypeId = smTypeFilterLayoutUiState.getClickedSmTypeId();
 
         if (clickedDistSMTypeId != null && clickedDistSMTypeId.equals(distSMTypeToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", distSMTypeToDeleteName));
         } else {
             softwareModuleTypeManagement.delete(distSMTypeToDeleteId);
-            eventBus.publish(this, UploadArtifactUIEvent.DELETED_ALL_SOFTWARE_TYPE);
-            // TODO: check if it is needed
-            hideActionColumns();
-            eventBus.publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new SmTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, distSMTypeToDeleteId));
         }
     }
 
     @Override
     protected void editButtonClickListener(final ProxyType clickedFilter) {
-        new UpdateSoftwareModuleTypeLayout(i18n, entityFactory, eventBus, permChecker, uiNotification,
-                softwareModuleTypeManagement, clickedFilter.getName(), closeEvent -> {
-                    // TODO: check if it is needed
-                    hideActionColumns();
-                    eventBus.publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
-                });
-    }
+        final Window updateWindow = smTypeWindowBuilder.getWindowForUpdateSmType(clickedFilter);
 
-    @Override
-    protected boolean isClickedByDefault(final String typeName) {
-        return artifactUploadState.getSoftwareModuleFilters().getSoftwareModuleType()
-                .map(type -> type.getName().equals(typeName)).orElse(false);
+        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
+        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setVisible(Boolean.TRUE);
     }
 
     @Override
     protected String getFilterButtonIdPrefix() {
         return UIComponentIdProvider.UPLOAD_TYPE_BUTTON_PREFIX;
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleTypeEvent event) {
-        if (event.getSoftwareModuleType() != null
-                && EnumSet.allOf(SoftwareModuleTypeEnum.class).contains(event.getSoftwareModuleTypeEnum())) {
-            refreshContainer();
-        }
-
-        if (isUpdate(event)) {
-            eventBus.publish(this, new SoftwareModuleTypeFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
-        }
-    }
-
-    private static boolean isUpdate(final SoftwareModuleTypeEvent event) {
-        return event.getSoftwareModuleTypeEnum() == SoftwareModuleTypeEnum.UPDATE_SOFTWARE_MODULE_TYPE;
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final UploadArtifactUIEvent event) {
-        if (event == UploadArtifactUIEvent.DELETED_ALL_SOFTWARE_TYPE) {
-            refreshContainer();
-        }
     }
 }

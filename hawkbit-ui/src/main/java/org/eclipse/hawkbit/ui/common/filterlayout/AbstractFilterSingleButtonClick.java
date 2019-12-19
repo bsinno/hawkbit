@@ -8,9 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
-
-import com.vaadin.ui.Button;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 
 /**
  * Abstract Single button click behaviour of filter buttons layout.
@@ -18,51 +16,25 @@ import com.vaadin.ui.Button;
  * @param <T>
  *            The type of the Filter Button
  */
-public abstract class AbstractFilterSingleButtonClick<T> extends AbstractFilterButtonClickBehaviour<T> {
+public abstract class AbstractFilterSingleButtonClick<T extends ProxyIdentifiableEntity>
+        extends AbstractFilterButtonClickBehaviour<T> {
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = 478874092615793581L;
-
-    private Button alreadyClickedButton;
+    private Long previouslyClickedFilterId;
 
     @Override
-    public void processFilterButtonClick(final Button clickedButton, final T clickedFilter) {
-        if (isButtonUnClicked(clickedButton)) {
-            /* If same button clicked */
-            clickedButton.removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
-            alreadyClickedButton = null;
+    public void processFilterClick(final T clickedFilter) {
+        if (isFilterPreviouslyClicked(clickedFilter)) {
+            previouslyClickedFilterId = null;
             filterUnClicked(clickedFilter);
-        } else if (alreadyClickedButton != null) {
-            /* If button clicked and some other button is already clicked */
-            alreadyClickedButton.removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
-            clickedButton.addStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
-            alreadyClickedButton = clickedButton;
-            filterClicked(clickedFilter);
         } else {
-            /* If button clicked and not other button is clicked currently */
-            clickedButton.addStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
-            alreadyClickedButton = clickedButton;
+            previouslyClickedFilterId = clickedFilter.getId();
             filterClicked(clickedFilter);
         }
-    }
-
-    private boolean isButtonUnClicked(final Button clickedButton) {
-        return alreadyClickedButton != null && alreadyClickedButton.equals(clickedButton);
     }
 
     @Override
-    public void setDefaultClickedButton(final Button button) {
-        alreadyClickedButton = button;
-        if (button != null) {
-            button.addStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
-        }
+    public boolean isFilterPreviouslyClicked(final T clickedFilter) {
+        return previouslyClickedFilterId != null && previouslyClickedFilterId.equals(clickedFilter.getId());
     }
-
-    public Button getAlreadyClickedButton() {
-        return alreadyClickedButton;
-    }
-
-    public void setAlreadyClickedButton(final Button alreadyClickedButton) {
-        this.alreadyClickedButton = alreadyClickedButton;
-    }
-
 }

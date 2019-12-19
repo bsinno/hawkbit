@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout.TagAssignmentListener;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.hateoas.Identifiable;
@@ -47,17 +46,14 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> extends Custo
 
     protected transient EventBus.UIEventBus eventBus;
 
-    protected ManagementUIState managementUIState;
-
     protected T selectedEntity;
 
     protected AbstractTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
-            final UINotification uinotification, final UIEventBus eventBus, final ManagementUIState managementUIState) {
+            final UINotification uinotification, final UIEventBus eventBus) {
         this.checker = checker;
         this.i18n = i18n;
         this.uinotification = uinotification;
         this.eventBus = eventBus;
-        this.managementUIState = managementUIState;
 
         buildTagPanel();
 

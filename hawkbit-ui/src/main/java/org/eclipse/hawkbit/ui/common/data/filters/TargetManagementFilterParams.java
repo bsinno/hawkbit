@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.data.filters;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
@@ -18,7 +19,9 @@ import org.springframework.util.StringUtils;
 /**
  * Filter params for {@link TargetManagementStateDataProvider}.
  */
-public class TargetManagementFilterParams {
+public class TargetManagementFilterParams implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final Long pinnedDistId;
     private final String searchText;
     private final Collection<TargetUpdateStatus> targetUpdateStatusList;

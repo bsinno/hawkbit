@@ -131,7 +131,7 @@ public final class SPUIStyleDefinitions {
     /**
      * Create Target filter query - caption style.
      */
-    public static final String TARGET_FILTER_CAPTION_LAYOUT = "caption-header-layout";
+    public static final String ADD_UPDATE_FILTER_LAYOUT = "add-update-filter-layout";
 
     /**
      * Query validator icon -success style.

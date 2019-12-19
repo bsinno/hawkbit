@@ -14,23 +14,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.common.table.BaseUIEntityEvent;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -43,8 +38,6 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
     private static final long serialVersionUID = 1L;
 
     protected final VaadinMessageSource i18n;
-    protected final SpPermissionChecker permChecker;
-    protected final transient UIEventBus eventBus;
 
     protected final Binder<T> binder;
 
@@ -54,11 +47,8 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
 
     private final transient Collection<Entry<String, Component>> detailsComponents;
 
-    public AbstractGridDetailsLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus) {
+    public AbstractGridDetailsLayout(final VaadinMessageSource i18n) {
         this.i18n = i18n;
-        this.permChecker = permChecker;
-        this.eventBus = eventBus;
 
         this.binder = new Binder<>();
 
@@ -69,18 +59,6 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         this.detailsComponents = new ArrayList<>();
 
         init();
-        if (doSubscribeToEventBus()) {
-            eventBus.subscribe(this);
-        }
-    }
-
-    /**
-     * Subscribes the view to the eventBus. Method has to be overriden (return
-     * false) if the view does not contain any listener to avoid Vaadin blowing
-     * up our logs with warnings.
-     */
-    protected boolean doSubscribeToEventBus() {
-        return true;
     }
 
     private void init() {
@@ -155,10 +133,6 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         this.detailsComponents.addAll(detailsComponents);
     }
 
-    protected void populateDetails(final T entity) {
-        binder.setBean(entity);
-    }
-
     protected void buildDetails() {
         detailsComponents.forEach(detailsComponentEntry -> {
             final String detailsComponentCaption = detailsComponentEntry.getKey();
@@ -179,21 +153,7 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         return tabWrapperDetailsLayout;
     }
 
-    /**
-     * Default implementation to handle an entity event.
-     * 
-     * @param baseEntityEvent
-     *            the event
-     */
-    protected void onBaseEntityEvent(final BaseUIEntityEvent<T> baseEntityEvent) {
-        final BaseEntityEventType eventType = baseEntityEvent.getEventType();
-        if (BaseEntityEventType.SELECTED_ENTITY == eventType || BaseEntityEventType.UPDATED_ENTITY == eventType
-                || BaseEntityEventType.REMOVE_ENTITY == eventType) {
-            UI.getCurrent().access(() -> populateDetails(baseEntityEvent.getEntity()));
-        } else if (BaseEntityEventType.MINIMIZED == eventType) {
-            UI.getCurrent().access(() -> setVisible(true));
-        } else if (BaseEntityEventType.MAXIMIZED == eventType) {
-            UI.getCurrent().access(() -> setVisible(false));
-        }
+    public void masterEntityChanged(final T entity) {
+        binder.setBean(entity);
     }
 }

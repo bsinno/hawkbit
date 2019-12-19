@@ -90,11 +90,11 @@ public class TargetFilterQueryButtons extends Grid<ProxyTargetFilterQuery> {
         tfqButton.addStyleName("custom-filter-button");
         tfqButton.setId("customFilter." + filterQuery.getId());
 
-        tfqButton.addClickListener(
-                event -> customTargetTagFilterButtonClick.processFilterButtonClick(event.getButton(), filterQuery));
+        tfqButton.addClickListener(event -> customTargetTagFilterButtonClick.processFilterClick(filterQuery));
 
         if (isClickedByDefault(filterQuery.getId())) {
-            customTargetTagFilterButtonClick.setDefaultButtonClicked(tfqButton);
+            // TODO
+            // customTargetTagFilterButtonClick.setDefaultButtonClicked(tfqButton);
         }
 
         return tfqButton;

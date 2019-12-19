@@ -26,11 +26,12 @@ import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.event.DeploymentActionEvent;
+import org.eclipse.hawkbit.ui.management.DeploymentView;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
@@ -105,9 +106,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .withConfigurableFilter();
 
         setResizeSupport(new ActionHistoryResizeSupport());
-        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, DeploymentActionEvent.class,
-                selectedAction -> managementUIState
-                        .setLastSelectedActionId(selectedAction != null ? selectedAction.getId() : null)));
+        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, DeploymentView.VIEW_NAME,
+                this::updateLastSelectedActionUiState));
         if (managementUIState.isActionHistoryMaximized()) {
             getSelectionSupport().enableSingleSelection();
         } else {
@@ -119,6 +119,15 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         initActionTypeIconMap();
 
         init();
+    }
+
+    private void updateLastSelectedActionUiState(final SelectionChangedEventType type,
+            final ProxyAction selectedAction) {
+        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
+            managementUIState.setLastSelectedActionId(null);
+        } else {
+            managementUIState.setLastSelectedActionId(selectedAction.getId());
+        }
     }
 
     @Override

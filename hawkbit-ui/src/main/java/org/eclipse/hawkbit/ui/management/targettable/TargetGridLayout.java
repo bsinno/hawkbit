@@ -43,21 +43,21 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
             final TargetTagManagement targetTagManagement, final DistributionSetManagement distributionSetManagement,
             final Executor uiExecutor, final TenantConfigurationManagement configManagement,
             final SystemSecurityContext systemSecurityContext) {
-        super(i18n, eventBus);
-
-        final TargetAddUpdateWindowLayout targetAddUpdateWindowLayout = new TargetAddUpdateWindowLayout(i18n,
-                targetManagement, eventBus, uiNotification, entityFactory);
+        final TargetWindowBuilder targetWindowBuilder = new TargetWindowBuilder(i18n, entityFactory, eventBus,
+                uiNotification, targetManagement);
+        final TargetMetaDataWindowBuilder targetMetaDataWindowBuilder = new TargetMetaDataWindowBuilder(i18n,
+                entityFactory, eventBus, uiNotification, permissionChecker, targetManagement);
 
         this.targetGridHeader = new TargetGridHeader(i18n, permissionChecker, eventBus, uiNotification,
                 managementUIState, targetManagement, deploymentManagement, uiProperties, entityFactory, uiNotification,
-                targetTagManagement, distributionSetManagement, uiExecutor, targetAddUpdateWindowLayout);
+                targetTagManagement, distributionSetManagement, uiExecutor, targetWindowBuilder);
         this.targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement, managementUIState,
                 permissionChecker, deploymentManagement, configManagement, systemSecurityContext, uiProperties);
 
         this.targetDetailsHeader = new TargetDetailsHeader(i18n, permissionChecker, eventBus, uiNotification,
-                entityFactory, targetManagement, targetAddUpdateWindowLayout);
+                targetWindowBuilder, targetMetaDataWindowBuilder);
         this.targetDetails = new TargetDetails(i18n, eventBus, permissionChecker, managementUIState, uiNotification,
-                targetTagManagement, targetManagement, deploymentManagement, entityFactory);
+                targetTagManagement, targetManagement, deploymentManagement, targetMetaDataWindowBuilder);
 
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }

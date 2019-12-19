@@ -13,12 +13,11 @@ import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.DistributionSetTagFilterHeaderEvent;
-import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
+import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
@@ -32,7 +31,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -71,21 +70,20 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
             final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final DistributionSetTagManagement distributionSetTagManagement, final EntityFactory entityFactory,
             final UINotification uiNotification, final DistributionSetManagement distributionSetManagement) {
-        super(eventBus);
-
         this.i18n = i18n;
         this.managementUIState = managementUIState;
 
         this.noTagButton = buildNoTagButton();
-        // TODO: check if we could find better solution as to pass
-        // distributionTagButtons into distributionTagFilterHeader
-        this.distributionTagButtons = new DistributionTagButtons(eventBus, managementUIState, entityFactory, i18n,
-                uiNotification, permChecker, distributionSetTagManagement, distributionSetManagement);
+
+        final DsTagWindowBuilder dsTagWindowBuilder = new DsTagWindowBuilder(i18n, entityFactory, eventBus,
+                uiNotification, distributionSetTagManagement);
+
         this.distributionTagFilterHeader = new DistributionTagFilterHeader(i18n, managementUIState, permChecker,
-                eventBus, distributionSetTagManagement, entityFactory, uiNotification, distributionTagButtons);
+                eventBus, dsTagWindowBuilder);
+        this.distributionTagButtons = new DistributionTagButtons(eventBus, managementUIState, i18n, uiNotification,
+                permChecker, distributionSetTagManagement, distributionSetManagement, dsTagWindowBuilder);
 
         buildLayout();
-        restoreState();
     }
 
     @Override
@@ -93,20 +91,12 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
         return distributionTagFilterHeader;
     }
 
-    // TODO: remove duplication with other type layouts
     @Override
-    protected Component getFilterButtons() {
-        final VerticalLayout filterButtonsLayout = new VerticalLayout();
-        filterButtonsLayout.setMargin(false);
-        filterButtonsLayout.setSpacing(false);
+    protected ComponentContainer getFilterContent() {
+        final VerticalLayout filterButtonsLayout = wrapFilterContent(distributionTagButtons);
 
-        filterButtonsLayout.addComponent(noTagButton);
-        filterButtonsLayout.addComponent(distributionTagButtons);
-
+        filterButtonsLayout.addComponent(noTagButton, 0);
         filterButtonsLayout.setComponentAlignment(noTagButton, Alignment.TOP_LEFT);
-        filterButtonsLayout.setComponentAlignment(distributionTagButtons, Alignment.TOP_LEFT);
-
-        filterButtonsLayout.setExpandRatio(distributionTagButtons, 1.0F);
 
         return filterButtonsLayout;
     }
@@ -122,12 +112,14 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
         final ProxyTag dummyNoTag = new ProxyTag();
         dummyNoTag.setNoTag(true);
 
-        noTagButton.addClickListener(event -> distributionTagButtons.getFilterButtonClickBehaviour()
-                .processFilterButtonClick(event.getButton(), dummyNoTag));
+        noTagButton.addClickListener(
+                event -> distributionTagButtons.getFilterButtonClickBehaviour().processFilterClick(dummyNoTag));
 
-        if (managementUIState.getDistributionTableFilters().isNoTagSelected()) {
-            distributionTagButtons.getFilterButtonClickBehaviour().setDefaultClickedButton(noTagButton);
-        }
+        // TODO
+        // if
+        // (managementUIState.getDistributionTableFilters().isNoTagSelected()) {
+        // distributionTagButtons.getFilterButtonClickBehaviour().setDefaultClickedButton(noTagButton);
+        // }
 
         return noTagButton;
     }
@@ -147,12 +139,9 @@ public class DistributionTagLayout extends AbstractFilterLayout implements Refre
     @EventBusListenerMethod(scope = EventScope.UI)
     void onDistributionSetTagTableEvent(final DistributionSetTagTableEvent distributionSetTagTableEvent) {
         refreshContainer();
-        eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
-    }
-
-    @Override
-    public Boolean isFilterLayoutClosedOnLoad() {
-        return managementUIState.isDistTagFilterClosed();
+        // TODO
+        // eventBus.publish(this, new
+        // DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
     }
 
     @Override

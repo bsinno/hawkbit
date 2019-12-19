@@ -29,10 +29,14 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class TargetBulkTokenTags extends AbstractTargetTagToken {
     private static final long serialVersionUID = 1L;
 
+    private final ManagementUIState managementUIState;
+
     TargetBulkTokenTags(final SpPermissionChecker checker, final VaadinMessageSource i18n,
             final UINotification uinotification, final UIEventBus eventBus, final ManagementUIState managementUIState,
             final TargetTagManagement tagManagement) {
-        super(checker, i18n, uinotification, eventBus, managementUIState, tagManagement);
+        super(checker, i18n, uinotification, eventBus, tagManagement);
+
+        this.managementUIState = managementUIState;
     }
 
     @Override

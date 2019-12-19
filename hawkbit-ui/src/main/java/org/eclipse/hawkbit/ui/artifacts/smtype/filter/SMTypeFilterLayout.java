@@ -8,39 +8,41 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
+import java.util.Optional;
+
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.UploadArtifactUIEvent;
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
+import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.ComponentContainer;
 
 /**
  * Software module type filter buttons layout.
  */
 public class SMTypeFilterLayout extends AbstractFilterLayout {
-
     private static final long serialVersionUID = 1L;
 
-    private final ArtifactUploadState artifactUploadState;
+    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
+    private final transient TypeToProxyTypeMapper<SoftwareModuleType> smTypeMapper;
 
     private final SMTypeFilterHeader smTypeFilterHeader;
     private final SMTypeFilterButtons sMTypeFilterButtons;
 
+    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
+
+    private final transient SMTypeFilterLayoutEventListener eventListener;
+
     /**
      * Constructor
      * 
-     * @param artifactUploadState
-     *            ArtifactUploadState
      * @param i18n
      *            VaadinMessageSource
      * @param permChecker
@@ -53,21 +55,28 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
      *            UINotification
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
+     * @param smTypeFilterLayoutUiState
+     *            SMTypeFilterLayoutUiState
      */
-    public SMTypeFilterLayout(final ArtifactUploadState artifactUploadState, final VaadinMessageSource i18n,
-            final SpPermissionChecker permChecker, final UIEventBus eventBus, final EntityFactory entityFactory,
-            final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
-        super(eventBus);
+    public SMTypeFilterLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final EntityFactory entityFactory, final UINotification uiNotification,
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement,
+            final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState) {
+        this.softwareModuleTypeManagement = softwareModuleTypeManagement;
+        this.smTypeMapper = new TypeToProxyTypeMapper<>();
+        this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
 
-        this.artifactUploadState = artifactUploadState;
+        final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
+                uiNotification, softwareModuleTypeManagement);
 
-        this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, artifactUploadState, softwareModuleTypeManagement,
-                i18n, entityFactory, permChecker, uiNotification);
-        this.smTypeFilterHeader = new SMTypeFilterHeader(i18n, permChecker, eventBus, artifactUploadState,
-                entityFactory, uiNotification, softwareModuleTypeManagement, sMTypeFilterButtons);
+        this.smTypeFilterHeader = new SMTypeFilterHeader(i18n, permChecker, eventBus, smTypeFilterLayoutUiState,
+                smTypeWindowBuilder);
+        this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, smTypeFilterLayoutUiState,
+                softwareModuleTypeManagement, i18n, permChecker, uiNotification, smTypeWindowBuilder, smTypeMapper);
+
+        this.eventListener = new SMTypeFilterLayoutEventListener(this, eventBus);
 
         buildLayout();
-        restoreState();
     }
 
     @Override
@@ -75,32 +84,41 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
         return smTypeFilterHeader;
     }
 
-    // TODO: remove duplication with other type layouts
     @Override
-    protected Component getFilterButtons() {
-        final VerticalLayout filterButtonsLayout = new VerticalLayout();
-        filterButtonsLayout.setMargin(false);
-        filterButtonsLayout.setSpacing(false);
-
-        filterButtonsLayout.addComponent(sMTypeFilterButtons);
-        filterButtonsLayout.setComponentAlignment(sMTypeFilterButtons, Alignment.TOP_LEFT);
-        filterButtonsLayout.setExpandRatio(sMTypeFilterButtons, 1.0F);
-
-        return filterButtonsLayout;
+    protected ComponentContainer getFilterContent() {
+        return wrapFilterContent(sMTypeFilterButtons);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final UploadArtifactUIEvent event) {
-        if (event == UploadArtifactUIEvent.HIDE_FILTER_BY_TYPE) {
-            setVisible(false);
-        }
-        if (event == UploadArtifactUIEvent.SHOW_FILTER_BY_TYPE) {
-            setVisible(true);
+    public void restoreState() {
+        final Long lastClickedTypeId = smTypeFilterLayoutUiState.getClickedSmTypeId();
+
+        if (lastClickedTypeId != null) {
+            mapIdToProxyEntity(lastClickedTypeId).ifPresent(sMTypeFilterButtons::selectFilter);
         }
     }
 
-    @Override
-    public Boolean isFilterLayoutClosedOnLoad() {
-        return artifactUploadState.isSwTypeFilterClosed();
+    // TODO: extract to parent abstract #mapIdToProxyEntity?
+    private Optional<ProxyType> mapIdToProxyEntity(final Long entityId) {
+        return softwareModuleTypeManagement.get(entityId).map(smTypeMapper::map);
+    }
+
+    public void showFilterButtonsEditIcon() {
+        sMTypeFilterButtons.showEditColumn();
+    }
+
+    public void showFilterButtonsDeleteIcon() {
+        sMTypeFilterButtons.showDeleteColumn();
+    }
+
+    public void hideFilterButtonsActionIcons() {
+        sMTypeFilterButtons.hideActionColumns();
+    }
+
+    public void refreshFilterButtons() {
+        sMTypeFilterButtons.refreshContainer();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

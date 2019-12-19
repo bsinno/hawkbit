@@ -9,31 +9,27 @@
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
 import java.util.Collection;
-import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Html5File;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.FileDropHandler;
 import com.vaadin.ui.dnd.FileDropTarget;
@@ -42,25 +38,22 @@ import com.vaadin.ui.dnd.event.FileDropEvent;
 /**
  * Container for drag and drop area in the upload view.
  */
-public class UploadDropAreaLayout extends AbstractComponent {
-
+public class UploadDropAreaLayout extends CustomComponent {
     private static final long serialVersionUID = 1L;
 
-    private VerticalLayout dropAreaLayout;
-
     private final VaadinMessageSource i18n;
-
     private final UINotification uiNotification;
 
     private final ArtifactUploadState artifactUploadState;
 
-    private final transient MultipartConfigElement multipartConfigElement;
-
+    private final transient ArtifactManagement artifactManagement;
     private final transient SoftwareModuleManagement softwareManagement;
 
-    private final transient ArtifactManagement artifactManagement;
+    private final transient MultipartConfigElement multipartConfigElement;
+    private final transient Lock uploadLock = new ReentrantLock();
 
     private final UploadProgressButtonLayout uploadButtonLayout;
+    private VerticalLayout dropAreaLayout;
 
     /**
      * Creates a new {@link UploadDropAreaLayout} instance.
@@ -92,36 +85,27 @@ public class UploadDropAreaLayout extends AbstractComponent {
         this.multipartConfigElement = multipartConfigElement;
         this.softwareManagement = softwareManagement;
         this.artifactManagement = artifactManagement;
+
         this.uploadButtonLayout = new UploadProgressButtonLayout(i18n, eventBus, artifactUploadState,
-                multipartConfigElement, artifactManagement, softwareManagement);
+                multipartConfigElement, artifactManagement, softwareManagement, uploadLock);
 
         buildLayout();
-
-        eventBus.subscribe(this);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent event) {
-        final BaseEntityEventType eventType = event.getEventType();
-        if (eventType == BaseEntityEventType.SELECTED_ENTITY) {
-            UI.getCurrent().access(() -> {
-                if (isNoSoftwareModuleOrMoreThanOneSelected(event)) {
-                    dropAreaLayout.setEnabled(false);
-                } else {
-                    dropAreaLayout.setEnabled(true);
-                }
-            });
-        }
+    public void restoreState() {
+        uploadButtonLayout.restoreState();
     }
 
-    private boolean isNoSoftwareModuleOrMoreThanOneSelected(final SoftwareModuleEvent event) {
-        return Objects.nonNull(event.getEntityIds()) && event.getEntityIds().size() != 1;
+    public void updateMasterEntityFilter(final Long masterEntityId) {
+        dropAreaLayout.setEnabled(masterEntityId != null);
+        uploadButtonLayout.updateMasterEntityFilter(masterEntityId);
     }
 
     private void buildLayout() {
         dropAreaLayout = new VerticalLayout();
         dropAreaLayout.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_FILE_DROP_LAYOUT);
-        dropAreaLayout.setSpacing(true);
+        dropAreaLayout.setMargin(false);
+        dropAreaLayout.setSpacing(false);
         dropAreaLayout.addStyleName("upload-drop-area-layout-info");
         dropAreaLayout.setEnabled(false);
         dropAreaLayout.setHeightUndefined();
@@ -141,10 +125,16 @@ public class UploadDropAreaLayout extends AbstractComponent {
         dropAreaLayout.addComponent(uploadButtonLayout);
 
         new FileDropTarget<>(dropAreaLayout, new UploadFileDropHandler());
+
+        setCompositionRoot(dropAreaLayout);
     }
 
     public VerticalLayout getDropAreaLayout() {
         return dropAreaLayout;
+    }
+
+    public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
+        uploadButtonLayout.onUploadChanged(fileUploadProgress);
     }
 
     private class UploadFileDropHandler implements FileDropHandler<VerticalLayout> {
@@ -156,8 +146,10 @@ public class UploadDropAreaLayout extends AbstractComponent {
             if (validate(event)) {
                 // selected software module at the time of file drop is
                 // considered for upload
-                artifactUploadState.getSelectedBaseSwModuleId()
-                        .ifPresent(selectedSwId -> uploadFilesForSoftwareModule(event.getFiles(), selectedSwId));
+                final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedSmId();
+                if (lastSelectedSmId != null) {
+                    uploadFilesForSoftwareModule(event.getFiles(), lastSelectedSmId);
+                }
             }
         }
 
@@ -172,7 +164,7 @@ public class UploadDropAreaLayout extends AbstractComponent {
                 } else {
                     file.setStreamVariable(new FileTransferHandlerStreamVariable(file.getFileName(), file.getFileSize(),
                             multipartConfigElement.getMaxFileSize(), file.getType(), softwareModule, artifactManagement,
-                            i18n));
+                            i18n, uploadLock));
                 }
             }
             if (duplicateFound) {
@@ -195,14 +187,16 @@ public class UploadDropAreaLayout extends AbstractComponent {
         }
 
         private boolean validateSoftwareModuleSelection() {
-            if (artifactUploadState.isNoSoftwareModuleSelected()) {
+            final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedSmId();
+
+            if (lastSelectedSmId == null) {
                 uiNotification.displayValidationError(i18n.getMessage("message.error.noSwModuleSelected"));
                 return false;
             }
-            if (artifactUploadState.isMoreThanOneSoftwareModulesSelected()) {
-                uiNotification.displayValidationError(i18n.getMessage("message.error.multiSwModuleSelected"));
-                return false;
-            }
+            // if (artifactUploadState.isMoreThanOneSoftwareModulesSelected()) {
+            // uiNotification.displayValidationError(i18n.getMessage("message.error.multiSwModuleSelected"));
+            // return false;
+            // }
             return true;
         }
     }

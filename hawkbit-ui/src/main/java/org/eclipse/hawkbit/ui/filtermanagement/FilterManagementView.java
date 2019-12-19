@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
+import java.util.concurrent.Executor;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -15,16 +17,17 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
-import org.eclipse.hawkbit.ui.filtermanagement.footer.TargetFilterCountMessageLabel;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.spring.events.EventBus;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -34,9 +37,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * View for custom target filter management.
@@ -44,50 +45,39 @@ import com.vaadin.v7.ui.VerticalLayout;
 @UIScope
 @SpringView(name = FilterManagementView.VIEW_NAME, ui = AbstractHawkbitUI.class)
 public class FilterManagementView extends VerticalLayout implements View {
-
-    private static final long serialVersionUID = 8751545414237389386L;
+    private static final long serialVersionUID = 1L;
 
     public static final String VIEW_NAME = "targetFilters";
 
-    private final TargetFilterGridHeader targetFilterHeader;
-
-    private final TargetFilterGrid targetFilterGrid;
-
-    private final TargetFilterDetailsGridHeader targetFilterDetailsHeader;
-
-    private final CreateOrUpdateFilterHeaderLayout createNewFilterHeaderLayout;
-
-    private final CreateOrUpdateFilterTargetGrid createNewFilterTargetGrid;
-
     private final FilterManagementUIState filterManagementUIState;
+    private final transient UIEventBus eventBus;
 
-    private final TargetFilterCountMessageLabel targetFilterCountMessageLabel;
-
-    private final transient EventBus.UIEventBus eventBus;
+    private final TargetFilterGridLayout targetFilterGridLayout;
+    private final TargetFilterDetailsLayout targetFilterDetailsLayout;
 
     @Autowired
     FilterManagementView(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final FilterManagementUIState filterManagementUIState,
+            final FilterManagementUIState filterManagementUIState, final RsqlValidationOracle rsqlValidationOracle,
             final TargetFilterQueryManagement targetFilterQueryManagement, final SpPermissionChecker permissionChecker,
             final UINotification notification, final UiProperties uiProperties, final EntityFactory entityFactory,
-            final AutoCompleteTextFieldComponent queryTextField, final TargetManagement targetManagement,
-            final DistributionSetManagement distributionSetManagement) {
-        this.targetFilterHeader = new TargetFilterGridHeader(eventBus, filterManagementUIState, permissionChecker, i18n);
-        this.targetFilterGrid = new TargetFilterGrid(i18n, notification, eventBus, filterManagementUIState,
-                targetFilterQueryManagement, targetManagement, distributionSetManagement, permissionChecker);
-        this.targetFilterDetailsHeader = new TargetFilterDetailsGridHeader(eventBus, filterManagementUIState, i18n);
-        this.createNewFilterHeaderLayout = new CreateOrUpdateFilterHeaderLayout(i18n, eventBus, filterManagementUIState,
-                targetFilterQueryManagement, permissionChecker, notification, uiProperties, entityFactory,
-                queryTextField);
-        this.createNewFilterTargetGrid = new CreateOrUpdateFilterTargetGrid(i18n, eventBus, targetManagement,
-                filterManagementUIState);
+            final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
+            @Qualifier("uiExecutor") final Executor executor) {
         this.filterManagementUIState = filterManagementUIState;
-        this.targetFilterCountMessageLabel = new TargetFilterCountMessageLabel(filterManagementUIState, i18n, eventBus);
         this.eventBus = eventBus;
+
+        this.targetFilterGridLayout = new TargetFilterGridLayout(i18n, eventBus, permissionChecker, notification,
+                entityFactory, targetFilterQueryManagement, targetManagement, distributionSetManagement,
+                filterManagementUIState);
+
+        this.targetFilterDetailsLayout = new TargetFilterDetailsLayout(i18n, eventBus, notification, uiProperties,
+                entityFactory, rsqlValidationOracle, executor, targetManagement, targetFilterQueryManagement,
+                filterManagementUIState);
     }
 
     @PostConstruct
     void init() {
+        setMargin(false);
+        setSpacing(false);
         setSizeFull();
 
         buildLayout();
@@ -100,82 +90,53 @@ public class FilterManagementView extends VerticalLayout implements View {
     }
 
     private void buildLayout() {
-        setSizeFull();
-        setSpacing(false);
-        setMargin(false);
         if (filterManagementUIState.isCreateFilterViewDisplayed()) {
-            viewCreateTargetFilterLayout();
+            showFilterCreateDetailsLayout();
         } else if (filterManagementUIState.isEditViewDisplayed()) {
-            viewTargetFilterDetailLayout();
+            filterManagementUIState.getTfQuery().ifPresent(this::showFilterEditDetailsLayout);
         } else {
-            viewListView();
+            showFilterGridLayout();
         }
+    }
+
+    private void showFilterCreateDetailsLayout() {
+        targetFilterDetailsLayout.showAddFilterLayout();
+
+        showFilterDetailsLayout();
+    }
+
+    private void showFilterDetailsLayout() {
+        removeAllComponents();
+
+        addComponent(targetFilterDetailsLayout);
+        setComponentAlignment(targetFilterDetailsLayout, Alignment.TOP_CENTER);
+        setExpandRatio(targetFilterDetailsLayout, 1.0F);
+    }
+
+    private void showFilterEditDetailsLayout(final ProxyTargetFilterQuery tfQuery) {
+        targetFilterDetailsLayout.showEditFilterLayout(tfQuery);
+
+        showFilterDetailsLayout();
+    }
+
+    private void showFilterGridLayout() {
+        removeAllComponents();
+
+        addComponent(targetFilterGridLayout);
+        setComponentAlignment(targetFilterGridLayout, Alignment.TOP_CENTER);
+        setExpandRatio(targetFilterGridLayout, 1.0F);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final CustomFilterUIEvent custFilterUIEvent) {
         if (custFilterUIEvent == CustomFilterUIEvent.TARGET_FILTER_DETAIL_VIEW) {
-            viewTargetFilterDetailLayout();
+            // use payload from event instead of ui state
+            filterManagementUIState.getTfQuery().ifPresent(this::showFilterEditDetailsLayout);
         } else if (custFilterUIEvent == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK) {
-            this.getUI().access(this::viewCreateTargetFilterLayout);
+            showFilterCreateDetailsLayout();
         } else if (custFilterUIEvent == CustomFilterUIEvent.SHOW_FILTER_MANAGEMENT) {
-            UI.getCurrent().access(this::viewListView);
+            showFilterGridLayout();
         }
-    }
-
-    private void viewCreateTargetFilterLayout() {
-        buildFilterDetailOrCreateView();
-
-    }
-
-    private void viewTargetFilterDetailLayout() {
-        buildFilterDetailOrCreateView();
-    }
-
-    private void buildFilterDetailOrCreateView() {
-        removeAllComponents();
-        final VerticalLayout tableHeaderLayout = new VerticalLayout();
-        tableHeaderLayout.setSizeFull();
-        tableHeaderLayout.setSpacing(false);
-        tableHeaderLayout.setMargin(false);
-        tableHeaderLayout.setStyleName("table-layout");
-        tableHeaderLayout.addComponent(targetFilterDetailsHeader);
-        tableHeaderLayout.setComponentAlignment(targetFilterDetailsHeader, Alignment.TOP_CENTER);
-        tableHeaderLayout.addComponent(createNewFilterHeaderLayout);
-        tableHeaderLayout.setComponentAlignment(createNewFilterHeaderLayout, Alignment.TOP_CENTER);
-        tableHeaderLayout.addComponent(createNewFilterTargetGrid);
-        tableHeaderLayout.setComponentAlignment(createNewFilterTargetGrid, Alignment.TOP_CENTER);
-        tableHeaderLayout.setExpandRatio(createNewFilterTargetGrid, 1.0F);
-
-        addComponent(tableHeaderLayout);
-        setComponentAlignment(tableHeaderLayout, Alignment.TOP_CENTER);
-        setExpandRatio(tableHeaderLayout, 1.0F);
-
-        final HorizontalLayout targetsCountmessageLabelLayout = addTargetFilterMessageLabel();
-        addComponent(targetsCountmessageLabelLayout);
-        setComponentAlignment(targetsCountmessageLabelLayout, Alignment.BOTTOM_CENTER);
-
-    }
-
-    private void viewListView() {
-        removeAllComponents();
-        final VerticalLayout tableListViewLayout = new VerticalLayout();
-        tableListViewLayout.setSizeFull();
-        tableListViewLayout.setSpacing(false);
-        tableListViewLayout.setMargin(false);
-        tableListViewLayout.setStyleName("table-layout");
-        tableListViewLayout.addComponent(targetFilterHeader);
-        tableListViewLayout.setComponentAlignment(targetFilterHeader, Alignment.TOP_CENTER);
-        tableListViewLayout.addComponent(targetFilterGrid);
-        tableListViewLayout.setComponentAlignment(targetFilterGrid, Alignment.TOP_CENTER);
-        tableListViewLayout.setExpandRatio(targetFilterGrid, 1.0F);
-        addComponent(tableListViewLayout);
-    }
-
-    private HorizontalLayout addTargetFilterMessageLabel() {
-        final HorizontalLayout messageLabelLayout = new HorizontalLayout();
-        messageLabelLayout.addComponent(targetFilterCountMessageLabel);
-        return messageLabelLayout;
     }
 
     @Override

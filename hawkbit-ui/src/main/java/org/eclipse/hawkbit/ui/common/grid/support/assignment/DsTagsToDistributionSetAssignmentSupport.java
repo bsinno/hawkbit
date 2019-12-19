@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 import java.util.Collections;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
-import org.eclipse.hawkbit.repository.model.AssignmentResult;
+import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
@@ -41,13 +41,13 @@ public class DsTagsToDistributionSetAssignmentSupport
     }
 
     @Override
-    protected AssignmentResult<DistributionSet> toggleTagAssignment(final String tagName,
+    protected AbstractAssignmentResult<DistributionSet> toggleTagAssignment(final String tagName,
             final ProxyDistributionSet targetItem) {
         return distributionSetManagement.toggleTagAssignment(Collections.singletonList(targetItem.getId()), tagName);
     }
 
     @Override
-    protected void publishFilterEvent(final AssignmentResult<DistributionSet> tagsAssignmentResult) {
+    protected void publishFilterEvent(final AbstractAssignmentResult<DistributionSet> tagsAssignmentResult) {
         if (tagsAssignmentResult.getAssigned() > 0
                 && managementUIState.getDistributionTableFilters().isNoTagSelected()) {
             eventBus.publish(this, new RefreshDistributionTableByFilterEvent());

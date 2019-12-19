@@ -99,13 +99,11 @@ public class DeleteSupport<T> {
     }
 
     private void handleOkDelete(final Set<T> itemsToBeDeleted, final String successNotificationText) {
+        grid.deselectAll();
         // TODO: should we catch the exception here?
         itemsDeletionCallback.accept(itemsToBeDeleted);
 
         notification.displaySuccess(successNotificationText);
-
-        // TODO: should we call eventBus.publish(this,
-        // SaveActionWindowEvent.DELETED_DISTRIBUTIONS); here?
     }
 
     // TODO: check if it should be passed as a parameter

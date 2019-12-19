@@ -8,24 +8,20 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
-import java.util.Objects;
+import java.util.concurrent.locks.Lock;
 
 import javax.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
 import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
@@ -36,26 +32,22 @@ import com.vaadin.ui.VerticalLayout;
  * Container for upload and progress button.
  */
 public class UploadProgressButtonLayout extends VerticalLayout {
-
     private static final long serialVersionUID = 1L;
-
-    private final UploadProgressInfoWindow uploadInfoWindow;
 
     private final VaadinMessageSource i18n;
 
-    private final transient MultipartConfigElement multipartConfigElement;
-
-    private final UI ui;
-
-    private Button uploadProgressButton;
-
-    private final transient SoftwareModuleManagement softwareModuleManagement;
-
-    private final Upload upload;
+    private final ArtifactUploadState artifactUploadState;
 
     private final transient ArtifactManagement artifactManagement;
+    private final transient SoftwareModuleManagement softwareModuleManagement;
 
-    private final ArtifactUploadState artifactUploadState;
+    private final transient MultipartConfigElement multipartConfigElement;
+    private final Upload upload;
+    private final transient Lock uploadLock;
+
+    private final UploadProgressInfoWindow uploadInfoWindow;
+
+    private Button uploadProgressButton;
 
     /**
      * Creates a new {@link UploadProgressButtonLayout} instance.
@@ -74,13 +66,17 @@ public class UploadProgressButtonLayout extends VerticalLayout {
      * @param artifactManagement
      *            the {@link ArtifactManagement} for storing the uploaded
      *            artifacts
+     * @param uploadLock
+     *            A common upload lock that enforced sequential upload within an
+     *            UI instance
      */
     public UploadProgressButtonLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ArtifactUploadState artifactUploadState, final MultipartConfigElement multipartConfigElement,
-            final ArtifactManagement artifactManagement, final SoftwareModuleManagement softwareManagement) {
+            final ArtifactManagement artifactManagement, final SoftwareModuleManagement softwareManagement,
+            final Lock uploadLock) {
         this.artifactUploadState = artifactUploadState;
         this.artifactManagement = artifactManagement;
-        this.uploadInfoWindow = new UploadProgressInfoWindow(eventBus, artifactUploadState, i18n);
+        this.uploadInfoWindow = new UploadProgressInfoWindow(i18n, artifactUploadState);
         this.uploadInfoWindow.addCloseListener(event -> {
             // ensure that the progress button is hidden when the progress
             // window is closed and no more uploads running
@@ -92,28 +88,33 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         this.multipartConfigElement = multipartConfigElement;
         this.softwareModuleManagement = softwareManagement;
         this.upload = new UploadFixed();
+        this.uploadLock = uploadLock;
 
         createComponents();
         buildLayout();
         restoreState();
-        ui = UI.getCurrent();
-
-        eventBus.subscribe(this);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final FileUploadProgress fileUploadProgress) {
+    public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         final FileUploadProgress.FileUploadStatus uploadProgressEventType = fileUploadProgress.getFileUploadStatus();
+
         switch (uploadProgressEventType) {
         case UPLOAD_STARTED:
-            ui.access(this::onStartOfUpload);
+            UI.getCurrent().access(() -> {
+                onStartOfUpload();
+                uploadInfoWindow.onUploadStarted(fileUploadProgress);
+            });
             break;
         case UPLOAD_FAILED:
         case UPLOAD_SUCCESSFUL:
         case UPLOAD_IN_PROGRESS:
+            UI.getCurrent().access(() -> uploadInfoWindow.updateUploadProgressInfoRowObject(fileUploadProgress));
             break;
         case UPLOAD_FINISHED:
-            ui.access(this::onUploadFinished);
+            UI.getCurrent().access(() -> {
+                onUploadFinished();
+                uploadInfoWindow.onUploadFinished();
+            });
             break;
         default:
             throw new IllegalArgumentException("Enum " + FileUploadProgress.FileUploadStatus.class.getSimpleName()
@@ -121,22 +122,8 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         }
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent event) {
-        final BaseEntityEventType eventType = event.getEventType();
-        if (eventType == BaseEntityEventType.SELECTED_ENTITY) {
-            ui.access(() -> {
-                if (isNoSoftwareModuleOrMoreThanOneSelected(event)) {
-                    upload.setEnabled(false);
-                } else if (artifactUploadState.areAllUploadsFinished()) {
-                    upload.setEnabled(true);
-                }
-            });
-        }
-    }
-
-    private boolean isNoSoftwareModuleOrMoreThanOneSelected(final SoftwareModuleEvent event) {
-        return Objects.nonNull(event.getEntityIds()) && event.getEntityIds().size() != 1;
+    public void updateMasterEntityFilter(final Long masterEntityId) {
+        upload.setEnabled(masterEntityId != null && artifactUploadState.areAllUploadsFinished());
     }
 
     private void createComponents() {
@@ -145,12 +132,13 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         uploadProgressButton.addStyleName(SPUIStyleDefinitions.UPLOAD_PROGRESS_INDICATOR_STYLE);
         uploadProgressButton.setIcon(null);
         uploadProgressButton.setCaptionAsHtml(true);
-        uploadProgressButton.addClickListener(event -> onClickOfUploadProgressButton());
+        uploadProgressButton.addClickListener(event -> showUploadInfoWindow());
     }
 
     private void buildLayout() {
         final FileTransferHandlerVaadinUpload uploadHandler = new FileTransferHandlerVaadinUpload(
-                multipartConfigElement.getMaxFileSize(), softwareModuleManagement, artifactManagement, i18n);
+                multipartConfigElement.getMaxFileSize(), softwareModuleManagement, artifactManagement, i18n,
+                uploadLock);
         upload.setButtonCaption(i18n.getMessage("upload.file"));
         upload.setReceiver(uploadHandler);
         upload.addSucceededListener(uploadHandler);
@@ -193,7 +181,7 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         }
     }
 
-    private void onClickOfUploadProgressButton() {
+    public void showUploadInfoWindow() {
         uploadInfoWindow.maximizeWindow();
     }
 

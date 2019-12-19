@@ -10,13 +10,14 @@ package org.eclipse.hawkbit.ui.management.dstable;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractDistributionSetDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsGrid;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -27,31 +28,29 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DistributionDetails extends AbstractDistributionSetDetails {
     private static final long serialVersionUID = 1L;
 
-    private final ManagementUIState managementUIState;
+    private final transient SoftwareModuleManagement smManagement;
+    private final transient DistributionSetTypeManagement dsTypeManagement;
 
     DistributionDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final DistributionSetManagement distributionSetManagement, final UINotification uiNotification,
+            final SpPermissionChecker permissionChecker, final UINotification uiNotification,
+            final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
+            final DistributionSetTypeManagement dsTypeManagement,
             final DistributionSetTagManagement distributionSetTagManagement,
             final TenantConfigurationManagement tenantConfigurationManagement,
-            final SystemSecurityContext systemSecurityContext, final EntityFactory entityFactory) {
-        super(i18n, eventBus, permissionChecker, managementUIState, distributionSetManagement, uiNotification,
-                distributionSetTagManagement, tenantConfigurationManagement, systemSecurityContext, entityFactory);
+            final SystemSecurityContext systemSecurityContext, final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
+        super(i18n, eventBus, permissionChecker, distributionSetManagement, uiNotification,
+                distributionSetTagManagement, tenantConfigurationManagement, systemSecurityContext,
+                dsMetaDataWindowBuilder);
 
-        this.managementUIState = managementUIState;
+        this.smManagement = smManagement;
+        this.dsTypeManagement = dsTypeManagement;
 
         buildDetails();
-        restoreState();
     }
 
     @Override
     protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
-        return new SoftwareModuleDetailsGrid(i18n, false, permChecker, null, null, null, uiNotification);
-    }
-
-    private void restoreState() {
-        if (managementUIState.isDsTableMaximized()) {
-            setVisible(false);
-        }
+        return new SoftwareModuleDetailsGrid(i18n, eventBus, uiNotification, permissionChecker,
+                distributionSetManagement, smManagement, dsTypeManagement, false);
     }
 }

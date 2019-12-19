@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
+import java.util.Set;
+
 import org.eclipse.hawkbit.repository.model.Type;
 
 /**
@@ -22,6 +24,12 @@ public class ProxyType extends ProxyFilterButton {
     private boolean deleted;
 
     private boolean mandatory;
+
+    private SmTypeAssign smTypeAssign;
+
+    private Set<ProxyType> selectedSmTypes;
+
+    private int maxAssignments;
 
     public String getKey() {
         return key;
@@ -45,6 +53,34 @@ public class ProxyType extends ProxyFilterButton {
 
     public void setMandatory(final boolean mandatory) {
         this.mandatory = mandatory;
+    }
+
+    public SmTypeAssign getSmTypeAssign() {
+        return smTypeAssign;
+    }
+
+    public void setSmTypeAssign(final SmTypeAssign smTypeAssign) {
+        this.smTypeAssign = smTypeAssign;
+    }
+
+    public Set<ProxyType> getSelectedSmTypes() {
+        return selectedSmTypes;
+    }
+
+    public void setSelectedSmTypes(final Set<ProxyType> selectedSmTypes) {
+        this.selectedSmTypes = selectedSmTypes;
+    }
+
+    public int getMaxAssignments() {
+        return maxAssignments;
+    }
+
+    public void setMaxAssignments(final int maxAssignments) {
+        this.maxAssignments = maxAssignments;
+    }
+
+    public enum SmTypeAssign {
+        SINGLE, MULTI;
     }
 
 }

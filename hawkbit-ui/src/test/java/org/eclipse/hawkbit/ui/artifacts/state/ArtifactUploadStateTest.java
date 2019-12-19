@@ -28,9 +28,6 @@ import io.qameta.allure.Story;
 public class ArtifactUploadStateTest {
 
     @Mock
-    public SoftwareModuleFilters softwareModuleFilters;
-
-    @Mock
     public FileUploadId fileUploadId1;
 
     @Mock
@@ -47,7 +44,7 @@ public class ArtifactUploadStateTest {
 
     @Before
     public void setupTest() {
-        stateUnderTest = new ArtifactUploadState(softwareModuleFilters);
+        stateUnderTest = new ArtifactUploadState();
     }
 
     @Test

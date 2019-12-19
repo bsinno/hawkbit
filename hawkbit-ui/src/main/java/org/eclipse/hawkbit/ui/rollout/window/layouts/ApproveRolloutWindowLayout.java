@@ -10,19 +10,24 @@ package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 
+import com.vaadin.ui.GridLayout;
+
 /**
  * Layout builder for Approve Rollout window.
  */
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
 
-    private static final long serialVersionUID = 1L;
-
     public ApproveRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         super(dependencies);
+    }
 
-        insertRow(getRows());
-        addComponent(componentBuilder.getLabel("label.approval.decision"), 0, 6);
-        addComponent(componentBuilder.createApprovalLayout(getProxyRolloutBinder()), 1, 6, 3, 6);
+    @Override
+    protected void addComponents(final GridLayout rootLayout) {
+        super.addComponents(rootLayout);
+
+        rootLayout.insertRow(rootLayout.getRows());
+        rootLayout.addComponent(rolloutComponentBuilder.getLabel("label.approval.decision"), 0, 6);
+        rootLayout.addComponent(rolloutComponentBuilder.createApprovalLayout(binder), 1, 6, 3, 6);
     }
 }

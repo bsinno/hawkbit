@@ -8,12 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
-import java.util.stream.Collectors;
-
 import org.eclipse.hawkbit.repository.model.DistributionSet;
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Maps {@link DistributionSet} entities, fetched from backend, to the
@@ -28,25 +26,14 @@ public class DistributionSetToProxyDistributionMapper
 
         mapNamedEntityAttributes(distributionSet, proxyDistribution);
 
-        proxyDistribution.setDistId(distributionSet.getId());
         proxyDistribution.setVersion(distributionSet.getVersion());
         proxyDistribution.setNameVersion(
                 HawkbitCommonUtil.getFormattedNameVersion(distributionSet.getName(), distributionSet.getVersion()));
         proxyDistribution.setIsComplete(distributionSet.isComplete());
-        proxyDistribution.setType(distributionSet.getType());
         proxyDistribution.setRequiredMigrationStep(distributionSet.isRequiredMigrationStep());
-
-        // TODO: check if really needed
-        if (!CollectionUtils.isEmpty(distributionSet.getModules())) {
-            proxyDistribution.setModules(distributionSet.getModules().stream()
-                    .map(sm -> new SoftwareModuleToProxyMapper().map(sm)).collect(Collectors.toSet()));
-        }
-
-        // TODO: check if really needed
-        if (!CollectionUtils.isEmpty(distributionSet.getAutoAssignFilters())) {
-            proxyDistribution.setAutoAssignFilters(distributionSet.getAutoAssignFilters().stream()
-                    .map(tf -> new TargetFilterQueryToProxyTargetFilterMapper().map(tf)).collect(Collectors.toList()));
-        }
+        proxyDistribution.setTypeId(distributionSet.getType().getId());
+        // TODO: consider removing or refactor
+        proxyDistribution.setProxyType(new TypeToProxyTypeMapper<DistributionSetType>().map(distributionSet.getType()));
 
         return proxyDistribution;
     }

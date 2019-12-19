@@ -9,7 +9,9 @@
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 
 /**
@@ -25,12 +27,15 @@ public class SoftwareModuleToProxyMapper
 
         mapNamedEntityAttributes(softwareModule, proxySoftwareModule);
 
-        proxySoftwareModule.setSwId(softwareModule.getId());
-        final String swNameVersion = HawkbitCommonUtil.concatStrings(":", softwareModule.getName(),
-                softwareModule.getVersion());
-        proxySoftwareModule.setNameAndVersion(swNameVersion);
+        proxySoftwareModule.setVersion(softwareModule.getVersion());
+        proxySoftwareModule.setNameAndVersion(
+                HawkbitCommonUtil.concatStrings(":", softwareModule.getName(), softwareModule.getVersion()));
         proxySoftwareModule.setVendor(softwareModule.getVendor());
-        proxySoftwareModule.setType(softwareModule.getType());
+        proxySoftwareModule.setTypeId(softwareModule.getType().getId());
+        // TODO: consider removing or refactor
+        final ProxyType proxyType = new TypeToProxyTypeMapper<SoftwareModuleType>().map(softwareModule.getType());
+        proxyType.setMaxAssignments(softwareModule.getType().getMaxAssignments());
+        proxySoftwareModule.setProxyType(proxyType);
 
         return proxySoftwareModule;
     }

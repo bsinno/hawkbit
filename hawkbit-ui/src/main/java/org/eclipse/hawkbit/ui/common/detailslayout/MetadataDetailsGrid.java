@@ -8,59 +8,72 @@
  */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
-import org.eclipse.hawkbit.repository.model.MetaData;
+import org.eclipse.hawkbit.ui.common.data.providers.AbstractMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.cronutils.utils.StringUtils;
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Grid;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Metadata grid for entities.
  */
-public class MetadataDetailsGrid extends Grid<ProxyMetaData> {
+public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> {
     private static final long serialVersionUID = 1L;
-
-    public static final int MAX_METADATA_QUERY = 500;
 
     private static final String METADATA_KEY_ID = "Key";
 
-    private final List<ProxyMetaData> metaDataList;
-
-    private final VaadinMessageSource i18n;
     private final String detailLinkIdPrefix;
-    private final transient Consumer<String> showMetadataDetailsCallback;
+    private final transient Consumer<ProxyMetaData> showMetadataDetailsCallback;
+    private final ConfigurableFilterDataProvider<ProxyMetaData, Void, F> metaDataDataProvider;
 
-    public MetadataDetailsGrid(final VaadinMessageSource i18n, final String detailLinkIdPrefix,
-            final Consumer<String> showMetadataDetailsCallback) {
-        this.i18n = i18n;
+    public MetadataDetailsGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
+            final String detailLinkIdPrefix, final Consumer<ProxyMetaData> showMetadataDetailsCallback,
+            final AbstractMetaDataDataProvider<?, F> metaDataDataProvider) {
+        super(i18n, eventBus);
+
         this.detailLinkIdPrefix = detailLinkIdPrefix;
         this.showMetadataDetailsCallback = showMetadataDetailsCallback;
-        this.metaDataList = new ArrayList<>();
+        this.metaDataDataProvider = metaDataDataProvider.withConfigurableFilter();
 
         init();
     }
 
-    private void init() {
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+    @Override
+    protected void init() {
+        super.init();
+
+        setHeaderVisible(false);
+        setHeightMode(HeightMode.UNDEFINED);
+
+        addStyleName("metadata-details");
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        setSelectionMode(SelectionMode.NONE);
-        setSizeFull();
-        // same as height of other tabs in details tabsheet
-        // setHeight(116, Unit.PIXELS);
-
-        addColumns();
-
-        setItems(metaDataList);
+        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
+        addStyleName(ValoTheme.TABLE_BORDERLESS);
+        addStyleName(ValoTheme.TABLE_COMPACT);
     }
 
-    private void addColumns() {
+    @Override
+    public ConfigurableFilterDataProvider<ProxyMetaData, Void, F> getFilterDataProvider() {
+        return metaDataDataProvider;
+    }
+
+    @Override
+    public String getGridId() {
+        return UIComponentIdProvider.METDATA_TABLE_ID;
+    }
+
+    @Override
+    public void addColumns() {
         addComponentColumn(this::buildKeyLink).setId(METADATA_KEY_ID).setCaption(i18n.getMessage("header.key"))
                 .setExpandRatio(7);
     }
@@ -82,23 +95,12 @@ public class MetadataDetailsGrid extends Grid<ProxyMetaData> {
         // this is to allow the button to disappear, if the text is null
         metaDataKeyLink.setVisible(!StringUtils.isEmpty(metaDataKey));
 
-        metaDataKeyLink.addClickListener(event -> showMetadataDetailsCallback.accept(metaDataKey));
+        metaDataKeyLink.addClickListener(event -> showMetadataDetailsCallback.accept(metaData));
 
         return metaDataKeyLink;
     }
 
-    public void addMetaDataToList(final MetaData metaData) {
-        final ProxyMetaData metaDataItem = new ProxyMetaData();
-
-        metaDataItem.setEntityId(metaData.getEntityId());
-        metaDataItem.setKey(metaData.getKey());
-        metaDataItem.setValue(metaData.getValue());
-
-        metaDataList.add(metaDataItem);
-    }
-
-    public void clearData() {
-        metaDataList.clear();
-        // TODO: should we call refreshAll here?
+    public void updateMasterEntityFilter(final F masterEntityFilter) {
+        getFilterDataProvider().setFilter(masterEntityFilter);
     }
 }

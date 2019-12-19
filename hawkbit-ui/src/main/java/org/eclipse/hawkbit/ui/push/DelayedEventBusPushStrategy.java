@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.push;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +21,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
+import org.eclipse.hawkbit.im.authentication.UserPrincipal;
 import org.eclipse.hawkbit.repository.event.TenantAwareEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.ActionCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.ActionUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutGroupCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutGroupUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutUpdatedEvent;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
 import org.slf4j.Logger;
@@ -60,19 +63,21 @@ import com.vaadin.ui.UI;
  * in the event and only forwards event from the right tenant to the UI.
  *
  */
-public class DelayedEventBusPushStrategy implements EventPushStrategy, ApplicationListener<ApplicationEvent> {
+public class DelayedEventBusPushStrategy
+        implements EventPushStrategy, ApplicationListener<ApplicationEvent>, Serializable {
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(DelayedEventBusPushStrategy.class);
 
     private static final int BLOCK_SIZE = 10_000;
-    private final BlockingDeque<TenantAwareEvent> queue = new LinkedBlockingDeque<>(BLOCK_SIZE);
+    private final transient BlockingDeque<TenantAwareEvent> queue = new LinkedBlockingDeque<>(BLOCK_SIZE);
 
-    private final ScheduledExecutorService executorService;
-    private final EventBus.UIEventBus eventBus;
-    private final UIEventProvider eventProvider;
+    private final transient ScheduledExecutorService executorService;
+    private final transient UIEventBus eventBus;
+    private final transient UIEventProvider eventProvider;
     private final long delay;
 
-    private ScheduledFuture<?> jobHandle;
+    private transient ScheduledFuture<?> jobHandle;
     private UI vaadinUI;
 
     /**
@@ -103,7 +108,7 @@ public class DelayedEventBusPushStrategy implements EventPushStrategy, Applicati
     @Override
     public void init(final UI vaadinUI) {
         this.vaadinUI = vaadinUI;
-        LOG.info("Initialize delayed event push strategy for UI {}", vaadinUI.getUIId());
+        LOG.debug("Initialize delayed event push strategy for UI {}", vaadinUI.getUIId());
         if (vaadinUI.getSession() == null) {
             LOG.error("Vaadin session of UI {} is null! Event push disabled!", vaadinUI.getUIId());
         }
@@ -114,7 +119,7 @@ public class DelayedEventBusPushStrategy implements EventPushStrategy, Applicati
 
     @Override
     public void clean() {
-        LOG.info("Cleanup delayed event push strategy for UI {}", vaadinUI.getUIId());
+        LOG.debug("Cleanup delayed event push strategy for UI {}", vaadinUI.getUIId());
         jobHandle.cancel(true);
         queue.clear();
     }
@@ -183,6 +188,10 @@ public class DelayedEventBusPushStrategy implements EventPushStrategy, Applicati
                 return ((TenantAwareAuthenticationDetails) tenantAuthenticationDetails).getTenant()
                         .equalsIgnoreCase(event.getTenant());
             }
+            final Object userPrincipalDetails = userContext.getAuthentication().getPrincipal();
+            if (userPrincipalDetails instanceof UserPrincipal) {
+                return ((UserPrincipal) userPrincipalDetails).getTenant().equalsIgnoreCase(event.getTenant());
+            }
             return false;
         }
 
@@ -201,7 +210,8 @@ public class DelayedEventBusPushStrategy implements EventPushStrategy, Applicati
                         return;
                     }
                     LOG.debug("UI EventBus aggregator of UI {} got lock on session.", vaadinUI.getUIId());
-                    groupedEvents.forEach(holder -> eventBus.publish(vaadinUI, holder));
+                    groupedEvents.forEach(eventContainer -> eventBus.publish(EventTopics.REMOTE_EVENT_RECEIVED,
+                            vaadinUI, eventContainer));
                     LOG.debug("UI EventBus aggregator of UI {} left lock on session.", vaadinUI.getUIId());
                 }).get();
             } catch (InterruptedException | ExecutionException e) {
@@ -218,19 +228,19 @@ public class DelayedEventBusPushStrategy implements EventPushStrategy, Applicati
 
             return events.stream().filter(event -> eventSecurityCheck(userContext, event))
                     .collect(Collectors.groupingBy(TenantAwareEvent::getClass)).entrySet().stream().map(entry -> {
-                        EventContainer<TenantAwareEvent> holder = null;
+                        EventContainer<TenantAwareEvent> eventContainer = null;
                         try {
                             final Constructor<TenantAwareEvent> declaredConstructor = (Constructor<TenantAwareEvent>) eventProvider
                                     .getEvents().get(entry.getKey()).getDeclaredConstructor(List.class);
                             declaredConstructor.setAccessible(true);
 
-                            holder = (EventContainer<TenantAwareEvent>) declaredConstructor
+                            eventContainer = (EventContainer<TenantAwareEvent>) declaredConstructor
                                     .newInstance(entry.getValue());
                         } catch (final ReflectiveOperationException e) {
-                            LOG.error("Failed to create EventHolder!", e);
+                            LOG.error("Failed to create EventContainer!", e);
                         }
 
-                        return holder;
+                        return eventContainer;
                     }).collect(Collectors.toList());
         }
     }

@@ -13,13 +13,13 @@ import java.util.Arrays;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -31,7 +31,8 @@ public abstract class DetailsHeader<T extends ProxyNamedEntity> extends Abstract
 
     protected final UINotification uiNotification;
 
-    private final Label headerCaption;
+    private final Label headerCaptionPrefix;
+    private final Label headerCaptionEntity;
 
     private final transient EditDetailsHeaderSupport editDetailsHeaderSupport;
     private final transient MetaDataDetailsHeaderSupport metaDataDetailsHeaderSupport;
@@ -44,7 +45,8 @@ public abstract class DetailsHeader<T extends ProxyNamedEntity> extends Abstract
 
         this.uiNotification = uiNotification;
 
-        this.headerCaption = buildHeaderCaption();
+        this.headerCaptionPrefix = buildHeaderCaptionPrefix();
+        this.headerCaptionEntity = buildHeaderCaptionEntity();
 
         if (hasEditPermission()) {
             this.editDetailsHeaderSupport = new EditDetailsHeaderSupport(i18n, getEditIconId(), this::onEdit);
@@ -64,37 +66,55 @@ public abstract class DetailsHeader<T extends ProxyNamedEntity> extends Abstract
         setMargin(false);
     }
 
-    // TODO: remove duplication with ActionHistoryGridHeader
-    private Label buildHeaderCaption() {
-        final Label caption = new Label(getEntityType() + " : ", ContentMode.HTML);
-        caption.setId(getDetailsHeaderCaptionId());
+    private Label buildHeaderCaptionPrefix() {
+        final Label caption = new Label(getEntityType() + " : ");
         caption.addStyleName(ValoTheme.LABEL_SMALL);
         caption.addStyleName(ValoTheme.LABEL_BOLD);
-        caption.addStyleName("header-caption");
+
+        return caption;
+    }
+
+    // TODO: remove duplication with ActionHistoryGridHeader
+    private Label buildHeaderCaptionEntity() {
+        final Label caption = new Label();
+        caption.setId(getDetailsHeaderCaptionId());
+        caption.setWidth("100%");
+        caption.addStyleName(ValoTheme.LABEL_SMALL);
+        caption.addStyleName("text-bold");
+        caption.addStyleName("text-cut");
 
         return caption;
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     protected Component getHeaderCaption() {
-        return headerCaption;
+        final HorizontalLayout headerCaptionLayout = new HorizontalLayout();
+        headerCaptionLayout.setMargin(false);
+        headerCaptionLayout.setSpacing(true);
+        headerCaptionLayout.setSizeFull();
+        headerCaptionLayout.addStyleName("header-caption");
+
+        headerCaptionLayout.addComponent(headerCaptionPrefix);
+        headerCaptionLayout.setComponentAlignment(headerCaptionPrefix, Alignment.TOP_LEFT);
+        headerCaptionLayout.setExpandRatio(headerCaptionPrefix, 0.0F);
+
+        headerCaptionLayout.addComponent(headerCaptionEntity);
+        headerCaptionLayout.setComponentAlignment(headerCaptionEntity, Alignment.TOP_LEFT);
+        headerCaptionLayout.setExpandRatio(headerCaptionEntity, 1.0F);
+
+        return headerCaptionLayout;
     }
 
     // TODO: Check if it could be done by binder
-    public void updateDetailsHeader(final T entity) {
+    public void masterEntityChanged(final T entity) {
         if (entity == null) {
             editDetailsHeaderSupport.disableEditIcon();
             metaDataDetailsHeaderSupport.disableMetaDataIcon();
-            headerCaption.setValue(getEntityType() + " : ");
+            headerCaptionEntity.setValue(null);
         } else {
             editDetailsHeaderSupport.enableEditIcon();
             metaDataDetailsHeaderSupport.enableMetaDataIcon();
-            headerCaption.setValue(getEntityType() + " : " + HawkbitCommonUtil.getBoldHTMLText(getEntityName(entity)));
+            headerCaptionEntity.setValue(getEntityName(entity));
         }
 
         selectedEntity = entity;

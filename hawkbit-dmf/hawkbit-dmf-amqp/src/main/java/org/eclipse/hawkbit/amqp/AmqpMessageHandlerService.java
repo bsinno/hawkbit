@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.amqp;
 
 import static org.eclipse.hawkbit.repository.RepositoryConstants.MAX_ACTION_COUNT;
 import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED;
+import static org.springframework.util.StringUtils.hasText;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -26,6 +27,7 @@ import org.eclipse.hawkbit.dmf.amqp.api.MessageHeaderKey;
 import org.eclipse.hawkbit.dmf.amqp.api.MessageType;
 import org.eclipse.hawkbit.dmf.json.model.DmfActionUpdateStatus;
 import org.eclipse.hawkbit.dmf.json.model.DmfAttributeUpdate;
+import org.eclipse.hawkbit.dmf.json.model.DmfCreateThing;
 import org.eclipse.hawkbit.dmf.json.model.DmfUpdateMode;
 import org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions;
 import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
@@ -51,7 +53,7 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -81,6 +83,10 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
     private final TenantConfigurationManagement tenantConfigurationManagement;
 
     private final SystemSecurityContext systemSecurityContext;
+
+    private static final String THING_ID_NULL = "ThingId is null";
+
+    private static final String EMPTY_MESSAGE_BODY = "\"\"";
 
     /**
      * Constructor.
@@ -120,7 +126,6 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
      *            the message type
      * @param tenant
      *            the contentType of the message
-     * 
      * @return a message if <null> no message is send back to sender
      */
     @RabbitListener(queues = "${hawkbit.dmf.rabbitmq.receiverQueue:dmf_receiver}", containerFactory = "listenerContainerFactory")
@@ -155,6 +160,10 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
             case THING_CREATED:
                 setTenantSecurityContext(tenant);
                 registerTarget(message, virtualHost);
+                break;
+            case THING_REMOVED:
+                setTenantSecurityContext(tenant);
+                deleteTarget(message);
                 break;
             case EVENT:
                 checkContentTypeJson(message);
@@ -192,15 +201,17 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
     }
 
     /**
-     * Method to create a new target or to find the target if it already exists.
+     * Method to create a new target or to find the target if it already exists and
+     * update its poll time, status and optionally its name.
      *
-     * @param targetID
-     *            the ID of the target/thing
-     * @param ip
-     *            the ip of the target/thing
+     * @param message
+     *            the message that contains replyTo property and optionally the name
+     *            in body
+     * @param virtualHost
+     *            the virtual host
      */
     private void registerTarget(final Message message, final String virtualHost) {
-        final String thingId = getStringHeaderKey(message, MessageHeaderKey.THING_ID, "ThingId is null");
+        final String thingId = getStringHeaderKey(message, MessageHeaderKey.THING_ID, THING_ID_NULL);
         final String replyTo = message.getMessageProperties().getReplyTo();
 
         if (StringUtils.isEmpty(replyTo)) {
@@ -209,12 +220,26 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
 
         try {
             final URI amqpUri = IpUtil.createAmqpUri(virtualHost, replyTo);
-            final Target target = controllerManagement.findOrRegisterTargetIfItDoesNotExist(thingId, amqpUri);
+            final Target target;
+            if (isOptionalMessageBodyEmpty(message)) {
+                target = controllerManagement.findOrRegisterTargetIfItDoesNotExist(thingId, amqpUri);
+            } else {
+                checkContentTypeJson(message);
+
+                    target = controllerManagement.findOrRegisterTargetIfItDoesNotExist(thingId, amqpUri, convertMessage(message, DmfCreateThing.class).getName());
+
+            }
             LOG.debug("Target {} reported online state.", thingId);
             sendUpdateCommandToTarget(target);
-        } catch (EntityAlreadyExistsException e) {
-            throw new AmqpRejectAndDontRequeueException("Target already registered, message will be ignored!", e);
+        } catch (final EntityAlreadyExistsException e) {
+            throw new AmqpRejectAndDontRequeueException("Tried to register previously registered target, message will be ignored!", e);
         }
+    }
+
+    private static boolean isOptionalMessageBodyEmpty(final Message message) {
+        // empty byte array message body is serialized to double-quoted string
+        // by message converter and should also be considered as empty
+        return isMessageBodyEmpty(message) || EMPTY_MESSAGE_BODY.equals(new String(message.getBody()));
     }
 
     private void sendUpdateCommandToTarget(final Target target) {
@@ -227,7 +252,7 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
 
     private void sendCurrentActionsAsMultiActionToTarget(final Target target) {
         final List<Action> actions = controllerManagement
-                .findActiveActionsByTarget(PageRequest.of(0, MAX_ACTION_COUNT), target.getControllerId()).getContent();
+                .findActiveActionsWithHighestWeight(target.getControllerId(), MAX_ACTION_COUNT);
 
         final Set<DistributionSet> distributionSets = actions.stream().map(Action::getDistributionSet)
                 .collect(Collectors.toSet());
@@ -240,7 +265,7 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
 
     private void sendOldestActionToTarget(final Target target) {
         final Optional<Action> actionOptional = controllerManagement
-                .findOldestActiveActionByTarget(target.getControllerId());
+                .findActiveActionWithHighestWeight(target.getControllerId());
 
         if (!actionOptional.isPresent()) {
             return;
@@ -274,8 +299,6 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
      *
      * @param message
      *            the incoming event message.
-     * @param topic
-     *            the topic of the event.
      */
     private void handleIncomingEvent(final Message message) {
         switch (EventTopic.valueOf(getStringHeaderKey(message, MessageHeaderKey.TOPIC, "EventTopic is null"))) {
@@ -292,9 +315,14 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
 
     }
 
+    private void deleteTarget(final Message message) {
+        final String thingId = getStringHeaderKey(message, MessageHeaderKey.THING_ID, THING_ID_NULL);
+        controllerManagement.deleteExistingTarget(thingId);
+    }
+
     private void updateAttributes(final Message message) {
         final DmfAttributeUpdate attributeUpdate = convertMessage(message, DmfAttributeUpdate.class);
-        final String thingId = getStringHeaderKey(message, MessageHeaderKey.THING_ID, "ThingId is null");
+        final String thingId = getStringHeaderKey(message, MessageHeaderKey.THING_ID, THING_ID_NULL);
 
         controllerManagement.updateControllerAttributes(thingId, attributeUpdate.getAttributes(),
                 getUpdateMode(attributeUpdate));
@@ -303,7 +331,7 @@ public class AmqpMessageHandlerService extends BaseAmqpService {
     /**
      * Method to update the action status of an action through the event.
      *
-     * @param actionUpdateStatus
+     * @param message
      *            the object form the ampq message
      */
     private void updateActionStatus(final Message message) {

@@ -12,23 +12,18 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleMetadata;
-import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
+import org.eclipse.hawkbit.ui.common.data.providers.SmMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Abstract class which contains common code for Software Module Details
@@ -37,30 +32,24 @@ import com.vaadin.ui.UI;
 public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
-    private final UINotification uiNotification;
+    private final MetadataDetailsGrid<Long> smMetadataGrid;
 
-    private final transient EntityFactory entityFactory;
-    private final transient SoftwareModuleManagement softwareModuleManagement;
-
-    private final MetadataDetailsLayout<ProxySoftwareModule> swmMetadataLayout;
+    private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
 
     protected AbstractSoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final SoftwareModuleManagement softwareManagement,
-            final EntityFactory entityFactory, final UINotification uiNotification) {
-        super(i18n, permissionChecker, eventBus);
+            final SoftwareModuleManagement softwareManagement, final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
+        super(i18n);
 
-        this.uiNotification = uiNotification;
-        this.entityFactory = entityFactory;
-        this.softwareModuleManagement = softwareManagement;
+        this.smMetaDataWindowBuilder = smMetaDataWindowBuilder;
 
-        this.swmMetadataLayout = new MetadataDetailsLayout<>(i18n, UIComponentIdProvider.SW_METADATA_DETAIL_LINK,
-                this::showMetadataDetails, this::getSmMetaData);
-        binder.forField(swmMetadataLayout).bind(sm -> sm, null);
+        this.smMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.SW_METADATA_DETAIL_LINK,
+                this::showMetadataDetails, new SmMetaDataDataProvider(softwareManagement));
+        this.smMetadataGrid.setVisible(false);
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),
                 new SimpleEntry<>(i18n.getMessage("caption.logs.tab"), logDetails),
-                new SimpleEntry<>(i18n.getMessage("caption.metadata"), swmMetadataLayout)));
+                new SimpleEntry<>(i18n.getMessage("caption.metadata"), smMetadataGrid)));
     }
 
     @Override
@@ -74,10 +63,10 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
                 new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_VENDOR_LABEL_ID,
                         i18n.getMessage("label.dist.details.vendor"), entity.getVendor()),
                 new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
-                        i18n.getMessage("label.dist.details.type"), entity.getType().getName()),
+                        i18n.getMessage("label.dist.details.type"), entity.getProxyType().getName()),
                 new ProxyKeyValueDetails(UIComponentIdProvider.SWM_DTLS_MAX_ASSIGN,
                         i18n.getMessage("label.assigned.type"),
-                        entity.getType().getMaxAssignments() == 1 ? i18n.getMessage("label.singleAssign.type")
+                        entity.getProxyType().getMaxAssignments() == 1 ? i18n.getMessage("label.singleAssign.type")
                                 : i18n.getMessage("label.multiAssign.type")));
     }
 
@@ -92,23 +81,31 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
         return "sm.";
     }
 
-    private void showMetadataDetails(final String metadataKey) {
-        // TODO: adapt after popup refactoring
-        softwareModuleManagement.get(binder.getBean().getId()).ifPresent(sm -> {
-            final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification,
-                    eventBus, softwareModuleManagement, entityFactory, permChecker);
-            UI.getCurrent().addWindow(swMetadataPopupLayout.getWindow(sm, metadataKey));
-        });
+    private void showMetadataDetails(final ProxyMetaData metadata) {
+        if (binder.getBean() == null) {
+            return;
+        }
+
+        final Window metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(binder.getBean().getId(),
+                metadata);
+
+        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + binder.getBean().getNameAndVersion());
+        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.setVisible(Boolean.TRUE);
     }
 
-    private List<SoftwareModuleMetadata> getSmMetaData(final ProxySoftwareModule sm) {
-        return softwareModuleManagement
-                .findMetaDataBySoftwareModuleId(PageRequest.of(0, MetadataDetailsGrid.MAX_METADATA_QUERY), sm.getId())
-                .getContent();
-    }
+    @Override
+    public void masterEntityChanged(final ProxySoftwareModule entity) {
+        super.masterEntityChanged(entity);
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SoftwareModuleEvent softwareModuleEvent) {
-        onBaseEntityEvent(softwareModuleEvent);
+        // TODO: consider populating the grid only when metadata tab is/becomes
+        // active (lazy loading)
+        if (entity == null) {
+            smMetadataGrid.updateMasterEntityFilter(null);
+            smMetadataGrid.setVisible(false);
+        } else {
+            smMetadataGrid.updateMasterEntityFilter(entity.getId());
+            smMetadataGrid.setVisible(true);
+        }
     }
 }

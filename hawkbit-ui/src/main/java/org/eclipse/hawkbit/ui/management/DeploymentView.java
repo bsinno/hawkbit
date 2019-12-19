@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
@@ -62,6 +63,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.events.EventBus.UIEventBus;
+import org.vaadin.spring.events.EventBusListenerMethodFilter;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
@@ -107,7 +109,7 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
     DeploymentView(final UIEventBus eventBus, final SpPermissionChecker permChecker, final VaadinMessageSource i18n,
             final UINotification uiNotification, final ManagementUIState managementUIState,
             final DeploymentManagement deploymentManagement, final DistributionTableFilters distFilterParameters,
-            final DistributionSetManagement distributionSetManagement,
+            final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final UiProperties uiProperties,
             final ManagementViewClientCriterion managementViewClientCriterion,
@@ -154,14 +156,19 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         if (permChecker.hasReadRepositoryPermission()) {
             this.distributionTagLayout = new DistributionTagLayout(eventBus, managementUIState, i18n, permChecker,
                     distributionSetTagManagement, entityFactory, uiNotification, distributionSetManagement);
-            this.distributionGridLayout = new DistributionGridLayout(i18n, eventBus, permChecker, managementUIState,
-                    distributionSetManagement, distributionSetTypeManagement, entityFactory, uiNotification,
-                    distributionSetTagManagement, systemManagement, targetManagement, deploymentManagement,
+            this.distributionGridLayout = new DistributionGridLayout(i18n, eventBus, permChecker, entityFactory,
+                    uiNotification, managementUIState, targetManagement, distributionSetManagement, smManagement,
+                    distributionSetTypeManagement, distributionSetTagManagement, systemManagement, deploymentManagement,
                     configManagement, systemSecurityContext, uiProperties);
         } else {
             this.distributionTagLayout = null;
             this.distributionGridLayout = null;
         }
+    }
+
+    @Override
+    protected DashboardMenuItem getDashboardMenuItem() {
+        return deploymentViewMenuItem;
     }
 
     @PostConstruct
@@ -184,11 +191,13 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
 
     private void createMainLayout() {
         mainLayout = new GridLayout();
-        layoutWidgets();
         mainLayout.setSizeFull();
         mainLayout.setSpacing(true);
-        mainLayout.setRowExpandRatio(0, 1.0F);
         mainLayout.setStyleName("fullSize");
+
+        mainLayout.setRowExpandRatio(0, 1.0F);
+
+        layoutWidgets();
     }
 
     private void layoutWidgets() {
@@ -334,11 +343,6 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         }
     }
 
-    @Override
-    protected DashboardMenuItem getDashboardMenuItem() {
-        return deploymentViewMenuItem;
-    }
-
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final DistributionTableEvent event) {
         if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
@@ -408,4 +412,12 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
         return supportedEvents;
     }
 
+    public static class DeploymentViewEventFilter implements EventBusListenerMethodFilter {
+
+        @Override
+        public boolean filter(final org.vaadin.spring.events.Event<?> event) {
+            return DeploymentView.VIEW_NAME.equals(event.getSource());
+        }
+
+    }
 }

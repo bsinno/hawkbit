@@ -32,16 +32,13 @@ public abstract class AssignmentSupport<S, T> {
 
     // only needed for drag and drop support
     public void assignSourceItemsToTargetItem(final Object sourceItemsToAssign, final T targetItem) {
+        // sourceItemsToAssign are of type UnmodifiableRandomAccessList
         if (sourceItemsToAssign instanceof List) {
-            assignSourceItemsToTargetItem(sourceItemsToAssign, targetItem);
+            assignSourceItemsToTargetItem((List<S>) sourceItemsToAssign, targetItem);
         } else {
             // TODO: consider providing more specific message
             showGenericErrorNotification();
         }
-    }
-
-    private void showGenericErrorNotification() {
-        notification.displayValidationError(i18n.getMessage("message.action.did.not.work"));
     }
 
     public void assignSourceItemsToTargetItem(final List<S> sourceItemsToAssign, final T targetItem) {
@@ -64,6 +61,10 @@ public abstract class AssignmentSupport<S, T> {
         }
 
         performAssignment(filteredSourceItems, targetItem);
+    }
+
+    private void showGenericErrorNotification() {
+        notification.displayValidationError(i18n.getMessage("message.action.did.not.work"));
     }
 
     // can be overriden in child classes in order to filter source items list

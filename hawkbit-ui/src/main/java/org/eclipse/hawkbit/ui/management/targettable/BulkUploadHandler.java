@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -32,6 +33,7 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.exception.EntityAlreadyExistsException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
+import org.eclipse.hawkbit.repository.model.DeploymentRequest;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagData;
@@ -55,11 +57,11 @@ import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.UI;
 import com.vaadin.v7.ui.HorizontalLayout;
 import com.vaadin.v7.ui.Label;
 import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.TextArea;
 import com.vaadin.v7.ui.Upload;
 import com.vaadin.v7.ui.Upload.FailedEvent;
 import com.vaadin.v7.ui.Upload.FailedListener;
@@ -302,13 +304,17 @@ public class BulkUploadHandler extends CustomComponent
             final ActionType actionType = ActionType.FORCED;
             final long forcedTimeStamp = new Date().getTime();
             final TargetBulkUpload targetBulkUpload = managementUIState.getTargetTableFilters().getBulkUpload();
-            final List<String> targetsList = targetBulkUpload.getTargetsCreated();
+            final List<String> targetIds = targetBulkUpload.getTargetsCreated();
             final Long dsSelected = comboBox.getSelectedItem().map(ProxyIdentifiableEntity::getId).orElse(null);
             if (!distributionSetManagement.get(dsSelected).isPresent()) {
                 return i18n.getMessage("message.bulk.upload.assignment.failed");
             }
-            deploymentManagement.assignDistributionSet(targetBulkUpload.getDsNameAndVersion(), actionType,
-                    forcedTimeStamp, targetsList);
+            final List<DeploymentRequest> deploymentRequests = targetIds.stream()
+                    .map(targetId -> DeploymentManagement
+                            .deploymentRequest(targetId, targetBulkUpload.getDsNameAndVersion())
+                            .setActionType(actionType).setForceTime(forcedTimeStamp).build())
+                    .collect(Collectors.toList());
+            deploymentManagement.assignDistributionSets(deploymentRequests);
             return null;
         }
 

@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.Arrays;
 
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
@@ -22,8 +23,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -45,6 +44,10 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
 
     private final transient CloseHeaderSupport closeHeaderSupport;
 
+    private final transient TargetFilterAddUpdateLayout targetFilterAddUpdateLayout;
+    private final transient AddTargetFilterController addTargetFilterController;
+    private final transient UpdateTargetFilterController updateTargetFilterController;
+
     /**
      * Constructor for TargetFilterDetailsHeader
      * 
@@ -55,10 +58,16 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
      * @param i18n
      *            VaadinMessageSource
      */
-    public TargetFilterDetailsGridHeader(final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
-            final VaadinMessageSource i18n) {
+    public TargetFilterDetailsGridHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
+            final TargetFilterAddUpdateLayout targetFilterAddUpdateLayout,
+            final AddTargetFilterController addTargetFilterController,
+            final UpdateTargetFilterController updateTargetFilterController,
+            final FilterManagementUIState filterManagementUIState) {
         super(i18n, null, eventBus);
 
+        this.targetFilterAddUpdateLayout = targetFilterAddUpdateLayout;
+        this.addTargetFilterController = addTargetFilterController;
+        this.updateTargetFilterController = updateTargetFilterController;
         this.filterManagementUIState = filterManagementUIState;
 
         this.headerCaptionDetails = createHeaderCaptionDetails();
@@ -69,6 +78,37 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
 
         restoreHeaderState();
         buildHeader();
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        setHeightUndefined();
+    }
+
+    @Override
+    protected void buildHeader() {
+        super.buildHeader();
+
+        addComponent(targetFilterAddUpdateLayout.getRootComponent());
+    }
+
+    public void showAddFilterLayout() {
+        showAddUpdateFilterLayout(UIMessageIdProvider.LABEL_CREATE_FILTER, addTargetFilterController, null);
+    }
+
+    private void showAddUpdateFilterLayout(final String captionMsgKey,
+            final AbstractEntityWindowController<ProxyTargetFilterQuery, ProxyTargetFilterQuery> controller,
+            final ProxyTargetFilterQuery proxyEntity) {
+        headerCaptionDetails.setValue(i18n.getMessage(captionMsgKey));
+
+        controller.populateWithData(proxyEntity);
+        targetFilterAddUpdateLayout.setSaveCallback(controller.getSaveDialogCloseListener());
+        targetFilterAddUpdateLayout.disableSearchButton();
+    }
+
+    public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
+        showAddUpdateFilterLayout(UIMessageIdProvider.LABEL_EDIT_FILTER, updateTargetFilterController, proxyEntity);
     }
 
     private Label createHeaderCaptionDetails() {
@@ -111,25 +151,26 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         eventBus.publish(this, CustomFilterUIEvent.SHOW_FILTER_MANAGEMENT);
     }
 
-    @Override
-    protected void restoreCaption() {
-        setCaptionDetails();
-    }
+    // @Override
+    // protected void restoreCaption() {
+    // setCaptionDetails();
+    // }
 
-    private void setCaptionDetails() {
-        if (filterManagementUIState.isCreateFilterViewDisplayed()) {
-            headerCaptionDetails.setValue(i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER));
-        } else {
-            filterManagementUIState.getTfQuery().map(ProxyTargetFilterQuery::getName)
-                    .ifPresent(headerCaptionDetails::setValue);
-        }
-    }
+    // public void setCaptionDetails(final String detailsText) {
+    // headerCaptionDetails.setValue(detailsText);
+    // if (filterManagementUIState.isCreateFilterViewDisplayed()) {
+    // headerCaptionDetails.setValue(i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER));
+    // } else {
+    // filterManagementUIState.getTfQuery().map(ProxyTargetFilterQuery::getName)
+    // .ifPresent(headerCaptionDetails::setValue);
+    // }
+    // }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final CustomFilterUIEvent event) {
-        if (event == CustomFilterUIEvent.TARGET_FILTER_DETAIL_VIEW
-                || event == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK) {
-            setCaptionDetails();
-        }
-    }
+    // @EventBusListenerMethod(scope = EventScope.UI)
+    // void onEvent(final CustomFilterUIEvent event) {
+    // if (event == CustomFilterUIEvent.TARGET_FILTER_DETAIL_VIEW
+    // || event == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK) {
+    // setCaptionDetails();
+    // }
+    // }
 }

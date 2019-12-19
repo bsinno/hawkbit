@@ -79,6 +79,9 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
                 return;
             }
 
+            grid.deselectAll();
+            grid.select(dropTargetItem);
+
             event.getDragSourceExtension().ifPresent(source -> {
                 if (source instanceof GridDragSource) {
                     assignmentStrategy.assignSourceItemsToTargetItem(source.getDragData(), dropTargetItem);

@@ -8,54 +8,43 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import java.util.function.Consumer;
-
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
 
-import com.vaadin.data.Binder;
+import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
 
 /**
  * Abstract Grid Rollout window layout.
  */
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
-public abstract class AbstractRolloutWindowLayout extends GridLayout {
-    private static final long serialVersionUID = 1L;
-
-    protected final Binder<ProxyRolloutWindow> proxyRolloutBinder;
-
-    protected final RolloutWindowLayoutComponentBuilder componentBuilder;
-
-    protected final RolloutWindowDependencies dependencies;
+public abstract class AbstractRolloutWindowLayout extends AbstractEntityWindowLayout<ProxyRolloutWindow> {
+    protected final RolloutWindowLayoutComponentBuilder rolloutComponentBuilder;
 
     protected AbstractRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
-        this.dependencies = dependencies;
-        this.proxyRolloutBinder = new Binder<>();
-        this.componentBuilder = new RolloutWindowLayoutComponentBuilder(dependencies);
+        super();
 
-        initLayout();
+        this.rolloutComponentBuilder = new RolloutWindowLayoutComponentBuilder(dependencies);
     }
 
-    private void initLayout() {
-        setSpacing(true);
-        setSizeUndefined();
-        setColumns(4);
-        setStyleName("marginTop");
-        setColumnExpandRatio(3, 1);
-        setWidth(850, Unit.PIXELS);
+    @Override
+    public ComponentContainer getRootComponent() {
+        final GridLayout rootLayout = new GridLayout();
+
+        rootLayout.setSpacing(true);
+        rootLayout.setSizeUndefined();
+        rootLayout.setColumns(4);
+        rootLayout.setStyleName("marginTop");
+        rootLayout.setColumnExpandRatio(3, 1);
+        rootLayout.setWidth(850, Unit.PIXELS);
+
+        addComponents(rootLayout);
+
+        return rootLayout;
     }
 
-    public Binder<ProxyRolloutWindow> getProxyRolloutBinder() {
-        return proxyRolloutBinder;
-    }
-
-    protected Long getTotalTargets() {
-        return proxyRolloutBinder.getBean().getTotalTargets();
-    }
-
-    public void addValidationListener(final Consumer<Boolean> validationCallback) {
-        proxyRolloutBinder.addStatusChangeListener(event -> validationCallback.accept(event.getBinder().isValid()));
-    }
+    protected abstract void addComponents(final GridLayout rootLayout);
 }

@@ -13,21 +13,19 @@ import java.util.Collections;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.model.DistributionSetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTagDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.DistributionSetTagFilterHeaderEvent;
-import org.eclipse.hawkbit.ui.common.event.FilterHeaderEvent.FilterHeaderEnum;
+import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTagAssignmentSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.dstag.UpdateDistributionSetTagLayout;
-import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
+import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -37,6 +35,8 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Class for defining the tag buttons of the distribution sets on the Deployment
@@ -48,26 +48,24 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
 
     private final ManagementUIState managementUIState;
     private final UINotification uiNotification;
-    private final SpPermissionChecker permChecker;
 
-    private final transient EntityFactory entityFactory;
     private final transient DistributionSetTagManagement distributionSetTagManagement;
     private final transient DistributionTagButtonClick distributionTagButtonClickBehaviour;
+    private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyTag, Void, Void> dsTagDataProvider;
     private final DragAndDropSupport<ProxyTag> dragAndDropSupport;
 
     public DistributionTagButtons(final UIEventBus eventBus, final ManagementUIState managementUIState,
-            final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
-            final SpPermissionChecker permChecker, final DistributionSetTagManagement distributionSetTagManagement,
-            final DistributionSetManagement distributionSetManagement) {
+            final VaadinMessageSource i18n, final UINotification uiNotification, final SpPermissionChecker permChecker,
+            final DistributionSetTagManagement distributionSetTagManagement,
+            final DistributionSetManagement distributionSetManagement, final DsTagWindowBuilder dsTagWindowBuilder) {
         super(eventBus, i18n, uiNotification, permChecker);
 
         this.managementUIState = managementUIState;
         this.uiNotification = uiNotification;
-        this.permChecker = permChecker;
-        this.entityFactory = entityFactory;
         this.distributionSetTagManagement = distributionSetTagManagement;
+        this.dsTagWindowBuilder = dsTagWindowBuilder;
 
         this.distributionTagButtonClickBehaviour = new DistributionTagButtonClick(eventBus, managementUIState);
         this.dsTagDataProvider = new DistributionSetTagDataProvider(distributionSetTagManagement,
@@ -115,28 +113,29 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", dsTagToDeleteName));
         } else {
             distributionSetTagManagement.delete(dsTagToDeleteName);
-            eventBus.publish(this, new DistributionSetTagTableEvent(BaseEntityEventType.REMOVE_ENTITY, dsTagToDelete));
-            // TODO: check if it is needed
-            hideActionColumns();
-            eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
+
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new DsTagModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, dsTagToDelete.getId()));
         }
     }
 
     @Override
     protected void editButtonClickListener(final ProxyTag clickedFilter) {
-        new UpdateDistributionSetTagLayout(i18n, distributionSetTagManagement, entityFactory, eventBus, permChecker,
-                uiNotification, clickedFilter.getName(), closeEvent -> {
-                    // TODO: check if it is needed
-                    hideActionColumns();
-                    eventBus.publish(this, new DistributionSetTagFilterHeaderEvent(FilterHeaderEnum.SHOW_MENUBAR));
-                });
+        final Window updateWindow = dsTagWindowBuilder.getWindowForUpdateDsTag(clickedFilter);
+
+        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.tag")));
+        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setVisible(Boolean.TRUE);
     }
 
-    @Override
-    protected boolean isClickedByDefault(final String tagName) {
-        return null != managementUIState.getDistributionTableFilters().getClickedDistSetTags()
-                && managementUIState.getDistributionTableFilters().getClickedDistSetTags().contains(tagName);
-    }
+    // TODO
+    // @Override
+    // protected boolean isClickedByDefault(final Long filterButtonId) {
+    // return null !=
+    // managementUIState.getDistributionTableFilters().getClickedDistSetTags()
+    // &&
+    // managementUIState.getDistributionTableFilters().getClickedDistSetTags().contains(tagName);
+    // }
 
     @Override
     protected String getFilterButtonIdPrefix() {

@@ -36,7 +36,6 @@ import com.vaadin.data.provider.Query;
  * {@link ActionStatus}, using its id.
  */
 public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<ProxyMessage, Long> {
-
     private static final long serialVersionUID = 1L;
 
     private final Sort defaultSortOrder = new Sort(Direction.DESC, "id");

@@ -65,11 +65,6 @@ public class ActionHistoryGridHeader extends AbstractGridHeader {
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     protected Component getHeaderCaption() {
         return headerCaption;
     }

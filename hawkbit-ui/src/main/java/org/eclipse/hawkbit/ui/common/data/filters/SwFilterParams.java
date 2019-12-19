@@ -8,15 +8,23 @@
  */
 package org.eclipse.hawkbit.ui.common.data.filters;
 
+import java.io.Serializable;
+
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsStateDataProvider;
 
 /**
  * Filter params for {@link SoftwareModuleDistributionsStateDataProvider}.
  */
-public class SwFilterParams {
-    private final String searchText;
-    private final Long softwareModuleTypeId;
-    private final Long lastSelectedDistributionId;
+public class SwFilterParams implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String searchText;
+    private Long softwareModuleTypeId;
+    private Long lastSelectedDistributionId;
+
+    public SwFilterParams() {
+        this(null, null, null);
+    }
 
     /**
      * Constructor.
@@ -36,11 +44,23 @@ public class SwFilterParams {
         return searchText;
     }
 
+    public void setSearchText(final String searchText) {
+        this.searchText = searchText;
+    }
+
     public Long getSoftwareModuleTypeId() {
         return softwareModuleTypeId;
     }
 
+    public void setSoftwareModuleTypeId(final Long softwareModuleTypeId) {
+        this.softwareModuleTypeId = softwareModuleTypeId;
+    }
+
     public Long getLastSelectedDistributionId() {
         return lastSelectedDistributionId;
+    }
+
+    public void setLastSelectedDistributionId(final Long lastSelectedDistributionId) {
+        this.lastSelectedDistributionId = lastSelectedDistributionId;
     }
 }

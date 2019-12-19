@@ -10,16 +10,14 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.Collections;
 
-import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.smtable.SwMetadataPopupLayout;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -34,32 +32,27 @@ import com.vaadin.ui.Window;
 public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
-    private final transient EntityFactory entityFactory;
-    private final transient SoftwareModuleManagement softwareModuleManagement;
+    private final transient SmWindowBuilder smWindowBuilder;
+    private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
 
-    private final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow;
     private final ArtifactDetailsGridLayout artifactDetailsLayout;
 
     private final transient ArtifactDetailsHeaderSupport artifactDetailsHeaderSupport;
 
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final UINotification uiNotification, final EntityFactory entityFactory,
-            final SoftwareModuleManagement softwareModuleManagement,
-            final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow) {
-        this(i18n, permChecker, eventBus, uiNotification, entityFactory, softwareModuleManagement,
-                softwareModuleAddUpdateWindow, null);
+            final UIEventBus eventBus, final UINotification uiNotification, final SmWindowBuilder smWindowBuilder,
+            final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
+        this(i18n, permChecker, eventBus, uiNotification, smWindowBuilder, smMetaDataWindowBuilder, null);
     }
 
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final UINotification uiNotification, final EntityFactory entityFactory,
-            final SoftwareModuleManagement softwareModuleManagement,
-            final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow,
+            final UIEventBus eventBus, final UINotification uiNotification, final SmWindowBuilder smWindowBuilder,
+            final SmMetaDataWindowBuilder smMetaDataWindowBuilder,
             final ArtifactDetailsGridLayout artifactDetailsLayout) {
         super(i18n, permChecker, eventBus, uiNotification);
 
-        this.entityFactory = entityFactory;
-        this.softwareModuleManagement = softwareModuleManagement;
-        this.softwareModuleAddUpdateWindow = softwareModuleAddUpdateWindow;
+        this.smWindowBuilder = smWindowBuilder;
+        this.smMetaDataWindowBuilder = smMetaDataWindowBuilder;
         this.artifactDetailsLayout = artifactDetailsLayout;
 
         if (artifactDetailsLayout != null) {
@@ -75,8 +68,8 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
     }
 
     @Override
-    public void updateDetailsHeader(final ProxySoftwareModule entity) {
-        super.updateDetailsHeader(entity);
+    public void masterEntityChanged(final ProxySoftwareModule entity) {
+        super.masterEntityChanged(entity);
 
         if (artifactDetailsHeaderSupport != null) {
             if (entity == null) {
@@ -114,11 +107,15 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
 
     @Override
     protected void onEdit() {
-        final Window addSoftwareModule = softwareModuleAddUpdateWindow
-                .createUpdateSoftwareModuleWindow(selectedEntity.getId());
-        addSoftwareModule.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
-        UI.getCurrent().addWindow(addSoftwareModule);
-        addSoftwareModule.setVisible(Boolean.TRUE);
+        if (selectedEntity == null) {
+            return;
+        }
+
+        final Window updateWindow = smWindowBuilder.getWindowForUpdateSm(selectedEntity);
+
+        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
+        UI.getCurrent().addWindow(updateWindow);
+        updateWindow.setVisible(Boolean.TRUE);
     }
 
     @Override
@@ -128,11 +125,15 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
 
     @Override
     protected void showMetaData() {
-        softwareModuleManagement.get(selectedEntity.getId()).ifPresent(swmodule -> {
-            final SwMetadataPopupLayout swMetadataPopupLayout = new SwMetadataPopupLayout(i18n, uiNotification,
-                    eventBus, softwareModuleManagement, entityFactory, permChecker);
-            UI.getCurrent().addWindow(swMetadataPopupLayout.getWindow(swmodule, null));
-        });
+        if (selectedEntity == null) {
+            return;
+        }
+
+        final Window metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(selectedEntity.getId());
+
+        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + selectedEntity.getNameAndVersion());
+        UI.getCurrent().addWindow(metaDataWindow);
+        metaDataWindow.setVisible(Boolean.TRUE);
     }
 
     // TODO: check if it could be substituted with artifactDetailsLayout
@@ -152,7 +153,7 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
         // TODO: check if neccessary
         // artifactDetailsLayout.setFullWindowMode(false);
 
-        artifactDetailsLayout.populateArtifactDetails(selectedEntity);
+        artifactDetailsLayout.onSmSelected(selectedEntity);
         final ArtifactDetailsGrid artifactDetailsGrid = artifactDetailsLayout.getArtifactDetailsGrid();
         artifactDetailsGrid.setWidth(700, Unit.PIXELS);
         artifactDetailsGrid.setHeight(500, Unit.PIXELS);

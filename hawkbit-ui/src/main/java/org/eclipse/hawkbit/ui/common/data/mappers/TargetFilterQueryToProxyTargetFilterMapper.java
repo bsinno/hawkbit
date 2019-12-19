@@ -34,9 +34,12 @@ public class TargetFilterQueryToProxyTargetFilterMapper
         proxyTargetFilter.setQuery(targetFilterQuery.getQuery());
 
         final DistributionSet distributionSet = targetFilterQuery.getAutoAssignDistributionSet();
+        // TODO: do we really need the whole ProxyDistributionSet object or just
+        // id?
         if (distributionSet != null) {
             proxyTargetFilter
                     .setAutoAssignDistributionSet(new DistributionSetToProxyDistributionMapper().map(distributionSet));
+            proxyTargetFilter.setAutoAssignActionType(targetFilterQuery.getAutoAssignActionType());
         }
 
         return proxyTargetFilter;

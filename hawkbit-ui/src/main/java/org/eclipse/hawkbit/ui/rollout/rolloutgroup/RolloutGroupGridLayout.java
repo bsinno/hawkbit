@@ -44,8 +44,6 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
     public RolloutGroupGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
             final SpPermissionChecker permissionChecker) {
-        super(i18n, eventBus);
-
         final RolloutGroupDataProvider rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement,
                 rolloutUIState, new RolloutGroupToProxyRolloutGroupMapper());
 
@@ -54,11 +52,5 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
                 permissionChecker, rolloutGroupDataProvider);
 
         buildLayout(rolloutGroupsListHeader, rolloutGroupListGrid);
-    }
-
-    // TODO: check if it is correct
-    @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
     }
 }

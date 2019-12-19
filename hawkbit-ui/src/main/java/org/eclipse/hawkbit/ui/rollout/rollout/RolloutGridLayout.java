@@ -47,8 +47,6 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
             final TenantConfigurationManagement tenantConfigManagement,
             final DistributionSetManagement distributionSetManagement) {
-        super(i18n, eventBus);
-
         final RolloutDataProvider rolloutDataProvider = new RolloutDataProvider(rolloutManagement, rolloutUIState,
                 new RolloutToProxyRolloutMapper());
         final DistributionSetStatelessDataProvider distributionSetDataProvider = new DistributionSetStatelessDataProvider(
@@ -66,11 +64,5 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
                 distributionSetDataProvider, targetFilterQueryDataProvider);
 
         buildLayout(rolloutListHeader, rolloutListGrid);
-    }
-
-    // TODO: check if it is correct
-    @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
     }
 }

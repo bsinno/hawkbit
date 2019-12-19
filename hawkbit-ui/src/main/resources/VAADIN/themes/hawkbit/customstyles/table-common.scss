@@ -146,6 +146,10 @@
     border-radius: $v-border-radius;
   }
 
+  .no-stripes .v-grid-row-stripe > td {
+    background-color: $v-grid-row-background-color;
+  }
+
   //Table details - tab
   .details-tab {
     margin: 5px !important;
@@ -200,10 +204,20 @@
    
   .v-button-generatedColumnPadding {
   	height: 28px;
-	padding: 0 6px !important;
-	font-size: 12px;
-	border-radius: 4px;
+	  padding: 0 6px !important;
+	  font-size: 12px;
+	  border-radius: 4px;
   }
+
+  .metadata-details {
+    .v-grid-tablewrapper {
+      border: none;
+    }
+
+    .v-grid-tablewrapper .v-grid-row .v-button{
+      padding: 0;
+    }
+  } 
   
   .metadata-grid {
   	tr {

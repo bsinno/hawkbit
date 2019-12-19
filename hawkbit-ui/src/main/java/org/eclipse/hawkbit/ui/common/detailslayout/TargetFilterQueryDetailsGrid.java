@@ -10,11 +10,15 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
+import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.data.domain.PageRequest;
 
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.themes.ValoTheme;
@@ -32,8 +36,12 @@ public class TargetFilterQueryDetailsGrid extends Grid<ProxyTargetFilterQuery> {
 
     private final VaadinMessageSource i18n;
 
-    public TargetFilterQueryDetailsGrid(final VaadinMessageSource i18n) {
+    private final TargetFilterQueryManagement targetFilterQueryManagement;
+
+    public TargetFilterQueryDetailsGrid(final VaadinMessageSource i18n,
+            final TargetFilterQueryManagement targetFilterQueryManagement) {
         this.i18n = i18n;
+        this.targetFilterQueryManagement = targetFilterQueryManagement;
 
         init();
     }
@@ -50,7 +58,11 @@ public class TargetFilterQueryDetailsGrid extends Grid<ProxyTargetFilterQuery> {
             return;
         }
 
-        final List<ProxyTargetFilterQuery> filters = distributionSet.getAutoAssignFilters();
+        // TODO: consider using lazy loading with data provider
+        final List<ProxyTargetFilterQuery> filters = targetFilterQueryManagement
+                .findByAutoAssignDSAndRsql(PageRequest.of(0, 500), distributionSet.getId(), null).getContent().stream()
+                .map(targetFilter -> new TargetFilterQueryToProxyTargetFilterMapper().map(targetFilter))
+                .collect(Collectors.toList());
         setItems(filters);
     }
 

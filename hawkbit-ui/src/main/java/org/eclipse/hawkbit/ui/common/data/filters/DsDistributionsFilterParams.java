@@ -8,32 +8,47 @@
  */
 package org.eclipse.hawkbit.ui.common.data.filters;
 
-import org.eclipse.hawkbit.repository.model.DistributionSetType;
+import java.io.Serializable;
+
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetDistributionsStateDataProvider;
 
 /**
  * Filter params for {@link DistributionSetDistributionsStateDataProvider}.
  */
-public class DsDistributionsFilterParams {
-    private final String searchText;
-    private final DistributionSetType clickedDistSetType;
+public class DsDistributionsFilterParams implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String searchText;
+    private Long dsTypeId;
+
+    public DsDistributionsFilterParams() {
+        this(null, null);
+    }
 
     /**
      * Constructor.
      * 
      * @param searchText
-     * @param clickedDistSetType
+     * @param dsTypeId
      */
-    public DsDistributionsFilterParams(final String searchText, final DistributionSetType clickedDistSetType) {
+    public DsDistributionsFilterParams(final String searchText, final Long dsTypeId) {
         this.searchText = searchText;
-        this.clickedDistSetType = clickedDistSetType;
+        this.dsTypeId = dsTypeId;
     }
 
     public String getSearchText() {
         return searchText;
     }
 
-    public DistributionSetType getClickedDistSetType() {
-        return clickedDistSetType;
+    public void setSearchText(final String searchText) {
+        this.searchText = searchText;
+    }
+
+    public Long getDsTypeId() {
+        return dsTypeId;
+    }
+
+    public void setDsTypeId(final Long dsTypeId) {
+        this.dsTypeId = dsTypeId;
     }
 }

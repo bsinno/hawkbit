@@ -22,7 +22,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.annotations.Theme;
@@ -35,16 +34,15 @@ import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.spring.navigator.SpringNavigator;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -61,32 +59,26 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
 
     private static final String EMPTY_VIEW = "";
 
-    private transient EventPushStrategy pushStrategy;
-
-    protected final transient EventBus.UIEventBus eventBus;
-
-    private final SpringViewProvider viewProvider;
-
-    private final transient ApplicationContext context;
-
-    private final DashboardMenu dashboardMenu;
-
-    private final ErrorView errorview;
-
-    private final NotificationUnreadButton notificationUnreadButton;
+    private final VaadinMessageSource i18n;
+    private final UiProperties uiProperties;
 
     private Label viewTitle;
 
-    private final UiProperties uiProperties;
+    private final DashboardMenu dashboardMenu;
+    private final ErrorView errorview;
+    private final NotificationUnreadButton notificationUnreadButton;
 
-    private final VaadinMessageSource i18n;
+    private final SpringViewProvider viewProvider;;
+    private final transient ApplicationContext context;
+    private final transient EventPushStrategy pushStrategy;
+
+    private final transient RemoteEventsListener remoteEventsListener;
 
     protected AbstractHawkbitUI(final EventPushStrategy pushStrategy, final UIEventBus eventBus,
             final SpringViewProvider viewProvider, final ApplicationContext context, final DashboardMenu dashboardMenu,
             final ErrorView errorview, final NotificationUnreadButton notificationUnreadButton,
             final UiProperties uiProperties, final VaadinMessageSource i18n) {
         this.pushStrategy = pushStrategy;
-        this.eventBus = eventBus;
         this.viewProvider = viewProvider;
         this.context = context;
         this.dashboardMenu = dashboardMenu;
@@ -94,12 +86,16 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         this.notificationUnreadButton = notificationUnreadButton;
         this.uiProperties = uiProperties;
         this.i18n = i18n;
+
+        this.remoteEventsListener = new RemoteEventsListener(eventBus, notificationUnreadButton);
     }
 
     @Override
     public void detach(final DetachEvent event) {
-        LOG.info("ManagementUI is detached uiid - {}", getUIId());
-        eventBus.unsubscribe(this);
+        LOG.debug("ManagementUI is detached uiid - {}", getUIId());
+
+        remoteEventsListener.unsubscribeListeners();
+
         if (pushStrategy != null) {
             pushStrategy.clean();
         }
@@ -107,7 +103,7 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
 
     @Override
     protected void init(final VaadinRequest vaadinRequest) {
-        LOG.info("ManagementUI init starts uiid - {}", getUI().getUIId());
+        LOG.debug("ManagementUI init starts uiid - {}", getUI().getUIId());
         if (pushStrategy != null) {
             pushStrategy.init(getUI());
         }
@@ -119,6 +115,8 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         setResponsive(Boolean.TRUE);
 
         final HorizontalLayout rootLayout = new HorizontalLayout();
+        rootLayout.setMargin(false);
+        rootLayout.setSpacing(false);
         rootLayout.setSizeFull();
 
         HawkbitCommonUtil.initLocalization(this, uiProperties.getLocalization(), i18n);
@@ -128,6 +126,8 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         dashboardMenu.setResponsive(true);
 
         final VerticalLayout contentVerticalLayout = new VerticalLayout();
+        contentVerticalLayout.setMargin(false);
+        contentVerticalLayout.setSpacing(false);
         contentVerticalLayout.setSizeFull();
         contentVerticalLayout.setStyleName("main-content");
         contentVerticalLayout.addComponent(buildHeader());
@@ -165,15 +165,15 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         });
 
         navigator.setErrorView(errorview);
+        navigator.addView(EMPTY_VIEW, new Navigator.EmptyView());
         navigator.addProvider(new ManagementViewProvider());
         setNavigator(navigator);
-        navigator.addView(EMPTY_VIEW, new Navigator.EmptyView());
 
         if (UI.getCurrent().getErrorHandler() == null) {
             UI.getCurrent().setErrorHandler(new HawkbitUIErrorHandler());
         }
 
-        LOG.info("Current locale of the application is : {}", getLocale());
+        LOG.debug("Current locale of the application is : {}", getLocale());
     }
 
     private Panel buildContent() {
@@ -185,6 +185,8 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
 
     private HorizontalLayout buildViewTitle() {
         final HorizontalLayout viewHeadercontent = new HorizontalLayout();
+        viewHeadercontent.setMargin(false);
+        viewHeadercontent.setSpacing(false);
         viewHeadercontent.setWidth("100%");
         viewHeadercontent.addStyleName("view-header-layout");
 
@@ -204,8 +206,7 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         return cssLayout;
     }
 
-    private class ManagementViewProvider extends SpringNavigator implements ViewProvider {
-
+    private class ManagementViewProvider implements ViewProvider {
         private static final long serialVersionUID = 1L;
 
         @Override

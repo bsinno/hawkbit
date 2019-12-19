@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
@@ -86,8 +87,8 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
     }
 
     private List<Target> getTargetsAssignedToTag(final Long tagId) {
+        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
         final List<Target> targetsAssignedToTag = new ArrayList<>();
-        Pageable query = PageRequest.of(0, 50);
         Page<Target> targetsAssignedToTagPageable;
 
         do {

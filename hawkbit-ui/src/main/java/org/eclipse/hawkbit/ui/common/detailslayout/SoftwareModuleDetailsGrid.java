@@ -9,27 +9,33 @@
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
+import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
+import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModuleDetails;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
-import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.spring.events.EventBus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
@@ -50,13 +56,16 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
     private static final String SOFT_MODULES_ID = "softwareModules";
     private static final String SOFT_TYPE_MANDATORY_ID = "mandatory";
 
-    private final boolean isUnassignSoftModAllowed;
-    private final SpPermissionChecker permissionChecker;
-    private final transient DistributionSetManagement distributionSetManagement;
     private final VaadinMessageSource i18n;
-    private final transient EventBus.UIEventBus eventBus;
-    private final ManageDistUIState manageDistUIState;
+    private final transient UIEventBus eventBus;
     private final UINotification uiNotification;
+    private final SpPermissionChecker permissionChecker;
+
+    private final transient DistributionSetManagement distributionSetManagement;
+    private final transient SoftwareModuleManagement smManagement;
+    private final transient DistributionSetTypeManagement dsTypeManagement;
+
+    private final boolean isUnassignSoftModAllowed;
 
     /**
      * Initialize software module table- to be displayed in details layout.
@@ -77,17 +86,20 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
      * @param uiNotification
      *            UINotification for displaying error and success notifications
      */
-    public SoftwareModuleDetailsGrid(final VaadinMessageSource i18n, final boolean isUnassignSoftModAllowed,
-            final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
-            final EventBus.UIEventBus eventBus, final ManageDistUIState manageDistUIState,
-            final UINotification uiNotification) {
+    public SoftwareModuleDetailsGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
+            final UINotification uiNotification, final SpPermissionChecker permissionChecker,
+            final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
+            final DistributionSetTypeManagement dsTypeManagement, final boolean isUnassignSoftModAllowed) {
         this.i18n = i18n;
-        this.isUnassignSoftModAllowed = isUnassignSoftModAllowed;
-        this.permissionChecker = permissionChecker;
-        this.distributionSetManagement = distributionSetManagement;
-        this.manageDistUIState = manageDistUIState;
-        this.eventBus = eventBus;
         this.uiNotification = uiNotification;
+        this.eventBus = eventBus;
+        this.permissionChecker = permissionChecker;
+
+        this.distributionSetManagement = distributionSetManagement;
+        this.smManagement = smManagement;
+        this.dsTypeManagement = dsTypeManagement;
+
+        this.isUnassignSoftModAllowed = isUnassignSoftModAllowed;
 
         init();
     }
@@ -189,9 +201,12 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
                     i18n.getMessage("message.error.notification.ds.target.assigned", dsName, dsVersion));
         } else {
             final DistributionSet newDistributionSet = distributionSetManagement.unassignSoftwareModule(dsId, smId);
-            manageDistUIState.setLastSelectedEntityId(newDistributionSet.getId());
-            eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY,
-                    new DistributionSetToProxyDistributionMapper().map(newDistributionSet)));
+            // TODO: should we really publish selected event here?
+            // manageDistUIState.setLastSelectedEntityId(newDistributionSet.getId());
+            // eventBus.publish(this, new
+            // DistributionTableEvent(BaseEntityEventType.SELECTED_ENTITY,
+            // new
+            // DistributionSetToProxyDistributionMapper().map(newDistributionSet)));
             uiNotification.displaySuccess(i18n.getMessage("message.sw.unassigned", smNameAndVersion));
         }
     }
@@ -207,27 +222,50 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
             return;
         }
 
+        final Optional<DistributionSetType> dsType = dsTypeManagement.get(distributionSet.getTypeId());
+
         final List<ProxySoftwareModuleDetails> items = new ArrayList<>();
 
-        for (final SoftwareModuleType mandatoryType : distributionSet.getType().getMandatoryModuleTypes()) {
-            final ProxySoftwareModuleDetails smDetails = getDetailsByDsAndType(distributionSet, true, mandatoryType);
-            items.add(smDetails);
-        }
+        // TODO: optimize
+        dsType.ifPresent(type -> {
+            for (final SoftwareModuleType mandatoryType : type.getMandatoryModuleTypes()) {
+                final ProxySoftwareModuleDetails smDetails = getDetailsByDsAndType(distributionSet, true,
+                        mandatoryType);
+                items.add(smDetails);
+            }
 
-        for (final SoftwareModuleType optionalType : distributionSet.getType().getOptionalModuleTypes()) {
-            final ProxySoftwareModuleDetails smDetails = getDetailsByDsAndType(distributionSet, false, optionalType);
-            items.add(smDetails);
-        }
+            for (final SoftwareModuleType optionalType : type.getOptionalModuleTypes()) {
+                final ProxySoftwareModuleDetails smDetails = getDetailsByDsAndType(distributionSet, false,
+                        optionalType);
+                items.add(smDetails);
+            }
+        });
 
         setItems(items);
     }
 
-    // TODO: fix null pointer exception
     private ProxySoftwareModuleDetails getDetailsByDsAndType(final ProxyDistributionSet distributionSet,
             final boolean isMandatory, final SoftwareModuleType type) {
+        // TODO: optimize
+        final Map<Long, String> smIdsWithNameAndVersion = getSoftwareModulesByDsId(distributionSet.getId()).stream()
+                .filter(sm -> sm.getType().getKey().equals(type.getKey()))
+                .collect(Collectors.toMap(SoftwareModule::getId,
+                        sm -> HawkbitCommonUtil.concatStrings(":", sm.getName(), sm.getVersion())));
+
         return new ProxySoftwareModuleDetails(distributionSet.getId(), distributionSet.getName(),
-                distributionSet.getVersion(), isMandatory, type.getName(),
-                distributionSet.getModules().stream().filter(sm -> sm.getType().getKey().equals(type.getKey()))
-                        .collect(Collectors.toMap(ProxySoftwareModule::getId, ProxySoftwareModule::getNameAndVersion)));
+                distributionSet.getVersion(), isMandatory, type.getName(), smIdsWithNameAndVersion);
+    }
+
+    private Collection<SoftwareModule> getSoftwareModulesByDsId(final Long dsId) {
+        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
+        Page<SoftwareModule> smPage;
+        final Collection<SoftwareModule> softwareModules = new ArrayList<>();
+
+        do {
+            smPage = smManagement.findByAssignedTo(query, dsId);
+            softwareModules.addAll(smPage.getContent());
+        } while ((query = smPage.nextPageable()) != Pageable.unpaged());
+
+        return softwareModules;
     }
 }

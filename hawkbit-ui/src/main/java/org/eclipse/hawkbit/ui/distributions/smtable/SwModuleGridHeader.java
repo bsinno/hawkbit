@@ -11,23 +11,20 @@ package org.eclipse.hawkbit.ui.distributions.smtable;
 import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.event.RefreshSoftwareModuleByFilterEvent;
-import org.eclipse.hawkbit.ui.artifacts.event.SoftwareModuleEvent;
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleAddUpdateWindow;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.distributions.event.DistributionsUIEvent;
-import org.eclipse.hawkbit.ui.distributions.state.ManageDistUIState;
+import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
@@ -41,9 +38,10 @@ import com.vaadin.ui.Window;
 public class SwModuleGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final ManageDistUIState manageDistUIstate;
+    private final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState;
+    private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
 
-    private final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow;
+    private final transient SmWindowBuilder smWindowBuilder;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
@@ -51,13 +49,14 @@ public class SwModuleGridHeader extends AbstractGridHeader {
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
     SwModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final ManageDistUIState manageDistUIstate,
-            final SoftwareModuleAddUpdateWindow softwareModuleAddUpdateWindow) {
+            final SmWindowBuilder smWindowBuilder, final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
+            final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
         super(i18n, permChecker, eventBus);
 
-        this.manageDistUIstate = manageDistUIstate;
+        this.distSMTypeFilterLayoutUiState = distSMTypeFilterLayoutUiState;
+        this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
 
-        this.softwareModuleAddUpdateWindow = softwareModuleAddUpdateWindow;
+        this.smWindowBuilder = smWindowBuilder;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.SW_MODULE_SEARCH_TEXT_FIELD,
                 UIComponentIdProvider.SW_MODULE_SEARCH_RESET_ICON, this::getSearchTextFromUiState, this::searchBy,
@@ -87,65 +86,69 @@ public class SwModuleGridHeader extends AbstractGridHeader {
     }
 
     private String getSearchTextFromUiState() {
-        return manageDistUIstate.getSoftwareModuleFilters().getSearchText().orElse(null);
+        return swModuleGridLayoutUiState.getSearchFilter();
     }
 
     private void searchBy(final String newSearchText) {
-        manageDistUIstate.getSoftwareModuleFilters().setSearchText(newSearchText);
-        eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
+
+        swModuleGridLayoutUiState.setSearchFilter(newSearchText);
     }
 
     // TODO: check if needed or can be done by searchBy
     private void resetSearchText() {
-        if (manageDistUIstate.getSoftwareModuleFilters().getSearchText().isPresent()) {
-            manageDistUIstate.getSoftwareModuleFilters().setSearchText(null);
-            eventBus.publish(this, new RefreshSoftwareModuleByFilterEvent());
-        }
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, "");
+
+        swModuleGridLayoutUiState.setSearchFilter(null);
     }
 
     private void showFilterButtonsLayout() {
-        manageDistUIstate.setSwTypeFilterClosed(false);
-        eventBus.publish(this, DistributionsUIEvent.SHOW_SM_FILTER_BY_TYPE);
+        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this, LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN);
+
+        distSMTypeFilterLayoutUiState.setHidden(false);
     }
 
-    private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return manageDistUIstate.isSwTypeFilterClosed();
+    private boolean onLoadIsShowFilterButtonDisplayed() {
+        return !distSMTypeFilterLayoutUiState.isHidden();
     }
 
     private void addNewItem() {
-        final Window addSoftwareModule = softwareModuleAddUpdateWindow.createAddSoftwareModuleWindow();
-        addSoftwareModule.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module")));
-        UI.getCurrent().addWindow(addSoftwareModule);
-        addSoftwareModule.setVisible(Boolean.TRUE);
+        final Window addWindow = smWindowBuilder.getWindowForAddSm();
+
+        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.software.module")));
+        UI.getCurrent().addWindow(addWindow);
+        addWindow.setVisible(Boolean.TRUE);
     }
 
     private Boolean onLoadIsTableMaximized() {
-        return manageDistUIstate.isSwModuleTableMaximized();
+        return swModuleGridLayoutUiState.isMaximized();
     }
 
     private void maximizeTable() {
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+
         if (addHeaderSupport != null) {
             addHeaderSupport.hideAddIcon();
         }
 
-        manageDistUIstate.setSwModuleTableMaximized(Boolean.TRUE);
-        eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.MAXIMIZED));
+        swModuleGridLayoutUiState.setMaximized(true);
     }
 
     private void minimizeTable() {
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+
         if (addHeaderSupport != null) {
             addHeaderSupport.showAddIcon();
         }
 
-        manageDistUIstate.setSwModuleTableMaximized(Boolean.FALSE);
-        eventBus.publish(this, new SoftwareModuleEvent(BaseEntityEventType.MINIMIZED));
+        swModuleGridLayoutUiState.setMaximized(false);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionsUIEvent event) {
-        if (event == DistributionsUIEvent.HIDE_SM_FILTER_BY_TYPE) {
-            filterButtonsHeaderSupport.showFilterButtonsIcon();
-        }
+    public void showSmTypeIcon() {
+        filterButtonsHeaderSupport.showFilterButtonsIcon();
     }
 
+    public void hideSmTypeIcon() {
+        filterButtonsHeaderSupport.hideFilterButtonsIcon();
+    }
 }

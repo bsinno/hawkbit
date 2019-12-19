@@ -10,11 +10,10 @@ package org.eclipse.hawkbit.ui.artifacts.details;
 
 import java.util.Arrays;
 
-import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -34,17 +33,17 @@ import com.vaadin.ui.themes.ValoTheme;
 public class ArtifactDetailsGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final ArtifactUploadState artifactUploadState;
+    private final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState;
 
     private final Label headerCaption;
 
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
-    public ArtifactDetailsGridHeader(final VaadinMessageSource i18n, final ArtifactUploadState artifactUploadState,
-            final UIEventBus eventBus) {
+    public ArtifactDetailsGridHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
+            final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState) {
         super(i18n, null, eventBus);
 
-        this.artifactUploadState = artifactUploadState;
+        this.artifactDetailsGridLayoutUiState = artifactDetailsGridLayoutUiState;
 
         this.headerCaption = buildHeaderCaption();
 
@@ -68,29 +67,24 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     protected Component getHeaderCaption() {
         return headerCaption;
     }
 
     private void maximizeTable() {
-        // TODO: check if it is needed
-        // details.populateMasterDataAndRecreateContainer(masterForDetails);
-        artifactUploadState.setArtifactDetailsMaximized(Boolean.TRUE);
-        eventBus.publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MAXIMIZED));
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+
+        artifactDetailsGridLayoutUiState.setMaximized(true);
     }
 
     private void minimizeTable() {
-        artifactUploadState.setArtifactDetailsMaximized(Boolean.FALSE);
-        eventBus.publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MINIMIZED));
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+
+        artifactDetailsGridLayoutUiState.setMaximized(false);
     }
 
     private Boolean onLoadIsTableMaximized() {
-        return artifactUploadState.isArtifactDetailsMaximized();
+        return artifactDetailsGridLayoutUiState.isMaximized();
     }
 
     /**

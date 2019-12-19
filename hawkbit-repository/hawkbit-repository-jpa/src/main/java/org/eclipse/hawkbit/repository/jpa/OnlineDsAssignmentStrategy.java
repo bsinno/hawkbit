@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.repository.jpa;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
@@ -46,20 +45,17 @@ import com.google.common.collect.Lists;
  */
 public class OnlineDsAssignmentStrategy extends AbstractDsAssignmentStrategy {
 
-    private final BooleanSupplier multiAssignmentsConfig;
-
     OnlineDsAssignmentStrategy(final TargetRepository targetRepository,
             final AfterTransactionCommitExecutor afterCommit, final EventPublisherHolder eventPublisherHolder,
             final ActionRepository actionRepository, final ActionStatusRepository actionStatusRepository,
             final QuotaManagement quotaManagement, final BooleanSupplier multiAssignmentsConfig) {
         super(targetRepository, afterCommit, eventPublisherHolder, actionRepository, actionStatusRepository,
-                quotaManagement);
-        this.multiAssignmentsConfig = multiAssignmentsConfig;
+                quotaManagement, multiAssignmentsConfig);
     }
 
     @Override
     void sendTargetUpdatedEvents(final DistributionSet set, final List<JpaTarget> targets) {
-        targets.stream().forEach(target -> {
+        targets.forEach(target -> {
             target.setUpdateStatus(TargetUpdateStatus.PENDING);
             sendTargetUpdatedEvent(target);
         });
@@ -77,7 +73,7 @@ public class OnlineDsAssignmentStrategy extends AbstractDsAssignmentStrategy {
     @Override
     void sendDeploymentEvents(final List<DistributionSetAssignmentResult> assignmentResults) {
         if (isMultiAssignmentsEnabled()) {
-            sendDeploymentEvent(assignmentResults.stream().flatMap(result -> result.getActions().stream())
+            sendDeploymentEvent(assignmentResults.stream().flatMap(result -> result.getAssignedEntity().stream())
                     .collect(Collectors.toList()));
         } else {
             assignmentResults.forEach(this::sendDistributionSetAssignedEvent);
@@ -130,9 +126,9 @@ public class OnlineDsAssignmentStrategy extends AbstractDsAssignmentStrategy {
     }
 
     @Override
-    JpaAction createTargetAction(final Map<String, TargetWithActionType> targetsWithActionMap, final JpaTarget target,
+    JpaAction createTargetAction(final TargetWithActionType targetWithActionType, final List<JpaTarget> targets,
             final JpaDistributionSet set) {
-        final JpaAction result = super.createTargetAction(targetsWithActionMap, target, set);
+        final JpaAction result = super.createTargetAction(targetWithActionType, targets, set);
         if (result != null) {
             result.setStatus(Status.RUNNING);
         }
@@ -170,7 +166,7 @@ public class OnlineDsAssignmentStrategy extends AbstractDsAssignmentStrategy {
 
     private DistributionSetAssignmentResult sendDistributionSetAssignedEvent(
             final DistributionSetAssignmentResult assignmentResult) {
-        final List<Action> filteredActions = filterCancellations(assignmentResult.getActions())
+        final List<Action> filteredActions = filterCancellations(assignmentResult.getAssignedEntity())
                 .filter(action -> !hasPendingCancellations(action.getTarget())).collect(Collectors.toList());
         final DistributionSet set = assignmentResult.getDistributionSet();
         sendTargetAssignDistributionSetEvent(set.getTenant(), set.getId(), filteredActions);
@@ -205,10 +201,6 @@ public class OnlineDsAssignmentStrategy extends AbstractDsAssignmentStrategy {
     private void sendMultiActionEvent(final String tenant, final List<String> controllerIds) {
         afterCommit.afterCommit(() -> eventPublisherHolder.getEventPublisher()
                 .publishEvent(new MultiActionEvent(tenant, eventPublisherHolder.getApplicationId(), controllerIds)));
-    }
-
-    private boolean isMultiAssignmentsEnabled() {
-        return multiAssignmentsConfig.getAsBoolean();
     }
 
     private static Stream<Action> filterCancellations(final List<Action> actions) {

@@ -27,11 +27,6 @@ public class ActionStatusGridHeader extends AbstractGridHeader {
     }
 
     @Override
-    protected boolean doSubscribeToEventBus() {
-        return false;
-    }
-
-    @Override
     protected Component getHeaderCaption() {
         return new LabelBuilder().name(i18n.getMessage("caption.action.states")).buildCaptionLabel();
     }

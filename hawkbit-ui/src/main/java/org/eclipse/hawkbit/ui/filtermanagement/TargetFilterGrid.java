@@ -15,9 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
-import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
-import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
@@ -25,6 +23,9 @@ import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvide
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
@@ -42,17 +43,18 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 
 /**
  * Concrete implementation of TargetFilter grid which is displayed on the
  * Filtermanagement View.
  */
 public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, String> {
-
     private static final long serialVersionUID = 1L;
 
     private static final String FILTER_NAME_ID = "filterName";
@@ -67,25 +69,24 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     private final UINotification notification;
     private final FilterManagementUIState filterManagementUIState;
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
-    private final transient TargetManagement targetManagement;
-    private final transient DistributionSetManagement distributionSetManagement;
 
     private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
     private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> targetFilterDataProvider;
     private final DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
 
+    private final AutoAssignmentWindowBuilder autoAssignmentWindowBuilder;
+
     public TargetFilterGrid(final VaadinMessageSource i18n, final UINotification notification,
             final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
-            final TargetFilterQueryManagement targetFilterQueryManagement, final TargetManagement targetManagement,
-            final DistributionSetManagement distributionSetManagement, final SpPermissionChecker permChecker) {
+            final TargetFilterQueryManagement targetFilterQueryManagement, final SpPermissionChecker permChecker,
+            final AutoAssignmentWindowBuilder autoAssignmentWindowBuilder) {
         super(i18n, eventBus, permChecker);
 
         this.notification = notification;
         this.filterManagementUIState = filterManagementUIState;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
-        this.targetManagement = targetManagement;
-        this.distributionSetManagement = distributionSetManagement;
+        this.autoAssignmentWindowBuilder = autoAssignmentWindowBuilder;
 
         this.targetFilterDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
                 new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
@@ -117,6 +118,9 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         final Collection<Long> targetFilterIdsToBeDeleted = targetFiltersToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         targetFilterIdsToBeDeleted.forEach(targetFilterQueryManagement::delete);
+
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new TargetFilterModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_REMOVED, targetFilterIdsToBeDeleted));
     }
 
     // TODO: remove duplication with ActionHistoryGrid
@@ -251,16 +255,20 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         final String autoAssignmenLinkId = new StringBuilder("distSetButton").append('.').append(targetFilter.getId())
                 .toString();
 
-        return buildLink(clickEvent -> onClickOfAutoAssignmentLink(targetFilter.getId()), autoAssignmenLinkCaption,
+        return buildLink(clickEvent -> onClickOfAutoAssignmentLink(targetFilter), autoAssignmenLinkCaption,
                 autoAssignmenLinkDescription, autoAssignmenLinkId, true);
 
     }
 
-    private void onClickOfAutoAssignmentLink(final Long targetFilterId) {
+    private void onClickOfAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
         if (permissionChecker.hasReadRepositoryPermission()) {
-            final DistributionSetSelectWindow dsSelectWindow = new DistributionSetSelectWindow(i18n, eventBus,
-                    targetManagement, targetFilterQueryManagement, distributionSetManagement);
-            dsSelectWindow.showForTargetFilter(targetFilterId);
+            final Window autoAssignmentWindow = autoAssignmentWindowBuilder.getWindowForAutoAssignment(targetFilter);
+
+            autoAssignmentWindow.setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_SELECT_AUTO_ASSIGN_DS));
+            autoAssignmentWindow.setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
+
+            UI.getCurrent().addWindow(autoAssignmentWindow);
+            autoAssignmentWindow.setVisible(Boolean.TRUE);
         } else {
             notification.displayValidationError(
                     i18n.getMessage("message.permission.insufficient", SpPermission.READ_REPOSITORY));

@@ -12,11 +12,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterMultiButtonClick;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.ui.Button;
 
 /**
  * Multi button click behaviour of filter buttons layout.
@@ -64,10 +61,11 @@ public class TargetTagFilterButtonClick extends AbstractFilterMultiButtonClick<P
     }
 
     protected void clearTargetTagFilters() {
-        for (final Button button : alreadyClickedButtons) {
-            button.removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
-        }
-        alreadyClickedButtons.clear();
+        // TODO
+        // for (final Button button : alreadyClickedButtons) {
+        // button.removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
+        // }
+        // alreadyClickedButtons.clear();
         managementUIState.getTargetTableFilters().getClickedTargetTags().clear();
         eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
     }
