@@ -10,12 +10,12 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilderV7;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * This class represents the UI item for enabling /disabling the
@@ -103,7 +103,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     }
 
     private Label newLabel(final String msgKey) {
-        final Label label = new LabelBuilderV7().name(i18n.getMessage(msgKey)).buildLabel();
+        final Label label = new LabelBuilder().name(i18n.getMessage(msgKey)).buildLabel();
         label.setWidthUndefined();
         return label;
     }
