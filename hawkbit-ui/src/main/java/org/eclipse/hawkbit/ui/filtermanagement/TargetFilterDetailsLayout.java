@@ -16,9 +16,12 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.filtermanagement.footer.TargetFilterCountMessageLabel;
-import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
+import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
+import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState.Mode;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -29,54 +32,80 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
+    private final TargetFilterDetailsLayoutUiState uiState;
+
     private final TargetFilterDetailsGridHeader targetFilterDetailsGridHeader;
     private final TargetFilterTargetGrid targetFilterTargetGrid;
     private final transient TargetFilterCountMessageLabel targetFilterCountMessageLabel;
 
-    // private final TargetFilterDetailsLayoutEventListener eventListener;
+    private final UIEventBus eventBus;
+    private final TargetFilterDetailsLayoutEventListener eventListener;
+    private final TargetFilterAddUpdateLayout targetFilterAddUpdateLayout;
 
     public TargetFilterDetailsLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final UINotification uiNotification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final RsqlValidationOracle rsqlValidationOracle, final Executor executor,
             final TargetManagement targetManagement, final TargetFilterQueryManagement targetFilterManagement,
-            final FilterManagementUIState filterManagementUIState) {
-        final TargetFilterAddUpdateLayout targetFilterAddUpdateLayout = new TargetFilterAddUpdateLayout(i18n,
-                uiProperties, filterManagementUIState, eventBus, rsqlValidationOracle, executor);
+            final TargetFilterDetailsLayoutUiState uiState) {
+        this.uiState = uiState;
+        this.eventBus = eventBus;
+        this.eventListener = new TargetFilterDetailsLayoutEventListener(this, eventBus);
+
+        this.targetFilterAddUpdateLayout = new TargetFilterAddUpdateLayout(i18n, uiProperties, uiState, eventBus,
+                rsqlValidationOracle, executor);
         final AddTargetFilterController addTargetFilterController = new AddTargetFilterController(i18n, entityFactory,
                 eventBus, uiNotification, targetFilterManagement, targetFilterAddUpdateLayout);
         final UpdateTargetFilterController updateTargetFilterController = new UpdateTargetFilterController(i18n,
                 entityFactory, eventBus, uiNotification, targetFilterManagement, targetFilterAddUpdateLayout);
 
         this.targetFilterDetailsGridHeader = new TargetFilterDetailsGridHeader(i18n, eventBus,
-                targetFilterAddUpdateLayout, addTargetFilterController, updateTargetFilterController,
-                filterManagementUIState);
+                targetFilterAddUpdateLayout, addTargetFilterController, updateTargetFilterController);
 
-        this.targetFilterTargetGrid = new TargetFilterTargetGrid(i18n, eventBus, targetManagement,
-                filterManagementUIState);
+        this.targetFilterTargetGrid = new TargetFilterTargetGrid(i18n, eventBus, targetManagement, uiState);
 
-        this.targetFilterCountMessageLabel = new TargetFilterCountMessageLabel(filterManagementUIState, i18n, eventBus);
+        this.targetFilterCountMessageLabel = new TargetFilterCountMessageLabel(i18n);
 
         buildLayout(targetFilterDetailsGridHeader, targetFilterTargetGrid, targetFilterCountMessageLabel);
     }
 
     public void showAddFilterLayout() {
+        uiState.setCurrentMode(Mode.CREATE);
         targetFilterDetailsGridHeader.showAddFilterLayout();
         targetFilterTargetGrid.updateTargetFilterQueryFilter(null);
-        targetFilterCountMessageLabel.updateTotalFilteredTargetsCount(0);
     }
 
     public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
+        uiState.setCurrentMode(Mode.EDIT);
+        uiState.setTargetFilterQueryforEdit(proxyEntity);
         targetFilterDetailsGridHeader.showEditFilterLayout(proxyEntity);
         targetFilterTargetGrid.updateTargetFilterQueryFilter(proxyEntity.getQuery());
-        // TODO: consider reworking to use #updateTotalFilteredTargetsCount
-        // instead because data provider is running in separate thread and ui
-        // state can be not up-to-date, resulting in wrong filtered targets
-        // count. Possible solution is to define grid data provider refresh
-        // listener
-        targetFilterCountMessageLabel.displayTargetFilterMessage();
     }
 
-    // public void unsubscribeListener() {
-    // eventListener.unsubscribeListeners();
-    // }
+    public void onSearchFilterChanged(final String newFilter) {
+        targetFilterTargetGrid.updateTargetFilterQueryFilter(newFilter);
+    }
+
+    public void onGridUpdated(final long totalTargetCount) {
+        targetFilterCountMessageLabel.updateTotalFilteredTargetsCount(totalTargetCount);
+    }
+
+    public void onClose() {
+        // TODO is it OK to just republisch the Event so it comes from this
+        // class?
+        eventBus.publish(EventTopics.CHANGE_UI_ELEMENT_STATE, this, ChangeUiElementPayload.CLOSE);
+    }
+
+    public void restoreState() {
+        if (Mode.EDIT.equals(uiState.getCurrentMode())) {
+            uiState.getTargetFilterQueryforEdit().ifPresent(this::showEditFilterLayout);
+        } else if (Mode.CREATE.equals(uiState.getCurrentMode())) {
+            showAddFilterLayout();
+        }
+        targetFilterAddUpdateLayout.restoreState();
+        targetFilterTargetGrid.restoreState();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
+    }
 }

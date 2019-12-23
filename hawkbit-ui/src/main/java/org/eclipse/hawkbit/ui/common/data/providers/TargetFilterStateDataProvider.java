@@ -14,8 +14,6 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 
@@ -29,14 +27,12 @@ public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget
     private static final long serialVersionUID = 1L;
 
     private final transient TargetManagement targetManagement;
-    private final FilterManagementUIState filterManagementUIState;
 
     public TargetFilterStateDataProvider(final TargetManagement targetManagement,
-            final FilterManagementUIState filterManagementUIState, final TargetToProxyTargetMapper entityMapper) {
+            final TargetToProxyTargetMapper entityMapper) {
         super(entityMapper);
 
         this.targetManagement = targetManagement;
-        this.filterManagementUIState = filterManagementUIState;
     }
 
     @Override
@@ -47,16 +43,6 @@ public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget
 
     @Override
     protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-        long size = filter.map(searchText -> targetManagement.countByRsql(searchText)).orElse(0L);
-
-        filterManagementUIState.setTargetsCountAll(size);
-        if (size > SPUIDefinitions.MAX_TABLE_ENTRIES) {
-            filterManagementUIState.setTargetsTruncated(size - SPUIDefinitions.MAX_TABLE_ENTRIES);
-            size = SPUIDefinitions.MAX_TABLE_ENTRIES;
-        } else {
-            filterManagementUIState.setTargetsTruncated(null);
-        }
-
-        return size;
+        return filter.map(targetManagement::countByRsql).orElse(0L);
     }
 }

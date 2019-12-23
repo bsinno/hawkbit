@@ -15,18 +15,19 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.shared.Registration;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -40,6 +41,8 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
     private final Link helpLink;
     private final Button searchButton;
     private final Button saveButton;
+    private final TargetFilterDetailsLayoutUiState uiState;
+    private final UIEventBus eventBus;
 
     private Registration saveListener;
 
@@ -50,12 +53,13 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
      *            I18N
      */
     public TargetFilterAddUpdateLayout(final VaadinMessageSource i18n, final UiProperties uiProperties,
-            final FilterManagementUIState filterManagementUIState, final UIEventBus eventBus,
+            final TargetFilterDetailsLayoutUiState uiState, final UIEventBus eventBus,
             final RsqlValidationOracle rsqlValidationOracle, final Executor executor) {
         super();
-
-        this.filterComponentBuilder = new TargetFilterAddUpdateLayoutComponentBuilder(i18n, uiProperties,
-                filterManagementUIState, eventBus, rsqlValidationOracle, executor);
+        this.uiState = uiState;
+        this.eventBus = eventBus;
+        this.filterComponentBuilder = new TargetFilterAddUpdateLayoutComponentBuilder(i18n, uiProperties, uiState,
+                eventBus, rsqlValidationOracle, executor);
 
         this.filterName = filterComponentBuilder.createNameField(binder);
         this.autoCompleteComponent = filterComponentBuilder.createQueryField(binder);
@@ -94,20 +98,37 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
         return filterAddUpdateLayout;
     }
 
+    public void restoreState() {
+        filterName.setValue(uiState.getNameInput());
+        autoCompleteComponent.clear();
+        autoCompleteComponent.doSetValue(uiState.getFilterQueryValueInput());
+    }
+
     private void addValueChangeListeners() {
         searchButton.addClickListener(event -> onSearchIconClick());
         autoCompleteComponent.addValidationListener((valid, message) -> searchButton.setEnabled(valid));
+        autoCompleteComponent.addTextfieldChangedListener(this::onFilterQueryTextfieldChanged);
+        filterName.addValueChangeListener(this::onFilterNameChanged);
         addValidationListener(saveButton::setEnabled);
+    }
+
+    private void onFilterQueryTextfieldChanged(final ValueChangeEvent<String> event) {
+        if (event.isUserOriginated()) {
+            uiState.setFilterQueryValueInput(event.getValue());
+        }
+    }
+
+    private void onFilterNameChanged(final ValueChangeEvent<String> event) {
+        if (event.isUserOriginated()) {
+            uiState.setNameInput(event.getValue());
+        }
     }
 
     private void onSearchIconClick() {
         if (!autoCompleteComponent.isValid()) {
             return;
         }
-
-        autoCompleteComponent.showValidationInProgress();
-        // TODO: rework
-        autoCompleteComponent.getExecutor().execute(autoCompleteComponent.new StatusCircledAsync(UI.getCurrent()));
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, autoCompleteComponent.getValue());
     }
 
     public void setSaveCallback(final SaveDialogCloseListener saveCallback) {

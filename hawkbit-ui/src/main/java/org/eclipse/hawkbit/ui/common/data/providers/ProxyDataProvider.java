@@ -79,6 +79,7 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
         return (int) size;
     }
 
+    // TODO check if PageRequest is required
     protected abstract long sizeInBackEnd(final PageRequest pageRequest, Optional<F> filter);
 
     @Override

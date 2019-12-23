@@ -12,11 +12,12 @@ import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
-import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
+import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -30,7 +31,7 @@ import com.vaadin.ui.Component;
 public class TargetFilterGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final FilterManagementUIState filterManagementUIState;
+    private final TargetFilterGridLayoutUiState uiState;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient AddHeaderSupport addHeaderSupport;
@@ -47,15 +48,15 @@ public class TargetFilterGridHeader extends AbstractGridHeader {
      * @param i18n
      *            VaadinMessageSource
      */
-    public TargetFilterGridHeader(final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
+    public TargetFilterGridHeader(final UIEventBus eventBus, final TargetFilterGridLayoutUiState uiState,
             final SpPermissionChecker permissionChecker, final VaadinMessageSource i18n) {
         super(i18n, permissionChecker, eventBus);
 
-        this.filterManagementUIState = filterManagementUIState;
+        this.uiState = uiState;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.TARGET_FILTER_SEARCH_TEXT,
                 UIComponentIdProvider.TARGET_FILTER_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState, this::searchBy,
-                this::resetSearchText);
+                () -> searchBy(null));
         // TODO: consider moving permission check to header support or parent
         // header
         if (permChecker.hasCreateTargetPermission()) {
@@ -76,25 +77,19 @@ public class TargetFilterGridHeader extends AbstractGridHeader {
     }
 
     private String getSearchTextFromUiState() {
-        return filterManagementUIState.getCustomFilterSearchText().orElse(null);
+        return uiState.getSearchFilterInput();
     }
 
     private void searchBy(final String newSearchText) {
-        filterManagementUIState.setCustomFilterSearchText(newSearchText);
-        eventBus.publish(this, CustomFilterUIEvent.FILTER_BY_CUST_FILTER_TEXT);
-    }
-
-    // TODO: check if needed or can be done by searchBy
-    private void resetSearchText() {
-        filterManagementUIState.setCustomFilterSearchText(null);
-        eventBus.publish(this, CustomFilterUIEvent.FILTER_BY_CUST_FILTER_TEXT_REMOVE);
+        uiState.setSearchFilterInput(newSearchText);
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
     }
 
     private void addNewItem() {
-        filterManagementUIState.setTfQuery(null);
-        filterManagementUIState.setFilterQueryValue(null);
-        filterManagementUIState.setCreateFilterBtnClicked(true);
+        eventBus.publish(EventTopics.CREATE_ENTITY, this, ProxyTargetFilterQuery.class);
+    }
 
-        eventBus.publish(this, CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK);
+    public void restoreState() {
+        this.searchHeaderSupport.restoreState();
     }
 }

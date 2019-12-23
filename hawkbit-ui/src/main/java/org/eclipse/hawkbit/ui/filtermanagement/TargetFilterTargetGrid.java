@@ -17,23 +17,19 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
-import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
+import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
 
 /**
  * Shows the targets as a result of the executed filter query.
@@ -50,20 +46,19 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     private static final String TARGET_DESCRIPTION_ID = "targetDescription";
     private static final String TARGET_STATUS_ID = "targetStatus";
 
-    private final FilterManagementUIState filterManagementUIState;
-
     private final Map<TargetUpdateStatus, FontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, String> targetDataProvider;
 
+    private final TargetFilterDetailsLayoutUiState uiState;
+
     TargetFilterTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final TargetManagement targetManagement, final FilterManagementUIState filterManagementUIState) {
+            final TargetManagement targetManagement, final TargetFilterDetailsLayoutUiState uiState) {
         super(i18n, eventBus);
 
-        this.filterManagementUIState = filterManagementUIState;
-
-        targetDataProvider = new TargetFilterStateDataProvider(targetManagement, filterManagementUIState,
-                new TargetToProxyTargetMapper(i18n)).withConfigurableFilter();
+        this.uiState = uiState;
+        targetDataProvider = new TargetFilterStateDataProvider(targetManagement, new TargetToProxyTargetMapper(i18n))
+                .withConfigurableFilter();
 
         // TODO: check if relevant or should be defined in AbstractGrid
         // setStyleName("sp-table");
@@ -71,8 +66,6 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         // setHeight(100.0F, Unit.PERCENTAGE);
         // addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         // addStyleName(ValoTheme.TABLE_SMALL);
-
-        restoreOnLoad();
 
         initTargetStatusIconMap();
 
@@ -87,16 +80,6 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     @Override
     public ConfigurableFilterDataProvider<ProxyTarget, Void, String> getFilterDataProvider() {
         return targetDataProvider;
-    }
-
-    // TODO: check if we should also refresh dataprovider filter
-    private void restoreOnLoad() {
-        if (filterManagementUIState.isCreateFilterViewDisplayed()) {
-            filterManagementUIState.setFilterQueryValue(null);
-        } else {
-            filterManagementUIState.getTfQuery()
-                    .ifPresent(value -> filterManagementUIState.setFilterQueryValue(value.getQuery()));
-        }
     }
 
     // TODO: check if icons are correct
@@ -121,32 +104,11 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
                 .getMessage(UIMessageIdProvider.TOOLTIP_TARGET_STATUS_PREFIX + targetStatus.toString().toLowerCase());
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final CustomFilterUIEvent custFUIEvent) {
-        if (custFUIEvent == CustomFilterUIEvent.TARGET_DETAILS_VIEW
-                || custFUIEvent == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK) {
-            UI.getCurrent().access(this::refreshContainer);
-        } else if (custFUIEvent == CustomFilterUIEvent.FILTER_TARGET_BY_QUERY) {
-            UI.getCurrent().access(() -> {
-                refreshFilter();
-                eventBus.publish(this, CustomFilterUIEvent.UPDATE_TARGET_FILTER_SEARCH_ICON);
-            });
-        }
-    }
-
-    private void refreshFilter() {
-        final String filterQuery = filterManagementUIState.getFilterQueryValue();
-
-        if (!StringUtils.isEmpty(filterQuery)) {
-            getFilterDataProvider().setFilter(filterQuery);
-        } else {
-            // TODO: check if it is needed
-            getFilterDataProvider().setFilter(null);
-        }
-    }
-
     public void updateTargetFilterQueryFilter(final String targetFilterQuery) {
         getFilterDataProvider().setFilter(targetFilterQuery);
+        final long totalTargetCount = -1000; // TODO get real value
+        uiState.setFilterQueryValueOfLatestSerach(targetFilterQuery);
+        eventBus.publish(EventTopics.UI_ELEMENT_CHANGED, this, totalTargetCount);
     }
 
     @Override
@@ -182,5 +144,12 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         final String targetStatusId = new StringBuilder(TARGET_STATUS_ID).append(".").append(target.getId()).toString();
 
         return buildLabelIcon(targetStatusFontIcon, targetStatusId);
+    }
+
+    public void restoreState() {
+        final String latestFilter = uiState.getFilterQueryValueOfLatestSerach();
+        if (!latestFilter.isEmpty()) {
+            updateTargetFilterQueryFilter(latestFilter);
+        }
     }
 }

@@ -28,23 +28,34 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
     private final TargetFilterGridHeader targetFilterGridHeader;
     private final TargetFilterGrid targetFilterGrid;
 
-    // private final TargetFilterGridLayoutEventListener eventListener;
+    private final TargetFilterGridLayoutEventListener eventListener;
 
     public TargetFilterGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
             final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
             final FilterManagementUIState filterManagementUIState) {
-        this.targetFilterGridHeader = new TargetFilterGridHeader(eventBus, filterManagementUIState, permissionChecker,
-                i18n);
+        this.targetFilterGridHeader = new TargetFilterGridHeader(eventBus,
+                filterManagementUIState.getGridLayoutUiState(), permissionChecker, i18n);
+        this.eventListener = new TargetFilterGridLayoutEventListener(this, eventBus);
 
         final AutoAssignmentWindowBuilder autoAssignmentWindowBuilder = new AutoAssignmentWindowBuilder(i18n, eventBus,
                 notification, entityFactory, targetManagement, targetFilterQueryManagement, distributionSetManagement);
 
-        this.targetFilterGrid = new TargetFilterGrid(i18n, notification, eventBus, filterManagementUIState,
-                targetFilterQueryManagement, permissionChecker, autoAssignmentWindowBuilder);
+        this.targetFilterGrid = new TargetFilterGrid(i18n, notification, eventBus,
+                filterManagementUIState.getGridLayoutUiState(), targetFilterQueryManagement, permissionChecker,
+                autoAssignmentWindowBuilder);
 
         buildLayout(targetFilterGridHeader, targetFilterGrid);
+    }
+
+    public void filterGridBySearch(final String searchFilter) {
+        targetFilterGrid.setFilter(searchFilter);
+    }
+
+    public void restoreState() {
+        targetFilterGridHeader.restoreState();
+        targetFilterGrid.restoreState();
     }
 
     // public void unsubscribeListener() {
