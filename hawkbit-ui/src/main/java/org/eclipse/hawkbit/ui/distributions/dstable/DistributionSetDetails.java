@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractDistributionSetDetails;
-import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsGrid;
 import org.eclipse.hawkbit.ui.common.detailslayout.TargetFilterQueryDetailsGrid;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -32,26 +31,18 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DistributionSetDetails extends AbstractDistributionSetDetails {
     private static final long serialVersionUID = 1L;
 
-    private final transient SoftwareModuleManagement smManagement;
-    private final transient DistributionSetTypeManagement dsTypeManagement;
-
-    private final TargetFilterQueryDetailsGrid tfqDetailsGrid;
-
     DistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification uiNotification,
-            final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
-            final DistributionSetTypeManagement dsTypeManagement,
-            final DistributionSetTagManagement distributionSetTagManagement,
+            final DistributionSetManagement dsManagement, final SoftwareModuleManagement smManagement,
+            final DistributionSetTypeManagement dsTypeManagement, final DistributionSetTagManagement dsTagManagement,
             final TargetFilterQueryManagement targetFilterQueryManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
             final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
-        super(i18n, eventBus, permissionChecker, distributionSetManagement, uiNotification,
-                distributionSetTagManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
+        super(i18n, eventBus, permissionChecker, uiNotification, dsManagement, smManagement, dsTypeManagement,
+                dsTagManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
-        this.smManagement = smManagement;
-        this.dsTypeManagement = dsTypeManagement;
-
-        this.tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n, targetFilterQueryManagement);
+        final TargetFilterQueryDetailsGrid tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n,
+                targetFilterQueryManagement);
 
         addDetailsComponents(Collections
                 .singletonList(new SimpleEntry<>(i18n.getMessage("caption.auto.assignment.ds"), tfqDetailsGrid)));
@@ -60,8 +51,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
     }
 
     @Override
-    protected SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid() {
-        return new SoftwareModuleDetailsGrid(i18n, eventBus, uiNotification, permissionChecker,
-                distributionSetManagement, smManagement, dsTypeManagement, true);
+    protected boolean isUnassignSmAllowed() {
+        return true;
     }
 }
