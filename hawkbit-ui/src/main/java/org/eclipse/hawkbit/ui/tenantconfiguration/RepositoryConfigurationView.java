@@ -8,8 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.BooleanConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem;
@@ -18,21 +18,21 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.repository.MultiAssignmentsCon
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
+import com.vaadin.data.Binder;
+import com.vaadin.data.HasValue;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Panel;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * View to configure the authentication mode.
  */
 public class RepositoryConfigurationView extends BaseConfigurationView
-        implements ConfigurationGroup, ConfigurationItem.ConfigurationItemChangeListener, ValueChangeListener {
+        implements ConfigurationGroup, ConfigurationItem.ConfigurationItemChangeListener {
 
     private static final String DIST_CHECKBOX_STYLE = "dist-checkbox-style";
 
@@ -54,16 +54,19 @@ public class RepositoryConfigurationView extends BaseConfigurationView
 
     private CheckBox multiAssignmentsCheckBox;
 
-    RepositoryConfigurationView(final VaadinMessageSource i18n,
-            final TenantConfigurationManagement tenantConfigurationManagement, final UiProperties uiProperties) {
+    private final Binder<ProxySystemConfigWindow> binder;
+
+    RepositoryConfigurationView(final VaadinMessageSource i18n, final UiProperties uiProperties,
+            final ActionAutocloseConfigurationItem actionAutocloseConfigurationItem,
+            final ActionAutocleanupConfigurationItem actionAutocleanupConfigurationItem,
+            final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem,
+            final Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
         this.uiProperties = uiProperties;
-        this.actionAutocloseConfigurationItem = new ActionAutocloseConfigurationItem(tenantConfigurationManagement,
-                i18n);
-        this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
-                i18n);
-        this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
-                i18n);
+        this.actionAutocloseConfigurationItem = actionAutocloseConfigurationItem;
+        this.actionAutocleanupConfigurationItem = actionAutocleanupConfigurationItem;
+        this.multiAssignmentsConfigurationItem = multiAssignmentsConfigurationItem;
+        this.binder = binder;
 
         init();
     }
@@ -90,31 +93,40 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         gridLayout.setSizeFull();
 
         final boolean isMultiAssignmentsEnabled = multiAssignmentsConfigurationItem.isConfigEnabled();
-
-        actionAutocloseCheckBox = SPUIComponentProvider.getCheckBox("", DIST_CHECKBOX_STYLE, null, false, "");
+        actionAutocloseCheckBox = new CheckBox();
+        actionAutocloseCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         actionAutocloseCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLOSE_CHECKBOX);
         actionAutocloseCheckBox.setEnabled(!isMultiAssignmentsEnabled);
         actionAutocloseConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
-        actionAutocloseCheckBox.setValue(actionAutocloseConfigurationItem.isConfigEnabled());
-        actionAutocloseCheckBox.addValueChangeListener(this);
+        actionAutocloseCheckBox
+                .addValueChangeListener(event -> changeListener(event, actionAutocloseConfigurationItem));
         actionAutocloseConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(actionAutocloseCheckBox, 0, 0);
         gridLayout.addComponent(actionAutocloseConfigurationItem, 1, 0);
 
-        multiAssignmentsCheckBox = SPUIComponentProvider.getCheckBox("", DIST_CHECKBOX_STYLE, null, false, "");
+        multiAssignmentsCheckBox = new CheckBox();
+        multiAssignmentsCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         multiAssignmentsCheckBox.setId(UIComponentIdProvider.REPOSITORY_MULTI_ASSIGNMENTS_CHECKBOX);
-        multiAssignmentsCheckBox.setValue(multiAssignmentsConfigurationItem.isConfigEnabled());
-        multiAssignmentsCheckBox.addValueChangeListener(this);
+        multiAssignmentsCheckBox.addValueChangeListener(event -> {
+            actionAutocloseCheckBox.setEnabled(!event.getValue());
+            actionAutocloseConfigurationItem.setEnabled(!event.getValue());
+            changeListener(event, multiAssignmentsConfigurationItem);
+        });
+        binder.bind(multiAssignmentsCheckBox, ProxySystemConfigWindow::isMultiAssignments,
+                ProxySystemConfigWindow::setMultiAssignments);
         multiAssignmentsCheckBox.setEnabled(!isMultiAssignmentsEnabled);
         multiAssignmentsConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
         multiAssignmentsConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(multiAssignmentsCheckBox, 0, 1);
         gridLayout.addComponent(multiAssignmentsConfigurationItem, 1, 1);
 
-        actionAutocleanupCheckBox = SPUIComponentProvider.getCheckBox("", DIST_CHECKBOX_STYLE, null, false, "");
+        actionAutocleanupCheckBox = new CheckBox();
+        actionAutocleanupCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         actionAutocleanupCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX);
-        actionAutocleanupCheckBox.setValue(actionAutocleanupConfigurationItem.isConfigEnabled());
-        actionAutocleanupCheckBox.addValueChangeListener(this);
+        actionAutocleanupCheckBox
+                .addValueChangeListener(event -> changeListener(event, actionAutocleanupConfigurationItem));
+        binder.bind(actionAutocleanupCheckBox, ProxySystemConfigWindow::isActionAutocleanup,
+                ProxySystemConfigWindow::setActionAutocleanup);
         actionAutocleanupConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(actionAutocleanupCheckBox, 0, 2);
         gridLayout.addComponent(actionAutocleanupConfigurationItem, 1, 2);
@@ -127,6 +139,15 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         vLayout.addComponent(gridLayout);
         rootPanel.setContent(vLayout);
         setCompositionRoot(rootPanel);
+    }
+
+    private void changeListener(final HasValue.ValueChangeEvent event,
+            final BooleanConfigurationItem configurationItem) {
+        if (event.getValue().equals(Boolean.TRUE)) {
+            configurationItem.configEnable();
+        } else {
+            configurationItem.configDisable();
+        }
     }
 
     @Override
@@ -151,48 +172,17 @@ public class RepositoryConfigurationView extends BaseConfigurationView
     public void undo() {
         multiAssignmentsConfigurationItem.undo();
         final boolean isMultiAssignmentsEnabled = multiAssignmentsConfigurationItem.isConfigEnabled();
-        multiAssignmentsCheckBox.setValue(isMultiAssignmentsEnabled);
+        binder.getBean().setMultiAssignments(isMultiAssignmentsEnabled);
         actionAutocloseConfigurationItem.undo();
-        actionAutocloseCheckBox.setValue(actionAutocloseConfigurationItem.isConfigEnabled());
+        binder.getBean().setActionAutoclose(actionAutocloseConfigurationItem.isConfigEnabled());
         actionAutocloseCheckBox.setEnabled(!isMultiAssignmentsEnabled);
         actionAutocloseConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
         actionAutocleanupConfigurationItem.undo();
-        actionAutocleanupCheckBox.setValue(actionAutocleanupConfigurationItem.isConfigEnabled());
+        binder.getBean().setActionAutocleanup(actionAutocleanupConfigurationItem.isConfigEnabled());
     }
 
     @Override
     public void configurationHasChanged() {
         notifyConfigurationChanged();
-    }
-
-    @Override
-    public void valueChange(final ValueChangeEvent event) {
-
-        if (!(event.getProperty() instanceof CheckBox)) {
-            return;
-        }
-
-        notifyConfigurationChanged();
-
-        final CheckBox checkBox = (CheckBox) event.getProperty();
-        BooleanConfigurationItem configurationItem;
-
-        if (actionAutocloseCheckBox.equals(checkBox)) {
-            configurationItem = actionAutocloseConfigurationItem;
-        } else if (actionAutocleanupCheckBox.equals(checkBox)) {
-            configurationItem = actionAutocleanupConfigurationItem;
-        } else if (multiAssignmentsCheckBox.equals(checkBox)) {
-            configurationItem = multiAssignmentsConfigurationItem;
-            actionAutocloseCheckBox.setEnabled(!checkBox.getValue());
-            actionAutocloseConfigurationItem.setEnabled(!checkBox.getValue());
-        } else {
-            return;
-        }
-
-        if (checkBox.getValue()) {
-            configurationItem.configEnable();
-        } else {
-            configurationItem.configDisable();
-        }
     }
 }

@@ -29,8 +29,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
-import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -129,7 +131,8 @@ public class DeploymentAssignmentWindowController {
                     .collect(Collectors.toSet());
             refreshPinnedDetails(dsIdsToAssign, assignedTargetIds);
 
-            eventBus.publish(this, SaveActionWindowEvent.SAVED_ASSIGNMENTS);
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, assignedTargetIds));
         } catch (final MultiAssignmentIsNotEnabledException e) {
             notification.displayValidationError(i18n.getMessage("message.target.ds.multiassign.error"));
             LOG.error("UI allowed multiassignment although it is not enabled: {}", e);

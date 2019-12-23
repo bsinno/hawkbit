@@ -29,6 +29,8 @@ public class ProxyType extends ProxyFilterButton {
 
     private Set<ProxyType> selectedSmTypes;
 
+    private int maxAssignments;
+
     public String getKey() {
         return key;
     }
@@ -67,6 +69,14 @@ public class ProxyType extends ProxyFilterButton {
 
     public void setSelectedSmTypes(final Set<ProxyType> selectedSmTypes) {
         this.selectedSmTypes = selectedSmTypes;
+    }
+
+    public int getMaxAssignments() {
+        return maxAssignments;
+    }
+
+    public void setMaxAssignments(final int maxAssignments) {
+        this.maxAssignments = maxAssignments;
     }
 
     public enum SmTypeAssign {

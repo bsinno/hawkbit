@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.distributions;
 
+import java.util.Collection;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -42,6 +44,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.annotations.JavaScript;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
@@ -56,6 +59,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 @UIScope
 @SpringView(name = DistributionsView.VIEW_NAME, ui = AbstractHawkbitUI.class)
+@JavaScript("theme://js/dynamicStylesheet.js")
 public class DistributionsView extends VerticalLayout implements View, BrowserWindowResizeListener {
     private static final long serialVersionUID = 1L;
 
@@ -94,10 +98,10 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
             this.dsTypeFilterLayout = new DSTypeFilterLayout(i18n, permChecker, eventBus, entityFactory, uiNotification,
                     softwareModuleTypeManagement, distributionSetTypeManagement, distributionSetManagement,
                     systemManagement, manageDistUIState.getDSTypeFilterLayoutUiState());
-            this.distributionSetGridLayout = new DistributionSetGridLayout(i18n, eventBus, permChecker,
-                    distributionSetManagement, distributionSetTypeManagement, targetManagement,
-                    targetFilterQueryManagement, entityFactory, uiNotification, distributionSetTagManagement,
-                    systemManagement, configManagement, systemSecurityContext,
+            this.distributionSetGridLayout = new DistributionSetGridLayout(i18n, eventBus, permChecker, uiNotification,
+                    entityFactory, targetManagement, targetFilterQueryManagement, distributionSetManagement,
+                    softwareModuleManagement, distributionSetTypeManagement, distributionSetTagManagement,
+                    softwareModuleTypeManagement, systemManagement, configManagement, systemSecurityContext,
                     manageDistUIState.getDSTypeFilterLayoutUiState(),
                     manageDistUIState.getDistributionSetGridLayoutUiState());
             this.swModuleGridLayout = new SwModuleGridLayout(i18n, uiNotification, eventBus, softwareModuleManagement,
@@ -250,9 +254,19 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         swModuleGridLayout.onDsSelected(ds);
     }
 
+    void onDsUpdated(final Collection<Long> entityIds) {
+        final Long lastSelectedDsId = manageDistUIState.getDistributionSetGridLayoutUiState().getSelectedDsId();
+
+        if (lastSelectedDsId != null && entityIds.contains(lastSelectedDsId)) {
+            swModuleGridLayout.refreshGrid();
+        }
+    }
+
     void minimizeDsGridLayout() {
         swModuleGridLayout.setVisible(true);
-        distSMTypeFilterLayout.setVisible(true);
+        if (!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
+            distSMTypeFilterLayout.setVisible(true);
+        }
 
         mainLayout.setColumnExpandRatio(1, 0.5F);
         mainLayout.setColumnExpandRatio(2, 0.5F);
@@ -261,7 +275,9 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     }
 
     void minimizeSmGridLayout() {
-        dsTypeFilterLayout.setVisible(true);
+        if (!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
+            dsTypeFilterLayout.setVisible(true);
+        }
         distributionSetGridLayout.setVisible(true);
 
         mainLayout.setColumnExpandRatio(1, 0.5F);

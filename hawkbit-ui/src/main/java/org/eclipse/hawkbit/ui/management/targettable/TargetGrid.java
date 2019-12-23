@@ -51,7 +51,6 @@ import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.DeploymentView;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
-import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetAddUpdateWindowEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
@@ -381,14 +380,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private boolean tableIsFilteredByNoTagAndTagWasAssignedToTarget(final ManagementUIEvent managementUIEvent) {
         return managementUIEvent == ManagementUIEvent.ASSIGN_TARGET_TAG && isNoTagClickedFromUiState();
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final SaveActionWindowEvent event) {
-        if (event == SaveActionWindowEvent.SAVED_ASSIGNMENTS) {
-            // TODO: is it sufficient to call refreshContainer?
-            UI.getCurrent().access(this::refreshFilter);
-        }
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

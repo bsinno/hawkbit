@@ -87,9 +87,10 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     }
 
     private Button buildFilterButton(final T clickedFilter) {
-        final Button filterButton = SPUIComponentProvider.getButton(getFilterButtonIdPrefix() + clickedFilter.getId(),
-                clickedFilter.getName(), i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false,
-                null, SPUITagButtonStyle.class);
+        final Button filterButton = SPUIComponentProvider.getButton(
+                getFilterButtonIdPrefix() + "." + clickedFilter.getId(), clickedFilter.getName(),
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
+                SPUITagButtonStyle.class);
         final String colour = clickedFilter.getColour() != null ? clickedFilter.getColour() : DEFAULT_GREEN;
 
         filterButton.setCaption("<span style=\" color:" + colour + " !important;\">" + VaadinIcons.CIRCLE.getHtml()
@@ -119,7 +120,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         // TODO: check permissions for enable/disable
         return buildActionButton(clickEvent -> editButtonClickListener(clickedFilter), VaadinIcons.EDIT,
                 SPUIDefinitions.EDIT, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                getFilterButtonIdPrefix() + "edit.icon." + clickedFilter.getId(), true);
+                getFilterButtonIdPrefix() + ".edit." + clickedFilter.getId(), true);
     }
 
     // TODO: remove duplication with other grids
@@ -149,7 +150,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
                 clickEvent -> filterButtonDeleteSupport.openConfirmationWindowDeleteAction(clickedFilter,
                         clickedFilter.getName()),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                getFilterButtonIdPrefix() + "edit.icon." + clickedFilter.getId(),
+                getFilterButtonIdPrefix() + ".delete." + clickedFilter.getId(),
                 filterButtonDeleteSupport.hasDeletePermission());
     }
 

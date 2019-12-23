@@ -63,10 +63,10 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
                 new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_VENDOR_LABEL_ID,
                         i18n.getMessage("label.dist.details.vendor"), entity.getVendor()),
                 new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
-                        i18n.getMessage("label.dist.details.type"), entity.getType().getName()),
+                        i18n.getMessage("label.dist.details.type"), entity.getProxyType().getName()),
                 new ProxyKeyValueDetails(UIComponentIdProvider.SWM_DTLS_MAX_ASSIGN,
                         i18n.getMessage("label.assigned.type"),
-                        entity.getType().getMaxAssignments() == 1 ? i18n.getMessage("label.singleAssign.type")
+                        entity.getProxyType().getMaxAssignments() == 1 ? i18n.getMessage("label.singleAssign.type")
                                 : i18n.getMessage("label.multiAssign.type")));
     }
 

@@ -81,7 +81,7 @@ public class DeleteSupport<T> {
     private String createDeletionText(final String messageId, final int itemsToBeDeletedSize,
             final String clickedItemName) {
         if (itemsToBeDeletedSize == 1) {
-            return i18n.getMessage(messageId, entityType.toLowerCase(), clickedItemName, "");
+            return i18n.getMessage(messageId, entityType, clickedItemName, "");
         } else {
             return i18n.getMessage(messageId, itemsToBeDeletedSize, entityType, "s");
         }

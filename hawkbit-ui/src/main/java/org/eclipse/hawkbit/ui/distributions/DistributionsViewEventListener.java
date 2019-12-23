@@ -14,6 +14,8 @@ import java.util.List;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
@@ -52,6 +54,7 @@ public class DistributionsViewEventListener {
         eventListeners.add(new LayoutVisibilityChangedListener());
         eventListeners.add(new LayoutResizedListener());
         eventListeners.add(new TypeFilterChangedListener());
+        eventListeners.add(new EntityModifiedListener());
     }
 
     private class SelectionChangedListener {
@@ -143,6 +146,20 @@ public class DistributionsViewEventListener {
                 distributionsView.filterSmGridByType(typeFilter.getType());
             } else {
                 distributionsView.filterSmGridByType(null);
+            }
+        }
+    }
+
+    private class EntityModifiedListener {
+
+        public EntityModifiedListener() {
+            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onDsEvent(final DsModifiedEventPayload eventPayload) {
+            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+                distributionsView.onDsUpdated(eventPayload.getEntityIds());
             }
         }
     }

@@ -14,24 +14,17 @@ import java.util.Map;
  * Proxy to display details for Software Modules.
  */
 public class ProxySoftwareModuleDetails extends ProxyIdentifiableEntity {
-
     private static final long serialVersionUID = 1L;
 
     private boolean isMandatory;
     private String typeName;
-    private Map<Long, String> softwareModules;
-    private Long dsId;
-    private String dsName;
-    private String dsVersion;
+    private Map<Long, String> smIdsWithNameAndVersion;
 
-    public ProxySoftwareModuleDetails(final Long dsId, final String dsName, final String dsVersion,
-            final boolean isMandatory, final String typeName, final Map<Long, String> softwareModules) {
-        this.dsId = dsId;
-        this.dsName = dsName;
-        this.dsVersion = dsVersion;
+    public ProxySoftwareModuleDetails(final boolean isMandatory, final String typeName,
+            final Map<Long, String> smIdsWithNameAndVersion) {
         this.isMandatory = isMandatory;
         this.typeName = typeName;
-        this.softwareModules = softwareModules;
+        this.smIdsWithNameAndVersion = smIdsWithNameAndVersion;
     }
 
     public boolean isMandatory() {
@@ -50,35 +43,11 @@ public class ProxySoftwareModuleDetails extends ProxyIdentifiableEntity {
         this.typeName = typeName;
     }
 
-    public Map<Long, String> getSoftwareModules() {
-        return softwareModules;
+    public Map<Long, String> getSmIdsWithNameAndVersion() {
+        return smIdsWithNameAndVersion;
     }
 
-    public void setSoftwareModules(final Map<Long, String> softwareModules) {
-        this.softwareModules = softwareModules;
-    }
-
-    public Long getDsId() {
-        return dsId;
-    }
-
-    public void setDsId(final Long dsId) {
-        this.dsId = dsId;
-    }
-
-    public String getDsName() {
-        return dsName;
-    }
-
-    public void setDsName(final String dsName) {
-        this.dsName = dsName;
-    }
-
-    public String getDsVersion() {
-        return dsVersion;
-    }
-
-    public void setDsVersion(final String dsVersion) {
-        this.dsVersion = dsVersion;
+    public void setSmIdsWithNameAndVersion(final Map<Long, String> smIdsWithNameAndVersion) {
+        this.smIdsWithNameAndVersion = smIdsWithNameAndVersion;
     }
 }

@@ -21,6 +21,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.ui.UI;
+
 public class DistributionSetGridLayoutEventListener {
     private final DistributionSetGridLayout distributionSetGridLayout;
     private final UIEventBus eventBus;
@@ -79,7 +81,10 @@ public class DistributionSetGridLayoutEventListener {
         private void onDsEvent(final DsModifiedEventPayload eventPayload) {
             distributionSetGridLayout.refreshGrid();
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
-                distributionSetGridLayout.onDsUpdated(eventPayload.getEntityIds());
+                // TODO: we need to access the UI here because of getting the
+                // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
+                // right or improve
+                UI.getCurrent().access(() -> distributionSetGridLayout.onDsUpdated(eventPayload.getEntityIds()));
             }
         }
     }

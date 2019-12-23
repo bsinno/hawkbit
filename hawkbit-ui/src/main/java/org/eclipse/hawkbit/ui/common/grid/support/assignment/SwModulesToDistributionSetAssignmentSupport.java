@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -15,15 +17,26 @@ import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
+import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
+import org.eclipse.hawkbit.repository.model.SoftwareModule;
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.management.event.SaveActionWindowEvent;
+import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -34,36 +47,57 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class SwModulesToDistributionSetAssignmentSupport
         extends DeploymentAssignmentSupport<ProxySoftwareModule, ProxyDistributionSet> {
 
-    private final TargetManagement targetManagement;
-    private final DistributionSetManagement dsManagement;
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
 
+    private final TargetManagement targetManagement;
+    private final DistributionSetManagement dsManagement;
+    private final SoftwareModuleManagement smManagement;
+    private final DistributionSetTypeManagement dsTypeManagement;
+    private final SoftwareModuleTypeManagement smTypeManagement;
+
     public SwModulesToDistributionSetAssignmentSupport(final UINotification notification,
-            final VaadinMessageSource i18n, final TargetManagement targetManagement,
-            final DistributionSetManagement dsManagement, final UIEventBus eventBus,
-            final SpPermissionChecker permChecker) {
+            final VaadinMessageSource i18n, final UIEventBus eventBus, final SpPermissionChecker permChecker,
+            final TargetManagement targetManagement, final DistributionSetManagement dsManagement,
+            final SoftwareModuleManagement smManagement, final DistributionSetTypeManagement dsTypeManagement,
+            final SoftwareModuleTypeManagement smTypeManagement) {
         super(notification, i18n);
+
+        this.eventBus = eventBus;
+        this.permChecker = permChecker;
 
         this.targetManagement = targetManagement;
         this.dsManagement = dsManagement;
-        this.eventBus = eventBus;
-        this.permChecker = permChecker;
+        this.smManagement = smManagement;
+        this.dsTypeManagement = dsTypeManagement;
+        this.smTypeManagement = smTypeManagement;
     }
 
     @Override
     protected List<ProxySoftwareModule> getFilteredSourceItems(final List<ProxySoftwareModule> sourceItemsToAssign,
             final ProxyDistributionSet targetItem) {
-        if (!isTargetDsValid(targetItem)) {
+        final DistributionSetType dsType = dsTypeManagement.get(targetItem.getTypeId()).orElse(null);
+
+        if (!isTargetDsValid(targetItem, dsType)) {
             return Collections.emptyList();
         }
 
-        return sourceItemsToAssign.stream().filter(sm -> validateAssignment(sm, targetItem))
+        final Collection<Long> smIdsAlreadyAssignedToDs = getSmIdsByDsId(targetItem.getId());
+
+        return sourceItemsToAssign.stream()
+                .filter(sm -> checkDuplicateSmToDsAssignment(sm, targetItem, smIdsAlreadyAssignedToDs)
+                        && checkValidTypeAssignment(sm, targetItem, dsType))
                 .collect(Collectors.toList());
     }
 
-    private boolean isTargetDsValid(final ProxyDistributionSet ds) {
-        if (targetManagement.countByFilters(null, null, null, ds.getId(), Boolean.FALSE, new String[] {}) > 0) {
+    private boolean isTargetDsValid(final ProxyDistributionSet ds, final DistributionSetType dsType) {
+        if (dsType == null) {
+            // TODO: use i18n
+            notification.displayValidationError("Distribution set type for ds.name:ds.version was not found");
+            return false;
+        }
+
+        if (targetManagement.countByFilters(null, null, null, ds.getId(), Boolean.FALSE, "") > 0) {
             /* Distribution is already assigned */
             notification.displayValidationError(i18n.getMessage("message.dist.inuse", ds.getNameVersion()));
             return false;
@@ -78,30 +112,37 @@ public class SwModulesToDistributionSetAssignmentSupport
         return true;
     }
 
-    private boolean validateAssignment(final ProxySoftwareModule sm, final ProxyDistributionSet ds) {
-        // TODO: do we need this check here (for isSoftwareModuleDragged
-        // impelementation check master)?
-        // if (!isSoftwareModuleDragged(ds.getId(), sm)) {
-        // return false;
-        // }
+    private Collection<Long> getSmIdsByDsId(final Long dsId) {
+        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
+        Page<SoftwareModule> smPage;
+        final Collection<Long> smIds = new ArrayList<>();
 
-        // TODO: check if < 1 is corect
-        if (sm.getType().getMaxAssignments() < 1) {
-            return false;
-        }
+        do {
+            smPage = smManagement.findByAssignedTo(query, dsId);
+            smIds.addAll(smPage.getContent().stream().map(SoftwareModule::getId).collect(Collectors.toList()));
+        } while ((query = smPage.nextPageable()) != Pageable.unpaged());
 
-        // TODO: Check if it is better to load software modules from DB here,
-        // instead of eager load from DS in Mapper
-        if (!CollectionUtils.isEmpty(ds.getModules())
-                && ds.getModules().stream().map(ProxyIdentifiableEntity::getId).anyMatch(id -> id.equals(sm.getId()))) {
+        return smIds;
+    }
+
+    private boolean checkDuplicateSmToDsAssignment(final ProxySoftwareModule sm, final ProxyDistributionSet ds,
+            final Collection<Long> smIdsAlreadyAssignedToDs) {
+        if (!CollectionUtils.isEmpty(smIdsAlreadyAssignedToDs) && smIdsAlreadyAssignedToDs.contains(sm.getId())) {
             notification.displayValidationError(i18n.getMessage("message.software.dist.already.assigned",
                     sm.getNameAndVersion(), ds.getNameVersion()));
             return false;
         }
 
-        if (!ds.getType().containsModuleType(sm.getType())) {
+        return true;
+    }
+
+    private boolean checkValidTypeAssignment(final ProxySoftwareModule sm, final ProxyDistributionSet ds,
+            final DistributionSetType dsType) {
+        if (!dsType.containsModuleType(sm.getTypeId())) {
+            final String smTypeName = smTypeManagement.get(sm.getTypeId()).map(SoftwareModuleType::getName).orElse("");
+
             notification.displayValidationError(i18n.getMessage("message.software.dist.type.notallowed",
-                    sm.getNameAndVersion(), ds.getNameVersion(), sm.getType().getName()));
+                    sm.getNameAndVersion(), ds.getNameVersion(), smTypeName));
             return false;
         }
 
@@ -117,9 +158,6 @@ public class SwModulesToDistributionSetAssignmentSupport
     @Override
     protected void performAssignment(final List<ProxySoftwareModule> sourceItemsToAssign,
             final ProxyDistributionSet targetItem) {
-        // TODO: check if we need to manage Ui State here (getAssignedList(),
-        // getConsolidatedDistSoftwareList())
-
         final List<String> softwareModuleNames = sourceItemsToAssign.stream()
                 .map(ProxySoftwareModule::getNameAndVersion).collect(Collectors.toList());
         openConfirmationWindowForAssignments(softwareModuleNames, targetItem.getNameVersion(), null, true,
@@ -133,7 +171,8 @@ public class SwModulesToDistributionSetAssignmentSupport
         dsManagement.assignSoftwareModules(ds.getId(), swModuleIdsToAssign);
 
         notification.displaySuccess(i18n.getMessage("message.software.assignment", swModuleIdsToAssign.size()));
-        eventBus.publish(this, SaveActionWindowEvent.SAVED_ASSIGNMENTS);
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ds.getId()));
     }
 
     @Override

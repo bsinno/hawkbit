@@ -41,9 +41,7 @@ public class TextFieldBuilder extends AbstractTextFieldBuilder<TextFieldBuilder,
      * @return the textfield
      */
     public TextField createSearchField(final ValueChangeListener<String> textChangeListener) {
-        final TextField textField = createTextComponent();
-        textField.setStyleName(SPUIDefinitions.FILTER_BOX);
-        textField.addStyleName("text-style");
+        final TextField textField = style(SPUIDefinitions.FILTER_BOX).styleName("text-style").buildTextComponent();
         textField.setWidth(100.0F, Unit.PERCENTAGE);
         textField.addValueChangeListener(textChangeListener);
         textField.setValueChangeMode(ValueChangeMode.LAZY);

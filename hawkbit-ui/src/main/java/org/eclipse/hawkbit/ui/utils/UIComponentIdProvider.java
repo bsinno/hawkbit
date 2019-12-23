@@ -50,31 +50,31 @@ public final class UIComponentIdProvider {
     /**
      * ID-Targ.PIN.
      */
-    public static final String TARGET_PIN_ICON = "target.pin.icon.";
+    public static final String TARGET_PIN_ICON = "target.pin.icon";
     /**
      * ID-Targ.PIN.
      */
-    public static final String DIST_PIN_ICON = "dist.pin.icon.";
+    public static final String DIST_PIN_ICON = "dist.pin.icon";
     /**
      * ID-Targ.DELETE.
      */
-    public static final String TARGET_DELET_ICON = "target.delete.icon.";
+    public static final String TARGET_DELET_ICON = "target.delete.icon";
     /**
      * ID-Dist.DELETE.
      */
-    public static final String DIST_DELET_ICON = "dist.delete.icon.";
+    public static final String DIST_DELET_ICON = "dist.delete.icon";
     /**
      * ID-Sm.DELETE.
      */
-    public static final String SM_DELET_ICON = "sm.delete.icon.";
+    public static final String SM_DELET_ICON = "sm.delete.icon";
     /**
      * ID-Artifact.DELETE.
      */
-    public static final String ARTIFACT_DELET_ICON = "artifact.delete.icon.";
+    public static final String ARTIFACT_DELET_ICON = "artifact.delete.icon";
     /**
      * ID-MetaData.DELETE.
      */
-    public static final String META_DATA_DELET_ICON = "meta.data.delete.icon.";
+    public static final String META_DATA_DELET_ICON = "meta.data.delete.icon";
     /**
      * Target search text id.
      */
@@ -400,7 +400,7 @@ public final class UIComponentIdProvider {
     /**
      * Upload - type button id.
      */
-    public static final String UPLOAD_TYPE_BUTTON_PREFIX = "upload.type.button.";
+    public static final String UPLOAD_TYPE_BUTTON_PREFIX = "upload.type.button";
 
     /**
      * Upload - artifact detail close button.
@@ -626,16 +626,6 @@ public final class UIComponentIdProvider {
     public static final String CANCEL_BUTTON = "common.dialog.window.cancel";
 
     /**
-     * ID for update tags and types icon
-     */
-    public static final String UPDATE_TAG_ID = "update.";
-
-    /**
-     * ID for delete tags and types icon
-     */
-    public static final String DELETE_TAG_ID = "delete.";
-
-    /**
      * Cancel button is.
      */
     public static final String SYSTEM_CONFIGURATION_CANCEL = "system.configuration.cancel";
@@ -649,11 +639,6 @@ public final class UIComponentIdProvider {
      * Id of maximize/minimize icon of table - Distribution table.
      */
     public static final String DS_MAX_MIN_TABLE_ICON = "ds.max.min.table.icon";
-
-    /**
-     * Software module table in upload UI.
-     */
-    public static final String SM_TYPE_FILTER_BTN_ID = "sm.type.filter.btn.";
 
     /**
      * Target table details header caption id.
@@ -699,11 +684,6 @@ public final class UIComponentIdProvider {
      * Id of show filter button in software module table.
      */
     public static final String SM_SHOW_FILTER_BUTTON_ID = "show.filter.layout";
-
-    /**
-     * Software module table in upload UI.
-     */
-    public static final String DS_TYPE_FILTER_BTN_ID = "ds.type.filter.btn.";
 
     /**
      * Id of target table search reset Icon.
@@ -808,7 +788,7 @@ public final class UIComponentIdProvider {
     /**
      * Prefix for assigned tag button ids.
      */
-    public static final String ASSIGNED_TAG_ID_PREFIX = "tag.assigned.";
+    public static final String ASSIGNED_TAG_ID_PREFIX = "tag.assigned";
 
     /**
      * Assign tag icon id.
@@ -1343,7 +1323,7 @@ public final class UIComponentIdProvider {
     /**
      * Id of the unread notification icon in the menu
      */
-    public static final String NOTIFICATION_MENU_ID = "notification.menu.";
+    public static final String NOTIFICATION_MENU_ID = "notification.menu";
 
     /**
      * Id of the rollout deletion confirmation window
@@ -1405,6 +1385,10 @@ public final class UIComponentIdProvider {
     public static final String UPLOAD_STATUS_POPUP_MINIMIZE_BUTTON_ID = "artifact.upload.minimize.button.id";
 
     public static final String SAVE_ACTION_RADIO_FORCED = "save.action.radio.forced";
+
+    public static final String SM_TYPE_COLOR_STYLE = "sm-type-colors";
+
+    public static final String SM_TYPE_COLOR_CLASS = "sm-type-color";
 
     /**
      * /* Private Constructor.

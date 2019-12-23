@@ -15,6 +15,8 @@ import java.util.List;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
+import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
@@ -41,11 +43,14 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     private static final long serialVersionUID = 1L;
 
     private final MetadataDetailsGrid<Long> dsMetadataGrid;
+    private final SoftwareModuleDetailsGrid smDetailsGrid;
 
     private final transient DsMetaDataWindowBuilder dsMetaDataWindowBuilder;
 
+    protected final transient UIEventBus eventBus;
+    protected final SpPermissionChecker permissionChecker;
     protected final UINotification uiNotification;
-    protected final transient DistributionSetManagement distributionSetManagement;
+    protected final transient DistributionSetManagement dsManagement;
 
     private final transient TenantConfigurationManagement tenantConfigurationManagement;
     private final transient SystemSecurityContext systemSecurityContext;
@@ -53,29 +58,36 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     private final DistributionTagToken distributionTagToken;
 
     protected AbstractDistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final DistributionSetManagement distributionSetManagement,
-            final UINotification uiNotification, final DistributionSetTagManagement distributionSetTagManagement,
+            final SpPermissionChecker permissionChecker, final UINotification uiNotification,
+            final DistributionSetManagement dsManagement, final SoftwareModuleManagement smManagement,
+            final DistributionSetTypeManagement dsTypeManagement, final DistributionSetTagManagement dsTagManagement,
             final TenantConfigurationManagement tenantConfigurationManagement,
             final SystemSecurityContext systemSecurityContext, final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {
         super(i18n);
 
+        this.eventBus = eventBus;
+        this.permissionChecker = permissionChecker;
         this.uiNotification = uiNotification;
-        this.distributionSetManagement = distributionSetManagement;
+        this.dsManagement = dsManagement;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.systemSecurityContext = systemSecurityContext;
         this.dsMetaDataWindowBuilder = dsMetaDataWindowBuilder;
 
+        this.smDetailsGrid = new SoftwareModuleDetailsGrid(i18n, eventBus, uiNotification, permissionChecker,
+                dsManagement, smManagement, dsTypeManagement, true);
+        this.smDetailsGrid.setVisible(false);
+
         this.distributionTagToken = new DistributionTagToken(permissionChecker, i18n, uiNotification, eventBus,
-                distributionSetTagManagement, distributionSetManagement);
+                dsTagManagement, dsManagement);
         binder.forField(distributionTagToken).bind(ds -> ds, null);
 
         this.dsMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.DS_METADATA_DETAIL_LINK,
-                this::showMetadataDetails, new DsMetaDataDataProvider(distributionSetManagement));
+                this::showMetadataDetails, new DsMetaDataDataProvider(dsManagement));
         this.dsMetadataGrid.setVisible(false);
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),
-                new SimpleEntry<>(i18n.getMessage("caption.softwares.distdetail.tab"), getSoftwareModuleDetailsGrid()),
+                new SimpleEntry<>(i18n.getMessage("caption.softwares.distdetail.tab"), smDetailsGrid),
                 new SimpleEntry<>(i18n.getMessage("caption.tags.tab"), distributionTagToken),
                 new SimpleEntry<>(i18n.getMessage("caption.logs.tab"), logDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.metadata"), dsMetadataGrid)));
@@ -89,7 +101,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     @Override
     protected List<ProxyKeyValueDetails> getEntityDetails(final ProxyDistributionSet entity) {
         final ProxyKeyValueDetails typeLabel = new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
-                i18n.getMessage("label.dist.details.type"), entity.getType().getName());
+                i18n.getMessage("label.dist.details.type"), entity.getProxyType().getName());
 
         if (isMultiAssignmentEnabled()) {
             return Collections.singletonList(typeLabel);
@@ -137,7 +149,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
         metaDataWindow.setVisible(Boolean.TRUE);
     }
 
-    protected abstract SoftwareModuleDetailsGrid getSoftwareModuleDetailsGrid();
+    protected abstract boolean isUnassignSmAllowed();
 
     // TODO: implement
     // protected void populateSmDetails() {
@@ -153,9 +165,15 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
         if (entity == null) {
             dsMetadataGrid.updateMasterEntityFilter(null);
             dsMetadataGrid.setVisible(false);
+
+            smDetailsGrid.updateMasterEntityFilter(null);
+            smDetailsGrid.setVisible(false);
         } else {
             dsMetadataGrid.updateMasterEntityFilter(entity.getId());
             dsMetadataGrid.setVisible(true);
+
+            smDetailsGrid.updateMasterEntityFilter(entity);
+            smDetailsGrid.setVisible(true);
         }
     }
 }
