@@ -13,11 +13,9 @@ import java.util.Collections;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
-import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -167,8 +165,9 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
                 // TODO: check if neccessary
                 // artifactDetailsLayout.setFullWindowMode(true);
 
-                // TODO: check if it works
-                eventBus.publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MAXIMIZED));
+                // TODO: adapt
+                // eventBus.publish(this, new
+                // ArtifactDetailsEvent(BaseEntityEventType.MAXIMIZED));
 
                 artifactDetailsGrid.setWidth(100, Unit.PERCENTAGE);
                 artifactDetailsGrid.setHeight(100, Unit.PERCENTAGE);

@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.eclipse.hawkbit.ui.common.ManagementEntityState;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ import com.vaadin.spring.annotation.VaadinSessionScope;
  */
 @VaadinSessionScope
 @SpringComponent
-public class ManagementUIState implements ManagementEntityState, Serializable {
+public class ManagementUIState implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -205,12 +204,10 @@ public class ManagementUIState implements ManagementEntityState, Serializable {
         return lastSelectedDsIdName;
     }
 
-    @Override
     public void setLastSelectedEntityId(final Long value) {
         this.lastSelectedDsIdName = Optional.ofNullable(value);
     }
 
-    @Override
     public void setSelectedEnitities(final Set<Long> values) {
         this.selectedDsIdName = values;
     }
