@@ -28,18 +28,14 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
-import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
-import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
+import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.FontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
@@ -67,24 +63,24 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     private static final String FILTER_DELETE_BUTTON_ID = "filterDeleteButton";
 
     private final UINotification notification;
-    private final FilterManagementUIState filterManagementUIState;
+    private final TargetFilterGridLayoutUiState uiState;
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
 
     private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
     private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> targetFilterDataProvider;
-    private final DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
+    private final transient DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
 
     private final AutoAssignmentWindowBuilder autoAssignmentWindowBuilder;
 
     public TargetFilterGrid(final VaadinMessageSource i18n, final UINotification notification,
-            final UIEventBus eventBus, final FilterManagementUIState filterManagementUIState,
+            final UIEventBus eventBus, final TargetFilterGridLayoutUiState uiState,
             final TargetFilterQueryManagement targetFilterQueryManagement, final SpPermissionChecker permChecker,
             final AutoAssignmentWindowBuilder autoAssignmentWindowBuilder) {
         super(i18n, eventBus, permChecker);
 
         this.notification = notification;
-        this.filterManagementUIState = filterManagementUIState;
+        this.uiState = uiState;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.autoAssignmentWindowBuilder = autoAssignmentWindowBuilder;
 
@@ -123,38 +119,18 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 EntityModifiedEventType.ENTITY_REMOVED, targetFilterIdsToBeDeleted));
     }
 
-    // TODO: remove duplication with ActionHistoryGrid
-    private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED, new FontIcon(VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
-                i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
-        actionTypeIconMap.put(ActionType.TIMEFORCED,
-                new FontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
-        actionTypeIconMap.put(ActionType.SOFT, new FontIcon(VaadinIcons.STEP_FORWARD,
-                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
-        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
-                new FontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
+    public void setFilter(final String filter) {
+        uiState.setLatestSearchFilterApplied(filter);
+        // TODO Should this be done UI.getCurrent().access(this::filter) as it
+        // was before
+        filter(filter);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final CustomFilterUIEvent filterEvent) {
-        if (filterEvent == CustomFilterUIEvent.FILTER_BY_CUST_FILTER_TEXT
-                || filterEvent == CustomFilterUIEvent.FILTER_BY_CUST_FILTER_TEXT_REMOVE
-                || filterEvent == CustomFilterUIEvent.CREATE_TARGET_FILTER_QUERY
-                || filterEvent == CustomFilterUIEvent.UPDATED_TARGET_FILTER_QUERY) {
-            UI.getCurrent().access(this::refreshFilter);
+    private void filter(String filter) {
+        if (filter == null) {
+            filter = "";
         }
-    }
-
-    private void refreshFilter() {
-        getFilterDataProvider().setFilter(getSearchTextFromUiState());
-    }
-
-    private String getSearchTextFromUiState() {
-        return filterManagementUIState.getCustomFilterSearchText()
-                .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
-                .orElse(null);
+        getFilterDataProvider().setFilter(String.format("%%%s%%", filter));
     }
 
     @Override
@@ -164,22 +140,22 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 .setExpandRatio(2);
 
         addColumn(ProxyTargetFilterQuery::getCreatedBy).setId(FILTER_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy")).setExpandRatio(1);
+                .setCaption(i18n.getMessage("header.createdBy")).setExpandRatio(2);
 
         addColumn(ProxyTargetFilterQuery::getCreatedDate).setId(FILTER_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setExpandRatio(2);
+                .setCaption(i18n.getMessage("header.createdDate")).setExpandRatio(4);
 
         addColumn(ProxyTargetFilterQuery::getLastModifiedBy).setId(FILTER_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setExpandRatio(1);
+                .setCaption(i18n.getMessage("header.modifiedBy")).setExpandRatio(2);
 
         addColumn(ProxyTargetFilterQuery::getModifiedDate).setId(FILTER_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setExpandRatio(2);
+                .setCaption(i18n.getMessage("header.modifiedDate")).setExpandRatio(4);
 
         addComponentColumn(this::buildTypeIcon).setId(FILTER_AUTOASSIGNMENT_TYPE_ID)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN).setExpandRatio(1);
 
         addComponentColumn(this::buildAutoAssignmentLink).setId(FILTER_AUTOASSIGNMENT_DS_ID)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN).setExpandRatio(1);
 
         getDefaultHeaderRow().join(FILTER_AUTOASSIGNMENT_TYPE_ID, FILTER_AUTOASSIGNMENT_DS_ID)
                 .setText(i18n.getMessage("header.auto.assignment.ds"));
@@ -203,6 +179,43 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 filterLinkId, true);
     }
 
+    private void onClickOfFilterName(final ProxyTargetFilterQuery targetFilter) {
+        eventBus.publish(EventTopics.OPEN_ENTITY, this, targetFilter);
+    }
+
+    private void onClickOfAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
+        if (permissionChecker.hasReadRepositoryPermission()) {
+            final Window autoAssignmentWindow = autoAssignmentWindowBuilder.getWindowForAutoAssignment(targetFilter);
+
+            autoAssignmentWindow.setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_SELECT_AUTO_ASSIGN_DS));
+            autoAssignmentWindow.setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
+
+            UI.getCurrent().addWindow(autoAssignmentWindow);
+            autoAssignmentWindow.setVisible(Boolean.TRUE);
+        } else {
+            notification.displayValidationError(
+                    i18n.getMessage("message.permission.insufficient", SpPermission.READ_REPOSITORY));
+        }
+    }
+
+    public void restoreState() {
+        setFilter(uiState.getLatestSearchFilterApplied());
+    }
+
+    // TODO: remove duplication with ActionHistoryGrid
+    private void initActionTypeIconMap() {
+        actionTypeIconMap.put(ActionType.FORCED, new FontIcon(VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
+                i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
+        actionTypeIconMap.put(ActionType.TIMEFORCED,
+                new FontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
+                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
+        actionTypeIconMap.put(ActionType.SOFT, new FontIcon(VaadinIcons.STEP_FORWARD,
+                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
+        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
+                new FontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
+                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
+    }
+
     // TODO: remove duplication with RolloutGrid and buildActionButton()
     private Button buildLink(final ClickListener clickListener, final String caption, final String description,
             final String buttonId, final boolean enabled) {
@@ -219,13 +232,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         link.addStyleName("link");
 
         return link;
-    }
-
-    private void onClickOfFilterName(final ProxyTargetFilterQuery targetFilter) {
-        filterManagementUIState.setFilterQueryValue(targetFilter.getQuery());
-        filterManagementUIState.setTfQuery(targetFilter);
-        filterManagementUIState.setEditViewDisplayed(true);
-        eventBus.publish(this, CustomFilterUIEvent.TARGET_FILTER_DETAIL_VIEW);
     }
 
     // TODO: remove duplication with ActionHistoryGrid
@@ -258,21 +264,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         return buildLink(clickEvent -> onClickOfAutoAssignmentLink(targetFilter), autoAssignmenLinkCaption,
                 autoAssignmenLinkDescription, autoAssignmenLinkId, true);
 
-    }
-
-    private void onClickOfAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
-        if (permissionChecker.hasReadRepositoryPermission()) {
-            final Window autoAssignmentWindow = autoAssignmentWindowBuilder.getWindowForAutoAssignment(targetFilter);
-
-            autoAssignmentWindow.setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_SELECT_AUTO_ASSIGN_DS));
-            autoAssignmentWindow.setWidth(40.0F, Sizeable.Unit.PERCENTAGE);
-
-            UI.getCurrent().addWindow(autoAssignmentWindow);
-            autoAssignmentWindow.setVisible(Boolean.TRUE);
-        } else {
-            notification.displayValidationError(
-                    i18n.getMessage("message.permission.insufficient", SpPermission.READ_REPOSITORY));
-        }
     }
 
     // TODO: remove duplication with other Grids

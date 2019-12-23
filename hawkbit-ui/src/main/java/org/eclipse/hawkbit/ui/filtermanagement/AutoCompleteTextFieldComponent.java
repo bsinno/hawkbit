@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.repository.rsql.ValidationOracleContext;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
-import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -40,8 +39,6 @@ import com.vaadin.ui.UI;
 public class AutoCompleteTextFieldComponent extends CustomField<String> {
     private static final long serialVersionUID = 1L;
 
-    private final FilterManagementUIState filterManagementUIState;
-
     private final transient UIEventBus eventBus;
     private final transient RsqlValidationOracle rsqlValidationOracle;
     private final transient Executor executor;
@@ -55,9 +52,8 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     private boolean isValid;
     private String targetFilterQuery;
 
-    public AutoCompleteTextFieldComponent(final FilterManagementUIState filterManagementUIState,
-            final UIEventBus eventBus, final RsqlValidationOracle rsqlValidationOracle, final Executor executor) {
-        this.filterManagementUIState = filterManagementUIState;
+    public AutoCompleteTextFieldComponent(final UIEventBus eventBus, final RsqlValidationOracle rsqlValidationOracle,
+            final Executor executor) {
         this.eventBus = eventBus;
         this.rsqlValidationOracle = rsqlValidationOracle;
         this.executor = executor;
@@ -81,6 +77,8 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         autoCompleteLayout.addComponents(validationIcon, queryTextField);
         autoCompleteLayout.setComponentAlignment(validationIcon, Alignment.TOP_CENTER);
 
+        queryTextField.addValueChangeListener(event -> onQueryFilterChange(event.getValue()));
+
         new TextFieldSuggestionBox(rsqlValidationOracle, this).extend(queryTextField);
     }
 
@@ -99,20 +97,23 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
             isValid = false;
         } else {
             queryTextField.setValue(value);
-            // TODO: remove duplication with
-            // TextFieldSuggestionBox#updateValidationIcon
-            final ValidationOracleContext suggest = rsqlValidationOracle.suggest(value, value.length());
-            final String errorMessage = suggest.getSyntaxErrorContext() != null
-                    ? suggest.getSyntaxErrorContext().getErrorMessage()
-                    : value;
-
-            updateComponents(value, !suggest.isSyntaxError(), errorMessage);
         }
     }
 
     @Override
     public String getValue() {
         return targetFilterQuery;
+    }
+
+    public void addTextfieldChangedListener(final ValueChangeListener<String> listener) {
+        queryTextField.addValueChangeListener(listener);
+    }
+
+    public void execute() {
+        if (isValid()) {
+            showValidationInProgress();
+            getExecutor().execute(new StatusCircledAsync(UI.getCurrent()));
+        }
     }
 
     private Label createStatusIcon() {
@@ -191,16 +192,22 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
      * @param validationMessage
      *            a message shown in case of syntax errors as tooltip
      */
-    public void onQueryFilterChange(final String currentText, final boolean valid, final String validationMessage) {
-        final String message = valid ? currentText : validationMessage;
-        updateComponents(currentText, valid, message);
+    // public void onQueryFilterChange(final String currentText, final boolean
+    // valid, final String validationMessage) {
+    // final String message = valid ? currentText : validationMessage;
+    // updateComponents(currentText, valid, message);
+    //
+    // fireEvent(createValueChange(currentText, false));
+    // listeners.forEach(listener -> listener.validationChanged(valid,
+    // message));
+    // }
 
-        fireEvent(createValueChange(currentText, false));
-        listeners.forEach(listener -> listener.validationChanged(valid, message));
-    }
+    private void onQueryFilterChange(final String newQuery) {
+        final ValidationOracleContext validationContext = rsqlValidationOracle.suggest(newQuery, newQuery.length());
+        final boolean valid = !validationContext.isSyntaxError();
+        final String message = valid ? newQuery : validationContext.getSyntaxErrorContext().getErrorMessage();
 
-    private void updateComponents(final String currentText, final boolean valid, final String message) {
-        targetFilterQuery = currentText;
+        targetFilterQuery = newQuery;
         isValid = valid;
 
         if (valid) {
@@ -208,6 +215,9 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         } else {
             showValidationFailureIcon(message);
         }
+        // TODO is refirering event ok?
+        fireEvent(createValueChange(newQuery, false));
+        listeners.forEach(listener -> listener.validationChanged(valid, message));
     }
 
     private void resetIcon() {
@@ -225,9 +235,6 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     public void showValidationSuccesIcon(final String text) {
         validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
         validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
-        // TODO: do we need to update state here?
-        filterManagementUIState.setFilterQueryValue(text);
-        filterManagementUIState.setIsFilterByInvalidFilterQuery(Boolean.FALSE);
     }
 
     /**
@@ -241,9 +248,6 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         validationIcon.setValue(VaadinIcons.CLOSE_CIRCLE.getHtml());
         validationIcon.setStyleName(SPUIStyleDefinitions.ERROR_ICON);
         validationIcon.setDescription(validationMessage);
-        // TODO: do we need to update state here?
-        filterManagementUIState.setFilterQueryValue(null);
-        filterManagementUIState.setIsFilterByInvalidFilterQuery(Boolean.TRUE);
     }
 
     public boolean isValid() {
@@ -267,6 +271,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     /**
      * Sets the spinner as progress indicator.
      */
+    // TODO is still needed?
     public void showValidationInProgress() {
         validationIcon.setValue(null);
         validationIcon.addStyleName("show-status-label");

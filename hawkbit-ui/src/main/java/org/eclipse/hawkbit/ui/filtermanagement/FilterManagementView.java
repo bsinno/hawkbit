@@ -22,15 +22,13 @@ import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
+import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState.FilterView;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -50,10 +48,11 @@ public class FilterManagementView extends VerticalLayout implements View {
     public static final String VIEW_NAME = "targetFilters";
 
     private final FilterManagementUIState filterManagementUIState;
-    private final transient UIEventBus eventBus;
 
     private final TargetFilterGridLayout targetFilterGridLayout;
     private final TargetFilterDetailsLayout targetFilterDetailsLayout;
+
+    private final transient FilterManagementViewEventListener eventListener;
 
     @Autowired
     FilterManagementView(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -63,7 +62,7 @@ public class FilterManagementView extends VerticalLayout implements View {
             final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
             @Qualifier("uiExecutor") final Executor executor) {
         this.filterManagementUIState = filterManagementUIState;
-        this.eventBus = eventBus;
+        this.eventListener = new FilterManagementViewEventListener(this, eventBus);
 
         this.targetFilterGridLayout = new TargetFilterGridLayout(i18n, eventBus, permissionChecker, notification,
                 entityFactory, targetFilterQueryManagement, targetManagement, distributionSetManagement,
@@ -71,72 +70,77 @@ public class FilterManagementView extends VerticalLayout implements View {
 
         this.targetFilterDetailsLayout = new TargetFilterDetailsLayout(i18n, eventBus, notification, uiProperties,
                 entityFactory, rsqlValidationOracle, executor, targetManagement, targetFilterQueryManagement,
-                filterManagementUIState);
+                filterManagementUIState.getDetailsLayoutUiState());
+    }
+
+    public void onFilterQueryOpen(final ProxyTargetFilterQuery targetFilterQuery) {
+        showFilterEditLayout(targetFilterQuery);
+    }
+
+    public void onFilterQueryCreate() {
+        showFilterCreateLayout();
+    }
+
+    public void onDetailsClose() {
+        showFilterGridLayout();
     }
 
     @PostConstruct
     void init() {
-        setMargin(false);
-        setSpacing(false);
-        setSizeFull();
-
         buildLayout();
-        eventBus.subscribe(this);
+        restoreState();
     }
 
     @PreDestroy
     void destroy() {
-        eventBus.unsubscribe(this);
+        eventListener.unsubscribeListeners();
     }
 
     private void buildLayout() {
-        if (filterManagementUIState.isCreateFilterViewDisplayed()) {
-            showFilterCreateDetailsLayout();
-        } else if (filterManagementUIState.isEditViewDisplayed()) {
-            filterManagementUIState.getTfQuery().ifPresent(this::showFilterEditDetailsLayout);
-        } else {
-            showFilterGridLayout();
-        }
-    }
+        setMargin(false);
+        setSpacing(false);
+        setSizeFull();
 
-    private void showFilterCreateDetailsLayout() {
-        targetFilterDetailsLayout.showAddFilterLayout();
+        addComponent(targetFilterGridLayout);
+        setComponentAlignment(targetFilterGridLayout, Alignment.TOP_CENTER);
+        setExpandRatio(targetFilterGridLayout, 1.0F);
 
-        showFilterDetailsLayout();
-    }
-
-    private void showFilterDetailsLayout() {
-        removeAllComponents();
-
+        targetFilterDetailsLayout.setVisible(false);
         addComponent(targetFilterDetailsLayout);
         setComponentAlignment(targetFilterDetailsLayout, Alignment.TOP_CENTER);
         setExpandRatio(targetFilterDetailsLayout, 1.0F);
     }
 
-    private void showFilterEditDetailsLayout(final ProxyTargetFilterQuery tfQuery) {
-        targetFilterDetailsLayout.showEditFilterLayout(tfQuery);
+    private void restoreState() {
+        if (FilterView.FILTERS.equals(filterManagementUIState.getCurrentView())) {
+            showFilterGridLayout();
+        } else if (FilterView.DETAILS.equals(filterManagementUIState.getCurrentView())) {
+            showFilterDetailsLayout();
+        }
+        targetFilterDetailsLayout.restoreState();
+        targetFilterGridLayout.restoreState();
+    }
 
+    private void showFilterCreateLayout() {
+        targetFilterDetailsLayout.showAddFilterLayout();
         showFilterDetailsLayout();
     }
 
-    private void showFilterGridLayout() {
-        removeAllComponents();
-
-        addComponent(targetFilterGridLayout);
-        setComponentAlignment(targetFilterGridLayout, Alignment.TOP_CENTER);
-        setExpandRatio(targetFilterGridLayout, 1.0F);
+    private void showFilterEditLayout(final ProxyTargetFilterQuery targetFilterQuery) {
+        targetFilterDetailsLayout.showEditFilterLayout(targetFilterQuery);
+        showFilterDetailsLayout();
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final CustomFilterUIEvent custFilterUIEvent) {
-        if (custFilterUIEvent == CustomFilterUIEvent.TARGET_FILTER_DETAIL_VIEW) {
-            // use payload from event instead of ui state
-            filterManagementUIState.getTfQuery().ifPresent(this::showFilterEditDetailsLayout);
-        } else if (custFilterUIEvent == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK) {
-            showFilterCreateDetailsLayout();
-        } else if (custFilterUIEvent == CustomFilterUIEvent.SHOW_FILTER_MANAGEMENT) {
-            showFilterGridLayout();
-        }
+    private void showFilterDetailsLayout() {
+        filterManagementUIState.setCurrentView(FilterView.DETAILS);
+        targetFilterGridLayout.setVisible(false);
+        targetFilterDetailsLayout.setVisible(true);
+    }
+
+    private void showFilterGridLayout() {
+        filterManagementUIState.setCurrentView(FilterView.FILTERS);
+        targetFilterDetailsLayout.setVisible(false);
+        targetFilterGridLayout.setVisible(true);
     }
 
     @Override

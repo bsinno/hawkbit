@@ -13,12 +13,12 @@ import java.util.Arrays;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
-import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -37,8 +37,6 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
     private static final String BREADCRUMB_CUSTOM_FILTERS = "breadcrumb.target.filter.custom.filters";
-
-    private final FilterManagementUIState filterManagementUIState;
 
     private final Label headerCaptionDetails;
 
@@ -61,19 +59,17 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     public TargetFilterDetailsGridHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final TargetFilterAddUpdateLayout targetFilterAddUpdateLayout,
             final AddTargetFilterController addTargetFilterController,
-            final UpdateTargetFilterController updateTargetFilterController,
-            final FilterManagementUIState filterManagementUIState) {
+            final UpdateTargetFilterController updateTargetFilterController) {
         super(i18n, null, eventBus);
 
         this.targetFilterAddUpdateLayout = targetFilterAddUpdateLayout;
         this.addTargetFilterController = addTargetFilterController;
         this.updateTargetFilterController = updateTargetFilterController;
-        this.filterManagementUIState = filterManagementUIState;
 
         this.headerCaptionDetails = createHeaderCaptionDetails();
 
         this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.CUSTOM_FILTER_CLOSE,
-                this::showTargetFilterView);
+                this::closeDetails);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
         restoreHeaderState();
@@ -89,7 +85,6 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     @Override
     protected void buildHeader() {
         super.buildHeader();
-
         addComponent(targetFilterAddUpdateLayout.getRootComponent());
     }
 
@@ -104,7 +99,6 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
 
         controller.populateWithData(proxyEntity);
         targetFilterAddUpdateLayout.setSaveCallback(controller.getSaveDialogCloseListener());
-        targetFilterAddUpdateLayout.disableSearchButton();
     }
 
     public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
@@ -128,7 +122,7 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         targetFilterViewLink.setStyleName(ValoTheme.LINK_SMALL + " on-focus-no-border link rollout-caption-links");
         targetFilterViewLink.setDescription(i18n.getMessage(BREADCRUMB_CUSTOM_FILTERS));
         targetFilterViewLink.setCaption(i18n.getMessage(BREADCRUMB_CUSTOM_FILTERS));
-        targetFilterViewLink.addClickListener(value -> showTargetFilterView());
+        targetFilterViewLink.addClickListener(value -> closeDetails());
 
         final HorizontalLayout headerCaptionLayout = new HorizontalLayout();
         headerCaptionLayout.setMargin(false);
@@ -141,14 +135,8 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         return headerCaptionLayout;
     }
 
-    private void showTargetFilterView() {
-        // TODO: check if we really need to reset state here
-        filterManagementUIState.setFilterQueryValue(null);
-        filterManagementUIState.setCreateFilterBtnClicked(false);
-        filterManagementUIState.setEditViewDisplayed(false);
-        filterManagementUIState.setTfQuery(null);
-
-        eventBus.publish(this, CustomFilterUIEvent.SHOW_FILTER_MANAGEMENT);
+    private void closeDetails() {
+        eventBus.publish(EventTopics.CHANGE_UI_ELEMENT_STATE, this, ChangeUiElementPayload.CLOSE);
     }
 
     // @Override

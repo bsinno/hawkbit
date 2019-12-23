@@ -17,7 +17,7 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
+import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -37,20 +37,20 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
     private final UiProperties uiProperties;
-    private final FilterManagementUIState filterManagementUIState;
     private final UIEventBus eventBus;
     private final RsqlValidationOracle rsqlValidationOracle;
     private final Executor executor;
+    private final TargetFilterDetailsLayoutUiState uiState;
 
     public TargetFilterAddUpdateLayoutComponentBuilder(final VaadinMessageSource i18n, final UiProperties uiProperties,
-            final FilterManagementUIState filterManagementUIState, final UIEventBus eventBus,
+            final TargetFilterDetailsLayoutUiState uiState, final UIEventBus eventBus,
             final RsqlValidationOracle rsqlValidationOracle, final Executor executor) {
         this.i18n = i18n;
         this.uiProperties = uiProperties;
-        this.filterManagementUIState = filterManagementUIState;
         this.eventBus = eventBus;
         this.rsqlValidationOracle = rsqlValidationOracle;
         this.executor = executor;
+        this.uiState = uiState;
     }
 
     public TextField createNameField(final Binder<ProxyTargetFilterQuery> binder) {
@@ -67,8 +67,8 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
     }
 
     public AutoCompleteTextFieldComponent createQueryField(final Binder<ProxyTargetFilterQuery> binder) {
-        final AutoCompleteTextFieldComponent autoCompleteComponent = new AutoCompleteTextFieldComponent(
-                filterManagementUIState, eventBus, rsqlValidationOracle, executor);
+        final AutoCompleteTextFieldComponent autoCompleteComponent = new AutoCompleteTextFieldComponent(eventBus,
+                rsqlValidationOracle, executor);
 
         binder.forField(autoCompleteComponent)
                 .withValidator((query, context) -> autoCompleteComponent.isValid() ? ValidationResult.ok()

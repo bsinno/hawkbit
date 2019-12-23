@@ -27,6 +27,11 @@ public final class EventTopics {
 
     public static final String FILE_UPLOAD_CHANGED = "fileUploadChanged";
 
+    public static final String OPEN_ENTITY = "openEntity";
+    public static final String CREATE_ENTITY = "createEntity";
+    public static final String UI_ELEMENT_CHANGED = "uiElementChanged";
+    public static final String CHANGE_UI_ELEMENT_STATE = "changeUiElementState";
+
     private EventTopics() {
     }
 }

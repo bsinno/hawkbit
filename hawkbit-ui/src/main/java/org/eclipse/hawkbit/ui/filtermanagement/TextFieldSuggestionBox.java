@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.ui.filtermanagement.client.TextFieldSuggestionBoxServ
 
 import com.vaadin.server.AbstractExtension;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 
 /**
  * Extension for the AutoCompleteTexfield.
@@ -61,17 +60,12 @@ public class TextFieldSuggestionBox extends AbstractExtension implements TextFie
     @Override
     public void suggest(final String text, final int cursor) {
         final ValidationOracleContext suggest = rsqlValidationOracle.suggest(text, cursor);
-        updateValidationIcon(suggest, text);
         getRpcProxy(TextFieldSuggestionBoxClientRpc.class).showSuggestions(mapToDto(suggest.getSuggestionContext()));
     }
 
     @Override
     public void executeQuery(final String text, final int cursor) {
-        if (autoCompleteTextFieldComponent.isValid()) {
-            autoCompleteTextFieldComponent.showValidationInProgress();
-            autoCompleteTextFieldComponent.getExecutor()
-                    .execute(autoCompleteTextFieldComponent.new StatusCircledAsync(UI.getCurrent()));
-        }
+        autoCompleteTextFieldComponent.execute();
     }
 
     private static SuggestionContextDto mapToDto(final SuggestionContext suggestionContext) {
@@ -85,10 +79,4 @@ public class TextFieldSuggestionBox extends AbstractExtension implements TextFie
 
     }
 
-    private void updateValidationIcon(final ValidationOracleContext suggest, final String text) {
-        final String errorMessage = (suggest.getSyntaxErrorContext() != null)
-                ? suggest.getSyntaxErrorContext().getErrorMessage()
-                : null;
-        autoCompleteTextFieldComponent.onQueryFilterChange(text, !suggest.isSyntaxError(), errorMessage);
-    }
 }
