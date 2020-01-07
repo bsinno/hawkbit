@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
@@ -41,6 +42,7 @@ public class DistributionSetGridLayoutEventListener {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
+        eventListeners.add(new EntityTagModifiedListener());
     }
 
     private class SelectionChangedListener {
@@ -86,6 +88,19 @@ public class DistributionSetGridLayoutEventListener {
                 // right or improve
                 UI.getCurrent().access(() -> distributionSetGridLayout.onDsUpdated(eventPayload.getEntityIds()));
             }
+        }
+    }
+
+    private class EntityTagModifiedListener {
+
+        public EntityTagModifiedListener() {
+            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onDsTagEvent(final DsTagModifiedEventPayload eventPayload) {
+            distributionSetGridLayout.onDsTagsModified(eventPayload.getEntityIds(),
+                    eventPayload.getEntityModifiedEventType());
         }
     }
 

@@ -270,7 +270,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     public void resetComponents() {
         dsNamecomboBox.clear();
         descTextArea.clear();
-        targetBulkTokenTags.initializeTags();
+        // targetBulkTokenTags.initializeTags();
         progressBar.setValue(0F);
         progressBar.setVisible(false);
         managementUIState.getTargetTableFilters().getBulkUpload().setProgressBarCurrentValue(0F);
@@ -299,7 +299,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         dsNamecomboBox.setValue(selectedDs);
 
         descTextArea.setValue(targetBulkUpload.getDescription());
-        targetBulkTokenTags.initializeTags();
+        // targetBulkTokenTags.initializeTags();
 
         if (targetBulkUpload.getProgressBarCurrentValue() >= 1) {
             targetsCountLabel.setVisible(true);

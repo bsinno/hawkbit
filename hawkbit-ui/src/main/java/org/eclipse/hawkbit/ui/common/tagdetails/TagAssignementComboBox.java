@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Target;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout.TagAssignmentListener;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -32,10 +33,10 @@ public class TagAssignementComboBox extends HorizontalLayout {
 
     private static final long serialVersionUID = 1L;
 
-    private final List<TagData> allAssignableTags;
+    private final List<ProxyTag> allAssignableTags;
     private final transient Set<TagAssignmentListener> listeners = Sets.newConcurrentHashSet();
 
-    private final ComboBox<TagData> assignableTagsComboBox;
+    private final ComboBox<ProxyTag> assignableTagsComboBox;
 
     private final boolean readOnlyMode;
 
@@ -49,24 +50,21 @@ public class TagAssignementComboBox extends HorizontalLayout {
      *            done.
      */
     TagAssignementComboBox(final VaadinMessageSource i18n, final boolean readOnlyMode) {
-
         this.readOnlyMode = readOnlyMode;
 
         setWidth("100%");
 
-        allAssignableTags = new ArrayList<>();
+        this.assignableTagsComboBox = getAssignableTagsComboBox(
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_SELECT_TAG));
 
-        assignableTagsComboBox = getAssignableTagsComboBox(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SELECT_TAG));
-
-        assignableTagsComboBox.setItems(allAssignableTags);
-        assignableTagsComboBox.clear();
-        assignableTagsComboBox.addValueChangeListener(event -> assignTag(event.getValue()));
+        this.allAssignableTags = new ArrayList<>();
+        this.assignableTagsComboBox.setItems(allAssignableTags);
 
         addComponent(assignableTagsComboBox);
     }
 
-    private ComboBox<TagData> getAssignableTagsComboBox(final String description) {
-        final ComboBox<TagData> tagsComboBox = new ComboBox<>();
+    private ComboBox<ProxyTag> getAssignableTagsComboBox(final String description) {
+        final ComboBox<ProxyTag> tagsComboBox = new ComboBox<>();
 
         tagsComboBox.setId(UIComponentIdProvider.TAG_SELECTION_ID);
         tagsComboBox.setDescription(description);
@@ -75,7 +73,22 @@ public class TagAssignementComboBox extends HorizontalLayout {
         tagsComboBox.setWidth("100%");
         tagsComboBox.setEmptySelectionAllowed(true);
 
+        tagsComboBox.setItemCaptionGenerator(ProxyTag::getName);
+        tagsComboBox.addValueChangeListener(event -> assignTag(event.getValue()));
+
         return tagsComboBox;
+    }
+
+    private void assignTag(final ProxyTag tagData) {
+        if (tagData == null || readOnlyMode) {
+            return;
+        }
+
+        allAssignableTags.remove(tagData);
+        assignableTagsComboBox.clear();
+        assignableTagsComboBox.getDataProvider().refreshAll();
+
+        notifyListenersTagAssigned(tagData);
     }
 
     /**
@@ -84,18 +97,9 @@ public class TagAssignementComboBox extends HorizontalLayout {
      * @param assignableTags
      *            assignable tags
      */
-    void initializeAssignableTags(final List<TagData> assignableTags) {
+    void initializeAssignableTags(final List<ProxyTag> assignableTags) {
         allAssignableTags.addAll(assignableTags);
-    }
-
-    private void assignTag(final TagData tagData) {
-        if (tagData == null || readOnlyMode) {
-            return;
-        }
-
-        allAssignableTags.remove(tagData);
-        notifyListenersTagAssigned(tagData);
-        assignableTagsComboBox.clear();
+        assignableTagsComboBox.getDataProvider().refreshAll();
     }
 
     /**
@@ -104,6 +108,7 @@ public class TagAssignementComboBox extends HorizontalLayout {
     void removeAllTags() {
         allAssignableTags.clear();
         assignableTagsComboBox.clear();
+        assignableTagsComboBox.getDataProvider().refreshAll();
     }
 
     /**
@@ -112,12 +117,13 @@ public class TagAssignementComboBox extends HorizontalLayout {
      * @param tagData
      *            the data of the Tag
      */
-    void addAssignableTag(final TagData tagData) {
+    void addAssignableTag(final ProxyTag tagData) {
         if (tagData == null) {
             return;
         }
 
         allAssignableTags.add(tagData);
+        assignableTagsComboBox.getDataProvider().refreshAll();
     }
 
     /**
@@ -135,10 +141,11 @@ public class TagAssignementComboBox extends HorizontalLayout {
      * Removes an assignable tag from the combobox.
      * 
      * @param tagData
-     *            the {@link TagData} of the Tag that should be removed.
+     *            the {@link ProxyTag} of the Tag that should be removed.
      */
-    void removeAssignableTag(final TagData tagData) {
+    void removeAssignableTag(final ProxyTag tagData) {
         allAssignableTags.remove(tagData);
+        assignableTagsComboBox.getDataProvider().refreshAll();
     }
 
     /**
@@ -161,7 +168,7 @@ public class TagAssignementComboBox extends HorizontalLayout {
         listeners.remove(listener);
     }
 
-    private void notifyListenersTagAssigned(final TagData tagData) {
+    private void notifyListenersTagAssigned(final ProxyTag tagData) {
         listeners.forEach(listener -> listener.assignTag(tagData));
     }
 }

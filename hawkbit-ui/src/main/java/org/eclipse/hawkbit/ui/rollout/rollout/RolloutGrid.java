@@ -40,7 +40,7 @@ import org.eclipse.hawkbit.ui.push.RolloutChangeEventContainer;
 import org.eclipse.hawkbit.ui.push.RolloutDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
-import org.eclipse.hawkbit.ui.rollout.FontIcon;
+import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
@@ -122,8 +122,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, Void> {
     private static final List<RolloutStatus> APPROVE_BUTTON_ENABLED = Collections
             .singletonList(RolloutStatus.WAITING_FOR_APPROVAL);
 
-    private final Map<RolloutStatus, FontIcon> statusIconMap = new EnumMap<>(RolloutStatus.class);
-    private final Map<ActionType, FontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
+    private final Map<RolloutStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutStatus.class);
+    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
     private final ConfigurableFilterDataProvider<ProxyRollout, Void, Void> rolloutDataProvider;
 
@@ -163,25 +163,25 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, Void> {
     }
 
     private void initStatusIconMap() {
-        statusIconMap.put(RolloutStatus.FINISHED, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+        statusIconMap.put(RolloutStatus.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(RolloutStatus.FINISHED)));
-        statusIconMap.put(RolloutStatus.PAUSED, new FontIcon(VaadinIcons.PAUSE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+        statusIconMap.put(RolloutStatus.PAUSED, new ProxyFontIcon(VaadinIcons.PAUSE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                 getStatusDescription(RolloutStatus.PAUSED)));
-        statusIconMap.put(RolloutStatus.RUNNING, new FontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_YELLOW,
+        statusIconMap.put(RolloutStatus.RUNNING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_YELLOW,
                 getStatusDescription(RolloutStatus.RUNNING)));
-        statusIconMap.put(RolloutStatus.WAITING_FOR_APPROVAL, new FontIcon(VaadinIcons.HOURGLASS,
+        statusIconMap.put(RolloutStatus.WAITING_FOR_APPROVAL, new ProxyFontIcon(VaadinIcons.HOURGLASS,
                 SPUIStyleDefinitions.STATUS_ICON_ORANGE, getStatusDescription(RolloutStatus.WAITING_FOR_APPROVAL)));
-        statusIconMap.put(RolloutStatus.APPROVAL_DENIED, new FontIcon(VaadinIcons.CLOSE_CIRCLE,
+        statusIconMap.put(RolloutStatus.APPROVAL_DENIED, new ProxyFontIcon(VaadinIcons.CLOSE_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(RolloutStatus.APPROVAL_DENIED)));
-        statusIconMap.put(RolloutStatus.READY, new FontIcon(VaadinIcons.BULLSEYE,
+        statusIconMap.put(RolloutStatus.READY, new ProxyFontIcon(VaadinIcons.BULLSEYE,
                 SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE, getStatusDescription(RolloutStatus.READY)));
-        statusIconMap.put(RolloutStatus.STOPPED, new FontIcon(VaadinIcons.STOP, SPUIStyleDefinitions.STATUS_ICON_RED,
+        statusIconMap.put(RolloutStatus.STOPPED, new ProxyFontIcon(VaadinIcons.STOP, SPUIStyleDefinitions.STATUS_ICON_RED,
                 getStatusDescription(RolloutStatus.STOPPED)));
-        statusIconMap.put(RolloutStatus.CREATING, new FontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_GREY,
+        statusIconMap.put(RolloutStatus.CREATING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_GREY,
                 getStatusDescription(RolloutStatus.CREATING)));
-        statusIconMap.put(RolloutStatus.STARTING, new FontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_BLUE,
+        statusIconMap.put(RolloutStatus.STARTING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_BLUE,
                 getStatusDescription(RolloutStatus.STARTING)));
-        statusIconMap.put(RolloutStatus.DELETING, new FontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_RED,
+        statusIconMap.put(RolloutStatus.DELETING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_RED,
                 getStatusDescription(RolloutStatus.DELETING)));
     }
 
@@ -190,15 +190,15 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, Void> {
     }
 
     private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED, new FontIcon(VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
+        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
                 i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
         actionTypeIconMap.put(ActionType.TIMEFORCED,
-                new FontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
+                new ProxyFontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
                         i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
-        actionTypeIconMap.put(ActionType.SOFT, new FontIcon(VaadinIcons.STEP_FORWARD,
+        actionTypeIconMap.put(ActionType.SOFT, new ProxyFontIcon(VaadinIcons.STEP_FORWARD,
                 SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
         actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
-                new FontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
+                new ProxyFontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
                         i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
     }
 
@@ -343,8 +343,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, Void> {
     }
 
     private Label buildStatusIcon(final ProxyRollout rollout) {
-        final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rollout.getStatus()))
-                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rollout.getStatus()))
+                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                         i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
         final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID).append(".")
@@ -354,8 +354,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, Void> {
     }
 
     private Label buildTypeIcon(final ProxyRollout rollout) {
-        final FontIcon actionTypeFontIcon = Optional.ofNullable(actionTypeIconMap.get(rollout.getActionType()))
-                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+        final ProxyFontIcon actionTypeFontIcon = Optional.ofNullable(actionTypeIconMap.get(rollout.getActionType()))
+                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                         i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
         final String actionTypeId = new StringBuilder(UIComponentIdProvider.ROLLOUT_ACTION_TYPE_LABEL_ID).append(".")

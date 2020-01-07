@@ -109,6 +109,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         this.isUnassignSmAllowed = isUnassignSmAllowed;
 
         init();
+        setVisible(false);
     }
 
     private void init() {
@@ -231,6 +232,8 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         if (masterEntityFilter == null) {
             masterEntity = null;
             setItems(Collections.emptyList());
+            setVisible(false);
+
             return;
         }
 
@@ -255,6 +258,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
 
         masterEntity = masterEntityFilter;
         setItems(items);
+        setVisible(true);
     }
 
     private Collection<SoftwareModule> getSoftwareModulesByDsId(final Long dsId) {

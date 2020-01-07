@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
@@ -53,8 +52,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
-            final SpPermissionChecker permChecker, final ArtifactUploadState artifactUploadState,
-            final ArtifactManagement artifactManagement,
+            final SpPermissionChecker permChecker, final ArtifactManagement artifactManagement,
             final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
             final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
         this.softwareModuleManagement = softwareModuleManagement;
@@ -76,8 +74,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         final ArtifactDetailsGridLayout artifactDetailsLayout = null;
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder, artifactDetailsLayout);
-        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, swModuleGridLayoutUiState,
-                smMetaDataWindowBuilder);
+        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, smMetaDataWindowBuilder);
 
         this.eventListener = new SwModuleGridLayoutEventListener(this, eventBus);
 

@@ -36,7 +36,7 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.DeploymentRequest;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.common.tagdetails.TagData;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.components.HawkbitErrorNotificationMessage;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
@@ -320,7 +320,7 @@ public class BulkUploadHandler extends CustomComponent
 
         private String tagAssignment() {
             final List<String> deletedTags = new ArrayList<>();
-            for (final TagData tagData : targetBulkTokenTags.getSelectedTagsForAssignment()) {
+            for (final ProxyTag tagData : targetBulkTokenTags.getSelectedTagsForAssignment()) {
                 if (!tagManagement.get(tagData.getId()).isPresent()) {
                     deletedTags.add(tagData.getName());
                 } else {

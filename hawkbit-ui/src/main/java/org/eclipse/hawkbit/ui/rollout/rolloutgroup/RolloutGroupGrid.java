@@ -21,7 +21,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.push.RolloutGroupChangedEventContainer;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
-import org.eclipse.hawkbit.ui.rollout.FontIcon;
+import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
@@ -52,7 +52,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
 
     private final RolloutUIState rolloutUIState;
 
-    private final Map<RolloutGroupStatus, FontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
+    private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
 
     private final ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Void> rolloutGroupDataProvider;
 
@@ -89,15 +89,15 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
     }
 
     private void initStatusIconMap() {
-        statusIconMap.put(RolloutGroupStatus.FINISHED, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+        statusIconMap.put(RolloutGroupStatus.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(RolloutGroupStatus.FINISHED)));
-        statusIconMap.put(RolloutGroupStatus.SCHEDULED, new FontIcon(VaadinIcons.HOURGLASS_START,
+        statusIconMap.put(RolloutGroupStatus.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_START,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(RolloutGroupStatus.SCHEDULED)));
-        statusIconMap.put(RolloutGroupStatus.RUNNING, new FontIcon(VaadinIcons.ADJUST,
+        statusIconMap.put(RolloutGroupStatus.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST,
                 SPUIStyleDefinitions.STATUS_ICON_YELLOW, getStatusDescription(RolloutGroupStatus.RUNNING)));
-        statusIconMap.put(RolloutGroupStatus.READY, new FontIcon(VaadinIcons.BULLSEYE,
+        statusIconMap.put(RolloutGroupStatus.READY, new ProxyFontIcon(VaadinIcons.BULLSEYE,
                 SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE, getStatusDescription(RolloutGroupStatus.READY)));
-        statusIconMap.put(RolloutGroupStatus.ERROR, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+        statusIconMap.put(RolloutGroupStatus.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(RolloutGroupStatus.ERROR)));
     }
 
@@ -191,8 +191,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
     }
 
     private Label buildStatusIcon(final ProxyRolloutGroup rolloutGroup) {
-        final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rolloutGroup.getStatus()))
-                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rolloutGroup.getStatus()))
+                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                         i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
         final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID).append(".")

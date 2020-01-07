@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import org.eclipse.hawkbit.ui.common.data.providers.DsMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.tagdetails.DistributionTagToken;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -55,7 +57,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
     private final transient TenantConfigurationManagement tenantConfigurationManagement;
     private final transient SystemSecurityContext systemSecurityContext;
 
-    private final DistributionTagToken distributionTagToken;
+    private final transient DistributionTagToken distributionTagToken;
 
     protected AbstractDistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification uiNotification,
@@ -75,20 +77,17 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
 
         this.smDetailsGrid = new SoftwareModuleDetailsGrid(i18n, eventBus, uiNotification, permissionChecker,
                 dsManagement, smManagement, dsTypeManagement, true);
-        this.smDetailsGrid.setVisible(false);
 
         this.distributionTagToken = new DistributionTagToken(permissionChecker, i18n, uiNotification, eventBus,
                 dsTagManagement, dsManagement);
-        binder.forField(distributionTagToken).bind(ds -> ds, null);
 
         this.dsMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.DS_METADATA_DETAIL_LINK,
                 this::showMetadataDetails, new DsMetaDataDataProvider(dsManagement));
-        this.dsMetadataGrid.setVisible(false);
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),
                 new SimpleEntry<>(i18n.getMessage("caption.softwares.distdetail.tab"), smDetailsGrid),
-                new SimpleEntry<>(i18n.getMessage("caption.tags.tab"), distributionTagToken),
+                new SimpleEntry<>(i18n.getMessage("caption.tags.tab"), distributionTagToken.getTagPanel()),
                 new SimpleEntry<>(i18n.getMessage("caption.logs.tab"), logDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.metadata"), dsMetadataGrid)));
     }
@@ -151,29 +150,22 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
 
     protected abstract boolean isUnassignSmAllowed();
 
-    // TODO: implement
-    // protected void populateSmDetails() {
-    // softwareModuleDetailsGrid.populateGrid(getSelectedBaseEntity());
-    // }
-
     @Override
     public void masterEntityChanged(final ProxyDistributionSet entity) {
         super.masterEntityChanged(entity);
 
         // TODO: consider populating the grid only when metadata tab is/becomes
         // active (lazy loading)
-        if (entity == null) {
-            dsMetadataGrid.updateMasterEntityFilter(null);
-            dsMetadataGrid.setVisible(false);
+        dsMetadataGrid.updateMasterEntityFilter(entity != null ? entity.getId() : null);
+        smDetailsGrid.updateMasterEntityFilter(entity);
+        distributionTagToken.updateMasterEntityFilter(entity);
+    }
 
-            smDetailsGrid.updateMasterEntityFilter(null);
-            smDetailsGrid.setVisible(false);
-        } else {
-            dsMetadataGrid.updateMasterEntityFilter(entity.getId());
-            dsMetadataGrid.setVisible(true);
-
-            smDetailsGrid.updateMasterEntityFilter(entity);
-            smDetailsGrid.setVisible(true);
+    public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
+        if (binder.getBean() == null) {
+            return;
         }
+
+        distributionTagToken.onTagsModified(entityIds, entityModifiedType);
     }
 }

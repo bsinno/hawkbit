@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.hawkbit.repository.TagFields;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
@@ -140,6 +141,12 @@ public class JpaTargetTagManagement implements TargetTagManagement {
     @Override
     public Optional<TargetTag> get(final long id) {
         return targetTagRepository.findById(id).map(tt -> (TargetTag) tt);
+    }
+
+    @Override
+    public List<TargetTag> get(final Collection<Long> ids) {
+        return StreamSupport.stream(targetTagRepository.findAllById(ids).spliterator(), false)
+                .collect(Collectors.toList());
     }
 
     @Override

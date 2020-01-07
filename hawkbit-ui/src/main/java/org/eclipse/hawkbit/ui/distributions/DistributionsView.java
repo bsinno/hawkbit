@@ -29,10 +29,8 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
-import org.eclipse.hawkbit.ui.dd.criteria.DistributionsViewClientCriterion;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridLayout;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleGridLayout;
@@ -85,9 +83,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
             final DistributionSetManagement distributionSetManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final DistributionSetTagManagement distributionSetTagManagement,
-            final TargetFilterQueryManagement targetFilterQueryManagement,
-            final DistributionsViewClientCriterion distributionsViewClientCriterion,
-            final ArtifactUploadState artifactUploadState, final SystemManagement systemManagement,
+            final TargetFilterQueryManagement targetFilterQueryManagement, final SystemManagement systemManagement,
             final ArtifactManagement artifactManagement, final NotificationUnreadButton notificationUnreadButton,
             final DistributionsViewMenuItem distributionsViewMenuItem,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext) {
@@ -105,7 +101,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
                     manageDistUIState.getDSTypeFilterLayoutUiState(),
                     manageDistUIState.getDistributionSetGridLayoutUiState());
             this.swModuleGridLayout = new SwModuleGridLayout(i18n, uiNotification, eventBus, softwareModuleManagement,
-                    softwareModuleTypeManagement, entityFactory, permChecker, artifactUploadState, artifactManagement,
+                    softwareModuleTypeManagement, entityFactory, permChecker, artifactManagement,
                     manageDistUIState.getDistSMTypeFilterLayoutUiState(),
                     manageDistUIState.getSwModuleGridLayoutUiState());
             this.distSMTypeFilterLayout = new DistSMTypeFilterLayout(eventBus, i18n, permChecker, entityFactory,

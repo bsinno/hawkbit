@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
-import org.eclipse.hawkbit.ui.rollout.FontIcon;
+import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -197,10 +197,12 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     }
 
     // TODO move to GridComponentBuilder
-    protected Label buildLabelIcon(final FontIcon fontIcon, final String id) {
-        final String fontIconHtml = fontIcon.getIcon() != null ? fontIcon.getIcon().getHtml() : "<span></span>";
+    protected Label buildLabelIcon(final ProxyFontIcon fontIcon, final String id) {
+        if (fontIcon == null) {
+            return new Label("");
+        }
 
-        final Label labelIcon = new Label(fontIconHtml, ContentMode.HTML);
+        final Label labelIcon = new Label(fontIcon.getHtml(), ContentMode.HTML);
         labelIcon.setId(id);
         labelIcon.setDescription(fontIcon.getDescription());
         labelIcon.addStyleName("small");

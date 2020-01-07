@@ -16,9 +16,11 @@ import java.util.TreeMap;
 
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Target;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout.TagAssignmentListener;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
+import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -40,8 +42,8 @@ public class TagListField extends CssLayout {
     private static final long serialVersionUID = 1L;
 
     // TODO: check if the order is preserved as before
-    private final transient Map<TagData, Button> tagButtons = new TreeMap<>(
-            Comparator.comparing(TagData::getName, String.CASE_INSENSITIVE_ORDER));
+    private final transient Map<ProxyTag, Button> tagButtons = new TreeMap<>(
+            Comparator.comparing(ProxyTag::getName, String.CASE_INSENSITIVE_ORDER));
     private final transient Set<TagAssignmentListener> listeners = Sets.newConcurrentHashSet();
     private final VaadinMessageSource i18n;
     private final boolean readOnlyMode;
@@ -65,11 +67,11 @@ public class TagListField extends CssLayout {
      * @param assignedTags
      *            assigned tags
      */
-    void initializeAssignedTags(final List<TagData> assignedTags) {
+    void initializeAssignedTags(final List<ProxyTag> assignedTags) {
         removeAllComponents();
 
         assignedTags.forEach(tag -> {
-            final Button tagButton = createButton(tag);
+            final Button tagButton = createTagButton(tag);
             tagButtons.put(tag, tagButton);
         });
 
@@ -82,11 +84,11 @@ public class TagListField extends CssLayout {
      * @param tagName
      * @param tagColor
      */
-    void addTag(final TagData tagData) {
+    void addTag(final ProxyTag tagData) {
         if (!tagButtons.containsKey(tagData)) {
             removeAllComponents();
 
-            final Button tagButton = createButton(tagData);
+            final Button tagButton = createTagButton(tagData);
             tagButtons.put(tagData, tagButton);
 
             addTagButtonsAsComponents();
@@ -97,22 +99,25 @@ public class TagListField extends CssLayout {
         tagButtons.values().forEach(this::addComponent);
     }
 
-    private Button createButton(final TagData tagData) {
-        final Button button = SPUIComponentProvider.getButton(
+    private Button createTagButton(final ProxyTag tagData) {
+        final Button tagButton = SPUIComponentProvider.getButton(
                 UIComponentIdProvider.ASSIGNED_TAG_ID_PREFIX + "." + tagData.getId(), tagData.getName(),
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_REMOVE), null, false, null,
                 SPUITagButtonStyle.class);
-        button.addClickListener(e -> removeTagAssignment(tagData));
-        button.addStyleName(SPUIStyleDefinitions.TAG_BUTTON_WITH_BACKGROUND);
-        button.addStyleName(SPUIDefinitions.TEXT_STYLE + " " + SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
-        button.setEnabled(!readOnlyMode);
-        button.setCaption("<span style=\" color:" + tagData.getColor() + " !important;\">" + VaadinIcons.CIRCLE
-                + "</span>" + " " + tagData.getName().concat("  ×"));
-        button.setCaptionAsHtml(true);
-        return button;
+        tagButton.addStyleName(SPUIStyleDefinitions.TAG_BUTTON_WITH_BACKGROUND);
+        tagButton.addStyleName(SPUIDefinitions.TEXT_STYLE + " " + SPUIStyleDefinitions.DETAILS_LAYOUT_STYLE);
+        tagButton.setEnabled(!readOnlyMode);
+
+        tagButton.setCaption(new ProxyFontIcon(VaadinIcons.CIRCLE, "", "", tagData.getColour()).getHtml() + " "
+                + tagData.getName().concat(" ×"));
+        tagButton.setCaptionAsHtml(true);
+
+        tagButton.addClickListener(e -> removeTagAssignment(tagData));
+
+        return tagButton;
     }
 
-    private void removeTagAssignment(final TagData tagData) {
+    private void removeTagAssignment(final ProxyTag tagData) {
         removeTag(tagData);
         notifyListenersTagAssignmentRemoved(tagData);
     }
@@ -122,7 +127,7 @@ public class TagListField extends CssLayout {
      * 
      * @param tagData
      */
-    void removeTag(final TagData tagData) {
+    void removeTag(final ProxyTag tagData) {
         final Button button = tagButtons.get(tagData);
         if (button != null) {
             tagButtons.remove(tagData);
@@ -168,7 +173,7 @@ public class TagListField extends CssLayout {
         listeners.remove(listener);
     }
 
-    private void notifyListenersTagAssignmentRemoved(final TagData tagData) {
+    private void notifyListenersTagAssignmentRemoved(final ProxyTag tagData) {
         listeners.forEach(listener -> listener.unassignTag(tagData));
     }
 
@@ -177,7 +182,7 @@ public class TagListField extends CssLayout {
      * 
      * @return a {@link List} with tags
      */
-    List<TagData> getTags() {
+    List<ProxyTag> getTags() {
         return Lists.newArrayList(tagButtons.keySet());
     }
 }
