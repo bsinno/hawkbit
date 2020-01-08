@@ -60,14 +60,16 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         this.artifactDetailsGrid = new ArtifactDetailsGrid(eventBus, i18n, permChecker, notification,
                 artifactManagement);
 
-        this.uploadDropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, notification, artifactUploadState,
-                multipartConfigElement, softwareManagement, artifactManagement);
-
         this.eventListener = new ArtifactDetailsGridLayoutEventListener(this, eventBus);
 
         if (permChecker.hasCreateRepositoryPermission()) {
+            this.uploadDropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, notification, artifactUploadState,
+                    multipartConfigElement, softwareManagement, artifactManagement);
+
             buildLayout(artifactDetailsHeader, artifactDetailsGrid, uploadDropAreaLayout);
         } else {
+            this.uploadDropAreaLayout = null;
+
             buildLayout(artifactDetailsHeader, artifactDetailsGrid);
         }
     }
@@ -77,17 +79,24 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     }
 
     public void restoreState() {
-        uploadDropAreaLayout.restoreState();
+        if (uploadDropAreaLayout != null) {
+            uploadDropAreaLayout.restoreState();
+        }
     }
 
     public void onSmSelected(final ProxySoftwareModule selectedSm) {
         artifactDetailsHeader.updateArtifactDetailsHeader(selectedSm != null ? selectedSm.getNameAndVersion() : "");
         artifactDetailsGrid.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
-        uploadDropAreaLayout.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
+
+        if (uploadDropAreaLayout != null) {
+            uploadDropAreaLayout.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
+        }
     }
 
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
-        uploadDropAreaLayout.onUploadChanged(fileUploadProgress);
+        if (uploadDropAreaLayout != null) {
+            uploadDropAreaLayout.onUploadChanged(fileUploadProgress);
+        }
     }
 
     public void maximize() {

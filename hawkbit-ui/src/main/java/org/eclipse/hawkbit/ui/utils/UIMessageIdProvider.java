@@ -55,6 +55,8 @@ public final class UIMessageIdProvider {
 
     public static final String CAPTION_ARTIFACT_DETAILS_OF = "caption.artifact.details.of";
 
+    public static final String CAPTION_ARTIFACT_DETAILS_OF_SM = "caption.artifact.details.of.sm";
+
     public static final String CAPTION_SELECT_AUTO_ASSIGN_DS = "caption.select.auto.assign.dist";
 
     public static final String CAPTION_CONFIRM_AUTO_ASSIGN_CONSEQUENCES = "caption.confirm.assign.consequences";

@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
@@ -69,11 +68,8 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, softwareModuleManagement,
                 swModuleGridLayoutUiState, softwareModuleToProxyMapper);
 
-        // TODO: change to load ArtifactDetailsGridLayout only after button
-        // click and only Grid Header and Grid without upload layout
-        final ArtifactDetailsGridLayout artifactDetailsLayout = null;
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
-                smWindowBuilder, smMetaDataWindowBuilder, artifactDetailsLayout);
+                smWindowBuilder, smMetaDataWindowBuilder, artifactManagement);
         this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, smMetaDataWindowBuilder);
 
         this.eventListener = new SwModuleGridLayoutEventListener(this, eventBus);

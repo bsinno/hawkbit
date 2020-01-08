@@ -129,10 +129,14 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
     }
 
     protected void showDetailsLayout() {
-        detailsLayout.setVisible(true);
+        if (detailsLayout != null) {
+            detailsLayout.setVisible(true);
+        }
     }
 
     protected void hideDetailsLayout() {
-        detailsLayout.setVisible(false);
+        if (detailsLayout != null) {
+            detailsLayout.setVisible(false);
+        }
     }
 }
