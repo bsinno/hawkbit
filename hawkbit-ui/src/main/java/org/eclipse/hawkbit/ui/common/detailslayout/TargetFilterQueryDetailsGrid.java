@@ -8,82 +8,72 @@
  */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDetailsDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.PageRequest;
 
-import com.vaadin.ui.Grid;
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * DistributionSet TargetFilterQuery table
  *
  */
-public class TargetFilterQueryDetailsGrid extends Grid<ProxyTargetFilterQuery> {
-
+public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilterQuery, Long> {
     private static final long serialVersionUID = 1L;
 
     private static final String TFQ_NAME_ID = "tfqName";
     private static final String TFQ_QUERY_ID = "tfqQuery";
 
-    private final VaadinMessageSource i18n;
-
-    private final TargetFilterQueryManagement targetFilterQueryManagement;
+    private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, Long> targetFilterQueryDataProvider;
 
     public TargetFilterQueryDetailsGrid(final VaadinMessageSource i18n,
             final TargetFilterQueryManagement targetFilterQueryManagement) {
-        this.i18n = i18n;
-        this.targetFilterQueryManagement = targetFilterQueryManagement;
+        super(i18n, null);
+
+        this.targetFilterQueryDataProvider = new TargetFilterQueryDetailsDataProvider(targetFilterQueryManagement,
+                new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
 
         init();
+        setVisible(false);
     }
 
-    /**
-     * Populate distribution set metadata.
-     *
-     * @param distributionSet
-     *            the selected distribution set
-     */
-    public void populateGrid(final ProxyDistributionSet distributionSet) {
-        if (distributionSet == null) {
-            setItems(Collections.emptyList());
-            return;
-        }
+    @Override
+    protected void init() {
+        super.init();
 
-        // TODO: consider using lazy loading with data provider
-        final List<ProxyTargetFilterQuery> filters = targetFilterQueryManagement
-                .findByAutoAssignDSAndRsql(PageRequest.of(0, 500), distributionSet.getId(), null).getContent().stream()
-                .map(targetFilter -> new TargetFilterQueryToProxyTargetFilterMapper().map(targetFilter))
-                .collect(Collectors.toList());
-        setItems(filters);
-    }
+        setHeightMode(HeightMode.UNDEFINED);
 
-    private void init() {
-        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
-        addStyleName(SPUIStyleDefinitions.SW_MODULE_TABLE);
-        addStyleName("details-layout");
-
-        setSelectionMode(SelectionMode.NONE);
-        setSizeFull();
-        // same as height of other tabs in details tabsheet
-        setHeight(116, Unit.PIXELS);
-
-        addColumns();
+        addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        // addStyleName(SPUIStyleDefinitions.SW_MODULE_TABLE);
     }
 
-    private void addColumns() {
+    @Override
+    public void addColumns() {
         addColumn(ProxyTargetFilterQuery::getName).setId(TFQ_NAME_ID)
                 .setCaption(i18n.getMessage("header.target.filter.name")).setExpandRatio(2);
         addColumn(ProxyTargetFilterQuery::getQuery).setId(TFQ_QUERY_ID)
                 .setCaption(i18n.getMessage("header.target.filter.query")).setExpandRatio(3);
+    }
+
+    @Override
+    public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, Long> getFilterDataProvider() {
+        return targetFilterQueryDataProvider;
+    }
+
+    @Override
+    public String getGridId() {
+        return UIComponentIdProvider.TARGET_FILTER_TABLE_ID;
+    }
+
+    public void updateMasterEntityFilter(final Long masterEntityId) {
+        getFilterDataProvider().setFilter(masterEntityId);
+        setVisible(masterEntityId != null);
     }
 }

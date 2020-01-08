@@ -117,23 +117,18 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         setHeightMode(HeightMode.UNDEFINED);
 
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(SPUIStyleDefinitions.SW_MODULE_TABLE);
-        addStyleName("details-layout");
+        // addStyleName(SPUIStyleDefinitions.SW_MODULE_TABLE);
 
         setSelectionMode(SelectionMode.NONE);
-
-        // same as height of other tabs in details tabsheet
-        // setHeight(116, Unit.PIXELS);
 
         addColumns();
     }
 
     private void addColumns() {
         addComponentColumn(this::buildIsMandatoryLabel).setId(SOFT_TYPE_MANDATORY_ID);
-        addColumn(ProxySoftwareModuleDetails::getTypeName).setId(SOFT_TYPE_NAME_ID);
 
-        getDefaultHeaderRow().join(SOFT_TYPE_MANDATORY_ID, SOFT_TYPE_NAME_ID)
-                .setText(i18n.getMessage("header.caption.typename"));
+        addColumn(ProxySoftwareModuleDetails::getTypeName).setId(SOFT_TYPE_NAME_ID)
+                .setCaption(i18n.getMessage("header.caption.typename"));
 
         addComponentColumn(this::buildSoftwareModulesLayout).setId(SOFT_MODULES_ID)
                 .setCaption(i18n.getMessage("header.caption.softwaremodule"));
@@ -158,6 +153,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         final VerticalLayout softwareModulesLayout = new VerticalLayout();
         softwareModulesLayout.setSpacing(false);
         softwareModulesLayout.setMargin(false);
+        softwareModulesLayout.setSizeFull();
 
         for (final Entry<Long, String> softwareModuleEntry : softwareModuleDetails.getSmIdsWithNameAndVersion()
                 .entrySet()) {

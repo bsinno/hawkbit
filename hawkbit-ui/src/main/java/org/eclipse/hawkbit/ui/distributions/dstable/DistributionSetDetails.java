@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractDistributionSetDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.TargetFilterQueryDetailsGrid;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -31,6 +32,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DistributionSetDetails extends AbstractDistributionSetDetails {
     private static final long serialVersionUID = 1L;
 
+    private final TargetFilterQueryDetailsGrid tfqDetailsGrid;
+
     DistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification uiNotification,
             final DistributionSetManagement dsManagement, final SoftwareModuleManagement smManagement,
@@ -41,8 +44,7 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
         super(i18n, eventBus, permissionChecker, uiNotification, dsManagement, smManagement, dsTypeManagement,
                 dsTagManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
-        final TargetFilterQueryDetailsGrid tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n,
-                targetFilterQueryManagement);
+        this.tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n, targetFilterQueryManagement);
 
         addDetailsComponents(Collections
                 .singletonList(new SimpleEntry<>(i18n.getMessage("caption.auto.assignment.ds"), tfqDetailsGrid)));
@@ -53,5 +55,14 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
     @Override
     protected boolean isUnassignSmAllowed() {
         return true;
+    }
+
+    @Override
+    public void masterEntityChanged(final ProxyDistributionSet entity) {
+        super.masterEntityChanged(entity);
+
+        // TODO: consider populating the grid only when metadata tab is/becomes
+        // active (lazy loading)
+        tfqDetailsGrid.updateMasterEntityFilter(entity != null ? entity.getId() : null);
     }
 }

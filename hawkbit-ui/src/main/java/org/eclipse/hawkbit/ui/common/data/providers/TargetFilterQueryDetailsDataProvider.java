@@ -24,13 +24,13 @@ import org.springframework.data.domain.Sort.Direction;
  * of {@link TargetFilterQuery} entities from backend and maps them to
  * corresponding {@link ProxyTargetFilterQuery} entities.
  */
-public class TargetFilterQueryDataProvider
-        extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, String> {
+public class TargetFilterQueryDetailsDataProvider
+        extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, Long> {
     private static final long serialVersionUID = 1L;
 
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
 
-    public TargetFilterQueryDataProvider(final TargetFilterQueryManagement targetFilterQueryManagement,
+    public TargetFilterQueryDetailsDataProvider(final TargetFilterQueryManagement targetFilterQueryManagement,
             final TargetFilterQueryToProxyTargetFilterMapper entityMapper) {
         super(entityMapper, new Sort(Direction.ASC, "name"));
 
@@ -39,18 +39,14 @@ public class TargetFilterQueryDataProvider
 
     @Override
     protected Optional<Slice<TargetFilterQuery>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> filter) {
-        if (!filter.isPresent()) {
-            return Optional.of(targetFilterQueryManagement.findAll(pageRequest));
-        }
-
-        return filter.map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText));
+            final Optional<Long> filter) {
+        return filter
+                .map(masterId -> targetFilterQueryManagement.findByAutoAssignDSAndRsql(pageRequest, masterId, null));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-        return filter
-                .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText).getTotalElements())
-                .orElseGet(targetFilterQueryManagement::count);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> filter) {
+        return filter.map(masterId -> targetFilterQueryManagement.findByAutoAssignDSAndRsql(pageRequest, masterId, null)
+                .getTotalElements()).orElse(0L);
     }
 }
