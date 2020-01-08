@@ -8,46 +8,44 @@
  */
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
-import java.util.Map;
-
 /**
  * Proxy to display details for Software Modules.
  */
 public class ProxySoftwareModuleDetails extends ProxyIdentifiableEntity {
     private static final long serialVersionUID = 1L;
 
-    private boolean isMandatory;
-    private String typeName;
-    private Map<Long, String> smIdsWithNameAndVersion;
+    private final boolean isMandatory;
+    private final Long typeId;
+    private final String typeName;
+    private final Long smId;
+    private final String smNameAndVersion;
 
-    public ProxySoftwareModuleDetails(final boolean isMandatory, final String typeName,
-            final Map<Long, String> smIdsWithNameAndVersion) {
+    public ProxySoftwareModuleDetails(final boolean isMandatory, final Long typeId, final String typeName,
+            final Long smId, final String smNameAndVersion) {
         this.isMandatory = isMandatory;
+        this.typeId = typeId;
         this.typeName = typeName;
-        this.smIdsWithNameAndVersion = smIdsWithNameAndVersion;
+        this.smId = smId;
+        this.smNameAndVersion = smNameAndVersion;
     }
 
     public boolean isMandatory() {
         return isMandatory;
     }
 
-    public void setMandatory(final boolean isMandatory) {
-        this.isMandatory = isMandatory;
+    public Long getTypeId() {
+        return typeId;
     }
 
     public String getTypeName() {
         return typeName;
     }
 
-    public void setTypeName(final String typeName) {
-        this.typeName = typeName;
+    public Long getSmId() {
+        return smId;
     }
 
-    public Map<Long, String> getSmIdsWithNameAndVersion() {
-        return smIdsWithNameAndVersion;
-    }
-
-    public void setSmIdsWithNameAndVersion(final Map<Long, String> smIdsWithNameAndVersion) {
-        this.smIdsWithNameAndVersion = smIdsWithNameAndVersion;
+    public String getSmNameAndVersion() {
+        return smNameAndVersion;
     }
 }
