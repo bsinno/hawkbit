@@ -27,7 +27,6 @@ import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.T
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -36,8 +35,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
+import com.vaadin.data.ValueContext;
 import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.data.validator.StringLengthValidator;
+import com.vaadin.server.UserError;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -68,7 +72,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
             new ActionStatusOption(Status.CANCELED, Status.ERROR));
 
     private final VerticalLayout container;
-    private final ComboBox actionStatusCombobox;
+    private final ComboBox<ActionStatusOption> actionStatusCombobox;
     private final TextField actionExpiryInput;
 
     private final VaadinMessageSource i18n;
@@ -103,15 +107,19 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         actionStatusCombobox.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_TYPES);
         actionStatusCombobox.setWidth(200f, Unit.PIXELS);
         actionStatusCombobox.setEmptySelectionAllowed(false);
-        actionStatusCombobox.setItems(ACTION_STATUS_OPTIONS.stream().map(ActionStatusOption::getName).collect(Collectors.toList()));
+        actionStatusCombobox.setItems(ACTION_STATUS_OPTIONS);
+        actionStatusCombobox.setItemCaptionGenerator(ActionStatusOption::getName);
+//        actionStatusCombobox.setItems(ACTION_STATUS_OPTIONS.stream().map(ActionStatusOption::getName).collect(Collectors.toList()));
         actionStatusCombobox.addValueChangeListener(e -> onActionStatusChanged());
-        actionStatusCombobox.setSelectedItem(getActionStatusOption());
+
+        actionStatusCombobox.setValue(getActionStatusOption());
 
         actionExpiryInput = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         actionExpiryInput.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_EXPIRY);
         actionExpiryInput.setWidth(55, Unit.PIXELS);
 //        actionExpiryInput.setNullSettingAllowed(false);
-        actionExpiryInput.addValueChangeListener(e -> onActionExpiryChanged());
+//        actionExpiryInput.addValueChangeListener(e -> onActionExpiryChanged());
+        addRangeValidator(actionExpiryInput, new IntegerRangeValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY),1, MAX_EXPIRY_IN_DAYS));
 //        actionExpiryInput.addValidator(new ActionExpiryValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY)));
         actionExpiryInput.setValue(String.valueOf(getActionExpiry()));
 
@@ -130,6 +138,31 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
             setSettingsVisible(true);
         }
 
+    }
+
+    private void addRangeValidator(AbstractField field, Validator validator) {
+        field.addValueChangeListener(event -> {
+
+            final Validator validator1 = new StringLengthValidator("Invalid", 1, 3);
+            ValidationResult result1 = validator1.apply(event.getValue(), new ValueContext(field));
+
+            if (result1.isError()) {
+                UserError error = new UserError(result1.getErrorMessage());
+                field.setComponentError(error);
+            } else {
+                ValidationResult result = validator.apply(Integer.parseInt(event.getValue().toString()), new ValueContext(field));
+
+                if (result.isError()) {
+                    UserError error = new UserError(result.getErrorMessage());
+                    field.setComponentError(error);
+                } else {
+                    field.setComponentError(null);
+                    onActionExpiryChanged();
+                }
+            }
+
+
+        });
     }
 
     @Override
@@ -157,7 +190,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
             cleanupEnabledChanged = false;
         }
         if (cleanupEnabled && actionStatusChanged) {
-            setActionStatus((ActionStatusOption) actionStatusCombobox.getValue());
+            setActionStatus(actionStatusCombobox.getValue());
             actionStatusChanged = false;
         }
         if (cleanupEnabled && actionExpiryChanged) {
@@ -176,7 +209,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         cleanupEnabledChanged = false;
         cleanupEnabled = readConfigValue(getConfigurationKey(), Boolean.class).getValue();
         actionStatusChanged = false;
-        actionStatusCombobox.setSelectedItem(getActionStatusOption());
+        actionStatusCombobox.setValue(getActionStatusOption());
         actionExpiryChanged = false;
         actionExpiryInput.setValue(String.valueOf(getActionExpiry()));
     }
@@ -284,7 +317,8 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
 
     }
 
-//    static class ActionExpiryValidator implements Validator {
+
+//    static class ActionExpiryValidator implements Validator<String> {
 //
 //        private static final long serialVersionUID = 1L;
 //
@@ -293,25 +327,43 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
 //        private final Validator rangeValidator;
 //
 //        ActionExpiryValidator(final String message) {
+//            super();
 //            this.message = message;
 //            this.rangeValidator = new IntegerRangeValidator(message, 1, MAX_EXPIRY_IN_DAYS);
 //        }
 //
+////        @Override
+////        public void validate(final Object value) {
+////
+////            if (StringUtils.isEmpty(value)) {
+////                throw new InvalidValueException(message);
+////            }
+////
+////            try {
+////                rangeValidator.validate(Integer.parseInt(value.toString()));
+////            } catch (final RuntimeException e) {
+////                LOGGER.debug("Action expiry validation failed", e);
+////                throw new InvalidValueException(message);
+////            }
+////        }
+//
 //        @Override
-//        public void validate(final Object value) {
+//        public ValidationResult apply(String value, ValueContext valueContext) {
 //
 //            if (StringUtils.isEmpty(value)) {
-//                throw new InvalidValueException(message);
+//                return ValidationResult.error(message);
 //            }
 //
-//            try {
-//                rangeValidator.validate(Integer.parseInt(value.toString()));
-//            } catch (final RuntimeException e) {
-//                LOGGER.debug("Action expiry validation failed", e);
-//                throw new InvalidValueException(message);
-//            }
+//            rangeValidator.apply(Integer.parseInt(value),valueContext);
+//
+////            try {
+////                rangeValidator.validate(Integer.parseInt(value.toString()));
+////            } catch (final RuntimeException e) {
+////                LOGGER.debug("Action expiry validation failed", e);
+////                throw new InvalidValueException(message);
+////            }
+//            return ValidationResult.ok();
 //        }
-//
 //    }
 
 }
