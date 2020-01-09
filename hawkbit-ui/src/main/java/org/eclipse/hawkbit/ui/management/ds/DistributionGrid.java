@@ -48,12 +48,12 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToDistrib
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.DeploymentView;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.DistributionSetUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -282,7 +282,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     /**
      * Creates the grid content for maximized-state.
      */
-    private void createMaximizedContent() {
+    public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
@@ -291,7 +291,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     /**
      * Creates the grid content for normal (minimized) state.
      */
-    private void createMinimizedContent() {
+    public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();

@@ -32,10 +32,10 @@ import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.DeploymentView;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.CancelTargetAssignmentEventContainer;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -140,8 +140,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.FINISHED)));
         statusIconMap.put(Status.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_EMPTY,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.SCHEDULED)));
-        statusIconMap.put(Status.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING,
-                getStatusDescription(Status.RUNNING)));
+        statusIconMap.put(Status.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RUNNING)));
         statusIconMap.put(Status.RETRIEVED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE_O,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RETRIEVED)));
         statusIconMap.put(Status.WARNING, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
@@ -164,8 +164,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private void initActiveStatusIconMap() {
-        activeStatusIconMap.put(IsActiveDecoration.ACTIVE, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_ICON_ACTIVE,
-                getActiveStatusDescription(IsActiveDecoration.ACTIVE)));
+        activeStatusIconMap.put(IsActiveDecoration.ACTIVE, new ProxyFontIcon(null,
+                SPUIStyleDefinitions.STATUS_ICON_ACTIVE, getActiveStatusDescription(IsActiveDecoration.ACTIVE)));
         activeStatusIconMap.put(IsActiveDecoration.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_EMPTY,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getActiveStatusDescription(IsActiveDecoration.SCHEDULED)));
         activeStatusIconMap.put(IsActiveDecoration.IN_ACTIVE, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
@@ -180,8 +180,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
-                i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
+        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT,
+                SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
         actionTypeIconMap.put(ActionType.TIMEFORCED,
                 new ProxyFontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
                         i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
@@ -236,7 +236,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     /**
      * Creates the grid content for maximized-state.
      */
-    private void createMaximizedContent() {
+    public void createMaximizedContent() {
         getSelectionSupport().enableSingleSelection();
         // TODO: check if it is needed
         // getDetailsSupport().populateSelection();
@@ -247,7 +247,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     /**
      * Creates the grid content for normal (minimized) state.
      */
-    private void createMinimizedContent() {
+    public void createMinimizedContent() {
         getSelectionSupport().disableSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();

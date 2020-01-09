@@ -8,23 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
-import java.util.Optional;
+import java.util.Collection;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.common.grid.support.MasterDetailsSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
-
-import com.vaadin.ui.UI;
 
 /**
  * Layout responsible for action-history-grid and the corresponding header.
@@ -32,12 +27,14 @@ import com.vaadin.ui.UI;
 public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final ManagementUIState managementUIState;
-
     private final ActionHistoryGridHeader actionHistoryHeader;
     private final ActionHistoryGrid actionHistoryGrid;
+    private final ActionStatusGridLayout actionStatusLayout;
+    private final ActionStatusMsgGridLayout actionStatusMsgLayout;
 
-    private final MasterDetailsSupport<ProxyTarget, String> masterDetailsSupport;
+    private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
+
+    private final transient ActionHistoryGridLayoutEventListener eventListener;
 
     /**
      * Constructor.
@@ -51,62 +48,69 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
      */
     public ActionHistoryGridLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
             final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
-            final SpPermissionChecker permChecker) {
-        this.managementUIState = managementUIState;
+            final SpPermissionChecker permChecker,
+            final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
+        this.actionHistoryGridLayoutUiState = actionHistoryGridLayoutUiState;
 
         this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, managementUIState, eventBus);
         this.actionHistoryGrid = new ActionHistoryGrid(i18n, deploymentManagement, eventBus, notification,
                 managementUIState, permChecker);
 
-        this.masterDetailsSupport = new MasterDetailsSupport<ProxyTarget, String>(actionHistoryGrid) {
+        this.actionStatusLayout = new ActionStatusGridLayout(i18n, eventBus, managementUIState, deploymentManagement);
+        this.actionStatusMsgLayout = new ActionStatusMsgGridLayout(i18n, eventBus, managementUIState,
+                deploymentManagement);
 
-            // TODO: check if Target controllerId could be changed to Id
-            @Override
-            protected String mapMasterItemToDetailsFilter(final ProxyTarget masterItem) {
-                actionHistoryGrid.setSelectedMasterTarget(masterItem);
-                return masterItem.getControllerId();
-            }
-        };
+        this.eventListener = new ActionHistoryGridLayoutEventListener(this, eventBus);
 
         buildLayout(actionHistoryHeader, actionHistoryGrid);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent targetUIEvent) {
-        final Optional<Long> targetId = managementUIState.getLastSelectedTargetId();
-
-        if (BaseEntityEventType.SELECTED_ENTITY == targetUIEvent.getEventType()) {
-            UI.getCurrent().access(() -> populateActionHistoryDetails(targetUIEvent.getEntity()));
-        } else if (BaseEntityEventType.REMOVE_ENTITY == targetUIEvent.getEventType() && targetId.isPresent()
-                && targetUIEvent.getEntityIds().contains(targetId.get())) {
-            UI.getCurrent().access(this::populateActionHistoryDetails);
-        }
+    public void restoreState() {
+        // TODO
     }
 
-    /**
-     * Populate action header and table for the target.
-     *
-     * @param target
-     *            the target
-     */
-    private void populateActionHistoryDetails(final ProxyTarget target) {
-        if (target != null) {
-            actionHistoryHeader.updateActionHistoryHeader(target.getName());
-            masterDetailsSupport.masterItemChangedCallback(target);
-        } else {
-            actionHistoryHeader.updateActionHistoryHeader(" ");
-        }
+    public void onTargetSelected(final ProxyTarget target) {
+        // TODO Auto-generated method stub
+
     }
 
-    /**
-     * Populate empty action header and empty table for empty selection.
-     */
-    private void populateActionHistoryDetails() {
-        actionHistoryHeader.updateActionHistoryHeader(" ");
-        masterDetailsSupport.masterItemChangedCallback(null);
+    public void onTargetUpdated(final Long lastSelectedTargetId) {
+        // TODO Auto-generated method stub
+
     }
 
-    public MasterDetailsSupport<ProxyTarget, String> getMasterDetailsSupport() {
-        return masterDetailsSupport;
+    public void onActionChanged(final ProxyAction entity) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public Object onActionUpdated(final Collection<Long> entityIds) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void onActionStatusChanged(final ProxyActionStatus entity) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void maximize() {
+        actionHistoryGrid.createMaximizedContent();
+        // TODO
+        // hideDetailsLayout();
+    }
+
+    public void minimize() {
+        actionHistoryGrid.createMinimizedContent();
+        // TODO
+        // showDetailsLayout();
+    }
+
+    public void refreshGrid() {
+        actionHistoryGrid.refreshContainer();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

@@ -6,32 +6,31 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.distributions.dstable;
+package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.UI;
 
-public class DistributionSetGridLayoutEventListener {
-    private final DistributionSetGridLayout distributionSetGridLayout;
+public class TargetGridLayoutEventListener {
+    private final TargetGridLayout targetGridLayout;
     private final UIEventBus eventBus;
     private final List<Object> eventListeners;
 
-    DistributionSetGridLayoutEventListener(final DistributionSetGridLayout distributionSetGridLayout,
-            final UIEventBus eventBus) {
-        this.distributionSetGridLayout = distributionSetGridLayout;
+    TargetGridLayoutEventListener(final TargetGridLayout targetGridLayout, final UIEventBus eventBus) {
+        this.targetGridLayout = targetGridLayout;
         this.eventBus = eventBus;
 
         this.eventListeners = new ArrayList<>();
@@ -50,12 +49,12 @@ public class DistributionSetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGrid.class)
-        private void onDsEvent(final SelectionChangedEventPayload<ProxyDistributionSet> eventPayload) {
+        @EventBusListenerMethod(scope = EventScope.UI, source = TargetGrid.class)
+        private void onTargetEvent(final SelectionChangedEventPayload<ProxyTarget> eventPayload) {
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                distributionSetGridLayout.onDsChanged(eventPayload.getEntity());
+                targetGridLayout.onTargetChanged(eventPayload.getEntity());
             } else {
-                distributionSetGridLayout.onDsChanged(null);
+                targetGridLayout.onTargetChanged(null);
             }
         }
     }
@@ -66,9 +65,9 @@ public class DistributionSetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGridHeader.class)
-        private void onDsEvent(final String searchFilter) {
-            distributionSetGridLayout.filterGridBySearch(searchFilter);
+        @EventBusListenerMethod(scope = EventScope.UI, source = TargetGridHeader.class)
+        private void onTargetEvent(final String searchFilter) {
+            targetGridLayout.filterGridBySearch(searchFilter);
         }
     }
 
@@ -79,19 +78,19 @@ public class DistributionSetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsEvent(final DsModifiedEventPayload eventPayload) {
-            distributionSetGridLayout.refreshGrid();
+        private void onTargetEvent(final TargetModifiedEventPayload eventPayload) {
+            targetGridLayout.refreshGrid();
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the
                 // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
                 // right or improve
-                UI.getCurrent().access(() -> distributionSetGridLayout.onDsUpdated(eventPayload.getEntityIds()));
+                UI.getCurrent().access(() -> targetGridLayout.onTargetUpdated(eventPayload.getEntityIds()));
             }
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsTagEvent(final DsTagModifiedEventPayload eventPayload) {
-            distributionSetGridLayout.onDsTagsModified(eventPayload.getEntityIds(),
+        private void onTargetTagEvent(final TargetTagModifiedEventPayload eventPayload) {
+            targetGridLayout.onTargetTagsModified(eventPayload.getEntityIds(),
                     eventPayload.getEntityModifiedEventType());
         }
     }

@@ -6,11 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management;
+package org.eclipse.hawkbit.ui.menu;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.hawkbit.ui.menu.DashboardMenuItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.Label;
@@ -34,7 +33,6 @@ public abstract class AbstractDashboardMenuItemNotification implements Dashboard
     public void setNotificationUnreadValue(final AtomicInteger notificationUnread) {
         notificationsLabel.setValue(String.valueOf(notificationUnread.get()));
         notificationsLabel.setVisible(notificationUnread.get() > 0);
-
     }
 
     @Override

@@ -10,8 +10,8 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterMultiButtonClick;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 

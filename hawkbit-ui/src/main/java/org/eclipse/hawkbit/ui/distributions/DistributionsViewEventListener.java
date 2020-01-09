@@ -48,8 +48,6 @@ public class DistributionsViewEventListener {
     }
 
     private void registerEventListeners() {
-        // TODO: should we listen for the event directly in
-        // layouts/components instead of calling methods here?
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new LayoutVisibilityChangedListener());
         eventListeners.add(new LayoutResizedListener());

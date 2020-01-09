@@ -130,18 +130,27 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         } else {
             showSmTypeLayout();
         }
+        smTypeFilterLayout.restoreState();
 
         if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
             maximizeSmGridLayout();
         }
+        smGridLayout.restoreState();
 
         if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
             maximizeArtifactGridLayout();
         }
-
-        smTypeFilterLayout.restoreState();
-        smGridLayout.restoreState();
         artifactDetailsGridLayout.restoreState();
+    }
+
+    void hideSmTypeLayout() {
+        smTypeFilterLayout.setVisible(false);
+        smGridLayout.showSmTypeHeaderIcon();
+    }
+
+    void showSmTypeLayout() {
+        smTypeFilterLayout.setVisible(true);
+        smGridLayout.hideSmTypeHeaderIcon();
     }
 
     void maximizeSmGridLayout() {
@@ -179,16 +188,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
                 showSmTypeLayout();
             }
         }
-    }
-
-    void hideSmTypeLayout() {
-        smTypeFilterLayout.setVisible(false);
-        smGridLayout.showSmTypeHeaderIcon();
-    }
-
-    void showSmTypeLayout() {
-        smTypeFilterLayout.setVisible(true);
-        smGridLayout.hideSmTypeHeaderIcon();
     }
 
     void onSmSelected(final ProxySoftwareModule sm) {

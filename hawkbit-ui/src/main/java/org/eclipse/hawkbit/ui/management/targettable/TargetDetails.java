@@ -32,7 +32,7 @@ import org.eclipse.hawkbit.ui.common.detailslayout.KeyValueDetailsComponent;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetadataDetailsGrid;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.tagdetails.TargetTagToken;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;

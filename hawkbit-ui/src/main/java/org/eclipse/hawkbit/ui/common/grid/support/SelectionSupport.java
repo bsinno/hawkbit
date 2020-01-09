@@ -20,6 +20,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
+import com.vaadin.ui.components.grid.MultiSelectionModel.SelectAllCheckBoxVisibility;
 import com.vaadin.ui.components.grid.NoSelectionModel;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
 
@@ -77,6 +78,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     public final void enableMultiSelection() {
         grid.setSelectionMode(SelectionMode.MULTI);
 
+        grid.asMultiSelect().setSelectAllCheckBoxVisibility(SelectAllCheckBoxVisibility.VISIBLE);
         grid.asMultiSelect().addMultiSelectionListener(event -> {
             final Set<T> selectedItems = event.getAllSelectedItems();
             final SelectionChangedEventType type = selectedItems.size() == 1 ? SelectionChangedEventType.ENTITY_SELECTED

@@ -6,15 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.distributions.disttype.filter;
+package org.eclipse.hawkbit.ui.management.dstag.filter;
 
 import java.io.Serializable;
+import java.util.List;
 
-public class DSTypeFilterLayoutUiState implements Serializable {
+public class DistributionTagLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean hidden;
-    private Long clickedDsTypeId;
+    private List<Long> clickedDsTagIds;
 
     public boolean isHidden() {
         return hidden;
@@ -24,11 +25,11 @@ public class DSTypeFilterLayoutUiState implements Serializable {
         this.hidden = hidden;
     }
 
-    public Long getClickedDsTypeId() {
-        return clickedDsTypeId;
+    public List<Long> getClickedDsTagIds() {
+        return clickedDsTagIds;
     }
 
-    public void setClickedDsTypeId(final Long clickedDsTypeId) {
-        this.clickedDsTypeId = clickedDsTypeId;
+    public void setClickedDsTagIds(final List<Long> clickedDsTagIds) {
+        this.clickedDsTagIds = clickedDsTagIds;
     }
 }

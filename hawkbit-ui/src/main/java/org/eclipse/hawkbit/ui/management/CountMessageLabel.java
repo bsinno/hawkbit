@@ -14,11 +14,11 @@ import java.util.Optional;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.grid.AbstractFooterSupport;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.state.TargetTableFilters;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -38,16 +38,17 @@ import com.vaadin.ui.Label;
  * Count message label which display current filter details and details on
  * pinning.
  */
-public class CountMessageLabel extends Label {
-    private static final long serialVersionUID = 1L;
+public class CountMessageLabel extends AbstractFooterSupport {
 
-    private final transient TargetManagement targetManagement;
+    private final TargetManagement targetManagement;
 
     private final VaadinMessageSource i18n;
 
     private final ManagementUIState managementUIState;
 
     private final DataCommunicator<ProxyTarget> targetGridDataCommunicator;
+
+    private final Label targetCountLabel;
 
     /**
      * Constructor
@@ -70,15 +71,16 @@ public class CountMessageLabel extends Label {
         this.i18n = i18n;
         this.managementUIState = managementUIState;
         this.targetGridDataCommunicator = targetGridDataCommunicator;
+        this.targetCountLabel = new Label();
 
         init();
         eventBus.subscribe(this);
     }
 
     private void init() {
-        addStyleName(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
-        setContentMode(ContentMode.HTML);
-        setId(UIComponentIdProvider.COUNT_LABEL);
+        targetCountLabel.setId(UIComponentIdProvider.COUNT_LABEL);
+        targetCountLabel.addStyleName(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
+        targetCountLabel.setContentMode(ContentMode.HTML);
     }
 
     /**
@@ -114,7 +116,7 @@ public class CountMessageLabel extends Label {
         if (event == PinUnpinEvent.PIN_DISTRIBUTION && pinnedDist.isPresent()) {
             displayCountLabel(pinnedDist.get());
         } else {
-            setValue("");
+            targetCountLabel.setValue("");
             displayTargetCountStatus();
         }
     }
@@ -163,17 +165,17 @@ public class CountMessageLabel extends Label {
             message.append(SPUIDefinitions.MAX_TABLE_ENTRIES);
         }
 
-        setCaption(message.toString());
+        targetCountLabel.setCaption(message.toString());
     }
 
     private StringBuilder getTotalTargetMessage() {
         if (managementUIState.getTargetsTruncated() != null) {
-            setIcon(VaadinIcons.INFO_CIRCLE);
-            setDescription(i18n.getMessage("label.target.filter.truncated", managementUIState.getTargetsTruncated(),
-                    SPUIDefinitions.MAX_TABLE_ENTRIES));
+            targetCountLabel.setIcon(VaadinIcons.INFO_CIRCLE);
+            targetCountLabel.setDescription(i18n.getMessage("label.target.filter.truncated",
+                    managementUIState.getTargetsTruncated(), SPUIDefinitions.MAX_TABLE_ENTRIES));
         } else {
-            setIcon(null);
-            setDescription(null);
+            targetCountLabel.setIcon(null);
+            targetCountLabel.setDescription(null);
         }
 
         final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.filter.count"));
@@ -191,7 +193,7 @@ public class CountMessageLabel extends Label {
         message.append("</span>, <span class=\"installed-count-message\"> ");
         message.append(i18n.getMessage("label.installed.count", targetsWithInstalledDsCount));
         message.append("</span>");
-        setValue(message.toString());
+        targetCountLabel.setValue(message.toString());
     }
 
     private static String getStatusMsg(final List<TargetUpdateStatus> status, final String param) {
@@ -204,5 +206,10 @@ public class CountMessageLabel extends Label {
 
     private static String getTagsMsg(final Boolean noTargetTagSelected, final List<String> tags, final String param) {
         return tags.isEmpty() && (noTargetTagSelected == null || !noTargetTagSelected.booleanValue()) ? " " : param;
+    }
+
+    @Override
+    protected Label getFooterMessageLabel() {
+        return targetCountLabel;
     }
 }

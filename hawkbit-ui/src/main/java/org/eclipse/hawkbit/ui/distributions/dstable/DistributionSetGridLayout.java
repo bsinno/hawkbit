@@ -119,6 +119,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onDsChanged));
     }
 
+    public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
+        distributionSetDetails.onDsTagsModified(entityIds, entityModifiedType);
+    }
+
     public void showDsTypeHeaderIcon() {
         distributionSetGridHeader.showDsTypeIcon();
     }
@@ -153,9 +157,5 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
-    }
-
-    public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
-        distributionSetDetails.onDsTagsModified(entityIds, entityModifiedType);
     }
 }
