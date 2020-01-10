@@ -47,8 +47,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
     private TenantMetaData tenantMetaData;
     private ComboBox<ProxyType> dsSetComboBox = new ComboBox<>();
     private final Binder<ProxySystemConfigWindow> binder;
-    private final SystemConfigWindowLayoutComponentBuilder builder;
-    final SystemConfigWindowDependencies dependencies;
+    private final transient SystemConfigWindowLayoutComponentBuilder builder;
     private Label changeIcon;
 
     DefaultDistributionSetTypeLayout(final SystemManagement systemManagement, final VaadinMessageSource i18n,
@@ -60,9 +59,9 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         this.binder = binder;
         final DistributionSetTypeDataProvider dataProvider = new DistributionSetTypeDataProvider(typeManagement,
                 new TypeToProxyTypeMapper<>());
-        this.dependencies = new SystemConfigWindowDependencies(systemManagement, i18n, permChecker, typeManagement,
-                dataProvider, tenantMetaData);
-        this.builder = new SystemConfigWindowLayoutComponentBuilder(this.dependencies);
+        SystemConfigWindowDependencies dependencies = new SystemConfigWindowDependencies(systemManagement, i18n,
+                permChecker, typeManagement, dataProvider, tenantMetaData);
+        this.builder = new SystemConfigWindowLayoutComponentBuilder(dependencies);
         initDsSetTypeComponent();
     }
 
@@ -87,8 +86,8 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
 
-        final Label configurationLabel = new LabelBuilder()
-                .name(i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
+        final Label configurationLabel = new LabelBuilder().name(
+                i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
         hlayout.addComponent(configurationLabel);
 
         initDsSetComboBox();

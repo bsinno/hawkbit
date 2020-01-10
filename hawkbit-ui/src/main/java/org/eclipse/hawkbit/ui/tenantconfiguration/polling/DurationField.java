@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.polling;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DateTimeException;
 import java.time.Duration;
@@ -16,7 +17,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
@@ -51,6 +51,8 @@ public class DurationField extends DateTimeField {
     private static final ZoneId ZONEID_UTC = ZoneId.of("+0");
 
     private static final Duration MAXIMUM_DURATION = Duration.ofHours(23).plusMinutes(59).plusSeconds(59);
+    SimpleDateFormat durationFormat = new SimpleDateFormat(DURATION_FORMAT_STIRNG);
+    SimpleDateFormat additionalFormat = new SimpleDateFormat(ADDITIONAL_DURATION_STRING);
 
     private LocalDateTime minimumDuration;
     private LocalDateTime maximumDuration;
@@ -61,15 +63,11 @@ public class DurationField extends DateTimeField {
     protected DurationField() {
         final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
         this.setZoneId(SPDateTimeUtil.getTimeZoneId(tz));
-        SimpleDateFormat durationFormat = new SimpleDateFormat(DURATION_FORMAT_STIRNG);
+
         durationFormat.setTimeZone(TimeZone.getTimeZone(ZONEID_UTC));
-        SimpleDateFormat additionalFormat = new SimpleDateFormat(ADDITIONAL_DURATION_STRING);
         additionalFormat.setTimeZone(TimeZone.getTimeZone(ZONEID_UTC));
         durationFormat.setLenient(false);
         additionalFormat.setLenient(false);
-
-        //        Binder<LocalDateTime> dateTimeBinder = new Binder<>();
-        //        dateTimeBinder.forField(this).withValidator(new DateTimeRangeValidator("Invalid entry", minimumDuration, maximumDuration));
 
         this.setResolution(DateTimeResolution.SECOND);
         this.setDateFormat(DURATION_FORMAT_STIRNG);
@@ -107,14 +105,14 @@ public class DurationField extends DateTimeField {
     @Override
     protected Result<LocalDateTime> handleUnparsableDateString(final String value) {
         try {
-            return Result.ok(LocalDateTime.parse(value, DateTimeFormatter.BASIC_ISO_DATE));
-        } catch (final DateTimeParseException e1) {
+            return Result.ok(LocalDateTime.ofInstant(durationFormat.parse(value).toInstant(), ZONEID_UTC));
+        } catch (final ParseException e) {
             try {
-                return Result.ok(
-                        LocalDateTime.parse("000000".substring(Math.min(value.length(), 6)) + value,
-                                DateTimeFormatter.BASIC_ISO_DATE));
-            } catch (final DateTimeParseException e2) {
-                return Result.error("input is not in HH:MM:SS format.");
+                Date parsedDate = additionalFormat.parse("000000".substring(Math.min(value.length(), 6)) + value);
+                LocalDateTime localDateTime = LocalDateTime.ofInstant(parsedDate.toInstant(), ZONEID_UTC);
+                return Result.ok(localDateTime);
+            } catch (final ParseException ex) {
+                return Result.error("Input is not in HH:MM:SS format.");
             }
         }
     }
@@ -143,19 +141,6 @@ public class DurationField extends DateTimeField {
             }
         }
     }
-    //
-    //    @Override
-    //    public void validate(final Date value) throws InvalidValueException {
-    //        super.validate(value);
-    //
-    //        if (value != null && maximumDuration != null && compareTimeOfDates(value, maximumDuration) > 0) {
-    //            throw new InvalidValueException("value is greater than the allowed maximum value");
-    //        }
-    //
-    //        if (value != null && minimumDuration != null && compareTimeOfDates(minimumDuration, value) > 0) {
-    //            throw new InvalidValueException("value is smaller than the allowed minimum value");
-    //        }
-    //    }
 
     /**
      * Sets the duration value
