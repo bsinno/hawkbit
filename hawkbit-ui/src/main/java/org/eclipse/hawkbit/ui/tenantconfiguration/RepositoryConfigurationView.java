@@ -98,8 +98,10 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         actionAutocloseCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLOSE_CHECKBOX);
         actionAutocloseCheckBox.setEnabled(!isMultiAssignmentsEnabled);
         actionAutocloseConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
-        actionAutocloseCheckBox
-                .addValueChangeListener(event -> changeListener(event, actionAutocloseConfigurationItem));
+        binder.bind(actionAutocloseCheckBox, ProxySystemConfigWindow::isActionAutoclose,
+                ProxySystemConfigWindow::setActionAutoclose);
+        actionAutocloseCheckBox.addValueChangeListener(
+                event -> changeListener(event, actionAutocloseConfigurationItem));
         actionAutocloseConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(actionAutocloseCheckBox, 0, 0);
         gridLayout.addComponent(actionAutocloseConfigurationItem, 1, 0);
@@ -123,8 +125,8 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         actionAutocleanupCheckBox = new CheckBox();
         actionAutocleanupCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         actionAutocleanupCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX);
-        actionAutocleanupCheckBox
-                .addValueChangeListener(event -> changeListener(event, actionAutocleanupConfigurationItem));
+        actionAutocleanupCheckBox.addValueChangeListener(
+                event -> changeListener(event, actionAutocleanupConfigurationItem));
         binder.bind(actionAutocleanupCheckBox, ProxySystemConfigWindow::isActionAutocleanup,
                 ProxySystemConfigWindow::setActionAutocleanup);
         actionAutocleanupConfigurationItem.addChangeListener(this);

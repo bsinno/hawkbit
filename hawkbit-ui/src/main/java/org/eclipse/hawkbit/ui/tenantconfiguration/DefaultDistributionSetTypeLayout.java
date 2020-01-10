@@ -59,7 +59,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         this.permissionChecker = permChecker;
         this.binder = binder;
         final DistributionSetTypeDataProvider dataProvider = new DistributionSetTypeDataProvider(typeManagement,
-                new TypeToProxyTypeMapper<DistributionSetType>());
+                new TypeToProxyTypeMapper<>());
         this.dependencies = new SystemConfigWindowDependencies(systemManagement, i18n, permChecker, typeManagement,
                 dataProvider, tenantMetaData);
         this.builder = new SystemConfigWindowLayoutComponentBuilder(this.dependencies);

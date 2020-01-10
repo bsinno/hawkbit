@@ -30,8 +30,6 @@ public class SystemConfigWindowLayoutComponentBuilder {
                 .setDescription(dependencies.getI18n().getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG));
         distributionSetType.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_DEFAULTDIS_COMBOBOX);
         distributionSetType.addStyleName(ValoTheme.COMBOBOX_SMALL);
-        distributionSetType.addStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE);
-        distributionSetType.addStyleName(ValoTheme.COMBOBOX_TINY);
         distributionSetType.setWidth(300f, Sizeable.Unit.PIXELS);
         distributionSetType.setEmptySelectionAllowed(false);
         distributionSetType.setItemCaptionGenerator(ProxyType::getName);
