@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -233,8 +232,8 @@ public class DurationField extends DateTimeField {
      */
     private int compareTimeOfDates(final LocalDateTime d1, final LocalDateTime d2) {
 
-        final LocalDate lt1 = LocalDateTime.ofInstant(d1.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalDate();
-        final LocalDate lt2 = LocalDateTime.ofInstant(d2.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalDate();
+        final LocalTime lt1 = LocalDateTime.ofInstant(d1.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalTime();
+        final LocalTime lt2 = LocalDateTime.ofInstant(d2.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalTime();
 
         return lt1.compareTo(lt2);
     }
