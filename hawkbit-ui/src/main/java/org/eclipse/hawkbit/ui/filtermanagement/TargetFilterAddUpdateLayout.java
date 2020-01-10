@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
-import java.util.concurrent.Executor;
-
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
@@ -26,6 +24,7 @@ import com.vaadin.shared.Registration;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -36,7 +35,8 @@ import com.vaadin.ui.VerticalLayout;
 public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<ProxyTargetFilterQuery> {
     private final TargetFilterAddUpdateLayoutComponentBuilder filterComponentBuilder;
 
-    private final TextField filterName;
+    private final TextField filterNameInput;
+    private final Label filterNameLable;
     private final AutoCompleteTextFieldComponent autoCompleteComponent;
     private final Link helpLink;
     private final Button searchButton;
@@ -54,14 +54,15 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
      */
     public TargetFilterAddUpdateLayout(final VaadinMessageSource i18n, final UiProperties uiProperties,
             final TargetFilterDetailsLayoutUiState uiState, final UIEventBus eventBus,
-            final RsqlValidationOracle rsqlValidationOracle, final Executor executor) {
+            final RsqlValidationOracle rsqlValidationOracle) {
         super();
         this.uiState = uiState;
         this.eventBus = eventBus;
-        this.filterComponentBuilder = new TargetFilterAddUpdateLayoutComponentBuilder(i18n, uiProperties, uiState,
-                eventBus, rsqlValidationOracle, executor);
+        this.filterComponentBuilder = new TargetFilterAddUpdateLayoutComponentBuilder(i18n, uiProperties,
+                rsqlValidationOracle);
 
-        this.filterName = filterComponentBuilder.createNameField(binder);
+        this.filterNameInput = filterComponentBuilder.createNameField(binder);
+        this.filterNameLable = filterComponentBuilder.createNameLable(binder);
         this.autoCompleteComponent = filterComponentBuilder.createQueryField(binder);
         this.helpLink = filterComponentBuilder.createFilterHelpLink();
         this.searchButton = filterComponentBuilder.createSearchTargetsByFilterButton();
@@ -91,37 +92,40 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
         filterQueryLayout.addComponent(searchButton);
         filterQueryLayout.addComponent(saveButton);
 
-        filterAddUpdateLayout.addComponent(filterName);
+        setFilterNameEditable(true);
+        filterAddUpdateLayout.addComponent(filterNameInput);
+        filterAddUpdateLayout.addComponent(filterNameLable);
         filterAddUpdateLayout.addComponent(filterQueryLayout);
         autoCompleteComponent.focus();
 
         return filterAddUpdateLayout;
     }
 
-    public void restoreState() {
-        filterName.setValue(uiState.getNameInput());
+    public void setFilterNameEditable(final boolean editable) {
+        filterNameInput.setVisible(editable);
+        filterNameLable.setVisible(!editable);
+    }
+
+    public void resetState(final String name, final String filterQueryValueInput) {
+        filterNameInput.setValue(name);
         autoCompleteComponent.clear();
-        autoCompleteComponent.doSetValue(uiState.getFilterQueryValueInput());
+        autoCompleteComponent.doSetValue(filterQueryValueInput);
     }
 
     private void addValueChangeListeners() {
         searchButton.addClickListener(event -> onSearchIconClick());
         autoCompleteComponent.addValidationListener((valid, message) -> searchButton.setEnabled(valid));
         autoCompleteComponent.addTextfieldChangedListener(this::onFilterQueryTextfieldChanged);
-        filterName.addValueChangeListener(this::onFilterNameChanged);
+        filterNameInput.addValueChangeListener(this::onFilterNameChanged);
         addValidationListener(saveButton::setEnabled);
     }
 
     private void onFilterQueryTextfieldChanged(final ValueChangeEvent<String> event) {
-        if (event.isUserOriginated()) {
-            uiState.setFilterQueryValueInput(event.getValue());
-        }
+        uiState.setFilterQueryValueInput(event.getValue());
     }
 
     private void onFilterNameChanged(final ValueChangeEvent<String> event) {
-        if (event.isUserOriginated()) {
-            uiState.setNameInput(event.getValue());
-        }
+        uiState.setNameInput(event.getValue());
     }
 
     private void onSearchIconClick() {

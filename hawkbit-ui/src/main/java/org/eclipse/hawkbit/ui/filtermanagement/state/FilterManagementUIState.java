@@ -13,10 +13,6 @@ import java.io.Serializable;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 
-/**
- *
- *
- */
 @VaadinSessionScope
 @SpringComponent
 public class FilterManagementUIState implements Serializable {

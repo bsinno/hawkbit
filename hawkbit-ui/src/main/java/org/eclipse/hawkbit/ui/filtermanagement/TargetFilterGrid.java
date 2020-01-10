@@ -71,7 +71,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> targetFilterDataProvider;
     private final transient DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
 
-    private final AutoAssignmentWindowBuilder autoAssignmentWindowBuilder;
+    private final transient AutoAssignmentWindowBuilder autoAssignmentWindowBuilder;
 
     public TargetFilterGrid(final VaadinMessageSource i18n, final UINotification notification,
             final UIEventBus eventBus, final TargetFilterGridLayoutUiState uiState,
@@ -92,12 +92,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
         initActionTypeIconMap();
         init();
-
-        // TODO: check if relevant or should be defined in AbstractGrid
-        // setStyleName("sp-table");
-        // setHeight(100.0F, Unit.PERCENTAGE);
-        // addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        // addStyleName(ValoTheme.TABLE_SMALL);
     }
 
     @Override
@@ -121,8 +115,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     public void setFilter(final String filter) {
         uiState.setLatestSearchFilterApplied(filter);
-        // TODO Should this be done UI.getCurrent().access(this::filter) as it
-        // was before
         filter(filter);
     }
 
@@ -135,7 +127,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     @Override
     public void addColumns() {
-
         addComponentColumn(this::buildFilterLink).setId(FILTER_NAME_ID).setCaption(i18n.getMessage("header.name"))
                 .setExpandRatio(2);
 
@@ -217,7 +208,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     }
 
     // TODO: remove duplication with RolloutGrid and buildActionButton()
-    private Button buildLink(final ClickListener clickListener, final String caption, final String description,
+    private static Button buildLink(final ClickListener clickListener, final String caption, final String description,
             final String buttonId, final boolean enabled) {
         final Button link = new Button();
 

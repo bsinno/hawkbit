@@ -28,6 +28,8 @@ import org.eclipse.hawkbit.ui.push.SoftwareModuleTypeCreatedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleTypeDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleTypeUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
+import org.eclipse.hawkbit.ui.push.TargetFilterQueryCreatedEventContainer;
+import org.eclipse.hawkbit.ui.push.TargetFilterQueryUpdatedEventContainer;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
@@ -74,6 +76,11 @@ public class RemoteEventsMatcher {
                 SmTypeModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "sm.type.updated"));
         EVENT_MATCHERS.put(SoftwareModuleTypeDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
                 SmTypeModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "sm.type.deleted"));
+
+        EVENT_MATCHERS.put(TargetFilterQueryCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
+                TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "tqf.created"));
+        EVENT_MATCHERS.put(TargetFilterQueryUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
+                TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "tqf.updated"));
     }
 
     public static Map<Class<? extends EventContainer<?>>, EntityModifiedEventPayloadIdentifier> getEventMatchers() {

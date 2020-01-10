@@ -6,12 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.filtermanagement;
+package org.eclipse.hawkbit.ui.filtermanagement.event;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
+import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGridHeader;
+import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGridLayout;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -21,7 +24,7 @@ public class TargetFilterGridLayoutEventListener {
     private final UIEventBus eventBus;
     private final List<Object> eventListeners;
 
-    TargetFilterGridLayoutEventListener(final TargetFilterGridLayout targetFilterGridLayout,
+    public TargetFilterGridLayoutEventListener(final TargetFilterGridLayout targetFilterGridLayout,
             final UIEventBus eventBus) {
         this.targetFilterGridLayout = targetFilterGridLayout;
         this.eventBus = eventBus;
@@ -32,6 +35,7 @@ public class TargetFilterGridLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new SearchFilterChangedListener());
+        eventListeners.add(new TargetFilterModifiedListener());
     }
 
     private class SearchFilterChangedListener {
@@ -41,11 +45,22 @@ public class TargetFilterGridLayoutEventListener {
 
         @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterGridHeader.class)
         private void onSearchFilterChanged(final String searchFilter) {
-            targetFilterGridLayout.filterGridBySearch(searchFilter);
+            targetFilterGridLayout.filterGridByName(searchFilter);
         }
     }
 
-    void unsubscribeListeners() {
+    private class TargetFilterModifiedListener {
+        public TargetFilterModifiedListener() {
+            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetFilterModified(final TargetFilterModifiedEventPayload payload) {
+            targetFilterGridLayout.refreshGrid();
+        }
+    }
+
+    public void unsubscribeListeners() {
         eventListeners.forEach(eventBus::unsubscribe);
     }
 }

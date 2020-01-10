@@ -28,7 +28,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.data.provider.Query;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Label;
 
 /**
@@ -48,7 +50,8 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
-    private final ConfigurableFilterDataProvider<ProxyTarget, Void, String> targetDataProvider;
+    private final TargetFilterStateDataProvider targetDataProvider;
+    private final ConfigurableFilterDataProvider<ProxyTarget, Void, String> configurableTargetDataProvider;
 
     private final TargetFilterDetailsLayoutUiState uiState;
 
@@ -57,19 +60,12 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         super(i18n, eventBus);
 
         this.uiState = uiState;
-        targetDataProvider = new TargetFilterStateDataProvider(targetManagement, new TargetToProxyTargetMapper(i18n))
-                .withConfigurableFilter();
-
-        // TODO: check if relevant or should be defined in AbstractGrid
-        // setStyleName("sp-table");
-        // setSizeFull();
-        // setHeight(100.0F, Unit.PERCENTAGE);
-        // addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
-        // addStyleName(ValoTheme.TABLE_SMALL);
-
+        targetDataProvider = new TargetFilterStateDataProvider(targetManagement, new TargetToProxyTargetMapper(i18n));
+        configurableTargetDataProvider = targetDataProvider.withConfigurableFilter();
         initTargetStatusIconMap();
 
         init();
+        this.sort(TARGET_NAME_ID, SortDirection.ASCENDING);
     }
 
     @Override
@@ -79,10 +75,9 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     @Override
     public ConfigurableFilterDataProvider<ProxyTarget, Void, String> getFilterDataProvider() {
-        return targetDataProvider;
+        return configurableTargetDataProvider;
     }
 
-    // TODO: check if icons are correct
     // TODO: reuse code with TargetGrid
     private void initTargetStatusIconMap() {
         targetStatusIconMap.put(TargetUpdateStatus.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
@@ -106,7 +101,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     public void updateTargetFilterQueryFilter(final String targetFilterQuery) {
         getFilterDataProvider().setFilter(targetFilterQuery);
-        final long totalTargetCount = -1000; // TODO get real value
+        final long totalTargetCount = targetDataProvider.size(new Query<ProxyTarget, String>(targetFilterQuery));
         uiState.setFilterQueryValueOfLatestSerach(targetFilterQuery);
         eventBus.publish(EventTopics.UI_ELEMENT_CHANGED, this, totalTargetCount);
     }
@@ -116,24 +111,27 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"))
                 .setExpandRatio(2);
 
-        addColumn(ProxyTarget::getCreatedBy).setId(TARGET_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy"));
+        addColumn(ProxyTarget::getCreatedBy).setId(TARGET_CREATED_BY_ID).setCaption(i18n.getMessage("header.createdBy"))
+                .setExpandRatio(1);
 
         addColumn(ProxyTarget::getCreatedDate).setId(TARGET_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate"));
+                .setCaption(i18n.getMessage("header.createdDate")).setExpandRatio(1);
 
         addColumn(ProxyTarget::getLastModifiedBy).setId(TARGET_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedBy")).setExpandRatio(1).setHidable(true).setHidden(true);
 
         addColumn(ProxyTarget::getModifiedDate).setId(TARGET_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedDate")).setExpandRatio(1).setHidable(true).setHidden(true);
 
         addColumn(ProxyTarget::getDescription).setId(TARGET_DESCRIPTION_ID)
-                .setCaption(i18n.getMessage("header.description"));
+                .setCaption(i18n.getMessage("header.description")).setExpandRatio(1);
 
         addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID)
-                .setCaption(i18n.getMessage("header.status")).setMinimumWidth(50d).setMaximumWidth(50d)
+                .setCaption(i18n.getMessage("header.status")).setMinimumWidth(50D).setMaximumWidth(50D)
                 .setHidable(false).setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+        for (final Column<ProxyTarget, ?> c : getColumns()) {
+            c.setSortable(false);
+        }
     }
 
     private Label buildTargetStatusIcon(final ProxyTarget target) {

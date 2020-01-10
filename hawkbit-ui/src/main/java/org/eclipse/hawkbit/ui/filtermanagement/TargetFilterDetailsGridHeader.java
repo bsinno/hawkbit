@@ -19,6 +19,8 @@ import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
+import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
+import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState.Mode;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -39,6 +41,7 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     private static final String BREADCRUMB_CUSTOM_FILTERS = "breadcrumb.target.filter.custom.filters";
 
     private final Label headerCaptionDetails;
+    private final TargetFilterDetailsLayoutUiState uiState;
 
     private final transient CloseHeaderSupport closeHeaderSupport;
 
@@ -46,20 +49,11 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     private final transient AddTargetFilterController addTargetFilterController;
     private final transient UpdateTargetFilterController updateTargetFilterController;
 
-    /**
-     * Constructor for TargetFilterDetailsHeader
-     * 
-     * @param eventBus
-     *            UIEventBus
-     * @param filterManagementUIState
-     *            FilterManagementUIState
-     * @param i18n
-     *            VaadinMessageSource
-     */
     public TargetFilterDetailsGridHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final TargetFilterAddUpdateLayout targetFilterAddUpdateLayout,
             final AddTargetFilterController addTargetFilterController,
-            final UpdateTargetFilterController updateTargetFilterController) {
+            final UpdateTargetFilterController updateTargetFilterController,
+            final TargetFilterDetailsLayoutUiState uiState) {
         super(i18n, null, eventBus);
 
         this.targetFilterAddUpdateLayout = targetFilterAddUpdateLayout;
@@ -67,7 +61,7 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         this.updateTargetFilterController = updateTargetFilterController;
 
         this.headerCaptionDetails = createHeaderCaptionDetails();
-
+        this.uiState = uiState;
         this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.CUSTOM_FILTER_CLOSE,
                 this::closeDetails);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
@@ -89,23 +83,26 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     }
 
     public void showAddFilterLayout() {
-        showAddUpdateFilterLayout(UIMessageIdProvider.LABEL_CREATE_FILTER, addTargetFilterController, null);
+        uiState.setCurrentMode(Mode.CREATE);
+        final String captionMessage = i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER);
+        showAddUpdateFilterLayout(captionMessage, true, addTargetFilterController, null);
     }
 
-    private void showAddUpdateFilterLayout(final String captionMsgKey,
+    public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
+        uiState.setCurrentMode(Mode.EDIT);
+        showAddUpdateFilterLayout(proxyEntity.getName(), false, updateTargetFilterController, proxyEntity);
+    }
+
+    private void showAddUpdateFilterLayout(final String captionMessage, final boolean filterNameEditable,
             final AbstractEntityWindowController<ProxyTargetFilterQuery, ProxyTargetFilterQuery> controller,
             final ProxyTargetFilterQuery proxyEntity) {
-        headerCaptionDetails.setValue(i18n.getMessage(captionMsgKey));
-
+        headerCaptionDetails.setValue(captionMessage);
+        targetFilterAddUpdateLayout.setFilterNameEditable(filterNameEditable);
         controller.populateWithData(proxyEntity);
         targetFilterAddUpdateLayout.setSaveCallback(controller.getSaveDialogCloseListener());
     }
 
-    public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
-        showAddUpdateFilterLayout(UIMessageIdProvider.LABEL_EDIT_FILTER, updateTargetFilterController, proxyEntity);
-    }
-
-    private Label createHeaderCaptionDetails() {
+    private static Label createHeaderCaptionDetails() {
         final Label captionDetails = new LabelBuilder().id(UIComponentIdProvider.TARGET_FILTER_QUERY_NAME_LABEL_ID)
                 .name("").buildCaptionLabel();
 
@@ -139,26 +136,14 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         eventBus.publish(EventTopics.CHANGE_UI_ELEMENT_STATE, this, ChangeUiElementPayload.CLOSE);
     }
 
-    // @Override
-    // protected void restoreCaption() {
-    // setCaptionDetails();
-    // }
-
-    // public void setCaptionDetails(final String detailsText) {
-    // headerCaptionDetails.setValue(detailsText);
-    // if (filterManagementUIState.isCreateFilterViewDisplayed()) {
-    // headerCaptionDetails.setValue(i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER));
-    // } else {
-    // filterManagementUIState.getTfQuery().map(ProxyTargetFilterQuery::getName)
-    // .ifPresent(headerCaptionDetails::setValue);
-    // }
-    // }
-
-    // @EventBusListenerMethod(scope = EventScope.UI)
-    // void onEvent(final CustomFilterUIEvent event) {
-    // if (event == CustomFilterUIEvent.TARGET_FILTER_DETAIL_VIEW
-    // || event == CustomFilterUIEvent.CREATE_NEW_FILTER_CLICK) {
-    // setCaptionDetails();
-    // }
-    // }
+    public void restoreState() {
+        final String storedName = uiState.getNameInput();
+        final String storedFilterQueryValueInput = uiState.getFilterQueryValueInput();
+        if (Mode.EDIT == uiState.getCurrentMode()) {
+            uiState.getTargetFilterQueryforEdit().ifPresent(this::showEditFilterLayout);
+        } else if (Mode.CREATE == uiState.getCurrentMode()) {
+            this.showAddFilterLayout();
+        }
+        targetFilterAddUpdateLayout.resetState(storedName, storedFilterQueryValueInput);
+    }
 }
