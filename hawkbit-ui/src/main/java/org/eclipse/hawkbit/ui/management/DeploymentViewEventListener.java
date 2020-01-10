@@ -9,9 +9,13 @@
 package org.eclipse.hawkbit.ui.management;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
@@ -50,6 +54,7 @@ public class DeploymentViewEventListener {
         eventListeners.add(new LayoutVisibilityChangedListener());
         eventListeners.add(new LayoutResizedListener());
         eventListeners.add(new TagFilterChangedListener());
+        eventListeners.add(new NoTagFilterChangedListener());
         eventListeners.add(new StatusFilterChangedListener());
         eventListeners.add(new OverdueFilterChangedListener());
         eventListeners.add(new CustomFilterChangedListener());
@@ -139,25 +144,30 @@ public class DeploymentViewEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
-        private void onTargetEvent(final Object eventPayload) {
-            // TODO
-            // if (eventPayload.getTagFilterChangedEventType() ==
-            // TagFilterChangedEventType.TAG_CLICKED) {
-            // deploymentView.filterTargetGridByTag(eventPayload.getTag());
-            // } else {
-            // deploymentView.filterTargetGridByTag(null);
-            // }
+        private void onTargetTagEvent(final Collection<String> eventPayload) {
+            deploymentView.filterTargetGridByTags(eventPayload);
         }
 
         @EventBusListenerMethod(scope = EventScope.UI, source = DistributionTagButtons.class)
-        private void onDsEvent(final Object eventPayload) {
-            // TODO
-            // if (eventPayload.getTagFilterChangedEventType() ==
-            // TagFilterChangedEventType.TAG_CLICKED) {
-            // deploymentView.filterDsGridByTag(eventPayload.getTag());
-            // } else {
-            // deploymentView.filterDsGridByTag(null);
-            // }
+        private void onDsTagEvent(final Collection<String> eventPayload) {
+            deploymentView.filterDsGridByTags(eventPayload);
+        }
+    }
+
+    private class NoTagFilterChangedListener {
+
+        public NoTagFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.NO_TAG_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
+        private void onTargetNoTagEvent(final Boolean eventPayload) {
+            deploymentView.filterTargetGridByNoTag(eventPayload);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionTagButtons.class)
+        private void onDsNoTagEvent(final Boolean eventPayload) {
+            deploymentView.filterDsGridByNoTag(eventPayload);
         }
     }
 
@@ -168,14 +178,8 @@ public class DeploymentViewEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final Object eventPayload) {
-            // TODO
-            // if (eventPayload.getStausFilterChangedEventType() ==
-            // StatusFilterChangedEventType.STATUS_CLICKED) {
-            // deploymentView.filterTargetGridByStatus(eventPayload.getStatus());
-            // } else {
-            // deploymentView.filterTargetGridByStatus(null);
-            // }
+        private void onTargetEvent(final List<TargetUpdateStatus> eventPayload) {
+            deploymentView.filterTargetGridByStatus(eventPayload);
         }
     }
 
@@ -198,14 +202,12 @@ public class DeploymentViewEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final Object eventPayload) {
-            // TODO
-            // if (eventPayload.getCustomFilterChangedEventType() ==
-            // CustomFilterChangedEventType.CUSTOM_CLICKED) {
-            // deploymentView.filterTargetGridByCustomFilter(eventPayload.getCustomFilter());
-            // } else {
-            // deploymentView.filterTargetGridByCustomFilter(null);
-            // }
+        private void onTargetEvent(final CustomFilterChangedEventPayload eventPayload) {
+            if (eventPayload.getCustomFilterChangedEventType() == CustomFilterChangedEventType.CLICKED) {
+                deploymentView.filterTargetGridByCustomFilter(eventPayload.getCustomFilterId());
+            } else {
+                deploymentView.filterTargetGridByCustomFilter(null);
+            }
         }
     }
 

@@ -25,7 +25,6 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
@@ -136,9 +135,14 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         distributionGrid.deselectAll();
     }
 
-    public void filterGridByTag(final ProxyTag tagFilter) {
+    public void filterGridByTags(final Collection<String> tagFilterNames) {
         // TODO
         // distributionGrid.updateTagFilter(tagFilter);
+        distributionGrid.deselectAll();
+    }
+
+    public void filterGridByNoTag(final boolean isActive) {
+        // TODO Auto-generated method stub
         distributionGrid.deselectAll();
     }
 

@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
@@ -19,11 +20,12 @@ import org.eclipse.hawkbit.repository.model.TargetTagAssignmentResult;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
+import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
@@ -32,19 +34,19 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  */
 public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget, ProxyTag> {
     private final TargetManagement targetManagement;
-    private final ManagementUIState managementUIState;
+    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
 
     public TargetsToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final TargetManagement targetManagement, final ManagementUIState managementUIState,
-            final UIEventBus eventBus, final SpPermissionChecker permChecker) {
+            final UIEventBus eventBus, final SpPermissionChecker permChecker, final TargetManagement targetManagement,
+            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
         super(notification, i18n);
 
-        this.targetManagement = targetManagement;
-        this.managementUIState = managementUIState;
         this.eventBus = eventBus;
         this.permChecker = permChecker;
+        this.targetManagement = targetManagement;
+        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
     }
 
     @Override
@@ -66,22 +68,22 @@ public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget
         notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
 
         publishAssignTargetTagEvent(tagsAssignmentResult);
-        publishUnAssignTargetTagEvent(tagName, tagsAssignmentResult);
+        publishUnAssignTargetTagEvent(targetItem.getId(), tagsAssignmentResult);
     }
 
     private void publishAssignTargetTagEvent(final TargetTagAssignmentResult result) {
         final boolean isNewTargetTagAssigned = result.getAssigned() >= 1
-                && managementUIState.getTargetTableFilters().isNoTagSelected();
+                && targetTagFilterLayoutUiState.isNoTagClicked();
         if (isNewTargetTagAssigned) {
             eventBus.publish(this, ManagementUIEvent.ASSIGN_TARGET_TAG);
         }
 
     }
 
-    private void publishUnAssignTargetTagEvent(final String targTagName, final TargetTagAssignmentResult result) {
-        final List<String> tagsClickedList = managementUIState.getTargetTableFilters().getClickedTargetTags();
-        final boolean isTargetTagUnAssigned = result.getUnassigned() >= 1 && !tagsClickedList.isEmpty()
-                && tagsClickedList.contains(targTagName);
+    private void publishUnAssignTargetTagEvent(final Long targetTagId, final TargetTagAssignmentResult result) {
+        final Set<Long> tagsClickedList = targetTagFilterLayoutUiState.getClickedTargetTagIds();
+        final boolean isTargetTagUnAssigned = result.getUnassigned() >= 1 && !CollectionUtils.isEmpty(tagsClickedList)
+                && tagsClickedList.contains(targetTagId);
 
         if (isTargetTagUnAssigned) {
             eventBus.publish(this, ManagementUIEvent.UNASSIGN_TARGET_TAG);

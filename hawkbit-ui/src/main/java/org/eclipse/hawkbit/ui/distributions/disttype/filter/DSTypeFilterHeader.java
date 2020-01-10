@@ -78,6 +78,7 @@ public class DSTypeFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected String getAddEntityWindowCaptionMsgKey() {
+        // TODO: use constant
         return "caption.type";
     }
 

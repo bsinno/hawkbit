@@ -8,10 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 
 /**
  * Abstract class for button click behavior. It is possible to click multiple
@@ -20,27 +20,28 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
  * @param <T>
  *            The type of the Filter Button
  */
-public abstract class AbstractFilterMultiButtonClick<T extends ProxyIdentifiableEntity>
+public abstract class AbstractFilterMultiButtonClick<T extends ProxyNamedEntity>
         extends AbstractFilterButtonClickBehaviour<T> {
-
     private static final long serialVersionUID = 1L;
-    protected final transient Set<Long> previouslyClickedFilterIds = new HashSet<>();
+
+    protected final transient Map<Long, String> previouslyClickedFilterIdsWithName = new HashMap<>();
 
     @Override
     public void processFilterClick(final T clickedFilter) {
         final Long clickedFilterId = clickedFilter.getId();
 
         if (isFilterPreviouslyClicked(clickedFilter)) {
-            previouslyClickedFilterIds.remove(clickedFilterId);
+            previouslyClickedFilterIdsWithName.remove(clickedFilterId);
             filterUnClicked(clickedFilter);
         } else {
-            previouslyClickedFilterIds.add(clickedFilterId);
+            previouslyClickedFilterIdsWithName.put(clickedFilterId, clickedFilter.getName());
             filterClicked(clickedFilter);
         }
     }
 
     @Override
     public boolean isFilterPreviouslyClicked(final T clickedFilter) {
-        return !previouslyClickedFilterIds.isEmpty() && previouslyClickedFilterIds.contains(clickedFilter.getId());
+        return !previouslyClickedFilterIdsWithName.isEmpty()
+                && previouslyClickedFilterIdsWithName.containsKey(clickedFilter.getId());
     }
 }

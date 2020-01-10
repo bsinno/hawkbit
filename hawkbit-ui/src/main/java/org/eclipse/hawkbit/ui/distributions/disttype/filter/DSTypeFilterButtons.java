@@ -24,6 +24,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -102,6 +103,7 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     @Override
     protected String getFilterButtonsType() {
+        // TODO: use constant
         return i18n.getMessage("caption.entity.distribution.type");
     }
 
@@ -110,17 +112,20 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         return typeFilterButtonClickBehaviour;
     }
 
-    private void publishFilterChangedEvent(final ProxyType typeFilter, final TypeFilterChangedEventType eventType) {
+    private void publishFilterChangedEvent(final ProxyType typeFilter, final ClickBehaviourType clickType) {
         distributionSetTypeManagement.getByName(typeFilter.getName()).ifPresent(dsType -> {
             // TODO: somehow move it to abstract class/TypeFilterButtonClick
             // needed to trigger style generator
             getDataCommunicator().reset();
 
             eventBus.publish(EventTopics.TYPE_FILTER_CHANGED, this,
-                    new TypeFilterChangedEventPayload<DistributionSetType>(eventType, dsType));
+                    new TypeFilterChangedEventPayload<DistributionSetType>(
+                            ClickBehaviourType.CLICKED == clickType ? TypeFilterChangedEventType.TYPE_CLICKED
+                                    : TypeFilterChangedEventType.TYPE_UNCLICKED,
+                            dsType));
 
             dSTypeFilterLayoutUiState
-                    .setClickedDsTypeId(TypeFilterChangedEventType.TYPE_CLICKED == eventType ? dsType.getId() : null);
+                    .setClickedDsTypeId(ClickBehaviourType.CLICKED == clickType ? dsType.getId() : null);
         });
     }
 

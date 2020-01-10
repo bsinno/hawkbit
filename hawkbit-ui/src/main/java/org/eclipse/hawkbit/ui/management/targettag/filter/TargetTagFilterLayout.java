@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
@@ -78,10 +79,10 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
         final TargetTagWindowBuilder targetTagWindowBuilder = new TargetTagWindowBuilder(i18n, entityFactory, eventBus,
                 notification, targetTagManagement);
 
-        this.targetTagFilterHeader = new TargetTagFilterHeader(i18n, managementUIState, permChecker, eventBus,
-                targetTagWindowBuilder);
-        this.multipleTargetFilter = new MultipleTargetFilter(permChecker, managementUIState, i18n, eventBus,
-                notification, targetFilterQueryManagement, targetTagManagement, targetManagement,
+        this.targetTagFilterHeader = new TargetTagFilterHeader(i18n, permChecker, eventBus,
+                targetTagFilterLayoutUiState, targetTagWindowBuilder);
+        this.multipleTargetFilter = new MultipleTargetFilter(permChecker, i18n, eventBus, notification,
+                targetFilterQueryManagement, targetTagManagement, targetManagement, targetTagFilterLayoutUiState,
                 targetTagWindowBuilder);
 
         this.eventListener = new TargetTagFilterLayoutEventListener(this, eventBus);
@@ -100,7 +101,7 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
     }
 
     public void restoreState() {
-        final List<Long> lastClickedTagIds = targetTagFilterLayoutUiState.getClickedTargetTagIds();
+        final Set<Long> lastClickedTagIds = targetTagFilterLayoutUiState.getClickedTargetTagIds();
 
         if (!CollectionUtils.isEmpty(lastClickedTagIds)) {
             mapIdsToProxyEntities(lastClickedTagIds)

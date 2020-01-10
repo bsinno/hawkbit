@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
@@ -25,13 +26,12 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridLayout;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayout;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayout;
@@ -435,24 +435,32 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         actionHistoryLayout.minimize();
     }
 
-    void filterTargetGridByTag(final ProxyTag tagFilter) {
-        targetGridLayout.filterGridByTag(tagFilter);
+    void filterTargetGridByTags(final Collection<String> tagFilterNames) {
+        targetGridLayout.filterGridByTags(tagFilterNames);
     }
 
-    void filterTargetGridByStatus(final String status) {
-        targetGridLayout.filterGridByStatus(status);
+    void filterTargetGridByNoTag(final boolean isActive) {
+        targetGridLayout.filterGridByNoTag(isActive);
     }
 
-    void filterTargetGridByOverdue(final boolean overdue) {
-        targetGridLayout.filterGridByOverdue(overdue);
+    void filterTargetGridByStatus(final List<TargetUpdateStatus> statusFilters) {
+        targetGridLayout.filterGridByStatus(statusFilters);
     }
 
-    void filterTargetGridByCustomFilter(final ProxyTargetFilterQuery customFilter) {
-        targetGridLayout.filterGridByCustomFilter(customFilter);
+    void filterTargetGridByOverdue(final boolean isOverdue) {
+        targetGridLayout.filterGridByOverdue(isOverdue);
     }
 
-    void filterDsGridByTag(final ProxyTag tagFilter) {
-        distributionGridLayout.filterGridByTag(tagFilter);
+    void filterTargetGridByCustomFilter(final Long customFilterId) {
+        targetGridLayout.filterGridByCustomFilter(customFilterId);
+    }
+
+    void filterDsGridByTags(final Collection<String> tagFilterNames) {
+        distributionGridLayout.filterGridByTags(tagFilterNames);
+    }
+
+    void filterDsGridByNoTag(final boolean isActive) {
+        distributionGridLayout.filterGridByNoTag(isActive);
     }
 
     @PreDestroy

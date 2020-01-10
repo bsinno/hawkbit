@@ -20,6 +20,7 @@ public final class EventTopics {
     public static final String SEARCH_FILTER_CHANGED = "searchFilterChanged";
     public static final String TYPE_FILTER_CHANGED = "typeFilterChanged";
     public static final String TAG_FILTER_CHANGED = "tagFilterChanged";
+    public static final String NO_TAG_FILTER_CHANGED = "noTagFilterChanged";
     public static final String STATUS_FILTER_CHANGED = "statusFilterChanged";
     public static final String OVERDUE_FILTER_CHANGED = "overdueFilterChanged";
     public static final String CUSTOM_FILTER_CHANGED = "customFilterChanged";

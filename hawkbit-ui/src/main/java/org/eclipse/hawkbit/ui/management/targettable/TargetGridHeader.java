@@ -221,11 +221,12 @@ public class TargetGridHeader extends AbstractGridHeader {
             filterButtonsHeaderSupport.showFilterButtonsIcon();
         } else if (event == ManagementUIEvent.SHOW_TARGET_TAG_LAYOUT) {
             filterButtonsHeaderSupport.hideFilterButtonsIcon();
-        } else if (event == ManagementUIEvent.RESET_SIMPLE_FILTERS) {
-            UI.getCurrent().access(this::onSimpleFilterReset);
-        } else if (event == ManagementUIEvent.RESET_TARGET_FILTER_QUERY) {
-            UI.getCurrent().access(searchHeaderSupport::enableSearch);
         }
+        // else if (event == ManagementUIEvent.RESET_SIMPLE_FILTERS) {
+        // UI.getCurrent().access(this::onSimpleFilterReset);
+        // } else if (event == ManagementUIEvent.RESET_TARGET_FILTER_QUERY) {
+        // UI.getCurrent().access(searchHeaderSupport::enableSearch);
+        // }
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)

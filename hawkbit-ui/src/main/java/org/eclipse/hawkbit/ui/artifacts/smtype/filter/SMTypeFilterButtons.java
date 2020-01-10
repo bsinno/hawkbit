@@ -23,6 +23,7 @@ import org.eclipse.hawkbit.ui.common.event.SmTypeModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -106,17 +107,20 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         return typeFilterButtonClickBehaviour;
     }
 
-    private void publishFilterChangedEvent(final ProxyType typeFilter, final TypeFilterChangedEventType eventType) {
+    private void publishFilterChangedEvent(final ProxyType typeFilter, final ClickBehaviourType clickType) {
         softwareModuleTypeManagement.getByName(typeFilter.getName()).ifPresent(smType -> {
             // TODO: somehow move it to abstract class/TypeFilterButtonClick
             // needed to trigger style generator
             getDataCommunicator().reset();
 
             eventBus.publish(EventTopics.TYPE_FILTER_CHANGED, this,
-                    new TypeFilterChangedEventPayload<SoftwareModuleType>(eventType, smType));
+                    new TypeFilterChangedEventPayload<SoftwareModuleType>(
+                            ClickBehaviourType.CLICKED == clickType ? TypeFilterChangedEventType.TYPE_CLICKED
+                                    : TypeFilterChangedEventType.TYPE_UNCLICKED,
+                            smType));
 
             smTypeFilterLayoutUiState
-                    .setClickedSmTypeId(TypeFilterChangedEventType.TYPE_CLICKED == eventType ? smType.getId() : null);
+                    .setClickedSmTypeId(ClickBehaviourType.CLICKED == clickType ? smType.getId() : null);
         });
     }
 

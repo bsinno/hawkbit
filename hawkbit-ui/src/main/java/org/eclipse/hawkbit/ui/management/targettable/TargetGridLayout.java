@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 
@@ -18,13 +19,12 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
@@ -133,25 +133,30 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         targetGrid.deselectAll();
     }
 
-    public void filterGridByTag(final ProxyTag tagFilter) {
+    public void filterGridByTags(final Collection<String> tagFilterNames) {
         // TODO
         // targetGrid.updateTagFilter(tagFilter);
         targetGrid.deselectAll();
     }
 
-    public void filterGridByStatus(final String status) {
+    public void filterGridByNoTag(final boolean isActive) {
         // TODO Auto-generated method stub
-
+        targetGrid.deselectAll();
     }
 
-    public void filterGridByOverdue(final boolean overdue) {
+    public void filterGridByStatus(final List<TargetUpdateStatus> statusFilters) {
         // TODO Auto-generated method stub
-
+        targetGrid.deselectAll();
     }
 
-    public void filterGridByCustomFilter(final ProxyTargetFilterQuery customFilter) {
+    public void filterGridByOverdue(final boolean isOverdue) {
         // TODO Auto-generated method stub
+        targetGrid.deselectAll();
+    }
 
+    public void filterGridByCustomFilter(final Long customFilterId) {
+        // TODO Auto-generated method stub
+        targetGrid.deselectAll();
     }
 
     public void maximize() {

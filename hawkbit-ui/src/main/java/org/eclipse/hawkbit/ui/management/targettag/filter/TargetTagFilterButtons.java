@@ -10,6 +10,8 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
@@ -22,20 +24,18 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToTagAssignmentSupport;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.ui.UI;
@@ -47,7 +47,7 @@ import com.vaadin.ui.Window;
 public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void> {
     private static final long serialVersionUID = 1L;
 
-    private final ManagementUIState managementUIState;
+    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
     private final UINotification uiNotification;
 
     private final transient TargetTagManagement targetTagManagement;
@@ -55,25 +55,29 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
     private final transient TargetTagWindowBuilder targetTagWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyTag, Void, Void> targetTagDataProvider;
-    private final DragAndDropSupport<ProxyTag> dragAndDropSupport;
+    private final transient TagToProxyTagMapper<TargetTag> targetTagMapper;
 
-    TargetTagFilterButtons(final UIEventBus eventBus, final ManagementUIState managementUIState,
-            final VaadinMessageSource i18n, final UINotification notification, final SpPermissionChecker permChecker,
-            final TargetTagManagement targetTagManagement, final TargetManagement targetManagement,
+    private final transient DragAndDropSupport<ProxyTag> dragAndDropSupport;
+
+    TargetTagFilterButtons(final VaadinMessageSource i18n, final UIEventBus eventBus, final UINotification notification,
+            final SpPermissionChecker permChecker, final TargetTagManagement targetTagManagement,
+            final TargetManagement targetManagement, final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
             final TargetTagWindowBuilder targetTagWindowBuilder) {
         super(eventBus, i18n, notification, permChecker);
 
-        this.managementUIState = managementUIState;
+        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
         this.uiNotification = notification;
         this.targetTagManagement = targetTagManagement;
         this.targetTagWindowBuilder = targetTagWindowBuilder;
 
-        this.targetTagFilterButtonClickBehaviour = new TargetTagFilterButtonClick(eventBus, managementUIState);
-        this.targetTagDataProvider = new TargetTagDataProvider(targetTagManagement,
-                new TagToProxyTagMapper<TargetTag>()).withConfigurableFilter();
+        this.targetTagFilterButtonClickBehaviour = new TargetTagFilterButtonClick(this::publishFilterChangedEvent,
+                this::publishNoTagChangedEvent);
+        this.targetTagMapper = new TagToProxyTagMapper<>();
+        this.targetTagDataProvider = new TargetTagDataProvider(targetTagManagement, targetTagMapper)
+                .withConfigurableFilter();
 
         final TargetsToTagAssignmentSupport targetsToTagAssignment = new TargetsToTagAssignmentSupport(notification,
-                i18n, targetManagement, managementUIState, eventBus, permChecker);
+                i18n, eventBus, permChecker, targetManagement, targetTagFilterLayoutUiState);
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification,
                 Collections.singletonMap(UIComponentIdProvider.TARGET_TABLE_ID, targetsToTagAssignment));
@@ -102,19 +106,40 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         return targetTagFilterButtonClickBehaviour;
     }
 
+    private void publishFilterChangedEvent(final Map<Long, String> activeTagIdsWithName) {
+        // TODO: somehow move it to abstract class/TypeFilterButtonClick
+        // needed to trigger style generator
+        getDataCommunicator().reset();
+
+        eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this, activeTagIdsWithName.values());
+
+        targetTagFilterLayoutUiState.setClickedTargetTagIds(activeTagIdsWithName.keySet());
+    }
+
+    private void publishNoTagChangedEvent(final ClickBehaviourType clickType) {
+        // TODO: add gray styling to NO_TAG Button
+
+        eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this, ClickBehaviourType.CLICKED == clickType);
+
+        targetTagFilterLayoutUiState.setNoTagClicked(ClickBehaviourType.CLICKED == clickType);
+    }
+
     @Override
     protected void deleteFilterButtons(final Collection<ProxyTag> filterButtonsToDelete) {
-        // TODO: we do not allow multiple deletion yet
+        // we do not allow multiple deletion yet
         final ProxyTag targetTagToDelete = filterButtonsToDelete.iterator().next();
         final String targetTagToDeleteName = targetTagToDelete.getName();
+        final Long targetTagToDeleteId = targetTagToDelete.getId();
 
-        if (managementUIState.getTargetTableFilters().getClickedTargetTags().contains(targetTagToDeleteName)) {
+        final Set<Long> clickedTargetTagIds = targetTagFilterLayoutUiState.getClickedTargetTagIds();
+
+        if (!CollectionUtils.isEmpty(clickedTargetTagIds) && clickedTargetTagIds.contains(targetTagToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", targetTagToDeleteName));
         } else {
             targetTagManagement.delete(targetTagToDeleteName);
 
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new TargetTagModifiedEventPayload(
-                    EntityModifiedEventType.ENTITY_REMOVED, targetTagToDelete.getId()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new TargetTagModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, targetTagToDeleteId));
         }
     }
 
@@ -127,26 +152,26 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         updateWindow.setVisible(Boolean.TRUE);
     }
 
-    // TODO
-    // @Override
-    // protected boolean isClickedByDefault(final Long filterButtonId) {
-    // return
-    // managementUIState.getTargetTableFilters().getClickedTargetTags() !=
-    // null
-    // &&
-    // managementUIState.getTargetTableFilters().getClickedTargetTags().contains(tagName);
-    // }
-
     @Override
     protected String getFilterButtonIdPrefix() {
         return SPUIDefinitions.TARGET_TAG_ID_PREFIXS;
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final ManagementUIEvent event) {
-        if (event == ManagementUIEvent.RESET_SIMPLE_FILTERS
-                && !managementUIState.getTargetTableFilters().getClickedTargetTags().isEmpty()) {
-            targetTagFilterButtonClickBehaviour.clearTargetTagFilters();
+    public void clearTargetTagFilters() {
+        if (targetTagFilterButtonClickBehaviour.getPreviouslyClickedFiltersSize() > 0) {
+            targetTagFilterButtonClickBehaviour.clearPreviouslyClickedFilters();
+
+            // TODO: should we reset data communicator here for styling update
+
+            eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this, Collections.emptyList());
+
+            targetTagFilterLayoutUiState.setClickedTargetTagIds(Collections.emptySet());
+
+            if (targetTagFilterLayoutUiState.isNoTagClicked()) {
+                eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this, false);
+
+                targetTagFilterLayoutUiState.setNoTagClicked(false);
+            }
         }
     }
 }

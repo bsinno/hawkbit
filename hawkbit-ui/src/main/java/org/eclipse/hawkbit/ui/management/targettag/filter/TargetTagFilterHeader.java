@@ -10,8 +10,6 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -25,16 +23,16 @@ import com.vaadin.ui.Window;
 public class TargetTagFilterHeader extends AbstractFilterHeader {
     private static final long serialVersionUID = 1L;
 
-    private final ManagementUIState managementUIState;
+    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
 
     private final transient TargetTagWindowBuilder targetTagWindowBuilder;
 
-    public TargetTagFilterHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
-            final SpPermissionChecker permChecker, final UIEventBus eventBus,
+    public TargetTagFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
             final TargetTagWindowBuilder targetTagWindowBuilder) {
         super(i18n, permChecker, eventBus);
 
-        this.managementUIState = managementUIState;
+        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
         this.targetTagWindowBuilder = targetTagWindowBuilder;
 
         buildHeader();
@@ -43,6 +41,7 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected String getHeaderCaptionMsgKey() {
+        // TODO: constant
         return "header.target.filter.tag";
     }
 
@@ -58,6 +57,7 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected String getAddEntityWindowCaptionMsgKey() {
+        // TODO: use constant
         return "caption.tag";
     }
 
@@ -68,15 +68,6 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected void updateHiddenUiState() {
-        managementUIState.setTargetTagFilterClosed(true);
-    }
-
-    // TODO: change to relevant payload
-    public void filterTabChanged(final ManagementUIEvent event) {
-        if (event == ManagementUIEvent.RESET_TARGET_FILTER_QUERY) {
-            enableCrudMenu();
-        } else if (event == ManagementUIEvent.RESET_SIMPLE_FILTERS) {
-            disableCrudMenu();
-        }
+        targetTagFilterLayoutUiState.setHidden(true);
     }
 }
