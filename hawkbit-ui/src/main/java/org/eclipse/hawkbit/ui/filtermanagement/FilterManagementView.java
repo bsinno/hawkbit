@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
-import java.util.concurrent.Executor;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -17,17 +15,18 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.filtermanagement.event.FilterManagementViewEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState.FilterView;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.navigator.View;
@@ -59,8 +58,7 @@ public class FilterManagementView extends VerticalLayout implements View {
             final FilterManagementUIState filterManagementUIState, final RsqlValidationOracle rsqlValidationOracle,
             final TargetFilterQueryManagement targetFilterQueryManagement, final SpPermissionChecker permissionChecker,
             final UINotification notification, final UiProperties uiProperties, final EntityFactory entityFactory,
-            final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
-            @Qualifier("uiExecutor") final Executor executor) {
+            final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement) {
         this.filterManagementUIState = filterManagementUIState;
         this.eventListener = new FilterManagementViewEventListener(this, eventBus);
 
@@ -69,19 +67,34 @@ public class FilterManagementView extends VerticalLayout implements View {
                 filterManagementUIState);
 
         this.targetFilterDetailsLayout = new TargetFilterDetailsLayout(i18n, eventBus, notification, uiProperties,
-                entityFactory, rsqlValidationOracle, executor, targetManagement, targetFilterQueryManagement,
+                entityFactory, rsqlValidationOracle, targetManagement, targetFilterQueryManagement,
                 filterManagementUIState.getDetailsLayoutUiState());
     }
 
-    public void onFilterQueryOpen(final ProxyTargetFilterQuery targetFilterQuery) {
-        showFilterEditLayout(targetFilterQuery);
+    /**
+     * Change UI content to modify a {@link TargetFilterQuery}
+     * 
+     * @param targetFilterQuery
+     *            the filter to modify
+     * 
+     */
+    public void showFilterQueryEdit(final ProxyTargetFilterQuery targetFilterQuery) {
+        targetFilterDetailsLayout.showEditFilterUi(targetFilterQuery);
+        showFilterDetailsLayout();
     }
 
-    public void onFilterQueryCreate() {
-        showFilterCreateLayout();
+    /**
+     * Change UI content to create a {@link TargetFilterQuery}
+     */
+    public void showFilterQueryCreate() {
+        targetFilterDetailsLayout.showAddFilterUi();
+        showFilterDetailsLayout();
     }
 
-    public void onDetailsClose() {
+    /**
+     * Change UI content to show all {@link TargetFilterQuery}
+     */
+    public void showFilterQueryOverview() {
         showFilterGridLayout();
     }
 
@@ -93,6 +106,8 @@ public class FilterManagementView extends VerticalLayout implements View {
 
     @PreDestroy
     void destroy() {
+        targetFilterGridLayout.unsubscribeListener();
+        targetFilterDetailsLayout.unsubscribeListener();
         eventListener.unsubscribeListeners();
     }
 
@@ -111,26 +126,6 @@ public class FilterManagementView extends VerticalLayout implements View {
         setExpandRatio(targetFilterDetailsLayout, 1.0F);
     }
 
-    private void restoreState() {
-        if (FilterView.FILTERS.equals(filterManagementUIState.getCurrentView())) {
-            showFilterGridLayout();
-        } else if (FilterView.DETAILS.equals(filterManagementUIState.getCurrentView())) {
-            showFilterDetailsLayout();
-        }
-        targetFilterDetailsLayout.restoreState();
-        targetFilterGridLayout.restoreState();
-    }
-
-    private void showFilterCreateLayout() {
-        targetFilterDetailsLayout.showAddFilterLayout();
-        showFilterDetailsLayout();
-    }
-
-    private void showFilterEditLayout(final ProxyTargetFilterQuery targetFilterQuery) {
-        targetFilterDetailsLayout.showEditFilterLayout(targetFilterQuery);
-        showFilterDetailsLayout();
-    }
-
     private void showFilterDetailsLayout() {
         filterManagementUIState.setCurrentView(FilterView.DETAILS);
         targetFilterGridLayout.setVisible(false);
@@ -141,6 +136,16 @@ public class FilterManagementView extends VerticalLayout implements View {
         filterManagementUIState.setCurrentView(FilterView.FILTERS);
         targetFilterDetailsLayout.setVisible(false);
         targetFilterGridLayout.setVisible(true);
+    }
+
+    private void restoreState() {
+        if (FilterView.FILTERS == filterManagementUIState.getCurrentView()) {
+            showFilterGridLayout();
+        } else if (FilterView.DETAILS == filterManagementUIState.getCurrentView()) {
+            showFilterDetailsLayout();
+        }
+        targetFilterDetailsLayout.restoreState();
+        targetFilterGridLayout.restoreState();
     }
 
     @Override

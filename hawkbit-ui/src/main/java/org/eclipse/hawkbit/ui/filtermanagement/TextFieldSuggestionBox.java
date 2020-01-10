@@ -29,19 +29,15 @@ public class TextFieldSuggestionBox extends AbstractExtension implements TextFie
 
     private static final long serialVersionUID = 1L;
     private final transient RsqlValidationOracle rsqlValidationOracle;
-    private final AutoCompleteTextFieldComponent autoCompleteTextFieldComponent;
 
     /**
      * Constructor.
      * 
-     * @param autoCompleteTextFieldComponent
      * @param rsqlValidationOracle
      *            the suggestion oracle where to retrieve the suggestions from
      */
-    public TextFieldSuggestionBox(final RsqlValidationOracle rsqlValidationOracle,
-            final AutoCompleteTextFieldComponent autoCompleteTextFieldComponent) {
+    public TextFieldSuggestionBox(final RsqlValidationOracle rsqlValidationOracle) {
         this.rsqlValidationOracle = rsqlValidationOracle;
-        this.autoCompleteTextFieldComponent = autoCompleteTextFieldComponent;
 
         registerRpc(this, TextFieldSuggestionBoxServerRpc.class);
     }
@@ -61,11 +57,6 @@ public class TextFieldSuggestionBox extends AbstractExtension implements TextFie
     public void suggest(final String text, final int cursor) {
         final ValidationOracleContext suggest = rsqlValidationOracle.suggest(text, cursor);
         getRpcProxy(TextFieldSuggestionBoxClientRpc.class).showSuggestions(mapToDto(suggest.getSuggestionContext()));
-    }
-
-    @Override
-    public void executeQuery(final String text, final int cursor) {
-        autoCompleteTextFieldComponent.execute();
     }
 
     private static SuggestionContextDto mapToDto(final SuggestionContext suggestionContext) {

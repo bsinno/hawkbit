@@ -14,6 +14,8 @@ import java.util.Optional;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 
 public class TargetFilterDetailsLayoutUiState implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public enum Mode {
         CREATE, EDIT
     }

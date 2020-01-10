@@ -14,13 +14,14 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.filtermanagement.event.TargetFilterGridLayoutEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
- * DistributionSet table layout.
+ * TargetFilter table layout.
  */
 public class TargetFilterGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
@@ -28,8 +29,30 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
     private final TargetFilterGridHeader targetFilterGridHeader;
     private final TargetFilterGrid targetFilterGrid;
 
-    private final TargetFilterGridLayoutEventListener eventListener;
+    private final transient TargetFilterGridLayoutEventListener eventListener;
 
+    /**
+     * TargetFilterGridLayout constructor
+     * 
+     * @param i18n
+     *            MessageSource
+     * @param eventBus
+     *            Bus to publish UI events
+     * @param permissionChecker
+     *            Checker for user permissions
+     * @param notification
+     *            helper to display messages
+     * @param entityFactory
+     *            entity factory
+     * @param targetFilterQueryManagement
+     *            management to CRUD target filters
+     * @param targetManagement
+     *            management to get targets matching the filters
+     * @param distributionSetManagement
+     *            management to get distribution sets for auto-assignment
+     * @param filterManagementUIState
+     *            to persist the user interaction
+     */
     public TargetFilterGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
@@ -49,16 +72,35 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
         buildLayout(targetFilterGridHeader, targetFilterGrid);
     }
 
-    public void filterGridBySearch(final String searchFilter) {
-        targetFilterGrid.setFilter(searchFilter);
+    /**
+     * Only display filters with matching name
+     * 
+     * @param namePart
+     *            filters containing this string in the name are displayed
+     */
+    public void filterGridByName(final String namePart) {
+        targetFilterGrid.setFilter(namePart);
     }
 
+    /**
+     * Reload the data shown by the grid. Call this when a resource changed.
+     */
+    public void refreshGrid() {
+        targetFilterGrid.getFilterDataProvider().refreshAll();
+    }
+
+    /**
+     * restore the saved state
+     */
     public void restoreState() {
         targetFilterGridHeader.restoreState();
         targetFilterGrid.restoreState();
     }
 
-    // public void unsubscribeListener() {
-    // eventListener.unsubscribeListeners();
-    // }
+    /**
+     * unsubscribe all listener
+     */
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
+    }
 }
