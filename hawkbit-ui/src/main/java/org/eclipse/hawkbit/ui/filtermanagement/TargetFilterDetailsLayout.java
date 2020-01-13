@@ -68,7 +68,6 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
             final TargetFilterQueryManagement targetFilterManagement, final TargetFilterDetailsLayoutUiState uiState) {
         this.uiState = uiState;
         this.eventBus = eventBus;
-        this.eventListener = new TargetFilterDetailsLayoutEventListener(this, eventBus);
 
         final TargetFilterAddUpdateLayout targetFilterAddUpdateLayout = new TargetFilterAddUpdateLayout(i18n,
                 uiProperties, uiState, eventBus, rsqlValidationOracle);
@@ -83,6 +82,8 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
         this.targetFilterTargetGrid = new TargetFilterTargetGrid(i18n, eventBus, targetManagement, uiState);
 
         this.targetFilterCountMessageLabel = new TargetFilterCountMessageLabel(i18n);
+
+        this.eventListener = new TargetFilterDetailsLayoutEventListener(this, eventBus);
 
         buildLayout(targetFilterDetailsGridHeader, targetFilterTargetGrid, targetFilterCountMessageLabel);
     }

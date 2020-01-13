@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
@@ -67,7 +66,11 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private void sendEvent(final SelectionChangedEventType type, final T itemToSend) {
-        if (eventBus == null || itemToSend == null) {
+        if (eventBus == null) {
+            return;
+        }
+
+        if (SelectionChangedEventType.ENTITY_SELECTED == type && itemToSend == null) {
             return;
         }
 
@@ -80,13 +83,11 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
 
         grid.asMultiSelect().setSelectAllCheckBoxVisibility(SelectAllCheckBoxVisibility.VISIBLE);
         grid.asMultiSelect().addMultiSelectionListener(event -> {
-            final Set<T> selectedItems = event.getAllSelectedItems();
-            final SelectionChangedEventType type = selectedItems.size() == 1 ? SelectionChangedEventType.ENTITY_SELECTED
-                    : SelectionChangedEventType.ENTITY_DESELECTED;
-            final T itemToSend = selectedItems.size() == 1 ? selectedItems.iterator().next()
-                    : event.getOldSelection().iterator().next();
-
-            sendEvent(type, itemToSend);
+            if (event.getAllSelectedItems().size() == 1) {
+                sendEvent(SelectionChangedEventType.ENTITY_SELECTED, event.getAllSelectedItems().iterator().next());
+            } else if (event.getOldSelection().size() == 1) {
+                sendEvent(SelectionChangedEventType.ENTITY_DESELECTED, event.getOldSelection().iterator().next());
+            }
         });
     }
 

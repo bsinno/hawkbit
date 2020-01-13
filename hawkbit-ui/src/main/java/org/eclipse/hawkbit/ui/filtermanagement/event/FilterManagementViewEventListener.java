@@ -15,7 +15,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.filtermanagement.FilterManagementView;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterDetailsLayout;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGrid;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGridHeader;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -58,7 +57,7 @@ public class FilterManagementViewEventListener {
             eventBus.subscribe(this, EventTopics.CHANGE_UI_ELEMENT_STATE);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterDetailsLayout.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onDetailsClose(final ChangeUiElementPayload payload) {
             filterManagementView.showFilterQueryOverview();
         }

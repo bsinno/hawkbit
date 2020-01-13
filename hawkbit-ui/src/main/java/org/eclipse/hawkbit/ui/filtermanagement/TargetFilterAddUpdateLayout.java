@@ -20,11 +20,12 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.shared.Registration;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -36,7 +37,6 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
     private final TargetFilterAddUpdateLayoutComponentBuilder filterComponentBuilder;
 
     private final TextField filterNameInput;
-    private final Label filterNameLable;
     private final AutoCompleteTextFieldComponent autoCompleteComponent;
     private final Link helpLink;
     private final Button searchButton;
@@ -62,7 +62,6 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
                 rsqlValidationOracle);
 
         this.filterNameInput = filterComponentBuilder.createNameField(binder);
-        this.filterNameLable = filterComponentBuilder.createNameLable(binder);
         this.autoCompleteComponent = filterComponentBuilder.createQueryField(binder);
         this.helpLink = filterComponentBuilder.createFilterHelpLink();
         this.searchButton = filterComponentBuilder.createSearchTargetsByFilterButton();
@@ -92,30 +91,26 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
         filterQueryLayout.addComponent(searchButton);
         filterQueryLayout.addComponent(saveButton);
 
-        setFilterNameEditable(true);
         filterAddUpdateLayout.addComponent(filterNameInput);
-        filterAddUpdateLayout.addComponent(filterNameLable);
         filterAddUpdateLayout.addComponent(filterQueryLayout);
         autoCompleteComponent.focus();
 
         return filterAddUpdateLayout;
     }
 
-    public void setFilterNameEditable(final boolean editable) {
-        filterNameInput.setVisible(editable);
-        filterNameLable.setVisible(!editable);
-    }
-
-    public void resetState(final String name, final String filterQueryValueInput) {
-        filterNameInput.setValue(name);
-        autoCompleteComponent.clear();
-        autoCompleteComponent.doSetValue(filterQueryValueInput);
-    }
-
     private void addValueChangeListeners() {
         searchButton.addClickListener(event -> onSearchIconClick());
         autoCompleteComponent.addValidationListener((valid, message) -> searchButton.setEnabled(valid));
         autoCompleteComponent.addTextfieldChangedListener(this::onFilterQueryTextfieldChanged);
+        autoCompleteComponent
+                .addShortcutListener(new ShortcutListener("List Filtered Targets", ShortcutAction.KeyCode.ENTER, null) {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public void handleAction(final Object sender, final Object target) {
+                        onSearchIconClick();
+                    }
+                });
         filterNameInput.addValueChangeListener(this::onFilterNameChanged);
         addValidationListener(saveButton::setEnabled);
     }

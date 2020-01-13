@@ -85,19 +85,24 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     public void showAddFilterLayout() {
         uiState.setCurrentMode(Mode.CREATE);
         final String captionMessage = i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER);
-        showAddUpdateFilterLayout(captionMessage, true, addTargetFilterController, null);
+
+        final ProxyTargetFilterQuery restoredEntity = new ProxyTargetFilterQuery();
+        restoredEntity.setName(uiState.getNameInput());
+        restoredEntity.setQuery(uiState.getFilterQueryValueInput());
+
+        showAddUpdateFilterLayout(captionMessage, addTargetFilterController, restoredEntity);
     }
 
     public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
         uiState.setCurrentMode(Mode.EDIT);
-        showAddUpdateFilterLayout(proxyEntity.getName(), false, updateTargetFilterController, proxyEntity);
+        // TODO: should we update entity according to the previous ui state?
+        showAddUpdateFilterLayout(proxyEntity.getName(), updateTargetFilterController, proxyEntity);
     }
 
-    private void showAddUpdateFilterLayout(final String captionMessage, final boolean filterNameEditable,
+    private void showAddUpdateFilterLayout(final String captionMessage,
             final AbstractEntityWindowController<ProxyTargetFilterQuery, ProxyTargetFilterQuery> controller,
             final ProxyTargetFilterQuery proxyEntity) {
         headerCaptionDetails.setValue(captionMessage);
-        targetFilterAddUpdateLayout.setFilterNameEditable(filterNameEditable);
         controller.populateWithData(proxyEntity);
         targetFilterAddUpdateLayout.setSaveCallback(controller.getSaveDialogCloseListener());
     }
@@ -137,13 +142,10 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     }
 
     public void restoreState() {
-        final String storedName = uiState.getNameInput();
-        final String storedFilterQueryValueInput = uiState.getFilterQueryValueInput();
         if (Mode.EDIT == uiState.getCurrentMode()) {
             uiState.getTargetFilterQueryforEdit().ifPresent(this::showEditFilterLayout);
         } else if (Mode.CREATE == uiState.getCurrentMode()) {
             this.showAddFilterLayout();
         }
-        targetFilterAddUpdateLayout.resetState(storedName, storedFilterQueryValueInput);
     }
 }

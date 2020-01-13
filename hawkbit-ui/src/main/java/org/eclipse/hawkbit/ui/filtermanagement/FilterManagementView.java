@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
@@ -60,7 +59,6 @@ public class FilterManagementView extends VerticalLayout implements View {
             final UINotification notification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement) {
         this.filterManagementUIState = filterManagementUIState;
-        this.eventListener = new FilterManagementViewEventListener(this, eventBus);
 
         this.targetFilterGridLayout = new TargetFilterGridLayout(i18n, eventBus, permissionChecker, notification,
                 entityFactory, targetFilterQueryManagement, targetManagement, distributionSetManagement,
@@ -69,6 +67,8 @@ public class FilterManagementView extends VerticalLayout implements View {
         this.targetFilterDetailsLayout = new TargetFilterDetailsLayout(i18n, eventBus, notification, uiProperties,
                 entityFactory, rsqlValidationOracle, targetManagement, targetFilterQueryManagement,
                 filterManagementUIState.getDetailsLayoutUiState());
+
+        this.eventListener = new FilterManagementViewEventListener(this, eventBus);
     }
 
     /**
@@ -102,13 +102,6 @@ public class FilterManagementView extends VerticalLayout implements View {
     void init() {
         buildLayout();
         restoreState();
-    }
-
-    @PreDestroy
-    void destroy() {
-        targetFilterGridLayout.unsubscribeListener();
-        targetFilterDetailsLayout.unsubscribeListener();
-        eventListener.unsubscribeListeners();
     }
 
     private void buildLayout() {
@@ -148,9 +141,10 @@ public class FilterManagementView extends VerticalLayout implements View {
         targetFilterGridLayout.restoreState();
     }
 
-    @Override
-    public void enter(final ViewChangeEvent event) {
-        // This view is constructed in the init() method()
+    @PreDestroy
+    void destroy() {
+        targetFilterGridLayout.unsubscribeListener();
+        targetFilterDetailsLayout.unsubscribeListener();
+        eventListener.unsubscribeListeners();
     }
-
 }

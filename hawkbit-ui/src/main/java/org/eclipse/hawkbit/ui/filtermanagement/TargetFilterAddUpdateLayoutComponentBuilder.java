@@ -20,12 +20,10 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.ReadOnlyHasValue;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
 
@@ -54,15 +52,6 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
                 .bind(ProxyTargetFilterQuery::getName, ProxyTargetFilterQuery::setName);
 
         return filterName;
-    }
-
-    public Label createNameLable(final Binder<ProxyTargetFilterQuery> binder) {
-        final Label filterLable = new Label();
-        filterLable.setCaption(i18n.getMessage(TEXTFIELD_FILTER_NAME));
-
-        final ReadOnlyHasValue<String> readonlyHasValue = new ReadOnlyHasValue<>(filterLable::setValue);
-        binder.forField(readonlyHasValue).bind(ProxyTargetFilterQuery::getName, ProxyTargetFilterQuery::setName);
-        return filterLable;
     }
 
     public AutoCompleteTextFieldComponent createQueryField(final Binder<ProxyTargetFilterQuery> binder) {

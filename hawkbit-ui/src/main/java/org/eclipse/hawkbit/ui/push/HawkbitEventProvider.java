@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.repository.event.remote.RolloutDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.SoftwareModuleDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.SoftwareModuleTypeDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.TargetDeletedEvent;
+import org.eclipse.hawkbit.repository.event.remote.TargetFilterQueryDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.TargetTagDeletedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.CancelTargetAssignmentEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetCreatedEvent;
@@ -85,6 +86,7 @@ public class HawkbitEventProvider implements UIEventProvider {
 
         EVENTS.put(TargetFilterQueryCreatedEvent.class, TargetFilterQueryCreatedEventContainer.class);
         EVENTS.put(TargetFilterQueryUpdatedEvent.class, TargetFilterQueryUpdatedEventContainer.class);
+        EVENTS.put(TargetFilterQueryDeletedEvent.class, TargetFilterQueryDeletedEventContainer.class);
     }
 
     @Override

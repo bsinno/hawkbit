@@ -87,6 +87,7 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         setColumnReorderingAllowed(false);
         setDataProvider(getFilterDataProvider());
         addColumns();
+        disableColumnSorting();
     }
 
     // TODO: check if it is needed or could be called directly
@@ -103,6 +104,12 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      * and rendering options.
      */
     public abstract void addColumns();
+
+    private void disableColumnSorting() {
+        for (final Column<T, ?> c : getColumns()) {
+            c.setSortable(false);
+        }
+    }
 
     /**
      * Enables resize support for the grid by setting a ResizeSupport
