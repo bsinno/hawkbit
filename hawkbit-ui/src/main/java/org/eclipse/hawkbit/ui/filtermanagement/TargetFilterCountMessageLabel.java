@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.filtermanagement.footer;
+package org.eclipse.hawkbit.ui.filtermanagement;
 
 import org.eclipse.hawkbit.ui.common.grid.AbstractFooterSupport;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;

@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -116,6 +117,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
         entityIds.stream().filter(entityId -> entityId.equals(distributionSetGridLayoutUiState.getSelectedDsId()))
                 .findAny()
                 .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onDsChanged));
+    }
+
+    public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
+        distributionSetDetails.onDsTagsModified(entityIds, entityModifiedType);
     }
 
     public void showDsTypeHeaderIcon() {

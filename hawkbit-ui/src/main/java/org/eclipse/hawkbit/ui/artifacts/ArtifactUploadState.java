@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.artifacts.state;
+package org.eclipse.hawkbit.ui.artifacts;
 
 import java.io.File;
 import java.io.Serializable;
@@ -54,7 +54,7 @@ public class ArtifactUploadState implements Serializable {
      */
     private Map<FileUploadId, FileUploadProgress> overallFilesInUploadProcess;
 
-    ArtifactUploadState() {
+    public ArtifactUploadState() {
         this.smTypeFilterLayoutUiState = new SMTypeFilterLayoutUiState();
         this.smGridLayoutUiState = new SoftwareModuleGridLayoutUiState();
         this.artifactDetailsGridLayoutUiState = new ArtifactDetailsGridLayoutUiState();
@@ -149,7 +149,7 @@ public class ArtifactUploadState implements Serializable {
         return buffer.toString();
     }
 
-    void clearFileStates() {
+    public void clearFileStates() {
         getOverallFilesInUploadProcessMap().clear();
     }
 

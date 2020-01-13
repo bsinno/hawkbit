@@ -52,11 +52,11 @@ public class ArtifactDetailsHeaderSupport implements HeaderSupport {
         return artifactDetailsIcon;
     }
 
-    public void enableMetaDataIcon() {
+    public void enableArtifactDetailsIcon() {
         artifactDetailsIcon.setEnabled(true);
     }
 
-    public void disableMetaDataIcon() {
+    public void disableArtifactDetailsIcon() {
         artifactDetailsIcon.setEnabled(false);
     }
 }

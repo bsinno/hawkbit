@@ -8,28 +8,26 @@
  */
 package org.eclipse.hawkbit.ui.common.tagdetails;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
-import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTagCreatedEvent;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
+import org.eclipse.hawkbit.repository.model.DistributionSetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.management.event.DistributionSetTagTableEvent;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.push.DistributionSetTagCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetTagDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetTagUpdatedEventContainer;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.google.common.collect.Sets;
 
@@ -38,40 +36,49 @@ import com.google.common.collect.Sets;
  *
  */
 public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet> {
-    private static final long serialVersionUID = 1L;
+    private final DistributionSetTagManagement distributionSetTagManagement;
+    private final DistributionSetManagement distributionSetManagement;
 
-    private final transient DistributionSetTagManagement distributionSetTagManagement;
-    private final transient DistributionSetManagement distributionSetManagement;
+    private final TagToProxyTagMapper<DistributionSetTag> tagMapper;
 
     public DistributionTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
             final UINotification uinotification, final UIEventBus eventBus,
             final DistributionSetTagManagement distributionSetTagManagement,
             final DistributionSetManagement distributionSetManagement) {
         super(checker, i18n, uinotification, eventBus);
+
         this.distributionSetTagManagement = distributionSetTagManagement;
         this.distributionSetManagement = distributionSetManagement;
+
+        this.tagMapper = new TagToProxyTagMapper<>();
     }
 
     @Override
-    public void assignTag(final TagData tagData) {
+    public void assignTag(final ProxyTag tagData) {
         final List<DistributionSet> assignedDistributionSets = distributionSetManagement
                 .assignTag(Sets.newHashSet(selectedEntity.getId()), tagData.getId());
         if (checkAssignmentResult(assignedDistributionSets, selectedEntity.getId())) {
             uinotification.displaySuccess(
                     i18n.getMessage("message.target.assigned.one", selectedEntity.getName(), tagData.getName()));
-            eventBus.publish(this, ManagementUIEvent.ASSIGN_DISTRIBUTION_TAG);
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, selectedEntity.getId()));
+
+            // TODO: check if needed
             tagPanelLayout.setAssignedTag(tagData);
         }
     }
 
     @Override
-    public void unassignTag(final TagData tagData) {
+    public void unassignTag(final ProxyTag tagData) {
         final DistributionSet unAssignedDistributionSet = distributionSetManagement.unAssignTag(selectedEntity.getId(),
                 tagData.getId());
         if (checkUnassignmentResult(unAssignedDistributionSet, selectedEntity.getId())) {
             uinotification.displaySuccess(
                     i18n.getMessage("message.target.unassigned.one", selectedEntity.getName(), tagData.getName()));
-            eventBus.publish(this, ManagementUIEvent.UNASSIGN_DISTRIBUTION_TAG);
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, selectedEntity.getId()));
+
+            // TODO: check if needed
             tagPanelLayout.removeAssignedTag(tagData);
         }
     }
@@ -82,48 +89,24 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
     }
 
     @Override
-    protected List<TagData> getAllTags() {
+    protected List<ProxyTag> getAllTags() {
         return distributionSetTagManagement.findAll(PageRequest.of(0, MAX_TAG_QUERY)).getContent().stream()
-                .map(tag -> new TagData(tag.getId(), tag.getName(), tag.getColour())).collect(Collectors.toList());
+                .map(tagMapper::map).collect(Collectors.toList());
     }
 
     @Override
-    protected List<TagData> getAssignedTags() {
+    protected List<ProxyTag> getAssignedTags() {
         if (selectedEntity != null) {
             return distributionSetTagManagement
                     .findByDistributionSet(PageRequest.of(0, MAX_TAG_QUERY), selectedEntity.getId()).getContent()
-                    .stream().map(tag -> new TagData(tag.getId(), tag.getName(), tag.getColour()))
-                    .collect(Collectors.toList());
+                    .stream().map(tagMapper::map).collect(Collectors.toList());
         }
 
         return Collections.emptyList();
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onDistributionSetTagCreatedEvent(final DistributionSetTagCreatedEventContainer eventContainer) {
-        eventContainer.getEvents().stream().filter(Objects::nonNull).map(DistributionSetTagCreatedEvent::getEntity)
-                .forEach(tag -> tagCreated(new TagData(tag.getId(), tag.getName(), tag.getColour())));
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onDistributionSetTagDeletedEvent(final DistributionSetTagDeletedEventContainer eventContainer) {
-        eventContainer.getEvents().forEach(event -> tagDeleted(event.getEntityId()));
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onDistributionSetTagUpdateEvent(final DistributionSetTagUpdatedEventContainer eventContainer) {
-        repopulateTags();
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onDistributionSetTagUpdateEvent(final DistributionSetTagTableEvent event) {
-        repopulateTags();
-    }
-
     @Override
-    public ProxyDistributionSet getValue() {
-        // not needed to return meaningful object, because it is
-        // intended to be read-only
-        return new ProxyDistributionSet();
+    protected List<ProxyTag> getTagsById(final Collection<Long> entityIds) {
+        return distributionSetTagManagement.get(entityIds).stream().map(tagMapper::map).collect(Collectors.toList());
     }
 }

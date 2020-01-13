@@ -8,21 +8,21 @@
  */
 package org.eclipse.hawkbit.ui.common.tagdetails;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout.TagAssignmentListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.hateoas.Identifiable;
 import org.springframework.util.CollectionUtils;
-import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomField;
 
 /**
  * Abstract class for target/ds tag token layout.
@@ -30,21 +30,15 @@ import com.vaadin.ui.CustomField;
  * @param <T>
  *            the special entity
  */
-public abstract class AbstractTagToken<T extends ProxyNamedEntity> extends CustomField<T>
-        implements TagAssignmentListener {
-    private static final long serialVersionUID = 1L;
-
+public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements TagAssignmentListener {
     protected static final int MAX_TAG_QUERY = 1000;
 
     protected TagPanelLayout tagPanelLayout;
 
-    protected SpPermissionChecker checker;
-
-    protected VaadinMessageSource i18n;
-
-    protected UINotification uinotification;
-
-    protected transient EventBus.UIEventBus eventBus;
+    protected final SpPermissionChecker checker;
+    protected final VaadinMessageSource i18n;
+    protected final UINotification uinotification;
+    protected final UIEventBus eventBus;
 
     protected T selectedEntity;
 
@@ -56,19 +50,7 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> extends Custo
         this.eventBus = eventBus;
 
         buildTagPanel();
-
-        if (doSubscribeToEventBus()) {
-            eventBus.subscribe(this);
-        }
-    }
-
-    /**
-     * Subscribes the view to the eventBus. Method has to be overriden (return
-     * false) if the view does not contain any listener to avoid Vaadin blowing
-     * up our logs with warnings.
-     */
-    protected boolean doSubscribeToEventBus() {
-        return true;
+        tagPanelLayout.setVisible(false);
     }
 
     private void buildTagPanel() {
@@ -80,27 +62,19 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> extends Custo
         tagPanelLayout.setSizeFull();
     }
 
-    @Override
-    protected Component initContent() {
-        return tagPanelLayout;
-    }
-
-    @Override
-    protected void doSetValue(final T value) {
+    public void updateMasterEntityFilter(final T value) {
         selectedEntity = value;
-        repopulateTags();
-    }
 
-    protected void repopulateTags() {
         if (selectedEntity == null) {
+            tagPanelLayout.initializeTags(Collections.emptyList(), Collections.emptyList());
             tagPanelLayout.setVisible(false);
         } else {
-            tagPanelLayout.setVisible(true);
             tagPanelLayout.initializeTags(getAllTags(), getAssignedTags());
+            tagPanelLayout.setVisible(true);
         }
     }
 
-    protected void tagCreated(final TagData tagData) {
+    protected void tagCreated(final ProxyTag tagData) {
         tagPanelLayout.tagCreated(tagData);
     }
 
@@ -128,9 +102,33 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> extends Custo
 
     protected abstract Boolean isToggleTagAssignmentAllowed();
 
-    protected abstract List<TagData> getAllTags();
+    protected abstract List<ProxyTag> getAllTags();
 
-    protected abstract List<TagData> getAssignedTags();
+    protected abstract List<ProxyTag> getAssignedTags();
+
+    public void onTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
+        if (entityModifiedType == EntityModifiedEventType.ENTITY_ADDED) {
+            onTagsCreated(entityIds);
+        } else if (entityModifiedType == EntityModifiedEventType.ENTITY_UPDATED) {
+            onTagsUpdated();
+        } else {
+            onTagsDeleted(entityIds);
+        }
+    }
+
+    private void onTagsCreated(final Collection<Long> entityIds) {
+        getTagsById(entityIds).forEach(this::tagCreated);
+    }
+
+    protected abstract List<ProxyTag> getTagsById(final Collection<Long> entityIds);
+
+    private void onTagsUpdated() {
+        updateMasterEntityFilter(selectedEntity);
+    }
+
+    private void onTagsDeleted(final Collection<Long> entityIds) {
+        entityIds.forEach(this::tagDeleted);
+    }
 
     public TagPanelLayout getTagPanel() {
         return tagPanelLayout;

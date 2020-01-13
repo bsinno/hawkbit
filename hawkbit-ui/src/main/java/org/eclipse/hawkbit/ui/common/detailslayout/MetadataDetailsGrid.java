@@ -45,6 +45,7 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> {
         this.metaDataDataProvider = metaDataDataProvider.withConfigurableFilter();
 
         init();
+        setVisible(false);
     }
 
     @Override
@@ -102,5 +103,6 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> {
 
     public void updateMasterEntityFilter(final F masterEntityFilter) {
         getFilterDataProvider().setFilter(masterEntityFilter);
+        setVisible(masterEntityFilter != null);
     }
 }

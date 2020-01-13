@@ -12,7 +12,6 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
  * Proxy for filter buttons layouts (e.g. tags, types).
  */
 public class ProxyFilterButton extends ProxyNamedEntity {
-
     private static final long serialVersionUID = 1L;
 
     private String colour;

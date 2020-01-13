@@ -11,9 +11,9 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,6 +37,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
@@ -45,7 +46,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -71,6 +71,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
     private final boolean isUnassignSmAllowed;
 
     private ProxyDistributionSet masterEntity;
+    private final Map<Long, Boolean> typeIdIsRendered;
 
     /**
      * Initialize software module table- to be displayed in details layout.
@@ -108,7 +109,10 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
 
         this.isUnassignSmAllowed = isUnassignSmAllowed;
 
+        this.typeIdIsRendered = new HashMap<>();
+
         init();
+        setVisible(false);
     }
 
     private void init() {
@@ -116,23 +120,17 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         setHeightMode(HeightMode.UNDEFINED);
 
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        addStyleName(SPUIStyleDefinitions.SW_MODULE_TABLE);
-        addStyleName("details-layout");
+        // addStyleName(SPUIStyleDefinitions.SW_MODULE_TABLE);
 
         setSelectionMode(SelectionMode.NONE);
-
-        // same as height of other tabs in details tabsheet
-        // setHeight(116, Unit.PIXELS);
 
         addColumns();
     }
 
     private void addColumns() {
         addComponentColumn(this::buildIsMandatoryLabel).setId(SOFT_TYPE_MANDATORY_ID);
-        addColumn(ProxySoftwareModuleDetails::getTypeName).setId(SOFT_TYPE_NAME_ID);
 
-        getDefaultHeaderRow().join(SOFT_TYPE_MANDATORY_ID, SOFT_TYPE_NAME_ID)
-                .setText(i18n.getMessage("header.caption.typename"));
+        addColumn(this::buildTypeName).setId(SOFT_TYPE_NAME_ID).setCaption(i18n.getMessage("header.caption.typename"));
 
         addComponentColumn(this::buildSoftwareModulesLayout).setId(SOFT_MODULES_ID)
                 .setCaption(i18n.getMessage("header.caption.softwaremodule"));
@@ -145,7 +143,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         isMandatoryLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
         isMandatoryLabel.addStyleName("label-style");
 
-        if (softwareModuleDetails.isMandatory()) {
+        if (softwareModuleDetails.isMandatory() && !isTypeAlreadyAdded(softwareModuleDetails.getTypeId())) {
             isMandatoryLabel.setValue("*");
             isMandatoryLabel.setStyleName(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR);
         }
@@ -153,36 +151,46 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         return isMandatoryLabel;
     }
 
-    private VerticalLayout buildSoftwareModulesLayout(final ProxySoftwareModuleDetails softwareModuleDetails) {
-        final VerticalLayout softwareModulesLayout = new VerticalLayout();
-        softwareModulesLayout.setSpacing(false);
-        softwareModulesLayout.setMargin(false);
+    // workaround for vaadin 8 grid dynamic row height bug:
+    // https://github.com/vaadin/framework/issues/9355
+    private boolean isTypeAlreadyAdded(final Long typeId) {
+        return typeIdIsRendered.getOrDefault(typeId, false);
+    }
 
-        for (final Entry<Long, String> softwareModuleEntry : softwareModuleDetails.getSmIdsWithNameAndVersion()
-                .entrySet()) {
-            final Label softwareModuleNameWithVersionLabel = buildSmLabel(softwareModuleEntry.getValue(),
-                    softwareModuleEntry.getKey());
+    private String buildTypeName(final ProxySoftwareModuleDetails softwareModuleDetails) {
+        if (isTypeAlreadyAdded(softwareModuleDetails.getTypeId())) {
+            return "";
+        }
+
+        return softwareModuleDetails.getTypeName();
+    }
+
+    private HorizontalLayout buildSoftwareModulesLayout(final ProxySoftwareModuleDetails softwareModuleDetails) {
+        if (!isTypeAlreadyAdded(softwareModuleDetails.getTypeId())) {
+            typeIdIsRendered.put(softwareModuleDetails.getTypeId(), true);
+        }
+
+        final Long smId = softwareModuleDetails.getSmId();
+        final String smNameVersion = softwareModuleDetails.getSmNameAndVersion();
+
+        final HorizontalLayout smLabelWithUnassignButtonLayout = new HorizontalLayout();
+        smLabelWithUnassignButtonLayout.setSpacing(false);
+        smLabelWithUnassignButtonLayout.setMargin(false);
+        smLabelWithUnassignButtonLayout.setSizeFull();
+
+        if (smId != null && !StringUtils.isEmpty(smNameVersion)) {
+            smLabelWithUnassignButtonLayout.addComponent(buildSmLabel(smId, smNameVersion));
 
             if (isUnassignSmAllowed && permissionChecker.hasUpdateRepositoryPermission()) {
-                final HorizontalLayout smLabelWithUnassignButtonLayout = new HorizontalLayout();
-                smLabelWithUnassignButtonLayout.setSpacing(false);
-                smLabelWithUnassignButtonLayout.setMargin(false);
-                smLabelWithUnassignButtonLayout.setSizeFull();
+                smLabelWithUnassignButtonLayout.addComponent(buildSmUnassignButton(smId, smNameVersion));
 
-                smLabelWithUnassignButtonLayout.addComponent(softwareModuleNameWithVersionLabel);
-                smLabelWithUnassignButtonLayout.addComponent(
-                        buildSmUnassignButton(softwareModuleEntry.getKey(), softwareModuleEntry.getValue()));
-
-                softwareModulesLayout.addComponent(smLabelWithUnassignButtonLayout);
-            } else {
-                softwareModulesLayout.addComponent(softwareModuleNameWithVersionLabel);
             }
         }
 
-        return softwareModulesLayout;
+        return smLabelWithUnassignButtonLayout;
     }
 
-    private Label buildSmLabel(final String smNameWithVersion, final Long smId) {
+    private Label buildSmLabel(final Long smId, final String smNameWithVersion) {
         final Label smLabel = new Label(smNameWithVersion);
 
         smLabel.setId("sm-label-" + smId);
@@ -228,33 +236,39 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
     }
 
     public void updateMasterEntityFilter(final ProxyDistributionSet masterEntityFilter) {
-        if (masterEntityFilter == null) {
-            masterEntity = null;
+        masterEntity = masterEntityFilter;
+        typeIdIsRendered.clear();
+
+        if (masterEntity == null) {
             setItems(Collections.emptyList());
+            setVisible(false);
+
             return;
         }
 
-        final Optional<DistributionSetType> dsType = dsTypeManagement.get(masterEntityFilter.getTypeId());
+        final Optional<DistributionSetType> dsType = dsTypeManagement.get(masterEntity.getTypeId());
 
         final List<ProxySoftwareModuleDetails> items = new ArrayList<>();
 
         // TODO: try to optimize
         dsType.ifPresent(type -> {
-            final Collection<SoftwareModule> softwareModules = getSoftwareModulesByDsId(masterEntityFilter.getId());
+            final Collection<SoftwareModule> softwareModules = getSoftwareModulesByDsId(masterEntity.getId());
 
             for (final SoftwareModuleType mandatoryType : type.getMandatoryModuleTypes()) {
-                final ProxySoftwareModuleDetails smDetails = getSmDetailsByType(softwareModules, mandatoryType, true);
-                items.add(smDetails);
+                items.addAll(getSmDetailsByType(softwareModules, mandatoryType, true));
+
+                typeIdIsRendered.put(mandatoryType.getId(), false);
             }
 
             for (final SoftwareModuleType optionalType : type.getOptionalModuleTypes()) {
-                final ProxySoftwareModuleDetails smDetails = getSmDetailsByType(softwareModules, optionalType, false);
-                items.add(smDetails);
+                items.addAll(getSmDetailsByType(softwareModules, optionalType, false));
+
+                typeIdIsRendered.put(optionalType.getId(), false);
             }
         });
 
-        masterEntity = masterEntityFilter;
         setItems(items);
+        setVisible(true);
     }
 
     private Collection<SoftwareModule> getSoftwareModulesByDsId(final Long dsId) {
@@ -270,12 +284,19 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         return softwareModules;
     }
 
-    private ProxySoftwareModuleDetails getSmDetailsByType(final Collection<SoftwareModule> softwareModules,
+    private List<ProxySoftwareModuleDetails> getSmDetailsByType(final Collection<SoftwareModule> softwareModules,
             final SoftwareModuleType type, final boolean isMandatory) {
-        final Map<Long, String> smIdsWithNameAndVersion = softwareModules.stream()
-                .filter(sm -> sm.getType().getId().equals(type.getId())).collect(Collectors.toMap(SoftwareModule::getId,
-                        sm -> HawkbitCommonUtil.concatStrings(":", sm.getName(), sm.getVersion())));
+        final List<ProxySoftwareModuleDetails> smDetails = softwareModules.stream()
+                .filter(sm -> sm.getType().getId().equals(type.getId()))
+                .map(sm -> new ProxySoftwareModuleDetails(isMandatory, type.getId(), type.getName(), sm.getId(),
+                        HawkbitCommonUtil.concatStrings(":", sm.getName(), sm.getVersion())))
+                .collect(Collectors.toList());
 
-        return new ProxySoftwareModuleDetails(isMandatory, type.getName(), smIdsWithNameAndVersion);
+        if (smDetails.isEmpty()) {
+            return Collections
+                    .singletonList(new ProxySoftwareModuleDetails(isMandatory, type.getId(), type.getName(), null, ""));
+        }
+
+        return smDetails;
     }
 }

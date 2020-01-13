@@ -10,16 +10,13 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.repository.rsql.ValidationOracleContext;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
-import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
@@ -30,7 +27,6 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 
 /**
  * An textfield with the {@link TextFieldSuggestionBox} extension which shows
@@ -39,9 +35,7 @@ import com.vaadin.ui.UI;
 public class AutoCompleteTextFieldComponent extends CustomField<String> {
     private static final long serialVersionUID = 1L;
 
-    private final transient UIEventBus eventBus;
     private final transient RsqlValidationOracle rsqlValidationOracle;
-    private final transient Executor executor;
 
     private final transient List<ValidationListener> listeners = new LinkedList<>();
 
@@ -52,11 +46,8 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     private boolean isValid;
     private String targetFilterQuery;
 
-    public AutoCompleteTextFieldComponent(final UIEventBus eventBus, final RsqlValidationOracle rsqlValidationOracle,
-            final Executor executor) {
-        this.eventBus = eventBus;
+    public AutoCompleteTextFieldComponent(final RsqlValidationOracle rsqlValidationOracle) {
         this.rsqlValidationOracle = rsqlValidationOracle;
-        this.executor = executor;
 
         this.validationIcon = createStatusIcon();
         this.queryTextField = createSearchField();
@@ -79,7 +70,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
 
         queryTextField.addValueChangeListener(event -> onQueryFilterChange(event.getValue()));
 
-        new TextFieldSuggestionBox(rsqlValidationOracle, this).extend(queryTextField);
+        new TextFieldSuggestionBox(rsqlValidationOracle).extend(queryTextField);
     }
 
     @Override
@@ -91,7 +82,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     protected void doSetValue(final String value) {
         if (value == null) {
             queryTextField.setValue("");
-            resetIcon();
+            hideValidationIcon();
 
             targetFilterQuery = "";
             isValid = false;
@@ -109,27 +100,20 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         queryTextField.addValueChangeListener(listener);
     }
 
-    public void execute() {
-        if (isValid()) {
-            showValidationInProgress();
-            getExecutor().execute(new StatusCircledAsync(UI.getCurrent()));
-        }
-    }
-
-    private Label createStatusIcon() {
+    private static Label createStatusIcon() {
         final Label statusIcon = new Label();
 
         statusIcon.setId(UIComponentIdProvider.VALIDATION_STATUS_ICON_ID);
         statusIcon.setContentMode(ContentMode.HTML);
         statusIcon.setSizeFull();
-        statusIcon.setStyleName("hide-status-label");
+        statusIcon.setVisible(false);
 
         statusIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
 
         return statusIcon;
     }
 
-    private TextField createSearchField() {
+    private static TextField createSearchField() {
         final TextField textField = new TextFieldBuilder(TargetFilterQuery.QUERY_MAX_SIZE)
                 .id(UIComponentIdProvider.CUSTOM_FILTER_QUERY).buildTextComponent();
 
@@ -142,27 +126,13 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         return textField;
     }
 
-    // @EventBusListenerMethod(scope = EventScope.UI)
-    // void onEvent(final CustomFilterUIEvent custFUIEvent) {
-    // if (custFUIEvent == CustomFilterUIEvent.UPDATE_TARGET_FILTER_SEARCH_ICON)
-    // {
-    // validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
-    // if (!isValidationError()) {
-    // validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
-    // } else {
-    // validationIcon.setStyleName(SPUIStyleDefinitions.ERROR_ICON);
-    // }
-    // }
-    // }
-
     /**
      * Clears the textfield and resets the validation icon.
      */
     @Override
     public void clear() {
         queryTextField.clear();
-        validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
-        validationIcon.setStyleName("hide-status-label");
+        hideValidationIcon();
     }
 
     @Override
@@ -180,28 +150,6 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         listeners.add(validationListener);
     }
 
-    /**
-     * Called when the filter-query has been changed in the textfield, e.g. from
-     * client-side.
-     * 
-     * @param currentText
-     *            the current text of the textfield which has been changed
-     * @param valid
-     *            {@code boolean} if the current text is RSQL syntax valid
-     *            otherwise {@code false}
-     * @param validationMessage
-     *            a message shown in case of syntax errors as tooltip
-     */
-    // public void onQueryFilterChange(final String currentText, final boolean
-    // valid, final String validationMessage) {
-    // final String message = valid ? currentText : validationMessage;
-    // updateComponents(currentText, valid, message);
-    //
-    // fireEvent(createValueChange(currentText, false));
-    // listeners.forEach(listener -> listener.validationChanged(valid,
-    // message));
-    // }
-
     private void onQueryFilterChange(final String newQuery) {
         final ValidationOracleContext validationContext = rsqlValidationOracle.suggest(newQuery, newQuery.length());
         final boolean valid = !validationContext.isSyntaxError();
@@ -211,7 +159,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         isValid = valid;
 
         if (valid) {
-            showValidationSuccesIcon(message);
+            showValidationSuccesIcon();
         } else {
             showValidationFailureIcon(message);
         }
@@ -220,31 +168,19 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         listeners.forEach(listener -> listener.validationChanged(valid, message));
     }
 
-    private void resetIcon() {
-        validationIcon.setValue(null);
-        validationIcon.setDescription(null);
-        validationIcon.removeStyleName(validationIcon.getStyleName());
+    private void hideValidationIcon() {
+        validationIcon.setVisible(false);
     }
 
-    /**
-     * Shows the validation success icon in the textfield
-     * 
-     * @param text
-     *            the text to store in the UI state object
-     */
-    public void showValidationSuccesIcon(final String text) {
+    private void showValidationSuccesIcon() {
+        validationIcon.setVisible(true);
         validationIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
         validationIcon.setStyleName(SPUIStyleDefinitions.SUCCESS_ICON);
+        validationIcon.setDescription(null);
     }
 
-    /**
-     * Shows the validation error icon in the textfield
-     * 
-     * @param validationMessage
-     *            the validation message which should be added to the error-icon
-     *            tooltip
-     */
-    public void showValidationFailureIcon(final String validationMessage) {
+    private void showValidationFailureIcon(final String validationMessage) {
+        validationIcon.setVisible(true);
         validationIcon.setValue(VaadinIcons.CLOSE_CIRCLE.getHtml());
         validationIcon.setStyleName(SPUIStyleDefinitions.ERROR_ICON);
         validationIcon.setDescription(validationMessage);
@@ -252,34 +188,6 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
 
     public boolean isValid() {
         return isValid;
-    }
-
-    class StatusCircledAsync implements Runnable {
-        private final UI current;
-
-        StatusCircledAsync(final UI current) {
-            this.current = current;
-        }
-
-        @Override
-        public void run() {
-            UI.setCurrent(current);
-            eventBus.publish(this, CustomFilterUIEvent.FILTER_TARGET_BY_QUERY);
-        }
-    }
-
-    /**
-     * Sets the spinner as progress indicator.
-     */
-    // TODO is still needed?
-    public void showValidationInProgress() {
-        validationIcon.setValue(null);
-        validationIcon.addStyleName("show-status-label");
-        validationIcon.setStyleName(SPUIStyleDefinitions.TARGET_FILTER_SEARCH_PROGRESS_INDICATOR_STYLE);
-    }
-
-    public Executor getExecutor() {
-        return executor;
     }
 
     /**

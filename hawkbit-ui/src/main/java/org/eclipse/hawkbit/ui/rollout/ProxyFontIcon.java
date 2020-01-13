@@ -8,9 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.rollout;
 
-import java.io.Serializable;
-
+import com.cronutils.utils.StringUtils;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.FontIcon;
 
 /**
  * Helper class which holds the details of font icon to be displayed as
@@ -19,19 +19,13 @@ import com.vaadin.icons.VaadinIcons;
  * <code>RolloutListGrid</code> / <code>RolloutGroupListGrid</code> /
  * <code>RolloutGroupTargetsListGrid</code> / <code>ActionHistoryGrid</code>
  */
-public class FontIcon implements Serializable {
+public class ProxyFontIcon implements FontIcon {
     private static final long serialVersionUID = 1L;
 
-    private VaadinIcons icon;
-    private String style;
-    private String description;
-
-    /**
-     * NOTE: This constructor is used for (de-)serialization only!!!
-     */
-    public FontIcon() {
-        // empty
-    }
+    private final VaadinIcons icon;
+    private final String style;
+    private final String description;
+    private final String color;
 
     /**
      * Constructor to create icon metadata object.
@@ -39,7 +33,7 @@ public class FontIcon implements Serializable {
      * @param icon
      *            the font representing the icon
      */
-    public FontIcon(final VaadinIcons icon) {
+    public ProxyFontIcon(final VaadinIcons icon) {
         this(icon, "");
     }
 
@@ -51,7 +45,7 @@ public class FontIcon implements Serializable {
      * @param style
      *            the style
      */
-    public FontIcon(final VaadinIcons icon, final String style) {
+    public ProxyFontIcon(final VaadinIcons icon, final String style) {
         this(icon, style, "");
     }
 
@@ -65,19 +59,27 @@ public class FontIcon implements Serializable {
      * @param description
      *            the description shown as tooltip
      */
-    public FontIcon(final VaadinIcons icon, final String style, final String description) {
-        this.icon = icon;
-        this.style = style;
-        this.description = description;
+    public ProxyFontIcon(final VaadinIcons icon, final String style, final String description) {
+        this(icon, style, description, "");
     }
 
     /**
-     * Gets the font representing the icon.
+     * Constructor to create icon metadata object.
      *
-     * @return the font representing the icon
+     * @param icon
+     *            the font representing the icon
+     * @param style
+     *            the style
+     * @param description
+     *            the description shown as tooltip
+     * @param color
+     *            the color of the icon
      */
-    public VaadinIcons getIcon() {
-        return icon;
+    public ProxyFontIcon(final VaadinIcons icon, final String style, final String description, final String color) {
+        this.icon = icon;
+        this.style = style;
+        this.description = description;
+        this.color = color;
     }
 
     /**
@@ -96,5 +98,31 @@ public class FontIcon implements Serializable {
      */
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public String getMIMEType() {
+        return icon.getMIMEType();
+    }
+
+    @Override
+    public String getFontFamily() {
+        return icon.getFontFamily();
+    }
+
+    @Override
+    public int getCodepoint() {
+        return icon.getCodepoint();
+    }
+
+    @Override
+    public String getHtml() {
+        final String originalIconHtml = icon.getHtml();
+
+        if (StringUtils.isEmpty(color)) {
+            return originalIconHtml;
+        }
+
+        return "<span style=\"color:" + color + " !important;\">" + icon.getHtml() + "</span>";
     }
 }

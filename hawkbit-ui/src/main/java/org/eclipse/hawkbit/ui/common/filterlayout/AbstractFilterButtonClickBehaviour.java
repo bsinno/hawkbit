@@ -38,4 +38,8 @@ public abstract class AbstractFilterButtonClickBehaviour<T> implements Serializa
      * @param clickedFilter
      */
     protected abstract void filterClicked(final T clickedFilter);
+
+    public enum ClickBehaviourType {
+        CLICKED, UNCLICKED;
+    }
 }

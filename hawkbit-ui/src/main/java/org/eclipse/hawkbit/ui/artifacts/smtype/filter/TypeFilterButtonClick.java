@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 import java.util.function.BiConsumer;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
 
 /**
@@ -20,19 +19,19 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClic
 public class TypeFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyType> {
     private static final long serialVersionUID = 1L;
 
-    private final transient BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback;
+    private final transient BiConsumer<ProxyType, ClickBehaviourType> filterChangedCallback;
 
-    public TypeFilterButtonClick(final BiConsumer<ProxyType, TypeFilterChangedEventType> filterChangedCallback) {
+    public TypeFilterButtonClick(final BiConsumer<ProxyType, ClickBehaviourType> filterChangedCallback) {
         this.filterChangedCallback = filterChangedCallback;
     }
 
     @Override
     protected void filterUnClicked(final ProxyType clickedFilter) {
-        filterChangedCallback.accept(clickedFilter, TypeFilterChangedEventType.TYPE_UNCLICKED);
+        filterChangedCallback.accept(clickedFilter, ClickBehaviourType.UNCLICKED);
     }
 
     @Override
     protected void filterClicked(final ProxyType clickedFilter) {
-        filterChangedCallback.accept(clickedFilter, TypeFilterChangedEventType.TYPE_CLICKED);
+        filterChangedCallback.accept(clickedFilter, ClickBehaviourType.CLICKED);
     }
 }

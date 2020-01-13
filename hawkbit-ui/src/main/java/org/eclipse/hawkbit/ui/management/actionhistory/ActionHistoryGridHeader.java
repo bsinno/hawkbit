@@ -12,8 +12,8 @@ import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;

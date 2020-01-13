@@ -10,8 +10,8 @@ package org.eclipse.hawkbit.ui.management.dstag.filter;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;

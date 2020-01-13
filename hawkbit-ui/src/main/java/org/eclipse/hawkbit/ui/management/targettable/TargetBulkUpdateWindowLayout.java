@@ -27,8 +27,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadPopupEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.state.TargetBulkUpload;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -270,7 +270,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     public void resetComponents() {
         dsNamecomboBox.clear();
         descTextArea.clear();
-        targetBulkTokenTags.initializeTags();
+        // targetBulkTokenTags.initializeTags();
         progressBar.setValue(0F);
         progressBar.setVisible(false);
         managementUIState.getTargetTableFilters().getBulkUpload().setProgressBarCurrentValue(0F);
@@ -299,7 +299,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         dsNamecomboBox.setValue(selectedDs);
 
         descTextArea.setValue(targetBulkUpload.getDescription());
-        targetBulkTokenTags.initializeTags();
+        // targetBulkTokenTags.initializeTags();
 
         if (targetBulkUpload.getProgressBarCurrentValue() >= 1) {
             targetsCountLabel.setVisible(true);

@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management.state;
+package org.eclipse.hawkbit.ui.management;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -15,10 +15,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.eclipse.hawkbit.ui.common.ManagementEntityState;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridLayoutUiState;
+import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
+import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
+import org.eclipse.hawkbit.ui.management.state.DistributionTableFilters;
+import org.eclipse.hawkbit.ui.management.state.TargetTableFilters;
+import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
+import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
@@ -28,15 +33,18 @@ import com.vaadin.spring.annotation.VaadinSessionScope;
  */
 @VaadinSessionScope
 @SpringComponent
-public class ManagementUIState implements ManagementEntityState, Serializable {
-
+public class ManagementUIState implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final transient Set<Object> expandParentActionRowId = new HashSet<>();
+    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
+    private final DistributionGridLayoutUiState distributionGridLayoutUiState;
+    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
+    private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
 
-    private final DistributionTableFilters distributionTableFilters;
+    private final DistributionTableFilters distributionTableFilters = new DistributionTableFilters();
 
-    private final TargetTableFilters targetTableFilters;
+    private final TargetTableFilters targetTableFilters = new TargetTableFilters();
 
     private final Set<DistributionSetIdName> deletedDistributionList = new HashSet<>();
 
@@ -82,11 +90,32 @@ public class ManagementUIState implements ManagementEntityState, Serializable {
 
     private transient Optional<Long> lastSelectedActionStatusId = Optional.empty();
 
-    @Autowired
-    ManagementUIState(final DistributionTableFilters distributionTableFilters,
-            final TargetTableFilters targetTableFilters) {
-        this.distributionTableFilters = distributionTableFilters;
-        this.targetTableFilters = targetTableFilters;
+    ManagementUIState() {
+        this.targetTagFilterLayoutUiState = new TargetTagFilterLayoutUiState();
+        this.targetGridLayoutUiState = new TargetGridLayoutUiState();
+        this.distributionGridLayoutUiState = new DistributionGridLayoutUiState();
+        this.distributionTagLayoutUiState = new DistributionTagLayoutUiState();
+        this.actionHistoryGridLayoutUiState = new ActionHistoryGridLayoutUiState();
+    }
+
+    public TargetTagFilterLayoutUiState getTargetTagFilterLayoutUiState() {
+        return targetTagFilterLayoutUiState;
+    }
+
+    public TargetGridLayoutUiState getTargetGridLayoutUiState() {
+        return targetGridLayoutUiState;
+    }
+
+    public DistributionGridLayoutUiState getDistributionGridLayoutUiState() {
+        return distributionGridLayoutUiState;
+    }
+
+    public DistributionTagLayoutUiState getDistributionTagLayoutUiState() {
+        return distributionTagLayoutUiState;
+    }
+
+    public ActionHistoryGridLayoutUiState getActionHistoryGridLayoutUiState() {
+        return actionHistoryGridLayoutUiState;
     }
 
     public boolean isBulkUploadWindowMinimised() {
@@ -103,10 +132,6 @@ public class ManagementUIState implements ManagementEntityState, Serializable {
 
     public void setCustomFilterSelected(final boolean isCustomFilterSelected) {
         customFilterSelected = isCustomFilterSelected;
-    }
-
-    public Set<Object> getExpandParentActionRowId() {
-        return expandParentActionRowId;
     }
 
     public Set<String> getCanceledTargetName() {
@@ -205,12 +230,10 @@ public class ManagementUIState implements ManagementEntityState, Serializable {
         return lastSelectedDsIdName;
     }
 
-    @Override
     public void setLastSelectedEntityId(final Long value) {
         this.lastSelectedDsIdName = Optional.ofNullable(value);
     }
 
-    @Override
     public void setSelectedEnitities(final Set<Long> values) {
         this.selectedDsIdName = values;
     }

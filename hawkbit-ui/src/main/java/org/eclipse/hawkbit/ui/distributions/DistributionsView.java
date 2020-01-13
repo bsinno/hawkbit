@@ -29,15 +29,11 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
-import org.eclipse.hawkbit.ui.dd.criteria.DistributionsViewClientCriterion;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridLayout;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleGridLayout;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayout;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -79,18 +75,15 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
 
     @Autowired
     DistributionsView(final SpPermissionChecker permChecker, final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final UINotification uiNotification, final ManagementUIState managementUIState,
-            final ManageDistUIState manageDistUIState, final SoftwareModuleManagement softwareModuleManagement,
+            final UINotification uiNotification, final ManageDistUIState manageDistUIState,
+            final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final DistributionSetManagement distributionSetManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final DistributionSetTagManagement distributionSetTagManagement,
-            final TargetFilterQueryManagement targetFilterQueryManagement,
-            final DistributionsViewClientCriterion distributionsViewClientCriterion,
-            final ArtifactUploadState artifactUploadState, final SystemManagement systemManagement,
-            final ArtifactManagement artifactManagement, final NotificationUnreadButton notificationUnreadButton,
-            final DistributionsViewMenuItem distributionsViewMenuItem,
-            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext) {
+            final TargetFilterQueryManagement targetFilterQueryManagement, final SystemManagement systemManagement,
+            final ArtifactManagement artifactManagement, final TenantConfigurationManagement configManagement,
+            final SystemSecurityContext systemSecurityContext) {
         this.permChecker = permChecker;
         this.manageDistUIState = manageDistUIState;
 
@@ -105,7 +98,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
                     manageDistUIState.getDSTypeFilterLayoutUiState(),
                     manageDistUIState.getDistributionSetGridLayoutUiState());
             this.swModuleGridLayout = new SwModuleGridLayout(i18n, uiNotification, eventBus, softwareModuleManagement,
-                    softwareModuleTypeManagement, entityFactory, permChecker, artifactUploadState, artifactManagement,
+                    softwareModuleTypeManagement, entityFactory, permChecker, artifactManagement,
                     manageDistUIState.getDistSMTypeFilterLayoutUiState(),
                     manageDistUIState.getSwModuleGridLayoutUiState());
             this.distSMTypeFilterLayout = new DistSMTypeFilterLayout(eventBus, i18n, permChecker, entityFactory,
@@ -159,29 +152,38 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
 
     private void restoreState() {
         if (manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
-            hideSmTypeLayout();
-        } else {
-            showSmTypeLayout();
-        }
-
-        if (manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
             hideDsTypeLayout();
         } else {
             showDsTypeLayout();
         }
+        dsTypeFilterLayout.restoreState();
 
         if (manageDistUIState.getDistributionSetGridLayoutUiState().isMaximized()) {
             maximizeDsGridLayout();
         }
+        distributionSetGridLayout.restoreState();
 
         if (manageDistUIState.getSwModuleGridLayoutUiState().isMaximized()) {
             maximizeSmGridLayout();
         }
-
-        dsTypeFilterLayout.restoreState();
-        distributionSetGridLayout.restoreState();
         swModuleGridLayout.restoreState();
+
+        if (manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
+            hideSmTypeLayout();
+        } else {
+            showSmTypeLayout();
+        }
         distSMTypeFilterLayout.restoreState();
+    }
+
+    void hideDsTypeLayout() {
+        dsTypeFilterLayout.setVisible(false);
+        distributionSetGridLayout.showDsTypeHeaderIcon();
+    }
+
+    void showDsTypeLayout() {
+        dsTypeFilterLayout.setVisible(true);
+        distributionSetGridLayout.hideDsTypeHeaderIcon();
     }
 
     void maximizeDsGridLayout() {
@@ -203,6 +205,16 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         mainLayout.setColumnExpandRatio(1, 0F);
 
         swModuleGridLayout.maximize();
+    }
+
+    void hideSmTypeLayout() {
+        distSMTypeFilterLayout.setVisible(false);
+        swModuleGridLayout.showSmTypeHeaderIcon();
+    }
+
+    void showSmTypeLayout() {
+        distSMTypeFilterLayout.setVisible(true);
+        swModuleGridLayout.hideSmTypeHeaderIcon();
     }
 
     @Override
@@ -228,26 +240,6 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
                 showSmTypeLayout();
             }
         }
-    }
-
-    void hideDsTypeLayout() {
-        dsTypeFilterLayout.setVisible(false);
-        distributionSetGridLayout.showDsTypeHeaderIcon();
-    }
-
-    void hideSmTypeLayout() {
-        distSMTypeFilterLayout.setVisible(false);
-        swModuleGridLayout.showSmTypeHeaderIcon();
-    }
-
-    void showDsTypeLayout() {
-        dsTypeFilterLayout.setVisible(true);
-        distributionSetGridLayout.hideDsTypeHeaderIcon();
-    }
-
-    void showSmTypeLayout() {
-        distSMTypeFilterLayout.setVisible(true);
-        swModuleGridLayout.hideSmTypeHeaderIcon();
     }
 
     void onDsSelected(final ProxyDistributionSet ds) {
@@ -296,12 +288,19 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
 
     @PreDestroy
     void destroy() {
-        if (dsTypeFilterLayout != null && distributionSetGridLayout != null && swModuleGridLayout != null
-                && distSMTypeFilterLayout != null && eventListener != null) {
+        if (dsTypeFilterLayout != null) {
             dsTypeFilterLayout.unsubscribeListener();
+        }
+        if (distributionSetGridLayout != null) {
             distributionSetGridLayout.unsubscribeListener();
+        }
+        if (swModuleGridLayout != null) {
             swModuleGridLayout.unsubscribeListener();
+        }
+        if (distSMTypeFilterLayout != null) {
             distSMTypeFilterLayout.unsubscribeListener();
+        }
+        if (eventListener != null) {
             eventListener.unsubscribeListeners();
         }
     }

@@ -43,10 +43,5 @@ public enum ManagementUIEvent {
     //
     ASSIGN_DISTRIBUTION_TAG,
     //
-    TARGET_TABLE_FILTER,
-    //
-    RESET_SIMPLE_FILTERS,
-    //
-    RESET_TARGET_FILTER_QUERY
-
+    TARGET_TABLE_FILTER
 }

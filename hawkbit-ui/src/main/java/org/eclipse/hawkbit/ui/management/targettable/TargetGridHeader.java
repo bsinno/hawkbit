@@ -27,13 +27,13 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupp
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadPopupEvent;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -221,11 +221,12 @@ public class TargetGridHeader extends AbstractGridHeader {
             filterButtonsHeaderSupport.showFilterButtonsIcon();
         } else if (event == ManagementUIEvent.SHOW_TARGET_TAG_LAYOUT) {
             filterButtonsHeaderSupport.hideFilterButtonsIcon();
-        } else if (event == ManagementUIEvent.RESET_SIMPLE_FILTERS) {
-            UI.getCurrent().access(this::onSimpleFilterReset);
-        } else if (event == ManagementUIEvent.RESET_TARGET_FILTER_QUERY) {
-            UI.getCurrent().access(searchHeaderSupport::enableSearch);
         }
+        // else if (event == ManagementUIEvent.RESET_SIMPLE_FILTERS) {
+        // UI.getCurrent().access(this::onSimpleFilterReset);
+        // } else if (event == ManagementUIEvent.RESET_TARGET_FILTER_QUERY) {
+        // UI.getCurrent().access(searchHeaderSupport::enableSearch);
+        // }
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -260,5 +261,13 @@ public class TargetGridHeader extends AbstractGridHeader {
     private void onStartOfBulkUpload() {
         bulkUploadHeaderSupport.disableBulkUpload();
         targetBulkUpdateWindow.onStartOfUpload();
+    }
+
+    public void showTargetTagIcon() {
+        filterButtonsHeaderSupport.showFilterButtonsIcon();
+    }
+
+    public void hideTargetTagIcon() {
+        filterButtonsHeaderSupport.hideFilterButtonsIcon();
     }
 }

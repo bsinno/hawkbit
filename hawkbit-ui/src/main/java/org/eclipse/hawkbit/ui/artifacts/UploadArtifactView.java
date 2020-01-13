@@ -22,7 +22,6 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayout;
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.dd.criteria.UploadViewClientCriterion;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -131,18 +130,27 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         } else {
             showSmTypeLayout();
         }
+        smTypeFilterLayout.restoreState();
 
         if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
             maximizeSmGridLayout();
         }
+        smGridLayout.restoreState();
 
         if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
             maximizeArtifactGridLayout();
         }
-
-        smTypeFilterLayout.restoreState();
-        smGridLayout.restoreState();
         artifactDetailsGridLayout.restoreState();
+    }
+
+    void hideSmTypeLayout() {
+        smTypeFilterLayout.setVisible(false);
+        smGridLayout.showSmTypeHeaderIcon();
+    }
+
+    void showSmTypeLayout() {
+        smTypeFilterLayout.setVisible(true);
+        smGridLayout.hideSmTypeHeaderIcon();
     }
 
     void maximizeSmGridLayout() {
@@ -180,16 +188,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
                 showSmTypeLayout();
             }
         }
-    }
-
-    void hideSmTypeLayout() {
-        smTypeFilterLayout.setVisible(false);
-        smGridLayout.showSmTypeHeaderIcon();
-    }
-
-    void showSmTypeLayout() {
-        smTypeFilterLayout.setVisible(true);
-        smGridLayout.hideSmTypeHeaderIcon();
     }
 
     void onSmSelected(final ProxySoftwareModule sm) {

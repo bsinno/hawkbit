@@ -21,23 +21,10 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class SwModuleDetails extends AbstractSoftwareModuleDetails {
     private static final long serialVersionUID = 1L;
 
-    private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
-
     SwModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SoftwareModuleManagement softwareManagement,
-            final SwModuleGridLayoutUiState swModuleGridLayoutUiState,
-            final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
+            final SoftwareModuleManagement softwareManagement, final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
         super(i18n, eventBus, softwareManagement, smMetaDataWindowBuilder);
 
-        this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
-
         buildDetails();
-        restoreState();
-    }
-
-    private void restoreState() {
-        if (swModuleGridLayoutUiState.isMaximized()) {
-            setVisible(false);
-        }
     }
 }

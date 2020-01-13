@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.artifacts.upload;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress.FileUploadStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress.ProgressSatus;

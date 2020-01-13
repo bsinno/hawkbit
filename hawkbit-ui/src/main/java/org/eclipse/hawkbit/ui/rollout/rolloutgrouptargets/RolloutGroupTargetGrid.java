@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupTargetsDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.rollout.FontIcon;
+import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
@@ -43,7 +43,7 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Void> {
 
     private final RolloutUIState rolloutUIState;
 
-    private final Map<Status, FontIcon> statusIconMap = new EnumMap<>(Status.class);
+    private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, Void> rolloutGroupTargetsDataProvider;
 
@@ -75,25 +75,25 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Void> {
     }
 
     private void initStatusIconMap() {
-        statusIconMap.put(Status.FINISHED, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+        statusIconMap.put(Status.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.FINISHED)));
-        statusIconMap.put(Status.SCHEDULED, new FontIcon(VaadinIcons.HOURGLASS_EMPTY,
+        statusIconMap.put(Status.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_EMPTY,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.SCHEDULED)));
-        statusIconMap.put(Status.RUNNING, new FontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING,
+        statusIconMap.put(Status.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING,
                 getStatusDescription(Status.RUNNING)));
-        statusIconMap.put(Status.RETRIEVED, new FontIcon(VaadinIcons.CHECK_CIRCLE_O,
+        statusIconMap.put(Status.RETRIEVED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE_O,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RETRIEVED)));
-        statusIconMap.put(Status.WARNING, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+        statusIconMap.put(Status.WARNING, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_ORANGE, getStatusDescription(Status.WARNING)));
-        statusIconMap.put(Status.DOWNLOAD, new FontIcon(VaadinIcons.CLOUD_DOWNLOAD,
+        statusIconMap.put(Status.DOWNLOAD, new ProxyFontIcon(VaadinIcons.CLOUD_DOWNLOAD,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.DOWNLOAD)));
-        statusIconMap.put(Status.DOWNLOADED, new FontIcon(VaadinIcons.CLOUD_DOWNLOAD,
+        statusIconMap.put(Status.DOWNLOADED, new ProxyFontIcon(VaadinIcons.CLOUD_DOWNLOAD,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.DOWNLOADED)));
-        statusIconMap.put(Status.CANCELING, new FontIcon(VaadinIcons.CLOSE_CIRCLE,
+        statusIconMap.put(Status.CANCELING, new ProxyFontIcon(VaadinIcons.CLOSE_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.CANCELING)));
-        statusIconMap.put(Status.CANCELED, new FontIcon(VaadinIcons.CLOSE_CIRCLE,
+        statusIconMap.put(Status.CANCELED, new ProxyFontIcon(VaadinIcons.CLOSE_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.CANCELED)));
-        statusIconMap.put(Status.ERROR, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+        statusIconMap.put(Status.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(Status.ERROR)));
     }
 
@@ -143,7 +143,7 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Void> {
     }
 
     private Label buildStatusIcon(final ProxyTarget target) {
-        final FontIcon statusFontIcon = target.getStatus() == null || statusIconMap.get(target.getStatus()) == null
+        final ProxyFontIcon statusFontIcon = target.getStatus() == null || statusIconMap.get(target.getStatus()) == null
                 ? buildDefaultStatusIcon()
                 : getFontIconFromStatusMap(target.getStatus());
 
@@ -153,7 +153,7 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Void> {
         return buildLabelIcon(statusFontIcon, statusId);
     }
 
-    private FontIcon getFontIconFromStatusMap(final Status status) {
+    private ProxyFontIcon getFontIconFromStatusMap(final Status status) {
         final boolean isFinishedDownloadOnlyAssignment = Status.DOWNLOADED == status && rolloutUIState.getRolloutGroup()
                 .map(group -> ActionType.DOWNLOAD_ONLY == group.getRollout().getActionType()).orElse(false);
 
@@ -163,20 +163,20 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Void> {
     // Actions are not created for targets when rollout's status is
     // READY and when duplicate assignment is done. In these cases
     // display a appropriate status with description
-    private FontIcon buildDefaultStatusIcon() {
+    private ProxyFontIcon buildDefaultStatusIcon() {
         final RolloutGroup rolloutGroup = rolloutUIState.getRolloutGroup().orElse(null);
 
         if (rolloutGroup != null && rolloutGroup.getStatus() == RolloutGroupStatus.READY) {
-            return new FontIcon(VaadinIcons.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
+            return new ProxyFontIcon(VaadinIcons.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
                     i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX
                             + RolloutGroupStatus.READY.toString().toLowerCase()));
         } else if (rolloutGroup != null && rolloutGroup.getStatus() == RolloutGroupStatus.FINISHED) {
             final String ds = rolloutUIState.getRolloutDistributionSet().orElse("");
 
-            return new FontIcon(VaadinIcons.MINUS_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+            return new ProxyFontIcon(VaadinIcons.MINUS_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                     i18n.getMessage("message.dist.already.assigned", ds));
         } else {
-            return new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+            return new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                     i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN));
         }
     }

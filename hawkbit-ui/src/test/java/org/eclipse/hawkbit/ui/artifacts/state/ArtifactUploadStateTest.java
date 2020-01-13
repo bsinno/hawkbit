@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.artifacts.state;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadId;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress.FileUploadStatus;

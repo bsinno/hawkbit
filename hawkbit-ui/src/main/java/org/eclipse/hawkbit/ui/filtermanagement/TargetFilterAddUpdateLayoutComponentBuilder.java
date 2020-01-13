@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
-import java.util.concurrent.Executor;
-
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
@@ -17,17 +15,17 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.ReadOnlyHasValue;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
 
@@ -37,20 +35,13 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
     private final UiProperties uiProperties;
-    private final UIEventBus eventBus;
     private final RsqlValidationOracle rsqlValidationOracle;
-    private final Executor executor;
-    private final TargetFilterDetailsLayoutUiState uiState;
 
     public TargetFilterAddUpdateLayoutComponentBuilder(final VaadinMessageSource i18n, final UiProperties uiProperties,
-            final TargetFilterDetailsLayoutUiState uiState, final UIEventBus eventBus,
-            final RsqlValidationOracle rsqlValidationOracle, final Executor executor) {
+            final RsqlValidationOracle rsqlValidationOracle) {
         this.i18n = i18n;
         this.uiProperties = uiProperties;
-        this.eventBus = eventBus;
         this.rsqlValidationOracle = rsqlValidationOracle;
-        this.executor = executor;
-        this.uiState = uiState;
     }
 
     public TextField createNameField(final Binder<ProxyTargetFilterQuery> binder) {
@@ -59,21 +50,29 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
                 .prompt(i18n.getMessage(TEXTFIELD_FILTER_NAME)).buildTextComponent();
         filterName.setWidth(380, Unit.PIXELS);
 
-        // TODO: i18n
-        binder.forField(filterName).asRequired("You must provide target filter name")
+        binder.forField(filterName).asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED))
                 .bind(ProxyTargetFilterQuery::getName, ProxyTargetFilterQuery::setName);
 
         return filterName;
     }
 
+    public Label createNameLable(final Binder<ProxyTargetFilterQuery> binder) {
+        final Label filterLable = new Label();
+        filterLable.setCaption(i18n.getMessage(TEXTFIELD_FILTER_NAME));
+
+        final ReadOnlyHasValue<String> readonlyHasValue = new ReadOnlyHasValue<>(filterLable::setValue);
+        binder.forField(readonlyHasValue).bind(ProxyTargetFilterQuery::getName, ProxyTargetFilterQuery::setName);
+        return filterLable;
+    }
+
     public AutoCompleteTextFieldComponent createQueryField(final Binder<ProxyTargetFilterQuery> binder) {
-        final AutoCompleteTextFieldComponent autoCompleteComponent = new AutoCompleteTextFieldComponent(eventBus,
-                rsqlValidationOracle, executor);
+        final AutoCompleteTextFieldComponent autoCompleteComponent = new AutoCompleteTextFieldComponent(
+                rsqlValidationOracle);
 
         binder.forField(autoCompleteComponent)
                 .withValidator((query, context) -> autoCompleteComponent.isValid() ? ValidationResult.ok()
-                        // TODO: use i18n or validation message
-                        : ValidationResult.error("Target filter query is not valid"))
+                        : ValidationResult
+                                .error(i18n.getMessage(UIMessageIdProvider.MESSAGE_FILTER_QUERY_ERROR_NOTVALIDE)))
                 .bind(ProxyTargetFilterQuery::getQuery, ProxyTargetFilterQuery::setQuery);
 
         return autoCompleteComponent;

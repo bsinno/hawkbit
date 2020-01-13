@@ -21,8 +21,8 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.Selectio
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.management.DeploymentView;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.eclipse.hawkbit.ui.rollout.FontIcon;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
+import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -46,7 +46,7 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
 
     private final ManagementUIState managementUIState;
 
-    private final Map<Status, FontIcon> statusIconMap = new EnumMap<>(Status.class);
+    private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
     private final ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> actionStatusDataProvider;
 
@@ -90,25 +90,25 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     }
 
     private void initStatusIconMap() {
-        statusIconMap.put(Status.FINISHED, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+        statusIconMap.put(Status.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.FINISHED)));
-        statusIconMap.put(Status.SCHEDULED, new FontIcon(VaadinIcons.HOURGLASS_EMPTY,
+        statusIconMap.put(Status.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_EMPTY,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.SCHEDULED)));
-        statusIconMap.put(Status.RUNNING, new FontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING,
+        statusIconMap.put(Status.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING,
                 getStatusDescription(Status.RUNNING)));
-        statusIconMap.put(Status.RETRIEVED, new FontIcon(VaadinIcons.CHECK_CIRCLE_O,
+        statusIconMap.put(Status.RETRIEVED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE_O,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RETRIEVED)));
-        statusIconMap.put(Status.WARNING, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+        statusIconMap.put(Status.WARNING, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_ORANGE, getStatusDescription(Status.WARNING)));
-        statusIconMap.put(Status.DOWNLOAD, new FontIcon(VaadinIcons.CLOUD_DOWNLOAD,
+        statusIconMap.put(Status.DOWNLOAD, new ProxyFontIcon(VaadinIcons.CLOUD_DOWNLOAD,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.DOWNLOAD)));
-        statusIconMap.put(Status.DOWNLOADED, new FontIcon(VaadinIcons.CLOUD_DOWNLOAD,
+        statusIconMap.put(Status.DOWNLOADED, new ProxyFontIcon(VaadinIcons.CLOUD_DOWNLOAD,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.DOWNLOADED)));
-        statusIconMap.put(Status.CANCELING, new FontIcon(VaadinIcons.CLOSE_CIRCLE,
+        statusIconMap.put(Status.CANCELING, new ProxyFontIcon(VaadinIcons.CLOSE_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.CANCELING)));
-        statusIconMap.put(Status.CANCELED, new FontIcon(VaadinIcons.CLOSE_CIRCLE,
+        statusIconMap.put(Status.CANCELED, new ProxyFontIcon(VaadinIcons.CLOSE_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.CANCELED)));
-        statusIconMap.put(Status.ERROR, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+        statusIconMap.put(Status.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(Status.ERROR)));
     }
 
@@ -135,8 +135,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     }
 
     private Label buildStatusIcon(final ProxyActionStatus actionStatus) {
-        final FontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(actionStatus.getStatus()))
-                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(actionStatus.getStatus()))
+                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                         i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
         final String statusId = new StringBuilder(UIComponentIdProvider.ACTION_STATUS_GRID_STATUS_LABEL_ID).append(".")

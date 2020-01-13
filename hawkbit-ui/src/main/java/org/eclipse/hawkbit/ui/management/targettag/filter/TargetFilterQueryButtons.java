@@ -13,42 +13,48 @@ import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.vaadin.spring.events.EventBus;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
+import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Grid;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Target filter query{#link {@link TargetFilterQuery} buttons layout.
  */
-public class TargetFilterQueryButtons extends Grid<ProxyTargetFilterQuery> {
+public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuery, String> {
     private static final long serialVersionUID = 1L;
+
     protected static final String FILTER_BUTTON_COLUMN_ID = "filterButton";
 
-    private final ManagementUIState managementUIState;
-    private final transient EventBus.UIEventBus eventBus;
-    private final transient TargetFilterQueryDataProvider tfqDataProvider;
+    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
+
+    private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> tfqDataProvider;
+
     private final CustomTargetTagFilterButtonClick customTargetTagFilterButtonClick;
 
-    TargetFilterQueryButtons(final ManagementUIState managementUIState, final UIEventBus eventBus,
-            final TargetFilterQueryManagement targetFilterQueryManagement) {
-        this.managementUIState = managementUIState;
-        this.eventBus = eventBus;
-        this.customTargetTagFilterButtonClick = new CustomTargetTagFilterButtonClick(eventBus, managementUIState,
-                targetFilterQueryManagement);
+    TargetFilterQueryButtons(final VaadinMessageSource i18n, final UIEventBus eventBus,
+            final TargetFilterQueryManagement targetFilterQueryManagement,
+            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
+        super(i18n, eventBus);
+
+        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
+
+        this.customTargetTagFilterButtonClick = new CustomTargetTagFilterButtonClick(this::publishFilterChangedEvent);
 
         this.tfqDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
-                new TargetFilterQueryToProxyTargetFilterMapper());
+                new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
 
         init();
-        eventBus.subscribe(this);
     }
 
     /**
@@ -56,58 +62,83 @@ public class TargetFilterQueryButtons extends Grid<ProxyTargetFilterQuery> {
      * 
      * @param filterButtonClickBehaviour
      */
-    private void init() {
-        setId(UIComponentIdProvider.CUSTOM_TARGET_TAG_TABLE_ID);
+    @Override
+    protected void init() {
+        super.init();
 
+        setStyleName("type-button-layout");
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_BORDERLESS);
         addStyleName(ValoTheme.TABLE_COMPACT);
-        setStyleName("type-button-layout");
-        setSizeFull();
-
-        setSelectionMode(SelectionMode.NONE);
-
-        setDataProvider(tfqDataProvider);
 
         removeHeaderRow(0);
-        addColumns();
+        setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_FILTER_CUSTOM));
     }
 
-    private void addColumns() {
-        addComponentColumn(this::buildTfqButton).setId(FILTER_BUTTON_COLUMN_ID);
+    @Override
+    public String getGridId() {
+        return UIComponentIdProvider.CUSTOM_TARGET_TAG_TABLE_ID;
+    }
+
+    @Override
+    public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> getFilterDataProvider() {
+        return tfqDataProvider;
+    }
+
+    @Override
+    public void addColumns() {
+        addComponentColumn(this::buildTfqButton).setId(FILTER_BUTTON_COLUMN_ID).setStyleGenerator(item -> {
+            if (customTargetTagFilterButtonClick.isFilterPreviouslyClicked(item)) {
+                return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
+            } else {
+                return null;
+            }
+        });
     }
 
     private Button buildTfqButton(final ProxyTargetFilterQuery filterQuery) {
         final Button tfqButton = new Button(filterQuery.getName());
 
+        // TODO: use constant for Id
+        tfqButton.setId("customFilter." + filterQuery.getId());
         tfqButton.setDescription(filterQuery.getName());
         tfqButton.addStyleName("generatedColumnPadding");
         tfqButton.addStyleName("button-no-border");
         tfqButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
         tfqButton.addStyleName("button-tag-no-border");
         tfqButton.addStyleName("custom-filter-button");
-        tfqButton.setId("customFilter." + filterQuery.getId());
 
         tfqButton.addClickListener(event -> customTargetTagFilterButtonClick.processFilterClick(filterQuery));
-
-        if (isClickedByDefault(filterQuery.getId())) {
-            // TODO
-            // customTargetTagFilterButtonClick.setDefaultButtonClicked(tfqButton);
-        }
 
         return tfqButton;
     }
 
-    private boolean isClickedByDefault(final Long id) {
-        return managementUIState.getTargetTableFilters().getTargetFilterQuery().map(q -> q.equals(id)).orElse(false);
+    private void publishFilterChangedEvent(final ProxyTargetFilterQuery targetFilterQueryFilter,
+            final ClickBehaviourType clickType) {
+        // TODO: somehow move it to abstract class/TypeFilterButtonClick
+        // needed to trigger style generator
+        getDataCommunicator().reset();
+
+        eventBus.publish(EventTopics.CUSTOM_FILTER_CHANGED, this,
+                new CustomFilterChangedEventPayload(
+                        ClickBehaviourType.CLICKED == clickType ? CustomFilterChangedEventType.CLICKED
+                                : CustomFilterChangedEventType.UNCLICKED,
+                        targetFilterQueryFilter.getId()));
+
+        targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(
+                ClickBehaviourType.CLICKED == clickType ? targetFilterQueryFilter.getId() : null);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final ManagementUIEvent event) {
-        if (event == ManagementUIEvent.RESET_TARGET_FILTER_QUERY) {
-            customTargetTagFilterButtonClick.clearAppliedTargetFilterQuery();
-        }
+    public void clearAppliedTargetFilterQuery() {
+        customTargetTagFilterButtonClick.clearPreviouslyClickedFilter();
+
+        // TODO: should we reset data communicator here for styling update
+
+        eventBus.publish(EventTopics.CUSTOM_FILTER_CHANGED, this, new CustomFilterChangedEventPayload(
+                CustomFilterChangedEventType.UNCLICKED, targetTagFilterLayoutUiState.getClickedTargetFilterQueryId()));
+
+        targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(null);
     }
 }

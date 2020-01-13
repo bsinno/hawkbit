@@ -8,10 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.management;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -24,72 +26,44 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.components.AbstractNotificationView;
-import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
-import org.eclipse.hawkbit.ui.components.RefreshableContainer;
-import org.eclipse.hawkbit.ui.dd.criteria.ManagementViewClientCriterion;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridLayout;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusGridLayout;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusMsgGridLayout;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayout;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayout;
-import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.management.state.DistributionTableFilters;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayout;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayout;
-import org.eclipse.hawkbit.ui.menu.DashboardMenuItem;
-import org.eclipse.hawkbit.ui.push.DistributionSetCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetTagCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetTagDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetTagUpdatedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetTagCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetTagDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetTagUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventBusListenerMethodFilter;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.google.common.collect.Maps;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * Target status and deployment management view
  */
 @UIScope
 @SpringView(name = DeploymentView.VIEW_NAME, ui = AbstractHawkbitUI.class)
-public class DeploymentView extends AbstractNotificationView implements BrowserWindowResizeListener {
+public class DeploymentView extends VerticalLayout implements View, BrowserWindowResizeListener {
     private static final long serialVersionUID = 1L;
 
     public static final String VIEW_NAME = "deployment";
 
     private final SpPermissionChecker permChecker;
-
     private final ManagementUIState managementUIState;
 
     private final TargetTagFilterLayout targetTagFilterLayout;
@@ -97,327 +71,417 @@ public class DeploymentView extends AbstractNotificationView implements BrowserW
     private final DistributionGridLayout distributionGridLayout;
     private final DistributionTagLayout distributionTagLayout;
     private final ActionHistoryGridLayout actionHistoryLayout;
-    private final ActionStatusGridLayout actionStatusLayout;
-    private final ActionStatusMsgGridLayout actionStatusMsgLayout;
 
     private GridLayout mainLayout;
 
-    private final DeploymentViewMenuItem deploymentViewMenuItem;
-    private final CountMessageLabel countMessageLabel;
+    private final transient DeploymentViewEventListener eventListener;
 
     @Autowired
     DeploymentView(final UIEventBus eventBus, final SpPermissionChecker permChecker, final VaadinMessageSource i18n,
             final UINotification uiNotification, final ManagementUIState managementUIState,
-            final DeploymentManagement deploymentManagement, final DistributionTableFilters distFilterParameters,
-            final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
+            final DeploymentManagement deploymentManagement, final DistributionSetManagement distributionSetManagement,
+            final SoftwareModuleManagement smManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final UiProperties uiProperties,
-            final ManagementViewClientCriterion managementViewClientCriterion,
             final TargetTagManagement targetTagManagement,
             final DistributionSetTagManagement distributionSetTagManagement,
             final TargetFilterQueryManagement targetFilterQueryManagement, final SystemManagement systemManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
-            final NotificationUnreadButton notificationUnreadButton,
-            final DeploymentViewMenuItem deploymentViewMenuItem, @Qualifier("uiExecutor") final Executor uiExecutor) {
-        super(eventBus, notificationUnreadButton);
-
+            @Qualifier("uiExecutor") final Executor uiExecutor) {
         this.permChecker = permChecker;
         this.managementUIState = managementUIState;
 
-        this.deploymentViewMenuItem = deploymentViewMenuItem;
-
         if (permChecker.hasTargetReadPermission()) {
             this.targetTagFilterLayout = new TargetTagFilterLayout(i18n, managementUIState, permChecker, eventBus,
-                    uiNotification, entityFactory, targetFilterQueryManagement, targetTagManagement, targetManagement);
+                    uiNotification, entityFactory, targetFilterQueryManagement, targetTagManagement, targetManagement,
+                    managementUIState.getTargetTagFilterLayoutUiState());
 
             this.targetGridLayout = new TargetGridLayout(eventBus, targetManagement, entityFactory, i18n,
                     uiNotification, managementUIState, deploymentManagement, uiProperties, permChecker,
-                    targetTagManagement, distributionSetManagement, uiExecutor, configManagement,
-                    systemSecurityContext);
+                    targetTagManagement, distributionSetManagement, uiExecutor, configManagement, systemSecurityContext,
+                    managementUIState.getTargetGridLayoutUiState());
 
             this.actionHistoryLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, eventBus, uiNotification,
-                    managementUIState, permChecker);
-            this.actionStatusLayout = new ActionStatusGridLayout(i18n, eventBus, managementUIState,
-                    deploymentManagement);
-            this.actionStatusMsgLayout = new ActionStatusMsgGridLayout(i18n, eventBus, managementUIState,
-                    deploymentManagement);
-
-            this.countMessageLabel = new CountMessageLabel(eventBus, targetManagement, i18n, managementUIState,
-                    targetGridLayout.getTargetGrid().getDataCommunicator());
+                    managementUIState, permChecker, managementUIState.getActionHistoryGridLayoutUiState());
         } else {
             this.targetTagFilterLayout = null;
             this.targetGridLayout = null;
             this.actionHistoryLayout = null;
-            this.actionStatusLayout = null;
-            this.actionStatusMsgLayout = null;
-            this.countMessageLabel = null;
         }
 
         if (permChecker.hasReadRepositoryPermission()) {
             this.distributionTagLayout = new DistributionTagLayout(eventBus, managementUIState, i18n, permChecker,
-                    distributionSetTagManagement, entityFactory, uiNotification, distributionSetManagement);
+                    distributionSetTagManagement, entityFactory, uiNotification, distributionSetManagement,
+                    managementUIState.getDistributionTagLayoutUiState());
             this.distributionGridLayout = new DistributionGridLayout(i18n, eventBus, permChecker, entityFactory,
                     uiNotification, managementUIState, targetManagement, distributionSetManagement, smManagement,
                     distributionSetTypeManagement, distributionSetTagManagement, systemManagement, deploymentManagement,
-                    configManagement, systemSecurityContext, uiProperties);
+                    configManagement, systemSecurityContext, uiProperties,
+                    managementUIState.getDistributionGridLayoutUiState());
         } else {
             this.distributionTagLayout = null;
             this.distributionGridLayout = null;
         }
-    }
 
-    @Override
-    protected DashboardMenuItem getDashboardMenuItem() {
-        return deploymentViewMenuItem;
+        if (permChecker.hasTargetReadPermission() || permChecker.hasReadRepositoryPermission()) {
+            this.eventListener = new DeploymentViewEventListener(this, eventBus);
+        } else {
+            this.eventListener = null;
+        }
     }
 
     @PostConstruct
     void init() {
-        buildLayout();
-        restoreState();
-        Page.getCurrent().addBrowserWindowResizeListener(this);
-        showOrHideFilterButtons(Page.getCurrent().getBrowserWindowWidth());
-        eventBus.publish(this, ManagementUIEvent.SHOW_COUNT_MESSAGE);
+        if (permChecker.hasTargetReadPermission() || permChecker.hasReadRepositoryPermission()) {
+            buildLayout();
+            restoreState();
+            Page.getCurrent().addBrowserWindowResizeListener(this);
+        }
     }
 
     private void buildLayout() {
-        if (permChecker.hasTargetReadPermission() || permChecker.hasReadRepositoryPermission()) {
-            setSizeFull();
-            createMainLayout();
-            addComponent(mainLayout, 0);
-            setExpandRatio(mainLayout, 1.0F);
-        }
+        setMargin(false);
+        setSpacing(false);
+        setSizeFull();
+
+        createMainLayout();
+
+        addComponent(mainLayout);
+        setExpandRatio(mainLayout, 1.0F);
     }
 
     private void createMainLayout() {
         mainLayout = new GridLayout();
         mainLayout.setSizeFull();
+        mainLayout.setMargin(false);
         mainLayout.setSpacing(true);
         mainLayout.setStyleName("fullSize");
 
         mainLayout.setRowExpandRatio(0, 1.0F);
 
-        layoutWidgets();
-    }
-
-    private void layoutWidgets() {
-        mainLayout.removeAllComponents();
         if (permChecker.hasReadRepositoryPermission() && permChecker.hasTargetReadPermission()) {
-            displayAllWidgets();
+            addAllWidgets();
         } else if (permChecker.hasReadRepositoryPermission()) {
-            displayDistributionWidgetsOnly();
+            addDistributionWidgetsOnly();
         } else if (permChecker.hasTargetReadPermission()) {
-            displayTargetWidgetsOnly();
+            addTargetWidgetsOnly();
         }
     }
 
-    private void displayAllWidgets() {
+    private void addAllWidgets() {
         mainLayout.setColumns(5);
-        mainLayout.setRows(1);
-        mainLayout.addComponent(targetTagFilterLayout, 0, 0);
-        mainLayout.addComponent(targetGridLayout, 1, 0);
-        mainLayout.addComponent(distributionGridLayout, 2, 0);
-        mainLayout.addComponent(distributionTagLayout, 3, 0);
-        mainLayout.addComponent(actionHistoryLayout, 4, 0);
-        showTargetCount();
+
         mainLayout.setColumnExpandRatio(0, 0F);
         mainLayout.setColumnExpandRatio(1, 0.275F);
         mainLayout.setColumnExpandRatio(2, 0.275F);
         mainLayout.setColumnExpandRatio(3, 0F);
         mainLayout.setColumnExpandRatio(4, 0.45F);
+
+        mainLayout.addComponent(targetTagFilterLayout, 0, 0);
+        mainLayout.addComponent(targetGridLayout, 1, 0);
+        mainLayout.addComponent(distributionGridLayout, 2, 0);
+        mainLayout.addComponent(distributionTagLayout, 3, 0);
+        mainLayout.addComponent(actionHistoryLayout, 4, 0);
     }
 
-    private void showTargetCount() {
-        addComponent(countMessageLabel);
-    }
-
-    private void displayDistributionWidgetsOnly() {
+    private void addDistributionWidgetsOnly() {
         mainLayout.setColumns(2);
-        mainLayout.setRows(1);
+
+        mainLayout.setColumnExpandRatio(0, 1F);
+
         mainLayout.addComponent(distributionGridLayout, 0, 0);
         mainLayout.addComponent(distributionTagLayout, 1, 0);
-        mainLayout.setColumnExpandRatio(0, 1F);
     }
 
-    private void displayTargetWidgetsOnly() {
+    private void addTargetWidgetsOnly() {
         mainLayout.setColumns(3);
-        mainLayout.setRows(1);
+
+        mainLayout.setColumnExpandRatio(1, 0.4F);
+        mainLayout.setColumnExpandRatio(2, 0.6F);
+
         mainLayout.addComponent(targetTagFilterLayout, 0, 0);
         mainLayout.addComponent(targetGridLayout, 1, 0);
         mainLayout.addComponent(actionHistoryLayout, 2, 0);
-        showTargetCount();
-        mainLayout.setColumnExpandRatio(1, 0.4F);
-        mainLayout.setColumnExpandRatio(2, 0.6F);
     }
 
     private void restoreState() {
-        if (managementUIState.isTargetTableMaximized()) {
-            maximizeTargetTable();
+        if (permChecker.hasTargetReadPermission()) {
+            if (managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
+                hideTargetTagLayout();
+            } else {
+                showTargetTagLayout();
+            }
+            targetTagFilterLayout.restoreState();
+
+            if (managementUIState.getTargetGridLayoutUiState().isMaximized()) {
+                maximizeTargetGridLayout();
+            }
+            targetGridLayout.restoreState();
+
+            if (managementUIState.getActionHistoryGridLayoutUiState().isMaximized()) {
+                maximizeActionHistoryGridLayout();
+            }
+            actionHistoryLayout.restoreState();
         }
-        if (managementUIState.isDsTableMaximized()) {
-            maximizeDistTable();
-        }
-        if (managementUIState.isActionHistoryMaximized()) {
-            maximizeActionHistory();
+
+        if (permChecker.hasReadRepositoryPermission()) {
+            if (managementUIState.getDistributionTagLayoutUiState().isHidden()) {
+                hideDsTagLayout();
+            } else {
+                showDsTagLayout();
+            }
+            distributionTagLayout.restoreState();
+
+            if (managementUIState.getDistributionGridLayoutUiState().isMaximized()) {
+                maximizeDsGridLayout();
+            }
+            distributionGridLayout.restoreState();
         }
     }
 
-    private void maximizeTargetTable() {
-        if (permChecker.hasReadRepositoryPermission()) {
-            mainLayout.removeComponent(distributionGridLayout);
-            mainLayout.removeComponent(distributionTagLayout);
+    void hideTargetTagLayout() {
+        targetTagFilterLayout.setVisible(false);
+        targetGridLayout.showTargetTagHeaderIcon();
+    }
+
+    void showTargetTagLayout() {
+        targetTagFilterLayout.setVisible(true);
+        targetGridLayout.hideTargetTagHeaderIcon();
+    }
+
+    void maximizeTargetGridLayout() {
+        if (distributionGridLayout != null) {
+            distributionGridLayout.setVisible(false);
         }
-        mainLayout.removeComponent(actionHistoryLayout);
-        removeComponent(countMessageLabel);
+        if (distributionTagLayout != null) {
+            distributionTagLayout.setVisible(false);
+        }
+        actionHistoryLayout.setVisible(false);
+
+        mainLayout.setColumnExpandRatio(0, 0F);
         mainLayout.setColumnExpandRatio(1, 1F);
         mainLayout.setColumnExpandRatio(2, 0F);
         mainLayout.setColumnExpandRatio(3, 0F);
         mainLayout.setColumnExpandRatio(4, 0F);
+
+        targetGridLayout.maximize();
     }
 
-    private void maximizeDistTable() {
-        if (permChecker.hasTargetReadPermission()) {
-            mainLayout.removeComponent(targetTagFilterLayout);
-            mainLayout.removeComponent(targetGridLayout);
-            mainLayout.removeComponent(actionHistoryLayout);
-            removeComponent(countMessageLabel);
+    void maximizeActionHistoryGridLayout() {
+        targetTagFilterLayout.setVisible(false);
+        targetGridLayout.setVisible(false);
+        if (distributionGridLayout != null) {
+            distributionGridLayout.setVisible(false);
         }
+        if (distributionTagLayout != null) {
+            distributionTagLayout.setVisible(false);
+        }
+
+        mainLayout.setColumnExpandRatio(0, 0F);
+        mainLayout.setColumnExpandRatio(1, 0F);
+        mainLayout.setColumnExpandRatio(2, 0F);
+        mainLayout.setColumnExpandRatio(3, 0F);
+        mainLayout.setColumnExpandRatio(4, 1F);
+
+        actionHistoryLayout.maximize();
+    }
+    // TODO
+    // private void maximizeActionHistory() {
+    // removeComponent(countMessageLabel);
+    // mainLayout.removeAllComponents();
+    // mainLayout.setColumns(3);
+    // mainLayout.setRows(1);
+    // mainLayout.addComponent(actionHistoryLayout, 0, 0);
+    // mainLayout.addComponent(actionStatusLayout, 1, 0);
+    // mainLayout.addComponent(actionStatusMsgLayout, 2, 0);
+    // mainLayout.setColumnExpandRatio(0, 0.55F);
+    // mainLayout.setColumnExpandRatio(1, 0.18F);
+    // mainLayout.setColumnExpandRatio(2, 0.27F);
+    // mainLayout.setComponentAlignment(actionHistoryLayout,
+    // Alignment.TOP_LEFT);
+    // }
+
+    void hideDsTagLayout() {
+        distributionTagLayout.setVisible(false);
+        distributionGridLayout.showDsTagHeaderIcon();
+    }
+
+    void showDsTagLayout() {
+        distributionTagLayout.setVisible(true);
+        distributionGridLayout.hideDsTagHeaderIcon();
+    }
+
+    void maximizeDsGridLayout() {
+        if (targetTagFilterLayout != null) {
+            targetTagFilterLayout.setVisible(false);
+        }
+        if (targetGridLayout != null) {
+            targetGridLayout.setVisible(false);
+        }
+        if (actionHistoryLayout != null) {
+            actionHistoryLayout.setVisible(false);
+        }
+
         mainLayout.setColumnExpandRatio(0, 0F);
         mainLayout.setColumnExpandRatio(1, 0F);
         mainLayout.setColumnExpandRatio(2, 1F);
+        mainLayout.setColumnExpandRatio(3, 0F);
         mainLayout.setColumnExpandRatio(4, 0F);
-    }
 
-    private void maximizeActionHistory() {
-        removeComponent(countMessageLabel);
-        mainLayout.removeAllComponents();
-        mainLayout.setColumns(3);
-        mainLayout.setRows(1);
-        mainLayout.addComponent(actionHistoryLayout, 0, 0);
-        mainLayout.addComponent(actionStatusLayout, 1, 0);
-        mainLayout.addComponent(actionStatusMsgLayout, 2, 0);
-        mainLayout.setColumnExpandRatio(0, 0.55F);
-        mainLayout.setColumnExpandRatio(1, 0.18F);
-        mainLayout.setColumnExpandRatio(2, 0.27F);
-        mainLayout.setComponentAlignment(actionHistoryLayout, Alignment.TOP_LEFT);
+        targetGridLayout.maximize();
     }
 
     @Override
     public void browserWindowResized(final BrowserWindowResizeEvent event) {
-        final int browserWidth = event.getWidth();
-        showOrHideFilterButtons(browserWidth);
+        showOrHideFilterButtons(event.getWidth());
     }
 
     private void showOrHideFilterButtons(final int browserWidth) {
         if (browserWidth < SPUIDefinitions.REQ_MIN_BROWSER_WIDTH) {
-            if (permChecker.hasTargetReadPermission()) {
-                eventBus.publish(this, ManagementUIEvent.HIDE_TARGET_TAG_LAYOUT);
+            if (permChecker.hasTargetReadPermission()
+                    && !managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
+                hideTargetTagLayout();
             }
 
-            if (permChecker.hasReadRepositoryPermission()) {
-                eventBus.publish(this, ManagementUIEvent.HIDE_DISTRIBUTION_TAG_LAYOUT);
+            if (permChecker.hasReadRepositoryPermission()
+                    && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
+                hideDsTagLayout();
             }
         } else {
-            // TODO: check if managementUIState validation is correct here
-            if (permChecker.hasTargetReadPermission() && !managementUIState.isTargetTagFilterClosed()) {
-                eventBus.publish(this, ManagementUIEvent.SHOW_TARGET_TAG_LAYOUT);
+            if (permChecker.hasTargetReadPermission()
+                    && managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
+                showTargetTagLayout();
             }
-            // TODO: check if managementUIState validation is correct here
-            if (permChecker.hasReadRepositoryPermission() && !managementUIState.isDistTagFilterClosed()) {
-                eventBus.publish(this, ManagementUIEvent.SHOW_DISTRIBUTION_TAG_LAYOUT);
+
+            if (permChecker.hasReadRepositoryPermission()
+                    && managementUIState.getDistributionTagLayoutUiState().isHidden()) {
+                showDsTagLayout();
             }
         }
     }
 
-    // TODO: do we really need to set the selected DS here?
-    @Override
-    public void enter(final ViewChangeEvent event) {
-        if (permChecker.hasReadRepositoryPermission()) {
-            // TODO: refactor fields in managementUIState
-            managementUIState.getLastSelectedDsIdName().ifPresent(lastSelectedDsId -> {
-                final ProxyDistributionSet dsToSelect = new ProxyDistributionSet();
-                dsToSelect.setId(lastSelectedDsId);
+    void onTargetSelected(final ProxyTarget target) {
+        actionHistoryLayout.onTargetSelected(target);
+    }
 
-                distributionGridLayout.getDistributionGrid().select(dsToSelect);
-            });
+    void onTargetUpdated(final Collection<Long> entityIds) {
+        final Long lastSelectedTargetId = managementUIState.getTargetGridLayoutUiState().getSelectedTargetId();
+
+        if (lastSelectedTargetId != null && entityIds.contains(lastSelectedTargetId)) {
+            // TODO: think over
+            actionHistoryLayout.onTargetUpdated(lastSelectedTargetId);
         }
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final DistributionTableEvent event) {
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            minimizeDistTable();
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            maximizeDistTable();
+    void minimizeTargetGridLayout() {
+        if (distributionGridLayout != null) {
+            distributionGridLayout.setVisible(true);
         }
-    }
-
-    private void minimizeDistTable() {
-        layoutWidgets();
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent event) {
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            minimizeTargetTable();
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            maximizeTargetTable();
+        if (distributionTagLayout != null && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
+            distributionTagLayout.setVisible(true);
         }
+        actionHistoryLayout.setVisible(true);
+
+        // TODO: adapt expand ratios according to permissions
+        mainLayout.setColumnExpandRatio(0, 0F);
+        mainLayout.setColumnExpandRatio(1, 0.275F);
+        mainLayout.setColumnExpandRatio(2, 0.275F);
+        mainLayout.setColumnExpandRatio(3, 0F);
+        mainLayout.setColumnExpandRatio(4, 0.45F);
+
+        targetGridLayout.minimize();
     }
 
-    private void minimizeTargetTable() {
-        layoutWidgets();
-    }
-
-    // TODO: rethink eventing and check if ui.access is neccessary here
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final ManagementUIEvent mgmtUIEvent) {
-        if (mgmtUIEvent == ManagementUIEvent.MIN_ACTION_HISTORY) {
-            UI.getCurrent().access(this::minimizeActionHistory);
-        } else if (mgmtUIEvent == ManagementUIEvent.MAX_ACTION_HISTORY) {
-            UI.getCurrent().access(this::maximizeActionHistory);
+    void minimizeDsGridLayout() {
+        if (targetTagFilterLayout != null && !managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
+            targetTagFilterLayout.setVisible(true);
         }
-    }
-
-    private void minimizeActionHistory() {
-        layoutWidgets();
-    }
-
-    @Override
-    protected Map<Class<?>, RefreshableContainer> getSupportedPushEvents() {
-        final Map<Class<?>, RefreshableContainer> supportedEvents = Maps.newHashMapWithExpectedSize(10);
-
-        // TODO: what about TargetUpdatedEventContainer?
-        if (permChecker.hasTargetReadPermission()) {
-            supportedEvents.put(TargetCreatedEventContainer.class, targetGridLayout.getTargetGrid());
-            supportedEvents.put(TargetDeletedEventContainer.class, targetGridLayout.getTargetGrid());
+        if (targetGridLayout != null) {
+            targetGridLayout.setVisible(true);
+        }
+        if (actionHistoryLayout != null) {
+            actionHistoryLayout.setVisible(true);
         }
 
-        // TODO: what about DistributionSetUpdatedEventContainer?
-        if (permChecker.hasReadRepositoryPermission()) {
-            supportedEvents.put(DistributionSetCreatedEventContainer.class,
-                    distributionGridLayout.getDistributionGrid());
-            supportedEvents.put(DistributionSetDeletedEventContainer.class,
-                    distributionGridLayout.getDistributionGrid());
-        }
+        // TODO: adapt expand ratios according to permissions
+        mainLayout.setColumnExpandRatio(0, 0F);
+        mainLayout.setColumnExpandRatio(1, 0.275F);
+        mainLayout.setColumnExpandRatio(2, 0.275F);
+        mainLayout.setColumnExpandRatio(3, 0F);
+        mainLayout.setColumnExpandRatio(4, 0.45F);
 
-        supportedEvents.put(TargetTagCreatedEventContainer.class, targetTagFilterLayout);
-        supportedEvents.put(TargetTagDeletedEventContainer.class, targetTagFilterLayout);
-        supportedEvents.put(TargetTagUpdatedEventContainer.class, targetTagFilterLayout);
-
-        supportedEvents.put(DistributionSetTagCreatedEventContainer.class, distributionTagLayout);
-        supportedEvents.put(DistributionSetTagDeletedEventContainer.class, distributionTagLayout);
-        supportedEvents.put(DistributionSetTagUpdatedEventContainer.class, distributionTagLayout);
-
-        return supportedEvents;
+        distributionGridLayout.minimize();
     }
 
-    public static class DeploymentViewEventFilter implements EventBusListenerMethodFilter {
-
-        @Override
-        public boolean filter(final org.vaadin.spring.events.Event<?> event) {
-            return DeploymentView.VIEW_NAME.equals(event.getSource());
+    void minimizeActionHistoryGridLayout() {
+        if (!managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
+            targetTagFilterLayout.setVisible(true);
+        }
+        targetGridLayout.setVisible(true);
+        if (distributionGridLayout != null) {
+            distributionGridLayout.setVisible(true);
+        }
+        if (distributionTagLayout != null && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
+            distributionTagLayout.setVisible(true);
         }
 
+        // TODO: adapt expand ratios according to permissions
+        mainLayout.setColumnExpandRatio(0, 0F);
+        mainLayout.setColumnExpandRatio(1, 0.275F);
+        mainLayout.setColumnExpandRatio(2, 0.275F);
+        mainLayout.setColumnExpandRatio(3, 0F);
+        mainLayout.setColumnExpandRatio(4, 0.45F);
+
+        actionHistoryLayout.minimize();
+    }
+
+    void filterTargetGridByTags(final Collection<String> tagFilterNames) {
+        targetGridLayout.filterGridByTags(tagFilterNames);
+    }
+
+    void filterTargetGridByNoTag(final boolean isActive) {
+        targetGridLayout.filterGridByNoTag(isActive);
+    }
+
+    void filterTargetGridByStatus(final List<TargetUpdateStatus> statusFilters) {
+        targetGridLayout.filterGridByStatus(statusFilters);
+    }
+
+    void filterTargetGridByOverdue(final boolean isOverdue) {
+        targetGridLayout.filterGridByOverdue(isOverdue);
+    }
+
+    void filterTargetGridByCustomFilter(final Long customFilterId) {
+        targetGridLayout.filterGridByCustomFilter(customFilterId);
+    }
+
+    void filterDsGridByTags(final Collection<String> tagFilterNames) {
+        distributionGridLayout.filterGridByTags(tagFilterNames);
+    }
+
+    void filterDsGridByNoTag(final boolean isActive) {
+        distributionGridLayout.filterGridByNoTag(isActive);
+    }
+
+    @PreDestroy
+    void destroy() {
+        if (targetTagFilterLayout != null) {
+            targetTagFilterLayout.unsubscribeListener();
+        }
+        if (targetGridLayout != null) {
+            targetGridLayout.unsubscribeListener();
+        }
+        if (distributionGridLayout != null) {
+            distributionGridLayout.unsubscribeListener();
+        }
+        if (distributionTagLayout != null) {
+            distributionTagLayout.unsubscribeListener();
+        }
+        if (actionHistoryLayout != null) {
+            actionHistoryLayout.unsubscribeListener();
+        }
+        if (eventListener != null) {
+            eventListener.unsubscribeListeners();
+        }
     }
 }

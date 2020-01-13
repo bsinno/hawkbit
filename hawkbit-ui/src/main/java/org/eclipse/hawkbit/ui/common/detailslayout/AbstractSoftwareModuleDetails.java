@@ -44,7 +44,6 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
 
         this.smMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.SW_METADATA_DETAIL_LINK,
                 this::showMetadataDetails, new SmMetaDataDataProvider(softwareManagement));
-        this.smMetadataGrid.setVisible(false);
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),
@@ -100,12 +99,6 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
 
         // TODO: consider populating the grid only when metadata tab is/becomes
         // active (lazy loading)
-        if (entity == null) {
-            smMetadataGrid.updateMasterEntityFilter(null);
-            smMetadataGrid.setVisible(false);
-        } else {
-            smMetadataGrid.updateMasterEntityFilter(entity.getId());
-            smMetadataGrid.setVisible(true);
-        }
+        smMetadataGrid.updateMasterEntityFilter(entity != null ? entity.getId() : null);
     }
 }

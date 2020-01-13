@@ -17,10 +17,8 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
-import org.eclipse.hawkbit.ui.artifacts.state.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
@@ -53,8 +51,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
-            final SpPermissionChecker permChecker, final ArtifactUploadState artifactUploadState,
-            final ArtifactManagement artifactManagement,
+            final SpPermissionChecker permChecker, final ArtifactManagement artifactManagement,
             final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
             final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
         this.softwareModuleManagement = softwareModuleManagement;
@@ -71,13 +68,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, softwareModuleManagement,
                 swModuleGridLayoutUiState, softwareModuleToProxyMapper);
 
-        // TODO: change to load ArtifactDetailsGridLayout only after button
-        // click and only Grid Header and Grid without upload layout
-        final ArtifactDetailsGridLayout artifactDetailsLayout = null;
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
-                smWindowBuilder, smMetaDataWindowBuilder, artifactDetailsLayout);
-        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, swModuleGridLayoutUiState,
-                smMetaDataWindowBuilder);
+                smWindowBuilder, smMetaDataWindowBuilder, artifactManagement);
+        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, smMetaDataWindowBuilder);
 
         this.eventListener = new SwModuleGridLayoutEventListener(this, eventBus);
 

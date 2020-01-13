@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.filtermanagement.state;
 import java.io.Serializable;
 
 public class TargetFilterGridLayoutUiState implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private String searchFilterInput;
     private String latestSearchFilterApplied;

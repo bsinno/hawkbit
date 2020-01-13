@@ -49,6 +49,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToT
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.DeploymentView;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetAddUpdateWindowEvent;
@@ -56,9 +57,8 @@ import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.push.TargetUpdatedEventContainer;
-import org.eclipse.hawkbit.ui.rollout.FontIcon;
+import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -98,7 +98,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final transient TargetManagement targetManagement;
     private final transient DeploymentManagement deploymentManagement;
 
-    private final Map<TargetUpdateStatus, FontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
+    private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> targetDataProvider;
     private final TargetToProxyTargetMapper targetToProxyTargetMapper;
@@ -201,16 +201,16 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     // TODO: check if icons are correct
     private void initTargetStatusIconMap() {
-        targetStatusIconMap.put(TargetUpdateStatus.ERROR, new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
+        targetStatusIconMap.put(TargetUpdateStatus.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_RED, getTargetStatusDescription(TargetUpdateStatus.ERROR)));
-        targetStatusIconMap.put(TargetUpdateStatus.UNKNOWN, new FontIcon(VaadinIcons.QUESTION_CIRCLE,
+        targetStatusIconMap.put(TargetUpdateStatus.UNKNOWN, new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_BLUE, getTargetStatusDescription(TargetUpdateStatus.UNKNOWN)));
-        targetStatusIconMap.put(TargetUpdateStatus.IN_SYNC, new FontIcon(VaadinIcons.CHECK_CIRCLE,
+        targetStatusIconMap.put(TargetUpdateStatus.IN_SYNC, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getTargetStatusDescription(TargetUpdateStatus.IN_SYNC)));
-        targetStatusIconMap.put(TargetUpdateStatus.PENDING, new FontIcon(VaadinIcons.DOT_CIRCLE,
+        targetStatusIconMap.put(TargetUpdateStatus.PENDING, new ProxyFontIcon(VaadinIcons.DOT_CIRCLE,
                 SPUIStyleDefinitions.STATUS_ICON_YELLOW, getTargetStatusDescription(TargetUpdateStatus.PENDING)));
         targetStatusIconMap.put(TargetUpdateStatus.REGISTERED,
-                new FontIcon(VaadinIcons.DOT_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
+                new ProxyFontIcon(VaadinIcons.DOT_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
                         getTargetStatusDescription(TargetUpdateStatus.REGISTERED)));
     }
 
@@ -404,7 +404,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     /**
      * Creates the grid content for maximized-state.
      */
-    private void createMaximizedContent() {
+    public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
@@ -413,7 +413,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     /**
      * Creates the grid content for normal (minimized) state.
      */
-    private void createMinimizedContent() {
+    public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
@@ -455,8 +455,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private Label buildTargetStatusIcon(final ProxyTarget target) {
-        final FontIcon targetStatusFontIcon = Optional.ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
-                .orElse(new FontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+        final ProxyFontIcon targetStatusFontIcon = Optional
+                .ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
+                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                         i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
         final String targetStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID).append(".")
@@ -468,10 +469,10 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private Label buildTargetPollingStatusIcon(final ProxyTarget target) {
         final String pollStatusToolTip = target.getPollStatusToolTip();
 
-        final FontIcon pollStatusFontIcon = StringUtils.hasText(pollStatusToolTip)
-                ? new FontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+        final ProxyFontIcon pollStatusFontIcon = StringUtils.hasText(pollStatusToolTip)
+                ? new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                         pollStatusToolTip)
-                : new FontIcon(VaadinIcons.CLOCK, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                : new ProxyFontIcon(VaadinIcons.CLOCK, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                         i18n.getMessage(UIMessageIdProvider.TOOLTIP_IN_TIME));
 
         final String pollStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_POLLING_STATUS_LABEL_ID)

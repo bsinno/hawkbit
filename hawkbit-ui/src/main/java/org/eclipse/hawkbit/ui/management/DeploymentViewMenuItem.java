@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
+import org.eclipse.hawkbit.ui.menu.AbstractDashboardMenuItemNotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;

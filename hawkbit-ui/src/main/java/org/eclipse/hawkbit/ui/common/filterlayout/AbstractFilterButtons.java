@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
+import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -93,8 +94,8 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
                 SPUITagButtonStyle.class);
         final String colour = clickedFilter.getColour() != null ? clickedFilter.getColour() : DEFAULT_GREEN;
 
-        filterButton.setCaption("<span style=\" color:" + colour + " !important;\">" + VaadinIcons.CIRCLE.getHtml()
-                + "</span>" + " " + clickedFilter.getName());
+        filterButton.setCaption(
+                new ProxyFontIcon(VaadinIcons.CIRCLE, "", "", colour).getHtml() + " " + clickedFilter.getName());
         filterButton.setCaptionAsHtml(true);
 
         filterButton.addClickListener(event -> selectFilter(clickedFilter));

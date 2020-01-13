@@ -8,65 +8,50 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterMultiButtonClick;
-import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
  * Multi button click behaviour of filter buttons layout.
  */
 public class TargetTagFilterButtonClick extends AbstractFilterMultiButtonClick<ProxyTag> {
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = -6173433602055291533L;
+    private final Consumer<Map<Long, String>> filterChangedCallback;
+    private final Consumer<ClickBehaviourType> noTagChangedCallback;
 
-    private final transient EventBus.UIEventBus eventBus;
-
-    private final ManagementUIState managementUIState;
-
-    TargetTagFilterButtonClick(final UIEventBus eventBus, final ManagementUIState managementUIState) {
-        this.eventBus = eventBus;
-        this.managementUIState = managementUIState;
+    TargetTagFilterButtonClick(final Consumer<Map<Long, String>> filterChangedCallback,
+            final Consumer<ClickBehaviourType> noTagChangedCallback) {
+        this.filterChangedCallback = filterChangedCallback;
+        this.noTagChangedCallback = noTagChangedCallback;
     }
 
     @Override
     protected void filterUnClicked(final ProxyTag clickedFilter) {
-        // TODO: check if it works (adapt as needed)
         if (clickedFilter.isNoTag()) {
-            if (managementUIState.getTargetTableFilters().isNoTagSelected()) {
-                managementUIState.getTargetTableFilters().setNoTagSelected(false);
-                eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
-            }
+            noTagChangedCallback.accept(ClickBehaviourType.UNCLICKED);
         } else {
-            if (null != managementUIState.getTargetTableFilters().getClickedTargetTags() && managementUIState
-                    .getTargetTableFilters().getClickedTargetTags().contains(clickedFilter.getName())) {
-                managementUIState.getTargetTableFilters().getClickedTargetTags().remove(clickedFilter.getName());
-                eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
-            }
+            filterChangedCallback.accept(previouslyClickedFilterIdsWithName);
         }
     }
 
     @Override
     protected void filterClicked(final ProxyTag clickedFilter) {
-        // TODO: check if it works (adapt as needed)
         if (clickedFilter.isNoTag()) {
-            managementUIState.getTargetTableFilters().setNoTagSelected(true);
-            eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
+            noTagChangedCallback.accept(ClickBehaviourType.CLICKED);
         } else {
-            managementUIState.getTargetTableFilters().getClickedTargetTags().add(clickedFilter.getName());
-            eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
+            filterChangedCallback.accept(previouslyClickedFilterIdsWithName);
         }
     }
 
-    protected void clearTargetTagFilters() {
-        // TODO
-        // for (final Button button : alreadyClickedButtons) {
-        // button.removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
-        // }
-        // alreadyClickedButtons.clear();
-        managementUIState.getTargetTableFilters().getClickedTargetTags().clear();
-        eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
+    void clearPreviouslyClickedFilters() {
+        previouslyClickedFilterIdsWithName.clear();
+    }
+
+    int getPreviouslyClickedFiltersSize() {
+        return previouslyClickedFilterIdsWithName.size();
     }
 }

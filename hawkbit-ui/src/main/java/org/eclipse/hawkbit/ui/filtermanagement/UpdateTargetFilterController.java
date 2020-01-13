@@ -20,13 +20,19 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 public class UpdateTargetFilterController
         extends AbstractEntityWindowController<ProxyTargetFilterQuery, ProxyTargetFilterQuery> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateTargetFilterController.class);
+
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -77,17 +83,21 @@ public class UpdateTargetFilterController
         final TargetFilterQuery updatedTargetFilter;
         try {
             updatedTargetFilter = targetFilterManagement.update(targetFilterUpdate);
-        } catch (final EntityNotFoundException | EntityReadOnlyException e) {
-            // TODO: use i18n
-            uiNotification.displayWarning(
-                    "Target filter with name " + entity.getName() + " was deleted or you are not allowed to update it");
-            return;
+            uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTargetFilter.getName()));
+            // TODO: verify if sender is correct
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new TargetFilterModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, updatedTargetFilter.getId()));
+        } catch (final EntityNotFoundException e) {
+            LOG.debug("TargetFilter can not be modified: Does not exist", e);
+            uiNotification.displayWarning(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_ENTITY_DELETED));
+            // TODO: verify if sender is correct
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new TargetFilterModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, entity.getId()));
+        } catch (final EntityReadOnlyException e) {
+            LOG.debug("TargetFilter can not be modified: Read only", e);
+            uiNotification.displayWarning(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_ENTITY_READONLY));
         }
 
-        uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTargetFilter.getName()));
-        // TODO: verify if sender is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new TargetFilterModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_UPDATED, updatedTargetFilter.getId()));
     }
 
     @Override

@@ -17,10 +17,10 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupp
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -113,5 +113,13 @@ public class DistributionGridHeader extends AbstractGridHeader {
         } else if (event == ManagementUIEvent.SHOW_DISTRIBUTION_TAG_LAYOUT) {
             filterButtonsHeaderSupport.hideFilterButtonsIcon();
         }
+    }
+
+    public void showDsTagIcon() {
+        filterButtonsHeaderSupport.showFilterButtonsIcon();
+    }
+
+    public void hideDsTagIcon() {
+        filterButtonsHeaderSupport.hideFilterButtonsIcon();
     }
 }

@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.filtermanagement;
+package org.eclipse.hawkbit.ui.filtermanagement.event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,10 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.filtermanagement.FilterManagementView;
+import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterDetailsLayout;
+import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGrid;
+import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGridHeader;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -23,7 +27,8 @@ public class FilterManagementViewEventListener {
     private final UIEventBus eventBus;
     private final List<Object> eventListeners;
 
-    FilterManagementViewEventListener(final FilterManagementView filterManagementView, final UIEventBus eventBus) {
+    public FilterManagementViewEventListener(final FilterManagementView filterManagementView,
+            final UIEventBus eventBus) {
         this.filterManagementView = filterManagementView;
         this.eventBus = eventBus;
 
@@ -32,8 +37,6 @@ public class FilterManagementViewEventListener {
     }
 
     private void registerEventListeners() {
-        // TODO: should we listen for the event directly in
-        // layouts/components instead of calling methods here?
         eventListeners.add(new OpenFilterQueryListener());
         eventListeners.add(new CloseDetailsListener());
         eventListeners.add(new CretateFilterQueryListener());
@@ -46,7 +49,7 @@ public class FilterManagementViewEventListener {
 
         @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterGrid.class)
         private void onFilterQueryOpen(final ProxyTargetFilterQuery filterQuery) {
-            filterManagementView.onFilterQueryOpen(filterQuery);
+            filterManagementView.showFilterQueryEdit(filterQuery);
         }
     }
 
@@ -57,7 +60,7 @@ public class FilterManagementViewEventListener {
 
         @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterDetailsLayout.class)
         private void onDetailsClose(final ChangeUiElementPayload payload) {
-            filterManagementView.onDetailsClose();
+            filterManagementView.showFilterQueryOverview();
         }
     }
 
@@ -68,11 +71,11 @@ public class FilterManagementViewEventListener {
 
         @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterGridHeader.class)
         private void onFilterQueryCreate(final Class c) {
-            filterManagementView.onFilterQueryCreate();
+            filterManagementView.showFilterQueryCreate();
         }
     }
 
-    void unsubscribeListeners() {
+    public void unsubscribeListeners() {
         eventListeners.forEach(eventBus::unsubscribe);
     }
 }

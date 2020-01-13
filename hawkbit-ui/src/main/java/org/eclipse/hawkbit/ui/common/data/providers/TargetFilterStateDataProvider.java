@@ -16,6 +16,8 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 
 /**
  * Data provider for {@link Target}, which dynamically loads a batch of
@@ -30,7 +32,7 @@ public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget
 
     public TargetFilterStateDataProvider(final TargetManagement targetManagement,
             final TargetToProxyTargetMapper entityMapper) {
-        super(entityMapper);
+        super(entityMapper, new Sort(Direction.ASC, "name"));
 
         this.targetManagement = targetManagement;
     }

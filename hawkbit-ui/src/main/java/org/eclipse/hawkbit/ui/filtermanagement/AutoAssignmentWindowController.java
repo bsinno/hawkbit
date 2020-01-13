@@ -16,7 +16,9 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.filtermanagement.event.CustomFilterUIEvent;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -98,23 +100,24 @@ public class AutoAssignmentWindowController
                             targetsForAutoAssignmentCount);
 
             showConsequencesDialog(confirmationCaption, confirmationQuestion, entity.getId(), autoAssignDsId,
-                    entity.getAutoAssignActionType());
+                    entity.getAutoAssignActionType(), entity);
         } else {
             targetFilterQueryManagement
                     .updateAutoAssignDS(entityFactory.targetFilterQuery().updateAutoAssign(entity.getId()).ds(null));
-            eventBus.publish(this, CustomFilterUIEvent.UPDATED_TARGET_FILTER_QUERY);
+            publishModifiedEvent(entity);
         }
     }
 
     private void showConsequencesDialog(final String confirmationCaption, final String confirmationQuestion,
-            final Long targetFilterId, final Long autoAssignDsId, final ActionType autoAssignActionType) {
+            final Long targetFilterId, final Long autoAssignDsId, final ActionType autoAssignActionType,
+            final ProxyTargetFilterQuery entity) {
         final ConfirmationDialog confirmDialog = new ConfirmationDialog(confirmationCaption, confirmationQuestion,
                 i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
                 ok -> {
                     if (ok) {
                         targetFilterQueryManagement.updateAutoAssignDS(entityFactory.targetFilterQuery()
                                 .updateAutoAssign(targetFilterId).ds(autoAssignDsId).actionType(autoAssignActionType));
-                        eventBus.publish(this, CustomFilterUIEvent.UPDATED_TARGET_FILTER_QUERY);
+                        publishModifiedEvent(entity);
                     }
                 }, UIComponentIdProvider.DIST_SET_SELECT_CONS_WINDOW_ID);
 
@@ -124,12 +127,17 @@ public class AutoAssignmentWindowController
         confirmDialog.getWindow().bringToFront();
     }
 
+    private void publishModifiedEvent(final ProxyTargetFilterQuery entity) {
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new TargetFilterModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, entity.getId()));
+    }
+
     @Override
     protected boolean isEntityValid(final ProxyTargetFilterQuery entity) {
         if (entity.isAutoAssignmentEnabled()
                 && (entity.getAutoAssignActionType() == null || entity.getAutoAssignDistributionSet() == null)) {
-            // TODO: use i18n
-            uiNotification.displayValidationError("Missing assignment type or distribution set");
+            uiNotification.displayValidationError(
+                    i18n.getMessage(UIMessageIdProvider.MESSAGE_AUTOASSIGN_CREATE_ERROR_MISSINGELEMENTS));
             return false;
         }
 

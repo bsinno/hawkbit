@@ -10,14 +10,12 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.Collections;
 
+import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
-import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
-import org.eclipse.hawkbit.ui.artifacts.event.ArtifactDetailsEvent;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -35,7 +33,8 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
     private final transient SmWindowBuilder smWindowBuilder;
     private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
 
-    private final ArtifactDetailsGridLayout artifactDetailsLayout;
+    private final transient ArtifactManagement artifactManagement;
+    private ArtifactDetailsGrid artifactDetailsGrid;
 
     private final transient ArtifactDetailsHeaderSupport artifactDetailsHeaderSupport;
 
@@ -47,15 +46,15 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
 
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification, final SmWindowBuilder smWindowBuilder,
-            final SmMetaDataWindowBuilder smMetaDataWindowBuilder,
-            final ArtifactDetailsGridLayout artifactDetailsLayout) {
+            final SmMetaDataWindowBuilder smMetaDataWindowBuilder, final ArtifactManagement artifactManagement) {
         super(i18n, permChecker, eventBus, uiNotification);
 
         this.smWindowBuilder = smWindowBuilder;
         this.smMetaDataWindowBuilder = smMetaDataWindowBuilder;
-        this.artifactDetailsLayout = artifactDetailsLayout;
+        this.artifactManagement = artifactManagement;
+        this.artifactDetailsGrid = null;
 
-        if (artifactDetailsLayout != null) {
+        if (artifactManagement != null) {
             this.artifactDetailsHeaderSupport = new ArtifactDetailsHeaderSupport(i18n,
                     UIComponentIdProvider.SW_MODULE_ARTIFACT_DETAILS_BUTTON, this::showArtifactDetailsWindow);
             addHeaderSupports(Collections.singletonList(artifactDetailsHeaderSupport));
@@ -73,9 +72,12 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
 
         if (artifactDetailsHeaderSupport != null) {
             if (entity == null) {
-                artifactDetailsHeaderSupport.disableMetaDataIcon();
+                artifactDetailsHeaderSupport.disableArtifactDetailsIcon();
             } else {
-                artifactDetailsHeaderSupport.enableMetaDataIcon();
+                artifactDetailsHeaderSupport.enableArtifactDetailsIcon();
+                if (artifactDetailsGrid != null) {
+                    artifactDetailsGrid.refreshContainer();
+                }
             }
         }
     }
@@ -136,48 +138,52 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
         metaDataWindow.setVisible(Boolean.TRUE);
     }
 
-    // TODO: check if it could be substituted with artifactDetailsLayout
-    // injected directly into window; consider using CommonWindow here
+    // TODO: use Common*Window?
     private void showArtifactDetailsWindow() {
+        if (selectedEntity == null) {
+            return;
+        }
+
+        if (artifactDetailsGrid == null) {
+            artifactDetailsGrid = new ArtifactDetailsGrid(eventBus, i18n, permChecker, uiNotification,
+                    artifactManagement);
+        }
+        setInitialArtifactDetailsGridSize(artifactDetailsGrid);
+        artifactDetailsGrid.updateMasterEntityFilter(selectedEntity.getId());
+
         final Window artifactDtlsWindow = new Window();
-        artifactDtlsWindow
-                .setCaption(HawkbitCommonUtil.getArtifactoryDetailsLabelId(selectedEntity.getNameAndVersion(), i18n));
         artifactDtlsWindow.setCaptionAsHtml(true);
         artifactDtlsWindow.setClosable(true);
         artifactDtlsWindow.setResizable(true);
-
         artifactDtlsWindow.setWindowMode(WindowMode.NORMAL);
         artifactDtlsWindow.setModal(true);
         artifactDtlsWindow.addStyleName(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
-
-        // TODO: check if neccessary
-        // artifactDetailsLayout.setFullWindowMode(false);
-
-        artifactDetailsLayout.onSmSelected(selectedEntity);
-        final ArtifactDetailsGrid artifactDetailsGrid = artifactDetailsLayout.getArtifactDetailsGrid();
-        artifactDetailsGrid.setWidth(700, Unit.PIXELS);
-        artifactDetailsGrid.setHeight(500, Unit.PIXELS);
-
-        artifactDtlsWindow.setContent(artifactDetailsGrid);
+        artifactDtlsWindow
+                .setCaption(HawkbitCommonUtil.getArtifactoryDetailsLabelId(selectedEntity.getNameAndVersion(), i18n));
 
         artifactDtlsWindow.addWindowModeChangeListener(event -> {
             if (event.getWindowMode() == WindowMode.MAXIMIZED) {
                 artifactDtlsWindow.setSizeFull();
+                artifactDetailsGrid.setSizeFull();
 
-                // TODO: check if neccessary
-                // artifactDetailsLayout.setFullWindowMode(true);
-
-                // TODO: check if it works
-                eventBus.publish(this, new ArtifactDetailsEvent(BaseEntityEventType.MAXIMIZED));
-
-                artifactDetailsGrid.setWidth(100, Unit.PERCENTAGE);
-                artifactDetailsGrid.setHeight(100, Unit.PERCENTAGE);
-                artifactDtlsWindow.setContent(artifactDetailsGrid);
+                artifactDetailsGrid.createMaximizedContent();
             } else {
                 artifactDtlsWindow.setSizeUndefined();
-                artifactDtlsWindow.setContent(artifactDetailsGrid);
+                setInitialArtifactDetailsGridSize(artifactDetailsGrid);
+
+                artifactDetailsGrid.createMinimizedContent();
             }
         });
+
+        artifactDtlsWindow.addCloseListener(event -> artifactDetailsGrid = null);
+
+        artifactDtlsWindow.setContent(artifactDetailsGrid);
+
         UI.getCurrent().addWindow(artifactDtlsWindow);
+    }
+
+    private void setInitialArtifactDetailsGridSize(final ArtifactDetailsGrid artifactDetailsGrid) {
+        artifactDetailsGrid.setWidth(700, Unit.PIXELS);
+        artifactDetailsGrid.setHeight(500, Unit.PIXELS);
     }
 }

@@ -15,9 +15,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.hawkbit.repository.OffsetBasedPageRequest;
 import org.eclipse.hawkbit.ui.common.data.mappers.IdentifiableEntityToProxyIdentifiableEntityMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -52,9 +52,8 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
 
     @Override
     protected Stream<T> fetchFromBackEnd(final Query<T, F> query) {
-        final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
-        final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
-        return getProxyEntities(loadBackendEntities(pageRequest, query.getFilter())).stream();
+        return getProxyEntities(loadBackendEntities(convertToPageRequest(query, defaultSortOrder), query.getFilter()))
+                .stream();
     }
 
     private List<T> getProxyEntities(final Optional<Slice<U>> backendEntities) {
@@ -63,23 +62,23 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
                 .orElse(Collections.emptyList());
     }
 
+    private PageRequest convertToPageRequest(final Query<T, F> query, final Sort sort) {
+        return new OffsetBasedPageRequest(query.getOffset(), query.getLimit(), sort);
+    }
+
     protected abstract Optional<Slice<U>> loadBackendEntities(final PageRequest pageRequest, Optional<F> filter);
 
     @Override
     protected int sizeInBackEnd(final Query<T, F> query) {
-        final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
-        final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
+        final long size = sizeInBackEnd(convertToPageRequest(query, defaultSortOrder), query.getFilter());
 
-        final long size = sizeInBackEnd(pageRequest, query.getFilter());
-
-        if (size > Integer.MAX_VALUE) {
+        try {
+            return Math.toIntExact(size);
+        } catch (final ArithmeticException e) {
             return Integer.MAX_VALUE;
         }
-
-        return (int) size;
     }
 
-    // TODO check if PageRequest is required
     protected abstract long sizeInBackEnd(final PageRequest pageRequest, Optional<F> filter);
 
     @Override

@@ -20,7 +20,7 @@ public abstract class AbstractFilterSingleButtonClick<T extends ProxyIdentifiabl
         extends AbstractFilterButtonClickBehaviour<T> {
     private static final long serialVersionUID = 1L;
 
-    private Long previouslyClickedFilterId;
+    protected Long previouslyClickedFilterId;
 
     @Override
     public void processFilterClick(final T clickedFilter) {

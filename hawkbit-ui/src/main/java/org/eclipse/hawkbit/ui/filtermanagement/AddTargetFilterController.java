@@ -22,6 +22,11 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * 
+ * @author rollouts
+ *
+ */
 public class AddTargetFilterController
         extends AbstractEntityWindowController<ProxyTargetFilterQuery, ProxyTargetFilterQuery> {
     private final VaadinMessageSource i18n;

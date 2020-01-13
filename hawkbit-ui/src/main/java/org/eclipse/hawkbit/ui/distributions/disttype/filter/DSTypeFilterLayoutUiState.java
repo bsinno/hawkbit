@@ -10,13 +10,10 @@ package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
 import java.io.Serializable;
 
-import org.eclipse.hawkbit.repository.model.DistributionSetType;
-
 public class DSTypeFilterLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean hidden;
-    private DistributionSetType clickedDsType;
     private Long clickedDsTypeId;
 
     public boolean isHidden() {
@@ -25,14 +22,6 @@ public class DSTypeFilterLayoutUiState implements Serializable {
 
     public void setHidden(final boolean hidden) {
         this.hidden = hidden;
-    }
-
-    public DistributionSetType getClickedDsType() {
-        return clickedDsType;
-    }
-
-    public void setClickedDsType(final DistributionSetType clickedDsType) {
-        this.clickedDsType = clickedDsType;
     }
 
     public Long getClickedDsTypeId() {

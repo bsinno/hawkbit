@@ -26,7 +26,6 @@ import org.springframework.data.domain.Sort.Direction;
  */
 public class TargetFilterQueryDataProvider
         extends ProxyDataProvider<ProxyTargetFilterQuery, TargetFilterQuery, String> {
-
     private static final long serialVersionUID = 1L;
 
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
@@ -50,7 +49,6 @@ public class TargetFilterQueryDataProvider
 
     @Override
     protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-
         return filter
                 .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText).getTotalElements())
                 .orElseGet(targetFilterQueryManagement::count);

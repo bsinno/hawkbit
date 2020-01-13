@@ -55,6 +55,8 @@ public final class UIMessageIdProvider {
 
     public static final String CAPTION_ARTIFACT_DETAILS_OF = "caption.artifact.details.of";
 
+    public static final String CAPTION_ARTIFACT_DETAILS_OF_SM = "caption.artifact.details.of.sm";
+
     public static final String CAPTION_SELECT_AUTO_ASSIGN_DS = "caption.select.auto.assign.dist";
 
     public static final String CAPTION_CONFIRM_AUTO_ASSIGN_CONSEQUENCES = "caption.confirm.assign.consequences";
@@ -104,6 +106,16 @@ public final class UIMessageIdProvider {
     public static final String MESSAGE_CONFIRM_DELETE_ENTITY = "message.confirm.delete.entity";
 
     public static final String MESSAGE_CONFIRM_ASSIGN_ENTITY = "message.confirm.assign.entity";
+
+    public static final String MESSAGE_AUTOASSIGN_CREATE_ERROR_MISSINGELEMENTS = "message.autoassign.create.error.missingElements";
+
+    public static final String MESSAGE_ERROR_NAMEREQUIRED = "message.error.nameRequired";
+
+    public static final String MESSAGE_FILTER_QUERY_ERROR_NOTVALIDE = "message.filter.query.error.notValide";
+
+    public static final String MESSAGE_ERROR_ENTITY_DELETED = "message.entity.error.deleted";
+
+    public static final String MESSAGE_ERROR_ENTITY_READONLY = "message.entity.error.readonly";
 
     public static final String CRON_VALIDATION_ERROR = "message.maintenancewindow.schedule.validation.error";
 

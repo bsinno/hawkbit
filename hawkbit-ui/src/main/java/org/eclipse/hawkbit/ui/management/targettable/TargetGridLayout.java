@@ -8,6 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -16,11 +19,16 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.CountMessageLabel;
+import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -31,10 +39,18 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class TargetGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
+    private final transient TargetManagement targetManagement;
+    private final transient TargetToProxyTargetMapper targetMapper;
+
     private final TargetGridHeader targetGridHeader;
     private final TargetGrid targetGrid;
     private final TargetDetailsHeader targetDetailsHeader;
     private final TargetDetails targetDetails;
+    private final CountMessageLabel countMessageLabel;
+
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
+
+    private final transient TargetGridLayoutEventListener eventListener;
 
     public TargetGridLayout(final UIEventBus eventBus, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
@@ -42,7 +58,11 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
             final UiProperties uiProperties, final SpPermissionChecker permissionChecker,
             final TargetTagManagement targetTagManagement, final DistributionSetManagement distributionSetManagement,
             final Executor uiExecutor, final TenantConfigurationManagement configManagement,
-            final SystemSecurityContext systemSecurityContext) {
+            final SystemSecurityContext systemSecurityContext, final TargetGridLayoutUiState targetGridLayoutUiState) {
+        this.targetManagement = targetManagement;
+        this.targetMapper = new TargetToProxyTargetMapper(i18n);
+        this.targetGridLayoutUiState = targetGridLayoutUiState;
+
         final TargetWindowBuilder targetWindowBuilder = new TargetWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, targetManagement);
         final TargetMetaDataWindowBuilder targetMetaDataWindowBuilder = new TargetMetaDataWindowBuilder(i18n,
@@ -59,10 +79,101 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         this.targetDetails = new TargetDetails(i18n, eventBus, permissionChecker, managementUIState, uiNotification,
                 targetTagManagement, targetManagement, deploymentManagement, targetMetaDataWindowBuilder);
 
-        buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
+        this.countMessageLabel = new CountMessageLabel(eventBus, targetManagement, i18n, managementUIState,
+                targetGrid.getDataCommunicator());
+
+        this.eventListener = new TargetGridLayoutEventListener(this, eventBus);
+
+        buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails, countMessageLabel);
     }
 
-    public TargetGrid getTargetGrid() {
-        return targetGrid;
+    public void restoreState() {
+        final Long lastSelectedEntityId = targetGridLayoutUiState.getSelectedTargetId();
+
+        if (lastSelectedEntityId != null) {
+            mapIdToProxyEntity(lastSelectedEntityId).ifPresent(targetGrid::select);
+        } else {
+            targetGrid.getSelectionSupport().selectFirstRow();
+        }
+    }
+
+    // TODO: extract to parent abstract #mapIdToProxyEntity?
+    private Optional<ProxyTarget> mapIdToProxyEntity(final Long entityId) {
+        return targetManagement.get(entityId).map(targetMapper::map);
+    }
+
+    // TODO: extract to parent #onMasterEntityChanged?
+    public void onTargetChanged(final ProxyTarget target) {
+        targetDetailsHeader.masterEntityChanged(target);
+        targetDetails.masterEntityChanged(target);
+    }
+
+    // TODO: extract to parent #onMasterEntityUpdated?
+    public void onTargetUpdated(final Collection<Long> entityIds) {
+        entityIds.stream().filter(entityId -> entityId.equals(targetGridLayoutUiState.getSelectedTargetId())).findAny()
+                .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onTargetChanged));
+    }
+
+    public void onTargetTagsModified(final Collection<Long> entityIds,
+            final EntityModifiedEventType entityModifiedType) {
+        targetDetails.onTargetTagsModified(entityIds, entityModifiedType);
+    }
+
+    public void showTargetTagHeaderIcon() {
+        targetGridHeader.showTargetTagIcon();
+    }
+
+    public void hideTargetTagHeaderIcon() {
+        targetGridHeader.hideTargetTagIcon();
+    }
+
+    public void filterGridBySearch(final String searchFilter) {
+        // TODO
+        // targetGrid.updateSearchFilter(searchFilter);
+        targetGrid.deselectAll();
+    }
+
+    public void filterGridByTags(final Collection<String> tagFilterNames) {
+        // TODO
+        // targetGrid.updateTagFilter(tagFilter);
+        targetGrid.deselectAll();
+    }
+
+    public void filterGridByNoTag(final boolean isActive) {
+        // TODO Auto-generated method stub
+        targetGrid.deselectAll();
+    }
+
+    public void filterGridByStatus(final List<TargetUpdateStatus> statusFilters) {
+        // TODO Auto-generated method stub
+        targetGrid.deselectAll();
+    }
+
+    public void filterGridByOverdue(final boolean isOverdue) {
+        // TODO Auto-generated method stub
+        targetGrid.deselectAll();
+    }
+
+    public void filterGridByCustomFilter(final Long customFilterId) {
+        // TODO Auto-generated method stub
+        targetGrid.deselectAll();
+    }
+
+    public void maximize() {
+        targetGrid.createMaximizedContent();
+        hideDetailsLayout();
+    }
+
+    public void minimize() {
+        targetGrid.createMinimizedContent();
+        showDetailsLayout();
+    }
+
+    public void refreshGrid() {
+        targetGrid.refreshContainer();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

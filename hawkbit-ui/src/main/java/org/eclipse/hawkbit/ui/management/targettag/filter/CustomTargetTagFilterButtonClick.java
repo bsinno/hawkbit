@@ -8,67 +8,42 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
-import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
+import java.util.function.BiConsumer;
+
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
-import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
-import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
  * Single button click behaviour of custom target filter buttons layout.
  *
  */
 public class CustomTargetTagFilterButtonClick extends AbstractFilterSingleButtonClick<ProxyTargetFilterQuery> {
-
     private static final long serialVersionUID = 1L;
 
-    private final transient EventBus.UIEventBus eventBus;
-
-    private final ManagementUIState managementUIState;
-
-    private final transient TargetFilterQueryManagement targetFilterQueryManagement;
+    private final transient BiConsumer<ProxyTargetFilterQuery, ClickBehaviourType> filterChangedCallback;
 
     /**
      * Constructor
      * 
-     * @param eventBus
-     *            UIEventBus
-     * @param managementUIState
-     *            ManagementUIState
-     * @param targetFilterQueryManagement
-     *            TargetFilterQueryManagement
+     * @param filterChangedCallback
+     *            filterChangedCallback
      */
-    public CustomTargetTagFilterButtonClick(final UIEventBus eventBus, final ManagementUIState managementUIState,
-            final TargetFilterQueryManagement targetFilterQueryManagement) {
-        this.eventBus = eventBus;
-        this.managementUIState = managementUIState;
-        this.targetFilterQueryManagement = targetFilterQueryManagement;
+    public CustomTargetTagFilterButtonClick(
+            final BiConsumer<ProxyTargetFilterQuery, ClickBehaviourType> filterChangedCallback) {
+        this.filterChangedCallback = filterChangedCallback;
     }
 
     @Override
     protected void filterUnClicked(final ProxyTargetFilterQuery clickedFilter) {
-        this.managementUIState.getTargetTableFilters().setTargetFilterQuery(null);
-        this.eventBus.publish(this, TargetFilterEvent.REMOVE_FILTER_BY_TARGET_FILTER_QUERY);
+        filterChangedCallback.accept(clickedFilter, ClickBehaviourType.UNCLICKED);
     }
 
     @Override
     protected void filterClicked(final ProxyTargetFilterQuery clickedFilter) {
-        // TODO: check if we need to make the database call here
-        targetFilterQueryManagement.get(clickedFilter.getId()).ifPresent(targetFilterQuery -> {
-            this.managementUIState.getTargetTableFilters().setTargetFilterQuery(targetFilterQuery.getId());
-            this.eventBus.publish(this, TargetFilterEvent.FILTER_BY_TARGET_FILTER_QUERY);
-        });
+        filterChangedCallback.accept(clickedFilter, ClickBehaviourType.CLICKED);
     }
 
-    protected void clearAppliedTargetFilterQuery() {
-        // TODO
-        // if (getAlreadyClickedButton() != null) {
-        // getAlreadyClickedButton().removeStyleName(SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE);
-        // setAlreadyClickedButton(null);
-        // }
-        this.managementUIState.getTargetTableFilters().setTargetFilterQuery(null);
-        this.eventBus.publish(this, TargetFilterEvent.REMOVE_FILTER_BY_TARGET_FILTER_QUERY);
+    void clearPreviouslyClickedFilter() {
+        previouslyClickedFilterId = null;
     }
 }
