@@ -71,6 +71,7 @@ public class PollingConfigurationView extends BaseConfigurationView
         rootPanel.addStyleName("config-panel");
 
         final VerticalLayout vLayout = new VerticalLayout();
+        vLayout.setSpacing(false);
         vLayout.setMargin(true);
 
         final Label headerDisSetType = new Label(i18n.getMessage("configuration.polling.title"));

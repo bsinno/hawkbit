@@ -56,6 +56,8 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
         configurationEnabled = isConfigEnabled();
 
         detailLayout = new VerticalLayout();
+        detailLayout.setMargin(false);
+        detailLayout.setSpacing(false);
 
         final Button gatewaytokenBtn = SPUIComponentProvider.getButton(null,
                 i18n.getMessage("configuration.button.regenerateKey"), "", ValoTheme.BUTTON_TINY + " " + "redicon",

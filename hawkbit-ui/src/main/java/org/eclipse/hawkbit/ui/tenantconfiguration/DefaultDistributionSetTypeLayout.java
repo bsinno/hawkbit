@@ -73,6 +73,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         rootPanel.setSizeFull();
         rootPanel.addStyleName("config-panel");
         final VerticalLayout vlayout = new VerticalLayout();
+        vlayout.setSpacing(false);
         vlayout.setMargin(true);
         vlayout.setSizeFull();
 

@@ -95,11 +95,13 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         this.i18n = i18n;
         cleanupEnabled = isConfigEnabled();
         container = new VerticalLayout();
+        container.setSpacing(false);
+        container.setMargin(false);
         final HorizontalLayout row1 = newHorizontalLayout();
         actionStatusCombobox = new ComboBox();
         actionStatusCombobox.setDescription("label.combobox.action.status.options");
         actionStatusCombobox.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_TYPES);
-        actionStatusCombobox.addStyleName(ValoTheme.COMBOBOX_SMALL);
+        actionStatusCombobox.addStyleName(ValoTheme.COMBOBOX_TINY);
         actionStatusCombobox.setWidth(200f, Unit.PIXELS);
         actionStatusCombobox.setEmptySelectionAllowed(false);
         actionStatusCombobox.setItems(ACTION_STATUS_OPTIONS);

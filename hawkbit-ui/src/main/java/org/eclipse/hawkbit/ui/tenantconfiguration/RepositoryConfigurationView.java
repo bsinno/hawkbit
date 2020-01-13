@@ -79,6 +79,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         rootPanel.addStyleName("config-panel");
 
         final VerticalLayout vLayout = new VerticalLayout();
+        vLayout.setSpacing(false);
         vLayout.setMargin(true);
         vLayout.setSizeFull();
 
