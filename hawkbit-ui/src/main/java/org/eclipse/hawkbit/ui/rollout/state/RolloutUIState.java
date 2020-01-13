@@ -17,14 +17,50 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 
 /**
- * Stores user actions in rollout management view.
+ * Stores rollout management view UI state according to user interactions.
  *
  */
 @VaadinSessionScope
 @SpringComponent
 public class RolloutUIState implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = -5751690471177053140L;
+    /**
+     * The views that can be displayed
+     */
+    public enum RolloutView {
+        ROLLOUTS, ROLLOUT_GROUPS, ROLLOUT_GROUP_TARGETS
+    }
+
+    private RolloutView currentView;
+    private final RolloutGroupUIState groupUIState;
+    private final RolloutGroupTargetUIState groupTargetUIState;
+
+    /**
+     * constructor
+     */
+    public RolloutUIState() {
+        this.groupUIState = new RolloutGroupUIState();
+        this.groupTargetUIState = new RolloutGroupTargetUIState();
+    }
+
+    public RolloutView getCurrentView() {
+        return currentView;
+    }
+
+    public void setCurrentView(final RolloutView currentView) {
+        this.currentView = currentView;
+    }
+
+    public RolloutGroupUIState getGroupUIState() {
+        return groupUIState;
+    }
+
+    public RolloutGroupTargetUIState getGroupTargetUIState() {
+        return groupTargetUIState;
+    }
+
+    // ---------------------------------------------------
 
     private String searchText;
 
