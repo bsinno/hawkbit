@@ -44,12 +44,11 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         configurationEnabled = isConfigEnabled();
 
         detailLayout = new VerticalLayout();
+        detailLayout.setMargin(false);
+        detailLayout.setSpacing(false);
 
         final HorizontalLayout caRootAuthorityLayout = new HorizontalLayout();
         caRootAuthorityLayout.setSpacing(true);
-
-        // final Label caRootAuthorityLabel = new
-        // LabelBuilderV7().name(i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
 
         final Label caRootAuthorityLabel = new LabelBuilder()
                 .name(i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
@@ -58,10 +57,7 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
 
         caRootAuthorityTextField = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         caRootAuthorityTextField.setWidth("100%");
-        // caRootAuthorityTextField.addValueChangeListener(event ->
-        // caRootAuthorityChanged());
-        // caRootAuthorityTextField.addTextChangeListener(event ->
-        // caRootAuthorityChanged());
+        caRootAuthorityTextField.addValueChangeListener(event -> caRootAuthorityChanged());
 
         caRootAuthorityLayout.addComponent(caRootAuthorityLabel);
         caRootAuthorityLayout.setExpandRatio(caRootAuthorityLabel, 0);
