@@ -108,8 +108,7 @@ public class DurationField extends DateTimeField {
         } catch (final ParseException e) {
             try {
                 Date parsedDate = additionalFormat.parse("000000".substring(Math.min(value.length(), 6)) + value);
-                LocalDateTime localDateTime = LocalDateTime.ofInstant(parsedDate.toInstant(), ZONEID_UTC);
-                return Result.ok(localDateTime);
+                return Result.ok(LocalDateTime.ofInstant(parsedDate.toInstant(), ZONEID_UTC));
             } catch (final ParseException ex) {
                 return Result.error("Input is not in HH:MM:SS format.");
             }
