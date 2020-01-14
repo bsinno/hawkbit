@@ -19,6 +19,9 @@ import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.BulkUploadHeaderSupport;
@@ -26,14 +29,12 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.DistributionSetFilterDr
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadPopupEvent;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
 import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
+import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -53,9 +54,12 @@ public class TargetGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
     private final UINotification notification;
-    private final ManagementUIState managementUIState;
 
-    private final TargetWindowBuilder targetWindowBuilder;
+    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
+    private final TargetBulkUploadUiState targetBulkUploadUiState;
+
+    private final transient TargetWindowBuilder targetWindowBuilder;
     private final TargetBulkUpdateWindowLayout targetBulkUpdateWindow;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
@@ -66,20 +70,25 @@ public class TargetGridHeader extends AbstractGridHeader {
     private final transient DistributionSetFilterDropAreaSupport distributionSetFilterDropAreaSupport;
 
     TargetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final UINotification notification, final ManagementUIState managementUIState,
-            final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
-            final UiProperties uiproperties, final EntityFactory entityFactory, final UINotification uiNotification,
+            final UINotification notification, final TargetManagement targetManagement,
+            final DeploymentManagement deploymentManagement, final UiProperties uiproperties,
+            final EntityFactory entityFactory, final UINotification uiNotification,
             final TargetTagManagement tagManagement, final DistributionSetManagement distributionSetManagement,
-            final Executor uiExecutor, final TargetWindowBuilder targetWindowBuilder) {
+            final Executor uiExecutor, final TargetWindowBuilder targetWindowBuilder,
+            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
+            final TargetGridLayoutUiState targetGridLayoutUiState,
+            final TargetBulkUploadUiState targetBulkUploadUiState) {
         super(i18n, permChecker, eventBus);
 
         this.notification = notification;
-        this.managementUIState = managementUIState;
+        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
+        this.targetGridLayoutUiState = targetGridLayoutUiState;
+        this.targetBulkUploadUiState = targetBulkUploadUiState;
 
         this.targetWindowBuilder = targetWindowBuilder;
-        this.targetBulkUpdateWindow = new TargetBulkUpdateWindowLayout(i18n, targetManagement, eventBus,
-                managementUIState, deploymentManagement, uiproperties, permChecker, uiNotification, tagManagement,
-                distributionSetManagement, entityFactory, uiExecutor);
+        this.targetBulkUpdateWindow = new TargetBulkUpdateWindowLayout(i18n, eventBus, permChecker, notification,
+                targetManagement, deploymentManagement, tagManagement, distributionSetManagement, entityFactory,
+                uiproperties, uiExecutor, targetBulkUploadUiState);
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.TARGET_TEXT_FIELD,
                 UIComponentIdProvider.TARGET_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState, this::searchBy,
@@ -108,7 +117,7 @@ public class TargetGridHeader extends AbstractGridHeader {
 
         // DistributionSetFilterDropArea is only available in TargetTableHeader
         this.distributionSetFilterDropAreaSupport = new DistributionSetFilterDropAreaSupport(i18n, eventBus,
-                uiNotification, managementUIState, distributionSetManagement);
+                uiNotification, distributionSetManagement, targetTagFilterLayoutUiState, targetGridLayoutUiState);
         final Component distributionSetFilterDropArea = distributionSetFilterDropAreaSupport.getHeaderComponent();
         addComponent(distributionSetFilterDropArea);
         setComponentAlignment(distributionSetFilterDropArea, Alignment.TOP_CENTER);
@@ -123,7 +132,7 @@ public class TargetGridHeader extends AbstractGridHeader {
     protected void restoreHeaderState() {
         super.restoreHeaderState();
 
-        if (managementUIState.isCustomFilterSelected()) {
+        if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
             onSimpleFilterReset();
         }
     }
@@ -132,35 +141,36 @@ public class TargetGridHeader extends AbstractGridHeader {
         searchHeaderSupport.resetSearch();
         searchHeaderSupport.disableSearch();
 
-        if (managementUIState.getTargetTableFilters().getDistributionSet().isPresent()) {
+        if (targetGridLayoutUiState.getFilterDsIdNameVersion() != null) {
             distributionSetFilterDropAreaSupport.restoreState();
         }
     }
 
     private String getSearchTextFromUiState() {
-        return managementUIState.getTargetTableFilters().getSearchText().orElse(null);
+        return targetGridLayoutUiState.getSearchFilter();
     }
 
     private void searchBy(final String newSearchText) {
-        managementUIState.getTargetTableFilters().setSearchText(newSearchText);
-        eventBus.publish(this, TargetFilterEvent.FILTER_BY_TEXT);
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
+
+        targetGridLayoutUiState.setSearchFilter(newSearchText);
     }
 
     // TODO: check if needed or can be done by searchBy
     private void resetSearchText() {
-        if (managementUIState.getTargetTableFilters().getSearchText().isPresent()) {
-            managementUIState.getTargetTableFilters().setSearchText(null);
-            eventBus.publish(this, TargetFilterEvent.REMOVE_FILTER_BY_TEXT);
-        }
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, "");
+
+        targetGridLayoutUiState.setSearchFilter(null);
     }
 
     private void showFilterButtonsLayout() {
-        managementUIState.setTargetTagFilterClosed(false);
-        eventBus.publish(this, ManagementUIEvent.SHOW_TARGET_TAG_LAYOUT);
+        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this, LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN);
+
+        targetTagFilterLayoutUiState.setHidden(false);
     }
 
     private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return managementUIState.isTargetTagFilterClosed();
+        return !targetTagFilterLayoutUiState.isHidden();
     }
 
     private void addNewItem() {
@@ -172,7 +182,35 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     private Boolean onLoadIsTableMaximized() {
-        return managementUIState.isTargetTableMaximized();
+        return targetGridLayoutUiState.isMaximized();
+    }
+
+    private void maximizeTable() {
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+
+        if (addHeaderSupport != null) {
+            addHeaderSupport.hideAddIcon();
+        }
+
+        if (bulkUploadHeaderSupport != null) {
+            bulkUploadHeaderSupport.hideBulkUpload();
+        }
+
+        targetGridLayoutUiState.setMaximized(true);
+    }
+
+    private void minimizeTable() {
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+
+        if (addHeaderSupport != null) {
+            addHeaderSupport.showAddIcon();
+        }
+
+        if (bulkUploadHeaderSupport != null) {
+            bulkUploadHeaderSupport.showBulkUpload();
+        }
+
+        targetGridLayoutUiState.setMaximized(false);
     }
 
     // TODO: refactor window handling
@@ -185,34 +223,8 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     private Boolean isBulkUploadInProgress() {
-        return managementUIState.getTargetTableFilters().getBulkUpload().getSucessfulUploadCount() != 0
-                || managementUIState.getTargetTableFilters().getBulkUpload().getFailedUploadCount() != 0;
-    }
-
-    private void maximizeTable() {
-        if (bulkUploadHeaderSupport != null) {
-            bulkUploadHeaderSupport.hideBulkUpload();
-        }
-
-        if (addHeaderSupport != null) {
-            addHeaderSupport.hideAddIcon();
-        }
-
-        managementUIState.setTargetTableMaximized(Boolean.TRUE);
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.MAXIMIZED));
-    }
-
-    private void minimizeTable() {
-        if (bulkUploadHeaderSupport != null) {
-            bulkUploadHeaderSupport.showBulkUpload();
-        }
-
-        if (addHeaderSupport != null) {
-            addHeaderSupport.showAddIcon();
-        }
-
-        managementUIState.setTargetTableMaximized(Boolean.FALSE);
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.MINIMIZED));
+        return targetBulkUploadUiState.getSucessfulUploadCount() != 0
+                || targetBulkUploadUiState.getFailedUploadCount() != 0;
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -247,8 +259,8 @@ public class TargetGridHeader extends AbstractGridHeader {
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final TargetTableEvent event) {
         if (TargetComponentEvent.BULK_TARGET_CREATED == event.getTargetComponentEvent()) {
-            this.getUI().access(() -> targetBulkUpdateWindow.setProgressBarValue(
-                    managementUIState.getTargetTableFilters().getBulkUpload().getProgressBarCurrentValue()));
+            this.getUI().access(() -> targetBulkUpdateWindow
+                    .setProgressBarValue(targetBulkUploadUiState.getProgressBarCurrentValue()));
         } else if (TargetComponentEvent.BULK_UPLOAD_COMPLETED == event.getTargetComponentEvent()) {
             this.getUI().access(targetBulkUpdateWindow::onUploadCompletion);
         } else if (TargetComponentEvent.BULK_TARGET_UPLOAD_STARTED == event.getTargetComponentEvent()) {

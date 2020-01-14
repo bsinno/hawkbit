@@ -29,6 +29,7 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
 import org.eclipse.hawkbit.ui.management.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -58,7 +59,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
             final UiProperties uiProperties, final SpPermissionChecker permissionChecker,
             final TargetTagManagement targetTagManagement, final DistributionSetManagement distributionSetManagement,
             final Executor uiExecutor, final TenantConfigurationManagement configManagement,
-            final SystemSecurityContext systemSecurityContext, final TargetGridLayoutUiState targetGridLayoutUiState) {
+            final SystemSecurityContext systemSecurityContext,
+            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
+            final TargetGridLayoutUiState targetGridLayoutUiState,
+            final TargetBulkUploadUiState targetBulkUploadUiState) {
         this.targetManagement = targetManagement;
         this.targetMapper = new TargetToProxyTargetMapper(i18n);
         this.targetGridLayoutUiState = targetGridLayoutUiState;
@@ -69,8 +73,9 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 entityFactory, eventBus, uiNotification, permissionChecker, targetManagement);
 
         this.targetGridHeader = new TargetGridHeader(i18n, permissionChecker, eventBus, uiNotification,
-                managementUIState, targetManagement, deploymentManagement, uiProperties, entityFactory, uiNotification,
-                targetTagManagement, distributionSetManagement, uiExecutor, targetWindowBuilder);
+                targetManagement, deploymentManagement, uiProperties, entityFactory, uiNotification,
+                targetTagManagement, distributionSetManagement, uiExecutor, targetWindowBuilder,
+                targetTagFilterLayoutUiState, targetGridLayoutUiState, targetBulkUploadUiState);
         this.targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement, managementUIState,
                 permissionChecker, deploymentManagement, configManagement, systemSecurityContext, uiProperties);
 
@@ -128,34 +133,32 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     }
 
     public void filterGridBySearch(final String searchFilter) {
-        // TODO
         // targetGrid.updateSearchFilter(searchFilter);
         targetGrid.deselectAll();
     }
 
     public void filterGridByTags(final Collection<String> tagFilterNames) {
-        // TODO
-        // targetGrid.updateTagFilter(tagFilter);
+        // targetGrid.updateTagFilter(tagFilterNames);
         targetGrid.deselectAll();
     }
 
     public void filterGridByNoTag(final boolean isActive) {
-        // TODO Auto-generated method stub
+        // targetGrid.updateNoTagFilter(isActive);
         targetGrid.deselectAll();
     }
 
     public void filterGridByStatus(final List<TargetUpdateStatus> statusFilters) {
-        // TODO Auto-generated method stub
+        // targetGrid.updateStatusFilter(statusFilters);
         targetGrid.deselectAll();
     }
 
     public void filterGridByOverdue(final boolean isOverdue) {
-        // TODO Auto-generated method stub
+        // targetGrid.updateOverdueFilter(isOverdue);
         targetGrid.deselectAll();
     }
 
     public void filterGridByCustomFilter(final Long customFilterId) {
-        // TODO Auto-generated method stub
+        // targetGrid.updateCustomFilter(customFilterId);
         targetGrid.deselectAll();
     }
 

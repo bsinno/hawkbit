@@ -107,7 +107,7 @@ public class DurationField extends DateTimeField {
             return Result.ok(LocalDateTime.ofInstant(durationFormat.parse(value).toInstant(), ZONEID_UTC));
         } catch (final ParseException e) {
             try {
-                Date parsedDate = additionalFormat.parse("000000".substring(Math.min(value.length(), 6)) + value);
+                final Date parsedDate = additionalFormat.parse("000000".substring(Math.min(value.length(), 6)) + value);
                 return Result.ok(LocalDateTime.ofInstant(parsedDate.toInstant(), ZONEID_UTC));
             } catch (final ParseException ex) {
                 return Result.error("Input is not in HH:MM:SS format.");
@@ -115,7 +115,7 @@ public class DurationField extends DateTimeField {
         }
     }
 
-    public void changeListener(final ValueChangeEvent event) {
+    private void changeListener(final ValueChangeEvent<LocalDateTime> event) {
         // do not delete this method, even when removing the code inside this
         // method. This method overwrites the super method, which is
         // necessary, that parsing works correctly on pressing enter key
@@ -123,12 +123,12 @@ public class DurationField extends DateTimeField {
         if (!(event.getComponent() instanceof DurationField)) {
             return;
         }
-        final LocalDateTime value = (LocalDateTime) event.getValue();
+        final LocalDateTime value = event.getValue();
 
         // setValue() calls valueChanged again, when the minimum is greater
         // than the maximum this can lead to an endless loop
-        if (value != null && minimumDuration != null && maximumDuration != null && minimumDuration.isBefore(
-                maximumDuration)) {
+        if (value != null && minimumDuration != null && maximumDuration != null
+                && minimumDuration.isBefore(maximumDuration)) {
 
             if (compareTimeOfDates(value, maximumDuration) > 0) {
                 ((DurationField) event.getComponent()).setValue(maximumDuration);
@@ -144,11 +144,9 @@ public class DurationField extends DateTimeField {
      * Sets the duration value
      *
      * @param duration
-     *         duration, only values less then 23:59:59 are excepted
+     *            duration, only values less then 23:59:59 are excepted
      */
-    public void setDuration(
-            @NotNull
-            final Duration duration) {
+    public void setDuration(@NotNull final Duration duration) {
         if (duration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The duaration has to be smaller than 23:59:59.");
         }
@@ -171,11 +169,9 @@ public class DurationField extends DateTimeField {
      * Sets the minimal allowed duration value as a String
      *
      * @param minimumDuration
-     *         minimum Duration, only values smaller 23:59:59 are excepted
+     *            minimum Duration, only values smaller 23:59:59 are excepted
      */
-    public void setMinimumDuration(
-            @NotNull
-            final Duration minimumDuration) {
+    public void setMinimumDuration(@NotNull final Duration minimumDuration) {
         if (minimumDuration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The minimum duaration has to be smaller than 23:59:59.");
         }
@@ -186,11 +182,9 @@ public class DurationField extends DateTimeField {
      * Sets the maximum allowed duration value as a String
      *
      * @param maximumDuration
-     *         maximumDuration, only values smaller 23:59:59 are excepted
+     *            maximumDuration, only values smaller 23:59:59 are excepted
      */
-    public void setMaximumDuration(
-            @NotNull
-            final Duration maximumDuration) {
+    public void setMaximumDuration(@NotNull final Duration maximumDuration) {
         if (maximumDuration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The maximum duaration has to be smaller than 23:59:59.");
         }
@@ -220,14 +214,14 @@ public class DurationField extends DateTimeField {
      * comparing the time and ignores the values for day, month and year.
      *
      * @param d1
-     *         date, which time will compared with the time of d2
+     *            date, which time will compared with the time of d2
      * @param d2
-     *         date, which time will compared with the time of d1
+     *            date, which time will compared with the time of d1
      *
      * @return the value 0 if the time represented d1 is equal to the time
-     * represented by d2; a value less than 0 if the time of d1 is
-     * before the time of d2; and a value greater than 0 if the time of
-     * d1 is after the time represented by d2.
+     *         represented by d2; a value less than 0 if the time of d1 is
+     *         before the time of d2; and a value greater than 0 if the time of
+     *         d1 is after the time represented by d2.
      */
     private int compareTimeOfDates(final LocalDateTime d1, final LocalDateTime d2) {
 

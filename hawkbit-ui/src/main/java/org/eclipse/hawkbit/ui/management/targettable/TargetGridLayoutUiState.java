@@ -10,12 +10,15 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.io.Serializable;
 
+import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
+
 public class TargetGridLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean maximized;
     private String searchFilter;
     private Long selectedTargetId;
+    private DistributionSetIdName filterDsIdNameVersion;
 
     public boolean isMaximized() {
         return maximized;
@@ -39,5 +42,13 @@ public class TargetGridLayoutUiState implements Serializable {
 
     public void setSelectedTargetId(final Long selectedTargetId) {
         this.selectedTargetId = selectedTargetId;
+    }
+
+    public DistributionSetIdName getFilterDsIdNameVersion() {
+        return filterDsIdNameVersion;
+    }
+
+    public void setFilterDsIdNameVersion(DistributionSetIdName filterDsIdNameVersion) {
+        this.filterDsIdNameVersion = filterDsIdNameVersion;
     }
 }

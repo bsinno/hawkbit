@@ -70,6 +70,7 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
         } else {
             this.addHeaderSupport = null;
         }
+
         this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, UIComponentIdProvider.DS_MAX_MIN_TABLE_ICON,
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
         addHeaderSupports(

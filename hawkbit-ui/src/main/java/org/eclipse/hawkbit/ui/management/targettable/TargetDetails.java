@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
@@ -165,13 +166,11 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
                 new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_ASSIGNED_DS_VERSION_ID,
                         i18n.getMessage("label.dist.details.version"), ds.getVersion()));
 
-        final List<ProxyKeyValueDetails> dsSmDetails = ds.getModules().stream()
+        final Stream<ProxyKeyValueDetails> dsSmDetailsStream = ds.getModules().stream()
                 .map(swModule -> new ProxyKeyValueDetails("target.assigned.ds.sm.id." + swModule.getId(),
-                        swModule.getType().getName(), swModule.getName() + ":" + swModule.getVersion()))
-                .collect(Collectors.toList());
-        dsDetails.addAll(dsSmDetails);
+                        swModule.getType().getName(), swModule.getName() + ":" + swModule.getVersion()));
 
-        return dsDetails;
+        return Stream.concat(dsDetails.stream(), dsSmDetailsStream).collect(Collectors.toList());
     }
 
     private KeyValueDetailsComponent buildInstalledDsDetails() {

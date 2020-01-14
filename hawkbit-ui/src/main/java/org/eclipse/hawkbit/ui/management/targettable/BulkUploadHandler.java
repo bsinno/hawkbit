@@ -38,11 +38,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.components.HawkbitErrorNotificationMessage;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
-import org.eclipse.hawkbit.ui.management.state.TargetBulkUpload;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
@@ -95,7 +93,6 @@ public class BulkUploadHandler extends CustomComponent
     private Upload upload;
 
     private final ProgressBar progressBar;
-    private final ManagementUIState managementUIState;
     private final TargetBulkTokenTags targetBulkTokenTags;
 
     private final Label targetsCountLabel;
@@ -107,17 +104,18 @@ public class BulkUploadHandler extends CustomComponent
     private final transient EntityFactory entityFactory;
     private final UI uiInstance;
 
+    private final TargetBulkUploadUiState targetBulkUploadUiState;
+
     BulkUploadHandler(final TargetBulkUpdateWindowLayout targetBulkUpdateWindowLayout,
             final TargetManagement targetManagement, final TargetTagManagement tagManagement,
-            final EntityFactory entityFactory, final DistributionSetManagement distributionSetManagement,
-            final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement,
-            final VaadinMessageSource i18n, final UI uiInstance, final Executor uiExecutor) {
+            final DistributionSetManagement distributionSetManagement, final DeploymentManagement deploymentManagement,
+            final VaadinMessageSource i18n, final EntityFactory entityFactory, final UI uiInstance,
+            final Executor uiExecutor, final TargetBulkUploadUiState targetBulkUploadUiState) {
         this.uiInstance = uiInstance;
         this.comboBox = targetBulkUpdateWindowLayout.getDsNamecomboBox();
         this.descTextArea = targetBulkUpdateWindowLayout.getDescTextArea();
         this.targetManagement = targetManagement;
         this.progressBar = targetBulkUpdateWindowLayout.getProgressBar();
-        this.managementUIState = managementUIState;
         this.deploymentManagement = deploymentManagement;
         this.targetsCountLabel = targetBulkUpdateWindowLayout.getTargetsCountLabel();
         this.targetBulkTokenTags = targetBulkUpdateWindowLayout.getTargetBulkTokenTags();
@@ -127,6 +125,7 @@ public class BulkUploadHandler extends CustomComponent
         this.distributionSetManagement = distributionSetManagement;
         this.tagManagement = tagManagement;
         this.entityFactory = entityFactory;
+        this.targetBulkUploadUiState = targetBulkUploadUiState;
     }
 
     void buildLayout() {
@@ -215,15 +214,15 @@ public class BulkUploadHandler extends CustomComponent
             doAssignments();
             eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.BULK_UPLOAD_COMPLETED));
             // Clearing after assignments are done
-            managementUIState.getTargetTableFilters().getBulkUpload().getTargetsCreated().clear();
+            targetBulkUploadUiState.getTargetsCreated().clear();
             resetSuccessfullTargetCount();
         }
 
         private void syncCountAfterUpload(final int totalNumberOfLines) {
             final int syncedFailedTargetCount = totalNumberOfLines - successfullTargetCount;
-            managementUIState.getTargetTableFilters().getBulkUpload().setSucessfulUploadCount(successfullTargetCount);
-            managementUIState.getTargetTableFilters().getBulkUpload().setFailedUploadCount(syncedFailedTargetCount);
-            managementUIState.getTargetTableFilters().getBulkUpload().setProgressBarCurrentValue(1);
+            targetBulkUploadUiState.setSucessfulUploadCount(successfullTargetCount);
+            targetBulkUploadUiState.setFailedUploadCount(syncedFailedTargetCount);
+            targetBulkUploadUiState.setProgressBarCurrentValue(1);
             eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.BULK_TARGET_CREATED));
         }
 
@@ -273,14 +272,12 @@ public class BulkUploadHandler extends CustomComponent
                 addNewTarget(controllerId, targetName);
             }
 
-            final float previous = managementUIState.getTargetTableFilters().getBulkUpload()
-                    .getProgressBarCurrentValue();
+            final float previous = targetBulkUploadUiState.getProgressBarCurrentValue();
             final float done = new BigDecimal(lineNumber).divide(totalNumberOfLines, 2, RoundingMode.UP).floatValue();
 
             if (done > previous) {
-                managementUIState.getTargetTableFilters().getBulkUpload()
-                        .setSucessfulUploadCount(successfullTargetCount);
-                managementUIState.getTargetTableFilters().getBulkUpload().setProgressBarCurrentValue(done);
+                targetBulkUploadUiState.setSucessfulUploadCount(successfullTargetCount);
+                targetBulkUploadUiState.setProgressBarCurrentValue(done);
                 eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.BULK_TARGET_CREATED));
             }
         }
@@ -303,15 +300,14 @@ public class BulkUploadHandler extends CustomComponent
         private String saveAllAssignments() {
             final ActionType actionType = ActionType.FORCED;
             final long forcedTimeStamp = new Date().getTime();
-            final TargetBulkUpload targetBulkUpload = managementUIState.getTargetTableFilters().getBulkUpload();
-            final List<String> targetIds = targetBulkUpload.getTargetsCreated();
+            final List<String> targetIds = targetBulkUploadUiState.getTargetsCreated();
             final Long dsSelected = comboBox.getSelectedItem().map(ProxyIdentifiableEntity::getId).orElse(null);
             if (!distributionSetManagement.get(dsSelected).isPresent()) {
                 return i18n.getMessage("message.bulk.upload.assignment.failed");
             }
             final List<DeploymentRequest> deploymentRequests = targetIds.stream()
                     .map(targetId -> DeploymentManagement
-                            .deploymentRequest(targetId, targetBulkUpload.getDsNameAndVersion())
+                            .deploymentRequest(targetId, targetBulkUploadUiState.getDsNameAndVersion())
                             .setActionType(actionType).setForceTime(forcedTimeStamp).build())
                     .collect(Collectors.toList());
             deploymentManagement.assignDistributionSets(deploymentRequests);
@@ -324,8 +320,7 @@ public class BulkUploadHandler extends CustomComponent
                 if (!tagManagement.get(tagData.getId()).isPresent()) {
                     deletedTags.add(tagData.getName());
                 } else {
-                    targetManagement.toggleTagAssignment(
-                            managementUIState.getTargetTableFilters().getBulkUpload().getTargetsCreated(),
+                    targetManagement.toggleTagAssignment(targetBulkUploadUiState.getTargetsCreated(),
                             tagData.getName());
                 }
             }
@@ -343,7 +338,7 @@ public class BulkUploadHandler extends CustomComponent
         }
 
         private boolean ifTargetsCreatedSuccessfully() {
-            return !managementUIState.getTargetTableFilters().getBulkUpload().getTargetsCreated().isEmpty();
+            return !targetBulkUploadUiState.getTargetsCreated().isEmpty();
         }
 
         private void displayValidationMessage(final StringBuilder errorMessage, final String dsAssignmentFailedMsg,
@@ -372,7 +367,7 @@ public class BulkUploadHandler extends CustomComponent
                 targetManagement.create(entityFactory.target().create().controllerId(newControllerId).name(name)
                         .description(description));
 
-                managementUIState.getTargetTableFilters().getBulkUpload().getTargetsCreated().add(newControllerId);
+                targetBulkUploadUiState.getTargetsCreated().add(newControllerId);
                 successfullTargetCount++;
 
             } catch (final EntityAlreadyExistsException ex) {

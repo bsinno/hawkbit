@@ -99,7 +99,8 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
             this.targetGridLayout = new TargetGridLayout(eventBus, targetManagement, entityFactory, i18n,
                     uiNotification, managementUIState, deploymentManagement, uiProperties, permChecker,
                     targetTagManagement, distributionSetManagement, uiExecutor, configManagement, systemSecurityContext,
-                    managementUIState.getTargetGridLayoutUiState());
+                    managementUIState.getTargetTagFilterLayoutUiState(), managementUIState.getTargetGridLayoutUiState(),
+                    managementUIState.getTargetBulkUploadUiState());
 
             this.actionHistoryLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, eventBus, uiNotification,
                     managementUIState, permChecker, managementUIState.getActionHistoryGridLayoutUiState());
