@@ -38,13 +38,13 @@ import com.vaadin.ui.Label;
  * Count message label which display current filter details and details on
  * pinning.
  */
+// TODO: refactor
 public class CountMessageLabel extends AbstractFooterSupport {
-
-    private final TargetManagement targetManagement;
-
     private final VaadinMessageSource i18n;
 
     private final ManagementUIState managementUIState;
+
+    private final TargetManagement targetManagement;
 
     private final DataCommunicator<ProxyTarget> targetGridDataCommunicator;
 

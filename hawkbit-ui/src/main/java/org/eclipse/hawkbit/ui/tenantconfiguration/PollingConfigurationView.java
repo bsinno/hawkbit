@@ -43,23 +43,25 @@ public class PollingConfigurationView extends BaseConfigurationView
             final TenantConfigurationManagement tenantConfigurationManagement) {
         this.tenantConfigurationManagement = tenantConfigurationManagement;
 
-        final Duration minDuration = DurationHelper
-                .formattedStringToDuration(controllerPollProperties.getMinPollingTime());
-        final Duration maxDuration = DurationHelper
-                .formattedStringToDuration(controllerPollProperties.getMaxPollingTime());
-        final Duration globalPollTime = DurationHelper.formattedStringToDuration(tenantConfigurationManagement
-                .getGlobalConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class));
-        final Duration globalOverdueTime = DurationHelper.formattedStringToDuration(tenantConfigurationManagement
-                .getGlobalConfigurationValue(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class));
+        final Duration minDuration = DurationHelper.formattedStringToDuration(
+                controllerPollProperties.getMinPollingTime());
+        final Duration maxDuration = DurationHelper.formattedStringToDuration(
+                controllerPollProperties.getMaxPollingTime());
+        final Duration globalPollTime = DurationHelper.formattedStringToDuration(
+                tenantConfigurationManagement.getGlobalConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL,
+                        String.class));
+        final Duration globalOverdueTime = DurationHelper.formattedStringToDuration(
+                tenantConfigurationManagement.getGlobalConfigurationValue(
+                        TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class));
 
-        final TenantConfigurationValue<String> pollTimeConfValue = tenantConfigurationManagement
-                .getConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class);
+        final TenantConfigurationValue<String> pollTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class);
         if (!pollTimeConfValue.isGlobal()) {
             tenantPollTime = DurationHelper.formattedStringToDuration(pollTimeConfValue.getValue());
         }
 
-        final TenantConfigurationValue<String> overdueTimeConfValue = tenantConfigurationManagement
-                .getConfigurationValue(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class);
+        final TenantConfigurationValue<String> overdueTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class);
         if (!overdueTimeConfValue.isGlobal()) {
             tenantOverdueTime = DurationHelper.formattedStringToDuration(overdueTimeConfValue.getValue());
         }
@@ -69,6 +71,7 @@ public class PollingConfigurationView extends BaseConfigurationView
         rootPanel.addStyleName("config-panel");
 
         final VerticalLayout vLayout = new VerticalLayout();
+        vLayout.setSpacing(false);
         vLayout.setMargin(true);
 
         final Label headerDisSetType = new Label(i18n.getMessage("configuration.polling.title"));
@@ -77,15 +80,21 @@ public class PollingConfigurationView extends BaseConfigurationView
 
         fieldPollTime = DurationConfigField.builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_POLLING)
                 .caption(i18n.getMessage("configuration.polling.time"))
-                .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value")).range(minDuration, maxDuration)
-                .globalDuration(globalPollTime).tenantDuration(tenantPollTime).build();
+                .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value"))
+                .range(minDuration, maxDuration)
+                .globalDuration(globalPollTime)
+                .tenantDuration(tenantPollTime)
+                .build();
         fieldPollTime.addChangeListener(this);
         vLayout.addComponent(fieldPollTime);
 
         fieldPollingOverdueTime = DurationConfigField.builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_OVERDUE)
                 .caption(i18n.getMessage("configuration.polling.overduetime"))
-                .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value")).range(minDuration, maxDuration)
-                .globalDuration(globalOverdueTime).tenantDuration(tenantOverdueTime).build();
+                .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value"))
+                .range(minDuration, maxDuration)
+                .globalDuration(globalOverdueTime)
+                .tenantDuration(tenantOverdueTime)
+                .build();
         fieldPollingOverdueTime.addChangeListener(this);
         vLayout.addComponent(fieldPollingOverdueTime);
 

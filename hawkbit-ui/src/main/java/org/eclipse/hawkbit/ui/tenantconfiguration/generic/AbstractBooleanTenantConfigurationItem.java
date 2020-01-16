@@ -51,7 +51,8 @@ public abstract class AbstractBooleanTenantConfigurationItem extends VerticalLay
      * initialize the abstract component.
      */
     protected void init(final String labelText) {
-
+        setSpacing(false);
+        setMargin(false);
         addComponent(new LabelBuilder().name(i18n.getMessage(labelText)).buildLabel());
     }
 

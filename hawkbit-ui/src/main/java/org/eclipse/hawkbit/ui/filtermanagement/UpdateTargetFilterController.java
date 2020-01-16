@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
@@ -90,9 +91,8 @@ public class UpdateTargetFilterController
         } catch (final EntityNotFoundException e) {
             LOG.debug("TargetFilter can not be modified: Does not exist", e);
             uiNotification.displayWarning(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_ENTITY_DELETED));
-            // TODO: verify if sender is correct
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new TargetFilterModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, entity.getId()));
+            // TODO: verify if sender is correct, adapt the event
+            eventBus.publish(EventTopics.CHANGE_UI_ELEMENT_STATE, this, ChangeUiElementPayload.CLOSE);
         } catch (final EntityReadOnlyException e) {
             LOG.debug("TargetFilter can not be modified: Read only", e);
             uiNotification.displayWarning(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_ENTITY_READONLY));

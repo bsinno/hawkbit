@@ -104,7 +104,7 @@ public class AutoAssignmentWindowController
         } else {
             targetFilterQueryManagement
                     .updateAutoAssignDS(entityFactory.targetFilterQuery().updateAutoAssign(entity.getId()).ds(null));
-            publishModifiedEvent(entity);
+            publishModifiedEvent(entity.getId());
         }
     }
 
@@ -117,7 +117,7 @@ public class AutoAssignmentWindowController
                     if (ok) {
                         targetFilterQueryManagement.updateAutoAssignDS(entityFactory.targetFilterQuery()
                                 .updateAutoAssign(targetFilterId).ds(autoAssignDsId).actionType(autoAssignActionType));
-                        publishModifiedEvent(entity);
+                        publishModifiedEvent(entity.getId());
                     }
                 }, UIComponentIdProvider.DIST_SET_SELECT_CONS_WINDOW_ID);
 
@@ -127,9 +127,9 @@ public class AutoAssignmentWindowController
         confirmDialog.getWindow().bringToFront();
     }
 
-    private void publishModifiedEvent(final ProxyTargetFilterQuery entity) {
+    private void publishModifiedEvent(final Long entityId) {
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new TargetFilterModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, entity.getId()));
+                new TargetFilterModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, entityId));
     }
 
     @Override

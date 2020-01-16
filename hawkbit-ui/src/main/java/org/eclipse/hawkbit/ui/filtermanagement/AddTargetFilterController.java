@@ -58,9 +58,7 @@ public class AddTargetFilterController
 
     @Override
     protected ProxyTargetFilterQuery buildEntityFromProxy(final ProxyTargetFilterQuery proxyEntity) {
-        // We ignore the method parameter, because we are interested in the
-        // empty object, that we can populate with defaults
-        return new ProxyTargetFilterQuery();
+        return proxyEntity;
     }
 
     @Override

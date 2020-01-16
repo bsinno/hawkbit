@@ -28,16 +28,13 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.data.provider.Query;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.Label;
 
 /**
  * Shows the targets as a result of the executed filter query.
  */
 public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
-
     private static final long serialVersionUID = 1L;
 
     private static final String TARGET_NAME_ID = "targetName";
@@ -50,7 +47,6 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
-    private final TargetFilterStateDataProvider targetDataProvider;
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, String> configurableTargetDataProvider;
 
     private final TargetFilterDetailsLayoutUiState uiState;
@@ -60,12 +56,11 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         super(i18n, eventBus);
 
         this.uiState = uiState;
-        targetDataProvider = new TargetFilterStateDataProvider(targetManagement, new TargetToProxyTargetMapper(i18n));
-        configurableTargetDataProvider = targetDataProvider.withConfigurableFilter();
+        configurableTargetDataProvider = new TargetFilterStateDataProvider(targetManagement,
+                new TargetToProxyTargetMapper(i18n)).withConfigurableFilter();
         initTargetStatusIconMap();
 
         init();
-        this.sort(TARGET_NAME_ID, SortDirection.ASCENDING);
     }
 
     @Override
@@ -101,8 +96,8 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     public void updateTargetFilterQueryFilter(final String targetFilterQuery) {
         getFilterDataProvider().setFilter(targetFilterQuery);
-        final long totalTargetCount = targetDataProvider.size(new Query<ProxyTarget, String>(targetFilterQuery));
-        uiState.setFilterQueryValueOfLatestSerach(targetFilterQuery);
+        final long totalTargetCount = getDataCommunicator().getDataProviderSize();
+        uiState.setFilterQueryValueOfLatestSearch(targetFilterQuery);
         eventBus.publish(EventTopics.UI_ELEMENT_CHANGED, this, totalTargetCount);
     }
 
@@ -129,13 +124,11 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID)
                 .setCaption(i18n.getMessage("header.status")).setMinimumWidth(50D).setMaximumWidth(50D)
                 .setHidable(false).setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-        for (final Column<ProxyTarget, ?> c : getColumns()) {
-            c.setSortable(false);
-        }
     }
 
     private Label buildTargetStatusIcon(final ProxyTarget target) {
-        final ProxyFontIcon targetStatusFontIcon = Optional.ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
+        final ProxyFontIcon targetStatusFontIcon = Optional
+                .ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
                 .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
                         i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
 
@@ -145,7 +138,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     }
 
     public void restoreState() {
-        final String latestFilter = uiState.getFilterQueryValueOfLatestSerach();
+        final String latestFilter = uiState.getFilterQueryValueOfLatestSearch();
         if (!latestFilter.isEmpty()) {
             updateTargetFilterQueryFilter(latestFilter);
         }

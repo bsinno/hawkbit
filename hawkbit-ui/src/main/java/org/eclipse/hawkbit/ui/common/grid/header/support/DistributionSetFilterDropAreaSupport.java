@@ -17,8 +17,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
+import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
+import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUITargetDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -44,7 +45,9 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
     private final UIEventBus eventBus;
     private final UINotification notification;
-    private final ManagementUIState managementUIState;
+
+    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
 
     private final DistributionSetManagement distributionSetManagement;
 
@@ -52,13 +55,15 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
     private final HorizontalLayout dropAreaLayout;
 
     public DistributionSetFilterDropAreaSupport(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final UINotification notification, final ManagementUIState managementUIState,
-            final DistributionSetManagement distributionSetManagement) {
+            final UINotification notification, final DistributionSetManagement distributionSetManagement,
+            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
+            final TargetGridLayoutUiState targetGridLayoutUiState) {
         this.i18n = i18n;
         this.eventBus = eventBus;
         this.notification = notification;
-        this.managementUIState = managementUIState;
         this.distributionSetManagement = distributionSetManagement;
+        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
+        this.targetGridLayoutUiState = targetGridLayoutUiState;
 
         this.dropAreaLayout = buildDistributionSetFilterDropArea();
         // TODO: do we really need hint layout?
@@ -99,7 +104,9 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
             }
         });
 
-        managementUIState.getTargetTableFilters().getDistributionSet().ifPresent(this::addDsFilterDropAreaTextField);
+        if (targetGridLayoutUiState.getFilterDsIdNameVersion() != null) {
+            addDsFilterDropAreaTextField(targetGridLayoutUiState.getFilterDsIdNameVersion());
+        }
         hintDropFilterLayout.addComponent(dropAreaLayout);
         hintDropFilterLayout.setComponentAlignment(dropAreaLayout, Alignment.TOP_CENTER);
         hintDropFilterLayout.setExpandRatio(dropAreaLayout, 1.0F);
@@ -111,7 +118,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         // TODO: adapt message for isCustomFilterSelected case (e.g.
         // "Filter by DS is not allowed while Custom Filter is active")
         if (StringUtils.isEmpty(sourceId) || !sourceId.equals(UIComponentIdProvider.DIST_TABLE_ID)
-                || managementUIState.isCustomFilterSelected() || sourceDragData == null) {
+                || targetTagFilterLayoutUiState.isCustomFilterTabSelected() || sourceDragData == null) {
             notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
             return false;
         }
@@ -132,7 +139,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
             return;
         }
         final DistributionSetIdName distributionSetIdName = new DistributionSetIdName(distributionSet.get());
-        managementUIState.getTargetTableFilters().setDistributionSet(distributionSetIdName);
+        targetGridLayoutUiState.setFilterDsIdNameVersion(distributionSetIdName);
 
         addDsFilterDropAreaTextField(distributionSetIdName);
     }
@@ -173,7 +180,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         dropAreaLayout.removeAllComponents();
         dropAreaLayout.setSizeUndefined();
         /* Remove distribution Id from target filter parameters */
-        managementUIState.getTargetTableFilters().setDistributionSet(null);
+        targetGridLayoutUiState.setFilterDsIdNameVersion(null);
 
         /* Reload the table */
         eventBus.publish(this, TargetFilterEvent.REMOVE_FILTER_BY_DISTRIBUTION);

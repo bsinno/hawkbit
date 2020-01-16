@@ -22,6 +22,7 @@ import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.management.state.DistributionTableFilters;
 import org.eclipse.hawkbit.ui.management.state.TargetTableFilters;
+import org.eclipse.hawkbit.ui.management.targettable.TargetBulkUploadUiState;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 
@@ -38,6 +39,7 @@ public class ManagementUIState implements Serializable {
 
     private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
     private final TargetGridLayoutUiState targetGridLayoutUiState;
+    private final TargetBulkUploadUiState targetBulkUploadUiState;
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
     private final DistributionTagLayoutUiState distributionTagLayoutUiState;
     private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
@@ -93,6 +95,7 @@ public class ManagementUIState implements Serializable {
     ManagementUIState() {
         this.targetTagFilterLayoutUiState = new TargetTagFilterLayoutUiState();
         this.targetGridLayoutUiState = new TargetGridLayoutUiState();
+        this.targetBulkUploadUiState = new TargetBulkUploadUiState();
         this.distributionGridLayoutUiState = new DistributionGridLayoutUiState();
         this.distributionTagLayoutUiState = new DistributionTagLayoutUiState();
         this.actionHistoryGridLayoutUiState = new ActionHistoryGridLayoutUiState();
@@ -116,6 +119,10 @@ public class ManagementUIState implements Serializable {
 
     public ActionHistoryGridLayoutUiState getActionHistoryGridLayoutUiState() {
         return actionHistoryGridLayoutUiState;
+    }
+
+    public TargetBulkUploadUiState getTargetBulkUploadUiState() {
+        return targetBulkUploadUiState;
     }
 
     public boolean isBulkUploadWindowMinimised() {

@@ -24,7 +24,7 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
     private ProxyTargetFilterQuery targetFilterQueryforEdit;
     private String nameInput;
     private String filterQueryValueInput;
-    private String filterQueryValueOfLatestSerach;
+    private String filterQueryValueOfLatestSearch;
 
     public Mode getCurrentMode() {
         return currentMode;
@@ -58,12 +58,12 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
         this.nameInput = nameInput;
     }
 
-    public String getFilterQueryValueOfLatestSerach() {
-        return filterQueryValueOfLatestSerach == null ? "" : filterQueryValueOfLatestSerach;
+    public String getFilterQueryValueOfLatestSearch() {
+        return filterQueryValueOfLatestSearch == null ? "" : filterQueryValueOfLatestSearch;
     }
 
-    public void setFilterQueryValueOfLatestSerach(final String filterQueryValueOfLatestSerach) {
-        this.filterQueryValueOfLatestSerach = filterQueryValueOfLatestSerach;
+    public void setFilterQueryValueOfLatestSearch(final String filterQueryValueOfLatestSearch) {
+        this.filterQueryValueOfLatestSearch = filterQueryValueOfLatestSearch;
     }
 
 }

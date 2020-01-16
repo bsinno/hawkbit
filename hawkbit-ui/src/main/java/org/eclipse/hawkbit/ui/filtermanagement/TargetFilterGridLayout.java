@@ -60,7 +60,6 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
             final FilterManagementUIState filterManagementUIState) {
         this.targetFilterGridHeader = new TargetFilterGridHeader(eventBus,
                 filterManagementUIState.getGridLayoutUiState(), permissionChecker, i18n);
-        this.eventListener = new TargetFilterGridLayoutEventListener(this, eventBus);
 
         final AutoAssignmentWindowBuilder autoAssignmentWindowBuilder = new AutoAssignmentWindowBuilder(i18n, eventBus,
                 notification, entityFactory, targetManagement, targetFilterQueryManagement, distributionSetManagement);
@@ -68,6 +67,8 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
         this.targetFilterGrid = new TargetFilterGrid(i18n, notification, eventBus,
                 filterManagementUIState.getGridLayoutUiState(), targetFilterQueryManagement, permissionChecker,
                 autoAssignmentWindowBuilder);
+
+        this.eventListener = new TargetFilterGridLayoutEventListener(this, eventBus);
 
         buildLayout(targetFilterGridHeader, targetFilterGrid);
     }

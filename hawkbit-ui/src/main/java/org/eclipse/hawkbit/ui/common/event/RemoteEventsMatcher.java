@@ -39,7 +39,7 @@ import com.google.common.collect.Maps;
 
 public class RemoteEventsMatcher {
     private static final Map<Class<? extends EventContainer<?>>, EntityModifiedEventPayloadIdentifier> EVENT_MATCHERS = Maps
-            .newHashMapWithExpectedSize(20);
+            .newHashMapWithExpectedSize(21);
 
     private RemoteEventsMatcher() {
     }
@@ -84,6 +84,8 @@ public class RemoteEventsMatcher {
                 TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "tqf.created"));
         EVENT_MATCHERS.put(TargetFilterQueryUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
                 TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "tqf.updated"));
+        EVENT_MATCHERS.put(TargetFilterQueryDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
+                TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "tqf.deleted"));
 
         EVENT_MATCHERS.put(RolloutCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
                 RolloutModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "rollout.created"));

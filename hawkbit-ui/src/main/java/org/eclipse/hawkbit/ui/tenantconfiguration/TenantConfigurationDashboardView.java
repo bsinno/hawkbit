@@ -113,7 +113,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
                 i18n);
         this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
-                i18n, binder);
+                i18n);
         this.approvalConfigurationItem = new ApprovalConfigurationItem(tenantConfigurationManagement, i18n);
 
         this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n,

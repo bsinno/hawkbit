@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.tagdetails.AbstractTagToken;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
@@ -35,28 +34,27 @@ public class TargetBulkTokenTags extends AbstractTagToken<ProxyTarget> {
 
     private final TagToProxyTagMapper<TargetTag> tagMapper;
 
-    private final ManagementUIState managementUIState;
+    private final TargetBulkUploadUiState targetBulkUploadUiState;
 
-    TargetBulkTokenTags(final SpPermissionChecker checker, final VaadinMessageSource i18n,
-            final UINotification uinotification, final UIEventBus eventBus, final ManagementUIState managementUIState,
-            final TargetTagManagement tagManagement) {
+    TargetBulkTokenTags(final VaadinMessageSource i18n, final UIEventBus eventBus, final SpPermissionChecker checker,
+            final UINotification uinotification, final TargetTagManagement tagManagement,
+            final TargetBulkUploadUiState targetBulkUploadUiState) {
         super(checker, i18n, uinotification, eventBus);
 
         this.tagManagement = tagManagement;
-        this.managementUIState = managementUIState;
-
         this.tagMapper = new TagToProxyTagMapper<>();
+        this.targetBulkUploadUiState = targetBulkUploadUiState;
     }
 
     @Override
     public void assignTag(final ProxyTag tagData) {
-        managementUIState.getTargetTableFilters().getBulkUpload().getAssignedTagNames().add(tagData.getName());
+        targetBulkUploadUiState.getAssignedTagNames().add(tagData.getName());
         tagPanelLayout.setAssignedTag(tagData);
     }
 
     @Override
     public void unassignTag(final ProxyTag tagData) {
-        managementUIState.getTargetTableFilters().getBulkUpload().getAssignedTagNames().remove(tagData.getName());
+        targetBulkUploadUiState.getAssignedTagNames().remove(tagData.getName());
         tagPanelLayout.removeAssignedTag(tagData);
     }
 

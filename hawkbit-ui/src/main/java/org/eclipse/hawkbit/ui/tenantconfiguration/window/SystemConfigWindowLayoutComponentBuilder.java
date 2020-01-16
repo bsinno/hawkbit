@@ -3,7 +3,6 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.window;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 
@@ -26,18 +25,16 @@ public class SystemConfigWindowLayoutComponentBuilder {
 
     public ComboBox<ProxyType> createDistributionSetCombo(final Binder<ProxySystemConfigWindow> binder) {
         final ComboBox<ProxyType> distributionSetType = new ComboBox<>();
-        distributionSetType
-                .setDescription(dependencies.getI18n().getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG));
+        distributionSetType.setDescription(
+                dependencies.getI18n().getMessage(UIMessageIdProvider.CAPTION_DISTRIBUTION_TAG));
         distributionSetType.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_DEFAULTDIS_COMBOBOX);
-        distributionSetType.addStyleName(ValoTheme.COMBOBOX_SMALL);
-        distributionSetType.addStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE);
         distributionSetType.addStyleName(ValoTheme.COMBOBOX_TINY);
-        distributionSetType.setWidth(300f, Sizeable.Unit.PIXELS);
+        distributionSetType.setWidth(330f, Sizeable.Unit.PIXELS);
         distributionSetType.setEmptySelectionAllowed(false);
         distributionSetType.setItemCaptionGenerator(ProxyType::getName);
         distributionSetType.setDataProvider(dependencies.getDistributionSetTypeDataProvider());
 
-        binder.forField(distributionSetType).asRequired("select").withConverter(dst -> {
+        binder.forField(distributionSetType).withConverter(dst -> {
             if (dst == null) {
                 return null;
             }
