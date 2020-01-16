@@ -23,7 +23,7 @@ import org.eclipse.hawkbit.ui.push.RolloutGroupChangedEventContainer;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -50,7 +50,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
 
     private final transient RolloutGroupManagement rolloutGroupManagement;
 
-    private final RolloutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutUIState;
 
     private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
 
@@ -71,7 +71,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
      *            SpPermissionChecker
      */
     public RolloutGroupGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
+            final RolloutGroupManagement rolloutGroupManagement, final RolloutManagementUIState rolloutUIState,
             final SpPermissionChecker permissionChecker, final RolloutGroupDataProvider rolloutGroupDataProvider) {
         super(i18n, eventBus, permissionChecker);
         this.rolloutGroupManagement = rolloutGroupManagement;

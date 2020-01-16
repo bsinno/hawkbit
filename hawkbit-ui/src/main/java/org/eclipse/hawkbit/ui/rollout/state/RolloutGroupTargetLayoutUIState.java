@@ -10,6 +10,6 @@ package org.eclipse.hawkbit.ui.rollout.state;
 
 import java.io.Serializable;
 
-public class RolloutGroupUIState implements Serializable {
+public class RolloutGroupTargetLayoutUIState implements Serializable {
 
 }

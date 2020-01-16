@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -35,7 +35,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public class RolloutGroupGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final RolloutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutUIState;
 
     private final Label headerCaptionDetails;
 
@@ -51,7 +51,7 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
      * @param i18n
      *            I18N
      */
-    public RolloutGroupGridHeader(final UIEventBus eventBus, final RolloutUIState rolloutUiState,
+    public RolloutGroupGridHeader(final UIEventBus eventBus, final RolloutManagementUIState rolloutUiState,
             final VaadinMessageSource i18n) {
         super(i18n, null, eventBus);
 

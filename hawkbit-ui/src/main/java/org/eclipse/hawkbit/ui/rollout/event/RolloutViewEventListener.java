@@ -23,6 +23,14 @@ public class RolloutViewEventListener {
     private final UIEventBus eventBus;
     private final List<Object> eventListeners;
 
+    /**
+     * Constructor
+     * 
+     * @param rolloutView
+     *            The element that is called when receiving an event
+     * @param eventBus
+     *            The bus to listen on
+     */
     public RolloutViewEventListener(final RolloutView rolloutView, final UIEventBus eventBus) {
         this.rolloutView = rolloutView;
         this.eventBus = eventBus;
@@ -32,6 +40,13 @@ public class RolloutViewEventListener {
 
     private void registerEventListeners() {
         // TODO add eventListeners.add(new XX());
+    }
+
+    /**
+     * unsubscribe all listeners
+     */
+    public void unsubscribeListeners() {
+        eventListeners.forEach(eventBus::unsubscribe);
     }
 
 }

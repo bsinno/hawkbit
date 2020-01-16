@@ -20,7 +20,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -41,7 +41,7 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Void> {
 
     private static final long serialVersionUID = 1L;
 
-    private final RolloutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutUIState;
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
@@ -58,7 +58,7 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Void> {
      *            RolloutUIState
      */
     public RolloutGroupTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final RolloutUIState rolloutUIState,
+            final RolloutManagementUIState rolloutUIState,
             final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider) {
         super(i18n, eventBus, null);
         this.rolloutUIState = rolloutUIState;

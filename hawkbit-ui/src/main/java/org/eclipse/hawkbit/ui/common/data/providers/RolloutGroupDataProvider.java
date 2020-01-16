@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -33,7 +33,7 @@ public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGrou
     private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupDataProvider.class);
 
     private final transient RolloutGroupManagement rolloutGroupManagement;
-    private final RolloutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutUIState;
 
     /**
      * Parametric Constructor.
@@ -44,7 +44,7 @@ public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGrou
      *            ui state
      */
     public RolloutGroupDataProvider(final RolloutGroupManagement rolloutGroupManagement,
-            final RolloutUIState rolloutUIState, final RolloutGroupToProxyRolloutGroupMapper entityMapper) {
+            final RolloutManagementUIState rolloutUIState, final RolloutGroupToProxyRolloutGroupMapper entityMapper) {
         super(entityMapper);
 
         this.rolloutGroupManagement = rolloutGroupManagement;

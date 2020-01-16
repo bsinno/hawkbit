@@ -26,6 +26,8 @@ import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTagUpda
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetUpdatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.RolloutCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.RolloutUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeUpdatedEvent;
@@ -36,8 +38,6 @@ import org.eclipse.hawkbit.repository.event.remote.entity.TargetFilterQueryUpdat
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetUpdatedEvent;
-import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
-import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
 
 import com.google.common.collect.Maps;
 
@@ -77,9 +77,9 @@ public class HawkbitEventProvider implements UIEventProvider {
         EVENTS.put(SoftwareModuleTypeUpdatedEvent.class, SoftwareModuleTypeUpdatedEventContainer.class);
         EVENTS.put(SoftwareModuleTypeDeletedEvent.class, SoftwareModuleTypeDeletedEventContainer.class);
 
-        EVENTS.put(RolloutChangedEvent.class, RolloutChangeEventContainer.class);
+        EVENTS.put(RolloutCreatedEvent.class, RolloutCreatedEventContainer.class);
+        EVENTS.put(RolloutUpdatedEvent.class, RolloutUpdatedEventContainer.class);
         EVENTS.put(RolloutDeletedEvent.class, RolloutDeletedEventContainer.class);
-        EVENTS.put(RolloutGroupChangedEvent.class, RolloutGroupChangedEventContainer.class);
 
         EVENTS.put(CancelTargetAssignmentEvent.class, CancelTargetAssignmentEventContainer.class);
 

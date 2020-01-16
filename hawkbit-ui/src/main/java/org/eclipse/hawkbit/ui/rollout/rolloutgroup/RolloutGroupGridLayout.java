@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -42,7 +42,7 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
      *            SpPermissionChecker
      */
     public RolloutGroupGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
+            final RolloutGroupManagement rolloutGroupManagement, final RolloutManagementUIState rolloutUIState,
             final SpPermissionChecker permissionChecker) {
         final RolloutGroupDataProvider rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement,
                 rolloutUIState, new RolloutGroupToProxyRolloutGroupMapper());

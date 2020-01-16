@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -32,13 +32,13 @@ public class RolloutGroupTargetsCountLabelMessage extends Label {
 
     private static final long serialVersionUID = 1L;
 
-    private final RolloutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutUIState;
 
     private final Grid<ProxyTarget> rolloutGroupTargetsListGrid;
 
     private final VaadinMessageSource i18n;
 
-    RolloutGroupTargetsCountLabelMessage(final RolloutUIState rolloutUIState,
+    RolloutGroupTargetsCountLabelMessage(final RolloutManagementUIState rolloutUIState,
             final Grid<ProxyTarget> rolloutGroupTargetsListGrid, final VaadinMessageSource i18n) {
         this.rolloutUIState = rolloutUIState;
         this.rolloutGroupTargetsListGrid = rolloutGroupTargetsListGrid;

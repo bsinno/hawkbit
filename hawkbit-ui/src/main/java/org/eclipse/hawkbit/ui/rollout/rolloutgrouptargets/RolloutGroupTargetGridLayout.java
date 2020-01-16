@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetWithActionStatusToProxyT
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupTargetsDataProvider;
 import org.eclipse.hawkbit.ui.common.grid.AbstractFooterSupport;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -30,7 +30,7 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
 
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final RolloutUIState rolloutUIState, final RolloutGroupManagement rolloutGroupManagement) {
+            final RolloutManagementUIState rolloutUIState, final RolloutGroupManagement rolloutGroupManagement) {
         final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider = new RolloutGroupTargetsDataProvider(
                 rolloutGroupManagement, rolloutUIState, new TargetWithActionStatusToProxyTargetMapper());
 
@@ -44,10 +44,10 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
 
     private static class RolloutTargetsCountFooterSupport extends AbstractFooterSupport {
         private final VaadinMessageSource i18n;
-        private final RolloutUIState rolloutUIState;
+        private final RolloutManagementUIState rolloutUIState;
         private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
 
-        RolloutTargetsCountFooterSupport(final VaadinMessageSource i18n, final RolloutUIState rolloutUIState,
+        RolloutTargetsCountFooterSupport(final VaadinMessageSource i18n, final RolloutManagementUIState rolloutUIState,
                 final RolloutGroupTargetGrid rolloutGroupTargetsListGrid) {
             this.i18n = i18n;
             this.rolloutUIState = rolloutUIState;

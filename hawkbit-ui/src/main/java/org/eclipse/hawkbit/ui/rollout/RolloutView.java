@@ -22,14 +22,15 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.rollout.event.RolloutViewEventListener;
 import org.eclipse.hawkbit.ui.rollout.rollout.RolloutGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgroup.RolloutGroupGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets.RolloutGroupTargetGridLayout;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState.Layout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.navigator.View;
@@ -48,48 +49,43 @@ public class RolloutView extends VerticalLayout implements View {
     private static final long serialVersionUID = 1L;
 
     public static final String VIEW_NAME = "rollout";
-    private final SpPermissionChecker permChecker;
 
     private final RolloutGridLayout rolloutsLayout;
     private final RolloutGroupGridLayout rolloutGroupsLayout;
     private final RolloutGroupTargetGridLayout rolloutGroupTargetsLayout;
-    private final RolloutUIState uiState;
+    private final RolloutManagementUIState uiState;
 
-    private final transient RolloutManagement rolloutManagement;
-    private final transient EventBus.UIEventBus eventBus;
+    private final transient RolloutViewEventListener eventListener;
 
     @Autowired
-    RolloutView(final SpPermissionChecker permissionChecker, final RolloutUIState uiState, final UIEventBus eventBus,
-            final RolloutManagement rolloutManagement, final RolloutGroupManagement rolloutGroupManagement,
-            final TargetManagement targetManagement, final UINotification uiNotification,
-            final UiProperties uiProperties, final EntityFactory entityFactory, final VaadinMessageSource i18n,
-            final TargetFilterQueryManagement targetFilterQueryManagement, final QuotaManagement quotaManagement,
-            final TenantConfigurationManagement tenantConfigManagement,
+    RolloutView(final SpPermissionChecker permissionChecker, final RolloutManagementUIState uiState,
+            final UIEventBus eventBus, final RolloutManagement rolloutManagement,
+            final RolloutGroupManagement rolloutGroupManagement, final TargetManagement targetManagement,
+            final UINotification uiNotification, final UiProperties uiProperties, final EntityFactory entityFactory,
+            final VaadinMessageSource i18n, final TargetFilterQueryManagement targetFilterQueryManagement,
+            final QuotaManagement quotaManagement, final TenantConfigurationManagement tenantConfigManagement,
             final DistributionSetManagement distributionSetManagement) {
-        this.permChecker = permissionChecker;
-        this.rolloutManagement = rolloutManagement;
-
-        this.rolloutsLayout = new RolloutGridLayout(permissionChecker, uiState, eventBus, rolloutManagement,
-                targetManagement, uiNotification, uiProperties, entityFactory, i18n, targetFilterQueryManagement,
-                rolloutGroupManagement, quotaManagement, tenantConfigManagement, distributionSetManagement);
+        this.rolloutsLayout = new RolloutGridLayout(permissionChecker, uiState.getRolloutUIState(), eventBus,
+                rolloutManagement, targetManagement, uiNotification, uiProperties, entityFactory, i18n,
+                targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, tenantConfigManagement,
+                distributionSetManagement);
         this.rolloutGroupsLayout = new RolloutGroupGridLayout(i18n, eventBus, rolloutGroupManagement, uiState,
                 permissionChecker);
         this.rolloutGroupTargetsLayout = new RolloutGroupTargetGridLayout(eventBus, i18n, uiState,
                 rolloutGroupManagement);
         this.uiState = uiState;
-        this.eventBus = eventBus;
+        this.eventListener = new RolloutViewEventListener(this, eventBus);
     }
 
     @PostConstruct
     void init() {
         buildLayout();
         restoreState();
-        eventBus.subscribe(this);
     }
 
     @PreDestroy
     void destroy() {
-        eventBus.unsubscribe(this);
+        eventListener.unsubscribeListeners();
     }
 
     private void buildLayout() {
@@ -113,28 +109,29 @@ public class RolloutView extends VerticalLayout implements View {
     }
 
     private void showRolloutGroupTargetsListView() {
-        uiState.setCurrentView(RolloutUIState.RolloutView.ROLLOUT_GROUP_TARGETS);
+        uiState.setCurrentLayout(Layout.ROLLOUT_GROUP_TARGETS);
         rolloutsLayout.setVisible(false);
         rolloutGroupsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(true);
     }
 
     private void showRolloutGroupListView() {
-        uiState.setCurrentView(RolloutUIState.RolloutView.ROLLOUT_GROUPS);
+        uiState.setCurrentLayout(Layout.ROLLOUT_GROUPS);
         rolloutsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(false);
         rolloutGroupsLayout.setVisible(true);
     }
 
     private void showRolloutListView() {
-        uiState.setCurrentView(RolloutUIState.RolloutView.ROLLOUTS);
+        uiState.setCurrentLayout(Layout.ROLLOUTS);
         rolloutGroupsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(false);
         rolloutsLayout.setVisible(true);
     }
 
     private void restoreState() {
-        switch (uiState.getCurrentView()) {
+        final Layout layout = uiState.getCurrentLayout().orElse(Layout.ROLLOUTS);
+        switch (layout) {
         case ROLLOUTS:
             showRolloutListView();
             break;

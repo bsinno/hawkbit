@@ -22,42 +22,48 @@ import com.vaadin.spring.annotation.VaadinSessionScope;
  */
 @VaadinSessionScope
 @SpringComponent
-public class RolloutUIState implements Serializable {
+public class RolloutManagementUIState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
      * The views that can be displayed
      */
-    public enum RolloutView {
+    public enum Layout {
         ROLLOUTS, ROLLOUT_GROUPS, ROLLOUT_GROUP_TARGETS
     }
 
-    private RolloutView currentView;
-    private final RolloutGroupUIState groupUIState;
-    private final RolloutGroupTargetUIState groupTargetUIState;
+    private Layout currentLayout;
+    private final RolloutLayoutUIState rolloutUIState;
+    private final RolloutGroupLayoutUIState rolloutGroupUIState;
+    private final RolloutGroupTargetLayoutUIState rolloutGroupTargetUIState;
 
     /**
      * constructor
      */
-    public RolloutUIState() {
-        this.groupUIState = new RolloutGroupUIState();
-        this.groupTargetUIState = new RolloutGroupTargetUIState();
+    public RolloutManagementUIState() {
+        this.rolloutUIState = new RolloutLayoutUIState();
+        this.rolloutGroupUIState = new RolloutGroupLayoutUIState();
+        this.rolloutGroupTargetUIState = new RolloutGroupTargetLayoutUIState();
     }
 
-    public RolloutView getCurrentView() {
-        return currentView;
+    public Optional<Layout> getCurrentLayout() {
+        return Optional.ofNullable(currentLayout);
     }
 
-    public void setCurrentView(final RolloutView currentView) {
-        this.currentView = currentView;
+    public void setCurrentLayout(final Layout currentLayout) {
+        this.currentLayout = currentLayout;
     }
 
-    public RolloutGroupUIState getGroupUIState() {
-        return groupUIState;
+    public RolloutGroupLayoutUIState getGroupUIState() {
+        return rolloutGroupUIState;
     }
 
-    public RolloutGroupTargetUIState getGroupTargetUIState() {
-        return groupTargetUIState;
+    public RolloutGroupTargetLayoutUIState getGroupTargetUIState() {
+        return rolloutGroupTargetUIState;
+    }
+
+    public RolloutLayoutUIState getRolloutUIState() {
+        return rolloutUIState;
     }
 
     // ---------------------------------------------------

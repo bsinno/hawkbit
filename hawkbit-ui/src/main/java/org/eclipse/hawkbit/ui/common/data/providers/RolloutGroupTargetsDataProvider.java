@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.TargetWithActionStatus;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetWithActionStatusToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +35,10 @@ public class RolloutGroupTargetsDataProvider extends ProxyDataProvider<ProxyTarg
     private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupTargetsDataProvider.class);
 
     private final transient RolloutGroupManagement rolloutGroupManagement;
-    private final RolloutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutUIState;
 
     public RolloutGroupTargetsDataProvider(final RolloutGroupManagement rolloutGroupManagement,
-            final RolloutUIState rolloutUIState, final TargetWithActionStatusToProxyTargetMapper entityMapper) {
+            final RolloutManagementUIState rolloutUIState, final TargetWithActionStatusToProxyTargetMapper entityMapper) {
         super(entityMapper);
 
         this.rolloutGroupManagement = rolloutGroupManagement;
