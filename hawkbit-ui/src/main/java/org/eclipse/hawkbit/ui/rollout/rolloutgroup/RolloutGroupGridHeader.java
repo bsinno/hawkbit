@@ -16,12 +16,10 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupLayoutUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -35,44 +33,43 @@ import com.vaadin.ui.themes.ValoTheme;
 public class RolloutGroupGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final RolloutManagementUIState rolloutUIState;
-
+    private final RolloutGroupLayoutUIState uiState;
     private final Label headerCaptionDetails;
-
-    private final transient CloseHeaderSupport closeHeaderSupport;
 
     /**
      * Constructor for RolloutGroupsListHeader
      * 
      * @param eventBus
      *            UIEventBus
-     * @param rolloutUiState
-     *            RolloutUIState
+     * @param uiState
+     *            UIState
      * @param i18n
      *            I18N
      */
-    public RolloutGroupGridHeader(final UIEventBus eventBus, final RolloutManagementUIState rolloutUiState,
+    public RolloutGroupGridHeader(final UIEventBus eventBus, final RolloutGroupLayoutUIState uiState,
             final VaadinMessageSource i18n) {
         super(i18n, null, eventBus);
 
-        this.rolloutUIState = rolloutUiState;
-
         this.headerCaptionDetails = createHeaderCaptionDetails();
+        this.uiState = uiState;
 
-        this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_GROUP_CLOSE,
-                this::showRolloutListView);
+        final CloseHeaderSupport closeHeaderSupport = new CloseHeaderSupport(i18n,
+                UIComponentIdProvider.ROLLOUT_GROUP_CLOSE, this::showRolloutListView);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
         restoreHeaderState();
         buildHeader();
     }
 
-    private Label createHeaderCaptionDetails() {
+    public void setRolloutName(final String rolloutName) {
+        uiState.setRolloutName(rolloutName);
+        headerCaptionDetails.setValue(rolloutName);
+    }
+
+    private static Label createHeaderCaptionDetails() {
         final Label captionDetails = new LabelBuilder().id(UIComponentIdProvider.ROLLOUT_GROUP_HEADER_CAPTION).name("")
                 .buildCaptionLabel();
-
         captionDetails.addStyleName("breadcrumbPaddingLeft");
-
         return captionDetails;
     }
 
@@ -102,17 +99,6 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
 
     @Override
     protected void restoreCaption() {
-        setCaptionDetails();
-    }
-
-    private void setCaptionDetails() {
-        headerCaptionDetails.setValue(rolloutUIState.getRolloutName().orElse(""));
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final RolloutEvent event) {
-        if (event == RolloutEvent.SHOW_ROLLOUT_GROUPS) {
-            setCaptionDetails();
-        }
+        headerCaptionDetails.setValue(uiState.getRolloutName());
     }
 }

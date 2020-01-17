@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.RolloutModifiedEventPayload;
 import org.eclipse.hawkbit.ui.rollout.rollout.RolloutGridLayout;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -36,6 +37,7 @@ public class RolloutsLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new RolloutModifiedListener());
+        eventListeners.add(new SearchListener());
     }
 
     private class RolloutModifiedListener {
@@ -44,12 +46,21 @@ public class RolloutsLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onRolloutModified(final RolloutModifiedListener payload) {
+        private void onRolloutModified(final RolloutModifiedEventPayload payload) {
             rolloutGridLayout.refreshGrid();
         }
     }
 
-    // TODO searchEvent
+    private class SearchListener {
+        public SearchListener() {
+            eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onRolloutModified(final RolloutModifiedEventPayload payload) {
+            rolloutGridLayout.refreshGrid();
+        }
+    }
 
     /**
      * unsubscribe all listeners

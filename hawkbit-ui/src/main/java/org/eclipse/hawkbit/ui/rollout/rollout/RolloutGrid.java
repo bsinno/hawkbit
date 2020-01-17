@@ -26,6 +26,9 @@ import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.RolloutModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
@@ -443,6 +446,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                     }
                     rolloutManagement.delete(rolloutId);
                     uiNotification.displaySuccess(i18n.getMessage("message.rollout.deleted", rolloutName));
+                    eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                            new RolloutModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, rolloutId));
                 }, UIComponentIdProvider.ROLLOUT_DELETE_CONFIRMATION_DIALOG);
         UI.getCurrent().addWindow(confirmationDialog.getWindow());
         confirmationDialog.getWindow().bringToFront();

@@ -56,20 +56,6 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
 
     private final ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Void> rolloutGroupDataProvider;
 
-    /**
-     * Constructor for RolloutGroupListGrid (Header with breadcrumbs)
-     * 
-     * @param i18n
-     *            I18N
-     * @param eventBus
-     *            UIEventBus
-     * @param rolloutGroupManagement
-     *            RolloutGroupManagement
-     * @param rolloutUIState
-     *            RolloutUIState
-     * @param permissionChecker
-     *            SpPermissionChecker
-     */
     public RolloutGroupGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutManagementUIState rolloutUIState,
             final SpPermissionChecker permissionChecker, final RolloutGroupDataProvider rolloutGroupDataProvider) {

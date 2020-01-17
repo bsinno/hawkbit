@@ -32,6 +32,7 @@ import org.eclipse.hawkbit.ui.push.SoftwareModuleTypeDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleTypeUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.push.TargetFilterQueryCreatedEventContainer;
+import org.eclipse.hawkbit.ui.push.TargetFilterQueryDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.TargetFilterQueryUpdatedEventContainer;
 
 import com.google.common.base.MoreObjects;

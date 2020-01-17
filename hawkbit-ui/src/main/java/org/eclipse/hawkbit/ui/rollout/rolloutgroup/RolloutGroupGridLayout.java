@@ -47,7 +47,7 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
         final RolloutGroupDataProvider rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement,
                 rolloutUIState, new RolloutGroupToProxyRolloutGroupMapper());
 
-        this.rolloutGroupsListHeader = new RolloutGroupGridHeader(eventBus, rolloutUIState, i18n);
+        this.rolloutGroupsListHeader = new RolloutGroupGridHeader(eventBus, rolloutUIState.getGroupUIState(), i18n);
         this.rolloutGroupListGrid = new RolloutGroupGrid(i18n, eventBus, rolloutGroupManagement, rolloutUIState,
                 permissionChecker, rolloutGroupDataProvider);
 

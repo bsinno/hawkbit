@@ -10,6 +10,19 @@ package org.eclipse.hawkbit.ui.rollout.state;
 
 import java.io.Serializable;
 
+/**
+ * Stores rollout group layout UI state according to user interactions.
+ *
+ */
 public class RolloutGroupLayoutUIState implements Serializable {
+    private String rolloutName;
+
+    public String getRolloutName() {
+        return rolloutName;
+    }
+
+    public void setRolloutName(final String rolloutName) {
+        this.rolloutName = rolloutName;
+    }
 
 }

@@ -13,11 +13,11 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.HeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutLayoutUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -71,7 +71,7 @@ public class RolloutGridHeader extends AbstractGridHeader {
 
     private void searchBy(final String newSearchText) {
         rolloutUIState.setSearchText(newSearchText);
-        eventBus.publish(this, RolloutEvent.FILTER_BY_TEXT);
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
     }
 
     private void addNewRollout() {
