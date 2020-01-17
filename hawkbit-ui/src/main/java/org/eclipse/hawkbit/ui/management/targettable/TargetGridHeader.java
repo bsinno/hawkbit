@@ -31,7 +31,6 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadPopupEvent;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
@@ -137,7 +136,7 @@ public class TargetGridHeader extends AbstractGridHeader {
         }
     }
 
-    private void onSimpleFilterReset() {
+    public void onSimpleFilterReset() {
         searchHeaderSupport.resetSearch();
         searchHeaderSupport.disableSearch();
 
@@ -228,20 +227,6 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final ManagementUIEvent event) {
-        if (event == ManagementUIEvent.HIDE_TARGET_TAG_LAYOUT) {
-            filterButtonsHeaderSupport.showFilterButtonsIcon();
-        } else if (event == ManagementUIEvent.SHOW_TARGET_TAG_LAYOUT) {
-            filterButtonsHeaderSupport.hideFilterButtonsIcon();
-        }
-        // else if (event == ManagementUIEvent.RESET_SIMPLE_FILTERS) {
-        // UI.getCurrent().access(this::onSimpleFilterReset);
-        // } else if (event == ManagementUIEvent.RESET_TARGET_FILTER_QUERY) {
-        // UI.getCurrent().access(searchHeaderSupport::enableSearch);
-        // }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final BulkUploadPopupEvent event) {
         if (BulkUploadPopupEvent.MAXIMIMIZED == event) {
             bulkUpload();
@@ -281,5 +266,9 @@ public class TargetGridHeader extends AbstractGridHeader {
 
     public void hideTargetTagIcon() {
         filterButtonsHeaderSupport.hideFilterButtonsIcon();
+    }
+
+    public void enableSearchIcon() {
+        searchHeaderSupport.enableSearch();
     }
 }

@@ -9,14 +9,15 @@
 package org.eclipse.hawkbit.ui.filtermanagement.event;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.filtermanagement.FilterManagementView;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGrid;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGridHeader;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -36,41 +37,35 @@ public class FilterManagementViewEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new OpenFilterQueryListener());
-        eventListeners.add(new CloseDetailsListener());
-        eventListeners.add(new CretateFilterQueryListener());
+        eventListeners.add(new LayoutVisibilityListener());
     }
 
-    private class OpenFilterQueryListener {
-        public OpenFilterQueryListener() {
-            eventBus.subscribe(this, EventTopics.OPEN_ENTITY);
+    private class LayoutVisibilityListener {
+        public LayoutVisibilityListener() {
+            eventBus.subscribe(this, CommandTopics.CHANGE_LAYOUT_VISIBILITY);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterGrid.class)
-        private void onFilterQueryOpen(final ProxyTargetFilterQuery filterQuery) {
-            filterManagementView.showFilterQueryEdit(filterQuery);
-        }
-    }
-
-    private class CloseDetailsListener {
-        public CloseDetailsListener() {
-            eventBus.subscribe(this, EventTopics.CHANGE_UI_ELEMENT_STATE);
-        }
+        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.TARGET_FILTER_QUERY_LIST,
+                Layout.TARGET_FILTER_QUERY_FORM);
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDetailsClose(final ChangeUiElementPayload payload) {
-            filterManagementView.showFilterQueryOverview();
-        }
-    }
+        private void onLayoutVisibilityEvent(final LayoutVisibilityEventPayload eventPayload) {
+            if (eventPayload.getView() != View.TARGET_FILTER || !availableLayouts.contains(eventPayload.getLayout())) {
+                return;
+            }
 
-    private class CretateFilterQueryListener {
-        public CretateFilterQueryListener() {
-            eventBus.subscribe(this, EventTopics.CREATE_ENTITY);
-        }
+            final Layout changedLayout = eventPayload.getLayout();
+            final VisibilityType visibilityType = eventPayload.getVisibilityType();
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterGridHeader.class)
-        private void onFilterQueryCreate(final Class c) {
-            filterManagementView.showFilterQueryCreate();
+            if ((changedLayout == Layout.TARGET_FILTER_QUERY_LIST && visibilityType == VisibilityType.SHOW)
+                    || (changedLayout == Layout.TARGET_FILTER_QUERY_FORM && visibilityType == VisibilityType.HIDE)) {
+                filterManagementView.showFilterGridLayout();
+            } else if ((eventPayload.getLayout() == Layout.TARGET_FILTER_QUERY_LIST
+                    && eventPayload.getVisibilityType() == VisibilityType.HIDE)
+                    || (eventPayload.getLayout() == Layout.TARGET_FILTER_QUERY_FORM
+                            && eventPayload.getVisibilityType() == VisibilityType.SHOW)) {
+                filterManagementView.showFilterDetailsLayout();
+            }
         }
     }
 

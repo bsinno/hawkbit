@@ -11,12 +11,16 @@ package org.eclipse.hawkbit.ui.filtermanagement.event;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterAddUpdateLayout;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterDetailsGridHeader;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterDetailsLayout;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterTargetGrid;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -36,41 +40,46 @@ public class TargetFilterDetailsLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new GridUpdatedListener());
-        eventListeners.add(new CloseDetailsListener());
-        eventListeners.add(new UpdateGridListener());
+        eventListeners.add(new ShowTargetFilterQueryFormLayoutListener());
+        eventListeners.add(new SearchFilterChangedListener());
     }
 
-    private class GridUpdatedListener {
-        public GridUpdatedListener() {
-            eventBus.subscribe(this, EventTopics.UI_ELEMENT_CHANGED);
+    private class ShowTargetFilterQueryFormLayoutListener {
+        public ShowTargetFilterQueryFormLayoutListener() {
+            eventBus.subscribe(this, CommandTopics.SHOW_ENTITY_FORM_LAYOUT);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterTargetGrid.class)
-        private void onFilterQuery(final Long totalTargetCount) {
-            targetFilterDetailsLayout.setFilteredTargetsCount(totalTargetCount);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onShowFormEvent(final ShowFormEventPayload<ProxyTargetFilterQuery> eventPayload) {
+            if (eventPayload.getView() != View.TARGET_FILTER
+                    || eventPayload.getEntityType() != ProxyTargetFilterQuery.class) {
+                return;
+            }
+
+            if (eventPayload.getFormType() == FormType.ADD) {
+                targetFilterDetailsLayout.showAddFilterUi();
+            } else {
+                targetFilterDetailsLayout.showEditFilterUi(eventPayload.getEntity());
+            }
+
+            eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
+                    VisibilityType.SHOW, targetFilterDetailsLayout.getLayout(), View.TARGET_FILTER));
         }
     }
 
-    private class UpdateGridListener {
-        public UpdateGridListener() {
+    private class SearchFilterChangedListener {
+        public SearchFilterChangedListener() {
             eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterAddUpdateLayout.class)
-        private void onSearchFilterChanged(final String newFilter) {
-            targetFilterDetailsLayout.filterGridByQuery(newFilter);
-        }
-    }
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
+            if (eventPayload.getView() != View.TARGET_FILTER
+                    || eventPayload.getLayout() != targetFilterDetailsLayout.getLayout()) {
+                return;
+            }
 
-    private class CloseDetailsListener {
-        public CloseDetailsListener() {
-            eventBus.subscribe(this, EventTopics.CHANGE_UI_ELEMENT_STATE);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterDetailsGridHeader.class)
-        private void onFilterQuery(final ChangeUiElementPayload payload) {
-            targetFilterDetailsLayout.sendCloseRequestedEvent();
+            targetFilterDetailsLayout.filterGridByQuery(eventPayload.getFilter());
         }
     }
 

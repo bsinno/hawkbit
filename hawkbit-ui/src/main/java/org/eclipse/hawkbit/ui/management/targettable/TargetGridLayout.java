@@ -132,6 +132,14 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         targetGridHeader.hideTargetTagIcon();
     }
 
+    public void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
+        if (isCustomFilterTabSelected) {
+            targetGridHeader.onSimpleFilterReset();
+        } else {
+            targetGridHeader.enableSearchIcon();
+        }
+    }
+
     public void filterGridBySearch(final String searchFilter) {
         // targetGrid.updateSearchFilter(searchFilter);
         targetGrid.deselectAll();

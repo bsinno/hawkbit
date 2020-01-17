@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
@@ -95,10 +94,9 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     }
 
     public void updateTargetFilterQueryFilter(final String targetFilterQuery) {
-        getFilterDataProvider().setFilter(targetFilterQuery);
-        final long totalTargetCount = getDataCommunicator().getDataProviderSize();
         uiState.setFilterQueryValueOfLatestSearch(targetFilterQuery);
-        eventBus.publish(EventTopics.UI_ELEMENT_CHANGED, this, totalTargetCount);
+
+        getFilterDataProvider().setFilter(targetFilterQuery);
     }
 
     @Override

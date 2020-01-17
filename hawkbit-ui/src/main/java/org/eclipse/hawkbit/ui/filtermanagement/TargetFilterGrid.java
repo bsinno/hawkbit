@@ -23,9 +23,13 @@ import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvide
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
@@ -171,7 +175,8 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     }
 
     private void onClickOfFilterName(final ProxyTargetFilterQuery targetFilter) {
-        eventBus.publish(EventTopics.OPEN_ENTITY, this, targetFilter);
+        eventBus.publish(CommandTopics.SHOW_ENTITY_FORM_LAYOUT, this,
+                new ShowFormEventPayload<ProxyTargetFilterQuery>(FormType.EDIT, targetFilter, View.TARGET_FILTER));
     }
 
     private void onClickOfAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
@@ -195,8 +200,8 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     // TODO: remove duplication with ActionHistoryGrid
     private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT, SPUIStyleDefinitions.STATUS_ICON_FORCED,
-                i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
+        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT,
+                SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
         actionTypeIconMap.put(ActionType.TIMEFORCED,
                 new ProxyFontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
                         i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
