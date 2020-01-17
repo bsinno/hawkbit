@@ -106,16 +106,27 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
 
     private void initDsSetComboBox() {
         dsSetComboBox = builder.createDistributionSetCombo(binder);
+        dsSetComboBox.addValueChangeListener(event -> selectDistributionSetValue());
     }
 
     private DistributionSetType getCurrentDistributionSetType() {
         tenantMetaData = this.systemManagement.getTenantMetadata();
         return tenantMetaData.getDefaultDsType();
     }
-
+    /**
+     * Method that is called when combobox event is performed.
+     */
+    private void selectDistributionSetValue() {
+        selectedDefaultDisSetType = binder.getBean().getDistributionSetTypeId();
+        if (!selectedDefaultDisSetType.equals(currentDefaultDisSetType)) {
+            changeIcon.setVisible(true);
+            notifyConfigurationChanged();
+        } else {
+            changeIcon.setVisible(false);
+        }
+    }
     @Override
     public void save() {
-        selectedDefaultDisSetType = binder.getBean().getDistributionSetTypeId();
         if (!currentDefaultDisSetType.equals(selectedDefaultDisSetType) && selectedDefaultDisSetType != null) {
             tenantMetaData = this.systemManagement.updateTenantMetadata(binder.getBean().getDistributionSetTypeId());
             currentDefaultDisSetType = selectedDefaultDisSetType;
