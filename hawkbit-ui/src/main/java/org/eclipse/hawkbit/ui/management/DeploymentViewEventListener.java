@@ -22,6 +22,7 @@ import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridHeader;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridHeader;
@@ -53,6 +54,7 @@ public class DeploymentViewEventListener {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new LayoutVisibilityChangedListener());
         eventListeners.add(new LayoutResizedListener());
+        eventListeners.add(new TargetFilterTabChangedListener());
         eventListeners.add(new TagFilterChangedListener());
         eventListeners.add(new NoTagFilterChangedListener());
         eventListeners.add(new StatusFilterChangedListener());
@@ -134,6 +136,18 @@ public class DeploymentViewEventListener {
             } else {
                 deploymentView.minimizeActionHistoryGridLayout();
             }
+        }
+    }
+
+    private class TargetFilterTabChangedListener {
+
+        public TargetFilterTabChangedListener() {
+            eventBus.subscribe(this, EventTopics.TARGET_FILTER_TAB_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetEvent(final TargetFilterTabChangedEventPayload eventPayload) {
+            deploymentView.onTargetFilterTabChanged(TargetFilterTabChangedEventPayload.CUSTOM == eventPayload);
         }
     }
 

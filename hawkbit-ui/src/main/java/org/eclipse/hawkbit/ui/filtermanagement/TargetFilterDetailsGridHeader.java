@@ -10,11 +10,18 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.Arrays;
 
+import org.eclipse.hawkbit.repository.EntityFactory;
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
+import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
+import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -23,6 +30,7 @@ import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUi
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState.Mode;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
+import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -50,21 +58,26 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     private final transient UpdateTargetFilterController updateTargetFilterController;
 
     public TargetFilterDetailsGridHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final TargetFilterAddUpdateLayout targetFilterAddUpdateLayout,
-            final AddTargetFilterController addTargetFilterController,
-            final UpdateTargetFilterController updateTargetFilterController,
-            final TargetFilterDetailsLayoutUiState uiState) {
+            final UINotification uiNotification, final EntityFactory entityFactory,
+            final TargetFilterQueryManagement targetFilterManagement, final UiProperties uiProperties,
+            final RsqlValidationOracle rsqlValidationOracle, final TargetFilterDetailsLayoutUiState uiState) {
         super(i18n, null, eventBus);
 
-        this.targetFilterAddUpdateLayout = targetFilterAddUpdateLayout;
-        this.addTargetFilterController = addTargetFilterController;
-        this.updateTargetFilterController = updateTargetFilterController;
+        this.uiState = uiState;
 
         this.headerCaptionDetails = createHeaderCaptionDetails();
-        this.uiState = uiState;
+
         this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.CUSTOM_FILTER_CLOSE,
                 this::closeDetails);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
+
+        this.targetFilterAddUpdateLayout = new TargetFilterAddUpdateLayout(i18n, uiProperties, uiState, eventBus,
+                rsqlValidationOracle);
+
+        this.addTargetFilterController = new AddTargetFilterController(i18n, entityFactory, eventBus, uiNotification,
+                targetFilterManagement, targetFilterAddUpdateLayout, this::closeDetails);
+        this.updateTargetFilterController = new UpdateTargetFilterController(i18n, entityFactory, eventBus,
+                uiNotification, targetFilterManagement, targetFilterAddUpdateLayout, this::closeDetails);
 
         restoreHeaderState();
         buildHeader();
@@ -82,20 +95,17 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         addComponent(targetFilterAddUpdateLayout.getRootComponent());
     }
 
-    public void showAddFilterLayout() {
+    public void showAddFilterLayout(final ProxyTargetFilterQuery targetFilterToRestore) {
         uiState.setCurrentMode(Mode.CREATE);
         final String captionMessage = i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER);
 
-        final ProxyTargetFilterQuery restoredEntity = new ProxyTargetFilterQuery();
-        restoredEntity.setName(uiState.getNameInput());
-        restoredEntity.setQuery(uiState.getFilterQueryValueInput());
-
-        showAddUpdateFilterLayout(captionMessage, addTargetFilterController, restoredEntity);
+        showAddUpdateFilterLayout(captionMessage, addTargetFilterController,
+                targetFilterToRestore == null ? new ProxyTargetFilterQuery() : targetFilterToRestore);
     }
 
     public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
         uiState.setCurrentMode(Mode.EDIT);
-        // TODO: should we update entity according to the previous ui state?
+        uiState.setSelectedFilterId(proxyEntity.getId());
         showAddUpdateFilterLayout(proxyEntity.getName(), updateTargetFilterController, proxyEntity);
     }
 
@@ -138,14 +148,30 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     }
 
     private void closeDetails() {
-        eventBus.publish(EventTopics.CHANGE_UI_ELEMENT_STATE, this, ChangeUiElementPayload.CLOSE);
+        uiState.setSelectedFilterId(null);
+        uiState.setNameInput("");
+        uiState.setFilterQueryValueInput("");
+
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
+                VisibilityType.HIDE, Layout.TARGET_FILTER_QUERY_FORM, View.TARGET_FILTER));
     }
 
     public void restoreState() {
+        final ProxyTargetFilterQuery targetFilterToRestore = restoreEntityFromState();
         if (Mode.EDIT == uiState.getCurrentMode()) {
-            uiState.getTargetFilterQueryforEdit().ifPresent(this::showEditFilterLayout);
+            showEditFilterLayout(targetFilterToRestore);
         } else if (Mode.CREATE == uiState.getCurrentMode()) {
-            this.showAddFilterLayout();
+            showAddFilterLayout(targetFilterToRestore);
         }
+    }
+
+    private ProxyTargetFilterQuery restoreEntityFromState() {
+        final ProxyTargetFilterQuery restoredEntity = new ProxyTargetFilterQuery();
+
+        restoredEntity.setId(uiState.getSelectedFilterId());
+        restoredEntity.setName(uiState.getNameInput());
+        restoredEntity.setQuery(uiState.getFilterQueryValueInput());
+
+        return restoredEntity;
     }
 }

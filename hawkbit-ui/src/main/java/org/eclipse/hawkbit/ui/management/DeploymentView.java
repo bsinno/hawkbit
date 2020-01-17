@@ -436,6 +436,10 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         actionHistoryLayout.minimize();
     }
 
+    void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
+        targetGridLayout.onTargetFilterTabChanged(isCustomFilterTabSelected);
+    }
+
     void filterTargetGridByTags(final Collection<String> tagFilterNames) {
         targetGridLayout.filterGridByTags(tagFilterNames);
     }

@@ -38,9 +38,12 @@ public class AddTargetFilterController
 
     private final TargetFilterAddUpdateLayout layout;
 
+    private final Runnable closeFormCallback;
+
     public AddTargetFilterController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
-            final TargetFilterQueryManagement targetFilterManagement, final TargetFilterAddUpdateLayout layout) {
+            final TargetFilterQueryManagement targetFilterManagement, final TargetFilterAddUpdateLayout layout,
+            final Runnable closeFormCallback) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.eventBus = eventBus;
@@ -49,6 +52,8 @@ public class AddTargetFilterController
         this.targetFilterManagement = targetFilterManagement;
 
         this.layout = layout;
+
+        this.closeFormCallback = closeFormCallback;
     }
 
     @Override
@@ -70,6 +75,8 @@ public class AddTargetFilterController
         // TODO: verify if sender is correct
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                 new TargetFilterModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newTargetFilter.getId()));
+
+        closeFormCallback.run();
     }
 
     @Override

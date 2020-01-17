@@ -16,8 +16,7 @@ import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.filtermanagement.event.TargetFilterDetailsLayoutEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
@@ -31,13 +30,10 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final TargetFilterDetailsLayoutUiState uiState;
-
     private final TargetFilterDetailsGridHeader targetFilterDetailsGridHeader;
     private final TargetFilterTargetGrid targetFilterTargetGrid;
     private final transient TargetFilterCountMessageLabel targetFilterCountMessageLabel;
 
-    private final transient UIEventBus eventBus;
     private final transient TargetFilterDetailsLayoutEventListener eventListener;
 
     /**
@@ -66,33 +62,29 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
             final UINotification uiNotification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final RsqlValidationOracle rsqlValidationOracle, final TargetManagement targetManagement,
             final TargetFilterQueryManagement targetFilterManagement, final TargetFilterDetailsLayoutUiState uiState) {
-        this.uiState = uiState;
-        this.eventBus = eventBus;
 
-        final TargetFilterAddUpdateLayout targetFilterAddUpdateLayout = new TargetFilterAddUpdateLayout(i18n,
-                uiProperties, uiState, eventBus, rsqlValidationOracle);
-        final AddTargetFilterController addTargetFilterController = new AddTargetFilterController(i18n, entityFactory,
-                eventBus, uiNotification, targetFilterManagement, targetFilterAddUpdateLayout);
-        final UpdateTargetFilterController updateTargetFilterController = new UpdateTargetFilterController(i18n,
-                entityFactory, eventBus, uiNotification, targetFilterManagement, targetFilterAddUpdateLayout);
-
-        this.targetFilterDetailsGridHeader = new TargetFilterDetailsGridHeader(i18n, eventBus,
-                targetFilterAddUpdateLayout, addTargetFilterController, updateTargetFilterController, uiState);
-
+        this.targetFilterDetailsGridHeader = new TargetFilterDetailsGridHeader(i18n, eventBus, uiNotification,
+                entityFactory, targetFilterManagement, uiProperties, rsqlValidationOracle, uiState);
         this.targetFilterTargetGrid = new TargetFilterTargetGrid(i18n, eventBus, targetManagement, uiState);
-
         this.targetFilterCountMessageLabel = new TargetFilterCountMessageLabel(i18n);
+
+        initGridDataUpdatedListener();
 
         this.eventListener = new TargetFilterDetailsLayoutEventListener(this, eventBus);
 
         buildLayout(targetFilterDetailsGridHeader, targetFilterTargetGrid, targetFilterCountMessageLabel);
     }
 
+    private void initGridDataUpdatedListener() {
+        targetFilterTargetGrid.getFilterDataProvider().addDataProviderListener(event -> targetFilterCountMessageLabel
+                .updateTotalFilteredTargetsCount(targetFilterTargetGrid.getDataSize()));
+    }
+
     /**
      * Change UI content to create a {@link TargetFilterQuery}
      */
     public void showAddFilterUi() {
-        targetFilterDetailsGridHeader.showAddFilterLayout();
+        targetFilterDetailsGridHeader.showAddFilterLayout(null);
         targetFilterTargetGrid.updateTargetFilterQueryFilter(null);
     }
 
@@ -104,7 +96,6 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
      * 
      */
     public void showEditFilterUi(final ProxyTargetFilterQuery proxyEntity) {
-        uiState.setTargetFilterQueryforEdit(proxyEntity);
         targetFilterDetailsGridHeader.showEditFilterLayout(proxyEntity);
         targetFilterTargetGrid.updateTargetFilterQueryFilter(proxyEntity.getQuery());
     }
@@ -120,31 +111,15 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
     }
 
     /**
-     * Update number of targets footer
-     * 
-     * @param totalTargetCount
-     *            number to display
-     */
-    public void setFilteredTargetsCount(final long totalTargetCount) {
-        targetFilterCountMessageLabel.updateTotalFilteredTargetsCount(totalTargetCount);
-    }
-
-    /**
-     * Publish an event that the request of closing this layout was received
-     */
-    public void sendCloseRequestedEvent() {
-        // TODO is it OK to just republish the Event so it comes from this
-        // class? Maybe put this layout in the original event to avoid the need
-        // of republishing
-        eventBus.publish(EventTopics.CHANGE_UI_ELEMENT_STATE, this, ChangeUiElementPayload.CLOSE);
-    }
-
-    /**
      * restore the saved state
      */
     public void restoreState() {
         targetFilterDetailsGridHeader.restoreState();
         targetFilterTargetGrid.restoreState();
+    }
+
+    public Layout getLayout() {
+        return Layout.TARGET_FILTER_QUERY_FORM;
     }
 
     /**

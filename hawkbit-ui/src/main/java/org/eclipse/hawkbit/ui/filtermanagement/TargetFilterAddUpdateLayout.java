@@ -14,6 +14,9 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -127,7 +130,8 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
         if (!autoCompleteComponent.isValid()) {
             return;
         }
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, autoCompleteComponent.getValue());
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, new SearchFilterEventPayload(
+                autoCompleteComponent.getValue(), Layout.TARGET_FILTER_QUERY_FORM, View.TARGET_FILTER));
     }
 
     public void setSaveCallback(final SaveDialogCloseListener saveCallback) {
