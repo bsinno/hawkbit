@@ -33,7 +33,7 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * Default DistributionSet Panel.
  */
-public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
+public class DefaultDistributionSetTypeLayout extends BaseConfigurationView implements ConfigurationItem.ConfigurationItemChangeListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -140,4 +140,8 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView {
         changeIcon.setVisible(false);
     }
 
+    @Override
+    public void configurationHasChanged() {
+        notifyConfigurationChanged();
+    }
 }
