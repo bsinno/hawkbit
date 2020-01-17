@@ -22,19 +22,17 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.rollout.event.RolloutViewEventListener;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.rollout.rollout.RolloutGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgroup.RolloutGroupGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets.RolloutGroupTargetGridLayout;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState.Layout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Alignment;
@@ -65,15 +63,17 @@ public class RolloutView extends VerticalLayout implements View {
             final VaadinMessageSource i18n, final TargetFilterQueryManagement targetFilterQueryManagement,
             final QuotaManagement quotaManagement, final TenantConfigurationManagement tenantConfigManagement,
             final DistributionSetManagement distributionSetManagement) {
+        this.uiState = uiState;
+
         this.rolloutsLayout = new RolloutGridLayout(permissionChecker, uiState.getRolloutUIState(), eventBus,
                 rolloutManagement, targetManagement, uiNotification, uiProperties, entityFactory, i18n,
                 targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, tenantConfigManagement,
                 distributionSetManagement);
-        this.rolloutGroupsLayout = new RolloutGroupGridLayout(i18n, eventBus, rolloutGroupManagement, uiState,
-                permissionChecker);
-        this.rolloutGroupTargetsLayout = new RolloutGroupTargetGridLayout(eventBus, i18n, uiState,
-                rolloutGroupManagement);
-        this.uiState = uiState;
+        this.rolloutGroupsLayout = new RolloutGroupGridLayout(i18n, eventBus, rolloutGroupManagement,
+                uiState.getGroupUIState(), permissionChecker);
+        this.rolloutGroupTargetsLayout = new RolloutGroupTargetGridLayout(eventBus, i18n, rolloutGroupManagement,
+                uiState.getGroupTargetUIState());
+
         this.eventListener = new RolloutViewEventListener(this, eventBus);
     }
 
@@ -108,46 +108,42 @@ public class RolloutView extends VerticalLayout implements View {
         setExpandRatio(rolloutGroupTargetsLayout, 1.0F);
     }
 
-    private void showRolloutGroupTargetsListView() {
-        uiState.setCurrentLayout(Layout.ROLLOUT_GROUP_TARGETS);
+    void showRolloutGroupTargetsListView() {
+        uiState.setCurrentLayout(Layout.ROLLOUT_GROUP_TARGET_LIST);
         rolloutsLayout.setVisible(false);
         rolloutGroupsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(true);
     }
 
-    private void showRolloutGroupListView() {
-        uiState.setCurrentLayout(Layout.ROLLOUT_GROUPS);
+    void showRolloutGroupListView() {
+        uiState.setCurrentLayout(Layout.ROLLOUT_GROUP_LIST);
         rolloutsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(false);
         rolloutGroupsLayout.setVisible(true);
     }
 
-    private void showRolloutListView() {
-        uiState.setCurrentLayout(Layout.ROLLOUTS);
+    void showRolloutListView() {
+        uiState.setCurrentLayout(Layout.ROLLOUT_LIST);
         rolloutGroupsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(false);
         rolloutsLayout.setVisible(true);
     }
 
     private void restoreState() {
-        final Layout layout = uiState.getCurrentLayout().orElse(Layout.ROLLOUTS);
+        final Layout layout = uiState.getCurrentLayout().orElse(Layout.ROLLOUT_LIST);
         switch (layout) {
-        case ROLLOUTS:
+        case ROLLOUT_LIST:
             showRolloutListView();
             break;
-        case ROLLOUT_GROUPS:
+        case ROLLOUT_GROUP_LIST:
             showRolloutGroupListView();
             break;
-        case ROLLOUT_GROUP_TARGETS:
+        case ROLLOUT_GROUP_TARGET_LIST:
             showRolloutGroupTargetsListView();
+            break;
+        default:
             break;
         }
         // TODO restoreStates
     }
-
-    @Override
-    public void enter(final ViewChangeEvent event) {
-        // This view is constructed in the init() method()
-    }
-
 }

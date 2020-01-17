@@ -18,12 +18,8 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
-import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
-import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
-import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.rollout.event.RolloutsLayoutEventListener;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutLayoutUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
@@ -39,7 +35,8 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
 
     private final RolloutGridHeader rolloutListHeader;
     private final RolloutGrid rolloutListGrid;
-    private final transient RolloutsLayoutEventListener eventListener;
+
+    private final transient RolloutGridLayoutEventListener eventListener;
 
     public RolloutGridLayout(final SpPermissionChecker permissionChecker, final RolloutLayoutUIState uiState,
             final UIEventBus eventBus, final RolloutManagement rolloutManagement,
@@ -49,32 +46,41 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
             final TenantConfigurationManagement tenantConfigManagement,
             final DistributionSetManagement distributionSetManagement) {
-        final DistributionSetStatelessDataProvider distributionSetDataProvider = new DistributionSetStatelessDataProvider(
-                distributionSetManagement, new DistributionSetToProxyDistributionMapper());
-        // TODO update DataProvider filter with search text
-        final TargetFilterQueryDataProvider targetFilterQueryDataProvider = new TargetFilterQueryDataProvider(
-                targetFilterQueryManagement, new TargetFilterQueryToProxyTargetFilterMapper());
-
         final RolloutWindowDependencies rolloutWindowDependecies = new RolloutWindowDependencies(rolloutManagement,
                 targetManagement, uiNotification, entityFactory, i18n, uiProperties, eventBus,
-                targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, distributionSetDataProvider,
-                targetFilterQueryDataProvider);
+                targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, distributionSetManagement);
+
         final RolloutWindowBuilder rolloutWindowBuilder = new RolloutWindowBuilder(rolloutWindowDependecies);
 
         this.rolloutListHeader = new RolloutGridHeader(permissionChecker, uiState, eventBus, i18n,
                 rolloutWindowBuilder);
         this.rolloutListGrid = new RolloutGrid(i18n, eventBus, rolloutManagement, uiNotification, uiState,
                 permissionChecker, tenantConfigManagement, rolloutWindowBuilder);
-        this.eventListener = new RolloutsLayoutEventListener(this, eventBus);
+
+        this.eventListener = new RolloutGridLayoutEventListener(this, eventBus);
 
         buildLayout(rolloutListHeader, rolloutListGrid);
+    }
+
+    /**
+     * Only display rollouts with matching name
+     * 
+     * @param namePart
+     *            rollouts containing this string in the name are displayed
+     */
+    public void filterGridByName(final String namePart) {
+        rolloutListGrid.setFilter(namePart);
     }
 
     /**
      * refresh the grid showing all rollouts
      */
     public void refreshGrid() {
-        rolloutListGrid.getDataProvider().refreshAll();
+        rolloutListGrid.refreshContainer();
+    }
+
+    public Layout getLayout() {
+        return Layout.ROLLOUT_LIST;
     }
 
     /**

@@ -15,14 +15,23 @@ import java.io.Serializable;
  *
  */
 public class RolloutGroupLayoutUIState implements Serializable {
-    private String rolloutName;
+    private Long selectedRolloutId;
+    private String selectedRolloutName;
 
-    public String getRolloutName() {
-        return rolloutName;
+    public Long getSelectedRolloutId() {
+        return selectedRolloutId;
     }
 
-    public void setRolloutName(final String rolloutName) {
-        this.rolloutName = rolloutName;
+    public void setSelectedRolloutId(final Long selectedRolloutId) {
+        this.selectedRolloutId = selectedRolloutId;
+    }
+
+    public String getSelectedRolloutName() {
+        return selectedRolloutName;
+    }
+
+    public void setSelectedRolloutName(final String selectedRolloutName) {
+        this.selectedRolloutName = selectedRolloutName;
     }
 
 }

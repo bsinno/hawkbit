@@ -11,13 +11,9 @@ package org.eclipse.hawkbit.ui.common.data.providers;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
-import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 
@@ -26,53 +22,33 @@ import org.springframework.data.domain.Slice;
  * {@link RolloutGroup} entities from backend and maps them to corresponding
  * {@link ProxyRolloutGroup} entities.
  */
-public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGroup, RolloutGroup, Void> {
-
+public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGroup, RolloutGroup, Long> {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupDataProvider.class);
-
     private final transient RolloutGroupManagement rolloutGroupManagement;
-    private final RolloutManagementUIState rolloutUIState;
 
     /**
      * Parametric Constructor.
      *
      * @param rolloutGroupManagement
      *            rollout group management
-     * @param rolloutUIState
-     *            ui state
      */
     public RolloutGroupDataProvider(final RolloutGroupManagement rolloutGroupManagement,
-            final RolloutManagementUIState rolloutUIState, final RolloutGroupToProxyRolloutGroupMapper entityMapper) {
+            final RolloutGroupToProxyRolloutGroupMapper entityMapper) {
         super(entityMapper);
 
         this.rolloutGroupManagement = rolloutGroupManagement;
-        this.rolloutUIState = rolloutUIState;
     }
 
-    // TODO: use filter instead of uiState
     @Override
     protected Optional<Slice<RolloutGroup>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Void> filter) {
-        return rolloutUIState.getRolloutId()
-                .map(rolloutId -> rolloutGroupManagement.findByRolloutWithDetailedStatus(pageRequest, rolloutId));
+            final Optional<Long> filter) {
+        return filter.map(rolloutId -> rolloutGroupManagement.findByRolloutWithDetailedStatus(pageRequest, rolloutId));
 
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
-        final Optional<Long> rolloutId = rolloutUIState.getRolloutId();
-        return rolloutId.map(id -> {
-            try {
-                return rolloutGroupManagement.countByRollout(id);
-            } catch (final EntityNotFoundException e) {
-                LOG.warn("Rollout does not exists. Redirecting to Rollouts overview", e);
-                rolloutUIState.setShowRolloutGroups(false);
-                rolloutUIState.setShowRollOuts(true);
-
-                return 0L;
-            }
-        }).orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> filter) {
+        return filter.map(rolloutGroupManagement::countByRollout).orElse(0L);
     }
 }

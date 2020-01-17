@@ -11,11 +11,15 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupLayoutUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -54,7 +58,7 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
         this.uiState = uiState;
 
         final CloseHeaderSupport closeHeaderSupport = new CloseHeaderSupport(i18n,
-                UIComponentIdProvider.ROLLOUT_GROUP_CLOSE, this::showRolloutListView);
+                UIComponentIdProvider.ROLLOUT_GROUP_CLOSE, this::closeRolloutGroups);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
         restoreHeaderState();
@@ -62,7 +66,7 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
     }
 
     public void setRolloutName(final String rolloutName) {
-        uiState.setRolloutName(rolloutName);
+        uiState.setSelectedRolloutName(rolloutName);
         headerCaptionDetails.setValue(rolloutName);
     }
 
@@ -80,7 +84,7 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
         rolloutsListViewLink.setStyleName(ValoTheme.LINK_SMALL + " on-focus-no-border link rollout-caption-links");
         rolloutsListViewLink.setDescription(i18n.getMessage("message.rollouts"));
         rolloutsListViewLink.setCaption(i18n.getMessage("message.rollouts"));
-        rolloutsListViewLink.addClickListener(value -> showRolloutListView());
+        rolloutsListViewLink.addClickListener(value -> closeRolloutGroups());
 
         final HorizontalLayout headerCaptionLayout = new HorizontalLayout();
         headerCaptionLayout.setMargin(false);
@@ -93,12 +97,16 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
         return headerCaptionLayout;
     }
 
-    private void showRolloutListView() {
-        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
+    public void closeRolloutGroups() {
+        uiState.setSelectedRolloutId(null);
+        uiState.setSelectedRolloutName("");
+
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.HIDE, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
     }
 
     @Override
     protected void restoreCaption() {
-        headerCaptionDetails.setValue(uiState.getRolloutName());
+        headerCaptionDetails.setValue(uiState.getSelectedRolloutName());
     }
 }

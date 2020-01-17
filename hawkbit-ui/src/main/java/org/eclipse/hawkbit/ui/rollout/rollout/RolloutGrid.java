@@ -26,13 +26,16 @@ import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.RolloutModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ShowDetailsEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
-import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutLayoutUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -146,8 +149,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     public void setFilter(final String filter) {
-        // TODO save UI state?
-        // uiState.setLatestSearchFilterApplied(filter);
+        uiState.setSearchText(filter);
         filter(filter);
     }
 
@@ -353,8 +355,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private Button buildRolloutLink(final ProxyRollout rollout) {
         final Button rolloutLink = new Button();
 
-        rolloutLink.addClickListener(clickEvent -> onClickOfRolloutName(rollout.getId(), rollout.getName(),
-                rollout.getDistributionSetNameVersion()));
+        rolloutLink.addClickListener(clickEvent -> onClickOfRolloutName(rollout.getId(), rollout.getName()));
         rolloutLink.setId(new StringBuilder("rollout.link.").append(rollout.getId()).toString());
         // TODO reuse link style code from elsewhere
         rolloutLink.addStyleName("borderless");
@@ -375,9 +376,9 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         return rolloutLink;
     }
 
-    private void onClickOfRolloutName(final Long rolloutId, final String rolloutName,
-            final String distributionSetNameVersion) {
-        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUPS);
+    private void onClickOfRolloutName(final Long rolloutId, final String rolloutName) {
+        eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this, new ShowDetailsEventPayload(
+                ProxyRolloutGroup.class, ProxyRollout.class, rolloutId, rolloutName, View.ROLLOUT));
     }
 
     private void pauseRollout(final Long rolloutId, final String rolloutName, final RolloutStatus rolloutStatus) {

@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
@@ -24,13 +25,6 @@ import com.vaadin.spring.annotation.VaadinSessionScope;
 @SpringComponent
 public class RolloutManagementUIState implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    /**
-     * The views that can be displayed
-     */
-    public enum Layout {
-        ROLLOUTS, ROLLOUT_GROUPS, ROLLOUT_GROUP_TARGETS
-    }
 
     private Layout currentLayout;
     private final RolloutLayoutUIState rolloutUIState;

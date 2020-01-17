@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window;
 
+import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
@@ -15,8 +16,6 @@ import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
-import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -31,21 +30,19 @@ public final class RolloutWindowDependencies {
     private final QuotaManagement quotaManagement;
     private final TargetManagement targetManagement;
     private final TargetFilterQueryManagement targetFilterQueryManagement;
+    private final DistributionSetManagement distributionSetManagement;
     private final UINotification uiNotification;
     private final EntityFactory entityFactory;
     private final VaadinMessageSource i18n;
     private final UIEventBus eventBus;
     private final UiProperties uiProperties;
-    private final DistributionSetStatelessDataProvider distributionSetDataProvider;
-    private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
 
     public RolloutWindowDependencies(final RolloutManagement rolloutManagement, final TargetManagement targetManagement,
             final UINotification uiNotification, final EntityFactory entityFactory, final VaadinMessageSource i18n,
             final UiProperties uiProperties, final UIEventBus eventBus,
             final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
-            final DistributionSetStatelessDataProvider distributionSetDataProvider,
-            final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
+            final DistributionSetManagement distributionSetManagement) {
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.quotaManagement = quotaManagement;
@@ -56,8 +53,7 @@ public final class RolloutWindowDependencies {
         this.i18n = i18n;
         this.eventBus = eventBus;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
-        this.distributionSetDataProvider = distributionSetDataProvider;
-        this.targetFilterQueryDataProvider = targetFilterQueryDataProvider;
+        this.distributionSetManagement = distributionSetManagement;
     }
 
     public RolloutManagement getRolloutManagement() {
@@ -100,11 +96,7 @@ public final class RolloutWindowDependencies {
         return eventBus;
     }
 
-    public DistributionSetStatelessDataProvider getDistributionSetDataProvider() {
-        return distributionSetDataProvider;
-    }
-
-    public TargetFilterQueryDataProvider getTargetFilterQueryDataProvider() {
-        return targetFilterQueryDataProvider;
+    public DistributionSetManagement getDistributionSetManagement() {
+        return distributionSetManagement;
     }
 }
