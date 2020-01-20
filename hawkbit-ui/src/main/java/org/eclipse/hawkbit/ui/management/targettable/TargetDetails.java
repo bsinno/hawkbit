@@ -33,7 +33,6 @@ import org.eclipse.hawkbit.ui.common.detailslayout.KeyValueDetailsComponent;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetadataDetailsGrid;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.tagdetails.TargetTagToken;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -49,8 +48,6 @@ import com.vaadin.ui.Window;
 public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
-    private final ManagementUIState managementUIState;
-
     private final transient TargetManagement targetManagement;
     private final transient DeploymentManagement deploymentManagement;
 
@@ -63,13 +60,12 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     private final transient TargetMetaDataWindowBuilder targetMetaDataWindowBuilder;
 
     TargetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SpPermissionChecker permissionChecker, final ManagementUIState managementUIState,
-            final UINotification uiNotification, final TargetTagManagement tagManagement,
-            final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
+            final SpPermissionChecker permissionChecker, final UINotification uiNotification,
+            final TargetTagManagement tagManagement, final TargetManagement targetManagement,
+            final DeploymentManagement deploymentManagement,
             final TargetMetaDataWindowBuilder targetMetaDataWindowBuilder) {
         super(i18n);
 
-        this.managementUIState = managementUIState;
         this.targetManagement = targetManagement;
         this.deploymentManagement = deploymentManagement;
         this.targetMetaDataWindowBuilder = targetMetaDataWindowBuilder;
@@ -97,7 +93,6 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
                 new SimpleEntry<>(i18n.getMessage("caption.metadata"), targetMetadataGrid)));
 
         buildDetails();
-        restoreState();
     }
 
     @Override
@@ -203,13 +198,6 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
         metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + binder.getBean().getName());
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
-    }
-
-    // TODO: should we move it to parent?
-    private void restoreState() {
-        if (managementUIState.isTargetTableMaximized()) {
-            setVisible(false);
-        }
     }
 
     @Override

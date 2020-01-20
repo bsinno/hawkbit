@@ -97,10 +97,11 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
                     managementUIState.getTargetTagFilterLayoutUiState());
 
             this.targetGridLayout = new TargetGridLayout(eventBus, targetManagement, entityFactory, i18n,
-                    uiNotification, managementUIState, deploymentManagement, uiProperties, permChecker,
-                    targetTagManagement, distributionSetManagement, uiExecutor, configManagement, systemSecurityContext,
+                    uiNotification, deploymentManagement, uiProperties, permChecker, targetTagManagement,
+                    distributionSetManagement, uiExecutor, configManagement, systemSecurityContext,
                     managementUIState.getTargetTagFilterLayoutUiState(), managementUIState.getTargetGridLayoutUiState(),
-                    managementUIState.getTargetBulkUploadUiState());
+                    managementUIState.getTargetBulkUploadUiState(),
+                    managementUIState.getDistributionGridLayoutUiState());
 
             this.actionHistoryLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, eventBus, uiNotification,
                     managementUIState, permChecker, managementUIState.getActionHistoryGridLayoutUiState());
@@ -329,7 +330,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         mainLayout.setColumnExpandRatio(3, 0F);
         mainLayout.setColumnExpandRatio(4, 0F);
 
-        targetGridLayout.maximize();
+        distributionGridLayout.maximize();
     }
 
     @Override

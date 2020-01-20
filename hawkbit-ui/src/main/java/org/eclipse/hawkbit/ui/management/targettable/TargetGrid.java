@@ -11,18 +11,14 @@ package org.eclipse.hawkbit.ui.management.targettable;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.event.remote.entity.RemoteEntityEvent;
-import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -32,8 +28,6 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
-import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
@@ -47,17 +41,11 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.DeploymentView;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
+import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetAddUpdateWindowEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
-import org.eclipse.hawkbit.ui.push.TargetUpdatedEventContainer;
+import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -66,15 +54,12 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
 
 /**
  * Concrete implementation of Target grid which is displayed on the Deployment
@@ -94,58 +79,62 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private static final String TARGET_PIN_BUTTON_ID = "targetPinButton";
     private static final String TARGET_DELETE_BUTTON_ID = "targetDeleteButton";
 
-    private final ManagementUIState managementUIState;
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
     private final transient TargetManagement targetManagement;
-    private final transient DeploymentManagement deploymentManagement;
 
     private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> targetDataProvider;
-    private final TargetToProxyTargetMapper targetToProxyTargetMapper;
-    private final PinSupport<ProxyTarget> pinSupport;
-    private final DeleteSupport<ProxyTarget> targetDeleteSupport;
-    private final DragAndDropSupport<ProxyTarget> dragAndDropSupport;
+    private final transient TargetToProxyTargetMapper targetToProxyTargetMapper;
+    private final TargetManagementFilterParams targetFilter;
+
+    private final transient PinSupport<ProxyTarget> pinSupport;
+    private final transient DeleteSupport<ProxyTarget> targetDeleteSupport;
+    private final transient DragAndDropSupport<ProxyTarget> dragAndDropSupport;
 
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
-            final TargetManagement targetManagement, final ManagementUIState managementUIState,
-            final SpPermissionChecker permChecker, final DeploymentManagement deploymentManagement,
-            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
-            final UiProperties uiProperties) {
+            final TargetManagement targetManagement, final SpPermissionChecker permChecker,
+            final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,
+            final SystemSecurityContext systemSecurityContext, final UiProperties uiProperties,
+            final TargetGridLayoutUiState targetGridLayoutUiState,
+            final DistributionGridLayoutUiState distributionGridLayoutUiState,
+            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
         super(i18n, eventBus, permChecker);
 
-        this.managementUIState = managementUIState;
         this.targetManagement = targetManagement;
-        this.deploymentManagement = deploymentManagement;
+        this.targetGridLayoutUiState = targetGridLayoutUiState;
 
         this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n);
-        this.targetDataProvider = new TargetManagementStateDataProvider(targetManagement, managementUIState,
-                targetToProxyTargetMapper).withConfigurableFilter();
+        this.targetDataProvider = new TargetManagementStateDataProvider(targetManagement, targetToProxyTargetMapper)
+                .withConfigurableFilter();
+        this.targetFilter = new TargetManagementFilterParams();
 
         setResizeSupport(new TargetResizeSupport());
 
         setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, DeploymentView.VIEW_NAME,
                 this::updateLastSelectedTargetUiState));
-        if (managementUIState.isTargetTableMaximized()) {
+        if (targetGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
             getSelectionSupport().enableMultiSelection();
         }
 
         this.pinSupport = new PinSupport<>(eventBus, PinUnpinEvent.PIN_TARGET, PinUnpinEvent.UNPIN_TARGET,
-                () -> setStyleGenerator(item -> null), this::getPinnedTargetIdFromUiState,
-                this::setPinnedTargetIdInUiState);
+                () -> setStyleGenerator(item -> null), targetGridLayoutUiState::getPinnedTargetId,
+                targetGridLayoutUiState::setPinnedTargetId);
 
         this.targetDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("target.details.header"),
-                permChecker, notification, this::targetsDeletionCallback);
+                permChecker, notification, this::deleteTargets);
 
         final Map<String, AssignmentSupport<?, ProxyTarget>> sourceTargetAssignmentStrategies = new HashMap<>();
 
         final DeploymentAssignmentWindowController assignmentController = new DeploymentAssignmentWindowController(i18n,
-                uiProperties, managementUIState, eventBus, notification, deploymentManagement);
+                uiProperties, eventBus, notification, deploymentManagement, targetGridLayoutUiState,
+                distributionGridLayoutUiState);
         final DistributionSetsToTargetAssignmentSupport distributionsToTargetAssignment = new DistributionSetsToTargetAssignmentSupport(
                 notification, i18n, systemSecurityContext, configManagement, permChecker, assignmentController);
         final TargetTagsToTargetAssignmentSupport targetTagsToTargetAssignment = new TargetTagsToTargetAssignmentSupport(
-                notification, i18n, targetManagement, managementUIState, eventBus);
+                notification, i18n, targetManagement, eventBus, targetTagFilterLayoutUiState);
 
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.DIST_TABLE_ID, distributionsToTargetAssignment);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToTargetAssignment);
@@ -154,39 +143,19 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         this.dragAndDropSupport.addDragAndDrop();
 
         initTargetStatusIconMap();
-
         init();
     }
 
     private void updateLastSelectedTargetUiState(final SelectionChangedEventType type,
             final ProxyTarget selectedTarget) {
         if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
-            managementUIState.setLastSelectedTargetId(null);
+            targetGridLayoutUiState.setSelectedTargetId(null);
         } else {
-            managementUIState.setLastSelectedTargetId(selectedTarget.getId());
+            targetGridLayoutUiState.setSelectedTargetId(selectedTarget.getId());
         }
     }
 
-    @Override
-    public String getGridId() {
-        return UIComponentIdProvider.TARGET_TABLE_ID;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> getFilterDataProvider() {
-        return targetDataProvider;
-    }
-
-    private Optional<Long> getPinnedTargetIdFromUiState() {
-        return managementUIState.getDistributionTableFilters().getPinnedTarget().map(TargetIdName::getTargetId);
-    }
-
-    private void setPinnedTargetIdInUiState(final ProxyTarget target) {
-        managementUIState.getDistributionTableFilters()
-                .setPinnedTarget(target != null ? new TargetIdName(target.getId(), target.getControllerId()) : null);
-    }
-
-    private void targetsDeletionCallback(final Collection<ProxyTarget> targetsToBeDeleted) {
+    private void deleteTargets(final Collection<ProxyTarget> targetsToBeDeleted) {
         final Collection<Long> targetToBeDeletedIds = targetsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         targetManagement.delete(targetToBeDeletedIds);
@@ -194,9 +163,10 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                 new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, targetToBeDeletedIds));
 
-        getPinnedTargetIdFromUiState()
-                .ifPresent(pinnedTargetId -> pinSupport.unPinItemAfterDeletion(pinnedTargetId, targetToBeDeletedIds));
-        managementUIState.getSelectedTargetId().clear();
+        final Long pinnedTargetId = targetGridLayoutUiState.getPinnedTargetId();
+        if (pinnedTargetId != null) {
+            pinSupport.unPinItemAfterDeletion(pinnedTargetId, targetToBeDeletedIds);
+        }
     }
 
     // TODO: check if icons are correct
@@ -219,186 +189,54 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 .getMessage(UIMessageIdProvider.TOOLTIP_TARGET_STATUS_PREFIX + targetStatus.toString().toLowerCase());
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onTargetUpdatedEvents(final TargetUpdatedEventContainer eventContainer) {
-        if (!eventContainer.getEvents().isEmpty()) {
-            // TODO: Consider updating only corresponding targets with
-            // dataProvider.refreshItem() based on
-            // target ids instead of full refresh (evaluate
-            // getDataCommunicator().getKeyMapper())
-            refreshContainer();
-        }
-
-        // TODO: consider removing after registering corresponding target
-        // selection listeners
-        publishTargetSelectedEntityForRefresh(eventContainer.getEvents().stream());
+    @Override
+    public String getGridId() {
+        return UIComponentIdProvider.TARGET_TABLE_ID;
     }
 
-    private void publishTargetSelectedEntityForRefresh(
-            final Stream<? extends RemoteEntityEvent<Target>> targetEntityEventStream) {
-        targetEntityEventStream.filter(event -> isLastSelectedTarget(event.getEntityId())).filter(Objects::nonNull)
-                .findAny()
-                .ifPresent(event -> eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.SELECTED_ENTITY,
-                        targetToProxyTargetMapper.map(event.getEntity()))));
+    @Override
+    public ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> getFilterDataProvider() {
+        return targetDataProvider;
     }
 
-    private boolean isLastSelectedTarget(final Long targetId) {
-        return managementUIState.getLastSelectedTargetId()
-                .map(lastSelectedTargetId -> lastSelectedTargetId.equals(targetId)).orElse(false);
+    public void updateSearchFilter(final String searchFilter) {
+        targetFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+        getFilterDataProvider().setFilter(targetFilter);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final PinUnpinEvent pinUnpinEvent) {
-        UI.getCurrent().access(() -> {
-            if (pinUnpinEvent == PinUnpinEvent.PIN_DISTRIBUTION) {
-                /* if distribution set is pinned, unpin target if pinned */
-                setPinnedTargetIdInUiState(null);
-                refreshFilter();
-                // TODO: check if refreshFilter() should be called at the end
-                setStyleGenerator(item -> pinSupport.getRowStyleForPinning(item.getAssignedDistributionSet().getId(),
-                        item.getInstalledDistributionSet().getId(), getPinnedDistIdFromUiState()));
-            } else if (pinUnpinEvent == PinUnpinEvent.UNPIN_DISTRIBUTION) {
-                refreshFilter();
-                setStyleGenerator(item -> null);
-            }
-        });
+    public void updateTagFilter(final Collection<String> tagFilterNames) {
+        targetFilter.setTargetTags(tagFilterNames.toArray(new String[tagFilterNames.size()]));
+        getFilterDataProvider().setFilter(targetFilter);
     }
 
-    private void refreshFilter() {
-        final TargetManagementFilterParams filterParams = new TargetManagementFilterParams(getPinnedDistIdFromUiState(),
-                getSearchTextFromUiState(), getTargetUpdateStatusFromUiState(), getOverdueStateFromUiState(),
-                getDistributionIdFromUiState(), isNoTagClickedFromUiState(), getTargetTagsFromUiState(),
-                getTargetFilterQueryIdFromUiState());
-
-        getFilterDataProvider().setFilter(filterParams);
+    public void updateNoTagFilter(final boolean isActive) {
+        targetFilter.setNoTagClicked(isActive);
+        getFilterDataProvider().setFilter(targetFilter);
     }
 
-    private String getSearchTextFromUiState() {
-        return managementUIState.getTargetTableFilters().getSearchText()
-                .filter(searchText -> !StringUtils.isEmpty(searchText)).map(value -> String.format("%%%s%%", value))
-                .orElse(null);
+    public void updateStatusFilter(final List<TargetUpdateStatus> statusFilters) {
+        targetFilter.setTargetUpdateStatusList(statusFilters);
+        getFilterDataProvider().setFilter(targetFilter);
     }
 
-    private Long getPinnedDistIdFromUiState() {
-        return managementUIState.getTargetTableFilters().getPinnedDistId().orElse(null);
+    public void updateOverdueFilter(final boolean isOverdue) {
+        targetFilter.setOverdueState(isOverdue);
+        getFilterDataProvider().setFilter(targetFilter);
     }
 
-    private Long getTargetFilterQueryIdFromUiState() {
-        return managementUIState.getTargetTableFilters().getTargetFilterQuery().orElse(null);
+    public void updateCustomFilter(final Long customFilterId) {
+        targetFilter.setTargetFilterQueryId(customFilterId);
+        getFilterDataProvider().setFilter(targetFilter);
     }
 
-    private String[] getTargetTagsFromUiState() {
-        return managementUIState.getTargetTableFilters().getClickedTargetTags().stream().toArray(String[]::new);
+    public void updatePinnedDsFilter(final Long pinnedDsId) {
+        targetFilter.setPinnedDistId(pinnedDsId);
+        getFilterDataProvider().setFilter(targetFilter);
     }
 
-    private Boolean isNoTagClickedFromUiState() {
-        return managementUIState.getTargetTableFilters().isNoTagSelected();
-    }
-
-    private Long getDistributionIdFromUiState() {
-        return managementUIState.getTargetTableFilters().getDistributionSet().map(DistributionSetIdName::getId)
-                .orElse(null);
-    }
-
-    private Boolean getOverdueStateFromUiState() {
-        return managementUIState.getTargetTableFilters().isOverdueFilterEnabled();
-    }
-
-    private Collection<TargetUpdateStatus> getTargetUpdateStatusFromUiState() {
-        return managementUIState.getTargetTableFilters().getClickedStatusTargetTags();
-    }
-
-    private Set<Long> getItemIdsToSelectFromUiState() {
-        return managementUIState.getSelectedTargetId().isEmpty() ? null : managementUIState.getSelectedTargetId();
-    }
-
-    private void setLastSelectedTargetId(final Long lastSelectedTargetId) {
-        managementUIState.setLastSelectedTargetId(lastSelectedTargetId);
-    }
-
-    // TODO: do we still need it?
-    private void setManagementUIStateValues(final Set<Long> selectedTargetIds, final Long lastSelectedTargetId) {
-        managementUIState.setSelectedTargetId(selectedTargetIds);
-        managementUIState.setLastSelectedTargetId(lastSelectedTargetId);
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void addOrEditEvent(final TargetAddUpdateWindowEvent targetUIEvent) {
-        if (BaseEntityEventType.UPDATED_ENTITY != targetUIEvent.getEventType()) {
-            return;
-        }
-        UI.getCurrent().access(() -> updateTarget(targetUIEvent.getEntity()));
-    }
-
-    /**
-     * To update target details in the grid.
-     *
-     * @param updatedTarget
-     *            as reference
-     */
-    public void updateTarget(final ProxyTarget updatedTarget) {
-        if (updatedTarget != null) {
-            if (getPinnedDistIdFromUiState() == null) {
-                updatedTarget.setInstalledDistributionSet(null);
-                updatedTarget.setAssignedDistributionSet(null);
-            } else {
-                deploymentManagement.getAssignedDistributionSet(updatedTarget.getControllerId())
-                        .ifPresent(updatedTarget::setAssignedDistributionSet);
-                deploymentManagement.getInstalledDistributionSet(updatedTarget.getControllerId())
-                        .ifPresent(updatedTarget::setInstalledDistributionSet);
-            }
-
-            getDataProvider().refreshItem(updatedTarget);
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetFilterEvent filterEvent) {
-        UI.getCurrent().access(() -> {
-            refreshFilter();
-            eventBus.publish(this, ManagementUIEvent.TARGET_TABLE_FILTER);
-        });
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final ManagementUIEvent managementUIEvent) {
-        UI.getCurrent().access(() -> {
-            if (tableIsFilteredByTagsAndTagWasUnassignedFromTarget(managementUIEvent)
-                    || tableIsFilteredByNoTagAndTagWasAssignedToTarget(managementUIEvent)) {
-                refreshFilter();
-            }
-        });
-    }
-
-    private boolean tableIsFilteredByTagsAndTagWasUnassignedFromTarget(final ManagementUIEvent managementUIEvent) {
-        return managementUIEvent == ManagementUIEvent.UNASSIGN_TARGET_TAG && isFilteredByTags();
-    }
-
-    private boolean isFilteredByTags() {
-        return !managementUIState.getTargetTableFilters().getClickedTargetTags().isEmpty();
-    }
-
-    private boolean tableIsFilteredByNoTagAndTagWasAssignedToTarget(final ManagementUIEvent managementUIEvent) {
-        return managementUIEvent == ManagementUIEvent.ASSIGN_TARGET_TAG && isNoTagClickedFromUiState();
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent event) {
-        // TODO: consider moving min/max events to ManagementUIEvent similar to
-        // ActionHistoryGrid
-        if (BaseEntityEventType.MINIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMinimizedContent);
-        } else if (BaseEntityEventType.MAXIMIZED == event.getEventType()) {
-            UI.getCurrent().access(this::createMaximizedContent);
-        } else if (BaseEntityEventType.ADD_ENTITY == event.getEventType()
-                || BaseEntityEventType.REMOVE_ENTITY == event.getEventType()) {
-            UI.getCurrent().access(this::refreshContainer);
-
-            // TODO: check selection/deselection, refactor if neccessary
-            if (BaseEntityEventType.ADD_ENTITY == event.getEventType()) {
-                select(event.getEntity());
-            }
-        }
+    public void updateDsFilter(final Long dsId) {
+        targetFilter.setDistributionId(dsId);
+        getFilterDataProvider().setFilter(targetFilter);
     }
 
     /**
@@ -423,14 +261,12 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     public void addColumns() {
         // TODO: check width
         addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setMinimumWidth(100d).setMaximumWidth(150d).setHidable(false).setHidden(false);
+                .setMinimumWidth(100d).setExpandRatio(1);
 
         addComponentColumn(this::buildTargetPollingStatusIcon).setId(TARGET_POLLING_STATUS_ID).setMinimumWidth(50d)
-                .setMaximumWidth(50d).setHidable(false).setHidden(false)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
 
         addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID).setMinimumWidth(50d)
-                .setMaximumWidth(50d).setHidable(false).setHidden(false)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
 
         getDefaultHeaderRow().join(TARGET_POLLING_STATUS_ID, TARGET_STATUS_ID)
@@ -439,19 +275,19 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         addActionColumns();
 
         addColumn(ProxyTarget::getCreatedBy).setId(TARGET_CREATED_BY_ID).setCaption(i18n.getMessage("header.createdBy"))
-                .setHidable(true).setHidden(true);
+                .setHidden(true);
 
         addColumn(ProxyTarget::getCreatedDate).setId(TARGET_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.createdDate")).setHidden(true);
 
         addColumn(ProxyTarget::getLastModifiedBy).setId(TARGET_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedBy")).setHidden(true);
 
         addColumn(ProxyTarget::getModifiedDate).setId(TARGET_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.modifiedDate")).setHidden(true);
 
         addColumn(ProxyTarget::getDescription).setId(TARGET_DESC_ID).setCaption(i18n.getMessage("header.description"))
-                .setHidable(true).setHidden(true);
+                .setHidden(true);
     }
 
     private Label buildTargetStatusIcon(final ProxyTarget target) {
@@ -488,14 +324,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                     UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true);
 
             return pinSupport.buildPinActionButton(pinBtn, target);
-        }).setId(TARGET_PIN_BUTTON_ID).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(false).setHidden(false);
+        }).setId(TARGET_PIN_BUTTON_ID).setMinimumWidth(50d);
 
         addComponentColumn(target -> buildActionButton(
                 clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target, target.getName()),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(),
-                targetDeleteSupport.hasDeletePermission())).setId(TARGET_DELETE_BUTTON_ID).setMinimumWidth(50d)
-                        .setMaximumWidth(50d).setHidable(false).setHidden(false);
+                targetDeleteSupport.hasDeletePermission())).setId(TARGET_DELETE_BUTTON_ID).setMinimumWidth(50d);
 
         getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
@@ -517,14 +352,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         actionButton.addStyleName(style);
 
         return actionButton;
-    }
-
-    @Override
-    public void refreshContainer() {
-        super.refreshContainer();
-        // TODO: check if we really need to send this event here (in order to
-        // update count label another approach could be used)
-        eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.REFRESH_TARGETS));
     }
 
     /**
@@ -556,10 +383,16 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             getColumn(TARGET_MODIFIED_BY_ID).setHidden(false);
             getColumn(TARGET_MODIFIED_DATE_ID).setHidden(false);
             getColumn(TARGET_DESC_ID).setHidden(false);
+
+            getColumns().forEach(column -> column.setHidable(true));
         }
 
         @Override
         public void setMaximizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(0));
+
+            getColumn(TARGET_NAME_ID).setExpandRatio(1);
+            getColumn(TARGET_DESC_ID).setExpandRatio(1);
         }
 
         @Override
@@ -579,10 +412,15 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             getColumn(TARGET_MODIFIED_BY_ID).setHidden(true);
             getColumn(TARGET_MODIFIED_DATE_ID).setHidden(true);
             getColumn(TARGET_DESC_ID).setHidden(true);
+
+            getColumns().forEach(column -> column.setHidable(false));
         }
 
         @Override
         public void setMinimizedColumnExpandRatio() {
+            getColumns().forEach(column -> column.setExpandRatio(0));
+
+            getColumn(TARGET_NAME_ID).setExpandRatio(1);
         }
     }
 }

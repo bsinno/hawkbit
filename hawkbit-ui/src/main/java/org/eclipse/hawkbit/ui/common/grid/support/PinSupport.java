@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.common.grid.support;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -31,15 +30,15 @@ public class PinSupport<T extends ProxyIdentifiableEntity> {
     private static final String STATUS_PIN_TOGGLE = "statusPinToggle";
 
     private final Runnable restoreRowStyleCallback;
-    private final Supplier<Optional<Long>> getPinnedItemIdFromUiStateCallback;
-    private final Consumer<T> setPinnedItemIdInUiStateCallback;
+    private final Supplier<Long> getPinnedItemIdFromUiStateCallback;
+    private final Consumer<Long> setPinnedItemIdInUiStateCallback;
     private final UIEventBus eventBus;
     private final PinUnpinEvent pinEvent;
     private final PinUnpinEvent unPinEvent;
 
     public PinSupport(final UIEventBus eventBus, final PinUnpinEvent pinEvent, final PinUnpinEvent unPinEvent,
-            final Runnable restoreRowStyleCallback, final Supplier<Optional<Long>> getPinnedItemIdFromUiStateCallback,
-            final Consumer<T> setPinnedItemIdInUiStateCallback) {
+            final Runnable restoreRowStyleCallback, final Supplier<Long> getPinnedItemIdFromUiStateCallback,
+            final Consumer<Long> setPinnedItemIdInUiStateCallback) {
         this.eventBus = eventBus;
         this.pinEvent = pinEvent;
         this.unPinEvent = unPinEvent;
@@ -73,7 +72,7 @@ public class PinSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private boolean isPinned(final T item) {
-        return getPinnedItemIdFromUiStateCallback.get().map(id -> id.equals(item.getId())).orElse(false);
+        return item.getId().equals(getPinnedItemIdFromUiStateCallback.get());
     }
 
     private void pinItem(final Button pinBtn) {
@@ -100,7 +99,7 @@ public class PinSupport<T extends ProxyIdentifiableEntity> {
             setPinnedItemIdInUiStateCallback.accept(null);
         } else {
             pinItem(clickedButton);
-            setPinnedItemIdInUiStateCallback.accept(item);
+            setPinnedItemIdInUiStateCallback.accept(item.getId());
         }
     }
 
