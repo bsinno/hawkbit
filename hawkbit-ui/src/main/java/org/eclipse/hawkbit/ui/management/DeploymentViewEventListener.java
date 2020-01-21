@@ -24,7 +24,6 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
-import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridHeader;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridHeader;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridHeader;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagButtons;
@@ -120,7 +119,7 @@ public class DeploymentViewEventListener {
             }
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGridHeader.class)
+        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionGridHeader.class)
         private void onDsEvent(final LayoutResizedEventPayload eventPayload) {
             if (eventPayload == LayoutResizedEventPayload.LAYOUT_MAXIMIZED) {
                 deploymentView.maximizeDsGridLayout();

@@ -10,10 +10,10 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.util.Arrays;
 
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -32,17 +32,17 @@ import com.vaadin.ui.themes.ValoTheme;
 public class ActionHistoryGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final ManagementUIState managementUIState;
+    private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
 
     private final Label headerCaption;
 
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
-    public ActionHistoryGridHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
-            final UIEventBus eventBus) {
+    public ActionHistoryGridHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
+            final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
         super(i18n, null, eventBus);
 
-        this.managementUIState = managementUIState;
+        this.actionHistoryGridLayoutUiState = actionHistoryGridLayoutUiState;
 
         this.headerCaption = buildHeaderCaption();
 
@@ -70,19 +70,19 @@ public class ActionHistoryGridHeader extends AbstractGridHeader {
     }
 
     private void maximizeTable() {
-        // TODO: check if it is needed
-        // details.populateMasterDataAndRecreateContainer(masterForDetails);
-        managementUIState.setActionHistoryMaximized(Boolean.TRUE);
-        eventBus.publish(this, ManagementUIEvent.MAX_ACTION_HISTORY);
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+
+        actionHistoryGridLayoutUiState.setMaximized(true);
     }
 
     private void minimizeTable() {
-        managementUIState.setActionHistoryMaximized(Boolean.FALSE);
-        eventBus.publish(this, ManagementUIEvent.MIN_ACTION_HISTORY);
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+
+        actionHistoryGridLayoutUiState.setMaximized(false);
     }
 
     private Boolean onLoadIsTableMaximized() {
-        return managementUIState.isActionHistoryMaximized();
+        return actionHistoryGridLayoutUiState.isMaximized();
     }
 
     /**

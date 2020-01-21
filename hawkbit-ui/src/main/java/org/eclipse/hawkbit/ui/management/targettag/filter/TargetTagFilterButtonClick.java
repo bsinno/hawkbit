@@ -20,8 +20,8 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterMultiButtonClick
 public class TargetTagFilterButtonClick extends AbstractFilterMultiButtonClick<ProxyTag> {
     private static final long serialVersionUID = 1L;
 
-    private final Consumer<Map<Long, String>> filterChangedCallback;
-    private final Consumer<ClickBehaviourType> noTagChangedCallback;
+    private final transient Consumer<Map<Long, String>> filterChangedCallback;
+    private final transient Consumer<ClickBehaviourType> noTagChangedCallback;
 
     TargetTagFilterButtonClick(final Consumer<Map<Long, String>> filterChangedCallback,
             final Consumer<ClickBehaviourType> noTagChangedCallback) {

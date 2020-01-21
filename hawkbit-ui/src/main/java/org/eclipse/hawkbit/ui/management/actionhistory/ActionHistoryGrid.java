@@ -32,9 +32,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
 import org.eclipse.hawkbit.ui.management.DeploymentView;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.push.CancelTargetAssignmentEventContainer;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
@@ -84,7 +81,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     private final transient DeploymentManagement deploymentManagement;
     private final UINotification notification;
-    private final ManagementUIState managementUIState;
+    private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
     private final Map<IsActiveDecoration, ProxyFontIcon> activeStatusIconMap = new EnumMap<>(IsActiveDecoration.class);
@@ -95,20 +92,20 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private final ConfigurableFilterDataProvider<ProxyAction, Void, String> actionDataProvider;
 
     ActionHistoryGrid(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
-            final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
-            final SpPermissionChecker permissionChecker) {
+            final UIEventBus eventBus, final UINotification notification, final SpPermissionChecker permissionChecker,
+            final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
         this.deploymentManagement = deploymentManagement;
         this.notification = notification;
-        this.managementUIState = managementUIState;
+        this.actionHistoryGridLayoutUiState = actionHistoryGridLayoutUiState;
         this.actionDataProvider = new ActionDataProvider(deploymentManagement, new ActionToProxyActionMapper())
                 .withConfigurableFilter();
 
         setResizeSupport(new ActionHistoryResizeSupport());
         setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, DeploymentView.VIEW_NAME,
                 this::updateLastSelectedActionUiState));
-        if (managementUIState.isActionHistoryMaximized()) {
+        if (actionHistoryGridLayoutUiState.isMaximized()) {
             getSelectionSupport().enableSingleSelection();
         } else {
             getSelectionSupport().disableSelection();
@@ -124,9 +121,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private void updateLastSelectedActionUiState(final SelectionChangedEventType type,
             final ProxyAction selectedAction) {
         if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
-            managementUIState.setLastSelectedActionId(null);
+            actionHistoryGridLayoutUiState.setSelectedActionId(null);
         } else {
-            managementUIState.setLastSelectedActionId(selectedAction.getId());
+            actionHistoryGridLayoutUiState.setSelectedActionId(selectedAction.getId());
         }
     }
 
@@ -203,7 +200,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
      * maximized-state and is now re-entered.
      */
     private void restorePreviousState() {
-        if (managementUIState.isActionHistoryMaximized()) {
+        if (actionHistoryGridLayoutUiState.isMaximized()) {
             createMaximizedContent();
         }
     }
@@ -223,14 +220,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         }
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final ManagementUIEvent mgmtUIEvent) {
-        if (mgmtUIEvent == ManagementUIEvent.MAX_ACTION_HISTORY) {
-            UI.getCurrent().access(this::createMaximizedContent);
-        }
-        if (mgmtUIEvent == ManagementUIEvent.MIN_ACTION_HISTORY) {
-            UI.getCurrent().access(this::createMinimizedContent);
-        }
+    public void updateMasterEntityFilter(final ProxyTarget masterEntity) {
+        this.selectedMasterTarget = masterEntity;
+        getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getControllerId() : null);
     }
 
     /**
@@ -451,11 +443,14 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
      * Pinning.
      */
     private void updateDistributionTableStyle() {
-        managementUIState.getDistributionTableFilters().getPinnedTarget().ifPresent(pinnedTarget -> {
-            if (pinnedTarget.getTargetId().equals(selectedMasterTarget.getId())) {
-                eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
-            }
-        });
+        // TODO
+        // managementUIState.getDistributionTableFilters().getPinnedTarget().ifPresent(pinnedTarget
+        // -> {
+        // if (pinnedTarget.getTargetId().equals(selectedMasterTarget.getId()))
+        // {
+        // eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
+        // }
+        // });
     }
 
     /**
@@ -542,10 +537,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
             }
         }
         return false;
-    }
-
-    public void setSelectedMasterTarget(final ProxyTarget selectedMasterTarget) {
-        this.selectedMasterTarget = selectedMasterTarget;
     }
 
     /**

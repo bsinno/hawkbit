@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridLayoutUiState;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusGridLayoutUiState;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusMsgGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.management.state.DistributionTableFilters;
@@ -43,6 +45,8 @@ public class ManagementUIState implements Serializable {
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
     private final DistributionTagLayoutUiState distributionTagLayoutUiState;
     private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
+    private final ActionStatusGridLayoutUiState actionStatusGridLayoutUiState;
+    private final ActionStatusMsgGridLayoutUiState actionStatusMsgGridLayoutUiState;
 
     private final DistributionTableFilters distributionTableFilters = new DistributionTableFilters();
 
@@ -99,6 +103,14 @@ public class ManagementUIState implements Serializable {
         this.distributionGridLayoutUiState = new DistributionGridLayoutUiState();
         this.distributionTagLayoutUiState = new DistributionTagLayoutUiState();
         this.actionHistoryGridLayoutUiState = new ActionHistoryGridLayoutUiState();
+        this.actionStatusGridLayoutUiState = new ActionStatusGridLayoutUiState();
+        this.actionStatusMsgGridLayoutUiState = new ActionStatusMsgGridLayoutUiState();
+
+        init();
+    }
+
+    private void init() {
+        distributionTagLayoutUiState.setHidden(true);
     }
 
     public TargetTagFilterLayoutUiState getTargetTagFilterLayoutUiState() {
@@ -123,6 +135,14 @@ public class ManagementUIState implements Serializable {
 
     public TargetBulkUploadUiState getTargetBulkUploadUiState() {
         return targetBulkUploadUiState;
+    }
+
+    public ActionStatusGridLayoutUiState getActionStatusGridLayoutUiState() {
+        return actionStatusGridLayoutUiState;
+    }
+
+    public ActionStatusMsgGridLayoutUiState getActionStatusMsgGridLayoutUiState() {
+        return actionStatusMsgGridLayoutUiState;
     }
 
     public boolean isBulkUploadWindowMinimised() {

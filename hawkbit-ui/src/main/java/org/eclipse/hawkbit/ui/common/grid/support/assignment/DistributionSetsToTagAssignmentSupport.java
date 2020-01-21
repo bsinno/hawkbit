@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
@@ -19,11 +20,12 @@ import org.eclipse.hawkbit.repository.model.DistributionSetTagAssignmentResult;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
@@ -33,17 +35,17 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  */
 public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<ProxyDistributionSet, ProxyTag> {
     private final DistributionSetManagement distributionSetManagement;
-    private final ManagementUIState managementUIState;
+    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
 
     public DistributionSetsToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final DistributionSetManagement distributionSetManagement, final ManagementUIState managementUIState,
-            final UIEventBus eventBus, final SpPermissionChecker permChecker) {
+            final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus,
+            final SpPermissionChecker permChecker, final DistributionTagLayoutUiState distributionTagLayoutUiState) {
         super(notification, i18n);
 
         this.distributionSetManagement = distributionSetManagement;
-        this.managementUIState = managementUIState;
+        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.eventBus = eventBus;
         this.permChecker = permChecker;
     }
@@ -71,13 +73,13 @@ public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<Pr
         // TODO: should not we also call
         // publishAssignDsTagEvent(tagsAssignmentResult); (see
         // TargetsToTagAssignmentSupport)?
-        publishUnAssignDsTagEvent(tagName, tagsAssignmentResult);
+        publishUnAssignDsTagEvent(targetItem.getId(), tagsAssignmentResult);
     }
 
-    private void publishUnAssignDsTagEvent(final String dsTagName, final DistributionSetTagAssignmentResult result) {
-        final List<String> tagsClickedList = managementUIState.getDistributionTableFilters().getClickedDistSetTags();
-        final boolean isDsTagUnAssigned = result.getUnassigned() >= 1 && !tagsClickedList.isEmpty()
-                && tagsClickedList.contains(dsTagName);
+    private void publishUnAssignDsTagEvent(final Long dsTagId, final DistributionSetTagAssignmentResult result) {
+        final Set<Long> clickedDsTagIds = distributionTagLayoutUiState.getClickedDsTagIds();
+        final boolean isDsTagUnAssigned = result.getUnassigned() >= 1 && !CollectionUtils.isEmpty(clickedDsTagIds)
+                && clickedDsTagIds.contains(dsTagId);
 
         if (isDsTagUnAssigned) {
             eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
