@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.common.data.filters;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
@@ -22,14 +23,18 @@ import org.springframework.util.StringUtils;
 public class TargetManagementFilterParams implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final Long pinnedDistId;
-    private final String searchText;
-    private final Collection<TargetUpdateStatus> targetUpdateStatusList;
-    private final Boolean overdueState;
-    private final Long distributionId;
-    private final Boolean noTagClicked;
-    private final String[] targetTags;
-    private final Long targetFilterQueryId;
+    private Long pinnedDistId;
+    private String searchText;
+    private Collection<TargetUpdateStatus> targetUpdateStatusList;
+    private Boolean overdueState;
+    private Long distributionId;
+    private Boolean noTagClicked;
+    private String[] targetTags;
+    private Long targetFilterQueryId;
+
+    public TargetManagementFilterParams() {
+        this(null, null, new ArrayList<>(), null, null, null, new String[] {}, null);
+    }
 
     /**
      * Constructor.
@@ -70,31 +75,63 @@ public class TargetManagementFilterParams implements Serializable {
         return pinnedDistId;
     }
 
-    public Long getTargetFilterQueryId() {
-        return targetFilterQueryId;
+    public void setPinnedDistId(final Long pinnedDistId) {
+        this.pinnedDistId = pinnedDistId;
     }
 
     public String getSearchText() {
         return searchText;
     }
 
+    public void setSearchText(final String searchText) {
+        this.searchText = searchText;
+    }
+
     public Collection<TargetUpdateStatus> getTargetUpdateStatusList() {
         return targetUpdateStatusList;
+    }
+
+    public void setTargetUpdateStatusList(final Collection<TargetUpdateStatus> targetUpdateStatusList) {
+        this.targetUpdateStatusList = targetUpdateStatusList;
     }
 
     public Boolean getOverdueState() {
         return overdueState;
     }
 
+    public void setOverdueState(final Boolean overdueState) {
+        this.overdueState = overdueState;
+    }
+
     public Long getDistributionId() {
         return distributionId;
+    }
+
+    public void setDistributionId(final Long distributionId) {
+        this.distributionId = distributionId;
     }
 
     public Boolean getNoTagClicked() {
         return noTagClicked;
     }
 
+    public void setNoTagClicked(final Boolean noTagClicked) {
+        this.noTagClicked = noTagClicked;
+    }
+
     public String[] getTargetTags() {
         return targetTags;
+    }
+
+    public void setTargetTags(final String[] targetTags) {
+        this.targetTags = targetTags;
+    }
+
+    public Long getTargetFilterQueryId() {
+        return targetFilterQueryId;
+    }
+
+    public void setTargetFilterQueryId(final Long targetFilterQueryId) {
+        this.targetFilterQueryId = targetFilterQueryId;
     }
 }

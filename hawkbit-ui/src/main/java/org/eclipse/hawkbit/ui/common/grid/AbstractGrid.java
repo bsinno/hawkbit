@@ -99,6 +99,10 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         getFilterDataProvider().refreshAll();
     }
 
+    public int getDataSize() {
+        return getDataCommunicator().getDataProviderSize();
+    }
+
     /**
      * Method for setting up the required columns together with their definition
      * and rendering options.

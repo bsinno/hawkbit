@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
-import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGridHeader;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGridLayout;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -43,9 +44,14 @@ public class TargetFilterGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetFilterGridHeader.class)
-        private void onSearchFilterChanged(final String searchFilter) {
-            targetFilterGridLayout.filterGridByName(searchFilter);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
+            if (eventPayload.getView() != View.TARGET_FILTER
+                    || eventPayload.getLayout() != targetFilterGridLayout.getLayout()) {
+                return;
+            }
+
+            targetFilterGridLayout.filterGridByName(eventPayload.getFilter());
         }
     }
 

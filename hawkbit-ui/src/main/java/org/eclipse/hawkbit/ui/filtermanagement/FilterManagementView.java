@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.filtermanagement.event.FilterManagementViewEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState.FilterView;
@@ -71,33 +70,6 @@ public class FilterManagementView extends VerticalLayout implements View {
         this.eventListener = new FilterManagementViewEventListener(this, eventBus);
     }
 
-    /**
-     * Change UI content to modify a {@link TargetFilterQuery}
-     * 
-     * @param targetFilterQuery
-     *            the filter to modify
-     * 
-     */
-    public void showFilterQueryEdit(final ProxyTargetFilterQuery targetFilterQuery) {
-        targetFilterDetailsLayout.showEditFilterUi(targetFilterQuery);
-        showFilterDetailsLayout();
-    }
-
-    /**
-     * Change UI content to create a {@link TargetFilterQuery}
-     */
-    public void showFilterQueryCreate() {
-        targetFilterDetailsLayout.showAddFilterUi();
-        showFilterDetailsLayout();
-    }
-
-    /**
-     * Change UI content to show all {@link TargetFilterQuery}
-     */
-    public void showFilterQueryOverview() {
-        showFilterGridLayout();
-    }
-
     @PostConstruct
     void init() {
         buildLayout();
@@ -119,13 +91,19 @@ public class FilterManagementView extends VerticalLayout implements View {
         setExpandRatio(targetFilterDetailsLayout, 1.0F);
     }
 
-    private void showFilterDetailsLayout() {
+    /**
+     * Change UI content to show a {@link TargetFilterQuery} create/edit form
+     */
+    public void showFilterDetailsLayout() {
         filterManagementUIState.setCurrentView(FilterView.DETAILS);
         targetFilterGridLayout.setVisible(false);
         targetFilterDetailsLayout.setVisible(true);
     }
 
-    private void showFilterGridLayout() {
+    /**
+     * Change UI content to show all {@link TargetFilterQuery}
+     */
+    public void showFilterGridLayout() {
         filterManagementUIState.setCurrentView(FilterView.FILTERS);
         targetFilterDetailsLayout.setVisible(false);
         targetFilterGridLayout.setVisible(true);

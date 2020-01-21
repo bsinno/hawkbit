@@ -16,6 +16,7 @@ public final class EventTopics {
     public static final String LAYOUT_RESIZED = "layoutResized";
 
     public static final String FILTER_BUTTONS_ACTIONS_CHANGED = "filterButtonsActionsChanged";
+    public static final String TARGET_FILTER_TAB_CHANGED = "targetFilterTabChanged";
 
     public static final String SEARCH_FILTER_CHANGED = "searchFilterChanged";
     public static final String TYPE_FILTER_CHANGED = "typeFilterChanged";
@@ -28,11 +29,6 @@ public final class EventTopics {
     public static final String REMOTE_EVENT_RECEIVED = "remoteEventReceived";
 
     public static final String FILE_UPLOAD_CHANGED = "fileUploadChanged";
-
-    public static final String OPEN_ENTITY = "openEntity";
-    public static final String CREATE_ENTITY = "createEntity";
-    public static final String UI_ELEMENT_CHANGED = "uiElementChanged";
-    public static final String CHANGE_UI_ELEMENT_STATE = "changeUiElementState";
 
     private EventTopics() {
     }

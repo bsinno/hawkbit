@@ -16,6 +16,7 @@ public class DistributionGridLayoutUiState implements Serializable {
     private boolean maximized;
     private String searchFilter;
     private Long selectedDsId;
+    private Long pinnedDsId;
 
     public boolean isMaximized() {
         return maximized;
@@ -39,5 +40,13 @@ public class DistributionGridLayoutUiState implements Serializable {
 
     public void setSelectedDsId(final Long selectedDsId) {
         this.selectedDsId = selectedDsId;
+    }
+
+    public Long getPinnedDsId() {
+        return pinnedDsId;
+    }
+
+    public void setPinnedDsId(final Long pinnedDsId) {
+        this.pinnedDsId = pinnedDsId;
     }
 }

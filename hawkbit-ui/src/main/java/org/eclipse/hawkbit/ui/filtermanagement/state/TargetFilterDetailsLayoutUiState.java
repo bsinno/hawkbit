@@ -9,9 +9,6 @@
 package org.eclipse.hawkbit.ui.filtermanagement.state;
 
 import java.io.Serializable;
-import java.util.Optional;
-
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 
 public class TargetFilterDetailsLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -21,7 +18,7 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
     }
 
     private Mode currentMode;
-    private ProxyTargetFilterQuery targetFilterQueryforEdit;
+    private Long selectedFilterId;
     private String nameInput;
     private String filterQueryValueInput;
     private String filterQueryValueOfLatestSearch;
@@ -42,14 +39,6 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
         this.filterQueryValueInput = filterQueryValueInput;
     }
 
-    public Optional<ProxyTargetFilterQuery> getTargetFilterQueryforEdit() {
-        return Optional.ofNullable(targetFilterQueryforEdit);
-    }
-
-    public void setTargetFilterQueryforEdit(final ProxyTargetFilterQuery targetFilterQueryforEdit) {
-        this.targetFilterQueryforEdit = targetFilterQueryforEdit;
-    }
-
     public String getNameInput() {
         return nameInput == null ? "" : nameInput;
     }
@@ -64,6 +53,14 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
 
     public void setFilterQueryValueOfLatestSearch(final String filterQueryValueOfLatestSearch) {
         this.filterQueryValueOfLatestSearch = filterQueryValueOfLatestSearch;
+    }
+
+    public Long getSelectedFilterId() {
+        return selectedFilterId;
+    }
+
+    public void setSelectedFilterId(Long selectedFilterId) {
+        this.selectedFilterId = selectedFilterId;
     }
 
 }

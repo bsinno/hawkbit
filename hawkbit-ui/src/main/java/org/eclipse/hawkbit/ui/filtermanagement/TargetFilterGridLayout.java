@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.filtermanagement.event.TargetFilterGridLayoutEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
@@ -96,6 +97,10 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
     public void restoreState() {
         targetFilterGridHeader.restoreState();
         targetFilterGrid.restoreState();
+    }
+
+    public Layout getLayout() {
+        return Layout.TARGET_FILTER_QUERY_LIST;
     }
 
     /**

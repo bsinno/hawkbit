@@ -13,8 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -132,7 +130,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
 
         final DeploymentAssignmentWindowController assignmentController = new DeploymentAssignmentWindowController(i18n,
-                uiProperties, managementUIState, eventBus, notification, deploymentManagement);
+                uiProperties, eventBus, notification, deploymentManagement,
+                managementUIState.getTargetGridLayoutUiState(), managementUIState.getDistributionGridLayoutUiState());
         final TargetsToDistributionSetAssignmentSupport targetsToDsAssignment = new TargetsToDistributionSetAssignmentSupport(
                 notification, i18n, permissionChecker, assignmentController);
         final TargetTagsToDistributionSetAssignmentSupport targetTagsToDsAssignment = new TargetTagsToDistributionSetAssignmentSupport(
@@ -148,6 +147,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         this.dragAndDropSupport.addDragAndDrop();
 
         init();
+        // TODO: to be removed:
+        refreshFilter();
     }
 
     private void updateLastSelectedDsUiState(final SelectionChangedEventType type,
@@ -159,12 +160,12 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         }
     }
 
-    private Optional<Long> getPinnedDsIdFromUiState() {
-        return managementUIState.getTargetTableFilters().getPinnedDistId();
+    private Long getPinnedDsIdFromUiState() {
+        return managementUIState.getTargetTableFilters().getPinnedDistId().orElse(null);
     }
 
-    private void setPinnedDsIdInUiState(final ProxyDistributionSet ds) {
-        managementUIState.getTargetTableFilters().setPinnedDistId(ds != null ? ds.getId() : null);
+    private void setPinnedDsIdInUiState(final Long dsId) {
+        managementUIState.getTargetTableFilters().setPinnedDistId(dsId);
     }
 
     private void setsDeletionCallback(final Collection<ProxyDistributionSet> setsToBeDeleted) {
@@ -175,9 +176,10 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                 new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, dsToBeDeletedIds));
 
-        getPinnedDsIdFromUiState()
-                .ifPresent(pinnedDsId -> pinSupport.unPinItemAfterDeletion(pinnedDsId, dsToBeDeletedIds));
-        managementUIState.getSelectedDsIdName().clear();
+        final Long pinnedDsId = getPinnedDsIdFromUiState();
+        if (pinnedDsId != null) {
+            pinSupport.unPinItemAfterDeletion(pinnedDsId, dsToBeDeletedIds);
+        }
     }
 
     @Override
@@ -430,10 +432,6 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         actionButton.addStyleName(style);
 
         return actionButton;
-    }
-
-    private Set<Long> getItemIdsToSelectFromUiState() {
-        return managementUIState.getSelectedDsIdName().isEmpty() ? null : managementUIState.getSelectedDsIdName();
     }
 
     /**

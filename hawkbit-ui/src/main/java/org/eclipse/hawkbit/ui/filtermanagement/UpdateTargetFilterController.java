@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.event.ChangeUiElementPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
@@ -43,11 +42,14 @@ public class UpdateTargetFilterController
 
     private final TargetFilterAddUpdateLayout layout;
 
+    private final Runnable closeFormCallback;
+
     private String nameBeforeEdit;
 
     public UpdateTargetFilterController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
-            final TargetFilterQueryManagement targetFilterManagement, final TargetFilterAddUpdateLayout layout) {
+            final TargetFilterQueryManagement targetFilterManagement, final TargetFilterAddUpdateLayout layout,
+            final Runnable closeFormCallback) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.eventBus = eventBus;
@@ -56,6 +58,8 @@ public class UpdateTargetFilterController
         this.targetFilterManagement = targetFilterManagement;
 
         this.layout = layout;
+
+        this.closeFormCallback = closeFormCallback;
     }
 
     @Override
@@ -85,19 +89,18 @@ public class UpdateTargetFilterController
         try {
             updatedTargetFilter = targetFilterManagement.update(targetFilterUpdate);
             uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTargetFilter.getName()));
-            // TODO: verify if sender is correct
+
             eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new TargetFilterModifiedEventPayload(
                     EntityModifiedEventType.ENTITY_UPDATED, updatedTargetFilter.getId()));
         } catch (final EntityNotFoundException e) {
             LOG.debug("TargetFilter can not be modified: Does not exist", e);
             uiNotification.displayWarning(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_ENTITY_DELETED));
-            // TODO: verify if sender is correct, adapt the event
-            eventBus.publish(EventTopics.CHANGE_UI_ELEMENT_STATE, this, ChangeUiElementPayload.CLOSE);
         } catch (final EntityReadOnlyException e) {
             LOG.debug("TargetFilter can not be modified: Read only", e);
             uiNotification.displayWarning(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_ENTITY_READONLY));
+        } finally {
+            closeFormCallback.run();
         }
-
     }
 
     @Override

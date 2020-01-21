@@ -13,6 +13,8 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
@@ -80,18 +82,13 @@ public class MultipleTargetFilter extends Accordion {
         if (UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB.equals(selectedTabId)) {
             customFilterTab.clearAppliedTargetFilterQuery();
             targetTagFilterLayoutUiState.setCustomFilterTabSelected(false);
-            // TODO: publish event to disab/enable target search filter and
-            // count message footer
-            // eventBus.publish(this,
-            // ManagementUIEvent.RESET_TARGET_FILTER_QUERY);
+            eventBus.publish(EventTopics.TARGET_FILTER_TAB_CHANGED, this, TargetFilterTabChangedEventPayload.SIMPLE);
         } else {
+            // TODO: optimize sending multiple events
             filterByButtons.clearTargetTagFilters();
             filterByStatusFooter.clearStatusAndOverdueFilters();
             targetTagFilterLayoutUiState.setCustomFilterTabSelected(true);
-            // TODO: publish event to disab/enable target search filter and
-            // count message footer
-            // eventBus.publish(this,
-            // ManagementUIEvent.RESET_SIMPLE_FILTERS);
+            eventBus.publish(EventTopics.TARGET_FILTER_TAB_CHANGED, this, TargetFilterTabChangedEventPayload.CUSTOM);
         }
     }
 
