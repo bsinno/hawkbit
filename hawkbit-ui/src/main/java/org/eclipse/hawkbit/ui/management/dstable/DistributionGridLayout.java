@@ -32,6 +32,8 @@ import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
 import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.ds.DistributionGrid;
+import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
+import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -63,7 +65,9 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
             final DistributionSetTagManagement distributionSetTagManagement, final SystemManagement systemManagement,
             final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,
             final SystemSecurityContext systemSecurityContext, final UiProperties uiProperties,
-            final DistributionGridLayoutUiState distributionGridLayoutUiState) {
+            final DistributionGridLayoutUiState distributionGridLayoutUiState,
+            final DistributionTagLayoutUiState distributionTagLayoutUiState,
+            final TargetGridLayoutUiState targetGridLayoutUiState) {
         this.distributionSetManagement = distributionSetManagement;
         this.dsToProxyDistributionMapper = new DistributionSetToProxyDistributionMapper();
         this.distributionGridLayoutUiState = distributionGridLayoutUiState;
@@ -74,9 +78,11 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         final DsMetaDataWindowBuilder dsMetaDataWindowBuilder = new DsMetaDataWindowBuilder(i18n, entityFactory,
                 eventBus, notification, permissionChecker, distributionSetManagement);
 
-        this.distributionGridHeader = new DistributionGridHeader(i18n, permissionChecker, eventBus, managementUIState);
-        this.distributionGrid = new DistributionGrid(eventBus, i18n, permissionChecker, notification, managementUIState,
-                targetManagement, distributionSetManagement, deploymentManagement, uiProperties);
+        this.distributionGridHeader = new DistributionGridHeader(i18n, permissionChecker, eventBus,
+                distributionGridLayoutUiState, distributionTagLayoutUiState);
+        this.distributionGrid = new DistributionGrid(eventBus, i18n, permissionChecker, notification, targetManagement,
+                distributionSetManagement, deploymentManagement, uiProperties, distributionGridLayoutUiState,
+                targetGridLayoutUiState, distributionTagLayoutUiState);
 
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
                 notification, dsWindowBuilder, dsMetaDataWindowBuilder);
@@ -130,19 +136,17 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     }
 
     public void filterGridBySearch(final String searchFilter) {
-        // TODO
-        // distributionGrid.updateSearchFilter(searchFilter);
+        distributionGrid.updateSearchFilter(searchFilter);
         distributionGrid.deselectAll();
     }
 
     public void filterGridByTags(final Collection<String> tagFilterNames) {
-        // TODO
-        // distributionGrid.updateTagFilter(tagFilter);
+        distributionGrid.updateTagFilter(tagFilterNames);
         distributionGrid.deselectAll();
     }
 
-    public void filterGridByNoTag(final boolean isActive) {
-        // TODO Auto-generated method stub
+    public void filterGridByNoTag(final boolean isNoTagClicked) {
+        distributionGrid.updateNoTagFilter(isNoTagClicked);
         distributionGrid.deselectAll();
     }
 

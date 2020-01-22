@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -27,16 +27,16 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DsTagsToDistributionSetAssignmentSupport
         extends TagsAssignmentSupport<ProxyDistributionSet, DistributionSet> {
     private final DistributionSetManagement distributionSetManagement;
-    private final ManagementUIState managementUIState;
+    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
     private final UIEventBus eventBus;
 
     public DsTagsToDistributionSetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final DistributionSetManagement distributionSetManagement, final ManagementUIState managementUIState,
-            final UIEventBus eventBus) {
+            final DistributionSetManagement distributionSetManagement,
+            final DistributionTagLayoutUiState distributionTagLayoutUiState, final UIEventBus eventBus) {
         super(notification, i18n);
 
         this.distributionSetManagement = distributionSetManagement;
-        this.managementUIState = managementUIState;
+        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.eventBus = eventBus;
     }
 
@@ -48,8 +48,7 @@ public class DsTagsToDistributionSetAssignmentSupport
 
     @Override
     protected void publishFilterEvent(final AbstractAssignmentResult<DistributionSet> tagsAssignmentResult) {
-        if (tagsAssignmentResult.getAssigned() > 0
-                && managementUIState.getDistributionTableFilters().isNoTagSelected()) {
+        if (tagsAssignmentResult.getAssigned() > 0 && distributionTagLayoutUiState.isNoTagClicked()) {
             eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
         }
     }

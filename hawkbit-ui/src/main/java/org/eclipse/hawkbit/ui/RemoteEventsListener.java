@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher;
 import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher.EntityModifiedEventPayloadIdentifier;
+import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
@@ -63,6 +64,11 @@ public class RemoteEventsListener {
         eventsToBeDeferred.add(new EntityModifiedEventPayloadIdentifier(DsModifiedEventPayload.class,
                 EntityModifiedEventType.ENTITY_ADDED));
         eventsToBeDeferred.add(new EntityModifiedEventPayloadIdentifier(DsModifiedEventPayload.class,
+                EntityModifiedEventType.ENTITY_REMOVED));
+
+        eventsToBeDeferred.add(new EntityModifiedEventPayloadIdentifier(SmModifiedEventPayload.class,
+                EntityModifiedEventType.ENTITY_ADDED));
+        eventsToBeDeferred.add(new EntityModifiedEventPayloadIdentifier(SmModifiedEventPayload.class,
                 EntityModifiedEventType.ENTITY_REMOVED));
 
         eventsToBeDeferred.add(new EntityModifiedEventPayloadIdentifier(TargetTagModifiedEventPayload.class,

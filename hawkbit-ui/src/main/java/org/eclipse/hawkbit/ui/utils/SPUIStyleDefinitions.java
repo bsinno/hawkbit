@@ -15,6 +15,7 @@ import com.vaadin.ui.themes.ValoTheme;
  *
  */
 public final class SPUIStyleDefinitions {
+
     /**
      * Tag button wrapper style.
      */
