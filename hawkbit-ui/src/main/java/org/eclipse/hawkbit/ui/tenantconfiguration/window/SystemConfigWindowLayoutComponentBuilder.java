@@ -31,7 +31,7 @@ public class SystemConfigWindowLayoutComponentBuilder {
         distributionSetType.addStyleName(ValoTheme.COMBOBOX_TINY);
         distributionSetType.setWidth(330f, Sizeable.Unit.PIXELS);
         distributionSetType.setEmptySelectionAllowed(false);
-        distributionSetType.setItemCaptionGenerator(ProxyType::getName);
+        distributionSetType.setItemCaptionGenerator(ProxyType::getKeyAndName);
         distributionSetType.setDataProvider(dependencies.getDistributionSetTypeDataProvider());
 
         binder.forField(distributionSetType).withConverter(dst -> {
