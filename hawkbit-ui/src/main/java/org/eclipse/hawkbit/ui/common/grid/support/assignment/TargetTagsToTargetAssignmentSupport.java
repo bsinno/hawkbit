@@ -48,7 +48,7 @@ public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<P
 
     @Override
     protected void publishFilterEvent(final AbstractAssignmentResult<Target> tagsAssignmentResult) {
-        final Set<Long> tagsClickedList = targetTagFilterLayoutUiState.getClickedTargetTagIds();
+        final Set<Long> tagsClickedList = targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName().keySet();
         if (tagsAssignmentResult.getUnassigned() > 0 && !CollectionUtils.isEmpty(tagsClickedList)) {
             eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
         }

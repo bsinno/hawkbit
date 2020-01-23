@@ -25,8 +25,8 @@
     border: 1px solid $widget-border-color;
   }
 
-  //Tag button - clicked
-  .filter-btn-clicked .v-button {
+  //NO_TAG or Filter tag/type button - clicked
+  .no-tag-btn-clicked, .filter-btn-clicked .v-button {
     color: $tag-button-disabled-grey !important;
   }
 

@@ -132,13 +132,19 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
     }
 
     public void clearAppliedTargetFilterQuery() {
-        customTargetTagFilterButtonClick.clearPreviouslyClickedFilter();
+        if (customTargetTagFilterButtonClick.isFilterClicked()) {
+            customTargetTagFilterButtonClick.clearPreviouslyClickedFilter();
+            targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(null);
+            // TODO: should we reset data communicator here for styling update
+        }
+    }
 
-        // TODO: should we reset data communicator here for styling update
+    public void restoreState() {
+        final Long targetFilterQueryIdToRestore = targetTagFilterLayoutUiState.getClickedTargetFilterQueryId();
 
-        eventBus.publish(EventTopics.CUSTOM_FILTER_CHANGED, this, new CustomFilterChangedEventPayload(
-                CustomFilterChangedEventType.UNCLICKED, targetTagFilterLayoutUiState.getClickedTargetFilterQueryId()));
-
-        targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(null);
+        if (targetFilterQueryIdToRestore != null) {
+            customTargetTagFilterButtonClick
+                    .setPreviouslyClickedFilterId(targetTagFilterLayoutUiState.getClickedTargetFilterQueryId());
+        }
     }
 }

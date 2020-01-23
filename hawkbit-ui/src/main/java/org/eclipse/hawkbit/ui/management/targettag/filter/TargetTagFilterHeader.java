@@ -36,7 +36,15 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
         this.targetTagWindowBuilder = targetTagWindowBuilder;
 
         buildHeader();
-        restoreHeaderState();
+    }
+
+    @Override
+    public void restoreState() {
+        super.restoreState();
+
+        if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
+            disableCrudMenu();
+        }
     }
 
     @Override

@@ -58,7 +58,6 @@ public class DSTypeFilterHeader extends AbstractFilterHeader {
         this.dsTypeWindowBuilder = dsTypeWindowBuilder;
 
         buildHeader();
-        restoreHeaderState();
     }
 
     @Override

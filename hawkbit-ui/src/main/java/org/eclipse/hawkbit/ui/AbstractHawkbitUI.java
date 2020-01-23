@@ -135,11 +135,11 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
 
         final Panel content = buildContent();
         contentVerticalLayout.addComponent(content);
-        contentVerticalLayout.setExpandRatio(content, 1);
+        contentVerticalLayout.setExpandRatio(content, 1.0F);
 
         rootLayout.addComponent(dashboardMenu);
         rootLayout.addComponent(contentVerticalLayout);
-        rootLayout.setExpandRatio(contentVerticalLayout, 1);
+        rootLayout.setExpandRatio(contentVerticalLayout, 1.0F);
         setContent(rootLayout);
 
         final Navigator navigator = new Navigator(this, content);

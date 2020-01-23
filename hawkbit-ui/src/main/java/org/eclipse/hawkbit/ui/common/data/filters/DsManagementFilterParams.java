@@ -22,9 +22,25 @@ public class DsManagementFilterParams implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String searchText;
-    private Boolean isNoTagClicked;
+    private boolean noTagClicked;
     private Collection<String> distributionSetTags;
     private String pinnedTargetControllerId;
+
+    /**
+     * Constructor.
+     * 
+     * @param searchText
+     * @param noTagClicked
+     * @param distributionSetTags
+     * @param pinnedTargetControllerId
+     */
+    public DsManagementFilterParams(final String searchText, final boolean noTagClicked,
+            final List<String> distributionSetTags, final String pinnedTargetControllerId) {
+        this.searchText = searchText;
+        this.noTagClicked = noTagClicked;
+        this.distributionSetTags = distributionSetTags;
+        this.pinnedTargetControllerId = pinnedTargetControllerId;
+    }
 
     public String getSearchText() {
         return searchText;
@@ -32,14 +48,6 @@ public class DsManagementFilterParams implements Serializable {
 
     public void setSearchText(final String searchText) {
         this.searchText = searchText;
-    }
-
-    public Boolean getIsNoTagClicked() {
-        return isNoTagClicked;
-    }
-
-    public void setIsNoTagClicked(final Boolean isNoTagClicked) {
-        this.isNoTagClicked = isNoTagClicked;
     }
 
     public Collection<String> getDistributionSetTags() {
@@ -62,19 +70,11 @@ public class DsManagementFilterParams implements Serializable {
         this("", false, new ArrayList<>(), "");
     }
 
-    /**
-     * Constructor.
-     * 
-     * @param searchText
-     * @param isNoTagClicked
-     * @param distributionSetTags
-     * @param pinnedTargetControllerId
-     */
-    public DsManagementFilterParams(final String searchText, final Boolean isNoTagClicked,
-            final List<String> distributionSetTags, final String pinnedTargetControllerId) {
-        this.searchText = searchText;
-        this.isNoTagClicked = isNoTagClicked;
-        this.distributionSetTags = distributionSetTags;
-        this.pinnedTargetControllerId = pinnedTargetControllerId;
+    public boolean isNoTagClicked() {
+        return noTagClicked;
+    }
+
+    public void setNoTagClicked(final boolean noTagClicked) {
+        this.noTagClicked = noTagClicked;
     }
 }

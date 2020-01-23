@@ -28,8 +28,11 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehav
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToTagAssignmentSupport;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
+import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -38,6 +41,7 @@ import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -49,6 +53,8 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
 
     private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
     private final UINotification uiNotification;
+
+    private final Button noTagButton;
 
     private final transient TargetTagManagement targetTagManagement;
     private final transient TargetTagFilterButtonClick targetTagFilterButtonClickBehaviour;
@@ -70,6 +76,8 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         this.targetTagManagement = targetTagManagement;
         this.targetTagWindowBuilder = targetTagWindowBuilder;
 
+        this.noTagButton = buildNoTagButton();
+
         this.targetTagFilterButtonClickBehaviour = new TargetTagFilterButtonClick(this::publishFilterChangedEvent,
                 this::publishNoTagChangedEvent);
         this.targetTagMapper = new TagToProxyTagMapper<>();
@@ -84,6 +92,21 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         this.dragAndDropSupport.addDragAndDrop();
 
         init();
+    }
+
+    private Button buildNoTagButton() {
+        final Button noTag = SPUIComponentProvider.getButton(
+                SPUIDefinitions.TARGET_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
+                i18n.getMessage(UIMessageIdProvider.LABEL_NO_TAG),
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
+                SPUITagButtonStyle.class);
+
+        final ProxyTag dummyNoTag = new ProxyTag();
+        dummyNoTag.setNoTag(true);
+
+        noTag.addClickListener(event -> targetTagFilterButtonClickBehaviour.processFilterClick(dummyNoTag));
+
+        return noTag;
     }
 
     @Override
@@ -113,11 +136,15 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
 
         eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this, activeTagIdsWithName.values());
 
-        targetTagFilterLayoutUiState.setClickedTargetTagIds(activeTagIdsWithName.keySet());
+        targetTagFilterLayoutUiState.setClickedTargetTagIdsWithName(activeTagIdsWithName);
     }
 
     private void publishNoTagChangedEvent(final ClickBehaviourType clickType) {
-        // TODO: add gray styling to NO_TAG Button
+        if (ClickBehaviourType.CLICKED == clickType) {
+            noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+        } else {
+            noTagButton.removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+        }
 
         eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this, ClickBehaviourType.CLICKED == clickType);
 
@@ -131,7 +158,7 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         final String targetTagToDeleteName = targetTagToDelete.getName();
         final Long targetTagToDeleteId = targetTagToDelete.getId();
 
-        final Set<Long> clickedTargetTagIds = targetTagFilterLayoutUiState.getClickedTargetTagIds();
+        final Set<Long> clickedTargetTagIds = targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName().keySet();
 
         if (!CollectionUtils.isEmpty(clickedTargetTagIds) && clickedTargetTagIds.contains(targetTagToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", targetTagToDeleteName));
@@ -159,19 +186,30 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
 
     public void clearTargetTagFilters() {
         if (targetTagFilterButtonClickBehaviour.getPreviouslyClickedFiltersSize() > 0) {
-            targetTagFilterButtonClickBehaviour.clearPreviouslyClickedFilters();
-
-            // TODO: should we reset data communicator here for styling update
-
-            eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this, Collections.emptyList());
-
-            targetTagFilterLayoutUiState.setClickedTargetTagIds(Collections.emptySet());
-
             if (targetTagFilterLayoutUiState.isNoTagClicked()) {
-                eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this, false);
-
                 targetTagFilterLayoutUiState.setNoTagClicked(false);
             }
+
+            targetTagFilterButtonClickBehaviour.clearPreviouslyClickedFilters();
+            targetTagFilterLayoutUiState.setClickedTargetTagIdsWithName(Collections.emptyMap());
+            // TODO: should we reset data communicator here for styling update
         }
+    }
+
+    public void restoreState() {
+        final Map<Long, String> tagsToRestore = targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName();
+
+        if (!CollectionUtils.isEmpty(tagsToRestore)) {
+            targetTagFilterButtonClickBehaviour.setPreviouslyClickedFilterIdsWithName(tagsToRestore);
+            // TODO: should we reset data communicator here for styling update
+        }
+
+        if (targetTagFilterLayoutUiState.isNoTagClicked()) {
+            noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+        }
+    }
+
+    public Button getNoTagButton() {
+        return noTagButton;
     }
 }

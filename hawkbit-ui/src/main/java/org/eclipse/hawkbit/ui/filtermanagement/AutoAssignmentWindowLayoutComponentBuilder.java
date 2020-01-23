@@ -53,7 +53,7 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
     public ActionTypeOptionGroupAutoAssignmentLayout createActionTypeOptionGroupLayout(
             final Binder<ProxyTargetFilterQuery> binder) {
         final ActionTypeOptionGroupAutoAssignmentLayout actionTypeOptionGroupLayout = new ActionTypeOptionGroupAutoAssignmentLayout(
-                i18n);
+                i18n, UIComponentIdProvider.AUTO_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID);
 
         binder.forField(actionTypeOptionGroupLayout.getActionTypeOptionGroup())
                 .bind(ProxyTargetFilterQuery::getAutoAssignActionType, ProxyTargetFilterQuery::setAutoAssignActionType);

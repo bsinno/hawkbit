@@ -81,7 +81,7 @@ public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget
     }
 
     private void publishUnAssignTargetTagEvent(final Long targetTagId, final TargetTagAssignmentResult result) {
-        final Set<Long> tagsClickedList = targetTagFilterLayoutUiState.getClickedTargetTagIds();
+        final Set<Long> tagsClickedList = targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName().keySet();
         final boolean isTargetTagUnAssigned = result.getUnassigned() >= 1 && !CollectionUtils.isEmpty(tagsClickedList)
                 && tagsClickedList.contains(targetTagId);
 

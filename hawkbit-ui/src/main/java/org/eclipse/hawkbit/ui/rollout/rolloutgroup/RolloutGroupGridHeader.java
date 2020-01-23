@@ -63,7 +63,7 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
                 this::showRolloutListView);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
-        restoreHeaderState();
+        restoreState();
         buildHeader();
     }
 

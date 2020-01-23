@@ -35,8 +35,8 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
      * @param i18n
      *            VaadinMessageSource
      */
-    public ActionTypeOptionGroupAssignmentLayout(final VaadinMessageSource i18n) {
-        super(i18n);
+    public ActionTypeOptionGroupAssignmentLayout(final VaadinMessageSource i18n, final String actionTypeOptionGroupId) {
+        super(i18n, actionTypeOptionGroupId);
         addValueChangeListener();
     }
 

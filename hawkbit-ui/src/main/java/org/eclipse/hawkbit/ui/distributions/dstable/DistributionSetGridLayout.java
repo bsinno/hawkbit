@@ -77,7 +77,8 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 dsWindowBuilder, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
         this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
                 targetManagement, distributionSetManagement, smManagement, distributionSetTypeManagement,
-                smTypeManagement, distributionSetGridLayoutUiState, dsToProxyDistributionMapper);
+                smTypeManagement, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState,
+                dsToProxyDistributionMapper);
 
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
                 uiNotification, dsWindowBuilder, dsMetaDataWindowBuilder);
@@ -92,6 +93,13 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     }
 
     public void restoreState() {
+        distributionSetGridHeader.restoreState();
+        distributionSetGrid.restoreState();
+
+        restoreGridSelection();
+    }
+
+    private void restoreGridSelection() {
         final Long lastSelectedEntityId = distributionSetGridLayoutUiState.getSelectedDsId();
 
         if (lastSelectedEntityId != null) {

@@ -73,7 +73,6 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
         addHeaderSupports(
                 Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, addHeaderSupport, resizeHeaderSupport));
 
-        restoreHeaderState();
         buildHeader();
     }
 

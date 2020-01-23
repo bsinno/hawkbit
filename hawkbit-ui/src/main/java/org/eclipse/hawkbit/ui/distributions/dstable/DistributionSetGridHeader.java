@@ -76,7 +76,6 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
         addHeaderSupports(
                 Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, addHeaderSupport, resizeHeaderSupport));
 
-        restoreHeaderState();
         buildHeader();
     }
 

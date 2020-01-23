@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Collection;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -43,6 +42,10 @@ public class DistributionSetManagementStateDataProvider
     @Override
     protected Optional<Slice<DistributionSet>> loadBackendEntities(final PageRequest pageRequest,
             final Optional<DsManagementFilterParams> filter) {
+        if (!filter.isPresent()) {
+            return Optional.of(distributionSetManagement.findByCompleted(pageRequest, true));
+        }
+
         return filter.map(filterParams -> {
             final String pinnedTargetControllerId = filterParams.getPinnedTargetControllerId();
             final DistributionSetFilterBuilder distributionSetFilterBuilder = getDistributionSetFilterBuilder(
@@ -59,22 +62,9 @@ public class DistributionSetManagementStateDataProvider
     }
 
     private DistributionSetFilterBuilder getDistributionSetFilterBuilder(final DsManagementFilterParams filterParams) {
-        final String pinnedTargetControllerId = filterParams.getPinnedTargetControllerId();
-        final String searchText = filterParams.getSearchText();
-        final Boolean noTagClicked = filterParams.getIsNoTagClicked();
-        final Collection<String> distributionTags = filterParams.getDistributionSetTags();
-
-        final DistributionSetFilterBuilder distributionSetFilterBuilder = new DistributionSetFilterBuilder()
-                .setIsDeleted(false).setIsComplete(true);
-
-        if (!StringUtils.isEmpty(pinnedTargetControllerId) || !distributionTags.isEmpty()
-                || !StringUtils.isEmpty(searchText) || noTagClicked) {
-            return distributionSetFilterBuilder.setSearchText(searchText).setSelectDSWithNoTag(noTagClicked)
-                    .setTagNames(distributionTags);
-        }
-
-        return distributionSetFilterBuilder;
-
+        return new DistributionSetFilterBuilder().setIsDeleted(false).setIsComplete(true)
+                .setSearchText(filterParams.getSearchText()).setSelectDSWithNoTag(filterParams.isNoTagClicked())
+                .setTagNames(filterParams.getDistributionSetTags());
     }
 
     @Override
@@ -91,7 +81,7 @@ public class DistributionSetManagementStateDataProvider
 
             return distributionSetManagement
                     .findByDistributionSetFilter(pageRequest, distributionSetFilterBuilder.build()).getTotalElements();
-        }).orElse(0L);
+        }).orElse(distributionSetManagement.findByCompleted(pageRequest, true).getTotalElements());
     }
 
 }

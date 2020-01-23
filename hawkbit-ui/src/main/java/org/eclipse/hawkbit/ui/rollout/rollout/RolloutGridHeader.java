@@ -81,7 +81,7 @@ public class RolloutGridHeader extends AbstractGridHeader {
         }
         addHeaderSupports(Arrays.asList(searchHeaderSupport, addHeaderSupport));
 
-        restoreHeaderState();
+        restoreState();
         buildHeader();
     }
 

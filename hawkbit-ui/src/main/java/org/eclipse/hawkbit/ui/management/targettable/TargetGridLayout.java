@@ -90,7 +90,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetGridLayoutEventListener(this, eventBus);
 
-        buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails, countMessageLabel);
+        buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }
 
     public void restoreState() {
@@ -189,6 +189,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     public void minimize() {
         targetGrid.createMinimizedContent();
         showDetailsLayout();
+    }
+
+    public CountMessageLabel getCountMessageLabel() {
+        return countMessageLabel;
     }
 
     public void refreshGrid() {

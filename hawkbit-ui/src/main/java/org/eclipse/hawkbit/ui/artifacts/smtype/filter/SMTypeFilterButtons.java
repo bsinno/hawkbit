@@ -71,8 +71,7 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     public SMTypeFilterButtons(final UIEventBus eventBus, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final UINotification uiNotification,
-            final SmTypeWindowBuilder smTypeWindowBuilder,
-            final TypeToProxyTypeMapper<SoftwareModuleType> smTypeMapper) {
+            final SmTypeWindowBuilder smTypeWindowBuilder) {
         super(eventBus, i18n, uiNotification, permChecker);
 
         this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
@@ -81,8 +80,8 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         this.smTypeWindowBuilder = smTypeWindowBuilder;
 
         this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
-        this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, smTypeMapper)
-                .withConfigurableFilter();
+        this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement,
+                new TypeToProxyTypeMapper<>()).withConfigurableFilter();
 
         init();
     }
@@ -155,5 +154,14 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     @Override
     protected String getFilterButtonIdPrefix() {
         return UIComponentIdProvider.UPLOAD_TYPE_BUTTON_PREFIX;
+    }
+
+    public void restoreState() {
+        final Long lastClickedTypeId = smTypeFilterLayoutUiState.getClickedSmTypeId();
+
+        if (lastClickedTypeId != null) {
+            typeFilterButtonClickBehaviour.setPreviouslyClickedFilterId(lastClickedTypeId);
+            // TODO: should we reset data communicator here for styling update
+        }
     }
 }

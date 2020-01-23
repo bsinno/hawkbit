@@ -12,23 +12,17 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -67,34 +61,7 @@ public class MultipleTargetFilter extends Accordion {
 
         init();
         addTabs();
-        restoreState();
         addSelectedTabChangeListener(event -> selectedTabChanged());
-    }
-
-    private void init() {
-        setSizeFull();
-        addStyleName(ValoTheme.ACCORDION_BORDERLESS);
-    }
-
-    public void selectedTabChanged() {
-        final String selectedTabId = getTab(getSelectedTab()).getId();
-
-        if (UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB.equals(selectedTabId)) {
-            customFilterTab.clearAppliedTargetFilterQuery();
-            targetTagFilterLayoutUiState.setCustomFilterTabSelected(false);
-            eventBus.publish(EventTopics.TARGET_FILTER_TAB_CHANGED, this, TargetFilterTabChangedEventPayload.SIMPLE);
-        } else {
-            // TODO: optimize sending multiple events
-            filterByButtons.clearTargetTagFilters();
-            filterByStatusFooter.clearStatusAndOverdueFilters();
-            targetTagFilterLayoutUiState.setCustomFilterTabSelected(true);
-            eventBus.publish(EventTopics.TARGET_FILTER_TAB_CHANGED, this, TargetFilterTabChangedEventPayload.CUSTOM);
-        }
-    }
-
-    private void addTabs() {
-        addTab(simpleFilterTab).setId(UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB);
-        addTab(customFilterTab).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
     }
 
     private VerticalLayout buildSimpleFilterTab() {
@@ -111,7 +78,7 @@ public class MultipleTargetFilter extends Accordion {
         targetTagGridLayout.setSizeFull();
         targetTagGridLayout.setId(UIComponentIdProvider.TARGET_TAG_DROP_AREA_ID);
 
-        targetTagGridLayout.addComponent(buildNoTagButton());
+        targetTagGridLayout.addComponent(filterByButtons.getNoTagButton());
         targetTagGridLayout.addComponent(filterByButtons);
         targetTagGridLayout.setComponentAlignment(filterByButtons, Alignment.MIDDLE_CENTER);
         targetTagGridLayout.setExpandRatio(filterByButtons, 1.0F);
@@ -125,30 +92,45 @@ public class MultipleTargetFilter extends Accordion {
         return simpleTab;
     }
 
-    private Button buildNoTagButton() {
-        final Button noTagButton = SPUIComponentProvider.getButton(
-                SPUIDefinitions.TARGET_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
-                i18n.getMessage(UIMessageIdProvider.LABEL_NO_TAG),
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
-                SPUITagButtonStyle.class);
-
-        final ProxyTag dummyNoTag = new ProxyTag();
-        dummyNoTag.setNoTag(true);
-
-        noTagButton.addClickListener(
-                event -> filterByButtons.getFilterButtonClickBehaviour().processFilterClick(dummyNoTag));
-
-        return noTagButton;
+    private void init() {
+        setSizeFull();
+        addStyleName(ValoTheme.ACCORDION_BORDERLESS);
     }
 
-    private void restoreState() {
-        if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
-            this.setSelectedTab(customFilterTab);
-            // TODO: add restoreState on targetFilterQueryButtonsTab?
+    private void addTabs() {
+        addTab(simpleFilterTab).setId(UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB);
+        addTab(customFilterTab).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
+    }
+
+    public void selectedTabChanged() {
+        final String selectedTabId = getTab(getSelectedTab()).getId();
+
+        if (UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB.equals(selectedTabId)) {
+            customFilterTab.clearAppliedTargetFilterQuery();
+
+            targetTagFilterLayoutUiState.setCustomFilterTabSelected(false);
+
+            eventBus.publish(EventTopics.TARGET_FILTER_TAB_CHANGED, this, TargetFilterTabChangedEventPayload.SIMPLE);
         } else {
-            this.setSelectedTab(simpleFilterTab);
-            // TODO: add restoreState on filterByButtons and
-            // filterByStatusFooter?
+            filterByButtons.clearTargetTagFilters();
+            filterByStatusFooter.clearStatusAndOverdueFilters();
+
+            targetTagFilterLayoutUiState.setCustomFilterTabSelected(true);
+
+            eventBus.publish(EventTopics.TARGET_FILTER_TAB_CHANGED, this, TargetFilterTabChangedEventPayload.CUSTOM);
+        }
+    }
+
+    public void restoreState() {
+        if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
+            customFilterTab.restoreState();
+
+            setSelectedTab(customFilterTab);
+        } else {
+            filterByButtons.restoreState();
+            filterByStatusFooter.restoreState();
+
+            setSelectedTab(simpleFilterTab);
         }
     }
 

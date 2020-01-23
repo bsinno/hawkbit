@@ -92,7 +92,8 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
 
         this.targetFilterDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.filter.custom"),
-                permChecker, notification, this::targetFiltersDeletionCallback);
+                permChecker, notification, this::targetFiltersDeletionCallback,
+                UIComponentIdProvider.TARGET_FILTER_DELETE_CONFIRMATION_DIALOG);
 
         initActionTypeIconMap();
         init();

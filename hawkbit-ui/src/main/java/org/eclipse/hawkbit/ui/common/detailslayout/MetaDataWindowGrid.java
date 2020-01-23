@@ -52,7 +52,8 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> {
         this.metaDataDataProvider = dataProvider.withConfigurableFilter();
 
         this.metaDataDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.metadata"),
-                permissionChecker, notification, itemsDeletionCallback);
+                permissionChecker, notification, itemsDeletionCallback,
+                UIComponentIdProvider.METADATA_DELETE_CONFIRMATION_DIALOG);
 
         // TODO: we don't need to send selection events, because details layout
         // is part of MetaData Window

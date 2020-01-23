@@ -87,7 +87,6 @@ public class FilterByStatusLayout extends VerticalLayout {
 
         init();
         buildLayout();
-        restoreState();
     }
 
     private Button buildStatusButton(final TargetUpdateStatus status, final String id, final String descriptionMsgKey,
@@ -215,44 +214,39 @@ public class FilterByStatusLayout extends VerticalLayout {
         return overdueLayout;
     }
 
-    private void restoreState() {
-        if (!CollectionUtils.isEmpty(targetTagFilterLayoutUiState.getClickedTargetUpdateStatusFilters())) {
-            activeStatusFilters.clear();
-            activeStatusFilters.addAll(targetTagFilterLayoutUiState.getClickedTargetUpdateStatusFilters());
-            addActiveStatusStyles();
-
-            publishStatusFilterChangedEvent();
-        }
-
-        if (targetTagFilterLayoutUiState.isOverdueFilterClicked()) {
-            isOverdueFilterActive = true;
-            overdue.addStyleName(BTN_CLICKED_STYLE);
-
-            publishOverdueFilterChangedEvent();
-        }
-    }
-
-    private void addActiveStatusStyles() {
-        activeStatusFilters.forEach(status -> statusToButtonMap.get(status).addStyleName(BTN_CLICKED_STYLE));
-    }
-
     public void clearStatusAndOverdueFilters() {
         if (!activeStatusFilters.isEmpty()) {
-            activeStatusFilters.clear();
             removeActiveStatusStyles();
-
-            publishStatusFilterChangedEvent();
+            activeStatusFilters.clear();
         }
 
         if (isOverdueFilterActive) {
-            isOverdueFilterActive = false;
             overdue.removeStyleName(BTN_CLICKED_STYLE);
-
-            publishOverdueFilterChangedEvent();
+            isOverdueFilterActive = false;
         }
     }
 
     private void removeActiveStatusStyles() {
         activeStatusFilters.forEach(status -> statusToButtonMap.get(status).removeStyleName(BTN_CLICKED_STYLE));
+    }
+
+    public void restoreState() {
+        final List<TargetUpdateStatus> statusFiltersToRestore = targetTagFilterLayoutUiState
+                .getClickedTargetUpdateStatusFilters();
+
+        if (!CollectionUtils.isEmpty(statusFiltersToRestore)) {
+            activeStatusFilters.clear();
+            activeStatusFilters.addAll(statusFiltersToRestore);
+            addActiveStatusStyles();
+        }
+
+        if (targetTagFilterLayoutUiState.isOverdueFilterClicked()) {
+            isOverdueFilterActive = true;
+            overdue.addStyleName(BTN_CLICKED_STYLE);
+        }
+    }
+
+    private void addActiveStatusStyles() {
+        activeStatusFilters.forEach(status -> statusToButtonMap.get(status).addStyleName(BTN_CLICKED_STYLE));
     }
 }

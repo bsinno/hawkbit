@@ -73,7 +73,7 @@ public class TargetFilterGridHeader extends AbstractGridHeader {
         }
         addHeaderSupports(Arrays.asList(searchHeaderSupport, addHeaderSupport));
 
-        restoreHeaderState();
+        restoreState();
         buildHeader();
     }
 

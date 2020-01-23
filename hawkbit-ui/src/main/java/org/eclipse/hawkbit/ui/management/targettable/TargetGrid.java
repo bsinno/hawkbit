@@ -124,7 +124,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 targetGridLayoutUiState::setPinnedTargetId);
 
         this.targetDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("target.details.header"),
-                permChecker, notification, this::deleteTargets);
+                permChecker, notification, this::deleteTargets,
+                UIComponentIdProvider.TARGET_DELETE_CONFIRMATION_DIALOG);
 
         final Map<String, AssignmentSupport<?, ProxyTarget>> sourceTargetAssignmentStrategies = new HashMap<>();
 

@@ -53,9 +53,9 @@ public class TargetManagementStateDataProvider
             final Long pinnedDistId = filterParams.getPinnedDistId();
             final String searchText = filterParams.getSearchText();
             final Collection<TargetUpdateStatus> targetUpdateStatusList = filterParams.getTargetUpdateStatusList();
-            final Boolean overdueState = filterParams.getOverdueState();
+            final boolean overdueState = filterParams.isOverdueState();
             final Long distributionId = filterParams.getDistributionId();
-            final Boolean noTagClicked = filterParams.getNoTagClicked();
+            final boolean noTagClicked = filterParams.isNoTagClicked();
             final String[] targetTags = filterParams.getTargetTags();
             final Long targetFilterQueryId = filterParams.getTargetFilterQueryId();
 
@@ -79,9 +79,9 @@ public class TargetManagementStateDataProvider
         return filter.map(filterParams -> {
             final String searchText = filterParams.getSearchText();
             final Collection<TargetUpdateStatus> targetUpdateStatusList = filterParams.getTargetUpdateStatusList();
-            final Boolean overdueState = filterParams.getOverdueState();
+            final boolean overdueState = filterParams.isOverdueState();
             final Long distributionId = filterParams.getDistributionId();
-            final Boolean noTagClicked = filterParams.getNoTagClicked();
+            final boolean noTagClicked = filterParams.isNoTagClicked();
             final String[] targetTags = filterParams.getTargetTags();
             final Long targetFilterQueryId = filterParams.getTargetFilterQueryId();
 

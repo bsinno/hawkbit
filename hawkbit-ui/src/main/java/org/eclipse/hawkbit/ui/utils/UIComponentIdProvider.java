@@ -1331,6 +1331,41 @@ public final class UIComponentIdProvider {
     public static final String ROLLOUT_DELETE_CONFIRMATION_DIALOG = "rollout.delete.confirmation.window";
 
     /**
+     * Id of the target filter deletion confirmation window
+     */
+    public static final String TARGET_FILTER_DELETE_CONFIRMATION_DIALOG = "target.filter.delete.confirmation.window";
+
+    /**
+     * Id of the artifact deletion confirmation window
+     */
+    public static final String ARTIFACT_DELETE_CONFIRMATION_DIALOG = "artifact.delete.confirmation.window";
+
+    /**
+     * Id of the software module deletion confirmation window
+     */
+    public static final String SM_DELETE_CONFIRMATION_DIALOG = "sm.delete.confirmation.window";
+
+    /**
+     * Id of the metadata deletion confirmation window
+     */
+    public static final String METADATA_DELETE_CONFIRMATION_DIALOG = "metadata.delete.confirmation.window";
+
+    /**
+     * Id of the tag/type button deletion confirmation window
+     */
+    public static final String FILTER_BUTTON_DELETE_CONFIRMATION_DIALOG = "filter.button.delete.confirmation.window";
+
+    /**
+     * Id of the distribution set deletion confirmation window
+     */
+    public static final String DS_DELETE_CONFIRMATION_DIALOG = "ds.delete.confirmation.window";
+
+    /**
+     * Id of the target deletion confirmation window
+     */
+    public static final String TARGET_DELETE_CONFIRMATION_DIALOG = "target.delete.confirmation.window";
+
+    /**
      * Details header caption id of the Artifacts Table
      */
     public static final String ARTIFACT_DETAILS_HEADER_LABEL_ID = "artifact.details.header.caption";
@@ -1384,7 +1419,11 @@ public final class UIComponentIdProvider {
      */
     public static final String UPLOAD_STATUS_POPUP_MINIMIZE_BUTTON_ID = "artifact.upload.minimize.button.id";
 
-    public static final String SAVE_ACTION_RADIO_FORCED = "save.action.radio.forced";
+    public static final String DEPLOYMENT_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID = "deployment.assignment.action.type.options.id";
+
+    public static final String AUTO_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID = "auto.assignment.action.type.options.id";
+
+    public static final String ROLLOUT_ACTION_TYPE_OPTIONS_ID = "rollout.action.type.options.id";
 
     public static final String SM_TYPE_COLOR_STYLE = "sm-type-colors";
 

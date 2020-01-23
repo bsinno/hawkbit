@@ -79,7 +79,7 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         this.updateTargetFilterController = new UpdateTargetFilterController(i18n, entityFactory, eventBus,
                 uiNotification, targetFilterManagement, targetFilterAddUpdateLayout, this::closeDetails);
 
-        restoreHeaderState();
+        restoreState();
         buildHeader();
     }
 

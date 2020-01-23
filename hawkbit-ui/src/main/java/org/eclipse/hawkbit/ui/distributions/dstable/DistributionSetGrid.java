@@ -37,6 +37,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.SwModulesToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.distributions.DistributionsView;
+import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -67,6 +68,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private static final String DS_DESC_ID = "dsDescription";
     private static final String DS_DELETE_BUTTON_ID = "dsDeleteButton";
 
+    private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
     private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
     private final transient DistributionSetManagement dsManagement;
 
@@ -81,10 +83,12 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
             final TargetManagement targetManagement, final DistributionSetManagement dsManagement,
             final SoftwareModuleManagement smManagement, final DistributionSetTypeManagement dsTypeManagement,
             final SoftwareModuleTypeManagement smTypeManagement,
+            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState,
             final DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper) {
         super(i18n, eventBus, permissionChecker);
 
+        this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
         this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
         this.dsManagement = dsManagement;
 
@@ -103,7 +107,8 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         }
 
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
-                permissionChecker, notification, this::deleteDistributionSets);
+                permissionChecker, notification, this::deleteDistributionSets,
+                UIComponentIdProvider.DS_DELETE_CONFIRMATION_DIALOG);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
         final SwModulesToDistributionSetAssignmentSupport swModulesToDsAssignment = new SwModulesToDistributionSetAssignmentSupport(
@@ -236,6 +241,15 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         actionButton.addStyleName(style);
 
         return actionButton;
+    }
+
+    public void restoreState() {
+        final String searchFilter = distributionSetGridLayoutUiState.getSearchFilter();
+        dsFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+
+        dsFilter.setDsTypeId(dSTypeFilterLayoutUiState.getClickedDsTypeId());
+
+        getFilterDataProvider().setFilter(dsFilter);
     }
 
     /**

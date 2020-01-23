@@ -37,7 +37,6 @@ public class SMTypeFilterHeader extends AbstractFilterHeader {
         this.smTypeWindowBuilder = smTypeWindowBuilder;
 
         buildHeader();
-        restoreHeaderState();
     }
 
     @Override

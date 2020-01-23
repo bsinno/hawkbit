@@ -57,7 +57,7 @@ public class DistributionGridHeader extends AbstractGridHeader {
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
         addHeaderSupports(Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, resizeHeaderSupport));
 
-        restoreHeaderState();
+        restoreState();
         buildHeader();
     }
 

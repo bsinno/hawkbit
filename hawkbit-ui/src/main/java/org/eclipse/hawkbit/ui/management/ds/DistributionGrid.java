@@ -116,7 +116,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
                 () -> setStyleGenerator(item -> null), this::getPinnedDsIdFromUiState, this::setPinnedDsIdInUiState);
 
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
-                permissionChecker, notification, this::deleteDistributionSets);
+                permissionChecker, notification, this::deleteDistributionSets,
+                UIComponentIdProvider.DS_DELETE_CONFIRMATION_DIALOG);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
 
@@ -192,7 +193,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     public void updateNoTagFilter(final boolean isNoTagClicked) {
-        dsFilter.setIsNoTagClicked(isNoTagClicked);
+        dsFilter.setNoTagClicked(isNoTagClicked);
         getFilterDataProvider().setFilter(dsFilter);
     }
 

@@ -92,7 +92,6 @@ public class UploadProgressButtonLayout extends VerticalLayout {
 
         createComponents();
         buildLayout();
-        restoreState();
     }
 
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {

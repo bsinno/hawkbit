@@ -140,9 +140,9 @@ public class CountMessageLabel extends AbstractFooterSupport {
             final StringBuilder filterMesgBuf = new StringBuilder(i18n.getMessage("label.filter"));
             filterMesgBuf.append(" ");
             filterMesgBuf.append(getStatusMsg(targetFilterParams.getTargetUpdateStatusList(), status));
-            filterMesgBuf.append(getOverdueStateMsg(targetFilterParams.getOverdueState(), overdue));
+            filterMesgBuf.append(getOverdueStateMsg(targetFilterParams.isOverdueState(), overdue));
             filterMesgBuf
-                    .append(getTagsMsg(targetFilterParams.getNoTagClicked(), targetFilterParams.getTargetTags(), tags));
+                    .append(getTagsMsg(targetFilterParams.isNoTagClicked(), targetFilterParams.getTargetTags(), tags));
             filterMesgBuf.append(!StringUtils.isEmpty(targetFilterParams.getSearchText()) ? text : " ");
             filterMesgBuf.append(targetFilterParams.getDistributionId() != null ? dists : " ");
             filterMesgBuf.append(targetFilterParams.getTargetFilterQueryId() != null ? custom : " ");

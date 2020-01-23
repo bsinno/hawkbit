@@ -58,6 +58,8 @@ public final class SPUIStyleDefinitions {
 
     public static final String SP_FILTER_BTN_CLICKED_STYLE = "filter-btn-clicked";
 
+    public static final String SP_NO_TAG_BTN_CLICKED_STYLE = "no-tag-btn-clicked";
+
     public static final String SOFTWARE_MODULE_EDIT_WINDOW = "sw-edit-window";
 
     /**

@@ -44,4 +44,9 @@ public abstract class AbstractFilterMultiButtonClick<T extends ProxyNamedEntity>
         return !previouslyClickedFilterIdsWithName.isEmpty()
                 && previouslyClickedFilterIdsWithName.containsKey(clickedFilter.getId());
     }
+
+    public void setPreviouslyClickedFilterIdsWithName(final Map<Long, String> idsWithName) {
+        this.previouslyClickedFilterIdsWithName.clear();
+        this.previouslyClickedFilterIdsWithName.putAll(idsWithName);
+    }
 }

@@ -27,14 +27,18 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
 
     protected RadioButtonGroup<ActionType> actionTypeOptionGroup;
 
+    private final String actionTypeOptionGroupId;
+
     /**
      * Constructor
      * 
      * @param i18n
      *            VaadinMessageSource
      */
-    protected AbstractActionTypeOptionGroupLayout(final VaadinMessageSource i18n) {
+    protected AbstractActionTypeOptionGroupLayout(final VaadinMessageSource i18n,
+            final String actionTypeOptionGroupId) {
         this.i18n = i18n;
+        this.actionTypeOptionGroupId = actionTypeOptionGroupId;
         init();
     }
 
@@ -48,6 +52,7 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
 
     private void createOptionGroup() {
         actionTypeOptionGroup = new RadioButtonGroup<>();
+        actionTypeOptionGroup.setId(actionTypeOptionGroupId);
         actionTypeOptionGroup.setSizeFull();
         actionTypeOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
 

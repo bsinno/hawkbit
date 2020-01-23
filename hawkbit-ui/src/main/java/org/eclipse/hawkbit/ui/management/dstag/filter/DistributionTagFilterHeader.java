@@ -36,7 +36,7 @@ public class DistributionTagFilterHeader extends AbstractFilterHeader {
         this.dsTagWindowBuilder = dsTagWindowBuilder;
 
         buildHeader();
-        restoreHeaderState();
+        restoreState();
     }
 
     @Override

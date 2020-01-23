@@ -193,7 +193,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     public ActionTypeOptionGroupAssignmentLayout createActionTypeOptionGroupLayout(
             final Binder<ProxyRolloutWindow> binder) {
         final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout = new ActionTypeOptionGroupAssignmentLayout(
-                dependencies.getI18n());
+                dependencies.getI18n(), UIComponentIdProvider.ROLLOUT_ACTION_TYPE_OPTIONS_ID);
         // TODO: check if it is needed
         actionTypeOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ROLLOUT_ACTION_TYPE_LAYOUT);
 

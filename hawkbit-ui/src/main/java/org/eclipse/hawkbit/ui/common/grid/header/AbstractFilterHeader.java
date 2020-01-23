@@ -105,11 +105,11 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
 
     protected abstract void updateHiddenUiState();
 
-    protected void enableCrudMenu() {
+    public void enableCrudMenu() {
         crudMenuHeaderSupport.enableCrudMenu();
     }
 
-    protected void disableCrudMenu() {
+    public void disableCrudMenu() {
         crudMenuHeaderSupport.disableCrudMenu();
     }
 }

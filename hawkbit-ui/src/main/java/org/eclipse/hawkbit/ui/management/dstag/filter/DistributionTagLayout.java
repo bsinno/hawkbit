@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.dstag.filter;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -28,7 +27,6 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Alignment;
@@ -139,11 +137,13 @@ public class DistributionTagLayout extends AbstractFilterLayout {
     }
 
     public void restoreState() {
-        final Set<Long> lastClickedTagIds = distributionTagLayoutUiState.getClickedDsTagIds();
-
-        if (!CollectionUtils.isEmpty(lastClickedTagIds)) {
-            mapIdsToProxyEntities(lastClickedTagIds).forEach(distributionTagButtons::selectFilter);
-        }
+        // TODO
+        // final Set<Long> lastClickedTagIds =
+        // distributionTagLayoutUiState.getClickedDsTagIds();
+        //
+        // if (!CollectionUtils.isEmpty(lastClickedTagIds)) {
+        // mapIdsToProxyEntities(lastClickedTagIds).forEach(distributionTagButtons::selectFilter);
+        // }
     }
 
     // TODO: extract to parent abstract #mapIdsToProxyEntities?

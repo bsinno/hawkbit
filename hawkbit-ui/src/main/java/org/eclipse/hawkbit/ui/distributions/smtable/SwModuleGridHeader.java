@@ -76,7 +76,6 @@ public class SwModuleGridHeader extends AbstractGridHeader {
         addHeaderSupports(
                 Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, addHeaderSupport, resizeHeaderSupport));
 
-        restoreHeaderState();
         buildHeader();
     }
 

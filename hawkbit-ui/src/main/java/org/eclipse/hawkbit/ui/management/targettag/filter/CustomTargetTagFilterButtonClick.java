@@ -46,4 +46,8 @@ public class CustomTargetTagFilterButtonClick extends AbstractFilterSingleButton
     void clearPreviouslyClickedFilter() {
         previouslyClickedFilterId = null;
     }
+
+    boolean isFilterClicked() {
+        return previouslyClickedFilterId != null;
+    }
 }
