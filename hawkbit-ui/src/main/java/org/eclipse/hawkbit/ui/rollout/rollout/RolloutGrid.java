@@ -250,26 +250,26 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     @Override
     public void addColumns() {
         addComponentColumn(this::buildRolloutLink).setId(ROLLOUT_LINK_ID).setCaption(i18n.getMessage("header.name"))
-                .setHidable(true).setExpandRatio(3);
+                .setHidable(true).setExpandRatio(12);
 
         addColumn(ProxyRollout::getDistributionSetNameVersion).setId(DIST_NAME_VERSION_ID)
-                .setCaption(i18n.getMessage("header.distributionset")).setHidable(true).setExpandRatio(3);
+                .setCaption(i18n.getMessage("header.distributionset")).setHidable(true).setExpandRatio(12);
 
         addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
-                .setHidable(true).setExpandRatio(1);
+                .setHidable(true).setExpandRatio(2);
 
         addComponentColumn(this::buildTypeIcon).setId(ACTION_TYPE_ID).setCaption(i18n.getMessage("header.type"))
-                .setExpandRatio(1).setHidable(true).setHidden(true);
+                .setExpandRatio(2).setHidable(true).setHidden(true);
 
         addColumn(rollout -> DistributionBarHelper.getDistributionBarAsHTMLString(rollout.getStatusTotalCountMap()),
                 new HtmlRenderer()).setId(TOTAL_TARGETS_COUNT_STATUS_ID)
-                        .setCaption(i18n.getMessage("header.detail.status")).setHidable(true).setExpandRatio(5);
+                        .setCaption(i18n.getMessage("header.detail.status")).setHidable(true).setExpandRatio(60);
 
         addColumn(ProxyRollout::getNumberOfGroups).setId(NUMBER_OF_GROUPS_ID)
-                .setCaption(i18n.getMessage("header.numberofgroups")).setHidable(true).setExpandRatio(1);
+                .setCaption(i18n.getMessage("header.numberofgroups")).setHidable(true).setExpandRatio(2);
 
         addColumn(ProxyRollout::getTotalTargets).setId(TOTAL_TARGETS_ID)
-                .setCaption(i18n.getMessage("header.total.targets")).setHidable(true).setExpandRatio(1);
+                .setCaption(i18n.getMessage("header.total.targets")).setHidable(true).setExpandRatio(2);
 
         addActionColumns();
 
@@ -324,33 +324,33 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                 clickEvent -> startOrResumeRollout(rollout.getId(), rollout.getName(), rollout.getStatus()),
                 VaadinIcons.PLAY, UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN,
                 isStartingAndResumingAllowed(rollout.getStatus()), UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID))
-                        .setId(RUN_BUTTON_ID).setCaption(i18n.getMessage("header.action.run")).setHidable(false);
+                        .setId(RUN_BUTTON_ID).setCaption(i18n.getMessage("header.action.run")).setHidable(false).setExpandRatio(1);
 
         addComponentColumn(rollout -> buildActionButton(clickEvent -> approveRollout(rollout), VaadinIcons.HANDSHAKE,
                 UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE, isApprovingAllowed(rollout.getStatus()),
                 UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID)).setId(APPROVE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.approve")).setHidable(false);
+                        .setCaption(i18n.getMessage("header.action.approve")).setHidable(false).setExpandRatio(1);
 
         addComponentColumn(rollout -> buildActionButton(
                 clickEvent -> pauseRollout(rollout.getId(), rollout.getName(), rollout.getStatus()), VaadinIcons.PAUSE,
                 UIMessageIdProvider.TOOLTIP_ROLLOUT_PAUSE, isPausingAllowed(rollout.getStatus()),
                 UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID)).setId(PAUSE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.pause")).setHidable(false);
+                        .setCaption(i18n.getMessage("header.action.pause")).setHidable(false).setExpandRatio(1);
 
         addComponentColumn(rollout -> buildActionButton(clickEvent -> updateRollout(rollout), VaadinIcons.EDIT,
                 UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE, isEditingAllowed(rollout.getStatus()),
                 UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID)).setId(UPDATE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.update")).setHidable(false);
+                        .setCaption(i18n.getMessage("header.action.update")).setHidable(false).setExpandRatio(1);
 
         addComponentColumn(rollout -> buildActionButton(clickEvent -> copyRollout(rollout), VaadinIcons.COPY,
                 UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY, isCopyingAllowed(rollout.getStatus()),
                 UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID)).setId(COPY_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.copy")).setHidable(false);
+                        .setCaption(i18n.getMessage("header.action.copy")).setHidable(false).setExpandRatio(1);
 
         addComponentColumn(rollout -> buildActionButton(clickEvent -> deleteRollout(rollout.getId(), rollout.getName()),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, isDeletionAllowed(rollout.getStatus()),
                 UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID)).setId(DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete")).setHidable(false);
+                        .setCaption(i18n.getMessage("header.action.delete")).setHidable(false).setExpandRatio(1);
 
         getDefaultHeaderRow().join(RUN_BUTTON_ID, APPROVE_BUTTON_ID, PAUSE_BUTTON_ID, UPDATE_BUTTON_ID, COPY_BUTTON_ID,
                 DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));

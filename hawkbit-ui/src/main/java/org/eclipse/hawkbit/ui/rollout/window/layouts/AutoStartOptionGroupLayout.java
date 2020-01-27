@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.RadioButtonGroup;
@@ -51,6 +52,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
     private void createOptionGroup() {
         autoStartOptionGroup = new RadioButtonGroup<>();
         autoStartOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
+        autoStartOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
         autoStartOptionGroup.setItemIconGenerator(item -> {
             switch (item) {
             case MANUAL:
@@ -99,8 +101,10 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
         startAtDateField.setZoneId(SPDateTimeUtil.getTimeZoneId(tz));
         startAtDateField.setLocale(HawkbitCommonUtil.getCurrentLocale());
         startAtDateField.setResolution(DateTimeResolution.MINUTE);
-        startAtDateField.addStyleName(ValoTheme.DATEFIELD_SMALL);
+        startAtDateField.addStyleName(ValoTheme.DATEFIELD_TINY);
+        startAtDateField.setWidth("14em");
         addComponent(startAtDateField);
+        setComponentAlignment(startAtDateField, Alignment.MIDDLE_LEFT);
     }
 
     private void addValueChangeListener() {
