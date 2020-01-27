@@ -9,11 +9,13 @@
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
@@ -26,7 +28,6 @@ import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -46,6 +47,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.cronutils.utils.StringUtils;
+import com.google.common.base.Predicates;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
@@ -87,6 +89,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
     private final transient RolloutManagement rolloutManagement;
+    private final transient RolloutGroupManagement rolloutGroupManagement;
     private final transient TenantConfigurationManagement tenantConfigManagement;
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
     private final UINotification uiNotification;
@@ -94,11 +97,13 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private final RolloutLayoutUIState uiState;
 
     RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final RolloutManagement rolloutManagement,
-            final UINotification uiNotification, final RolloutLayoutUIState uiState,
-            final SpPermissionChecker permissionChecker, final TenantConfigurationManagement tenantConfigManagement,
+            final RolloutGroupManagement rolloutGroupManagement, final UINotification uiNotification,
+            final RolloutLayoutUIState uiState, final SpPermissionChecker permissionChecker,
+            final TenantConfigurationManagement tenantConfigManagement,
             final RolloutWindowBuilder rolloutWindowBuilder) {
         super(i18n, eventBus, permissionChecker);
         this.rolloutManagement = rolloutManagement;
+        this.rolloutGroupManagement = rolloutGroupManagement;
         this.tenantConfigManagement = tenantConfigManagement;
         this.uiNotification = uiNotification;
         this.uiState = uiState;
@@ -151,6 +156,22 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     public void setFilter(final String filter) {
         uiState.setSearchText(filter);
         filter(filter);
+    }
+
+    public void updateGridItems(final Collection<Long> ids) {
+        ids.stream().filter(Predicates.notNull()).map(rolloutManagement::getWithDetailedStatus)
+                .forEach(rollout -> rollout.ifPresent(this::updateGridItem));
+    }
+
+    private void updateGridItem(final Rollout rollout) {
+        final ProxyRollout proxyRollout = RolloutToProxyRolloutMapper.mapRollout(rollout);
+
+        if (rollout.getRolloutGroupsCreated() == 0) {
+            final Long groupsCount = rolloutGroupManagement.countByRollout(rollout.getId());
+            proxyRollout.setNumberOfGroups(groupsCount.intValue());
+        }
+
+        getDataProvider().refreshItem(proxyRollout);
     }
 
     private void filter(String filter) {
@@ -377,8 +398,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private void onClickOfRolloutName(final Long rolloutId, final String rolloutName) {
-        eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this, new ShowDetailsEventPayload(
-                ProxyRolloutGroup.class, ProxyRollout.class, rolloutId, rolloutName, View.ROLLOUT));
+        eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this,
+                new ShowDetailsEventPayload(ProxyRollout.class, rolloutId, rolloutName, View.ROLLOUT));
     }
 
     private void pauseRollout(final Long rolloutId, final String rolloutName, final RolloutStatus rolloutStatus) {

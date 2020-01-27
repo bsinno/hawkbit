@@ -10,21 +10,17 @@ package org.eclipse.hawkbit.ui.push;
 
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
+import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 
-/**
- * EventHolder for {@link RolloutGroupChangedEvent}s.
- *
- */
-public class RolloutGroupChangedEventContainer implements EventContainer<RolloutGroupChangedEvent> {
-    private final List<RolloutGroupChangedEvent> events;
+public class RolloutChangedEventContainer implements EventContainer<RolloutChangedEvent> {
+    private final List<RolloutChangedEvent> events;
 
-    RolloutGroupChangedEventContainer(final List<RolloutGroupChangedEvent> events) {
+    RolloutChangedEventContainer(final List<RolloutChangedEvent> events) {
         this.events = events;
     }
 
     @Override
-    public List<RolloutGroupChangedEvent> getEvents() {
+    public List<RolloutChangedEvent> getEvents() {
         return events;
     }
 

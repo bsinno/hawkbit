@@ -1,12 +1,24 @@
+/**
+ * Copyright (c) 2020 Bosch.IO GmbH, Germany. All rights reserved.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.push.RolloutGroupChangedEventContainer;
+import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
 import org.eclipse.hawkbit.ui.common.event.ShowDetailsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -41,7 +53,7 @@ public class RolloutGroupGridLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new ShowRolloutGroupsLayoutListener());
-        // TODO: add entityModified listener for group change
+        eventListeners.add(new RolloutGroupChanhedListener());
     }
 
     private class ShowRolloutGroupsLayoutListener {
@@ -51,15 +63,31 @@ public class RolloutGroupGridLayoutEventListener {
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onShowDetailsEvent(final ShowDetailsEventPayload eventPayload) {
-            if (eventPayload.getView() != View.ROLLOUT || eventPayload.getEntityType() != ProxyRolloutGroup.class) {
+            if (eventPayload.getView() != View.ROLLOUT || eventPayload.getEntityType() != ProxyRollout.class) {
                 return;
             }
 
-            rolloutGroupGridLayout.showGroupsForRollout(eventPayload.getParentEntityId(),
-                    eventPayload.getParentEntityName());
+            rolloutGroupGridLayout.showGroupsForRollout(eventPayload.getEntityId(), eventPayload.getEntityName());
 
             eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
                     VisibilityType.SHOW, rolloutGroupGridLayout.getLayout(), View.ROLLOUT));
+        }
+    }
+    
+    private class RolloutGroupChanhedListener {
+        public RolloutGroupChanhedListener() {
+            eventBus.subscribe(this, EventTopics.REMOTE_EVENT_RECEIVED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onRolloutChanged(final RolloutGroupChangedEventContainer container) {
+            Long currentRolloutId = rolloutGroupGridLayout.getCurrentParentRolloutId();
+            if (currentRolloutId != null) {
+                List<Long> idsToUpdate = container.getEvents().stream()
+                        .filter(event -> currentRolloutId.equals(event.getRolloutId()))
+                        .map(RolloutGroupChangedEvent::getRolloutGroupId).collect(Collectors.toList());
+                rolloutGroupGridLayout.refreshGridItems(idsToUpdate);
+            }
         }
     }
 

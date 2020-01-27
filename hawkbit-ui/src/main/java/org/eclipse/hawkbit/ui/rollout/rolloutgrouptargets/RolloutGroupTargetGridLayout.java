@@ -24,16 +24,17 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
 
     private final RolloutGroupTargetGridHeader rolloutGroupTargetsListHeader;
     private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
+    private final RolloutGroupTargetLayoutUIState uiState;
     private final transient TargetFilterCountMessageLabel rolloutGroupTargetCountMessageLabel;
 
     private final transient RolloutGroupTargetGridLayoutEventListener eventListener;
 
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final RolloutGroupManagement rolloutGroupManagement, final RolloutGroupTargetLayoutUIState rolloutUIState) {
-        this.rolloutGroupTargetsListHeader = new RolloutGroupTargetGridHeader(eventBus, i18n, rolloutUIState);
-        this.rolloutGroupTargetsListGrid = new RolloutGroupTargetGrid(i18n, eventBus, rolloutGroupManagement,
-                rolloutUIState);
+            final RolloutGroupManagement rolloutGroupManagement, final RolloutGroupTargetLayoutUIState uiState) {
+        this.rolloutGroupTargetsListHeader = new RolloutGroupTargetGridHeader(eventBus, i18n, uiState);
+        this.rolloutGroupTargetsListGrid = new RolloutGroupTargetGrid(i18n, eventBus, rolloutGroupManagement, uiState);
         this.rolloutGroupTargetCountMessageLabel = new TargetFilterCountMessageLabel(i18n);
+        this.uiState = uiState;
 
         initGridDataUpdatedListener();
 
@@ -48,13 +49,22 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
                         .updateTotalFilteredTargetsCount(rolloutGroupTargetsListGrid.getDataSize()));
     }
 
-    public void updateRolloutNameCaption(final String rolloutName) {
+    public void showTargetsForGroup(final Long groupId, final String groupName, final String rolloutName) {
+        uiState.setSelectedRolloutGroupId(groupId);
+        uiState.setParentRolloutName(rolloutName);
+        uiState.setSelectedRolloutGroupName(groupName);
         rolloutGroupTargetsListHeader.setRolloutName(rolloutName);
+        rolloutGroupTargetsListHeader.setRolloutGroupName(groupName);
+        rolloutGroupTargetsListGrid.updateMasterEntityFilter(groupId);
     }
 
-    public void showTargetsForGroup(final Long parentEntityId, final String parentEntityName) {
-        rolloutGroupTargetsListHeader.setRolloutGroupName(parentEntityName);
-        rolloutGroupTargetsListGrid.updateMasterEntityFilter(parentEntityId);
+    public Long getCurrentRolloutGroupId() {
+        return uiState.getSelectedRolloutGroupId();
+    }
+
+    public void restoreState() {
+        showTargetsForGroup(uiState.getSelectedRolloutGroupId(), uiState.getSelectedRolloutGroupName(),
+                uiState.getParentRolloutName());
     }
 
     public Layout getLayout() {

@@ -22,9 +22,6 @@ import org.eclipse.hawkbit.ui.push.DistributionSetTypeDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.DistributionSetTypeUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.push.DistributionSetUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.push.EventContainer;
-import org.eclipse.hawkbit.ui.push.RolloutCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.RolloutDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.RolloutUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleCreatedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleTypeCreatedEventContainer;
@@ -40,7 +37,7 @@ import com.google.common.collect.Maps;
 
 public class RemoteEventsMatcher {
     private static final Map<Class<? extends EventContainer<?>>, EntityModifiedEventPayloadIdentifier> EVENT_MATCHERS = Maps
-            .newHashMapWithExpectedSize(21);
+            .newHashMapWithExpectedSize(18);
 
     private RemoteEventsMatcher() {
     }
@@ -87,13 +84,6 @@ public class RemoteEventsMatcher {
                 TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "tqf.updated"));
         EVENT_MATCHERS.put(TargetFilterQueryDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
                 TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "tqf.deleted"));
-
-        EVENT_MATCHERS.put(RolloutCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                RolloutModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "rollout.created"));
-        EVENT_MATCHERS.put(RolloutUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                RolloutModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "rollout.updated"));
-        EVENT_MATCHERS.put(RolloutDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                RolloutModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "rollout.deleted"));
     }
 
     public static Map<Class<? extends EventContainer<?>>, EntityModifiedEventPayloadIdentifier> getEventMatchers() {

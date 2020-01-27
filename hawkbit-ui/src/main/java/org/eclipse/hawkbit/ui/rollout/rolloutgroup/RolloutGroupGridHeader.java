@@ -66,7 +66,6 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
     }
 
     public void setRolloutName(final String rolloutName) {
-        uiState.setSelectedRolloutName(rolloutName);
         headerCaptionDetails.setValue(rolloutName);
     }
 

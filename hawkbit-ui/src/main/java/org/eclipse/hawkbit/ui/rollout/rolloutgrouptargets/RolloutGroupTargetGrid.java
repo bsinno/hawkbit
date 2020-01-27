@@ -181,8 +181,6 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
     }
 
     public void updateMasterEntityFilter(final Long masterEntityId) {
-        rolloutUIState.setSelectedRolloutGroupId(masterEntityId);
-
         getFilterDataProvider().setFilter(masterEntityId);
     }
 }

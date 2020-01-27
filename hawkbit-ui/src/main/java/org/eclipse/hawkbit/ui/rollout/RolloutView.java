@@ -144,6 +144,7 @@ public class RolloutView extends VerticalLayout implements View {
         default:
             break;
         }
-        // TODO restoreStates
+        rolloutGroupsLayout.restoreState();
+        rolloutGroupTargetsLayout.restoreState();
     }
 }

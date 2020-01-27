@@ -13,8 +13,18 @@ import java.io.Serializable;
 public class RolloutGroupTargetLayoutUIState implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private String parentRolloutName;
+
     private Long selectedRolloutGroupId;
     private String selectedRolloutGroupName;
+
+    public String getParentRolloutName() {
+        return parentRolloutName;
+    }
+
+    public void setParentRolloutName(final String parentRolloutName) {
+        this.parentRolloutName = parentRolloutName;
+    }
 
     public Long getSelectedRolloutGroupId() {
         return selectedRolloutGroupId;

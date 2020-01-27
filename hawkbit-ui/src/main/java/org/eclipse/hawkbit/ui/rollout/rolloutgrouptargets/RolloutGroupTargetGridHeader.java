@@ -76,6 +76,7 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
     }
 
     private void closeRolloutGroupTargets() {
+        rolloutUIState.setParentRolloutName("");
         rolloutUIState.setSelectedRolloutGroupId(null);
         rolloutUIState.setSelectedRolloutGroupName("");
 
@@ -122,7 +123,7 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
 
     @Override
     protected void restoreCaption() {
-        // TODO: think about Rollout name
+        rolloutNameLink.setCaption(rolloutUIState.getParentRolloutName());
         headerCaptionDetails.setValue(rolloutUIState.getSelectedRolloutGroupName());
     }
 
@@ -131,8 +132,6 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
     }
 
     public void setRolloutGroupName(final String groupName) {
-        rolloutUIState.setSelectedRolloutGroupName(groupName);
-
         headerCaptionDetails.setValue(groupName);
     }
 }

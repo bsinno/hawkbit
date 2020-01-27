@@ -8,17 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
+import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.ShowDetailsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
@@ -33,6 +34,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.google.common.base.Predicates;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
@@ -48,6 +50,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
     private static final String ROLLOUT_GROUP_LINK_ID = "rolloutGroup";
 
     private final RolloutGroupLayoutUIState rolloutUIState;
+    private final transient RolloutGroupManagement rolloutGroupManagement;
 
     private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
 
@@ -59,6 +62,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         super(i18n, eventBus, permissionChecker);
 
         this.rolloutUIState = rolloutUIState;
+        this.rolloutGroupManagement = rolloutGroupManagement;
 
         this.rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement,
                 new RolloutGroupToProxyRolloutGroupMapper()).withConfigurableFilter();
@@ -189,13 +193,22 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
     }
 
     private void onClickOfRolloutGroupName(final Long rolloutGroupId, final String rolloutGroupName) {
-        eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this, new ShowDetailsEventPayload(ProxyTarget.class,
-                ProxyRolloutGroup.class, rolloutGroupId, rolloutGroupName, View.ROLLOUT));
+        eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this,
+                new ShowDetailsEventPayload(ProxyRolloutGroup.class, rolloutGroupId, rolloutGroupName,
+                        rolloutUIState.getSelectedRolloutName(), View.ROLLOUT));
     }
 
     public void updateMasterEntityFilter(final Long masterEntityId) {
-        rolloutUIState.setSelectedRolloutId(masterEntityId);
-
         getFilterDataProvider().setFilter(masterEntityId);
+    }
+
+    public void updateGridItems(final Collection<Long> ids) {
+        ids.stream().filter(Predicates.notNull()).map(rolloutGroupManagement::getWithDetailedStatus)
+                .forEach(rolloutGroup -> rolloutGroup.ifPresent(this::updateGridItem));
+    }
+
+    private void updateGridItem(final RolloutGroup rolloutGroup) {
+        final ProxyRolloutGroup proxyRolloutGroup = RolloutGroupToProxyRolloutGroupMapper.mapGroup(rolloutGroup);
+        getDataProvider().refreshItem(proxyRolloutGroup);
     }
 }

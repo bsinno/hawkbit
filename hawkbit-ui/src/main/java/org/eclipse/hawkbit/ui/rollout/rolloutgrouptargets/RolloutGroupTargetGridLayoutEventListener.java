@@ -10,9 +10,7 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
@@ -38,8 +36,7 @@ public class RolloutGroupTargetGridLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new ShowRolloutGroupTargetsLayoutListener());
-        eventListeners.add(new ShowRolloutGroupsLayoutListener());
-        // TODO: add entityModified listener for group targets change
+        // TODO: add entityModified listener for group targets change? (not implementet in hawkbit with vaadin 7)
     }
 
     private class ShowRolloutGroupTargetsLayoutListener {
@@ -49,32 +46,15 @@ public class RolloutGroupTargetGridLayoutEventListener {
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onShowDetailsEvent(final ShowDetailsEventPayload eventPayload) {
-            if (eventPayload.getView() != View.ROLLOUT || eventPayload.getEntityType() != ProxyTarget.class) {
-                return;
-            }
-
-            rolloutGroupTargetGridLayout.showTargetsForGroup(eventPayload.getParentEntityId(),
-                    eventPayload.getParentEntityName());
-
-            eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
-                    VisibilityType.SHOW, rolloutGroupTargetGridLayout.getLayout(), View.ROLLOUT));
-        }
-    }
-
-    // TODO: think if it is a good idea to update the rollout name caption via
-    // event listener
-    private class ShowRolloutGroupsLayoutListener {
-        public ShowRolloutGroupsLayoutListener() {
-            eventBus.subscribe(this, CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onShowDetailsEvent(final ShowDetailsEventPayload eventPayload) {
             if (eventPayload.getView() != View.ROLLOUT || eventPayload.getEntityType() != ProxyRolloutGroup.class) {
                 return;
             }
 
-            rolloutGroupTargetGridLayout.updateRolloutNameCaption(eventPayload.getParentEntityName());
+            rolloutGroupTargetGridLayout.showTargetsForGroup(eventPayload.getEntityId(), eventPayload.getEntityName(),
+                    eventPayload.getParentEntityName());
+
+            eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
+                    VisibilityType.SHOW, rolloutGroupTargetGridLayout.getLayout(), View.ROLLOUT));
         }
     }
 

@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
+import java.util.Collection;
+
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
@@ -54,8 +56,8 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
 
         this.rolloutListHeader = new RolloutGridHeader(permissionChecker, uiState, eventBus, i18n,
                 rolloutWindowBuilder);
-        this.rolloutListGrid = new RolloutGrid(i18n, eventBus, rolloutManagement, uiNotification, uiState,
-                permissionChecker, tenantConfigManagement, rolloutWindowBuilder);
+        this.rolloutListGrid = new RolloutGrid(i18n, eventBus, rolloutManagement, rolloutGroupManagement,
+                uiNotification, uiState, permissionChecker, tenantConfigManagement, rolloutWindowBuilder);
 
         this.eventListener = new RolloutGridLayoutEventListener(this, eventBus);
 
@@ -77,6 +79,10 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
      */
     public void refreshGrid() {
         rolloutListGrid.refreshContainer();
+    }
+
+    public void refreshGridItems(final Collection<Long> ids) {
+        rolloutListGrid.updateGridItems(ids);
     }
 
     public Layout getLayout() {
