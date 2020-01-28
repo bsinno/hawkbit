@@ -77,6 +77,13 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         init();
     }
 
+    @Override
+    protected void init() {
+        super.init();
+
+        addStyleName("grid-row-border");
+    }
+
     private void artifactsDeletionCallback(final Collection<ProxyArtifact> artifactsToBeDeleted) {
         final Collection<Long> artifactToBeDeletedIds = artifactsToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());

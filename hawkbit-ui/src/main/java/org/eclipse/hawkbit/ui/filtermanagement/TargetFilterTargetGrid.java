@@ -63,6 +63,13 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     }
 
     @Override
+    protected void init() {
+        super.init();
+
+        addStyleName("grid-row-border");
+    }
+
+    @Override
     public String getGridId() {
         return UIComponentIdProvider.CUSTOM_FILTER_TARGET_TABLE_ID;
     }

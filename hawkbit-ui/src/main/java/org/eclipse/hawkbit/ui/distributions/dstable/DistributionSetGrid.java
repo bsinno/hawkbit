@@ -123,6 +123,13 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         init();
     }
 
+    @Override
+    protected void init() {
+        super.init();
+
+        addStyleName("grid-row-border");
+    }
+
     private void updateLastSelectedDsUiState(final SelectionChangedEventType type,
             final ProxyDistributionSet selectedDs) {
         if (type == SelectionChangedEventType.ENTITY_DESELECTED) {

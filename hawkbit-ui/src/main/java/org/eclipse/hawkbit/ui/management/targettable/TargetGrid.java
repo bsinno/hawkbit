@@ -153,6 +153,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         init();
     }
 
+    @Override
+    protected void init() {
+        super.init();
+
+        addStyleName("grid-row-border");
+    }
+
     private void updateLastSelectedTargetUiState(final SelectionChangedEventType type,
             final ProxyTarget selectedTarget) {
         if (type == SelectionChangedEventType.ENTITY_DESELECTED) {

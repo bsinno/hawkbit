@@ -106,6 +106,13 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         init();
     }
 
+    @Override
+    protected void init() {
+        super.init();
+
+        addStyleName("grid-row-border");
+    }
+
     private void updateLastSelectedSmUiState(final SelectionChangedEventType type,
             final ProxySoftwareModule selectedSm) {
         if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
