@@ -68,7 +68,7 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
     private final ErrorView errorview;
     private final NotificationUnreadButton notificationUnreadButton;
 
-    private final SpringViewProvider viewProvider;;
+    private final SpringViewProvider viewProvider;
     private final transient ApplicationContext context;
     private final transient EventPushStrategy pushStrategy;
 
@@ -160,7 +160,6 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
                     return;
                 }
                 viewTitle.setCaption(view.getDashboardCaptionLong());
-                notificationUnreadButton.setCurrentView(event.getNewView());
             }
         });
 
