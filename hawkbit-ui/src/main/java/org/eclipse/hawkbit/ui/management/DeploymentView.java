@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.management;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
@@ -26,12 +24,10 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryLayout;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayout;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayout;
@@ -353,19 +349,6 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
     }
 
-    void onTargetSelected(final ProxyTarget target) {
-        actionHistoryLayout.onTargetSelected(target);
-    }
-
-    void onTargetUpdated(final Collection<Long> entityIds) {
-        final Long lastSelectedTargetId = managementUIState.getTargetGridLayoutUiState().getSelectedTargetId();
-
-        if (lastSelectedTargetId != null && entityIds.contains(lastSelectedTargetId)) {
-            // TODO: think over
-            actionHistoryLayout.onTargetUpdated(lastSelectedTargetId);
-        }
-    }
-
     void minimizeTargetGridLayout() {
         if (distributionGridLayout != null) {
             distributionGridLayout.setVisible(true);
@@ -426,38 +409,6 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
 
         actionHistoryLayout.minimize();
-    }
-
-    void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
-        targetGridLayout.onTargetFilterTabChanged(isCustomFilterTabSelected);
-    }
-
-    void filterTargetGridByTags(final Collection<String> tagFilterNames) {
-        targetGridLayout.filterGridByTags(tagFilterNames);
-    }
-
-    void filterTargetGridByNoTag(final boolean isActive) {
-        targetGridLayout.filterGridByNoTag(isActive);
-    }
-
-    void filterTargetGridByStatus(final List<TargetUpdateStatus> statusFilters) {
-        targetGridLayout.filterGridByStatus(statusFilters);
-    }
-
-    void filterTargetGridByOverdue(final boolean isOverdue) {
-        targetGridLayout.filterGridByOverdue(isOverdue);
-    }
-
-    void filterTargetGridByCustomFilter(final Long customFilterId) {
-        targetGridLayout.filterGridByCustomFilter(customFilterId);
-    }
-
-    void filterDsGridByTags(final Collection<String> tagFilterNames) {
-        distributionGridLayout.filterGridByTags(tagFilterNames);
-    }
-
-    void filterDsGridByNoTag(final boolean isActive) {
-        distributionGridLayout.filterGridByNoTag(isActive);
     }
 
     @PreDestroy

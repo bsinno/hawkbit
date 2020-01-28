@@ -105,7 +105,7 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     }
 
     private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return !smTypeFilterLayoutUiState.isHidden();
+        return smTypeFilterLayoutUiState.isHidden();
     }
 
     private void addNewItem() {

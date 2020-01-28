@@ -13,11 +13,14 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.ActionModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
+import org.eclipse.hawkbit.ui.management.targettable.TargetGrid;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -49,6 +52,15 @@ public class ActionHistoryGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
+        @EventBusListenerMethod(scope = EventScope.UI, source = TargetGrid.class)
+        private void onTargetEvent(final SelectionChangedEventPayload<ProxyTarget> eventPayload) {
+            if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
+                actionHistoryGridLayout.onTargetSelected(eventPayload.getEntity());
+            } else {
+                actionHistoryGridLayout.onTargetSelected(null);
+            }
+        }
+
         @EventBusListenerMethod(scope = EventScope.UI, source = ActionHistoryGrid.class)
         private void onActionEvent(final SelectionChangedEventPayload<ProxyAction> eventPayload) {
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
@@ -72,6 +84,13 @@ public class ActionHistoryGridLayoutEventListener {
 
         public EntityModifiedListener() {
             eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetEvent(final TargetModifiedEventPayload eventPayload) {
+            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+                actionHistoryGridLayout.onTargetUpdated(eventPayload.getEntityIds());
+            }
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)

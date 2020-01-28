@@ -90,7 +90,7 @@ public class DistributionGridHeader extends AbstractGridHeader {
     }
 
     private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return !distributionTagLayoutUiState.isHidden();
+        return distributionTagLayoutUiState.isHidden();
     }
 
     private Boolean onLoadIsTableMaximized() {

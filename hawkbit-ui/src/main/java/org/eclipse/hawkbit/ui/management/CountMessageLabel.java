@@ -13,24 +13,13 @@ import java.util.Collection;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractFooterSupport;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
-import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
-import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.vaadin.data.provider.DataCommunicator;
-import com.vaadin.data.provider.Query;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 
@@ -42,39 +31,24 @@ import com.vaadin.ui.Label;
 public class CountMessageLabel extends AbstractFooterSupport {
     private final VaadinMessageSource i18n;
 
-    private final TargetGridLayoutUiState targetGridLayoutUiState;
-
     private final TargetManagement targetManagement;
-
-    private final DataCommunicator<ProxyTarget> targetGridDataCommunicator;
 
     private final Label targetCountLabel;
 
     /**
      * Constructor
      * 
-     * @param eventBus
-     *            UIEventBus
      * @param targetManagement
      *            TargetManagement
      * @param i18n
      *            I18N
-     * @param managementUIState
-     *            ManagementUIState
-     * @param targetGridDataCommunicator
-     *            TargetGrid data communicator
      */
-    public CountMessageLabel(final UIEventBus eventBus, final TargetManagement targetManagement,
-            final VaadinMessageSource i18n, final TargetGridLayoutUiState targetGridLayoutUiState,
-            final DataCommunicator<ProxyTarget> targetGridDataCommunicator) {
+    public CountMessageLabel(final TargetManagement targetManagement, final VaadinMessageSource i18n) {
         this.targetManagement = targetManagement;
         this.i18n = i18n;
-        this.targetGridLayoutUiState = targetGridLayoutUiState;
-        this.targetGridDataCommunicator = targetGridDataCommunicator;
         this.targetCountLabel = new Label();
 
         init();
-        eventBus.subscribe(this);
     }
 
     private void init() {
@@ -83,53 +57,13 @@ public class CountMessageLabel extends AbstractFooterSupport {
         targetCountLabel.setContentMode(ContentMode.HTML);
     }
 
-    /**
-     * TenantAwareEvent Listener to show the message count.
-     *
-     * @param event
-     *            ManagementUIEvent which describes the action to execute
-     */
-    @EventBusListenerMethod(scope = EventScope.UI)
-    public void onEvent(final ManagementUIEvent event) {
-        if (event == ManagementUIEvent.TARGET_TABLE_FILTER || event == ManagementUIEvent.SHOW_COUNT_MESSAGE) {
-            displayTargetCountStatus();
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent event) {
-        if (TargetTableEvent.TargetComponentEvent.SELECT_ALL == event.getTargetComponentEvent()
-                || TargetComponentEvent.REFRESH_TARGETS == event.getTargetComponentEvent()) {
-            displayTargetCountStatus();
-        }
-    }
-
-    /**
-     * TenantAwareEvent Listener for Pinning Distribution.
-     *
-     * @param event
-     */
-    @EventBusListenerMethod(scope = EventScope.UI)
-    public void onEvent(final PinUnpinEvent event) {
-        final Long pinnedDistId = targetGridLayoutUiState.getTargetManagementFilterParams().getPinnedDistId();
-
-        if (event == PinUnpinEvent.PIN_DISTRIBUTION && pinnedDistId != null) {
-            displayCountLabel(pinnedDistId);
-        } else {
-            targetCountLabel.setValue("");
-            displayTargetCountStatus();
-        }
-    }
-
-    private void displayTargetCountStatus() {
-        final TargetManagementFilterParams targetFilterParams = targetGridLayoutUiState
-                .getTargetManagementFilterParams();
+    public void displayTargetCountStatus(final long count, final TargetManagementFilterParams targetFilterParams) {
         final StringBuilder message = getTotalTargetMessage();
 
         if (targetFilterParams.isAnyFilterSelected()) {
             message.append(HawkbitCommonUtil.SP_STRING_PIPE);
             message.append(i18n.getMessage("label.filter.targets"));
-            message.append(targetGridDataCommunicator.getDataProviderSize());
+            message.append(count);
             message.append(HawkbitCommonUtil.SP_STRING_PIPE);
             final String status = i18n.getMessage("label.filter.status");
             final String overdue = i18n.getMessage("label.filter.overdue");
@@ -162,12 +96,12 @@ public class CountMessageLabel extends AbstractFooterSupport {
         targetCountLabel.setDescription(null);
 
         final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.filter.count"));
-        message.append(targetGridDataCommunicator.getDataProvider().size(new Query<>()));
+        message.append(targetManagement.count());
 
         return message;
     }
 
-    private void displayCountLabel(final Long distId) {
+    public void displayCountLabel(final Long distId) {
         final Long targetsWithAssigedDsCount = targetManagement.countByAssignedDistributionSet(distId);
         final Long targetsWithInstalledDsCount = targetManagement.countByInstalledDistributionSet(distId);
         final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.count"));

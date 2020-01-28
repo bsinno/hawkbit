@@ -9,15 +9,21 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
+import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -40,6 +46,12 @@ public class TargetGridLayoutEventListener {
     private void registerEventListeners() {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
+        eventListeners.add(new FilterModeChangedListener());
+        eventListeners.add(new TagFilterChangedListener());
+        eventListeners.add(new NoTagFilterChangedListener());
+        eventListeners.add(new StatusFilterChangedListener());
+        eventListeners.add(new OverdueFilterChangedListener());
+        eventListeners.add(new CustomFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -68,6 +80,82 @@ public class TargetGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI, source = TargetGridHeader.class)
         private void onTargetEvent(final String searchFilter) {
             targetGridLayout.filterGridBySearch(searchFilter);
+        }
+    }
+
+    private class FilterModeChangedListener {
+
+        public FilterModeChangedListener() {
+            eventBus.subscribe(this, EventTopics.TARGET_FILTER_TAB_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetEvent(final TargetFilterTabChangedEventPayload eventPayload) {
+            targetGridLayout.onTargetFilterTabChanged(TargetFilterTabChangedEventPayload.CUSTOM == eventPayload);
+        }
+    }
+
+    private class TagFilterChangedListener {
+
+        public TagFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.TAG_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
+        private void onTargetTagEvent(final Collection<String> eventPayload) {
+            targetGridLayout.filterGridByTags(eventPayload);
+        }
+    }
+
+    private class NoTagFilterChangedListener {
+
+        public NoTagFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.NO_TAG_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
+        private void onTargetNoTagEvent(final Boolean eventPayload) {
+            targetGridLayout.filterGridByNoTag(eventPayload);
+        }
+    }
+
+    private class StatusFilterChangedListener {
+
+        public StatusFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.STATUS_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetEvent(final List<TargetUpdateStatus> eventPayload) {
+            targetGridLayout.filterGridByStatus(eventPayload);
+        }
+    }
+
+    private class OverdueFilterChangedListener {
+
+        public OverdueFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.OVERDUE_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetEvent(final Boolean eventPayload) {
+            targetGridLayout.filterGridByOverdue(eventPayload);
+        }
+    }
+
+    private class CustomFilterChangedListener {
+
+        public CustomFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.CUSTOM_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetEvent(final CustomFilterChangedEventPayload eventPayload) {
+            if (eventPayload.getCustomFilterChangedEventType() == CustomFilterChangedEventType.CLICKED) {
+                targetGridLayout.filterGridByCustomFilter(eventPayload.getCustomFilterId());
+            } else {
+                targetGridLayout.filterGridByCustomFilter(null);
+            }
         }
     }
 

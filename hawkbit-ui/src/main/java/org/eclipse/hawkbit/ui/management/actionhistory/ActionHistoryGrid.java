@@ -539,6 +539,10 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         return false;
     }
 
+    public ProxyTarget getSelectedMasterTarget() {
+        return selectedMasterTarget;
+    }
+
     /**
      * Adds support to resize the action history grid.
      */

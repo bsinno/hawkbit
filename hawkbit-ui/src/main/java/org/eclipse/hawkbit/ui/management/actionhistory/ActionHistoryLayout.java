@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
+import java.util.Collection;
+
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
@@ -93,8 +95,8 @@ public class ActionHistoryLayout extends HorizontalLayout {
         actionHistoryGridLayout.onTargetSelected(target);
     }
 
-    public void onTargetUpdated(final Long lastSelectedTargetId) {
-        actionHistoryGridLayout.onTargetUpdated(lastSelectedTargetId);
+    public void onTargetUpdated(final Collection<Long> updatedTargetIds) {
+        actionHistoryGridLayout.onTargetUpdated(updatedTargetIds);
     }
 
     public void unsubscribeListener() {

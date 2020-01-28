@@ -293,8 +293,7 @@ public class JpaTargetManagement implements TargetManagement {
     public Optional<TargetMetadata> getMetaDataByControllerId(final String controllerId, final String key) {
         final Long targetId = getByControllerIdAndThrowIfNotFound(controllerId).getId();
 
-        return targetMetadataRepository.findById(new TargetMetadataCompositeKey(targetId, key))
-                .map(t -> t);
+        return targetMetadataRepository.findById(new TargetMetadataCompositeKey(targetId, key)).map(t -> t);
     }
 
     @Override
@@ -457,7 +456,7 @@ public class JpaTargetManagement implements TargetManagement {
         if ((filterParams.getFilterByStatus() != null) && !filterParams.getFilterByStatus().isEmpty()) {
             specList.add(TargetSpecifications.hasTargetUpdateStatus(filterParams.getFilterByStatus()));
         }
-        if (filterParams.getOverdueState() != null) {
+        if (filterParams.getOverdueState() != null && filterParams.getOverdueState()) {
             specList.add(TargetSpecifications.isOverdue(TimestampCalculator.calculateOverdueTimestamp()));
         }
         if (filterParams.getFilterByDistributionId() != null) {
