@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 
@@ -218,11 +219,13 @@ public class FilterByStatusLayout extends VerticalLayout {
         if (!activeStatusFilters.isEmpty()) {
             removeActiveStatusStyles();
             activeStatusFilters.clear();
+            targetTagFilterLayoutUiState.setClickedTargetUpdateStatusFilters(Collections.emptyList());
         }
 
         if (isOverdueFilterActive) {
             overdue.removeStyleName(BTN_CLICKED_STYLE);
             isOverdueFilterActive = false;
+            targetTagFilterLayoutUiState.setOverdueFilterClicked(false);
         }
     }
 

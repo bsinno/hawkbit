@@ -27,7 +27,6 @@ public class TagWindowLayout<T extends ProxyFilterButton> extends AbstractEntity
 
     protected final TagWindowLayoutComponentBuilder tagComponentBuilder;
 
-    protected final FormLayout formLayout;
     protected final TextField tagName;
     protected final TextArea tagDescription;
     protected final ColorPickerComponent colorPickerComponent;
@@ -45,7 +44,6 @@ public class TagWindowLayout<T extends ProxyFilterButton> extends AbstractEntity
 
         this.tagComponentBuilder = new TagWindowLayoutComponentBuilder(i18n);
 
-        this.formLayout = new FormLayout();
         this.tagName = tagComponentBuilder.createNameField(binder);
         this.tagDescription = tagComponentBuilder.createDescription(binder);
         this.colorPickerComponent = tagComponentBuilder.createColorPickerComponent(binder);
@@ -59,21 +57,22 @@ public class TagWindowLayout<T extends ProxyFilterButton> extends AbstractEntity
         tagWindowLayout.setMargin(false);
         tagWindowLayout.setSizeUndefined();
 
-        buildFormLayout();
-
-        tagWindowLayout.addComponent(formLayout);
+        tagWindowLayout.addComponent(buildFormLayout());
         tagWindowLayout.addComponent(colorPickerComponent);
 
         return tagWindowLayout;
     }
 
-    protected void buildFormLayout() {
+    protected FormLayout buildFormLayout() {
+        final FormLayout formLayout = new FormLayout();
+
         formLayout.addComponent(tagName);
         tagName.focus();
 
         formLayout.addComponent(tagDescription);
-
         formLayout.addComponent(colorPickerComponent.getColorPickerBtn());
+
+        return formLayout;
     }
 
     public void disableTagName() {

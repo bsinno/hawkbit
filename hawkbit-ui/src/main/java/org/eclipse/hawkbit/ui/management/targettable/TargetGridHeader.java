@@ -111,7 +111,6 @@ public class TargetGridHeader extends AbstractGridHeader {
         addHeaderSupports(Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, addHeaderSupport,
                 bulkUploadHeaderSupport, resizeHeaderSupport));
 
-        restoreState();
         buildHeader();
 
         // DistributionSetFilterDropArea is only available in TargetTableHeader
@@ -169,7 +168,7 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return !targetTagFilterLayoutUiState.isHidden();
+        return targetTagFilterLayoutUiState.isHidden();
     }
 
     private void addNewItem() {

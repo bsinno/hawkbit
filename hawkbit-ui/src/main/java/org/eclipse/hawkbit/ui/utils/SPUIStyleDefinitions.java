@@ -132,9 +132,14 @@ public final class SPUIStyleDefinitions {
     public static final String NO_TOP_BORDER = "no-border-top";
 
     /**
-     * Create Target filter query - caption style.
+     * Create/Update Target filter main layout style.
      */
     public static final String ADD_UPDATE_FILTER_LAYOUT = "add-update-filter-layout";
+
+    /**
+     * Create/Update Target filter actions layout style.
+     */
+    public static final String ADD_UPDATE_FILTER_ACTIONS_LAYOUT = "add-update-filter-actions-layout";
 
     /**
      * Query validator icon -success style.

@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
 public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
@@ -35,10 +36,12 @@ public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
     }
 
     @Override
-    protected void buildFormLayout() {
-        super.buildFormLayout();
+    protected FormLayout buildFormLayout() {
+        final FormLayout formLayout = super.buildFormLayout();
 
         formLayout.addComponent(typeKey, formLayout.getComponentCount() - 1);
+
+        return formLayout;
     }
 
     @Override

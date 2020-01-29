@@ -47,7 +47,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     private final TargetGrid targetGrid;
     private final TargetDetailsHeader targetDetailsHeader;
     private final TargetDetails targetDetails;
-    private final CountMessageLabel countMessageLabel;
+    private final transient CountMessageLabel countMessageLabel;
 
     private final TargetGridLayoutUiState targetGridLayoutUiState;
 
@@ -85,15 +85,29 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         this.targetDetails = new TargetDetails(i18n, eventBus, permissionChecker, uiNotification, targetTagManagement,
                 targetManagement, deploymentManagement, targetMetaDataWindowBuilder);
 
-        this.countMessageLabel = new CountMessageLabel(eventBus, targetManagement, i18n, targetGridLayoutUiState,
-                targetGrid.getDataCommunicator());
+        this.countMessageLabel = new CountMessageLabel(targetManagement, i18n);
+
+        initGridDataUpdatedListener();
 
         this.eventListener = new TargetGridLayoutEventListener(this, eventBus);
 
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }
 
+    private void initGridDataUpdatedListener() {
+        // TODO: refactor based on FilterParams
+        targetGrid.getFilterDataProvider().addDataProviderListener(event -> countMessageLabel
+                .displayTargetCountStatus(targetGrid.getDataSize(), targetGrid.getTargetFilter()));
+    }
+
     public void restoreState() {
+        targetGridHeader.restoreState();
+        targetGrid.restoreState();
+
+        restoreGridSelection();
+    }
+
+    private void restoreGridSelection() {
         final Long lastSelectedEntityId = targetGridLayoutUiState.getSelectedTargetId();
 
         if (lastSelectedEntityId != null) {
@@ -139,6 +153,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         } else {
             targetGridHeader.enableSearchIcon();
         }
+
+        targetGrid.onTargetFilterTabChanged(isCustomFilterTabSelected);
     }
 
     public void filterGridBySearch(final String searchFilter) {

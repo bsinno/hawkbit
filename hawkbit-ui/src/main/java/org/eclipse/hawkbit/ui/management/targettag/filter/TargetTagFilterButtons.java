@@ -188,6 +188,7 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         if (targetTagFilterButtonClickBehaviour.getPreviouslyClickedFiltersSize() > 0) {
             if (targetTagFilterLayoutUiState.isNoTagClicked()) {
                 targetTagFilterLayoutUiState.setNoTagClicked(false);
+                noTagButton.removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
             }
 
             targetTagFilterButtonClickBehaviour.clearPreviouslyClickedFilters();

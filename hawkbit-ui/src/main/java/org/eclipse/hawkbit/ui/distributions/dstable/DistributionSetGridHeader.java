@@ -108,7 +108,7 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
     }
 
     private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return !dSTypeFilterLayoutUiState.isHidden();
+        return dSTypeFilterLayoutUiState.isHidden();
     }
 
     private void addNewItem() {

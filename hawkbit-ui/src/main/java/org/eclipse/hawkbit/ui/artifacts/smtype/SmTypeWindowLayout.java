@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 
@@ -34,11 +35,13 @@ public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
     }
 
     @Override
-    protected void buildFormLayout() {
-        super.buildFormLayout();
+    protected FormLayout buildFormLayout() {
+        final FormLayout formLayout = super.buildFormLayout();
 
         formLayout.addComponent(typeKey, formLayout.getComponentCount() - 1);
         formLayout.addComponent(smTypeAssignOptionGroup, formLayout.getComponentCount() - 1);
+
+        return formLayout;
     }
 
     public void disableTypeKey() {

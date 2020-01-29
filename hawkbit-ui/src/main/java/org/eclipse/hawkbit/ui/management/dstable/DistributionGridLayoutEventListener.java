@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.dstable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
@@ -19,6 +20,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.management.ds.DistributionGrid;
+import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -42,6 +44,8 @@ public class DistributionGridLayoutEventListener {
     private void registerEventListeners() {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
+        eventListeners.add(new TagFilterChangedListener());
+        eventListeners.add(new NoTagFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -70,6 +74,30 @@ public class DistributionGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI, source = DistributionGridHeader.class)
         private void onDsEvent(final String searchFilter) {
             distributionGridLayout.filterGridBySearch(searchFilter);
+        }
+    }
+
+    private class TagFilterChangedListener {
+
+        public TagFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.TAG_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
+        private void onDsTagEvent(final Collection<String> eventPayload) {
+            distributionGridLayout.filterGridByTags(eventPayload);
+        }
+    }
+
+    private class NoTagFilterChangedListener {
+
+        public NoTagFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.NO_TAG_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
+        private void onDsNoTagEvent(final Boolean eventPayload) {
+            distributionGridLayout.filterGridByNoTag(eventPayload);
         }
     }
 

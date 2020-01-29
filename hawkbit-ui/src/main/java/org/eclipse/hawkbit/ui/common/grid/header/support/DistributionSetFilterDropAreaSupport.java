@@ -181,8 +181,5 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         dropAreaLayout.setSizeUndefined();
         /* Remove distribution Id from target filter parameters */
         targetGridLayoutUiState.setFilterDsIdNameVersion(null);
-
-        /* Reload the table */
-        eventBus.publish(this, TargetFilterEvent.REMOVE_FILTER_BY_DISTRIBUTION);
     }
 }

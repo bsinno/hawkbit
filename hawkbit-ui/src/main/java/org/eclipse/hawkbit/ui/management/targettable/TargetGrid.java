@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -52,6 +53,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -80,6 +82,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private static final String TARGET_DELETE_BUTTON_ID = "targetDeleteButton";
 
     private final TargetGridLayoutUiState targetGridLayoutUiState;
+    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
+    private final DistributionGridLayoutUiState distributionGridLayoutUiState;
     private final transient TargetManagement targetManagement;
 
     private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
@@ -103,6 +107,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         this.targetManagement = targetManagement;
         this.targetGridLayoutUiState = targetGridLayoutUiState;
+        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
+        this.distributionGridLayoutUiState = distributionGridLayoutUiState;
 
         this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n);
         this.targetDataProvider = new TargetManagementStateDataProvider(targetManagement, targetToProxyTargetMapper)
@@ -145,6 +151,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         initTargetStatusIconMap();
         init();
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        addStyleName("grid-row-border");
     }
 
     private void updateLastSelectedTargetUiState(final SelectionChangedEventType type,
@@ -237,6 +250,21 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     public void updateDsFilter(final Long dsId) {
         targetFilter.setDistributionId(dsId);
+        getFilterDataProvider().setFilter(targetFilter);
+    }
+
+    public void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
+        if (isCustomFilterTabSelected) {
+            targetFilter.setDistributionId(null);
+            targetFilter.setNoTagClicked(false);
+            targetFilter.setOverdueState(false);
+            targetFilter.setSearchText(null);
+            targetFilter.setTargetTags(new String[] {});
+            targetFilter.setTargetUpdateStatusList(new ArrayList<>());
+        } else {
+            targetFilter.setTargetFilterQueryId(null);
+        }
+
         getFilterDataProvider().setFilter(targetFilter);
     }
 
@@ -353,6 +381,45 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         actionButton.addStyleName(style);
 
         return actionButton;
+    }
+
+    public void restoreState() {
+        targetFilter.setPinnedDistId(distributionGridLayoutUiState.getPinnedDsId());
+
+        if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
+            targetFilter.setTargetFilterQueryId(targetTagFilterLayoutUiState.getClickedTargetFilterQueryId());
+        } else {
+            final String searchFilter = targetGridLayoutUiState.getSearchFilter();
+            targetFilter
+                    .setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+
+            final List<TargetUpdateStatus> statusFilters = targetTagFilterLayoutUiState
+                    .getClickedTargetUpdateStatusFilters();
+            if (!CollectionUtils.isEmpty(statusFilters)) {
+                targetFilter.setTargetUpdateStatusList(statusFilters);
+            }
+
+            targetFilter.setOverdueState(targetTagFilterLayoutUiState.isOverdueFilterClicked());
+
+            final Long dsIdFilter = targetGridLayoutUiState.getFilterDsIdNameVersion() != null
+                    ? targetGridLayoutUiState.getFilterDsIdNameVersion().getId()
+                    : null;
+            targetFilter.setDistributionId(dsIdFilter);
+
+            targetFilter.setNoTagClicked(targetTagFilterLayoutUiState.isNoTagClicked());
+
+            final Collection<String> tagFilterNames = targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName()
+                    .values();
+            if (!CollectionUtils.isEmpty(tagFilterNames)) {
+                targetFilter.setTargetTags(tagFilterNames.toArray(new String[tagFilterNames.size()]));
+            }
+        }
+
+        getFilterDataProvider().setFilter(targetFilter);
+    }
+
+    public TargetManagementFilterParams getTargetFilter() {
+        return targetFilter;
     }
 
     /**

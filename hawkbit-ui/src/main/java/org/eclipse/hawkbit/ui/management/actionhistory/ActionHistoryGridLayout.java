@@ -66,9 +66,11 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
         actionHistoryGrid.updateMasterEntityFilter(target);
     }
 
-    public void onTargetUpdated(final Long lastSelectedTargetId) {
-        // TODO Auto-generated method stub
-
+    public void onTargetUpdated(final Collection<Long> updatedTargetIds) {
+        if (actionHistoryGrid.getSelectedMasterTarget() != null
+                && updatedTargetIds.contains(actionHistoryGrid.getSelectedMasterTarget().getId())) {
+            // TODO
+        }
     }
 
     public void onActionChanged(final ProxyAction entity) {
