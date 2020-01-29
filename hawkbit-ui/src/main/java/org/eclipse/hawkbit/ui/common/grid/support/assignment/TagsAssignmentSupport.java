@@ -52,10 +52,11 @@ public abstract class TagsAssignmentSupport<T, R extends NamedEntity> extends As
         // TODO: check if it could be extracted from HawkbitCommonUtil
         notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
 
-        publishFilterEvent(tagsAssignmentResult);
+        publishTagAssignmentEvent(tagsAssignmentResult, targetItem);
     }
 
     protected abstract AbstractAssignmentResult<R> toggleTagAssignment(final String tagName, final T targetItem);
 
-    protected abstract void publishFilterEvent(final AbstractAssignmentResult<R> tagsAssignmentResult);
+    protected abstract void publishTagAssignmentEvent(final AbstractAssignmentResult<R> tagsAssignmentResult,
+            final T targetItem);
 }
