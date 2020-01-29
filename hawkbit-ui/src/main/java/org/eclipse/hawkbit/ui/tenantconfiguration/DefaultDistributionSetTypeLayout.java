@@ -23,6 +23,7 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.window.SystemConfigWindowLayou
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.HasValue;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
@@ -81,8 +82,7 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView impl
         header.addStyleName("config-panel-header");
         vlayout.addComponent(header);
 
-        final DistributionSetType currentDistributionSetType = getCurrentDistributionSetType();
-        currentDefaultDisSetType = currentDistributionSetType.getId();
+        currentDefaultDisSetType = getCurrentDistributionSetType();
 
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
@@ -106,26 +106,53 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView impl
 
     private void initDsSetComboBox() {
         dsSetComboBox = builder.createDistributionSetCombo(binder);
-        dsSetComboBox.addValueChangeListener(event -> selectDistributionSetValue());
+//        final Long currentDistributionSetType = getCurrentDistributionSetType();
+//        currentDefaultDisSetType = dsSetComboBox.getValue().getId();
+        dsSetComboBox.addValueChangeListener(event -> selectDistributionSetValue(event));
     }
 
-    private DistributionSetType getCurrentDistributionSetType() {
+    private Long getCurrentDistributionSetType() {
+//        return binder.getBean().getDistributionSetTypeId();
         tenantMetaData = this.systemManagement.getTenantMetadata();
-        return tenantMetaData.getDefaultDsType();
+        return tenantMetaData.getDefaultDsType().getId();
     }
     /**
      * Method that is called when combobox event is performed.
+     * @param event
      */
-    private void selectDistributionSetValue() {
-        selectedDefaultDisSetType = binder.getBean().getDistributionSetTypeId();
-        if (!selectedDefaultDisSetType.equals(currentDefaultDisSetType)) {
+    private void selectDistributionSetValue(HasValue.ValueChangeEvent<ProxyType> event) {
+
+        if (!event.getValue().getId().equals(currentDefaultDisSetType)) {
             changeIcon.setVisible(true);
-            notifyConfigurationChanged();
         } else {
             changeIcon.setVisible(false);
         }
+        //        selectedDefaultDisSetType = binder.getBean().getDistributionSetTypeId();
+//        if (!selectedDefaultDisSetType.equals(currentDefaultDisSetType)) {
+//            changeIcon.setVisible(true);
+//            notifyConfigurationChanged();
+//        } else {
+//            changeIcon.setVisible(false);
+//        }
     }
+
+
     @Override
+    public void save() {
+
+    }
+
+    @Override
+    public void undo() {
+
+    }
+
+    @Override
+    public void configurationHasChanged() {
+
+    }
+
+/*    @Override
     public void save() {
         if (!currentDefaultDisSetType.equals(selectedDefaultDisSetType) && selectedDefaultDisSetType != null) {
             tenantMetaData = this.systemManagement.updateTenantMetadata(binder.getBean().getDistributionSetTypeId());
@@ -143,5 +170,5 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView impl
     @Override
     public void configurationHasChanged() {
         notifyConfigurationChanged();
-    }
+    }*/
 }

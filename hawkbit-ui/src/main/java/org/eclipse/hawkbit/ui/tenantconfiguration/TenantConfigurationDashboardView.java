@@ -8,8 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY;
+
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +22,9 @@ import org.eclipse.hawkbit.ControllerPollProperties;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
+import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
@@ -90,7 +96,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     private final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem;
     private final ActionAutocleanupConfigurationItem actionAutocleanupConfigurationItem;
     private final TargetSecurityTokenAuthenticationConfigurationItem targetSecurityTokenAuthenticationConfigurationItem;
-
+    private final TenantConfigurationManagement tenantConfigurationManagement;
     private final Binder<ProxySystemConfigWindow> binder;
     private final List<ConfigurationGroup> configurationViews = Lists.newArrayListWithExpectedSize(3);
 
@@ -105,6 +111,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             final SecurityTokenGenerator securityTokenGenerator,
             final ControllerPollProperties controllerPollProperties, final SpPermissionChecker permChecker) {
         this.systemManagement = systemManagement;
+        this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.binder = new Binder<>();
         this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
                 tenantConfigurationManagement, i18n);
@@ -113,7 +120,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
                 i18n);
         this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
-                i18n);
+                binder, i18n);
         this.approvalConfigurationItem = new ApprovalConfigurationItem(tenantConfigurationManagement, i18n);
 
         this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n,
@@ -197,9 +204,17 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         configBean.setTargetSecToken(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
         configBean.setGatewaySecToken(gatewaySecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
         configBean.setDownloadAnonymous(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
+        configBean.setActionExpiryDays(String.valueOf(getActionExpiry()));
         return configBean;
     }
+    private long getActionExpiry() {
+        return TimeUnit.MILLISECONDS.toDays(readConfigValue(ACTION_CLEANUP_ACTION_EXPIRY, Long.class).getValue());
+    }
 
+    private <T extends Serializable> TenantConfigurationValue<T> readConfigValue(final String key,
+            final Class<T> valueType) {
+        return tenantConfigurationManagement.getConfigurationValue(key, valueType);
+    }
     private HorizontalLayout saveConfigurationButtonsLayout() {
 
         final HorizontalLayout hlayout = new HorizontalLayout();
@@ -225,6 +240,18 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         return hlayout;
     }
 
+    private void saveSystemConfigBean(){
+        final ProxySystemConfigWindow configWindowBean = binder.getBean();
+        systemManagement.updateTenantMetadata(configWindowBean.getDistributionSetTypeId());
+        tenantConfigurationManagement.addOrUpdateConfiguration(
+                TenantConfigurationProperties.TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED,
+                configWindowBean.isRolloutApproval());
+
+
+
+        configurationViews.forEach(ConfigurationGroup::save);
+    }
+
     private void saveConfiguration() {
         final boolean isUserInputValid = configurationViews.stream().allMatch(ConfigurationGroup::isUserInputValid);
 
@@ -232,8 +259,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             uINotification.displayValidationError(i18n.getMessage("notification.configuration.save.notpossible"));
             return;
         }
-        configurationViews.forEach(ConfigurationGroup::save);
-
+        saveSystemConfigBean();
         // More methods
         saveConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.setEnabled(false);
@@ -242,7 +268,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     private void undoConfiguration() {
         binder.setBean(populateAndGetSystemConfig());
-        configurationViews.forEach(ConfigurationGroup::undo);
+      //  configurationViews.forEach(ConfigurationGroup::undo);
         // More methods
         saveConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.setEnabled(false);

@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.Binder.Binding;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
@@ -22,6 +24,7 @@ import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -67,6 +70,8 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
     private final ComboBox<ActionStatusOption> actionStatusCombobox;
     private final TextField actionExpiryInput;
 
+    private final Binder<ProxySystemConfigWindow> binder;
+    private final Binding<ProxySystemConfigWindow, String> actionExpiryInputBinding;
     private final VaadinMessageSource i18n;
 
     private boolean cleanupEnabled;
@@ -76,15 +81,16 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
 
     /**
      * Constructs the Action Cleanup configuration UI.
-     *
-     * @param tenantConfigurationManagement
+     *  @param tenantConfigurationManagement
      *         Configuration service to read /write tenant-specific
      *         configuration settings.
+     * @param binder
      * @param i18n
      */
     public ActionAutocleanupConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-            final VaadinMessageSource i18n) {
+            Binder<ProxySystemConfigWindow> binder, final VaadinMessageSource i18n) {
         super(TenantConfigurationKey.ACTION_CLEANUP_ENABLED, tenantConfigurationManagement, i18n);
+        this.binder = binder;
         super.init("label.configuration.repository.autocleanup.action");
 
         this.i18n = i18n;
@@ -106,7 +112,16 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         actionExpiryInput = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         actionExpiryInput.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_EXPIRY);
         actionExpiryInput.setWidth(55, Unit.PIXELS);
-        actionExpiryInput.addValueChangeListener(event -> {
+        actionExpiryInputBinding = binder.forField(actionExpiryInput)
+                .asRequired(i18n.getMessage(MSG_KEY_INVALID_EXPIRY)).withValidator((value, context) -> {
+                    try {
+                        return new IntegerRangeValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY), 1, MAX_EXPIRY_IN_DAYS)
+                                .apply(Integer.parseInt(value), context);
+                    } catch (final NumberFormatException ex) {
+                        return ValidationResult.error(i18n.getMessage(MSG_KEY_INVALID_EXPIRY));
+                    }
+                }).bind(ProxySystemConfigWindow::getActionExpiryDays, ProxySystemConfigWindow::setActionExpiryDays);
+/*        actionExpiryInput.addValueChangeListener(event -> {
             if (StringUtils.isEmpty(event.getValue())) {
                 actionExpiryInput.setComponentError(new UserError("Invalid entry"));
             } else {
@@ -131,7 +146,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
                 }
             }
         });
-        actionExpiryInput.setValue(String.valueOf(getActionExpiry()));
+        actionExpiryInput.setValue(String.valueOf(getActionExpiry()));*/
 
         row1.addComponent(newLabel(MSG_KEY_PREFIX));
         row1.addComponent(actionStatusCombobox);
@@ -186,7 +201,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
 
     @Override
     public boolean isUserInputValid() {
-        return actionExpiryInput.getErrorMessage() == null;
+        return !actionExpiryInputBinding.validate(false).isError();
     }
 
     @Override

@@ -72,14 +72,14 @@ public class RolloutConfigurationView extends BaseConfigurationView
 
         approvalCheckbox = new CheckBox();
         approvalCheckbox.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX);
-        approvalCheckbox.addValueChangeListener(event -> {
+/*        approvalCheckbox.addValueChangeListener(event -> {
             if (event.getValue().equals(Boolean.TRUE)) {
                 approvalConfigurationItem.configEnable();
             } else {
                 approvalConfigurationItem.configDisable();
             }
             notifyConfigurationChanged();
-        });
+        });*/
         binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval,
                 ProxySystemConfigWindow::setRolloutApproval);
 
@@ -98,6 +98,21 @@ public class RolloutConfigurationView extends BaseConfigurationView
 
     @Override
     public void save() {
+
+    }
+
+    @Override
+    public void undo() {
+
+    }
+
+    @Override
+    public void configurationHasChanged() {
+
+    }
+
+/*    @Override
+    public void save() {
         approvalConfigurationItem.save();
     }
 
@@ -109,5 +124,5 @@ public class RolloutConfigurationView extends BaseConfigurationView
     @Override
     public void configurationHasChanged() {
         notifyConfigurationChanged();
-    }
+    }*/
 }
