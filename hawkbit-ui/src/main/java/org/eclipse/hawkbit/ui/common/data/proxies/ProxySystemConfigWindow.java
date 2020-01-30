@@ -2,6 +2,8 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import java.io.Serializable;
 
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem.ActionStatusOption;
+
 public class ProxySystemConfigWindow implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -13,7 +15,7 @@ public class ProxySystemConfigWindow implements Serializable {
     private Long repositoryConfigId;
     private Long rolloutConfigId;
     private Long caRootAuthorityId;
-    private String actionCleanupStatusId;
+    private ActionStatusOption actionCleanupStatus;
     private String actionExpiryDays;
     private boolean rolloutApproval;
     private boolean actionAutoclose;
@@ -54,14 +56,6 @@ public class ProxySystemConfigWindow implements Serializable {
         return distributionSetTypeId;
     }
 
-    public String getActionCleanupStatusId() {
-        return actionCleanupStatusId;
-    }
-
-    public void setActionCleanupStatusId(String actionCleanupStatusId) {
-        this.actionCleanupStatusId = actionCleanupStatusId;
-    }
-
     public String getActionExpiryDays() {
         return actionExpiryDays;
     }
@@ -70,6 +64,13 @@ public class ProxySystemConfigWindow implements Serializable {
         this.actionExpiryDays = actionExpiryDays;
     }
 
+    public ActionStatusOption getActionCleanupStatus() {
+        return actionCleanupStatus;
+    }
+
+    public void setActionCleanupStatus(ActionStatusOption actionCleanupStatus) {
+        this.actionCleanupStatus = actionCleanupStatus;
+    }
     public Long getCaRootAuthorityId() {
         return caRootAuthorityId;
     }

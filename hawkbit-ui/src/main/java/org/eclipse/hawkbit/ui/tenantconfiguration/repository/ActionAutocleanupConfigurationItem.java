@@ -17,6 +17,7 @@ import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
@@ -54,7 +55,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionAutocleanupConfigurationItem.class);
 
     private static final int MAX_EXPIRY_IN_DAYS = 1000;
-    private static final EnumSet<Status> EMPTY_STATUS_SET = EnumSet.noneOf(Status.class);
+    public static final EnumSet<Status> EMPTY_STATUS_SET = EnumSet.noneOf(Status.class);
 
     private static final String MSG_KEY_PREFIX = "label.configuration.repository.autocleanup.action.prefix";
     private static final String MSG_KEY_BODY = "label.configuration.repository.autocleanup.action.body";
@@ -62,7 +63,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
     private static final String MSG_KEY_INVALID_EXPIRY = "label.configuration.repository.autocleanup.action.expiry.invalid";
     private static final String MSG_KEY_NOTICE = "label.configuration.repository.autocleanup.action.notice";
 
-    private static final Collection<ActionStatusOption> ACTION_STATUS_OPTIONS = Arrays.asList(
+    public static final Collection<ActionStatusOption> ACTION_STATUS_OPTIONS = Arrays.asList(
             new ActionStatusOption(Status.CANCELED), new ActionStatusOption(Status.ERROR),
             new ActionStatusOption(Status.CANCELED, Status.ERROR));
 
@@ -81,7 +82,8 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
 
     /**
      * Constructs the Action Cleanup configuration UI.
-     *  @param tenantConfigurationManagement
+     *
+     * @param tenantConfigurationManagement
      *         Configuration service to read /write tenant-specific
      *         configuration settings.
      * @param binder
@@ -107,46 +109,24 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         actionStatusCombobox.setEmptySelectionAllowed(false);
         actionStatusCombobox.setItems(ACTION_STATUS_OPTIONS);
         actionStatusCombobox.setItemCaptionGenerator(ActionStatusOption::getName);
-        actionStatusCombobox.addValueChangeListener(e -> onActionStatusChanged());
-        actionStatusCombobox.setValue(getActionStatusOption());
+        binder.bind(actionStatusCombobox, ProxySystemConfigWindow::getActionCleanupStatus,
+                ProxySystemConfigWindow::setActionCleanupStatus);
+//        actionStatusCombobox.addValueChangeListener(e -> onActionStatusChanged());
+        //        actionStatusCombobox.setValue(getActionStatusOption());
         actionExpiryInput = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         actionExpiryInput.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_EXPIRY);
         actionExpiryInput.setWidth(55, Unit.PIXELS);
         actionExpiryInputBinding = binder.forField(actionExpiryInput)
-                .asRequired(i18n.getMessage(MSG_KEY_INVALID_EXPIRY)).withValidator((value, context) -> {
+                .asRequired(i18n.getMessage(MSG_KEY_INVALID_EXPIRY))
+                .withValidator((value, context) -> {
                     try {
                         return new IntegerRangeValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY), 1, MAX_EXPIRY_IN_DAYS)
                                 .apply(Integer.parseInt(value), context);
                     } catch (final NumberFormatException ex) {
                         return ValidationResult.error(i18n.getMessage(MSG_KEY_INVALID_EXPIRY));
                     }
-                }).bind(ProxySystemConfigWindow::getActionExpiryDays, ProxySystemConfigWindow::setActionExpiryDays);
-/*        actionExpiryInput.addValueChangeListener(event -> {
-            if (StringUtils.isEmpty(event.getValue())) {
-                actionExpiryInput.setComponentError(new UserError("Invalid entry"));
-            } else {
-                Validator validator = new IntegerRangeValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY), 1,
-                        MAX_EXPIRY_IN_DAYS);
-                try {
-                    int input = Integer.parseInt(event.getValue());
-                    ValidationResult result = validator.apply(input,
-                            new ValueContext(actionExpiryInput));
-
-                    if (result.isError()) {
-                        UserError error = new UserError(result.getErrorMessage());
-                        LOGGER.debug("Action expiry validation failed", error);
-                        actionExpiryInput.setComponentError(error);
-                    } else {
-                        actionExpiryInput.setComponentError(null);
-                        onActionExpiryChanged();
-                    }
-                } catch (NumberFormatException ex) {
-                    actionExpiryInput.setComponentError(new UserError("Invalid entry"));
-                    LOGGER.debug("Action expiry validation failed", ex);
-                }
-            }
-        });
-        actionExpiryInput.setValue(String.valueOf(getActionExpiry()));*/
+                })
+                .bind(ProxySystemConfigWindow::getActionExpiryDays, ProxySystemConfigWindow::setActionExpiryDays);
 
         row1.addComponent(newLabel(MSG_KEY_PREFIX));
         row1.addComponent(actionStatusCombobox);
@@ -292,7 +272,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         getTenantConfigurationManagement().addOrUpdateConfiguration(key, value);
     }
 
-    private static class ActionStatusOption {
+    public static class ActionStatusOption {
 
         private static final CharSequence SEPARATOR = " + ";
         private final Set<Status> statusSet;

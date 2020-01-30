@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.rollout.ApprovalConfigurationItem;
@@ -84,7 +85,11 @@ public class RolloutConfigurationView extends BaseConfigurationView
                 ProxySystemConfigWindow::setRolloutApproval);
 
         gridLayout.addComponent(approvalCheckbox, 0, 0);
-        gridLayout.addComponent(approvalConfigurationItem, 1, 0);
+        gridLayout.setSpacing(false);
+        gridLayout.setMargin(false);
+        gridLayout.addComponent(
+                new LabelBuilder().name(i18n.getMessage("configuration.rollout.approval.label")).buildLabel(), 1, 0);
+        //        gridLayout.addComponent(approvalConfigurationItem, 1, 0);
 
         final Link linkToApprovalHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getRollout());

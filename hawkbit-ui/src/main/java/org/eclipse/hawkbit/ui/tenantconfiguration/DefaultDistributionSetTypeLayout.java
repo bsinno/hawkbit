@@ -112,9 +112,9 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView impl
     }
 
     private Long getCurrentDistributionSetType() {
-//        return binder.getBean().getDistributionSetTypeId();
-        tenantMetaData = this.systemManagement.getTenantMetadata();
-        return tenantMetaData.getDefaultDsType().getId();
+        return binder.getBean().getDistributionSetTypeId();
+//        tenantMetaData = this.systemManagement.getTenantMetadata();
+//        return tenantMetaData.getDefaultDsType().getId();
     }
     /**
      * Method that is called when combobox event is performed.

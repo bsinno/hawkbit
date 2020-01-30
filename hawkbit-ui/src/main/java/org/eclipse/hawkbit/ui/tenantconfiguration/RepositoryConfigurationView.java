@@ -97,19 +97,23 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         actionAutocloseCheckBox = new CheckBox();
         actionAutocloseCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         actionAutocloseCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLOSE_CHECKBOX);
-        actionAutocloseCheckBox.setEnabled(!isMultiAssignmentsEnabled);
-        actionAutocloseConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
+        actionAutocloseCheckBox.setEnabled(!binder.getBean().isMultiAssignments());
+        actionAutocloseConfigurationItem.setEnabled(!binder.getBean().isMultiAssignments());
+//        actionAutocloseConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
         binder.bind(actionAutocloseCheckBox, ProxySystemConfigWindow::isActionAutoclose,
                 ProxySystemConfigWindow::setActionAutoclose);
-        actionAutocloseCheckBox.addValueChangeListener(
-                event -> changeListener(event, actionAutocloseConfigurationItem));
-        actionAutocloseConfigurationItem.addChangeListener(this);
+
+//        actionAutocloseCheckBox.addValueChangeListener(
+//                event -> changeListener(event, actionAutocloseConfigurationItem));
+//        actionAutocloseConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(actionAutocloseCheckBox, 0, 0);
         gridLayout.addComponent(actionAutocloseConfigurationItem, 1, 0);
 
         multiAssignmentsCheckBox = new CheckBox();
         multiAssignmentsCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         multiAssignmentsCheckBox.setId(UIComponentIdProvider.REPOSITORY_MULTI_ASSIGNMENTS_CHECKBOX);
+        multiAssignmentsCheckBox.setEnabled(!binder.getBean().isMultiAssignments());
+        multiAssignmentsConfigurationItem.setEnabled(!binder.getBean().isMultiAssignments());
         multiAssignmentsCheckBox.addValueChangeListener(event -> {
             actionAutocloseCheckBox.setEnabled(!event.getValue());
             actionAutocloseConfigurationItem.setEnabled(!event.getValue());
@@ -117,9 +121,10 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         });
         binder.bind(multiAssignmentsCheckBox, ProxySystemConfigWindow::isMultiAssignments,
                 ProxySystemConfigWindow::setMultiAssignments);
-        multiAssignmentsCheckBox.setEnabled(!isMultiAssignmentsEnabled);
-        multiAssignmentsConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
-        multiAssignmentsConfigurationItem.addChangeListener(this);
+
+
+
+//        multiAssignmentsConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(multiAssignmentsCheckBox, 0, 1);
         gridLayout.addComponent(multiAssignmentsConfigurationItem, 1, 1);
 
@@ -130,7 +135,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView
                 event -> changeListener(event, actionAutocleanupConfigurationItem));
         binder.bind(actionAutocleanupCheckBox, ProxySystemConfigWindow::isActionAutocleanup,
                 ProxySystemConfigWindow::setActionAutocleanup);
-        actionAutocleanupConfigurationItem.addChangeListener(this);
+//        actionAutocleanupConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(actionAutocleanupCheckBox, 0, 2);
         gridLayout.addComponent(actionAutocleanupConfigurationItem, 1, 2);
 
@@ -153,15 +158,20 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         }
     }
 
+    public void disableMultipleAssignmentOption(){
+        multiAssignmentsCheckBox.setEnabled(false);
+        multiAssignmentsConfigurationItem.setEnabled(false);
+    }
+
     @Override
     public void save() {
-        actionAutocloseConfigurationItem.save();
-        actionAutocleanupConfigurationItem.save();
-        multiAssignmentsConfigurationItem.save();
+//        actionAutocloseConfigurationItem.save();
+//        actionAutocleanupConfigurationItem.save();
+//        multiAssignmentsConfigurationItem.save();
 
-        final boolean isMultiAssignmentsEnabled = multiAssignmentsConfigurationItem.isConfigEnabled();
-        multiAssignmentsCheckBox.setEnabled(!isMultiAssignmentsEnabled);
-        multiAssignmentsConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
+//        final boolean isMultiAssignmentsEnabled = multiAssignmentsConfigurationItem.isConfigEnabled();
+//        multiAssignmentsCheckBox.setEnabled(!isMultiAssignmentsEnabled);
+//        multiAssignmentsConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
     }
 
     @Override
@@ -173,19 +183,19 @@ public class RepositoryConfigurationView extends BaseConfigurationView
 
     @Override
     public void undo() {
-        multiAssignmentsConfigurationItem.undo();
-        final boolean isMultiAssignmentsEnabled = multiAssignmentsConfigurationItem.isConfigEnabled();
-        binder.getBean().setMultiAssignments(isMultiAssignmentsEnabled);
-        actionAutocloseConfigurationItem.undo();
-        binder.getBean().setActionAutoclose(actionAutocloseConfigurationItem.isConfigEnabled());
-        actionAutocloseCheckBox.setEnabled(!isMultiAssignmentsEnabled);
-        actionAutocloseConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
-        actionAutocleanupConfigurationItem.undo();
-        binder.getBean().setActionAutocleanup(actionAutocleanupConfigurationItem.isConfigEnabled());
+//        multiAssignmentsConfigurationItem.undo();
+//        final boolean isMultiAssignmentsEnabled = multiAssignmentsConfigurationItem.isConfigEnabled();
+//        binder.getBean().setMultiAssignments(isMultiAssignmentsEnabled);
+//        actionAutocloseConfigurationItem.undo();
+//        binder.getBean().setActionAutoclose(actionAutocloseConfigurationItem.isConfigEnabled());
+//        actionAutocloseCheckBox.setEnabled(!isMultiAssignmentsEnabled);
+//        actionAutocloseConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
+//        actionAutocleanupConfigurationItem.undo();
+//        binder.getBean().setActionAutocleanup(actionAutocleanupConfigurationItem.isConfigEnabled());
     }
 
     @Override
     public void configurationHasChanged() {
-        notifyConfigurationChanged();
+//        notifyConfigurationChanged();
     }
 }
