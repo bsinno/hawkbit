@@ -174,12 +174,12 @@ public class RepositoryConfigurationView extends BaseConfigurationView
 //        multiAssignmentsConfigurationItem.setEnabled(!isMultiAssignmentsEnabled);
     }
 
-    @Override
-    public boolean isUserInputValid() {
-        return actionAutocloseConfigurationItem.isUserInputValid()
-                && actionAutocleanupConfigurationItem.isUserInputValid()
-                && multiAssignmentsConfigurationItem.isUserInputValid();
-    }
+//    @Override
+//    public boolean isUserInputValid() {
+//        return actionAutocloseConfigurationItem.isUserInputValid()
+//                && actionAutocleanupConfigurationItem.isUserInputValid()
+//                && multiAssignmentsConfigurationItem.isUserInputValid();
+//    }
 
     @Override
     public void undo() {

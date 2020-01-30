@@ -105,7 +105,7 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
                 valueChangeEvent -> changeEvent(valueChangeEvent, certificateAuthenticationConfigurationItem));
         binder.bind(certificateAuthCheckbox, ProxySystemConfigWindow::isCertificateAuth,
                 ProxySystemConfigWindow::setCertificateAuth);
-        certificateAuthenticationConfigurationItem.addChangeListener(this);
+//        certificateAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(certificateAuthCheckbox, 0, 0);
         gridLayout.addComponent(certificateAuthenticationConfigurationItem, 1, 0);
         targetSecTokenCheckBox = new CheckBox();
@@ -154,7 +154,7 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
 
     @Override
     public void save() {
-        certificateAuthenticationConfigurationItem.save();
+//        certificateAuthenticationConfigurationItem.save();
         targetSecurityTokenAuthenticationConfigurationItem.save();
         gatewaySecurityTokenAuthenticationConfigurationItem.save();
         anonymousDownloadAuthenticationConfigurationItem.save();
@@ -162,14 +162,14 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
 
     @Override
     public void undo() {
-        certificateAuthenticationConfigurationItem.undo();
-        targetSecurityTokenAuthenticationConfigurationItem.undo();
-        gatewaySecurityTokenAuthenticationConfigurationItem.undo();
-        anonymousDownloadAuthenticationConfigurationItem.undo();
-        certificateAuthCheckbox.setValue(certificateAuthenticationConfigurationItem.isConfigEnabled());
-        targetSecTokenCheckBox.setValue(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-        gatewaySecTokenCheckBox.setValue(gatewaySecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-        downloadAnonymousCheckBox.setValue(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
+//        certificateAuthenticationConfigurationItem.undo();
+//        targetSecurityTokenAuthenticationConfigurationItem.undo();
+//        gatewaySecurityTokenAuthenticationConfigurationItem.undo();
+//        anonymousDownloadAuthenticationConfigurationItem.undo();
+//        certificateAuthCheckbox.setValue(certificateAuthenticationConfigurationItem.isConfigEnabled());
+//        targetSecTokenCheckBox.setValue(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
+//        gatewaySecTokenCheckBox.setValue(gatewaySecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
+//        downloadAnonymousCheckBox.setValue(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
     }
 
     @Override

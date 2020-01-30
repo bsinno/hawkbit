@@ -13,9 +13,11 @@ import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.data.Binder;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
@@ -36,9 +38,12 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
     private final VerticalLayout detailLayout;
     private final TextField caRootAuthorityTextField;
 
+    private final Binder<ProxySystemConfigWindow> binder;
+
     public CertificateAuthenticationConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-            final VaadinMessageSource i18n) {
+            final VaadinMessageSource i18n, Binder<ProxySystemConfigWindow> binder) {
         super(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_ENABLED, tenantConfigurationManagement, i18n);
+        this.binder = binder;
 
         super.init("label.configuration.auth.header");
         configurationEnabled = isConfigEnabled();
@@ -50,14 +55,16 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         final HorizontalLayout caRootAuthorityLayout = new HorizontalLayout();
         caRootAuthorityLayout.setSpacing(true);
 
-        final Label caRootAuthorityLabel = new LabelBuilder()
-                .name(i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
+        final Label caRootAuthorityLabel = new LabelBuilder().name(
+                i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
         caRootAuthorityLabel.setDescription(i18n.getMessage("label.configuration.auth.hashField.tooltip"));
         caRootAuthorityLabel.setWidthUndefined();
 
         caRootAuthorityTextField = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         caRootAuthorityTextField.setWidth("100%");
-        caRootAuthorityTextField.addValueChangeListener(event -> caRootAuthorityChanged());
+        binder.bind(caRootAuthorityTextField, ProxySystemConfigWindow::getCaRootAuthority,
+                ProxySystemConfigWindow::setCaRootAuthority);
+//        caRootAuthorityTextField.addValueChangeListener(event -> caRootAuthorityChanged());
 
         caRootAuthorityLayout.addComponent(caRootAuthorityLabel);
         caRootAuthorityLayout.setExpandRatio(caRootAuthorityLabel, 0);
@@ -67,8 +74,8 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
 
         detailLayout.addComponent(caRootAuthorityLayout);
 
-        if (isConfigEnabled()) {
-            caRootAuthorityTextField.setValue(getCaRootAuthorityValue());
+        if (binder.getBean().isCertificateAuth()) {
+            //            caRootAuthorityTextField.setValue(getCaRootAuthorityValue());
             setDetailVisible(true);
         }
     }
@@ -99,8 +106,8 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         }
         if (configurationCaRootAuthorityChanged) {
             final String value = caRootAuthorityTextField.getValue() != null ? caRootAuthorityTextField.getValue() : "";
-            getTenantConfigurationManagement()
-                    .addOrUpdateConfiguration(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, value);
+            getTenantConfigurationManagement().addOrUpdateConfiguration(
+                    TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, value);
         }
     }
 
@@ -109,15 +116,14 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         configurationEnabledChange = false;
         configurationCaRootAuthorityChanged = false;
 
-        configurationEnabled = getTenantConfigurationManagement()
-                .getConfigurationValue(getConfigurationKey(), Boolean.class).getValue();
+        configurationEnabled = getTenantConfigurationManagement().getConfigurationValue(getConfigurationKey(),
+                Boolean.class).getValue();
         caRootAuthorityTextField.setValue(getCaRootAuthorityValue());
     }
 
     private String getCaRootAuthorityValue() {
-        return getTenantConfigurationManagement()
-                .getConfigurationValue(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, String.class)
-                .getValue();
+        return getTenantConfigurationManagement().getConfigurationValue(
+                TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, String.class).getValue();
     }
 
     private void setDetailVisible(final boolean visible) {

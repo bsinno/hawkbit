@@ -15,6 +15,8 @@ public class ProxySystemConfigWindow implements Serializable {
     private Long repositoryConfigId;
     private Long rolloutConfigId;
     private Long caRootAuthorityId;
+    private String caRootAuthority;
+    private String gatewaySecurityToken;
     private ActionStatusOption actionCleanupStatus;
     private String actionExpiryDays;
     private boolean rolloutApproval;
@@ -42,6 +44,22 @@ public class ProxySystemConfigWindow implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCaRootAuthority() {
+        return caRootAuthority;
+    }
+
+    public void setCaRootAuthority(String caRootAuthority) {
+        this.caRootAuthority = caRootAuthority;
+    }
+
+    public String getGatewaySecurityToken() {
+        return gatewaySecurityToken;
+    }
+
+    public void setGatewaySecurityToken(String gatewaySecurityToken) {
+        this.gatewaySecurityToken = gatewaySecurityToken;
     }
 
     public String getDescription() {

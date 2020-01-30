@@ -94,7 +94,7 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
                 .getConfigurationValue(getConfigurationKey(), Boolean.class).getValue();
     }
 
-    private void setSettingsVisible(final boolean visible) {
+    public void setSettingsVisible(final boolean visible) {
         if (visible) {
             addComponent(container);
         } else {

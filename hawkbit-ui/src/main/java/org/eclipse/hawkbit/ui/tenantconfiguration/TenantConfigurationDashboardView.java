@@ -121,6 +121,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.systemManagement = systemManagement;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
         this.binder = new Binder<>();
+        binder.setBean(populateAndGetSystemConfig());
         this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
                 tenantConfigurationManagement, i18n);
         this.actionAutocloseConfigurationItem = new ActionAutocloseConfigurationItem(tenantConfigurationManagement,
@@ -131,14 +132,12 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
                 binder, i18n);
         this.approvalConfigurationItem = new ApprovalConfigurationItem(tenantConfigurationManagement, i18n);
         this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n);
+                tenantConfigurationManagement, i18n, binder);
 
         this.gatewaySecurityTokenAuthenticationConfigurationItem = new GatewaySecurityTokenAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n, securityTokenGenerator);
+                tenantConfigurationManagement, i18n, securityTokenGenerator, binder);
         this.anonymousDownloadAuthenticationConfigurationItem = new AnonymousDownloadAuthenticationConfigurationItem(
                 tenantConfigurationManagement, i18n);
-
-        binder.setBean(populateAndGetSystemConfig());
 
         this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n,
                 permChecker, binder, distributionSetTypeManagement);
@@ -207,17 +206,27 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         final ProxySystemConfigWindow configBean = new ProxySystemConfigWindow();
 
         configBean.setDistributionSetTypeId(systemManagement.getTenantMetadata().getDefaultDsType().getId());
-        configBean.setRolloutApproval(approvalConfigurationItem.isConfigEnabled());
-        configBean.setActionAutoclose(actionAutocloseConfigurationItem.isConfigEnabled());
-        configBean.setMultiAssignments(multiAssignmentsConfigurationItem.isConfigEnabled());
-        configBean.setActionAutocleanup(actionAutocleanupConfigurationItem.isConfigEnabled());
-        configBean.setCertificateAuth(certificateAuthenticationConfigurationItem.isConfigEnabled());
-        configBean.setTargetSecToken(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-        configBean.setGatewaySecToken(gatewaySecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-        configBean.setDownloadAnonymous(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
+        configBean.setRolloutApproval(readConfigOption(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED));
+        configBean.setActionAutoclose(readConfigOption(TenantConfigurationKey.REPOSITORY_ACTIONS_AUTOCLOSE_ENABLED));
+        configBean.setMultiAssignments(readConfigOption(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED));
+        configBean.setActionAutocleanup(readConfigOption(TenantConfigurationKey.ACTION_CLEANUP_ENABLED));
+        configBean.setCertificateAuth(readConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_ENABLED));
+        configBean.setTargetSecToken(
+                readConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_TARGET_SECURITY_TOKEN_ENABLED));
+        configBean.setGatewaySecToken(
+                readConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_ENABLED));
+        configBean.setDownloadAnonymous(readConfigOption(TenantConfigurationKey.ANONYMOUS_DOWNLOAD_MODE_ENABLED));
+        configBean.setGatewaySecurityToken(tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY, String.class).getValue());
+        configBean.setCaRootAuthority(getCaRootAuthorityValue());
         configBean.setActionCleanupStatus(getActionStatusOption());
         configBean.setActionExpiryDays(String.valueOf(getActionExpiry()));
         return configBean;
+    }
+
+    private String getCaRootAuthorityValue() {
+        return tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, String.class).getValue();
     }
 
     private long getActionExpiry() {
@@ -277,7 +286,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         systemManagement.updateTenantMetadata(configWindowBean.getDistributionSetTypeId());
         writeConfigOption(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED, configWindowBean.isRolloutApproval());
         writeConfigOption(TenantConfigurationKey.ACTION_CLEANUP_ENABLED, configWindowBean.isActionAutocleanup());
-        if (actionAutocleanupConfigurationItem.isConfigEnabled()) {
+        if (configWindowBean.isActionAutocleanup()) {
             writeConfigOption(ACTION_CLEANUP_ACTION_STATUS, configWindowBean.getActionCleanupStatus()
                     .getStatus()
                     .stream()
@@ -287,22 +296,35 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             writeConfigOption(TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY,
                     TimeUnit.DAYS.toMillis(Long.parseLong(configWindowBean.getActionExpiryDays())));
         }
-        if (!multiAssignmentsConfigurationItem.isConfigEnabled()) {
+        if (configWindowBean.isMultiAssignments()) {
             writeConfigOption(TenantConfigurationKey.REPOSITORY_ACTIONS_AUTOCLOSE_ENABLED,
                     configWindowBean.isActionAutoclose());
         }
 
-        if (!multiAssignmentsConfigurationItem.isConfigEnabled()) {
+        if (configWindowBean.isMultiAssignments()) {
             writeConfigOption(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED, configWindowBean.isMultiAssignments());
             repositoryConfigurationView.disableMultipleAssignmentOption();
         }
-
+        writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_ENABLED,
+                configWindowBean.isCertificateAuth());
+        if (configWindowBean.isCertificateAuth()) {
+            final String value =
+                    configWindowBean.getCaRootAuthority() != null ? configWindowBean.getCaRootAuthority() : "";
+            writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, value);
+        }
         configurationViews.forEach(ConfigurationGroup::save);
         populateAndGetSystemConfig();
     }
 
-    private <T extends Serializable> void writeConfigOption(String RepositoryId, T value) {
-        tenantConfigurationManagement.addOrUpdateConfiguration(RepositoryId, value);
+    private boolean readConfigOption(String configurationKey) {
+        final TenantConfigurationValue<Boolean> enabled = tenantConfigurationManagement.getConfigurationValue(
+                configurationKey, Boolean.class);
+
+        return enabled.getValue() && !enabled.isGlobal();
+    }
+
+    private <T extends Serializable> void writeConfigOption(String key, T value) {
+        tenantConfigurationManagement.addOrUpdateConfiguration(key, value);
     }
 
     private void saveConfiguration() {
