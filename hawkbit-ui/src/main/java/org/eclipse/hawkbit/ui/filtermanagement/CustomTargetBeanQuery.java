@@ -43,7 +43,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 public class CustomTargetBeanQuery extends AbstractBeanQuery<ProxyTarget> {
 
     private static final long serialVersionUID = 6490445732785388071L;
-    private Sort sort = new Sort(Direction.ASC, "id");
+    private Sort sort = Sort.by(Direction.ASC, "id");
     private transient TargetManagement targetManagement;
     private FilterManagementUIState filterManagementUIState;
     private transient VaadinMessageSource i18N;
@@ -71,10 +71,10 @@ public class CustomTargetBeanQuery extends AbstractBeanQuery<ProxyTarget> {
 
         if (sortStates != null && sortStates.length > 0) {
 
-            sort = new Sort(sortStates[0] ? ASC : DESC, (String) sortIds[0]);
+            sort = Sort.by(sortStates[0] ? ASC : DESC, (String) sortIds[0]);
 
             for (int targetId = 1; targetId < sortIds.length; targetId++) {
-                sort.and(new Sort(sortStates[targetId] ? ASC : DESC, (String) sortIds[targetId]));
+                sort.and(Sort.by(sortStates[targetId] ? ASC : DESC, (String) sortIds[targetId]));
             }
         }
     }

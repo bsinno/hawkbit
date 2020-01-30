@@ -38,7 +38,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> {
 
     private static final long serialVersionUID = 5176481314404662215L;
-    private Sort sort = new Sort(Direction.ASC, "name", "version");
+    private Sort sort = Sort.by(Direction.ASC, "name", "version");
     private transient DistributionSetManagement distributionSetManagement;
     private transient Page<DistributionSet> firstPageDistributionSets = null;
 
@@ -60,10 +60,10 @@ public class DistributionBeanQuery extends AbstractBeanQuery<ProxyDistribution> 
 
         if (sortStates.length > 0) {
             // Initalize sort
-            sort = new Sort(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortPropertyIds[0]);
+            sort = Sort.by(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortPropertyIds[0]);
             // Add sort
             for (int distId = 1; distId < sortPropertyIds.length; distId++) {
-                sort.and(new Sort(sortStates[distId] ? Direction.ASC : Direction.DESC,
+                sort.and(Sort.by(sortStates[distId] ? Direction.ASC : Direction.DESC,
                         (String) sortPropertyIds[distId]));
             }
         }

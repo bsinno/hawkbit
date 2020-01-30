@@ -43,7 +43,7 @@ public class TargetBeanQuery extends AbstractBeanQuery<ProxyTarget> {
 
     private static final long serialVersionUID = -5645680058303167558L;
 
-    private Sort sort = new Sort(SPUIDefinitions.TARGET_TABLE_LASTMODIFIED_AT_SORT_ORDER, "lastModifiedAt");
+    private Sort sort = Sort.by(SPUIDefinitions.TARGET_TABLE_LASTMODIFIED_AT_SORT_ORDER, "lastModifiedAt");
     private transient Collection<TargetUpdateStatus> status;
     private transient Boolean overdueState;
     private String[] targetTags;
@@ -90,10 +90,10 @@ public class TargetBeanQuery extends AbstractBeanQuery<ProxyTarget> {
 
         if (sortStates != null && sortStates.length > 0) {
 
-            sort = new Sort(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortIds[0]);
+            sort = Sort.by(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortIds[0]);
 
             for (int targetId = 1; targetId < sortIds.length; targetId++) {
-                sort.and(new Sort(sortStates[targetId] ? Direction.ASC : Direction.DESC, (String) sortIds[targetId]));
+                sort.and(Sort.by(sortStates[targetId] ? Direction.ASC : Direction.DESC, (String) sortIds[targetId]));
             }
         }
     }

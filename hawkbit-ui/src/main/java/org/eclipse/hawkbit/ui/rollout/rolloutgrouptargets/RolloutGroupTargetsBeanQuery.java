@@ -45,7 +45,7 @@ public class RolloutGroupTargetsBeanQuery extends AbstractBeanQuery<ProxyTarget>
 
     private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupTargetsBeanQuery.class);
 
-    private static final Sort sort = new Sort(Direction.ASC, "id");
+    private static final Sort sort = Sort.by(Direction.ASC, "id");
 
     private transient Page<TargetWithActionStatus> firstPageTargetSets;
 

@@ -47,7 +47,7 @@ public class RolloutGroupBeanQuery extends AbstractBeanQuery<ProxyRolloutGroup> 
 
     private static final Logger LOG = LoggerFactory.getLogger(RolloutGroupBeanQuery.class);
 
-    private Sort sort = new Sort(Direction.ASC, "id");
+    private Sort sort = Sort.by(Direction.ASC, "id");
 
     private transient Page<RolloutGroup> firstPageRolloutGroupSets;
 
@@ -80,10 +80,10 @@ public class RolloutGroupBeanQuery extends AbstractBeanQuery<ProxyRolloutGroup> 
 
         if (sortStates != null && sortStates.length > 0) {
 
-            sort = new Sort(sortStates[0] ? ASC : DESC, (String) sortPropertyIds[0]);
+            sort = Sort.by(sortStates[0] ? ASC : DESC, (String) sortPropertyIds[0]);
 
             for (int targetId = 1; targetId < sortPropertyIds.length; targetId++) {
-                sort.and(new Sort(sortStates[targetId] ? ASC : DESC, (String) sortPropertyIds[targetId]));
+                sort.and(Sort.by(sortStates[targetId] ? ASC : DESC, (String) sortPropertyIds[targetId]));
             }
         }
     }

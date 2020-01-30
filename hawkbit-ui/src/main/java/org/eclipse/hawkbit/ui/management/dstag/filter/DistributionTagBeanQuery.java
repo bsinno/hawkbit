@@ -31,7 +31,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 public class DistributionTagBeanQuery extends AbstractBeanQuery<ProxyTag> {
 
     private static final long serialVersionUID = -4791426170440663033L;
-    private final Sort sort = new Sort(Direction.ASC, "name");
+    private final Sort sort = Sort.by(Direction.ASC, "name");
 
     private transient DistributionSetTagManagement distributionSetTagManagement;
 

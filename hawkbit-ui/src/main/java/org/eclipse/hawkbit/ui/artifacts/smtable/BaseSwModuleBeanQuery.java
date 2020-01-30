@@ -39,7 +39,7 @@ public class BaseSwModuleBeanQuery extends AbstractBeanQuery<ProxyBaseSoftwareMo
     private transient SoftwareModuleManagement softwareManagementService;
     private Long type;
     private String searchText;
-    private final Sort sort = new Sort(Direction.ASC, "name", "version");
+    private final Sort sort = Sort.by(Direction.ASC, "name", "version");
 
     /**
      * Parametric Constructor.

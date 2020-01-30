@@ -27,7 +27,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 public class SoftwareModuleTypeBeanQuery extends AbstractBeanQuery<SoftwareModuleType> {
     private static final long serialVersionUID = 7824925429198339644L;
 
-    private final Sort sort = new Sort(Direction.ASC, "name");
+    private final Sort sort = Sort.by(Direction.ASC, "name");
     private transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
 
     /**

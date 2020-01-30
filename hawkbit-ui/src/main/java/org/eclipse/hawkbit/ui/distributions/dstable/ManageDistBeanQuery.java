@@ -40,7 +40,7 @@ public class ManageDistBeanQuery extends AbstractBeanQuery<ProxyDistribution> {
 
     private static final long serialVersionUID = 1L;
 
-    private Sort sort = new Sort(Direction.ASC, "id");
+    private Sort sort = Sort.by(Direction.ASC, "id");
     private String searchText;
     private String filterString;
     private transient DistributionSetManagement distributionSetManagement;
@@ -98,10 +98,10 @@ public class ManageDistBeanQuery extends AbstractBeanQuery<ProxyDistribution> {
     private void setupSorting(final Object[] sortPropertyIds, final boolean[] sortStates) {
         if (sortStates != null && sortStates.length > 0) {
             // Initialize sort
-            sort = new Sort(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortPropertyIds[0]);
+            sort = Sort.by(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortPropertyIds[0]);
             // Add sort
             for (int distId = 1; distId < sortPropertyIds.length; distId++) {
-                sort = sort.and(new Sort(sortStates[distId] ? Direction.ASC : Direction.DESC,
+                sort = sort.and(Sort.by(sortStates[distId] ? Direction.ASC : Direction.DESC,
                         (String) sortPropertyIds[distId]));
             }
         }

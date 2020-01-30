@@ -30,7 +30,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
  */
 public class ArtifactBeanQuery extends AbstractBeanQuery<Artifact> {
     private static final long serialVersionUID = 1L;
-    private Sort sort = new Sort(Direction.DESC, "filename");
+    private Sort sort = Sort.by(Direction.DESC, "filename");
     private transient ArtifactManagement artifactManagement;
     private transient Page<Artifact> firstPagetArtifacts;
     private Long baseSwModuleId;
@@ -57,10 +57,10 @@ public class ArtifactBeanQuery extends AbstractBeanQuery<Artifact> {
         }
 
         if (!ArrayUtils.isEmpty(sortStates)) {
-            sort = new Sort(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortIds[0]);
+            sort = Sort.by(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortIds[0]);
 
             for (int targetId = 1; targetId < sortIds.length; targetId++) {
-                sort.and(new Sort(sortStates[targetId] ? Direction.ASC : Direction.DESC, (String) sortIds[targetId]));
+                sort.and(Sort.by(sortStates[targetId] ? Direction.ASC : Direction.DESC, (String) sortIds[targetId]));
             }
         }
     }

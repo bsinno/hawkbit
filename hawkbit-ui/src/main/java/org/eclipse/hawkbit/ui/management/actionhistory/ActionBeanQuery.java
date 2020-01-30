@@ -34,7 +34,7 @@ import org.vaadin.addons.lazyquerycontainer.QueryDefinition;
 public class ActionBeanQuery extends AbstractBeanQuery<ProxyAction> {
     private static final long serialVersionUID = 3596912494728552516L;
 
-    private Sort sort = new Sort(Direction.DESC, ProxyAction.PXY_ACTION_ID);
+    private Sort sort = Sort.by(Direction.DESC, ProxyAction.PXY_ACTION_ID);
     private transient DeploymentManagement deploymentManagement;
 
     private String currentSelectedConrollerId;
@@ -65,10 +65,10 @@ public class ActionBeanQuery extends AbstractBeanQuery<ProxyAction> {
         }
 
         // Initialize sort
-        sort = new Sort(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortPropertyIds[0]);
+        sort = Sort.by(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortPropertyIds[0]);
         // Add sort
         for (int distId = 1; distId < sortPropertyIds.length; distId++) {
-            sort.and(new Sort(sortStates[distId] ? Direction.ASC : Direction.DESC, (String) sortPropertyIds[distId]));
+            sort.and(Sort.by(sortStates[distId] ? Direction.ASC : Direction.DESC, (String) sortPropertyIds[distId]));
         }
     }
 

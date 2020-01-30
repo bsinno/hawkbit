@@ -14,11 +14,11 @@ import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ListJoin;
+import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
-import javax.persistence.criteria.MapJoin;
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.hawkbit.repository.jpa.model.JpaAction;
@@ -38,7 +38,6 @@ import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetTag;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
 
 /**
  * Specifications class for {@link Target}s. The class provides Spring Data JPQL
@@ -177,7 +176,7 @@ public final class TargetSpecifications {
      * @return the {@link Target} {@link Specification}
      */
     public static Specification<JpaTarget> likeIdOrNameOrDescriptionOrAttributeValue(final String searchText) {
-        return Specifications.where(likeIdOrNameOrDescription(searchText)).or(likeAttributeValue(searchText));
+        return Specification.where(likeIdOrNameOrDescription(searchText)).or(likeAttributeValue(searchText));
     }
 
     /**

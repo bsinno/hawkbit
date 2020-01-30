@@ -43,7 +43,7 @@ public class RolloutBeanQuery extends AbstractBeanQuery<ProxyRollout> {
 
     private final String searchText;
 
-    private Sort sort = new Sort(Direction.DESC, "lastModifiedAt");
+    private Sort sort = Sort.by(Direction.DESC, "lastModifiedAt");
 
     private transient RolloutManagement rolloutManagement;
 
@@ -69,10 +69,10 @@ public class RolloutBeanQuery extends AbstractBeanQuery<ProxyRollout> {
 
         if (sortStates != null && sortStates.length > 0) {
 
-            sort = new Sort(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortIds[0]);
+            sort = Sort.by(sortStates[0] ? Direction.ASC : Direction.DESC, (String) sortIds[0]);
 
             for (int targetId = 1; targetId < sortIds.length; targetId++) {
-                sort.and(new Sort(sortStates[targetId] ? Direction.ASC : Direction.DESC, (String) sortIds[targetId]));
+                sort.and(Sort.by(sortStates[targetId] ? Direction.ASC : Direction.DESC, (String) sortIds[targetId]));
             }
         }
     }

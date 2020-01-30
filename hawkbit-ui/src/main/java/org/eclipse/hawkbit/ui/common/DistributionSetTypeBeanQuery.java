@@ -35,7 +35,7 @@ public class DistributionSetTypeBeanQuery extends AbstractBeanQuery<Distribution
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributionSetTypeBeanQuery.class);
 
-    private final Sort sort = new Sort(Direction.ASC, "name");
+    private final Sort sort = Sort.by(Direction.ASC, "name");
     private transient DistributionSetTypeManagement distributionSetTypeManagement;
 
     /**

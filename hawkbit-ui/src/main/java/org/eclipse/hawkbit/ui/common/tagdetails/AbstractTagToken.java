@@ -22,7 +22,6 @@ import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout.TagAssignmentList
 import org.eclipse.hawkbit.ui.management.state.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.hateoas.Identifiable;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -151,10 +150,10 @@ public abstract class AbstractTagToken<T extends BaseEntity> implements Serializ
 
     protected abstract void unassignTag(TagData tagData);
 
-    protected boolean checkAssignmentResult(final List<? extends Identifiable<Long>> assignedEntities,
+    protected boolean checkAssignmentResult(final List<? extends BaseEntity> assignedEntities,
             final Long expectedAssignedEntityId) {
         if (!CollectionUtils.isEmpty(assignedEntities) && expectedAssignedEntityId != null) {
-            final List<Long> assignedDsIds = assignedEntities.stream().map(Identifiable::getId)
+            final List<Long> assignedDsIds = assignedEntities.stream().map(BaseEntity::getId)
                     .collect(Collectors.toList());
             if (assignedDsIds.contains(expectedAssignedEntityId)) {
                 return true;
@@ -163,7 +162,7 @@ public abstract class AbstractTagToken<T extends BaseEntity> implements Serializ
         return false;
     }
 
-    protected boolean checkUnassignmentResult(final Identifiable<Long> unAssignedEntity,
+    protected boolean checkUnassignmentResult(final BaseEntity unAssignedEntity,
             final Long expectedUnAssignedEntityId) {
         return unAssignedEntity != null && expectedUnAssignedEntityId != null
                 && unAssignedEntity.getId().equals(expectedUnAssignedEntityId);
