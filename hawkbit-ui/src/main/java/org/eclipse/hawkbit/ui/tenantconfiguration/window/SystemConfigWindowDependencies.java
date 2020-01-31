@@ -2,7 +2,6 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.window;
 
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
-import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -14,19 +13,16 @@ public class SystemConfigWindowDependencies {
     private final SpPermissionChecker permissionChecker;
     private final DistributionSetTypeManagement distributionSetTypeManagement;
     private final DistributionSetTypeDataProvider distributionSetTypeDataProvider;
-    private final TenantMetaData tenantMetaData;
 
     public SystemConfigWindowDependencies(final SystemManagement systemManagement, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker,
             final DistributionSetTypeManagement distributionSetTypeManagement,
-            final DistributionSetTypeDataProvider distributionSetTypeDataProvider,
-            final TenantMetaData tenantMetaData) {
+            final DistributionSetTypeDataProvider distributionSetTypeDataProvider) {
         this.systemManagement = systemManagement;
         this.i18n = i18n;
         this.permissionChecker = permissionChecker;
         this.distributionSetTypeManagement = distributionSetTypeManagement;
         this.distributionSetTypeDataProvider = distributionSetTypeDataProvider;
-        this.tenantMetaData = tenantMetaData;
     }
 
     public SystemManagement getSystemManagement() {
@@ -47,9 +43,5 @@ public class SystemConfigWindowDependencies {
 
     public DistributionSetTypeDataProvider getDistributionSetTypeDataProvider() {
         return distributionSetTypeDataProvider;
-    }
-
-    public TenantMetaData getTenantMetaData() {
-        return tenantMetaData;
     }
 }

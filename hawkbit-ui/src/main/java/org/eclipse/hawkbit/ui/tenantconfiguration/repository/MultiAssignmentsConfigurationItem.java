@@ -11,9 +11,11 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.vaadin.data.Binder;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -31,67 +33,45 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
     private final VerticalLayout container;
     private final VaadinMessageSource i18n;
 
-    private boolean isMultiAssignmentsEnabled;
-    private boolean multiAssignmentsEnabledChanged;
+    private final Binder<ProxySystemConfigWindow> binder;
 
     /**
      * Constructor.
-     * 
+     *
      * @param tenantConfigurationManagement
-     *            to read /write tenant-specific configuration properties
+     *         to read /write tenant-specific configuration properties
      * @param i18n
-     *            to obtain localized strings
+     * @param binder
      */
     public MultiAssignmentsConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-            final VaadinMessageSource i18n) {
+            final VaadinMessageSource i18n, Binder<ProxySystemConfigWindow> binder) {
         super(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED, tenantConfigurationManagement, i18n);
         this.i18n = i18n;
-
+        this.binder = binder;
         super.init(MSG_KEY_CHECKBOX);
-        isMultiAssignmentsEnabled = isConfigEnabled();
-
         container = new VerticalLayout();
-
-
         container.addComponent(newLabel(MSG_KEY_NOTICE));
-
-        if (isMultiAssignmentsEnabled) {
-            setSettingsVisible(isMultiAssignmentsEnabled);
+        if (binder.getBean().isMultiAssignments()) {
+            setSettingsVisible(true);
         }
-
     }
 
     @Override
     public void configEnable() {
-        if (!isMultiAssignmentsEnabled) {
-            multiAssignmentsEnabledChanged = true;
-        }
-        isMultiAssignmentsEnabled = true;
         setSettingsVisible(true);
     }
 
     @Override
     public void configDisable() {
-        if (isMultiAssignmentsEnabled) {
-            multiAssignmentsEnabledChanged = true;
-        }
-        isMultiAssignmentsEnabled = false;
         setSettingsVisible(false);
     }
 
     @Override
     public void save() {
-        if (!multiAssignmentsEnabledChanged) {
-            return;
-        }
-        getTenantConfigurationManagement().addOrUpdateConfiguration(getConfigurationKey(), isMultiAssignmentsEnabled);
     }
 
     @Override
     public void undo() {
-        multiAssignmentsEnabledChanged = false;
-        isMultiAssignmentsEnabled = getTenantConfigurationManagement()
-                .getConfigurationValue(getConfigurationKey(), Boolean.class).getValue();
     }
 
     public void setSettingsVisible(final boolean visible) {

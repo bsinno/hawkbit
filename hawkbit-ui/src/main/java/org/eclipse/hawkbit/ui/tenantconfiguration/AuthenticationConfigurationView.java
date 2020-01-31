@@ -105,17 +105,13 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
                 valueChangeEvent -> changeEvent(valueChangeEvent, certificateAuthenticationConfigurationItem));
         binder.bind(certificateAuthCheckbox, ProxySystemConfigWindow::isCertificateAuth,
                 ProxySystemConfigWindow::setCertificateAuth);
-//        certificateAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(certificateAuthCheckbox, 0, 0);
         gridLayout.addComponent(certificateAuthenticationConfigurationItem, 1, 0);
         targetSecTokenCheckBox = new CheckBox();
         targetSecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        targetSecTokenCheckBox.addValueChangeListener(
-                valueChangeEvent -> changeEvent(valueChangeEvent, targetSecurityTokenAuthenticationConfigurationItem));
         binder.bind(targetSecTokenCheckBox, ProxySystemConfigWindow::isTargetSecToken,
                 ProxySystemConfigWindow::setTargetSecToken);
 
-        targetSecurityTokenAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(targetSecTokenCheckBox, 0, 1);
         gridLayout.addComponent(targetSecurityTokenAuthenticationConfigurationItem, 1, 1);
 
@@ -126,19 +122,15 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
                 valueChangeEvent -> changeEvent(valueChangeEvent, gatewaySecurityTokenAuthenticationConfigurationItem));
         binder.bind(gatewaySecTokenCheckBox, ProxySystemConfigWindow::isGatewaySecToken,
                 ProxySystemConfigWindow::setGatewaySecToken);
-        gatewaySecurityTokenAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(gatewaySecTokenCheckBox, 0, 2);
         gridLayout.addComponent(gatewaySecurityTokenAuthenticationConfigurationItem, 1, 2);
 
         downloadAnonymousCheckBox = new CheckBox();
         downloadAnonymousCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         downloadAnonymousCheckBox.setId(UIComponentIdProvider.DOWNLOAD_ANONYMOUS_CHECKBOX);
-        downloadAnonymousCheckBox.addValueChangeListener(
-                valueChangeEvent -> changeEvent(valueChangeEvent, anonymousDownloadAuthenticationConfigurationItem));
         binder.bind(downloadAnonymousCheckBox, ProxySystemConfigWindow::isDownloadAnonymous,
                 ProxySystemConfigWindow::setDownloadAnonymous);
 
-        anonymousDownloadAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(downloadAnonymousCheckBox, 0, 3);
         gridLayout.addComponent(anonymousDownloadAuthenticationConfigurationItem, 1, 3);
 
@@ -154,27 +146,14 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
 
     @Override
     public void save() {
-//        certificateAuthenticationConfigurationItem.save();
-        targetSecurityTokenAuthenticationConfigurationItem.save();
-        gatewaySecurityTokenAuthenticationConfigurationItem.save();
-        anonymousDownloadAuthenticationConfigurationItem.save();
     }
 
     @Override
     public void undo() {
-//        certificateAuthenticationConfigurationItem.undo();
-//        targetSecurityTokenAuthenticationConfigurationItem.undo();
-//        gatewaySecurityTokenAuthenticationConfigurationItem.undo();
-//        anonymousDownloadAuthenticationConfigurationItem.undo();
-//        certificateAuthCheckbox.setValue(certificateAuthenticationConfigurationItem.isConfigEnabled());
-//        targetSecTokenCheckBox.setValue(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-//        gatewaySecTokenCheckBox.setValue(gatewaySecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-//        downloadAnonymousCheckBox.setValue(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
     }
 
     @Override
     public void configurationHasChanged() {
-        notifyConfigurationChanged();
     }
 
     public void changeEvent(final HasValue.ValueChangeEvent event, final BooleanConfigurationItem configurationItem) {

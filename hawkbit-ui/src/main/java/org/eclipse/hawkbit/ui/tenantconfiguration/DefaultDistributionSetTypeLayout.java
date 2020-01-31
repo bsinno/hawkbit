@@ -10,8 +10,6 @@ package org.eclipse.hawkbit.ui.tenantconfiguration;
 
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
-import org.eclipse.hawkbit.repository.model.DistributionSetType;
-import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
@@ -34,18 +32,15 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * Default DistributionSet Panel.
  */
-public class DefaultDistributionSetTypeLayout extends BaseConfigurationView implements ConfigurationItem.ConfigurationItemChangeListener {
+public class DefaultDistributionSetTypeLayout extends BaseConfigurationView
+        implements ConfigurationItem.ConfigurationItemChangeListener {
 
     private static final long serialVersionUID = 1L;
-
-    private final transient SystemManagement systemManagement;
 
     private final VaadinMessageSource i18n;
 
     private final SpPermissionChecker permissionChecker;
     private Long currentDefaultDisSetType;
-    private Long selectedDefaultDisSetType;
-    private TenantMetaData tenantMetaData;
     private ComboBox<ProxyType> dsSetComboBox = new ComboBox<>();
     private final Binder<ProxySystemConfigWindow> binder;
     private final transient SystemConfigWindowLayoutComponentBuilder builder;
@@ -54,14 +49,13 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView impl
     DefaultDistributionSetTypeLayout(final SystemManagement systemManagement, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final Binder<ProxySystemConfigWindow> binder,
             final DistributionSetTypeManagement typeManagement) {
-        this.systemManagement = systemManagement;
         this.i18n = i18n;
         this.permissionChecker = permChecker;
         this.binder = binder;
         final DistributionSetTypeDataProvider dataProvider = new DistributionSetTypeDataProvider(typeManagement,
                 new TypeToProxyTypeMapper<>());
         SystemConfigWindowDependencies dependencies = new SystemConfigWindowDependencies(systemManagement, i18n,
-                permChecker, typeManagement, dataProvider, tenantMetaData);
+                permChecker, typeManagement, dataProvider);
         this.builder = new SystemConfigWindowLayoutComponentBuilder(dependencies);
         initDsSetTypeComponent();
     }
@@ -106,69 +100,36 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView impl
 
     private void initDsSetComboBox() {
         dsSetComboBox = builder.createDistributionSetCombo(binder);
-//        final Long currentDistributionSetType = getCurrentDistributionSetType();
-//        currentDefaultDisSetType = dsSetComboBox.getValue().getId();
-        dsSetComboBox.addValueChangeListener(event -> selectDistributionSetValue(event));
+        dsSetComboBox.addValueChangeListener(this::selectDistributionSetValue);
     }
 
     private Long getCurrentDistributionSetType() {
         return binder.getBean().getDistributionSetTypeId();
-//        tenantMetaData = this.systemManagement.getTenantMetadata();
-//        return tenantMetaData.getDefaultDsType().getId();
     }
+
     /**
      * Method that is called when combobox event is performed.
+     *
      * @param event
      */
     private void selectDistributionSetValue(HasValue.ValueChangeEvent<ProxyType> event) {
-
         if (!event.getValue().getId().equals(currentDefaultDisSetType)) {
             changeIcon.setVisible(true);
         } else {
             changeIcon.setVisible(false);
         }
-        //        selectedDefaultDisSetType = binder.getBean().getDistributionSetTypeId();
-//        if (!selectedDefaultDisSetType.equals(currentDefaultDisSetType)) {
-//            changeIcon.setVisible(true);
-//            notifyConfigurationChanged();
-//        } else {
-//            changeIcon.setVisible(false);
-//        }
     }
-
 
     @Override
     public void save() {
-
     }
 
     @Override
     public void undo() {
-
     }
 
     @Override
     public void configurationHasChanged() {
-
     }
 
-/*    @Override
-    public void save() {
-        if (!currentDefaultDisSetType.equals(selectedDefaultDisSetType) && selectedDefaultDisSetType != null) {
-            tenantMetaData = this.systemManagement.updateTenantMetadata(binder.getBean().getDistributionSetTypeId());
-            currentDefaultDisSetType = selectedDefaultDisSetType;
-        }
-        changeIcon.setVisible(false);
-    }
-
-    @Override
-    public void undo() {
-        selectedDefaultDisSetType = currentDefaultDisSetType;
-        changeIcon.setVisible(false);
-    }
-
-    @Override
-    public void configurationHasChanged() {
-        notifyConfigurationChanged();
-    }*/
 }

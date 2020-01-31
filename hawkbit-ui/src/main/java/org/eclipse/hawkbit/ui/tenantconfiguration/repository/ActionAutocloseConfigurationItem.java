@@ -21,45 +21,25 @@ public class ActionAutocloseConfigurationItem extends AbstractBooleanTenantConfi
 
     private static final long serialVersionUID = 1L;
 
-    private boolean configurationEnabled;
-    private boolean configurationEnabledChange;
-
     public ActionAutocloseConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
             final VaadinMessageSource i18n) {
         super(TenantConfigurationKey.REPOSITORY_ACTIONS_AUTOCLOSE_ENABLED, tenantConfigurationManagement, i18n);
-
         super.init("label.configuration.repository.autoclose.action");
-        configurationEnabled = isConfigEnabled();
     }
 
     @Override
     public void configEnable() {
-        if (!configurationEnabled) {
-            configurationEnabledChange = true;
-        }
-        configurationEnabled = true;
     }
 
     @Override
     public void configDisable() {
-        if (configurationEnabled) {
-            configurationEnabledChange = true;
-        }
-        configurationEnabled = false;
     }
 
     @Override
     public void save() {
-        if (!configurationEnabledChange) {
-            return;
-        }
-        getTenantConfigurationManagement().addOrUpdateConfiguration(getConfigurationKey(), configurationEnabled);
     }
 
     @Override
     public void undo() {
-        configurationEnabledChange = false;
-        configurationEnabled = getTenantConfigurationManagement()
-                .getConfigurationValue(getConfigurationKey(), Boolean.class).getValue();
     }
 }

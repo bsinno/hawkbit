@@ -12,7 +12,6 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -25,8 +24,8 @@ import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -39,16 +38,7 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
     private static final long serialVersionUID = 1L;
 
     private final transient SecurityTokenGenerator securityTokenGenerator;
-
-//    private final Label gatewayTokenkeyLabel;
-
     private final TextField gatewayTokenField;
-
-    private boolean configurationEnabled;
-    private boolean configurationEnabledChange;
-
-    private boolean keyChanged;
-
     private final VerticalLayout detailLayout;
     private final Binder<ProxySystemConfigWindow> binder;
 
@@ -59,10 +49,7 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
                 i18n);
         this.securityTokenGenerator = securityTokenGenerator;
         this.binder = binder;
-
         super.init("label.configuration.auth.gatewaytoken");
-
-        configurationEnabled = isConfigEnabled();
 
         detailLayout = new VerticalLayout();
         detailLayout.setMargin(false);
@@ -73,99 +60,61 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
                 true, null, SPUIButtonStyleSmall.class);
 
         gatewaytokenBtn.setIcon(VaadinIcons.REFRESH);
-        gatewaytokenBtn.addClickListener(event -> generateGatewayToken());
+        gatewaytokenBtn.addClickListener(event -> refreshGatewayToken());
 
-
-//        gatewayTokenkeyLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();
-//        gatewayTokenkeyLabel.addStyleName("gateway-token-label");
         gatewayTokenField = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         gatewayTokenField.setWidth(300, Unit.PIXELS);
         gatewayTokenField.setId("gatewaysecuritytokenkey");
-//        gatewayTokenField.setEnabled(false);
         gatewayTokenField.setReadOnly(true);
-        binder.bind(gatewayTokenField, ProxySystemConfigWindow::getGatewaySecurityToken, ProxySystemConfigWindow::setGatewaySecurityToken);
+        binder.bind(gatewayTokenField, ProxySystemConfigWindow::getGatewaySecurityToken,
+                ProxySystemConfigWindow::setGatewaySecurityToken);
         final HorizontalLayout keyGenerationLayout = new HorizontalLayout();
         keyGenerationLayout.setSpacing(true);
-
         keyGenerationLayout.addComponent(gatewayTokenField);
         keyGenerationLayout.addComponent(gatewaytokenBtn);
-
         detailLayout.addComponent(keyGenerationLayout);
-
         if (binder.getBean().isGatewaySecToken()) {
-//            gatewayTokenField.setValue(getSecurityTokenKey());
             setDetailVisible(true);
         }
     }
 
-    private void setDetailVisible(final boolean visible) {
+    public void setDetailVisible(final boolean visible) {
         if (visible) {
             addComponent(detailLayout);
         } else {
             removeComponent(detailLayout);
         }
-
     }
 
-    private void generateGatewayToken() {
+    private void refreshGatewayToken() {
         binder.getBean().setGatewaySecurityToken(securityTokenGenerator.generateToken());
-//        gatewayTokenField.setValue(securityTokenGenerator.generateToken());
-        keyChanged = true;
-        notifyConfigurationChanged();
+        binder.readBean(binder.getBean());
+        UI.getCurrent().push();
     }
 
     @Override
     public void configEnable() {
-        if (!configurationEnabled) {
-            configurationEnabledChange = true;
-        }
 
-        configurationEnabled = true;
         setDetailVisible(true);
-        String gatewayTokenKey = getSecurityTokenKey();
+        String gatewayTokenKey = binder.getBean().getGatewaySecurityToken();
         if (StringUtils.isEmpty(gatewayTokenKey)) {
             gatewayTokenKey = securityTokenGenerator.generateToken();
-            keyChanged = true;
         }
-
-        binder.getBean().setGatewaySecurityToken(gatewayTokenKey);
-
-//        gatewayTokenField.setValue(gatewayTokenKey);
-    }
-
-    private String getSecurityTokenKey() {
-        return getTenantConfigurationManagement().getConfigurationValue(
-                TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY, String.class).getValue();
+        //        refreshGatewayToken();
+        gatewayTokenField.setValue(gatewayTokenKey);
     }
 
     @Override
     public void configDisable() {
-        if (configurationEnabled) {
-            configurationEnabledChange = true;
-        }
-        configurationEnabled = false;
         setDetailVisible(false);
     }
 
     @Override
     public void save() {
-        if (configurationEnabledChange) {
-            getTenantConfigurationManagement().addOrUpdateConfiguration(
-                    TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_ENABLED, configurationEnabled);
-        }
-
-        if (keyChanged) {
-            getTenantConfigurationManagement().addOrUpdateConfiguration(
-                    TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY,
-                    gatewayTokenField.getValue());
-        }
     }
 
     @Override
     public void undo() {
-//        configurationEnabledChange = false;
-//        keyChanged = false;
-//        gatewayTokenField.setValue(getSecurityTokenKey());
     }
 
 }

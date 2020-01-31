@@ -34,7 +34,6 @@ public class RolloutConfigurationView extends BaseConfigurationView
 
     private static final long serialVersionUID = 1L;
 
-    private final ApprovalConfigurationItem approvalConfigurationItem;
     private final VaadinMessageSource i18n;
     private final UiProperties uiProperties;
     private CheckBox approvalCheckbox;
@@ -43,17 +42,14 @@ public class RolloutConfigurationView extends BaseConfigurationView
     RolloutConfigurationView(final VaadinMessageSource i18n, final ApprovalConfigurationItem approvalConfigurationItem,
             final UiProperties uiProperties, final Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
-        this.approvalConfigurationItem = approvalConfigurationItem;
         this.uiProperties = uiProperties;
         this.binder = binder;
         this.init();
     }
 
     private void init() {
-
         final Panel rootPanel = new Panel();
         rootPanel.setSizeFull();
-
         rootPanel.addStyleName("config-panel");
 
         final VerticalLayout vLayout = new VerticalLayout();
@@ -67,20 +63,11 @@ public class RolloutConfigurationView extends BaseConfigurationView
 
         final GridLayout gridLayout = new GridLayout(3, 1);
         gridLayout.setSpacing(true);
-
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 
         approvalCheckbox = new CheckBox();
         approvalCheckbox.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX);
-/*        approvalCheckbox.addValueChangeListener(event -> {
-            if (event.getValue().equals(Boolean.TRUE)) {
-                approvalConfigurationItem.configEnable();
-            } else {
-                approvalConfigurationItem.configDisable();
-            }
-            notifyConfigurationChanged();
-        });*/
         binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval,
                 ProxySystemConfigWindow::setRolloutApproval);
 
@@ -89,8 +76,6 @@ public class RolloutConfigurationView extends BaseConfigurationView
         gridLayout.setMargin(false);
         gridLayout.addComponent(
                 new LabelBuilder().name(i18n.getMessage("configuration.rollout.approval.label")).buildLabel(), 1, 0);
-        //        gridLayout.addComponent(approvalConfigurationItem, 1, 0);
-
         final Link linkToApprovalHelp = SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getRollout());
         gridLayout.addComponent(linkToApprovalHelp, 2, 0);
@@ -103,31 +88,14 @@ public class RolloutConfigurationView extends BaseConfigurationView
 
     @Override
     public void save() {
-
     }
 
     @Override
     public void undo() {
-
     }
 
     @Override
     public void configurationHasChanged() {
-
     }
 
-/*    @Override
-    public void save() {
-        approvalConfigurationItem.save();
-    }
-
-    @Override
-    public void undo() {
-        approvalConfigurationItem.undo();
-    }
-
-    @Override
-    public void configurationHasChanged() {
-        notifyConfigurationChanged();
-    }*/
 }

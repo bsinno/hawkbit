@@ -31,10 +31,6 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
 
     private static final long serialVersionUID = 1L;
 
-    private boolean configurationEnabled;
-    private boolean configurationEnabledChange;
-    private boolean configurationCaRootAuthorityChanged;
-
     private final VerticalLayout detailLayout;
     private final TextField caRootAuthorityTextField;
 
@@ -46,8 +42,6 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         this.binder = binder;
 
         super.init("label.configuration.auth.header");
-        configurationEnabled = isConfigEnabled();
-
         detailLayout = new VerticalLayout();
         detailLayout.setMargin(false);
         detailLayout.setSpacing(false);
@@ -64,66 +58,33 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         caRootAuthorityTextField.setWidth("100%");
         binder.bind(caRootAuthorityTextField, ProxySystemConfigWindow::getCaRootAuthority,
                 ProxySystemConfigWindow::setCaRootAuthority);
-//        caRootAuthorityTextField.addValueChangeListener(event -> caRootAuthorityChanged());
-
         caRootAuthorityLayout.addComponent(caRootAuthorityLabel);
         caRootAuthorityLayout.setExpandRatio(caRootAuthorityLabel, 0);
         caRootAuthorityLayout.addComponent(caRootAuthorityTextField);
         caRootAuthorityLayout.setExpandRatio(caRootAuthorityTextField, 1);
         caRootAuthorityLayout.setWidth("100%");
-
         detailLayout.addComponent(caRootAuthorityLayout);
-
         if (binder.getBean().isCertificateAuth()) {
-            //            caRootAuthorityTextField.setValue(getCaRootAuthorityValue());
             setDetailVisible(true);
         }
     }
 
     @Override
     public void configEnable() {
-        if (!configurationEnabled) {
-            configurationEnabledChange = true;
-        }
-        configurationEnabled = true;
-        configurationCaRootAuthorityChanged = true;
         setDetailVisible(true);
     }
 
     @Override
     public void configDisable() {
-        if (configurationEnabled) {
-            configurationEnabledChange = true;
-        }
-        configurationEnabled = false;
         setDetailVisible(false);
     }
 
     @Override
     public void save() {
-        if (configurationEnabledChange) {
-            getTenantConfigurationManagement().addOrUpdateConfiguration(getConfigurationKey(), configurationEnabled);
-        }
-        if (configurationCaRootAuthorityChanged) {
-            final String value = caRootAuthorityTextField.getValue() != null ? caRootAuthorityTextField.getValue() : "";
-            getTenantConfigurationManagement().addOrUpdateConfiguration(
-                    TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, value);
-        }
     }
 
     @Override
     public void undo() {
-        configurationEnabledChange = false;
-        configurationCaRootAuthorityChanged = false;
-
-        configurationEnabled = getTenantConfigurationManagement().getConfigurationValue(getConfigurationKey(),
-                Boolean.class).getValue();
-        caRootAuthorityTextField.setValue(getCaRootAuthorityValue());
-    }
-
-    private String getCaRootAuthorityValue() {
-        return getTenantConfigurationManagement().getConfigurationValue(
-                TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, String.class).getValue();
     }
 
     private void setDetailVisible(final boolean visible) {
@@ -132,12 +93,5 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         } else {
             removeComponent(detailLayout);
         }
-
     }
-
-    private void caRootAuthorityChanged() {
-        configurationCaRootAuthorityChanged = true;
-        notifyConfigurationChanged();
-    }
-
 }

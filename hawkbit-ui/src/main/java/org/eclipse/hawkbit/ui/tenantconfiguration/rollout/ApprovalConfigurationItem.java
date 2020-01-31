@@ -21,53 +21,33 @@ public class ApprovalConfigurationItem extends AbstractBooleanTenantConfiguratio
 
     private static final long serialVersionUID = 1L;
 
-    private boolean configurationEnabled;
-    private boolean configurationEnabledChange;
-
     /**
      * Constructor for tenant specific approval mode setting.
      *
      * @param tenantConfigurationManagement
-     *            used to enable/disable the approval mode per tenant
+     *         used to enable/disable the approval mode per tenant
      * @param i18n
-     *            used to translate labels
+     *         used to translate labels
      */
     public ApprovalConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
             final VaadinMessageSource i18n) {
         super(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED, tenantConfigurationManagement, i18n);
-
         super.init("configuration.rollout.approval.label");
-        configurationEnabled = isConfigEnabled();
     }
 
     @Override
     public void configEnable() {
-        if (!configurationEnabled) {
-            configurationEnabledChange = true;
-        }
-        configurationEnabled = true;
     }
 
     @Override
     public void configDisable() {
-        if (configurationEnabled) {
-            configurationEnabledChange = true;
-        }
-        configurationEnabled = false;
     }
 
     @Override
     public void save() {
-        if (!configurationEnabledChange) {
-            return;
-        }
-        getTenantConfigurationManagement().addOrUpdateConfiguration(getConfigurationKey(), configurationEnabled);
     }
 
     @Override
     public void undo() {
-        configurationEnabledChange = false;
-        configurationEnabled = getTenantConfigurationManagement()
-                .getConfigurationValue(getConfigurationKey(), Boolean.class).getValue();
     }
 }

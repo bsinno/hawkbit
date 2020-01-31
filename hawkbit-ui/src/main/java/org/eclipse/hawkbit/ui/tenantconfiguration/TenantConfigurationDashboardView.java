@@ -127,7 +127,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.actionAutocloseConfigurationItem = new ActionAutocloseConfigurationItem(tenantConfigurationManagement,
                 i18n);
         this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
-                i18n);
+                i18n, binder);
         this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
                 binder, i18n);
         this.approvalConfigurationItem = new ApprovalConfigurationItem(tenantConfigurationManagement, i18n);
@@ -193,9 +193,6 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         setCompositionRoot(rootPanel);
 
         configurationViews.forEach(view -> view.addChangeListener(this));
-
-        //        binder.setBean(populateAndGetSystemConfig());
-
         binder.addStatusChangeListener(event -> {
             saveConfigurationBtn.setEnabled(event.getBinder().isValid());
             undoConfigurationBtn.setEnabled(event.getBinder().isValid());
@@ -257,7 +254,6 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     }
 
     private HorizontalLayout saveConfigurationButtonsLayout() {
-
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
         saveConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_SAVE, "", "",
@@ -286,6 +282,18 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         systemManagement.updateTenantMetadata(configWindowBean.getDistributionSetTypeId());
         writeConfigOption(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED, configWindowBean.isRolloutApproval());
         writeConfigOption(TenantConfigurationKey.ACTION_CLEANUP_ENABLED, configWindowBean.isActionAutocleanup());
+        writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_TARGET_SECURITY_TOKEN_ENABLED,
+                configWindowBean.isTargetSecToken());
+        writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_ENABLED,
+                configWindowBean.isGatewaySecToken());
+        writeConfigOption(TenantConfigurationKey.ANONYMOUS_DOWNLOAD_MODE_ENABLED,
+                configWindowBean.isDownloadAnonymous());
+
+        if (configWindowBean.isGatewaySecToken()) {
+            writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY,
+                    configWindowBean.getGatewaySecurityToken());
+        }
+
         if (configWindowBean.isActionAutocleanup()) {
             writeConfigOption(ACTION_CLEANUP_ACTION_STATUS, configWindowBean.getActionCleanupStatus()
                     .getStatus()
@@ -296,12 +304,13 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             writeConfigOption(TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY,
                     TimeUnit.DAYS.toMillis(Long.parseLong(configWindowBean.getActionExpiryDays())));
         }
-        if (configWindowBean.isMultiAssignments()) {
+        if (!readConfigOption(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED)) {
             writeConfigOption(TenantConfigurationKey.REPOSITORY_ACTIONS_AUTOCLOSE_ENABLED,
                     configWindowBean.isActionAutoclose());
         }
 
-        if (configWindowBean.isMultiAssignments()) {
+        if (configWindowBean.isMultiAssignments() && !readConfigOption(
+                TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED)) {
             writeConfigOption(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED, configWindowBean.isMultiAssignments());
             repositoryConfigurationView.disableMultipleAssignmentOption();
         }
@@ -312,7 +321,6 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
                     configWindowBean.getCaRootAuthority() != null ? configWindowBean.getCaRootAuthority() : "";
             writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, value);
         }
-        configurationViews.forEach(ConfigurationGroup::save);
         populateAndGetSystemConfig();
     }
 

@@ -21,42 +21,26 @@ public class AnonymousDownloadAuthenticationConfigurationItem extends AbstractBo
 
     private static final long serialVersionUID = 1L;
 
-    private boolean configurationEnabled;
-    private boolean configurationEnabledChange;
-
     public AnonymousDownloadAuthenticationConfigurationItem(
             final TenantConfigurationManagement tenantConfigurationManagement, final VaadinMessageSource i18n) {
         super(TenantConfigurationKey.ANONYMOUS_DOWNLOAD_MODE_ENABLED, tenantConfigurationManagement, i18n);
-
         super.init("label.configuration.anonymous.download");
-        configurationEnabled = isConfigEnabled();
     }
 
     @Override
     public void configEnable() {
-        configurationEnabledChange = !configurationEnabled;
-        configurationEnabled = true;
     }
 
     @Override
     public void configDisable() {
-        configurationEnabledChange = configurationEnabled;
-        configurationEnabled = false;
     }
 
     @Override
     public void save() {
-        if (!configurationEnabledChange) {
-            return;
-        }
-        getTenantConfigurationManagement().addOrUpdateConfiguration(getConfigurationKey(), configurationEnabled);
     }
 
     @Override
     public void undo() {
-        configurationEnabledChange = false;
-        configurationEnabled = getTenantConfigurationManagement()
-                .getConfigurationValue(getConfigurationKey(), Boolean.class).getValue();
     }
 
 }
