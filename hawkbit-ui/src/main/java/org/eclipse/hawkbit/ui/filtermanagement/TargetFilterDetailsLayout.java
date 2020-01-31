@@ -84,7 +84,7 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
      * Change UI content to create a {@link TargetFilterQuery}
      */
     public void showAddFilterUi() {
-        targetFilterDetailsGridHeader.showAddFilterLayout(null);
+        targetFilterDetailsGridHeader.showAddFilterLayout();
         targetFilterTargetGrid.updateTargetFilterQueryFilter(null);
     }
 

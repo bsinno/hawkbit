@@ -79,7 +79,6 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         this.updateTargetFilterController = new UpdateTargetFilterController(i18n, entityFactory, eventBus,
                 uiNotification, targetFilterManagement, targetFilterAddUpdateLayout, this::closeDetails);
 
-        restoreState();
         buildHeader();
     }
 
@@ -95,18 +94,27 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         addComponent(targetFilterAddUpdateLayout.getRootComponent());
     }
 
-    public void showAddFilterLayout(final ProxyTargetFilterQuery targetFilterToRestore) {
+    public void showAddFilterLayout() {
         uiState.setCurrentMode(Mode.CREATE);
-        final String captionMessage = i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER);
 
-        showAddUpdateFilterLayout(captionMessage, addTargetFilterController,
-                targetFilterToRestore == null ? new ProxyTargetFilterQuery() : targetFilterToRestore);
+        doShowAddFilterLayout(new ProxyTargetFilterQuery());
+    }
+
+    private void doShowAddFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
+        final String captionMessage = i18n.getMessage(UIMessageIdProvider.LABEL_CREATE_FILTER);
+        showAddUpdateFilterLayout(captionMessage, addTargetFilterController, proxyEntity);
     }
 
     public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
         uiState.setCurrentMode(Mode.EDIT);
         uiState.setSelectedFilterId(proxyEntity.getId());
-        showAddUpdateFilterLayout(proxyEntity.getName(), updateTargetFilterController, proxyEntity);
+        uiState.setSelectedFilterName(proxyEntity.getName());
+
+        doShowEditFilterLayout(proxyEntity.getName(), proxyEntity);
+    }
+
+    private void doShowEditFilterLayout(final String caption, final ProxyTargetFilterQuery proxyEntity) {
+        showAddUpdateFilterLayout(caption, updateTargetFilterController, proxyEntity);
     }
 
     private void showAddUpdateFilterLayout(final String captionMessage,
@@ -149,26 +157,31 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
 
     private void closeDetails() {
         uiState.setSelectedFilterId(null);
-        uiState.setNameInput("");
-        uiState.setFilterQueryValueInput("");
+        uiState.setSelectedFilterName("");
+
+        targetFilterAddUpdateLayout.setEntity(null);
 
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
                 VisibilityType.HIDE, Layout.TARGET_FILTER_QUERY_FORM, View.TARGET_FILTER));
     }
 
+    @Override
     public void restoreState() {
         final ProxyTargetFilterQuery targetFilterToRestore = restoreEntityFromState();
+
         if (Mode.EDIT == uiState.getCurrentMode()) {
-            showEditFilterLayout(targetFilterToRestore);
+            doShowEditFilterLayout(uiState.getSelectedFilterName(), targetFilterToRestore);
         } else if (Mode.CREATE == uiState.getCurrentMode()) {
-            showAddFilterLayout(targetFilterToRestore);
+            doShowAddFilterLayout(targetFilterToRestore);
         }
     }
 
     private ProxyTargetFilterQuery restoreEntityFromState() {
         final ProxyTargetFilterQuery restoredEntity = new ProxyTargetFilterQuery();
 
-        restoredEntity.setId(uiState.getSelectedFilterId());
+        if (Mode.EDIT == uiState.getCurrentMode()) {
+            restoredEntity.setId(uiState.getSelectedFilterId());
+        }
         restoredEntity.setName(uiState.getNameInput());
         restoredEntity.setQuery(uiState.getFilterQueryValueInput());
 
