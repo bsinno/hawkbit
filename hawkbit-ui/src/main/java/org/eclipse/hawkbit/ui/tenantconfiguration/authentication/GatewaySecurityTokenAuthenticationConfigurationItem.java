@@ -18,14 +18,12 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
 import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 
 import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -88,20 +86,12 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
 
     private void refreshGatewayToken() {
         binder.getBean().setGatewaySecurityToken(securityTokenGenerator.generateToken());
-        binder.readBean(binder.getBean());
-        UI.getCurrent().push();
+        binder.setBean(binder.getBean());
     }
 
     @Override
     public void configEnable() {
-
         setDetailVisible(true);
-        String gatewayTokenKey = binder.getBean().getGatewaySecurityToken();
-        if (StringUtils.isEmpty(gatewayTokenKey)) {
-            gatewayTokenKey = securityTokenGenerator.generateToken();
-        }
-        //        refreshGatewayToken();
-        gatewayTokenField.setValue(gatewayTokenKey);
     }
 
     @Override

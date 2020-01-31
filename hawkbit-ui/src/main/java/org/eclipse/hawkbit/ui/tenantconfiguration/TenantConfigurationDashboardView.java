@@ -52,6 +52,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.vaadin.data.Binder;
@@ -107,7 +108,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     private final TenantConfigurationManagement tenantConfigurationManagement;
     private final Binder<ProxySystemConfigWindow> binder;
     private final List<ConfigurationGroup> configurationViews = Lists.newArrayListWithExpectedSize(3);
-
+    private final SecurityTokenGenerator securityTokenGenerator;
     @Autowired(required = false)
     private Collection<ConfigurationGroup> customConfigurationViews;
 
@@ -120,6 +121,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             final ControllerPollProperties controllerPollProperties, final SpPermissionChecker permChecker) {
         this.systemManagement = systemManagement;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
+        this.securityTokenGenerator = securityTokenGenerator;
         this.binder = new Binder<>();
         binder.setBean(populateAndGetSystemConfig());
         this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
@@ -213,8 +215,12 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         configBean.setGatewaySecToken(
                 readConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_ENABLED));
         configBean.setDownloadAnonymous(readConfigOption(TenantConfigurationKey.ANONYMOUS_DOWNLOAD_MODE_ENABLED));
-        configBean.setGatewaySecurityToken(tenantConfigurationManagement.getConfigurationValue(
-                TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY, String.class).getValue());
+        String securityToken = tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY, String.class).getValue();
+        if (StringUtils.isEmpty(securityToken)) {
+            securityToken = this.securityTokenGenerator.generateToken();
+        }
+        configBean.setGatewaySecurityToken(securityToken);
         configBean.setCaRootAuthority(getCaRootAuthorityValue());
         configBean.setActionCleanupStatus(getActionStatusOption());
         configBean.setActionExpiryDays(String.valueOf(getActionExpiry()));
@@ -351,7 +357,6 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     private void undoConfiguration() {
         binder.setBean(populateAndGetSystemConfig());
-        //  configurationViews.forEach(ConfigurationGroup::undo);
         // More methods
         saveConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.setEnabled(false);
