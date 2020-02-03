@@ -31,6 +31,7 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
+import org.eclipse.hawkbit.tenancy.configuration.DurationHelper;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -108,6 +109,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     private final TenantConfigurationManagement tenantConfigurationManagement;
     private final Binder<ProxySystemConfigWindow> binder;
     private final List<ConfigurationGroup> configurationViews = Lists.newArrayListWithExpectedSize(3);
+    private final List<CustomComponent> customComponents = Lists.newArrayListWithExpectedSize(3);
     private final SecurityTokenGenerator securityTokenGenerator;
     @Autowired(required = false)
     private Collection<ConfigurationGroup> customConfigurationViews;
@@ -149,7 +151,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
                 gatewaySecurityTokenAuthenticationConfigurationItem, anonymousDownloadAuthenticationConfigurationItem,
                 uiProperties, binder);
         this.pollingConfigurationView = new PollingConfigurationView(i18n, controllerPollProperties,
-                tenantConfigurationManagement);
+                tenantConfigurationManagement, binder);
         this.repositoryConfigurationView = new RepositoryConfigurationView(i18n, uiProperties,
                 actionAutocloseConfigurationItem, actionAutocleanupConfigurationItem, multiAssignmentsConfigurationItem,
                 binder);
@@ -170,9 +172,9 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             configurationViews.add(defaultDistributionSetTypeLayout);
         }
         configurationViews.add(repositoryConfigurationView);
-        configurationViews.add(rolloutConfigurationView);
+        customComponents.add(rolloutConfigurationView);
         configurationViews.add(authenticationConfigurationView);
-        configurationViews.add(pollingConfigurationView);
+        customComponents.add(pollingConfigurationView);
         if (customConfigurationViews != null) {
             configurationViews.addAll(
                     customConfigurationViews.stream().filter(ConfigurationGroup::show).collect(Collectors.toList()));
@@ -185,7 +187,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         rootLayout.setSizeFull();
         rootLayout.setMargin(true);
         rootLayout.setSpacing(true);
-
+        customComponents.forEach(rootLayout::addComponent);
         configurationViews.forEach(rootLayout::addComponent);
 
         final HorizontalLayout buttonContent = saveConfigurationButtonsLayout();
@@ -224,6 +226,19 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         configBean.setCaRootAuthority(getCaRootAuthorityValue());
         configBean.setActionCleanupStatus(getActionStatusOption());
         configBean.setActionExpiryDays(String.valueOf(getActionExpiry()));
+
+        final TenantConfigurationValue<String> pollingTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class);
+        configBean.setPollingTime(!pollingTimeConfValue.isGlobal());
+        configBean.setPollingTimeDuration(
+                DurationHelper.formattedStringToDuration(pollingTimeConfValue.getValue()));
+
+        final TenantConfigurationValue<String> overdueTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class);
+        configBean.setPollingOverdue(!overdueTimeConfValue.isGlobal());
+        configBean.setPollingOverdueDuration(
+                DurationHelper.formattedStringToDuration(overdueTimeConfValue.getValue()));
+
         return configBean;
     }
 
@@ -349,6 +364,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             return;
         }
         saveSystemConfigBean();
+        configurationViews.forEach(ConfigurationGroup::save);
         // More methods
         saveConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.setEnabled(false);

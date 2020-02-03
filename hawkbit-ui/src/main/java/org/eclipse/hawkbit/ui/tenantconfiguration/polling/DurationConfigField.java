@@ -9,14 +9,13 @@
 package org.eclipse.hawkbit.ui.tenantconfiguration.polling;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.tenantconfiguration.ConfigurationItem;
-
+import com.vaadin.data.StatusChangeListener;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 
 /**
  * The DurationConfigField consists of three vaadin fields. A {@link #Label}
@@ -24,45 +23,38 @@ import com.vaadin.ui.GridLayout;
  * duration in the DurationField or he can configure using the global duration
  * by changing the CheckBox.
  */
-public final class DurationConfigField extends GridLayout implements ConfigurationItem {
-
-    private static final long serialVersionUID = 1L;
-
-    private final List<ConfigurationItemChangeListener> configurationChangeListeners = new ArrayList<>();
-
+public final class DurationConfigField extends HorizontalLayout {
     private final CheckBox checkBox = new CheckBox();
     private final DurationField durationField = new DurationField();
     private transient Duration globalDuration;
 
     private DurationConfigField(final String id) {
-        super(2, 2);
-
+       this.setId(id);
         this.addStyleName("duration-config-field");
         this.setSpacing(true);
 
-        this.setColumnExpandRatio(1, 1.0F);
-
         durationField.setId(id + ".field");
         checkBox.setId(id + ".checkbox");
-        this.addComponent(checkBox, 0, 0);
+        durationField.setEnabled(false);
+
+        this.addComponent(checkBox);
         this.setComponentAlignment(checkBox, Alignment.MIDDLE_LEFT);
 
-        this.addComponent(durationField, 1, 0);
+        this.addComponent(durationField);
+        this.setExpandRatio(durationField, 1.0F);
         this.setComponentAlignment(durationField, Alignment.MIDDLE_LEFT);
 
-        checkBox.addValueChangeListener(event -> checkBoxChange());
-        durationField.addValueChangeListener(event -> notifyConfigurationChanged());
+        checkBox.addValueChangeListener(event -> checkBoxChanged(event.getValue()));
     }
 
-    private void checkBoxChange() {
-        durationField.setEnabled(checkBox.getValue());
+    private void checkBoxChanged(final Boolean isActivated) {
+        durationField.setEnabled(isActivated);
 
-        if (!checkBox.getValue()) {
+        if (!isActivated) {
             durationField.setDuration(globalDuration);
         }
-
-        notifyConfigurationChanged();
     }
+
 
     /**
      * has to be called before using, see Builder Implementation.
@@ -74,7 +66,6 @@ public final class DurationConfigField extends GridLayout implements Configurati
      */
     private void init(final Duration globalDuration, final Duration tenantDuration) {
         this.globalDuration = globalDuration;
-        this.setValue(tenantDuration);
     }
 
     private void setCheckBoxTooltip(final String label) {
@@ -86,50 +77,12 @@ public final class DurationConfigField extends GridLayout implements Configurati
         durationField.setMaximumDuration(maximumDuration);
     }
 
-    /**
-     * Set the value of the duration field
-     * 
-     * @param tenantDuration
-     *            duration which will be set in to the duration field, when
-     *            {@code null} the global configuration will be used.
-     */
-    public void setValue(final Duration tenantDuration) {
-        if (tenantDuration == null) {
-            // no tenant specific configuration
-            checkBox.setValue(false);
-            durationField.setDuration(globalDuration);
-            durationField.setEnabled(false);
-            return;
-        }
-
-        checkBox.setValue(true);
-        durationField.setDuration(tenantDuration);
-        durationField.setEnabled(true);
+    public CheckBox getCheckBox() {
+        return checkBox;
     }
 
-    /**
-     * @return the duration of the duration field or null, when the user has
-     *         configured to use the global value.
-     */
-    public Duration getValue() {
-        if (checkBox.getValue()) {
-            return durationField.getDuration();
-        }
-        return null;
-    }
-
-    @Override
-    public boolean isUserInputValid() {
-        return !checkBox.getValue() || (durationField.isValid() && durationField.getValue() != null);
-    }
-
-    private void notifyConfigurationChanged() {
-        configurationChangeListeners.forEach(ConfigurationItemChangeListener::configurationHasChanged);
-    }
-
-    @Override
-    public void addChangeListener(final ConfigurationItemChangeListener listener) {
-        configurationChangeListeners.add(listener);
+    public DurationField getDurationField() {
+        return durationField;
     }
 
     /**

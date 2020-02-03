@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
@@ -29,8 +30,7 @@ import com.vaadin.ui.VerticalLayout;
  * Provides configuration of the RolloutManagement including enabling/disabling
  * of the approval workflow.
  */
-public class RolloutConfigurationView extends BaseConfigurationView
-        implements ConfigurationItem.ConfigurationItemChangeListener {
+public class RolloutConfigurationView extends CustomComponent {
 
     private static final long serialVersionUID = 1L;
 
@@ -85,17 +85,4 @@ public class RolloutConfigurationView extends BaseConfigurationView
         rootPanel.setContent(vLayout);
         setCompositionRoot(rootPanel);
     }
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void undo() {
-    }
-
-    @Override
-    public void configurationHasChanged() {
-    }
-
 }

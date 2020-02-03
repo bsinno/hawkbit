@@ -39,7 +39,6 @@ import com.vaadin.ui.themes.ValoTheme;
  * "v-datefield-calendarpanel-body" (see systemconfig.scss}
  */
 public class DurationField extends DateTimeField {
-
     private static final long serialVersionUID = 1L;
 
     private static final String CSS_STYLE_NAME = "durationfield";
@@ -76,21 +75,6 @@ public class DurationField extends DateTimeField {
 
         // needed that popup shows a 24h clock
         this.setLocale(Locale.GERMANY);
-
-        this.addValueChangeListener(this::changeListener);
-
-    }
-
-    public boolean isValid() {
-        if (this.getValue() != null && maximumDuration != null
-                && compareTimeOfDates(this.getValue(), maximumDuration) > 0) {
-            throw new DateTimeException("value is greater than the allowed maximum value");
-        }
-        if (this.getValue() != null && minimumDuration != null
-                && compareTimeOfDates(minimumDuration, this.getValue()) > 0) {
-            throw new DateTimeException("value is smaller than the allowed minimum value");
-        }
-        return true;
     }
 
     /**
@@ -104,6 +88,8 @@ public class DurationField extends DateTimeField {
     @Override
     protected Result<LocalDateTime> handleUnparsableDateString(final String value) {
         try {
+            final LocalDateTime parsedDate = LocalDateTime.ofInstant(durationFormat.parse(value).toInstant(),
+                    ZONEID_UTC);
             return Result.ok(LocalDateTime.ofInstant(durationFormat.parse(value).toInstant(), ZONEID_UTC));
         } catch (final ParseException e) {
             try {
@@ -115,38 +101,62 @@ public class DurationField extends DateTimeField {
         }
     }
 
-    private void changeListener(final ValueChangeEvent<LocalDateTime> event) {
-        // do not delete this method, even when removing the code inside this
-        // method. This method overwrites the super method, which is
-        // necessary, that parsing works correctly on pressing enter key
+    @Override
+    protected void doSetValue(final LocalDateTime value) {
+        final LocalDateTime sanitizedValue = sanitizeValue(value);
+        super.doSetValue(sanitizedValue);
+    }
 
-        if (!(event.getComponent() instanceof DurationField)) {
-            return;
-        }
-        final LocalDateTime value = event.getValue();
-
-        // setValue() calls valueChanged again, when the minimum is greater
-        // than the maximum this can lead to an endless loop
-        if (value != null && minimumDuration != null && maximumDuration != null
-                && minimumDuration.isBefore(maximumDuration)) {
+    public LocalDateTime sanitizeValue(final LocalDateTime value) {
+        if (value != null && minimumDuration != null && maximumDuration != null && minimumDuration.isBefore(
+                maximumDuration)) {
 
             if (compareTimeOfDates(value, maximumDuration) > 0) {
-                ((DurationField) event.getComponent()).setValue(maximumDuration);
+                return maximumDuration;
             }
 
             if (compareTimeOfDates(minimumDuration, value) > 0) {
-                ((DurationField) event.getComponent()).setValue(minimumDuration);
+                return minimumDuration;
             }
         }
+
+        return value;
+    }
+
+    /**
+     * Because parsing done by base class returns a different date than parsing
+     * done by the user or converting duration to a date. But for the
+     * DurationField comparison only the time is important. This function helps
+     * comparing the time and ignores the values for day, month and year.
+     *
+     * @param d1
+     *         date, which time will compared with the time of d2
+     * @param d2
+     *         date, which time will compared with the time of d1
+     *
+     * @return the value 0 if the time represented d1 is equal to the time
+     * represented by d2; a value less than 0 if the time of d1 is
+     * before the time of d2; and a value greater than 0 if the time of
+     * d1 is after the time represented by d2.
+     */
+    private static int compareTimeOfDates(final LocalDateTime d1, final LocalDateTime d2) {
+
+        final LocalTime lt1 = LocalDateTime.ofInstant(d1.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalTime();
+        final LocalTime lt2 = LocalDateTime.ofInstant(d2.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalTime();
+
+        return lt1.compareTo(lt2);
     }
 
     /**
      * Sets the duration value
      *
      * @param duration
-     *            duration, only values less then 23:59:59 are excepted
+     *         duration, only values less then 23:59:59 are excepted
      */
-    public void setDuration(@NotNull final Duration duration) {
+
+    public void setDuration(
+            @NotNull
+            final Duration duration) {
         if (duration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The duaration has to be smaller than 23:59:59.");
         }
@@ -154,24 +164,14 @@ public class DurationField extends DateTimeField {
     }
 
     /**
-     * Gets the duration value of the TextField
-     *
-     * @return duration which is written in the vaadin Field
-     */
-    public Duration getDuration() {
-        if (this.getValue() == null) {
-            return null;
-        }
-        return localDateTimeToDuration(this.getValue());
-    }
-
-    /**
      * Sets the minimal allowed duration value as a String
      *
      * @param minimumDuration
-     *            minimum Duration, only values smaller 23:59:59 are excepted
+     *         minimum Duration, only values smaller 23:59:59 are excepted
      */
-    public void setMinimumDuration(@NotNull final Duration minimumDuration) {
+    public void setMinimumDuration(
+            @NotNull
+            final Duration minimumDuration) {
         if (minimumDuration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The minimum duaration has to be smaller than 23:59:59.");
         }
@@ -182,13 +182,23 @@ public class DurationField extends DateTimeField {
      * Sets the maximum allowed duration value as a String
      *
      * @param maximumDuration
-     *            maximumDuration, only values smaller 23:59:59 are excepted
+     *         maximumDuration, only values smaller 23:59:59 are excepted
      */
-    public void setMaximumDuration(@NotNull final Duration maximumDuration) {
+    public void setMaximumDuration(
+            @NotNull
+            final Duration maximumDuration) {
         if (maximumDuration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The maximum duaration has to be smaller than 23:59:59.");
         }
         this.maximumDuration = durationToLocalDateTime(maximumDuration);
+    }
+
+    public LocalDateTime getMinimumDuration() {
+        return minimumDuration;
+    }
+
+    public LocalDateTime getMaximumDuration() {
+        return maximumDuration;
     }
 
     private static LocalDateTime durationToLocalDateTime(final Duration duration) {
@@ -199,35 +209,5 @@ public class DurationField extends DateTimeField {
         final LocalTime lt = LocalTime.ofNanoOfDay(duration.toNanos());
         final Date date = Date.from(lt.atDate(LocalDate.now(ZONEID_UTC)).atZone(ZONEID_UTC).toInstant());
         return LocalDateTime.ofInstant(date.toInstant(), ZONEID_UTC);
-    }
-
-    private static Duration localDateTimeToDuration(final LocalDateTime date) {
-        final LocalTime endExclusive = LocalDateTime.ofInstant(date.toInstant(ZoneOffset.UTC), ZONEID_UTC)
-                .toLocalTime();
-        return Duration.between(LocalTime.MIDNIGHT, LocalTime.from(endExclusive));
-    }
-
-    /**
-     * Because parsing done by base class returns a different date than parsing
-     * done by the user or converting duration to a date. But for the
-     * DurationField comparison only the time is important. This function helps
-     * comparing the time and ignores the values for day, month and year.
-     *
-     * @param d1
-     *            date, which time will compared with the time of d2
-     * @param d2
-     *            date, which time will compared with the time of d1
-     *
-     * @return the value 0 if the time represented d1 is equal to the time
-     *         represented by d2; a value less than 0 if the time of d1 is
-     *         before the time of d2; and a value greater than 0 if the time of
-     *         d1 is after the time represented by d2.
-     */
-    private int compareTimeOfDates(final LocalDateTime d1, final LocalDateTime d2) {
-
-        final LocalTime lt1 = LocalDateTime.ofInstant(d1.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalTime();
-        final LocalTime lt2 = LocalDateTime.ofInstant(d2.toInstant(ZoneOffset.UTC), ZONEID_UTC).toLocalTime();
-
-        return lt1.compareTo(lt2);
     }
 }

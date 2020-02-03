@@ -1,6 +1,7 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import java.io.Serializable;
+import java.time.Duration;
 
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem.ActionStatusOption;
 
@@ -18,6 +19,10 @@ public class ProxySystemConfigWindow implements Serializable {
     private String caRootAuthority;
     private String gatewaySecurityToken;
     private ActionStatusOption actionCleanupStatus;
+    private boolean  pollingOverdue;
+    private Duration pollingOverdueDuration;
+    private boolean  pollingTime;
+    private Duration pollingTimeDuration;
     private String actionExpiryDays;
     private boolean rolloutApproval;
     private boolean actionAutoclose;
@@ -60,6 +65,38 @@ public class ProxySystemConfigWindow implements Serializable {
 
     public void setGatewaySecurityToken(String gatewaySecurityToken) {
         this.gatewaySecurityToken = gatewaySecurityToken;
+    }
+
+    public boolean isPollingTime() {
+        return pollingTime;
+    }
+
+    public void setPollingTime(boolean pollingTime) {
+        this.pollingTime = pollingTime;
+    }
+
+    public Duration getPollingTimeDuration() {
+        return pollingTimeDuration;
+    }
+
+    public void setPollingTimeDuration(Duration pollingTimeDuration) {
+        this.pollingTimeDuration = pollingTimeDuration;
+    }
+
+    public boolean isPollingOverdue() {
+        return pollingOverdue;
+    }
+
+    public void setPollingOverdue(boolean pollingOverdue) {
+        this.pollingOverdue = pollingOverdue;
+    }
+
+    public Duration getPollingOverdueDuration() {
+        return pollingOverdueDuration;
+    }
+
+    public void setPollingOverdueDuration(Duration pollingOverdueDuration) {
+        this.pollingOverdueDuration = pollingOverdueDuration;
     }
 
     public String getDescription() {
