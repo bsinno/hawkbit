@@ -28,7 +28,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -47,7 +47,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     private final TargetGrid targetGrid;
     private final TargetDetailsHeader targetDetailsHeader;
     private final TargetDetails targetDetails;
-    private final CountMessageLabel countMessageLabel;
+    private final transient CountMessageLabel countMessageLabel;
 
     private final TargetGridLayoutUiState targetGridLayoutUiState;
 
@@ -55,14 +55,14 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     public TargetGridLayout(final UIEventBus eventBus, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
-            final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement,
-            final UiProperties uiProperties, final SpPermissionChecker permissionChecker,
-            final TargetTagManagement targetTagManagement, final DistributionSetManagement distributionSetManagement,
-            final Executor uiExecutor, final TenantConfigurationManagement configManagement,
-            final SystemSecurityContext systemSecurityContext,
+            final DeploymentManagement deploymentManagement, final UiProperties uiProperties,
+            final SpPermissionChecker permissionChecker, final TargetTagManagement targetTagManagement,
+            final DistributionSetManagement distributionSetManagement, final Executor uiExecutor,
+            final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
             final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
             final TargetGridLayoutUiState targetGridLayoutUiState,
-            final TargetBulkUploadUiState targetBulkUploadUiState) {
+            final TargetBulkUploadUiState targetBulkUploadUiState,
+            final DistributionGridLayoutUiState distributionGridLayoutUiState) {
         this.targetManagement = targetManagement;
         this.targetMapper = new TargetToProxyTargetMapper(i18n);
         this.targetGridLayoutUiState = targetGridLayoutUiState;
@@ -76,23 +76,38 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 targetManagement, deploymentManagement, uiProperties, entityFactory, uiNotification,
                 targetTagManagement, distributionSetManagement, uiExecutor, targetWindowBuilder,
                 targetTagFilterLayoutUiState, targetGridLayoutUiState, targetBulkUploadUiState);
-        this.targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement, managementUIState,
-                permissionChecker, deploymentManagement, configManagement, systemSecurityContext, uiProperties);
+        this.targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement, permissionChecker,
+                deploymentManagement, configManagement, systemSecurityContext, uiProperties, targetGridLayoutUiState,
+                distributionGridLayoutUiState, targetTagFilterLayoutUiState);
 
         this.targetDetailsHeader = new TargetDetailsHeader(i18n, permissionChecker, eventBus, uiNotification,
                 targetWindowBuilder, targetMetaDataWindowBuilder);
-        this.targetDetails = new TargetDetails(i18n, eventBus, permissionChecker, managementUIState, uiNotification,
-                targetTagManagement, targetManagement, deploymentManagement, targetMetaDataWindowBuilder);
+        this.targetDetails = new TargetDetails(i18n, eventBus, permissionChecker, uiNotification, targetTagManagement,
+                targetManagement, deploymentManagement, targetMetaDataWindowBuilder);
 
-        this.countMessageLabel = new CountMessageLabel(eventBus, targetManagement, i18n, managementUIState,
-                targetGrid.getDataCommunicator());
+        this.countMessageLabel = new CountMessageLabel(targetManagement, i18n);
+
+        initGridDataUpdatedListener();
 
         this.eventListener = new TargetGridLayoutEventListener(this, eventBus);
 
-        buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails, countMessageLabel);
+        buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
+    }
+
+    private void initGridDataUpdatedListener() {
+        // TODO: refactor based on FilterParams
+        targetGrid.getFilterDataProvider().addDataProviderListener(event -> countMessageLabel
+                .displayTargetCountStatus(targetGrid.getDataSize(), targetGrid.getTargetFilter()));
     }
 
     public void restoreState() {
+        targetGridHeader.restoreState();
+        targetGrid.restoreState();
+
+        restoreGridSelection();
+    }
+
+    private void restoreGridSelection() {
         final Long lastSelectedEntityId = targetGridLayoutUiState.getSelectedTargetId();
 
         if (lastSelectedEntityId != null) {
@@ -138,35 +153,47 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         } else {
             targetGridHeader.enableSearchIcon();
         }
+
+        targetGrid.onTargetFilterTabChanged(isCustomFilterTabSelected);
     }
 
     public void filterGridBySearch(final String searchFilter) {
-        // targetGrid.updateSearchFilter(searchFilter);
+        targetGrid.updateSearchFilter(searchFilter);
         targetGrid.deselectAll();
     }
 
     public void filterGridByTags(final Collection<String> tagFilterNames) {
-        // targetGrid.updateTagFilter(tagFilterNames);
+        targetGrid.updateTagFilter(tagFilterNames);
         targetGrid.deselectAll();
     }
 
     public void filterGridByNoTag(final boolean isActive) {
-        // targetGrid.updateNoTagFilter(isActive);
+        targetGrid.updateNoTagFilter(isActive);
         targetGrid.deselectAll();
     }
 
     public void filterGridByStatus(final List<TargetUpdateStatus> statusFilters) {
-        // targetGrid.updateStatusFilter(statusFilters);
+        targetGrid.updateStatusFilter(statusFilters);
         targetGrid.deselectAll();
     }
 
     public void filterGridByOverdue(final boolean isOverdue) {
-        // targetGrid.updateOverdueFilter(isOverdue);
+        targetGrid.updateOverdueFilter(isOverdue);
         targetGrid.deselectAll();
     }
 
     public void filterGridByCustomFilter(final Long customFilterId) {
-        // targetGrid.updateCustomFilter(customFilterId);
+        targetGrid.updateCustomFilter(customFilterId);
+        targetGrid.deselectAll();
+    }
+
+    public void filterGridByDs(final Long dsId) {
+        targetGrid.updateDsFilter(dsId);
+        targetGrid.deselectAll();
+    }
+
+    public void filterGridByPinnedDs(final Long pinnedDsId) {
+        targetGrid.updatePinnedDsFilter(pinnedDsId);
         targetGrid.deselectAll();
     }
 
@@ -178,6 +205,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     public void minimize() {
         targetGrid.createMinimizedContent();
         showDetailsLayout();
+    }
+
+    public CountMessageLabel getCountMessageLabel() {
+        return countMessageLabel;
     }
 
     public void refreshGrid() {

@@ -62,7 +62,6 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
             this.artifactDetailsHeaderSupport = null;
         }
 
-        restoreHeaderState();
         buildHeader();
     }
 

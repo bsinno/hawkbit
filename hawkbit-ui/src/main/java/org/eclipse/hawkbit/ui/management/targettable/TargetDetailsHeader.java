@@ -22,7 +22,7 @@ import com.vaadin.ui.Window;
 public class TargetDetailsHeader extends DetailsHeader<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
-    private final TargetWindowBuilder targetWindowBuilder;
+    private final transient TargetWindowBuilder targetWindowBuilder;
     private final transient TargetMetaDataWindowBuilder targetMetaDataWindowBuilder;
 
     public TargetDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
@@ -34,7 +34,7 @@ public class TargetDetailsHeader extends DetailsHeader<ProxyTarget> {
         this.targetWindowBuilder = targetWindowBuilder;
         this.targetMetaDataWindowBuilder = targetMetaDataWindowBuilder;
 
-        restoreHeaderState();
+        restoreState();
         buildHeader();
     }
 

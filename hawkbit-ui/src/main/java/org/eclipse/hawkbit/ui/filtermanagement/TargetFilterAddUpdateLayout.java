@@ -26,17 +26,22 @@ import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.shared.Registration;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 
 /**
  * Target add/update window layout.
  */
 public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<ProxyTargetFilterQuery> {
+    private final VaadinMessageSource i18n;
+
+    private static final String FILTER_QUERY_CAPTION = "textfield.query";
+
     private final TargetFilterAddUpdateLayoutComponentBuilder filterComponentBuilder;
 
     private final TextField filterNameInput;
@@ -59,6 +64,8 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
             final TargetFilterDetailsLayoutUiState uiState, final UIEventBus eventBus,
             final RsqlValidationOracle rsqlValidationOracle) {
         super();
+
+        this.i18n = i18n;
         this.uiState = uiState;
         this.eventBus = eventBus;
         this.filterComponentBuilder = new TargetFilterAddUpdateLayoutComponentBuilder(i18n, uiProperties,
@@ -75,30 +82,40 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
 
     @Override
     public ComponentContainer getRootComponent() {
-        final VerticalLayout filterAddUpdateLayout = new VerticalLayout();
-        filterAddUpdateLayout.setSpacing(true);
-        filterAddUpdateLayout.setMargin(false);
-        filterAddUpdateLayout.setSizeUndefined();
-        filterAddUpdateLayout.addStyleName(SPUIStyleDefinitions.ADD_UPDATE_FILTER_LAYOUT);
+        final FormLayout formLayout = new FormLayout();
+        formLayout.setSpacing(true);
+        formLayout.setMargin(false);
+        formLayout.setSizeUndefined();
+
+        formLayout.addComponent(filterNameInput);
+        autoCompleteComponent.setCaption(i18n.getMessage(FILTER_QUERY_CAPTION));
+        autoCompleteComponent.setRequiredIndicatorVisible(true);
+        autoCompleteComponent.focus();
+        formLayout.addComponent(autoCompleteComponent);
+
+        final HorizontalLayout actionsLayout = new HorizontalLayout();
+        actionsLayout.setSpacing(false);
+        actionsLayout.setMargin(false);
+        actionsLayout.setSizeUndefined();
+        actionsLayout.addStyleName(SPUIStyleDefinitions.ADD_UPDATE_FILTER_ACTIONS_LAYOUT);
+
+        actionsLayout.addComponent(helpLink);
+        searchButton.setEnabled(false);
+        actionsLayout.addComponent(searchButton);
+        saveButton.setEnabled(false);
+        actionsLayout.addComponent(saveButton);
 
         final HorizontalLayout filterQueryLayout = new HorizontalLayout();
         filterQueryLayout.setSpacing(false);
         filterQueryLayout.setMargin(false);
         filterQueryLayout.setSizeUndefined();
+        filterQueryLayout.addStyleName(SPUIStyleDefinitions.ADD_UPDATE_FILTER_LAYOUT);
 
-        filterQueryLayout.addComponent(autoCompleteComponent);
-        filterQueryLayout.addComponent(helpLink);
+        filterQueryLayout.addComponent(formLayout);
+        filterQueryLayout.addComponent(actionsLayout);
+        filterQueryLayout.setComponentAlignment(actionsLayout, Alignment.BOTTOM_LEFT);
 
-        searchButton.setEnabled(false);
-        saveButton.setEnabled(false);
-        filterQueryLayout.addComponent(searchButton);
-        filterQueryLayout.addComponent(saveButton);
-
-        filterAddUpdateLayout.addComponent(filterNameInput);
-        filterAddUpdateLayout.addComponent(filterQueryLayout);
-        autoCompleteComponent.focus();
-
-        return filterAddUpdateLayout;
+        return filterQueryLayout;
     }
 
     private void addValueChangeListeners() {

@@ -12,20 +12,17 @@ import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.event.DistributionTableEvent;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
+import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Component;
 
@@ -36,17 +33,20 @@ import com.vaadin.ui.Component;
 public class DistributionGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final ManagementUIState managementUIState;
+    private final DistributionGridLayoutUiState distributionGridLayoutUiState;
+    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
     DistributionGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final ManagementUIState managementUIState) {
+            final UIEventBus eventBus, final DistributionGridLayoutUiState distributionGridLayoutUiState,
+            final DistributionTagLayoutUiState distributionTagLayoutUiState) {
         super(i18n, permChecker, eventBus);
 
-        this.managementUIState = managementUIState;
+        this.distributionGridLayoutUiState = distributionGridLayoutUiState;
+        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.DIST_SEARCH_TEXTFIELD,
                 UIComponentIdProvider.DIST_SEARCH_ICON, this::getSearchTextFromUiState, this::searchBy,
@@ -57,7 +57,7 @@ public class DistributionGridHeader extends AbstractGridHeader {
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
         addHeaderSupports(Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, resizeHeaderSupport));
 
-        restoreHeaderState();
+        restoreState();
         buildHeader();
     }
 
@@ -67,52 +67,46 @@ public class DistributionGridHeader extends AbstractGridHeader {
     }
 
     private String getSearchTextFromUiState() {
-        return managementUIState.getDistributionTableFilters().getSearchText().orElse(null);
+        return distributionGridLayoutUiState.getSearchFilter();
     }
 
     private void searchBy(final String newSearchText) {
-        managementUIState.getDistributionTableFilters().setSearchText(newSearchText);
-        eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
+
+        distributionGridLayoutUiState.setSearchFilter(newSearchText);
     }
 
     // TODO: check if needed or can be done by searchBy
     private void resetSearchText() {
-        if (managementUIState.getDistributionTableFilters().getSearchText().isPresent()) {
-            managementUIState.getDistributionTableFilters().setSearchText(null);
-            eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
-        }
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, "");
+
+        distributionGridLayoutUiState.setSearchFilter(null);
     }
 
     private void showFilterButtonsLayout() {
-        managementUIState.setDistTagFilterClosed(false);
-        eventBus.publish(this, ManagementUIEvent.SHOW_DISTRIBUTION_TAG_LAYOUT);
+        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this, LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN);
+
+        distributionTagLayoutUiState.setHidden(false);
     }
 
     private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return managementUIState.isDistTagFilterClosed();
-    }
-
-    private void maximizeTable() {
-        managementUIState.setDsTableMaximized(Boolean.TRUE);
-        eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.MAXIMIZED));
-    }
-
-    private void minimizeTable() {
-        managementUIState.setDsTableMaximized(Boolean.FALSE);
-        eventBus.publish(this, new DistributionTableEvent(BaseEntityEventType.MINIMIZED));
+        return distributionTagLayoutUiState.isHidden();
     }
 
     private Boolean onLoadIsTableMaximized() {
-        return managementUIState.isDsTableMaximized();
+        return distributionGridLayoutUiState.isMaximized();
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final ManagementUIEvent event) {
-        if (event == ManagementUIEvent.HIDE_DISTRIBUTION_TAG_LAYOUT) {
-            filterButtonsHeaderSupport.showFilterButtonsIcon();
-        } else if (event == ManagementUIEvent.SHOW_DISTRIBUTION_TAG_LAYOUT) {
-            filterButtonsHeaderSupport.hideFilterButtonsIcon();
-        }
+    private void maximizeTable() {
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+
+        distributionGridLayoutUiState.setMaximized(true);
+    }
+
+    private void minimizeTable() {
+        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+
+        distributionGridLayoutUiState.setMaximized(false);
     }
 
     public void showDsTagIcon() {

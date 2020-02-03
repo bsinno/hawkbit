@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -32,9 +31,11 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
      * @param deploymentManagement
      */
     public ActionStatusMsgGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final ManagementUIState managementUIState, final DeploymentManagement deploymentManagement) {
+            final DeploymentManagement deploymentManagement,
+            final ActionStatusMsgGridLayoutUiState actionStatusMsgGridLayoutUiState) {
         this.actionStatusMsgHeader = new ActionStatusMsgGridHeader(i18n);
-        this.actionStatusMsgGrid = new ActionStatusMsgGrid(i18n, eventBus, deploymentManagement);
+        this.actionStatusMsgGrid = new ActionStatusMsgGrid(i18n, eventBus, deploymentManagement,
+                actionStatusMsgGridLayoutUiState);
 
         buildLayout(actionStatusMsgHeader, actionStatusMsgGrid);
     }

@@ -51,7 +51,6 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
         addHeaderSupports(Arrays.asList(resizeHeaderSupport));
 
-        restoreHeaderState();
         buildHeader();
     }
 

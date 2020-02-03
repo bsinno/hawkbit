@@ -16,7 +16,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -29,8 +28,6 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
 
     private final ActionHistoryGridHeader actionHistoryHeader;
     private final ActionHistoryGrid actionHistoryGrid;
-    private final ActionStatusGridLayout actionStatusLayout;
-    private final ActionStatusMsgGridLayout actionStatusMsgLayout;
 
     private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
 
@@ -47,18 +44,13 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
      * @param permChecker
      */
     public ActionHistoryGridLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
-            final UIEventBus eventBus, final UINotification notification, final ManagementUIState managementUIState,
-            final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final UINotification notification, final SpPermissionChecker permChecker,
             final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
         this.actionHistoryGridLayoutUiState = actionHistoryGridLayoutUiState;
 
-        this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, managementUIState, eventBus);
-        this.actionHistoryGrid = new ActionHistoryGrid(i18n, deploymentManagement, eventBus, notification,
-                managementUIState, permChecker);
-
-        this.actionStatusLayout = new ActionStatusGridLayout(i18n, eventBus, managementUIState, deploymentManagement);
-        this.actionStatusMsgLayout = new ActionStatusMsgGridLayout(i18n, eventBus, managementUIState,
-                deploymentManagement);
+        this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, eventBus, actionHistoryGridLayoutUiState);
+        this.actionHistoryGrid = new ActionHistoryGrid(i18n, deploymentManagement, eventBus, notification, permChecker,
+                actionHistoryGridLayoutUiState);
 
         this.eventListener = new ActionHistoryGridLayoutEventListener(this, eventBus);
 
@@ -70,13 +62,15 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     }
 
     public void onTargetSelected(final ProxyTarget target) {
-        // TODO Auto-generated method stub
-
+        actionHistoryHeader.updateActionHistoryHeader(target != null ? target.getName() : "");
+        actionHistoryGrid.updateMasterEntityFilter(target);
     }
 
-    public void onTargetUpdated(final Long lastSelectedTargetId) {
-        // TODO Auto-generated method stub
-
+    public void onTargetUpdated(final Collection<Long> updatedTargetIds) {
+        if (actionHistoryGrid.getSelectedMasterTarget() != null
+                && updatedTargetIds.contains(actionHistoryGrid.getSelectedMasterTarget().getId())) {
+            // TODO
+        }
     }
 
     public void onActionChanged(final ProxyAction entity) {

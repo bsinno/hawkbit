@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.repository.model.Type;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -47,8 +46,6 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     private final DistSMTypeFilterHeader distSMTypeFilterHeader;
     private final DistSMTypeFilterButtons distSMTypeFilterButtons;
 
-    private final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState;
-
     private final transient DistSMTypeFilterLayoutEventListener eventListener;
 
     /**
@@ -73,7 +70,6 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
             final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState) {
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
         this.smTypeMapper = new TypeToProxyTypeMapper<>();
-        this.distSMTypeFilterLayoutUiState = distSMTypeFilterLayoutUiState;
 
         final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, softwareModuleTypeManagement);
@@ -141,16 +137,7 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     public void restoreState() {
-        final Long lastClickedTypeId = distSMTypeFilterLayoutUiState.getClickedSmTypeId();
-
-        if (lastClickedTypeId != null) {
-            mapIdToProxyEntity(lastClickedTypeId).ifPresent(distSMTypeFilterButtons::selectFilter);
-        }
-    }
-
-    // TODO: extract to parent abstract #mapIdToProxyEntity?
-    private Optional<ProxyType> mapIdToProxyEntity(final Long entityId) {
-        return softwareModuleTypeManagement.get(entityId).map(smTypeMapper::map);
+        distSMTypeFilterButtons.restoreState();
     }
 
     public void showFilterButtonsEditIcon() {

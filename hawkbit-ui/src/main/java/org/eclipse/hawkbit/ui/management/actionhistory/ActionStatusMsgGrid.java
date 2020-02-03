@@ -43,7 +43,8 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
      * @param eventBus
      */
     protected ActionStatusMsgGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final DeploymentManagement deploymentManagement) {
+            final DeploymentManagement deploymentManagement,
+            final ActionStatusMsgGridLayoutUiState actionStatusMsgGridLayoutUiState) {
         super(i18n, eventBus, null);
 
         this.actionStatusMsgDataProvider = new ActionStatusMsgDataProvider(deploymentManagement,

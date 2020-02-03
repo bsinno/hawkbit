@@ -8,17 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
-import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY;
-import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_STATUS;
-
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.Validator;
+import com.vaadin.data.ValueContext;
+import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.server.UserError;
+import com.vaadin.ui.*;
+import com.vaadin.ui.themes.ValoTheme;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
@@ -33,17 +29,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.Validator;
-import com.vaadin.data.ValueContext;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.server.UserError;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY;
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_STATUS;
 
 /**
  * This class represents the UI item for configuring automatic action cleanup in
@@ -117,15 +112,22 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
             } else {
                 Validator validator = new IntegerRangeValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY), 1,
                         MAX_EXPIRY_IN_DAYS);
-                ValidationResult result = validator.apply(Integer.parseInt(event.getValue()),
-                        new ValueContext(actionExpiryInput));
-                if (result.isError()) {
-                    UserError error = new UserError(result.getErrorMessage());
-                    LOGGER.debug("Action expiry validation failed", error);
-                    actionExpiryInput.setComponentError(error);
-                } else {
-                    actionExpiryInput.setComponentError(null);
-                    onActionExpiryChanged();
+                try {
+                    int input = Integer.parseInt(event.getValue());
+                    ValidationResult result = validator.apply(input,
+                            new ValueContext(actionExpiryInput));
+
+                    if (result.isError()) {
+                        UserError error = new UserError(result.getErrorMessage());
+                        LOGGER.debug("Action expiry validation failed", error);
+                        actionExpiryInput.setComponentError(error);
+                    } else {
+                        actionExpiryInput.setComponentError(null);
+                        onActionExpiryChanged();
+                    }
+                } catch (NumberFormatException ex) {
+                    actionExpiryInput.setComponentError(new UserError("Invalid entry"));
+                    LOGGER.debug("Action expiry validation failed", ex);
                 }
             }
         });

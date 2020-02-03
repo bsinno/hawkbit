@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.dstag.filter;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -24,20 +23,20 @@ import com.vaadin.ui.Window;
 public class DistributionTagFilterHeader extends AbstractFilterHeader {
     private static final long serialVersionUID = 1L;
 
-    private final ManagementUIState managementUIState;
+    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
 
     private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
-    public DistributionTagFilterHeader(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
-            final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final DsTagWindowBuilder dsTagWindowBuilder) {
+    public DistributionTagFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final DsTagWindowBuilder dsTagWindowBuilder,
+            final DistributionTagLayoutUiState distributionTagLayoutUiState) {
         super(i18n, permChecker, eventBus);
 
-        this.managementUIState = managementUIState;
+        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.dsTagWindowBuilder = dsTagWindowBuilder;
 
         buildHeader();
-        restoreHeaderState();
+        restoreState();
     }
 
     @Override
@@ -67,6 +66,6 @@ public class DistributionTagFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected void updateHiddenUiState() {
-        managementUIState.setDistTagFilterClosed(true);
+        distributionTagLayoutUiState.setHidden(true);
     }
 }

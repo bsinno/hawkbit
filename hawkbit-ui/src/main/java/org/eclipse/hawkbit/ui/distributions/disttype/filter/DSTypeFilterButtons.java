@@ -52,7 +52,6 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     private final transient SystemManagement systemManagement;
 
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> dsTypeDataProvider;
-    private final transient TypeToProxyTypeMapper<DistributionSetType> dsTypeMapper;
 
     /**
      * Constructor
@@ -84,9 +83,8 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
         this.systemManagement = systemManagement;
 
         this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
-        this.dsTypeMapper = new TypeToProxyTypeMapper<>();
-        this.dsTypeDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement, dsTypeMapper)
-                .withConfigurableFilter();
+        this.dsTypeDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement,
+                new TypeToProxyTypeMapper<>()).withConfigurableFilter();
 
         init();
     }
@@ -170,5 +168,14 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     @Override
     protected String getFilterButtonIdPrefix() {
         return SPUIDefinitions.DISTRIBUTION_SET_TYPE_ID_PREFIXS;
+    }
+
+    public void restoreState() {
+        final Long lastClickedTypeId = dSTypeFilterLayoutUiState.getClickedDsTypeId();
+
+        if (lastClickedTypeId != null) {
+            typeFilterButtonClickBehaviour.setPreviouslyClickedFilterId(lastClickedTypeId);
+            // TODO: should we reset data communicator here for styling update
+        }
     }
 }

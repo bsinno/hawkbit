@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 import java.net.URI;
 
 import org.eclipse.hawkbit.repository.model.Action.Status;
-import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 
@@ -32,16 +31,6 @@ public class ProxyTarget extends ProxyNamedEntity {
 
     private TargetUpdateStatus updateStatus = TargetUpdateStatus.UNKNOWN;
 
-    // TODO: check if it can be substituted by id
-    private DistributionSet installedDistributionSet;
-
-    // TODO: check if it can be substituted by id
-    private DistributionSet assignedDistributionSet;
-
-    private String assignedDistNameVersion;
-
-    private String installedDistNameVersion;
-
     private String pollStatusToolTip;
 
     private Status status;
@@ -49,22 +38,6 @@ public class ProxyTarget extends ProxyNamedEntity {
     private String securityToken;
 
     private boolean isRequestAttributes;
-
-    public String getAssignedDistNameVersion() {
-        return assignedDistNameVersion;
-    }
-
-    public void setAssignedDistNameVersion(final String assignedDistNameVersion) {
-        this.assignedDistNameVersion = assignedDistNameVersion;
-    }
-
-    public String getInstalledDistNameVersion() {
-        return installedDistNameVersion;
-    }
-
-    public void setInstalledDistNameVersion(final String installedDistNameVersion) {
-        this.installedDistNameVersion = installedDistNameVersion;
-    }
 
     public String getControllerId() {
         return controllerId;
@@ -104,22 +77,6 @@ public class ProxyTarget extends ProxyNamedEntity {
 
     public void setUpdateStatus(final TargetUpdateStatus updateStatus) {
         this.updateStatus = updateStatus;
-    }
-
-    public DistributionSet getInstalledDistributionSet() {
-        return installedDistributionSet;
-    }
-
-    public void setInstalledDistributionSet(final DistributionSet installedDistributionSet) {
-        this.installedDistributionSet = installedDistributionSet;
-    }
-
-    public DistributionSet getAssignedDistributionSet() {
-        return assignedDistributionSet;
-    }
-
-    public void setAssignedDistributionSet(final DistributionSet assignedDistributionSet) {
-        this.assignedDistributionSet = assignedDistributionSet;
     }
 
     public String getPollStatusToolTip() {

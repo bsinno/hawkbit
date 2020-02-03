@@ -51,7 +51,7 @@ public class AssignmentWindowLayoutComponentBuilder {
     public ActionTypeOptionGroupAssignmentLayout createActionTypeOptionGroupLayout(
             final Binder<ProxyAssignmentWindow> binder) {
         final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout = new ActionTypeOptionGroupAssignmentLayout(
-                i18n);
+                i18n, UIComponentIdProvider.DEPLOYMENT_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID);
         // TODO: check if it is needed
         actionTypeOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ASSIGNMENT_ACTION_TYPE_LAYOUT);
 

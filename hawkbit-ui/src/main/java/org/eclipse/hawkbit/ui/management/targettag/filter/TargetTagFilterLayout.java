@@ -8,25 +8,16 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
-import org.eclipse.hawkbit.repository.model.TargetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.ComponentContainer;
@@ -37,13 +28,8 @@ import com.vaadin.ui.ComponentContainer;
 public class TargetTagFilterLayout extends AbstractFilterLayout {
     private static final long serialVersionUID = 1L;
 
-    private final transient TargetTagManagement targetTagManagement;
-    private final transient TagToProxyTagMapper<TargetTag> targetTagMapper;
-
     private final TargetTagFilterHeader targetTagFilterHeader;
     private final MultipleTargetFilter multipleTargetFilter;
-
-    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
 
     private final transient TargetTagFilterLayoutEventListener eventListener;
 
@@ -72,10 +58,6 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
             final EntityFactory entityFactory, final TargetFilterQueryManagement targetFilterQueryManagement,
             final TargetTagManagement targetTagManagement, final TargetManagement targetManagement,
             final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
-        this.targetTagManagement = targetTagManagement;
-        this.targetTagMapper = new TagToProxyTagMapper<>();
-        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
-
         final TargetTagWindowBuilder targetTagWindowBuilder = new TargetTagWindowBuilder(i18n, entityFactory, eventBus,
                 notification, targetTagManagement);
 
@@ -100,20 +82,6 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
         return multipleTargetFilter;
     }
 
-    public void restoreState() {
-        final Set<Long> lastClickedTagIds = targetTagFilterLayoutUiState.getClickedTargetTagIds();
-
-        if (!CollectionUtils.isEmpty(lastClickedTagIds)) {
-            mapIdsToProxyEntities(lastClickedTagIds)
-                    .forEach(multipleTargetFilter.getTargetTagFilterButtons()::selectFilter);
-        }
-    }
-
-    // TODO: extract to parent abstract #mapIdsToProxyEntities?
-    private List<ProxyTag> mapIdsToProxyEntities(final Collection<Long> entityIds) {
-        return targetTagManagement.get(entityIds).stream().map(targetTagMapper::map).collect(Collectors.toList());
-    }
-
     public void showFilterButtonsEditIcon() {
         multipleTargetFilter.getTargetTagFilterButtons().showEditColumn();
     }
@@ -128,6 +96,19 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
 
     public void refreshFilterButtons() {
         multipleTargetFilter.getTargetTagFilterButtons().refreshContainer();
+    }
+
+    void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
+        if (isCustomFilterTabSelected) {
+            targetTagFilterHeader.disableCrudMenu();
+        } else {
+            targetTagFilterHeader.enableCrudMenu();
+        }
+    }
+
+    public void restoreState() {
+        targetTagFilterHeader.restoreState();
+        multipleTargetFilter.restoreState();
     }
 
     public void unsubscribeListener() {

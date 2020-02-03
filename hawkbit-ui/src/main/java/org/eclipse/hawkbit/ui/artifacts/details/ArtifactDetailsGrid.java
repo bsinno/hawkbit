@@ -71,9 +71,17 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         setResizeSupport(new ArtifactDetailsResizeSupport());
 
         this.artifactDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("artifact.details.header"),
-                permissionChecker, notification, this::artifactsDeletionCallback);
+                permissionChecker, notification, this::artifactsDeletionCallback,
+                UIComponentIdProvider.ARTIFACT_DELETE_CONFIRMATION_DIALOG);
 
         init();
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        addStyleName("grid-row-border");
     }
 
     private void artifactsDeletionCallback(final Collection<ProxyArtifact> artifactsToBeDeleted) {

@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher.EntityModifiedEventPayloadIdentifier;
-import org.eclipse.hawkbit.ui.push.EventContainer;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
@@ -31,7 +30,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.event.FieldEvents.BlurEvent;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
@@ -62,9 +60,7 @@ public class NotificationUnreadButton extends Button {
     private final transient UIEventBus eventBus;
 
     private int unreadNotificationCounter;
-    private AbstractNotificationView currentView;
     private Window notificationsWindow;
-    private transient Map<Class<?>, NotificationUnreadValue> unreadNotifications;
     private final transient Map<EntityModifiedEventPayloadIdentifier, Collection<Long>> remotelyOriginatedEventsStore;
 
     /**
@@ -78,7 +74,6 @@ public class NotificationUnreadButton extends Button {
         this.i18n = i18n;
         this.eventBus = eventBus;
 
-        this.unreadNotifications = new ConcurrentHashMap<>();
         this.remotelyOriginatedEventsStore = new ConcurrentHashMap<>();
 
         setId(UIComponentIdProvider.NOTIFICATION_UNREAD_ID);
@@ -90,8 +85,6 @@ public class NotificationUnreadButton extends Button {
 
         createNotificationWindow();
         addClickListener(this::dispatchRemotelyOriginatedEvents);
-        // TODO: remove after refactoring all Views
-        addClickListener(this::toggleWindow);
     }
 
     private void createNotificationWindow() {
@@ -122,55 +115,6 @@ public class NotificationUnreadButton extends Button {
 
     private void closeWindow(final BlurEvent event) {
         getUI().removeWindow((Window) event.getComponent());
-    }
-
-    private void toggleWindow(final ClickEvent event) {
-        if (currentView == null) {
-            return;
-        }
-
-        if (notificationsWindow.isAttached()) {
-            getUI().removeWindow(notificationsWindow);
-            return;
-        }
-
-        createUnreadMessagesLayout();
-        notificationsWindow.setPositionY(event.getClientY() - event.getRelativeY() + 40);
-        getUI().addWindow(notificationsWindow);
-
-        currentView.refreshView(unreadNotifications.keySet());
-
-        clear();
-        notificationsWindow.focus();
-    }
-
-    private void createUnreadMessagesLayout() {
-        final VerticalLayout notificationsLayout = new VerticalLayout();
-        notificationsLayout.setMargin(true);
-        notificationsLayout.setSpacing(true);
-
-        final Label title = new Label(i18n.getMessage(TITLE));
-        title.addStyleName(ValoTheme.LABEL_H3);
-        title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
-
-        notificationsLayout.addComponent(title);
-
-        unreadNotifications.values().stream().forEach(value -> createNotification(notificationsLayout, value));
-        notificationsWindow.setContent(notificationsLayout);
-    }
-
-    private void createNotification(final VerticalLayout notificationsLayout,
-            final NotificationUnreadValue notificationUnreadValue) {
-        final Label contentLabel = new Label(notificationUnreadValue.getUnreadNotifications() + " "
-                + i18n.getMessage(notificationUnreadValue.getUnreadNotificationMessageKey()));
-        notificationsLayout.addComponent(contentLabel);
-    }
-
-    private void clear() {
-        unreadNotificationCounter = 0;
-        unreadNotifications.clear();
-        remotelyOriginatedEventsStore.clear();
-        refreshCaption();
     }
 
     private void dispatchRemotelyOriginatedEvents(final ClickEvent event) {
@@ -241,39 +185,9 @@ public class NotificationUnreadButton extends Button {
         return null;
     }
 
-    public void setCurrentView(final View currentView) {
-        clear();
-        this.currentView = null;
-
-        if (!(currentView instanceof AbstractNotificationView)) {
-            return;
-        }
-        this.currentView = (AbstractNotificationView) currentView;
-        this.currentView.refreshView();
-    }
-
-    /**
-     * Increment the counter.
-     * 
-     * @param view
-     *            the view
-     * @param newEventContainer
-     *            the event container
-     */
-    public void incrementUnreadNotification(final AbstractNotificationView view,
-            final EventContainer<?> newEventContainer) {
-        if (!view.equals(currentView) || newEventContainer.getUnreadNotificationMessageKey() == null) {
-            return;
-        }
-        NotificationUnreadValue notificationUnreadValue = unreadNotifications.get(newEventContainer.getClass());
-        if (notificationUnreadValue == null) {
-            notificationUnreadValue = new NotificationUnreadValue(0,
-                    newEventContainer.getUnreadNotificationMessageKey());
-            unreadNotifications.put(newEventContainer.getClass(), notificationUnreadValue);
-        }
-
-        notificationUnreadValue.incrementUnreadNotifications();
-        unreadNotificationCounter++;
+    private void clear() {
+        unreadNotificationCounter = 0;
+        remotelyOriginatedEventsStore.clear();
         refreshCaption();
     }
 
@@ -285,36 +199,5 @@ public class NotificationUnreadButton extends Button {
 
         unreadNotificationCounter += eventEntityIds.size();
         refreshCaption();
-    }
-
-    private static class NotificationUnreadValue {
-        private Integer unreadNotifications;
-        private final String unreadNotificationMessageKey;
-
-        /**
-         * @param unreadNotifications
-         * @param unreadNotificationMessageKey
-         */
-        public NotificationUnreadValue(final Integer unreadNotifications, final String unreadNotificationMessageKey) {
-            this.unreadNotifications = unreadNotifications;
-            this.unreadNotificationMessageKey = unreadNotificationMessageKey;
-        }
-
-        /**
-         * Increment the unread notifications.
-         * 
-         */
-        public void incrementUnreadNotifications() {
-            unreadNotifications++;
-        }
-
-        public String getUnreadNotificationMessageKey() {
-            return unreadNotificationMessageKey;
-        }
-
-        public Integer getUnreadNotifications() {
-            return unreadNotifications;
-        }
-
     }
 }

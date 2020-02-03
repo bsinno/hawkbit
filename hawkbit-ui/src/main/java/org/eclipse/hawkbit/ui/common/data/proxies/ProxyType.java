@@ -35,6 +35,10 @@ public class ProxyType extends ProxyFilterButton {
         return key;
     }
 
+    public String getKeyAndName(){
+        return key + " (" + getName() + ")";
+    }
+
     public void setKey(final String key) {
         this.key = key;
     }

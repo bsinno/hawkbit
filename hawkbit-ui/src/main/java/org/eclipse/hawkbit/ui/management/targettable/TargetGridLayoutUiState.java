@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.io.Serializable;
 
+import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 
 public class TargetGridLayoutUiState implements Serializable {
@@ -19,6 +20,10 @@ public class TargetGridLayoutUiState implements Serializable {
     private String searchFilter;
     private Long selectedTargetId;
     private DistributionSetIdName filterDsIdNameVersion;
+    private Long pinnedTargetId;
+
+    // TODO: check if it is right, make sure to update it in TargetGrid
+    private TargetManagementFilterParams targetManagementFilterParams;
 
     public boolean isMaximized() {
         return maximized;
@@ -48,7 +53,23 @@ public class TargetGridLayoutUiState implements Serializable {
         return filterDsIdNameVersion;
     }
 
-    public void setFilterDsIdNameVersion(DistributionSetIdName filterDsIdNameVersion) {
+    public void setFilterDsIdNameVersion(final DistributionSetIdName filterDsIdNameVersion) {
         this.filterDsIdNameVersion = filterDsIdNameVersion;
+    }
+
+    public Long getPinnedTargetId() {
+        return pinnedTargetId;
+    }
+
+    public void setPinnedTargetId(final Long pinnedTargetId) {
+        this.pinnedTargetId = pinnedTargetId;
+    }
+
+    public TargetManagementFilterParams getTargetManagementFilterParams() {
+        return targetManagementFilterParams;
+    }
+
+    public void setTargetManagementFilterParams(final TargetManagementFilterParams targetManagementFilterParams) {
+        this.targetManagementFilterParams = targetManagementFilterParams;
     }
 }

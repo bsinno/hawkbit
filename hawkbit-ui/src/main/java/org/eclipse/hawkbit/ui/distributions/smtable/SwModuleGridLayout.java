@@ -66,7 +66,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         this.swModuleGridHeader = new SwModuleGridHeader(i18n, permChecker, eventBus, smWindowBuilder,
                 distSMTypeFilterLayoutUiState, swModuleGridLayoutUiState);
         this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, softwareModuleManagement,
-                swModuleGridLayoutUiState, softwareModuleToProxyMapper);
+                distSMTypeFilterLayoutUiState, swModuleGridLayoutUiState, softwareModuleToProxyMapper);
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder, artifactManagement);
@@ -78,6 +78,13 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     public void restoreState() {
+        swModuleGridHeader.restoreState();
+        swModuleGrid.restoreState();
+
+        restoreGridSelection();
+    }
+
+    private void restoreGridSelection() {
         final Long lastSelectedEntityId = swModuleGridLayoutUiState.getSelectedSmId();
 
         if (lastSelectedEntityId != null) {

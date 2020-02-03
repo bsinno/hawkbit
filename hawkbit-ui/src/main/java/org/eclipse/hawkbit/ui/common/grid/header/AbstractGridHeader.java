@@ -90,7 +90,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
     protected abstract Component getHeaderCaption();
 
-    protected void restoreHeaderState() {
+    public void restoreState() {
         restoreCaption();
         headerSupports.stream().filter(Objects::nonNull).forEach(HeaderSupport::restoreState);
     }

@@ -8,50 +8,52 @@
  */
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterMultiButtonClick;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
  * Abstract class for button click behavior of the distribution set's tag
  * buttons. Filters the distribution sets according to the active tags.
  */
+// TODO: remove duplication with TargetTagFilterButtonClick
 public class DistributionTagButtonClick extends AbstractFilterMultiButtonClick<ProxyTag> {
-
     private static final long serialVersionUID = 1L;
 
-    private final transient EventBus.UIEventBus eventBus;
+    private final transient Consumer<Map<Long, String>> filterChangedCallback;
+    private final transient Consumer<ClickBehaviourType> noTagChangedCallback;
 
-    private final ManagementUIState managementUIState;
-
-    DistributionTagButtonClick(final UIEventBus eventBus, final ManagementUIState managementUIState) {
-        this.eventBus = eventBus;
-        this.managementUIState = managementUIState;
+    DistributionTagButtonClick(final Consumer<Map<Long, String>> filterChangedCallback,
+            final Consumer<ClickBehaviourType> noTagChangedCallback) {
+        this.filterChangedCallback = filterChangedCallback;
+        this.noTagChangedCallback = noTagChangedCallback;
     }
 
     @Override
     protected void filterUnClicked(final ProxyTag clickedFilter) {
-        // TODO: check if it works (adapt as needed)
         if (clickedFilter.isNoTag()) {
-            managementUIState.getDistributionTableFilters().setNoTagSelected(false);
+            noTagChangedCallback.accept(ClickBehaviourType.UNCLICKED);
         } else {
-            managementUIState.getDistributionTableFilters().getClickedDistSetTags().remove(clickedFilter.getName());
+            filterChangedCallback.accept(previouslyClickedFilterIdsWithName);
         }
-        eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
     }
 
     @Override
     protected void filterClicked(final ProxyTag clickedFilter) {
-        // TODO: check if it works (adapt as needed)
         if (clickedFilter.isNoTag()) {
-            managementUIState.getDistributionTableFilters().setNoTagSelected(true);
+            noTagChangedCallback.accept(ClickBehaviourType.CLICKED);
         } else {
-            managementUIState.getDistributionTableFilters().getClickedDistSetTags().add(clickedFilter.getName());
+            filterChangedCallback.accept(previouslyClickedFilterIdsWithName);
         }
-        eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
     }
 
+    void clearPreviouslyClickedFilters() {
+        previouslyClickedFilterIdsWithName.clear();
+    }
+
+    int getPreviouslyClickedFiltersSize() {
+        return previouslyClickedFilterIdsWithName.size();
+    }
 }

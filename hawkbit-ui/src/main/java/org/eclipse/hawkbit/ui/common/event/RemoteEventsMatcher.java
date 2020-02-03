@@ -32,21 +32,41 @@ import org.eclipse.hawkbit.ui.push.SoftwareModuleTypeCreatedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleTypeDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleTypeUpdatedEventContainer;
 import org.eclipse.hawkbit.ui.push.SoftwareModuleUpdatedEventContainer;
+import org.eclipse.hawkbit.ui.push.TargetCreatedEventContainer;
+import org.eclipse.hawkbit.ui.push.TargetDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.TargetFilterQueryCreatedEventContainer;
 import org.eclipse.hawkbit.ui.push.TargetFilterQueryDeletedEventContainer;
 import org.eclipse.hawkbit.ui.push.TargetFilterQueryUpdatedEventContainer;
+import org.eclipse.hawkbit.ui.push.TargetTagCreatedEventContainer;
+import org.eclipse.hawkbit.ui.push.TargetTagDeletedEventContainer;
+import org.eclipse.hawkbit.ui.push.TargetTagUpdatedEventContainer;
+import org.eclipse.hawkbit.ui.push.TargetUpdatedEventContainer;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 
 public class RemoteEventsMatcher {
     private static final Map<Class<? extends EventContainer<?>>, EntityModifiedEventPayloadIdentifier> EVENT_MATCHERS = Maps
-            .newHashMapWithExpectedSize(18);
+            .newHashMapWithExpectedSize(28);
 
     private RemoteEventsMatcher() {
     }
 
     static {
+        EVENT_MATCHERS.put(TargetCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
+                TargetModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "target.created"));
+        EVENT_MATCHERS.put(TargetUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
+                TargetModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "target.updated"));
+        EVENT_MATCHERS.put(TargetDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
+                TargetModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "target.deleted"));
+
+        EVENT_MATCHERS.put(TargetTagCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
+                TargetTagModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "target.tag.created"));
+        EVENT_MATCHERS.put(TargetTagUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
+                TargetTagModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "target.tag.updated"));
+        EVENT_MATCHERS.put(TargetTagDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
+                TargetTagModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "target.tag.deleted"));
+
         EVENT_MATCHERS.put(DistributionSetCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
                 DsModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "ds.created"));
         EVENT_MATCHERS.put(DistributionSetUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(

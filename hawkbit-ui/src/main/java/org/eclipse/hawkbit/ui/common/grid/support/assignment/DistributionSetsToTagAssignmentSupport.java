@@ -18,9 +18,12 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetTagAssignmentResult;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.event.RefreshDistributionTableByFilterEvent;
+import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -31,19 +34,20 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * {@link ProxyTag}.
  * 
  */
+// TODO: remove duplication with TargetsToTagAssignmentSupport
 public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<ProxyDistributionSet, ProxyTag> {
     private final DistributionSetManagement distributionSetManagement;
-    private final ManagementUIState managementUIState;
+    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
 
     public DistributionSetsToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final DistributionSetManagement distributionSetManagement, final ManagementUIState managementUIState,
-            final UIEventBus eventBus, final SpPermissionChecker permChecker) {
+            final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus,
+            final SpPermissionChecker permChecker, final DistributionTagLayoutUiState distributionTagLayoutUiState) {
         super(notification, i18n);
 
         this.distributionSetManagement = distributionSetManagement;
-        this.managementUIState = managementUIState;
+        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.eventBus = eventBus;
         this.permChecker = permChecker;
     }
@@ -68,19 +72,25 @@ public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<Pr
         // Distribution Sets
         notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
 
-        // TODO: should not we also call
-        // publishAssignDsTagEvent(tagsAssignmentResult); (see
-        // TargetsToTagAssignmentSupport)?
-        publishUnAssignDsTagEvent(tagName, tagsAssignmentResult);
+        publishTagAssignmentEvent(tagsAssignmentResult, sourceItemsToAssign, targetItem);
     }
 
-    private void publishUnAssignDsTagEvent(final String dsTagName, final DistributionSetTagAssignmentResult result) {
-        final List<String> tagsClickedList = managementUIState.getDistributionTableFilters().getClickedDistSetTags();
-        final boolean isDsTagUnAssigned = result.getUnassigned() >= 1 && !tagsClickedList.isEmpty()
-                && tagsClickedList.contains(dsTagName);
+    private void publishTagAssignmentEvent(final DistributionSetTagAssignmentResult tagsAssignmentResult,
+            final List<ProxyDistributionSet> sourceItemsToAssign, final ProxyTag targetItem) {
+        final List<Long> assignedDsIds = sourceItemsToAssign.stream().map(ProxyIdentifiableEntity::getId)
+                .collect(Collectors.toList());
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, assignedDsIds));
 
-        if (isDsTagUnAssigned) {
-            eventBus.publish(this, new RefreshDistributionTableByFilterEvent());
-        }
+        // TODO: should we additionally send tag assignment event in order to
+        // refresh the grid?
+        // if ((tagsAssignmentResult.getUnassigned() > 0 &&
+        // !CollectionUtils.isEmpty(distributionTagLayoutUiState.getClickedDsTagIdsWithName()
+        // &&
+        // distributionTagLayoutUiState.getClickedDsTagIdsWithName().keySet().contains(targetItem.getId()))
+        // || (tagsAssignmentResult.getAssigned() > 0 &&
+        // distributionTagLayoutUiState.isNoTagClicked())) {
+        // eventBus.publish("tagAssignmentChanged", this, new
+        // TagAssignmentPayload(...);}
     }
 }

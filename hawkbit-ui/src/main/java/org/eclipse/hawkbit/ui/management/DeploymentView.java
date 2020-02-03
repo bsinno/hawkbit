@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.management;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.annotation.PostConstruct;
@@ -26,13 +24,11 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridLayout;
+import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryLayout;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayout;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayout;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayout;
@@ -50,7 +46,7 @@ import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -70,9 +66,9 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
     private final TargetGridLayout targetGridLayout;
     private final DistributionGridLayout distributionGridLayout;
     private final DistributionTagLayout distributionTagLayout;
-    private final ActionHistoryGridLayout actionHistoryLayout;
+    private final ActionHistoryLayout actionHistoryLayout;
 
-    private GridLayout mainLayout;
+    private HorizontalLayout mainLayout;
 
     private final transient DeploymentViewEventListener eventListener;
 
@@ -97,13 +93,16 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
                     managementUIState.getTargetTagFilterLayoutUiState());
 
             this.targetGridLayout = new TargetGridLayout(eventBus, targetManagement, entityFactory, i18n,
-                    uiNotification, managementUIState, deploymentManagement, uiProperties, permChecker,
-                    targetTagManagement, distributionSetManagement, uiExecutor, configManagement, systemSecurityContext,
+                    uiNotification, deploymentManagement, uiProperties, permChecker, targetTagManagement,
+                    distributionSetManagement, uiExecutor, configManagement, systemSecurityContext,
                     managementUIState.getTargetTagFilterLayoutUiState(), managementUIState.getTargetGridLayoutUiState(),
-                    managementUIState.getTargetBulkUploadUiState());
+                    managementUIState.getTargetBulkUploadUiState(),
+                    managementUIState.getDistributionGridLayoutUiState());
 
-            this.actionHistoryLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, eventBus, uiNotification,
-                    managementUIState, permChecker, managementUIState.getActionHistoryGridLayoutUiState());
+            this.actionHistoryLayout = new ActionHistoryLayout(i18n, deploymentManagement, eventBus, uiNotification,
+                    permChecker, managementUIState.getActionHistoryGridLayoutUiState(),
+                    managementUIState.getActionStatusGridLayoutUiState(),
+                    managementUIState.getActionStatusMsgGridLayoutUiState());
         } else {
             this.targetTagFilterLayout = null;
             this.targetGridLayout = null;
@@ -111,14 +110,16 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
 
         if (permChecker.hasReadRepositoryPermission()) {
-            this.distributionTagLayout = new DistributionTagLayout(eventBus, managementUIState, i18n, permChecker,
+            this.distributionTagLayout = new DistributionTagLayout(eventBus, i18n, permChecker,
                     distributionSetTagManagement, entityFactory, uiNotification, distributionSetManagement,
                     managementUIState.getDistributionTagLayoutUiState());
             this.distributionGridLayout = new DistributionGridLayout(i18n, eventBus, permChecker, entityFactory,
                     uiNotification, managementUIState, targetManagement, distributionSetManagement, smManagement,
                     distributionSetTypeManagement, distributionSetTagManagement, systemManagement, deploymentManagement,
                     configManagement, systemSecurityContext, uiProperties,
-                    managementUIState.getDistributionGridLayoutUiState());
+                    managementUIState.getDistributionGridLayoutUiState(),
+                    managementUIState.getDistributionTagLayoutUiState(),
+                    managementUIState.getTargetGridLayoutUiState());
         } else {
             this.distributionTagLayout = null;
             this.distributionGridLayout = null;
@@ -149,16 +150,18 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
 
         addComponent(mainLayout);
         setExpandRatio(mainLayout, 1.0F);
+
+        // TODO: check if we can do better
+        if (targetGridLayout != null) {
+            addComponent(targetGridLayout.getCountMessageLabel().createFooterMessageComponent());
+        }
     }
 
     private void createMainLayout() {
-        mainLayout = new GridLayout();
+        mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
         mainLayout.setMargin(false);
         mainLayout.setSpacing(true);
-        mainLayout.setStyleName("fullSize");
-
-        mainLayout.setRowExpandRatio(0, 1.0F);
 
         if (permChecker.hasReadRepositoryPermission() && permChecker.hasTargetReadPermission()) {
             addAllWidgets();
@@ -170,44 +173,42 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
     }
 
     private void addAllWidgets() {
-        mainLayout.setColumns(5);
+        mainLayout.addComponent(targetTagFilterLayout);
+        mainLayout.addComponent(targetGridLayout);
+        mainLayout.addComponent(distributionGridLayout);
+        mainLayout.addComponent(distributionTagLayout);
+        mainLayout.addComponent(actionHistoryLayout);
 
-        mainLayout.setColumnExpandRatio(0, 0F);
-        mainLayout.setColumnExpandRatio(1, 0.275F);
-        mainLayout.setColumnExpandRatio(2, 0.275F);
-        mainLayout.setColumnExpandRatio(3, 0F);
-        mainLayout.setColumnExpandRatio(4, 0.45F);
-
-        mainLayout.addComponent(targetTagFilterLayout, 0, 0);
-        mainLayout.addComponent(targetGridLayout, 1, 0);
-        mainLayout.addComponent(distributionGridLayout, 2, 0);
-        mainLayout.addComponent(distributionTagLayout, 3, 0);
-        mainLayout.addComponent(actionHistoryLayout, 4, 0);
+        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+        mainLayout.setExpandRatio(targetGridLayout, 0.275F);
+        mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
+        mainLayout.setExpandRatio(distributionTagLayout, 0F);
+        mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
     }
 
     private void addDistributionWidgetsOnly() {
-        mainLayout.setColumns(2);
+        mainLayout.addComponent(distributionGridLayout);
+        mainLayout.addComponent(distributionTagLayout);
 
-        mainLayout.setColumnExpandRatio(0, 1F);
-
-        mainLayout.addComponent(distributionGridLayout, 0, 0);
-        mainLayout.addComponent(distributionTagLayout, 1, 0);
+        mainLayout.setExpandRatio(distributionGridLayout, 1F);
+        mainLayout.setExpandRatio(distributionTagLayout, 0F);
     }
 
     private void addTargetWidgetsOnly() {
-        mainLayout.setColumns(3);
+        mainLayout.addComponent(targetTagFilterLayout);
+        mainLayout.addComponent(targetGridLayout);
+        mainLayout.addComponent(actionHistoryLayout);
 
-        mainLayout.setColumnExpandRatio(1, 0.4F);
-        mainLayout.setColumnExpandRatio(2, 0.6F);
-
-        mainLayout.addComponent(targetTagFilterLayout, 0, 0);
-        mainLayout.addComponent(targetGridLayout, 1, 0);
-        mainLayout.addComponent(actionHistoryLayout, 2, 0);
+        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+        mainLayout.setExpandRatio(targetGridLayout, 0.4F);
+        mainLayout.setExpandRatio(actionHistoryLayout, 0.6F);
     }
 
     private void restoreState() {
         if (permChecker.hasTargetReadPermission()) {
-            if (managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
+            if (managementUIState.getTargetTagFilterLayoutUiState().isHidden()
+                    || managementUIState.getDistributionGridLayoutUiState().isMaximized()
+                    || managementUIState.getActionHistoryGridLayoutUiState().isMaximized()) {
                 hideTargetTagLayout();
             } else {
                 showTargetTagLayout();
@@ -226,7 +227,9 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
 
         if (permChecker.hasReadRepositoryPermission()) {
-            if (managementUIState.getDistributionTagLayoutUiState().isHidden()) {
+            if (managementUIState.getDistributionTagLayoutUiState().isHidden()
+                    || managementUIState.getTargetGridLayoutUiState().isMaximized()
+                    || managementUIState.getActionHistoryGridLayoutUiState().isMaximized()) {
                 hideDsTagLayout();
             } else {
                 showDsTagLayout();
@@ -259,11 +262,11 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
         actionHistoryLayout.setVisible(false);
 
-        mainLayout.setColumnExpandRatio(0, 0F);
-        mainLayout.setColumnExpandRatio(1, 1F);
-        mainLayout.setColumnExpandRatio(2, 0F);
-        mainLayout.setColumnExpandRatio(3, 0F);
-        mainLayout.setColumnExpandRatio(4, 0F);
+        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+        mainLayout.setExpandRatio(targetGridLayout, 1F);
+        mainLayout.setExpandRatio(distributionGridLayout, 0F);
+        mainLayout.setExpandRatio(distributionTagLayout, 0F);
+        mainLayout.setExpandRatio(actionHistoryLayout, 0F);
 
         targetGridLayout.maximize();
     }
@@ -278,29 +281,14 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
             distributionTagLayout.setVisible(false);
         }
 
-        mainLayout.setColumnExpandRatio(0, 0F);
-        mainLayout.setColumnExpandRatio(1, 0F);
-        mainLayout.setColumnExpandRatio(2, 0F);
-        mainLayout.setColumnExpandRatio(3, 0F);
-        mainLayout.setColumnExpandRatio(4, 1F);
+        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+        mainLayout.setExpandRatio(targetGridLayout, 0F);
+        mainLayout.setExpandRatio(distributionGridLayout, 0F);
+        mainLayout.setExpandRatio(distributionTagLayout, 0F);
+        mainLayout.setExpandRatio(actionHistoryLayout, 1F);
 
         actionHistoryLayout.maximize();
     }
-    // TODO
-    // private void maximizeActionHistory() {
-    // removeComponent(countMessageLabel);
-    // mainLayout.removeAllComponents();
-    // mainLayout.setColumns(3);
-    // mainLayout.setRows(1);
-    // mainLayout.addComponent(actionHistoryLayout, 0, 0);
-    // mainLayout.addComponent(actionStatusLayout, 1, 0);
-    // mainLayout.addComponent(actionStatusMsgLayout, 2, 0);
-    // mainLayout.setColumnExpandRatio(0, 0.55F);
-    // mainLayout.setColumnExpandRatio(1, 0.18F);
-    // mainLayout.setColumnExpandRatio(2, 0.27F);
-    // mainLayout.setComponentAlignment(actionHistoryLayout,
-    // Alignment.TOP_LEFT);
-    // }
 
     void hideDsTagLayout() {
         distributionTagLayout.setVisible(false);
@@ -323,13 +311,13 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
             actionHistoryLayout.setVisible(false);
         }
 
-        mainLayout.setColumnExpandRatio(0, 0F);
-        mainLayout.setColumnExpandRatio(1, 0F);
-        mainLayout.setColumnExpandRatio(2, 1F);
-        mainLayout.setColumnExpandRatio(3, 0F);
-        mainLayout.setColumnExpandRatio(4, 0F);
+        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+        mainLayout.setExpandRatio(targetGridLayout, 0F);
+        mainLayout.setExpandRatio(distributionGridLayout, 1F);
+        mainLayout.setExpandRatio(distributionTagLayout, 0F);
+        mainLayout.setExpandRatio(actionHistoryLayout, 0F);
 
-        targetGridLayout.maximize();
+        distributionGridLayout.maximize();
     }
 
     @Override
@@ -361,19 +349,6 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
     }
 
-    void onTargetSelected(final ProxyTarget target) {
-        actionHistoryLayout.onTargetSelected(target);
-    }
-
-    void onTargetUpdated(final Collection<Long> entityIds) {
-        final Long lastSelectedTargetId = managementUIState.getTargetGridLayoutUiState().getSelectedTargetId();
-
-        if (lastSelectedTargetId != null && entityIds.contains(lastSelectedTargetId)) {
-            // TODO: think over
-            actionHistoryLayout.onTargetUpdated(lastSelectedTargetId);
-        }
-    }
-
     void minimizeTargetGridLayout() {
         if (distributionGridLayout != null) {
             distributionGridLayout.setVisible(true);
@@ -384,11 +359,11 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         actionHistoryLayout.setVisible(true);
 
         // TODO: adapt expand ratios according to permissions
-        mainLayout.setColumnExpandRatio(0, 0F);
-        mainLayout.setColumnExpandRatio(1, 0.275F);
-        mainLayout.setColumnExpandRatio(2, 0.275F);
-        mainLayout.setColumnExpandRatio(3, 0F);
-        mainLayout.setColumnExpandRatio(4, 0.45F);
+        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+        mainLayout.setExpandRatio(targetGridLayout, 0.275F);
+        mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
+        mainLayout.setExpandRatio(distributionTagLayout, 0F);
+        mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
 
         targetGridLayout.minimize();
     }
@@ -405,11 +380,11 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
 
         // TODO: adapt expand ratios according to permissions
-        mainLayout.setColumnExpandRatio(0, 0F);
-        mainLayout.setColumnExpandRatio(1, 0.275F);
-        mainLayout.setColumnExpandRatio(2, 0.275F);
-        mainLayout.setColumnExpandRatio(3, 0F);
-        mainLayout.setColumnExpandRatio(4, 0.45F);
+        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+        mainLayout.setExpandRatio(targetGridLayout, 0.275F);
+        mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
+        mainLayout.setExpandRatio(distributionTagLayout, 0F);
+        mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
 
         distributionGridLayout.minimize();
     }
@@ -427,45 +402,13 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
 
         // TODO: adapt expand ratios according to permissions
-        mainLayout.setColumnExpandRatio(0, 0F);
-        mainLayout.setColumnExpandRatio(1, 0.275F);
-        mainLayout.setColumnExpandRatio(2, 0.275F);
-        mainLayout.setColumnExpandRatio(3, 0F);
-        mainLayout.setColumnExpandRatio(4, 0.45F);
+        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+        mainLayout.setExpandRatio(targetGridLayout, 0.275F);
+        mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
+        mainLayout.setExpandRatio(distributionTagLayout, 0F);
+        mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
 
         actionHistoryLayout.minimize();
-    }
-
-    void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
-        targetGridLayout.onTargetFilterTabChanged(isCustomFilterTabSelected);
-    }
-
-    void filterTargetGridByTags(final Collection<String> tagFilterNames) {
-        targetGridLayout.filterGridByTags(tagFilterNames);
-    }
-
-    void filterTargetGridByNoTag(final boolean isActive) {
-        targetGridLayout.filterGridByNoTag(isActive);
-    }
-
-    void filterTargetGridByStatus(final List<TargetUpdateStatus> statusFilters) {
-        targetGridLayout.filterGridByStatus(statusFilters);
-    }
-
-    void filterTargetGridByOverdue(final boolean isOverdue) {
-        targetGridLayout.filterGridByOverdue(isOverdue);
-    }
-
-    void filterTargetGridByCustomFilter(final Long customFilterId) {
-        targetGridLayout.filterGridByCustomFilter(customFilterId);
-    }
-
-    void filterDsGridByTags(final Collection<String> tagFilterNames) {
-        distributionGridLayout.filterGridByTags(tagFilterNames);
-    }
-
-    void filterDsGridByNoTag(final boolean isActive) {
-        distributionGridLayout.filterGridByNoTag(isActive);
     }
 
     @PreDestroy

@@ -73,7 +73,6 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
         addHeaderSupports(
                 Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, addHeaderSupport, resizeHeaderSupport));
 
-        restoreHeaderState();
         buildHeader();
     }
 
@@ -106,7 +105,7 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     }
 
     private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return !smTypeFilterLayoutUiState.isHidden();
+        return smTypeFilterLayoutUiState.isHidden();
     }
 
     private void addNewItem() {

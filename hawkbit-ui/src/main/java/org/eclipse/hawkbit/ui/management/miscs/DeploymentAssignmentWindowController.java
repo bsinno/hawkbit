@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.management.miscs;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,12 +27,12 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
+import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
+import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -50,23 +49,28 @@ public class DeploymentAssignmentWindowController {
     private static final Logger LOG = LoggerFactory.getLogger(DeploymentAssignmentWindowController.class);
 
     private final VaadinMessageSource i18n;
-    private final ManagementUIState managementUIState;
     private final UIEventBus eventBus;
     private final UINotification notification;
     private final DeploymentManagement deploymentManagement;
+
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
+    private final DistributionGridLayoutUiState distributionGridLayoutUiState;
 
     private final AssignmentWindowLayout assignmentWindowLayout;
 
     private ProxyAssignmentWindow proxyAssignmentWindow;
 
     public DeploymentAssignmentWindowController(final VaadinMessageSource i18n, final UiProperties uiProperties,
-            final ManagementUIState managementUIState, final UIEventBus eventBus, final UINotification notification,
-            final DeploymentManagement deploymentManagement) {
+            final UIEventBus eventBus, final UINotification notification,
+            final DeploymentManagement deploymentManagement, final TargetGridLayoutUiState targetGridLayoutUiState,
+            final DistributionGridLayoutUiState distributionGridLayoutUiState) {
         this.i18n = i18n;
-        this.managementUIState = managementUIState;
         this.eventBus = eventBus;
         this.notification = notification;
         this.deploymentManagement = deploymentManagement;
+
+        this.targetGridLayoutUiState = targetGridLayoutUiState;
+        this.distributionGridLayoutUiState = distributionGridLayoutUiState;
 
         this.assignmentWindowLayout = new AssignmentWindowLayout(i18n, uiProperties);
     }
@@ -156,20 +160,16 @@ public class DeploymentAssignmentWindowController {
     }
 
     private void refreshPinnedDetails(final Set<Long> assignedDsIds, final Set<Long> assignedTargetIds) {
-        final Optional<Long> pinnedDist = managementUIState.getTargetTableFilters().getPinnedDistId();
-        final Optional<TargetIdName> pinnedTarget = managementUIState.getDistributionTableFilters().getPinnedTarget();
+        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
+        final Long pinnedTargetId = targetGridLayoutUiState.getPinnedTargetId();
 
-        pinnedDist.ifPresent(pinnedDistId -> {
-            if (assignedDsIds.contains(pinnedDistId)) {
-                eventBus.publish(this, PinUnpinEvent.PIN_DISTRIBUTION);
-            }
-        });
+        if (pinnedDsId != null && assignedDsIds.contains(pinnedDsId)) {
+            eventBus.publish(this, PinUnpinEvent.PIN_DISTRIBUTION);
+        }
 
-        pinnedTarget.ifPresent(pinnedTargetIdName -> {
-            if (assignedTargetIds.contains(pinnedTargetIdName.getTargetId())) {
-                eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
-            }
-        });
+        if (pinnedTargetId != null && assignedTargetIds.contains(pinnedTargetId)) {
+            eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
+        }
     }
 
     /**

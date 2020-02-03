@@ -9,8 +9,10 @@
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 
@@ -18,10 +20,10 @@ public class TargetTagFilterLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean hidden;
-    private Set<Long> clickedTargetTagIds;
+    private final Map<Long, String> clickedTargetTagIdsWithName = new HashMap<>();
     private boolean isNoTagClicked;
     private Long clickedTargetFilterQueryId;
-    private List<TargetUpdateStatus> clickedTargetUpdateStatusFilters;
+    private final List<TargetUpdateStatus> clickedTargetUpdateStatusFilters = new ArrayList<>();
     private boolean isOverdueFilterClicked;
     private boolean isCustomFilterTabSelected;
 
@@ -33,12 +35,13 @@ public class TargetTagFilterLayoutUiState implements Serializable {
         this.hidden = hidden;
     }
 
-    public Set<Long> getClickedTargetTagIds() {
-        return clickedTargetTagIds;
+    public Map<Long, String> getClickedTargetTagIdsWithName() {
+        return clickedTargetTagIdsWithName;
     }
 
-    public void setClickedTargetTagIds(final Set<Long> clickedTargetTagIds) {
-        this.clickedTargetTagIds = clickedTargetTagIds;
+    public void setClickedTargetTagIdsWithName(final Map<Long, String> clickedTargetTagIdsWithName) {
+        this.clickedTargetTagIdsWithName.clear();
+        this.clickedTargetTagIdsWithName.putAll(clickedTargetTagIdsWithName);
     }
 
     public boolean isNoTagClicked() {
@@ -62,7 +65,8 @@ public class TargetTagFilterLayoutUiState implements Serializable {
     }
 
     public void setClickedTargetUpdateStatusFilters(final List<TargetUpdateStatus> clickedTargetUpdateStatusFilters) {
-        this.clickedTargetUpdateStatusFilters = clickedTargetUpdateStatusFilters;
+        this.clickedTargetUpdateStatusFilters.clear();
+        this.clickedTargetUpdateStatusFilters.addAll(clickedTargetUpdateStatusFilters);
     }
 
     public boolean isOverdueFilterClicked() {
@@ -77,7 +81,7 @@ public class TargetTagFilterLayoutUiState implements Serializable {
         return isCustomFilterTabSelected;
     }
 
-    public void setCustomFilterTabSelected(boolean isCustomFilterTabSelected) {
+    public void setCustomFilterTabSelected(final boolean isCustomFilterTabSelected) {
         this.isCustomFilterTabSelected = isCustomFilterTabSelected;
     }
 }

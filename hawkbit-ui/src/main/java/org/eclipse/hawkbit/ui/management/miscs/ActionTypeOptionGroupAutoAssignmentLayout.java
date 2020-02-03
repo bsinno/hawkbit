@@ -23,8 +23,9 @@ public class ActionTypeOptionGroupAutoAssignmentLayout extends AbstractActionTyp
      * @param i18n
      *            VaadinMessageSource
      */
-    public ActionTypeOptionGroupAutoAssignmentLayout(final VaadinMessageSource i18n) {
-        super(i18n);
+    public ActionTypeOptionGroupAutoAssignmentLayout(final VaadinMessageSource i18n,
+            final String actionTypeOptionGroupId) {
+        super(i18n, actionTypeOptionGroupId);
     }
 
     @Override

@@ -37,4 +37,8 @@ public abstract class AbstractFilterSingleButtonClick<T extends ProxyIdentifiabl
     public boolean isFilterPreviouslyClicked(final T clickedFilter) {
         return previouslyClickedFilterId != null && previouslyClickedFilterId.equals(clickedFilter.getId());
     }
+
+    public void setPreviouslyClickedFilterId(final Long id) {
+        this.previouslyClickedFilterId = id;
+    }
 }

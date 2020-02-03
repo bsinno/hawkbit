@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -34,6 +35,7 @@ public class TargetTagFilterLayoutEventListener {
     private void registerEventListeners() {
         eventListeners.add(new FilterButtonsActionsChangedListener());
         eventListeners.add(new EntityModifiedListener());
+        eventListeners.add(new TabChangedListener());
     }
 
     private class FilterButtonsActionsChangedListener {
@@ -63,6 +65,18 @@ public class TargetTagFilterLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onTargetTagEvent(final TargetTagModifiedEventPayload eventPayload) {
             targetTagFilterLayout.refreshFilterButtons();
+        }
+    }
+
+    private class TabChangedListener {
+
+        public TabChangedListener() {
+            eventBus.subscribe(this, EventTopics.TARGET_FILTER_TAB_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTagChangedEvent(final TargetFilterTabChangedEventPayload eventPayload) {
+            targetTagFilterLayout.onTargetFilterTabChanged(TargetFilterTabChangedEventPayload.CUSTOM == eventPayload);
         }
     }
 

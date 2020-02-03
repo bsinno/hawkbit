@@ -19,6 +19,7 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
 
     private Mode currentMode;
     private Long selectedFilterId;
+    private String selectedFilterName;
     private String nameInput;
     private String filterQueryValueInput;
     private String filterQueryValueOfLatestSearch;
@@ -31,12 +32,20 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
         this.currentMode = currentMode;
     }
 
-    public String getFilterQueryValueInput() {
-        return filterQueryValueInput == null ? "" : filterQueryValueInput;
+    public Long getSelectedFilterId() {
+        return selectedFilterId;
     }
 
-    public void setFilterQueryValueInput(final String filterQueryValueInput) {
-        this.filterQueryValueInput = filterQueryValueInput;
+    public void setSelectedFilterId(final Long selectedFilterId) {
+        this.selectedFilterId = selectedFilterId;
+    }
+
+    public String getSelectedFilterName() {
+        return selectedFilterName;
+    }
+
+    public void setSelectedFilterName(final String selectedFilterName) {
+        this.selectedFilterName = selectedFilterName;
     }
 
     public String getNameInput() {
@@ -47,6 +56,14 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
         this.nameInput = nameInput;
     }
 
+    public String getFilterQueryValueInput() {
+        return filterQueryValueInput == null ? "" : filterQueryValueInput;
+    }
+
+    public void setFilterQueryValueInput(final String filterQueryValueInput) {
+        this.filterQueryValueInput = filterQueryValueInput;
+    }
+
     public String getFilterQueryValueOfLatestSearch() {
         return filterQueryValueOfLatestSearch == null ? "" : filterQueryValueOfLatestSearch;
     }
@@ -54,13 +71,4 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
     public void setFilterQueryValueOfLatestSearch(final String filterQueryValueOfLatestSearch) {
         this.filterQueryValueOfLatestSearch = filterQueryValueOfLatestSearch;
     }
-
-    public Long getSelectedFilterId() {
-        return selectedFilterId;
-    }
-
-    public void setSelectedFilterId(Long selectedFilterId) {
-        this.selectedFilterId = selectedFilterId;
-    }
-
 }

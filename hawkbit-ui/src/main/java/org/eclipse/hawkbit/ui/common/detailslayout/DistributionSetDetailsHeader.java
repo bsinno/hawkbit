@@ -34,7 +34,6 @@ public class DistributionSetDetailsHeader extends DetailsHeader<ProxyDistributio
         this.dsWindowBuilder = dsWindowBuilder;
         this.dsMetaDataWindowBuilder = dsMetaDataWindowBuilder;
 
-        restoreHeaderState();
         buildHeader();
     }
 

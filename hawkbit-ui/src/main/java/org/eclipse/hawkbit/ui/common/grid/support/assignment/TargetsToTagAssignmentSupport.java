@@ -11,21 +11,22 @@ package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.TargetTagAssignmentResult;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
@@ -67,26 +68,25 @@ public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget
         // TODO: check if it could be extracted from HawkbitCommonUtil
         notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
 
-        publishAssignTargetTagEvent(tagsAssignmentResult);
-        publishUnAssignTargetTagEvent(targetItem.getId(), tagsAssignmentResult);
+        publishTagAssignmentEvent(tagsAssignmentResult, sourceItemsToAssign, targetItem);
     }
 
-    private void publishAssignTargetTagEvent(final TargetTagAssignmentResult result) {
-        final boolean isNewTargetTagAssigned = result.getAssigned() >= 1
-                && targetTagFilterLayoutUiState.isNoTagClicked();
-        if (isNewTargetTagAssigned) {
-            eventBus.publish(this, ManagementUIEvent.ASSIGN_TARGET_TAG);
-        }
+    private void publishTagAssignmentEvent(final TargetTagAssignmentResult tagsAssignmentResult,
+            final List<ProxyTarget> sourceItemsToAssign, final ProxyTag targetItem) {
+        final List<Long> assignedTargetIds = sourceItemsToAssign.stream().map(ProxyIdentifiableEntity::getId)
+                .collect(Collectors.toList());
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, assignedTargetIds));
 
-    }
-
-    private void publishUnAssignTargetTagEvent(final Long targetTagId, final TargetTagAssignmentResult result) {
-        final Set<Long> tagsClickedList = targetTagFilterLayoutUiState.getClickedTargetTagIds();
-        final boolean isTargetTagUnAssigned = result.getUnassigned() >= 1 && !CollectionUtils.isEmpty(tagsClickedList)
-                && tagsClickedList.contains(targetTagId);
-
-        if (isTargetTagUnAssigned) {
-            eventBus.publish(this, ManagementUIEvent.UNASSIGN_TARGET_TAG);
-        }
+        // TODO: should we additionally send tag assignment event in order to
+        // refresh the grid?
+        // if ((tagsAssignmentResult.getUnassigned() > 0 &&
+        // !CollectionUtils.isEmpty(targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName()
+        // &&
+        // targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName().keySet().contains(targetItem.getId()))
+        // || (tagsAssignmentResult.getAssigned() > 0 &&
+        // targetTagFilterLayoutUiState.isNoTagClicked())) {
+        // eventBus.publish("tagAssignmentChanged", this, new
+        // TagAssignmentPayload(...);}
     }
 }

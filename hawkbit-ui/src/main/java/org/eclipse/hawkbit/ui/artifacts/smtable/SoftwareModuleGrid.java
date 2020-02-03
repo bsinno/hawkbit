@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.UploadArtifactView;
+import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleArtifactsStateDataProvider;
@@ -60,6 +61,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
 
     private final ArtifactUploadState artifactUploadState;
+    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
     private final UINotification notification;
     private final transient SoftwareModuleManagement softwareModuleManagement;
@@ -71,12 +73,14 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final ArtifactUploadState artifactUploadState, final SoftwareModuleGridLayoutUiState smGridLayoutUiState,
+            final ArtifactUploadState artifactUploadState, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
+            final SoftwareModuleGridLayoutUiState smGridLayoutUiState,
             final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleToProxyMapper softwareModuleToProxyMapper) {
         super(i18n, eventBus, permissionChecker);
 
         this.artifactUploadState = artifactUploadState;
+        this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
         this.smGridLayoutUiState = smGridLayoutUiState;
         this.notification = notification;
         this.softwareModuleManagement = softwareModuleManagement;
@@ -96,9 +100,17 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
 
         this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.software.module"),
-                permissionChecker, notification, this::deleteSoftwareModules);
+                permissionChecker, notification, this::deleteSoftwareModules,
+                UIComponentIdProvider.SM_DELETE_CONFIRMATION_DIALOG);
 
         init();
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        addStyleName("grid-row-border");
     }
 
     private void updateLastSelectedSmUiState(final SelectionChangedEventType type,
@@ -226,6 +238,15 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         actionButton.addStyleName(style);
 
         return actionButton;
+    }
+
+    public void restoreState() {
+        final String searchFilter = smGridLayoutUiState.getSearchFilter();
+        smFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+
+        smFilter.setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedSmTypeId());
+
+        getFilterDataProvider().setFilter(smFilter);
     }
 
     /**

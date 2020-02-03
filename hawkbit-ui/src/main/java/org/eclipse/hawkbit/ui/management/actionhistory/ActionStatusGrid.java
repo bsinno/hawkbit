@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.Selectio
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.management.DeploymentView;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -44,7 +43,7 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     private static final String STATUS_ID = "status";
     private static final String CREATED_AT_ID = "createdAt";
 
-    private final ManagementUIState managementUIState;
+    private final ActionStatusGridLayoutUiState actionStatusGridLayoutUiState;
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
@@ -58,10 +57,11 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
      * @param deploymentManagement
      */
     protected ActionStatusGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final DeploymentManagement deploymentManagement, final ManagementUIState managementUIState) {
+            final DeploymentManagement deploymentManagement,
+            final ActionStatusGridLayoutUiState actionStatusGridLayoutUiState) {
         super(i18n, eventBus, null);
 
-        this.managementUIState = managementUIState;
+        this.actionStatusGridLayoutUiState = actionStatusGridLayoutUiState;
 
         this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
                 new ActionStatusToProxyActionStatusMapper()).withConfigurableFilter();
@@ -78,9 +78,9 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     private void updateLastSelectedActionStatusUiState(final SelectionChangedEventType type,
             final ProxyActionStatus selectedActionStatus) {
         if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
-            managementUIState.setLastSelectedActionStatusId(null);
+            actionStatusGridLayoutUiState.setSelectedActionStatusId(null);
         } else {
-            managementUIState.setLastSelectedActionStatusId(selectedActionStatus.getId());
+            actionStatusGridLayoutUiState.setSelectedActionStatusId(selectedActionStatus.getId());
         }
     }
 
@@ -94,8 +94,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.FINISHED)));
         statusIconMap.put(Status.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_EMPTY,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.SCHEDULED)));
-        statusIconMap.put(Status.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_PENDING,
-                getStatusDescription(Status.RUNNING)));
+        statusIconMap.put(Status.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST,
+                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RUNNING)));
         statusIconMap.put(Status.RETRIEVED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE_O,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RETRIEVED)));
         statusIconMap.put(Status.WARNING, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,

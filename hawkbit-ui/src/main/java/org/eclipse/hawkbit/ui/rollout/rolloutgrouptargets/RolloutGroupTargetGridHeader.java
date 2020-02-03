@@ -59,7 +59,7 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
                 UIComponentIdProvider.ROLLOUT_TARGET_VIEW_CLOSE_BUTTON_ID, this::closeRolloutGroupTargets);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
-        restoreHeaderState();
+        restoreState();
         buildHeader();
     }
 

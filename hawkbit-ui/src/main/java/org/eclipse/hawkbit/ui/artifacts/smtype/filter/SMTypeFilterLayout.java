@@ -8,15 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
-import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -30,13 +25,8 @@ import com.vaadin.ui.ComponentContainer;
 public class SMTypeFilterLayout extends AbstractFilterLayout {
     private static final long serialVersionUID = 1L;
 
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-    private final transient TypeToProxyTypeMapper<SoftwareModuleType> smTypeMapper;
-
     private final SMTypeFilterHeader smTypeFilterHeader;
     private final SMTypeFilterButtons sMTypeFilterButtons;
-
-    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
 
     private final transient SMTypeFilterLayoutEventListener eventListener;
 
@@ -62,17 +52,13 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
             final UIEventBus eventBus, final EntityFactory entityFactory, final UINotification uiNotification,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState) {
-        this.softwareModuleTypeManagement = softwareModuleTypeManagement;
-        this.smTypeMapper = new TypeToProxyTypeMapper<>();
-        this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
-
         final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, softwareModuleTypeManagement);
 
         this.smTypeFilterHeader = new SMTypeFilterHeader(i18n, permChecker, eventBus, smTypeFilterLayoutUiState,
                 smTypeWindowBuilder);
         this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, smTypeFilterLayoutUiState,
-                softwareModuleTypeManagement, i18n, permChecker, uiNotification, smTypeWindowBuilder, smTypeMapper);
+                softwareModuleTypeManagement, i18n, permChecker, uiNotification, smTypeWindowBuilder);
 
         this.eventListener = new SMTypeFilterLayoutEventListener(this, eventBus);
 
@@ -90,16 +76,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     public void restoreState() {
-        final Long lastClickedTypeId = smTypeFilterLayoutUiState.getClickedSmTypeId();
-
-        if (lastClickedTypeId != null) {
-            mapIdToProxyEntity(lastClickedTypeId).ifPresent(sMTypeFilterButtons::selectFilter);
-        }
-    }
-
-    // TODO: extract to parent abstract #mapIdToProxyEntity?
-    private Optional<ProxyType> mapIdToProxyEntity(final Long entityId) {
-        return softwareModuleTypeManagement.get(entityId).map(smTypeMapper::map);
+        sMTypeFilterButtons.restoreState();
     }
 
     public void showFilterButtonsEditIcon() {

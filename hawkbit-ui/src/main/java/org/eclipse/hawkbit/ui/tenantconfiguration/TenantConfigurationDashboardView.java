@@ -45,7 +45,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.spring.annotation.ViewScope;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -57,7 +57,7 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * Main UI for the system configuration view.
  */
-@UIScope
+@ViewScope
 @SpringView(name = TenantConfigurationDashboardView.VIEW_NAME, ui = AbstractHawkbitUI.class)
 public class TenantConfigurationDashboardView extends CustomComponent implements View, ConfigurationItemChangeListener {
 

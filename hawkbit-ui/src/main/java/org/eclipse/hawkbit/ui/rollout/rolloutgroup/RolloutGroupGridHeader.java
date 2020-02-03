@@ -61,7 +61,7 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
                 UIComponentIdProvider.ROLLOUT_GROUP_CLOSE, this::closeRolloutGroups);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
-        restoreHeaderState();
+        restoreState();
         buildHeader();
     }
 

@@ -9,10 +9,11 @@
 package org.eclipse.hawkbit.ui.common.data.filters;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetManagementStateDataProvider;
-import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 
 /**
  * Filter params for {@link DistributionSetManagementStateDataProvider}.
@@ -20,40 +21,60 @@ import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 public class DsManagementFilterParams implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String searchText;
-    private final Boolean isNoTagClicked;
-    private final List<String> distributionSetTags;
-    private final TargetIdName pinnedTarget;
+    private String searchText;
+    private boolean noTagClicked;
+    private Collection<String> distributionSetTags;
+    private String pinnedTargetControllerId;
 
     /**
      * Constructor.
      * 
      * @param searchText
-     * @param isNoTagClicked
+     * @param noTagClicked
      * @param distributionSetTags
-     * @param pinnedTarget
+     * @param pinnedTargetControllerId
      */
-    public DsManagementFilterParams(final String searchText, final Boolean isNoTagClicked,
-            final List<String> distributionSetTags, final TargetIdName pinnedTarget) {
+    public DsManagementFilterParams(final String searchText, final boolean noTagClicked,
+            final List<String> distributionSetTags, final String pinnedTargetControllerId) {
         this.searchText = searchText;
-        this.isNoTagClicked = isNoTagClicked;
+        this.noTagClicked = noTagClicked;
         this.distributionSetTags = distributionSetTags;
-        this.pinnedTarget = pinnedTarget;
-    }
-
-    public List<String> getDistributionSetTags() {
-        return distributionSetTags;
-    }
-
-    public Boolean getIsNoTagClicked() {
-        return isNoTagClicked;
+        this.pinnedTargetControllerId = pinnedTargetControllerId;
     }
 
     public String getSearchText() {
         return searchText;
     }
 
-    public TargetIdName getPinnedTarget() {
-        return pinnedTarget;
+    public void setSearchText(final String searchText) {
+        this.searchText = searchText;
+    }
+
+    public Collection<String> getDistributionSetTags() {
+        return distributionSetTags;
+    }
+
+    public void setDistributionSetTags(final Collection<String> distributionSetTags) {
+        this.distributionSetTags = distributionSetTags;
+    }
+
+    public String getPinnedTargetControllerId() {
+        return pinnedTargetControllerId;
+    }
+
+    public void setPinnedTargetControllerId(final String pinnedTargetControllerId) {
+        this.pinnedTargetControllerId = pinnedTargetControllerId;
+    }
+
+    public DsManagementFilterParams() {
+        this("", false, new ArrayList<>(), "");
+    }
+
+    public boolean isNoTagClicked() {
+        return noTagClicked;
+    }
+
+    public void setNoTagClicked(final boolean noTagClicked) {
+        this.noTagClicked = noTagClicked;
     }
 }

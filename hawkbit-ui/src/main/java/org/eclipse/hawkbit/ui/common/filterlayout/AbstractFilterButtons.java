@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
+import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -53,7 +54,8 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         super(i18n, eventBus, permChecker);
 
         this.filterButtonDeleteSupport = new DeleteSupport<>(this, i18n, getFilterButtonsType(), permChecker,
-                notification, this::deleteFilterButtons);
+                notification, this::deleteFilterButtons,
+                UIComponentIdProvider.FILTER_BUTTON_DELETE_CONFIRMATION_DIALOG);
     }
 
     @Override
@@ -98,13 +100,9 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
                 new ProxyFontIcon(VaadinIcons.CIRCLE, "", "", colour).getHtml() + " " + clickedFilter.getName());
         filterButton.setCaptionAsHtml(true);
 
-        filterButton.addClickListener(event -> selectFilter(clickedFilter));
+        filterButton.addClickListener(event -> getFilterButtonClickBehaviour().processFilterClick(clickedFilter));
 
         return filterButton;
-    }
-
-    public void selectFilter(final T filter) {
-        getFilterButtonClickBehaviour().processFilterClick(filter);
     }
 
     /**

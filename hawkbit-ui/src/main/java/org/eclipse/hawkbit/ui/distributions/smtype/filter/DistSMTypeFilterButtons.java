@@ -157,4 +157,13 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
     protected String getFilterButtonIdPrefix() {
         return SPUIDefinitions.SOFTWARE_MODULE_TAG_ID_PREFIXS;
     }
+
+    public void restoreState() {
+        final Long lastClickedTypeId = distSMTypeFilterLayoutUiState.getClickedSmTypeId();
+
+        if (lastClickedTypeId != null) {
+            typeFilterButtonClickBehaviour.setPreviouslyClickedFilterId(lastClickedTypeId);
+            // TODO: should we reset data communicator here for styling update
+        }
+    }
 }

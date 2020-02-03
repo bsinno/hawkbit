@@ -35,16 +35,18 @@ public class DeleteSupport<T> {
     private final SpPermissionChecker permissionChecker;
     private final UINotification notification;
     private final Consumer<Collection<T>> itemsDeletionCallback;
+    private final String deletionWindowId;
 
     public DeleteSupport(final Grid<T> grid, final VaadinMessageSource i18n, final String entityType,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final Consumer<Collection<T>> itemsDeletionCallback) {
+            final Consumer<Collection<T>> itemsDeletionCallback, final String deletionWindowId) {
         this.grid = grid;
         this.i18n = i18n;
         this.entityType = entityType;
         this.permissionChecker = permissionChecker;
         this.notification = notification;
         this.itemsDeletionCallback = itemsDeletionCallback;
+        this.deletionWindowId = deletionWindowId;
     }
 
     public void openConfirmationWindowDeleteAction(final T clickedItem, final String clickedItemName) {
@@ -95,7 +97,7 @@ public class DeleteSupport<T> {
                     if (ok) {
                         handleOkDelete(itemsToBeDeleted, successNotificationText);
                     }
-                });
+                }, deletionWindowId);
     }
 
     private void handleOkDelete(final Set<T> itemsToBeDeleted, final String successNotificationText) {

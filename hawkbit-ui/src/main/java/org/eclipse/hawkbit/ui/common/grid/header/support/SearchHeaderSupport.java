@@ -53,8 +53,13 @@ public class SearchHeaderSupport implements HeaderSupport {
     }
 
     private TextField createSearchField() {
-        return new TextFieldBuilder(64).id(searchFieldId)
-                .createSearchField(event -> searchByCallback.accept(event.getValue()));
+        return new TextFieldBuilder(64).id(searchFieldId).createSearchField(event -> {
+            // we do not want to send the event during state restore, so we
+            // react only on user input
+            if (event.isUserOriginated()) {
+                searchByCallback.accept(event.getValue());
+            }
+        });
     }
 
     private Button createSearchResetIcon() {

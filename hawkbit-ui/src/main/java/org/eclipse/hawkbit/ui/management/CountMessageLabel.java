@@ -8,29 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.management;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.Collection;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.grid.AbstractFooterSupport;
-import org.eclipse.hawkbit.ui.management.event.ManagementUIEvent;
-import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
-import org.eclipse.hawkbit.ui.management.state.TargetTableFilters;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
+import org.springframework.util.StringUtils;
 
-import com.vaadin.data.provider.DataCommunicator;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 
@@ -42,39 +31,24 @@ import com.vaadin.ui.Label;
 public class CountMessageLabel extends AbstractFooterSupport {
     private final VaadinMessageSource i18n;
 
-    private final ManagementUIState managementUIState;
-
     private final TargetManagement targetManagement;
-
-    private final DataCommunicator<ProxyTarget> targetGridDataCommunicator;
 
     private final Label targetCountLabel;
 
     /**
      * Constructor
      * 
-     * @param eventBus
-     *            UIEventBus
      * @param targetManagement
      *            TargetManagement
      * @param i18n
      *            I18N
-     * @param managementUIState
-     *            ManagementUIState
-     * @param targetGridDataCommunicator
-     *            TargetGrid data communicator
      */
-    public CountMessageLabel(final UIEventBus eventBus, final TargetManagement targetManagement,
-            final VaadinMessageSource i18n, final ManagementUIState managementUIState,
-            final DataCommunicator<ProxyTarget> targetGridDataCommunicator) {
+    public CountMessageLabel(final TargetManagement targetManagement, final VaadinMessageSource i18n) {
         this.targetManagement = targetManagement;
         this.i18n = i18n;
-        this.managementUIState = managementUIState;
-        this.targetGridDataCommunicator = targetGridDataCommunicator;
         this.targetCountLabel = new Label();
 
         init();
-        eventBus.subscribe(this);
     }
 
     private void init() {
@@ -83,57 +57,13 @@ public class CountMessageLabel extends AbstractFooterSupport {
         targetCountLabel.setContentMode(ContentMode.HTML);
     }
 
-    /**
-     * TenantAwareEvent Listener to show the message count.
-     *
-     * @param event
-     *            ManagementUIEvent which describes the action to execute
-     */
-    @EventBusListenerMethod(scope = EventScope.UI)
-    public void onEvent(final ManagementUIEvent event) {
-        if (event == ManagementUIEvent.TARGET_TABLE_FILTER || event == ManagementUIEvent.SHOW_COUNT_MESSAGE) {
-            displayTargetCountStatus();
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent event) {
-        if (TargetTableEvent.TargetComponentEvent.SELECT_ALL == event.getTargetComponentEvent()
-                || TargetComponentEvent.REFRESH_TARGETS == event.getTargetComponentEvent()) {
-            displayTargetCountStatus();
-        }
-    }
-
-    /**
-     * TenantAwareEvent Listener for Pinning Distribution.
-     *
-     * @param event
-     */
-    @EventBusListenerMethod(scope = EventScope.UI)
-    public void onEvent(final PinUnpinEvent event) {
-        final Optional<Long> pinnedDist = managementUIState.getTargetTableFilters().getPinnedDistId();
-
-        if (event == PinUnpinEvent.PIN_DISTRIBUTION && pinnedDist.isPresent()) {
-            displayCountLabel(pinnedDist.get());
-        } else {
-            targetCountLabel.setValue("");
-            displayTargetCountStatus();
-        }
-    }
-
-    private void displayTargetCountStatus() {
-        final TargetTableFilters targetFilterParams = managementUIState.getTargetTableFilters();
+    public void displayTargetCountStatus(final long count, final TargetManagementFilterParams targetFilterParams) {
         final StringBuilder message = getTotalTargetMessage();
 
-        if (targetFilterParams.hasFilter()) {
+        if (targetFilterParams.isAnyFilterSelected()) {
             message.append(HawkbitCommonUtil.SP_STRING_PIPE);
             message.append(i18n.getMessage("label.filter.targets"));
-            if (managementUIState.getTargetsTruncated() != null) {
-                message.append(
-                        targetGridDataCommunicator.getDataProviderSize() + managementUIState.getTargetsTruncated());
-            } else {
-                message.append(targetGridDataCommunicator.getDataProviderSize());
-            }
+            message.append(count);
             message.append(HawkbitCommonUtil.SP_STRING_PIPE);
             final String status = i18n.getMessage("label.filter.status");
             final String overdue = i18n.getMessage("label.filter.overdue");
@@ -143,13 +73,13 @@ public class CountMessageLabel extends AbstractFooterSupport {
             final String custom = i18n.getMessage("label.filter.custom");
             final StringBuilder filterMesgBuf = new StringBuilder(i18n.getMessage("label.filter"));
             filterMesgBuf.append(" ");
-            filterMesgBuf.append(getStatusMsg(targetFilterParams.getClickedStatusTargetTags(), status));
-            filterMesgBuf.append(getOverdueStateMsg(targetFilterParams.isOverdueFilterEnabled(), overdue));
-            filterMesgBuf.append(
-                    getTagsMsg(targetFilterParams.isNoTagSelected(), targetFilterParams.getClickedTargetTags(), tags));
-            filterMesgBuf.append(targetFilterParams.getSearchText().map(search -> text).orElse(" "));
-            filterMesgBuf.append(targetFilterParams.getDistributionSet().map(set -> dists).orElse(" "));
-            filterMesgBuf.append(targetFilterParams.getTargetFilterQuery().map(query -> custom).orElse(" "));
+            filterMesgBuf.append(getStatusMsg(targetFilterParams.getTargetUpdateStatusList(), status));
+            filterMesgBuf.append(getOverdueStateMsg(targetFilterParams.isOverdueState(), overdue));
+            filterMesgBuf
+                    .append(getTagsMsg(targetFilterParams.isNoTagClicked(), targetFilterParams.getTargetTags(), tags));
+            filterMesgBuf.append(!StringUtils.isEmpty(targetFilterParams.getSearchText()) ? text : " ");
+            filterMesgBuf.append(targetFilterParams.getDistributionId() != null ? dists : " ");
+            filterMesgBuf.append(targetFilterParams.getTargetFilterQueryId() != null ? custom : " ");
             final String filterMesageChk = filterMesgBuf.toString().trim();
             String filterMesage = filterMesageChk;
             if (filterMesage.endsWith(",")) {
@@ -158,33 +88,20 @@ public class CountMessageLabel extends AbstractFooterSupport {
             message.append(filterMesage);
         }
 
-        if ((targetGridDataCommunicator.getDataProviderSize() + Optional
-                .ofNullable(managementUIState.getTargetsTruncated()).orElse(0L)) > SPUIDefinitions.MAX_TABLE_ENTRIES) {
-            message.append(HawkbitCommonUtil.SP_STRING_PIPE);
-            message.append(i18n.getMessage("label.filter.shown"));
-            message.append(SPUIDefinitions.MAX_TABLE_ENTRIES);
-        }
-
         targetCountLabel.setCaption(message.toString());
     }
 
     private StringBuilder getTotalTargetMessage() {
-        if (managementUIState.getTargetsTruncated() != null) {
-            targetCountLabel.setIcon(VaadinIcons.INFO_CIRCLE);
-            targetCountLabel.setDescription(i18n.getMessage("label.target.filter.truncated",
-                    managementUIState.getTargetsTruncated(), SPUIDefinitions.MAX_TABLE_ENTRIES));
-        } else {
-            targetCountLabel.setIcon(null);
-            targetCountLabel.setDescription(null);
-        }
+        targetCountLabel.setIcon(null);
+        targetCountLabel.setDescription(null);
 
         final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.filter.count"));
-        message.append(managementUIState.getTargetsCountAll());
+        message.append(targetManagement.count());
 
         return message;
     }
 
-    private void displayCountLabel(final Long distId) {
+    public void displayCountLabel(final Long distId) {
         final Long targetsWithAssigedDsCount = targetManagement.countByAssignedDistributionSet(distId);
         final Long targetsWithInstalledDsCount = targetManagement.countByInstalledDistributionSet(distId);
         final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.count"));
@@ -196,7 +113,7 @@ public class CountMessageLabel extends AbstractFooterSupport {
         targetCountLabel.setValue(message.toString());
     }
 
-    private static String getStatusMsg(final List<TargetUpdateStatus> status, final String param) {
+    private static String getStatusMsg(final Collection<TargetUpdateStatus> status, final String param) {
         return status.isEmpty() ? " " : param;
     }
 
@@ -204,8 +121,9 @@ public class CountMessageLabel extends AbstractFooterSupport {
         return !overdueState ? " " : param;
     }
 
-    private static String getTagsMsg(final Boolean noTargetTagSelected, final List<String> tags, final String param) {
-        return tags.isEmpty() && (noTargetTagSelected == null || !noTargetTagSelected.booleanValue()) ? " " : param;
+    private static String getTagsMsg(final Boolean noTargetTagSelected, final String[] tags, final String param) {
+        return (tags == null || tags.length == 0)
+                && (noTargetTagSelected == null || !noTargetTagSelected.booleanValue()) ? " " : param;
     }
 
     @Override

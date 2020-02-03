@@ -9,14 +9,15 @@
 package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
 import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
+import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -27,17 +28,17 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  */
 public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<ProxyTarget, Target> {
     private final TargetManagement targetManagement;
-    private final ManagementUIState managementUIState;
     private final UIEventBus eventBus;
+    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
 
     public TargetTagsToTargetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final TargetManagement targetManagement, final ManagementUIState managementUIState,
-            final UIEventBus eventBus) {
+            final TargetManagement targetManagement, final UIEventBus eventBus,
+            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
         super(notification, i18n);
 
         this.targetManagement = targetManagement;
-        this.managementUIState = managementUIState;
         this.eventBus = eventBus;
+        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
     }
 
     @Override
@@ -46,10 +47,18 @@ public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<P
     }
 
     @Override
-    protected void publishFilterEvent(final AbstractAssignmentResult<Target> tagsAssignmentResult) {
-        final List<String> tagsClickedList = managementUIState.getTargetTableFilters().getClickedTargetTags();
-        if (tagsAssignmentResult.getUnassigned() > 0 && !tagsClickedList.isEmpty()) {
-            eventBus.publish(this, TargetFilterEvent.FILTER_BY_TAG);
-        }
+    protected void publishTagAssignmentEvent(final AbstractAssignmentResult<Target> tagsAssignmentResult,
+            final ProxyTarget targetItem) {
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, targetItem.getId()));
+
+        // TODO: should we additionally send tag assignment event in order to
+        // refresh the grid?
+        // if ((tagsAssignmentResult.getUnassigned() > 0 &&
+        // !CollectionUtils.isEmpty(targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName()))
+        // || (tagsAssignmentResult.getAssigned() > 0 &&
+        // targetTagFilterLayoutUiState.isNoTagClicked())) {
+        // eventBus.publish("tagAssignmentChanged", this, new
+        // TagAssignmentPayload(...);}
     }
 }
