@@ -10,23 +10,24 @@ package org.eclipse.hawkbit.ui.push;
 
 import java.util.List;
 
-import org.eclipse.hawkbit.repository.event.remote.RolloutDeletedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.RolloutUpdatedEvent;
+import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 
 /**
- * EventHolder for {@link RolloutDeletedEvent}s.
+ * EventHolder for {@link RolloutChangedEvent}s.
  *
  */
-public class RolloutDeletedEventContainer implements EventContainer<RolloutDeletedEvent> {
-    private static final String I18N_UNREAD_NOTIFICATION_UNREAD_MESSAGE = "rollout.deleted.event.container.notifcation.message";
+public class RolloutUpdatedEventContainer implements EventContainer<RolloutUpdatedEvent> {
+    private static final String I18N_UNREAD_NOTIFICATION_UNREAD_MESSAGE = "rollout.updated.event.container.notifcation.message";
 
-    private final List<RolloutDeletedEvent> events;
+    private final List<RolloutUpdatedEvent> events;
 
-    RolloutDeletedEventContainer(final List<RolloutDeletedEvent> events) {
+    RolloutUpdatedEventContainer(final List<RolloutUpdatedEvent> events) {
         this.events = events;
     }
 
     @Override
-    public List<RolloutDeletedEvent> getEvents() {
+    public List<RolloutUpdatedEvent> getEvents() {
         return events;
     }
 

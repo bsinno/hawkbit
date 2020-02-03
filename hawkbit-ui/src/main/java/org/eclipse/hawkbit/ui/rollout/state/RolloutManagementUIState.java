@@ -12,19 +12,55 @@ import java.io.Serializable;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 
 /**
- * Stores user actions in rollout management view.
+ * Stores rollout management view UI state according to user interactions.
  *
  */
 @VaadinSessionScope
 @SpringComponent
-public class RolloutUIState implements Serializable {
+public class RolloutManagementUIState implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = -5751690471177053140L;
+    private Layout currentLayout;
+    private final RolloutLayoutUIState rolloutUIState;
+    private final RolloutGroupLayoutUIState rolloutGroupUIState;
+    private final RolloutGroupTargetLayoutUIState rolloutGroupTargetUIState;
+
+    /**
+     * constructor
+     */
+    public RolloutManagementUIState() {
+        this.rolloutUIState = new RolloutLayoutUIState();
+        this.rolloutGroupUIState = new RolloutGroupLayoutUIState();
+        this.rolloutGroupTargetUIState = new RolloutGroupTargetLayoutUIState();
+    }
+
+    public Optional<Layout> getCurrentLayout() {
+        return Optional.ofNullable(currentLayout);
+    }
+
+    public void setCurrentLayout(final Layout currentLayout) {
+        this.currentLayout = currentLayout;
+    }
+
+    public RolloutGroupLayoutUIState getGroupUIState() {
+        return rolloutGroupUIState;
+    }
+
+    public RolloutGroupTargetLayoutUIState getGroupTargetUIState() {
+        return rolloutGroupTargetUIState;
+    }
+
+    public RolloutLayoutUIState getRolloutUIState() {
+        return rolloutUIState;
+    }
+
+    // ---------------------------------------------------
 
     private String searchText;
 

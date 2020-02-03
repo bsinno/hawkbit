@@ -10,19 +10,20 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import java.util.Arrays;
 
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupTargetLayoutUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -38,7 +39,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final RolloutUIState rolloutUIState;
+    private final RolloutGroupTargetLayoutUIState rolloutUIState;
 
     private final Button rolloutNameLink;
     private final Label headerCaptionDetails;
@@ -46,7 +47,7 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
     private final transient CloseHeaderSupport closeHeaderSupport;
 
     public RolloutGroupTargetGridHeader(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final RolloutUIState rolloutUiState) {
+            final RolloutGroupTargetLayoutUIState rolloutUiState) {
         super(i18n, null, eventBus);
 
         this.rolloutUIState = rolloutUiState;
@@ -55,7 +56,7 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
         this.headerCaptionDetails = createHeaderCaptionDetails();
 
         this.closeHeaderSupport = new CloseHeaderSupport(i18n,
-                UIComponentIdProvider.ROLLOUT_TARGET_VIEW_CLOSE_BUTTON_ID, this::showRolloutGroupListView);
+                UIComponentIdProvider.ROLLOUT_TARGET_VIEW_CLOSE_BUTTON_ID, this::closeRolloutGroupTargets);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
         restoreState();
@@ -69,13 +70,18 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
         rolloutListLink.setStyleName(ValoTheme.LINK_SMALL + " on-focus-no-border link rollout-caption-links");
         rolloutListLink.addStyleName("breadcrumbPaddingLeft");
         rolloutListLink.setDescription(i18n.getMessage("dashboard.rollouts.caption"));
-        rolloutListLink.addClickListener(value -> showRolloutGroupListView());
+        rolloutListLink.addClickListener(value -> closeRolloutGroupTargets());
 
         return rolloutListLink;
     }
 
-    private void showRolloutGroupListView() {
-        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUPS);
+    private void closeRolloutGroupTargets() {
+        rolloutUIState.setParentRolloutName("");
+        rolloutUIState.setSelectedRolloutGroupId(null);
+        rolloutUIState.setSelectedRolloutGroupName("");
+
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.HIDE, Layout.ROLLOUT_GROUP_TARGET_LIST, View.ROLLOUT));
     }
 
     private Label createHeaderCaptionDetails() {
@@ -110,23 +116,22 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
     }
 
     private void showRolloutListView() {
-        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
+        // TODO: do something with state
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_LIST, View.ROLLOUT));
     }
 
     @Override
     protected void restoreCaption() {
-        setCaptionDetails();
+        rolloutNameLink.setCaption(rolloutUIState.getParentRolloutName());
+        headerCaptionDetails.setValue(rolloutUIState.getSelectedRolloutGroupName());
     }
 
-    private void setCaptionDetails() {
-        rolloutUIState.getRolloutGroup().map(RolloutGroup::getName).ifPresent(headerCaptionDetails::setValue);
-        rolloutNameLink.setCaption(rolloutUIState.getRolloutName().orElse(""));
+    public void setRolloutName(final String rolloutName) {
+        rolloutNameLink.setCaption(rolloutName);
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final RolloutEvent event) {
-        if (event == RolloutEvent.SHOW_ROLLOUT_GROUP_TARGETS) {
-            setCaptionDetails();
-        }
+    public void setRolloutGroupName(final String groupName) {
+        headerCaptionDetails.setValue(groupName);
     }
 }

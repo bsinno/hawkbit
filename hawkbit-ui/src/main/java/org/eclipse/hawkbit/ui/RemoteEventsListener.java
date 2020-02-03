@@ -151,7 +151,6 @@ public class RemoteEventsListener {
         private Collection<Long> filterRemoteOriginatedEvents(
                 final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier, final List<?> remoteEvents) {
             final Collection<Long> cachedEventEntityIds = uiOriginatedEventsCache.getIfPresent(eventPayloadIdentifier);
-            // TODO: events are not always RemoteIdEvent (e.g. rollout events)
             final List<Long> remoteEventEntityIds = remoteEvents.stream().filter(Objects::nonNull)
                     .map(event -> (RemoteIdEvent) event).map(RemoteIdEvent::getEntityId).collect(Collectors.toList());
 

@@ -14,49 +14,49 @@ import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link Rollout}, which dynamically loads a batch of
  * {@link Rollout} entities from backend and maps them to corresponding
  * {@link ProxyRollout} entities.
  */
-public class RolloutDataProvider extends ProxyDataProvider<ProxyRollout, Rollout, Void> {
+public class RolloutDataProvider extends ProxyDataProvider<ProxyRollout, Rollout, String> {
 
     private static final long serialVersionUID = 1L;
 
     private final transient RolloutManagement rolloutManagement;
-    private final RolloutUIState rolloutUIState;
 
-    public RolloutDataProvider(final RolloutManagement rolloutManagement, final RolloutUIState rolloutUIState,
+    /**
+     * Constructor
+     * 
+     * @param rolloutManagement
+     *            to get the entities
+     * @param entityMapper
+     *            entityMapper
+     */
+    public RolloutDataProvider(final RolloutManagement rolloutManagement,
             final RolloutToProxyRolloutMapper entityMapper) {
         super(entityMapper, new Sort(Direction.DESC, "lastModifiedAt"));
 
         this.rolloutManagement = rolloutManagement;
-        this.rolloutUIState = rolloutUIState;
     }
 
-    // TODO: use filter instead of uiState
     @Override
-    protected Optional<Slice<Rollout>> loadBackendEntities(final PageRequest pageRequest, final Optional<Void> filter) {
-        return Optional.of(getSearchTextFromUiState()
+    protected Optional<Slice<Rollout>> loadBackendEntities(final PageRequest pageRequest,
+            final Optional<String> filter) {
+        return Optional.of(filter
                 .map(searchText -> rolloutManagement.findByFiltersWithDetailedStatus(pageRequest, searchText, false))
                 .orElseGet(() -> rolloutManagement.findAllWithDetailedStatus(pageRequest, false)));
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
-        return getSearchTextFromUiState().map(rolloutManagement::countByFilters).orElseGet(rolloutManagement::count);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
+        return filter.map(rolloutManagement::countByFilters).orElseGet(rolloutManagement::count);
 
     }
 
-    private Optional<String> getSearchTextFromUiState() {
-        return rolloutUIState.getSearchText().filter(searchText -> !StringUtils.isEmpty(searchText))
-                .map(value -> String.format("%%%s%%", value));
-    }
 }

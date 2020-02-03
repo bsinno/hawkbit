@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -37,6 +38,8 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
      */
     public ActionTypeOptionGroupAssignmentLayout(final VaadinMessageSource i18n, final String actionTypeOptionGroupId) {
         super(i18n, actionTypeOptionGroupId);
+
+        actionTypeOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
         addValueChangeListener();
     }
 
@@ -69,8 +72,10 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
         forcedTimeDateField.setZoneId(SPDateTimeUtil.getTimeZoneId(tz));
         forcedTimeDateField.setLocale(HawkbitCommonUtil.getCurrentLocale());
         forcedTimeDateField.setResolution(DateTimeResolution.MINUTE);
-        forcedTimeDateField.addStyleName(ValoTheme.DATEFIELD_SMALL);
+        forcedTimeDateField.addStyleName(ValoTheme.DATEFIELD_TINY);
+        forcedTimeDateField.setWidth("14em");
         addComponent(forcedTimeDateField);
+        setComponentAlignment(forcedTimeDateField, Alignment.MIDDLE_LEFT);
     }
 
     public DateTimeField getForcedTimeDateField() {

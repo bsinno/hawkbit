@@ -117,12 +117,13 @@ public class ProxyFontIcon implements FontIcon {
 
     @Override
     public String getHtml() {
-        final String originalIconHtml = icon.getHtml();
-
-        if (StringUtils.isEmpty(color)) {
-            return originalIconHtml;
+        String html = "";
+        if (icon != null) {
+            html = icon.getHtml();
         }
-
-        return "<span style=\"color:" + color + " !important;\">" + icon.getHtml() + "</span>";
+        if (!StringUtils.isEmpty(color)) {
+            html = "<span style=\"color:" + color + " !important;\">" + html + "</span>";
+        }
+        return html;
     }
 }

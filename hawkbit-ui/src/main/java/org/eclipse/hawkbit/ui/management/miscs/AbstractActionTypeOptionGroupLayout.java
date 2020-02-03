@@ -44,8 +44,6 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
 
     private void init() {
         setSizeUndefined();
-        setHeight("42px");
-
         createOptionGroup();
         addOptionGroup();
     }
