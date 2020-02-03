@@ -8,19 +8,19 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class ShowDetailsEventPayload {
+public class ShowEntityDetailsEventPayload {
     private final Class<?> entityType;
     private final Long entityId;
     private final String entityName;
     private final String parentEntityName;
     private final View view;
 
-    public ShowDetailsEventPayload(final Class<?> entityType, final Long entityId, final String entityName,
+    public ShowEntityDetailsEventPayload(final Class<?> entityType, final Long entityId, final String entityName,
             final View view) {
         this(entityType, entityId, entityName, "", view);
     }
 
-    public ShowDetailsEventPayload(final Class<?> entityType, final Long entityId, final String entityName,
+    public ShowEntityDetailsEventPayload(final Class<?> entityType, final Long entityId, final String entityName,
             final String parentEntityName, final View view) {
         this.entityType = entityType;
         this.entityId = entityId;

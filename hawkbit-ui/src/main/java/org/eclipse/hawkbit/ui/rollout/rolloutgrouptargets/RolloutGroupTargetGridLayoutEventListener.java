@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.ShowDetailsEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -45,7 +45,7 @@ public class RolloutGroupTargetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onShowDetailsEvent(final ShowDetailsEventPayload eventPayload) {
+        private void onShowDetailsEvent(final ShowEntityDetailsEventPayload eventPayload) {
             if (eventPayload.getView() != View.ROLLOUT || eventPayload.getEntityType() != ProxyRolloutGroup.class) {
                 return;
             }

@@ -32,7 +32,7 @@ import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.RolloutModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.ShowDetailsEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
@@ -399,7 +399,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
     private void onClickOfRolloutName(final Long rolloutId, final String rolloutName) {
         eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this,
-                new ShowDetailsEventPayload(ProxyRollout.class, rolloutId, rolloutName, View.ROLLOUT));
+                new ShowEntityDetailsEventPayload(ProxyRollout.class, rolloutId, rolloutName, View.ROLLOUT));
     }
 
     private void pauseRollout(final Long rolloutId, final String rolloutName, final RolloutStatus rolloutStatus) {

@@ -21,7 +21,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGrou
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.ShowDetailsEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
@@ -194,7 +194,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
     private void onClickOfRolloutGroupName(final Long rolloutGroupId, final String rolloutGroupName) {
         eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this,
-                new ShowDetailsEventPayload(ProxyRolloutGroup.class, rolloutGroupId, rolloutGroupName,
+                new ShowEntityDetailsEventPayload(ProxyRolloutGroup.class, rolloutGroupId, rolloutGroupName,
                         rolloutUIState.getSelectedRolloutName(), View.ROLLOUT));
     }
 

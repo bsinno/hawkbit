@@ -2,17 +2,12 @@ package org.eclipse.hawkbit.ui.rollout.rollout;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.RolloutModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
-import org.eclipse.hawkbit.ui.push.RolloutChangedEventContainer;
-import org.eclipse.hawkbit.ui.push.RolloutCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.RolloutDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -44,8 +39,7 @@ public class RolloutGridLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new SearchFilterListener());
-        eventListeners.add(new RolloutModifiedListener());
-        eventListeners.add(new RolloutChanhedOnBackendListener());
+        eventListeners.add(new EnityModifiedListener());
     }
 
     private class SearchFilterListener {
@@ -63,13 +57,13 @@ public class RolloutGridLayoutEventListener {
         }
     }
 
-    private class RolloutModifiedListener {
-        public RolloutModifiedListener() {
+    private class EnityModifiedListener {
+        public EnityModifiedListener() {
             eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onRolloutCreated(final RolloutModifiedEventPayload payload) {
+        private void onRolloutModified(final RolloutModifiedEventPayload payload) {
             final EntityModifiedEventType modificationType = payload.getEntityModifiedEventType();
             if (modificationType == EntityModifiedEventType.ENTITY_ADDED
                     || modificationType == EntityModifiedEventType.ENTITY_REMOVED) {
@@ -77,29 +71,6 @@ public class RolloutGridLayoutEventListener {
             } else if (modificationType == EntityModifiedEventType.ENTITY_UPDATED) {
                 rolloutGridLayout.refreshGridItems(payload.getEntityIds());
             }
-        }
-    }
-
-    private class RolloutChanhedOnBackendListener {
-        public RolloutChanhedOnBackendListener() {
-            eventBus.subscribe(this, EventTopics.REMOTE_EVENT_RECEIVED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onRolloutChanged(final RolloutChangedEventContainer payload) {
-            final List<Long> ids = payload.getEvents().stream().map(RolloutChangedEvent::getRolloutId)
-                    .collect(Collectors.toList());
-            rolloutGridLayout.refreshGridItems(ids);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onRolloutCreated(final RolloutCreatedEventContainer payload) {
-            rolloutGridLayout.refreshGrid();
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onRolloutDeleted(final RolloutDeletedEventContainer payload) {
-            rolloutGridLayout.refreshGrid();
         }
     }
 
