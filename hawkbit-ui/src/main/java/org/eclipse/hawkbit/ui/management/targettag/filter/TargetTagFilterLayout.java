@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
@@ -117,5 +118,9 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+    }
+
+    public Layout getLayout() {
+        return Layout.TARGET_TAG_FILTER;
     }
 }

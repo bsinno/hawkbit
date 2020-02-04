@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
@@ -169,5 +170,9 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+    }
+
+    public Layout getLayout() {
+        return Layout.DS_TAG_FILTER;
     }
 }

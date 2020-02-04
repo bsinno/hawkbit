@@ -13,9 +13,12 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload.ActionsVisibilityType;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -41,16 +44,22 @@ public class SMTypeFilterLayoutEventListener {
     private class FilterButtonsActionsChangedListener {
 
         public FilterButtonsActionsChangedListener() {
-            eventBus.subscribe(this, EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED);
+            eventBus.subscribe(this, CommandTopics.CHANGE_ACTIONS_VISIBILITY);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = SMTypeFilterHeader.class)
-        private void onDsTypeEvent(final FilterButtonsActionsChangedEventPayload eventPayload) {
-            if (eventPayload == FilterButtonsActionsChangedEventPayload.HIDE_ALL) {
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onActionsVisibilityEvent(final ActionsVisibilityEventPayload eventPayload) {
+            if (eventPayload.getView() != View.UPLOAD || eventPayload.getLayout() != smTypeFilterLayout.getLayout()) {
+                return;
+            }
+
+            final ActionsVisibilityType actionsVisibilityType = eventPayload.getActionsVisibilityType();
+
+            if (actionsVisibilityType == ActionsVisibilityType.HIDE_ALL) {
                 smTypeFilterLayout.hideFilterButtonsActionIcons();
-            } else if (eventPayload == FilterButtonsActionsChangedEventPayload.SHOW_EDIT) {
+            } else if (actionsVisibilityType == ActionsVisibilityType.SHOW_EDIT) {
                 smTypeFilterLayout.showFilterButtonsEditIcon();
-            } else if (eventPayload == FilterButtonsActionsChangedEventPayload.SHOW_DELETE) {
+            } else if (actionsVisibilityType == ActionsVisibilityType.SHOW_DELETE) {
                 smTypeFilterLayout.showFilterButtonsDeleteIcon();
             }
         }
