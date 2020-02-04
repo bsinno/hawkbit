@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
@@ -24,7 +25,6 @@ import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGrid;
-import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -99,10 +99,14 @@ public class SwModuleGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistSMTypeFilterButtons.class)
-        private void onSmEvent(final TypeFilterChangedEventPayload<SoftwareModuleType> typeFilter) {
-            if (typeFilter.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
-                swModuleGridLayout.filterGridByType(typeFilter.getType());
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTypeChangedEvent(final TypeFilterChangedEventPayload<SoftwareModuleType> eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS || eventPayload.getLayout() != Layout.SM_TYPE_FILTER) {
+                return;
+            }
+
+            if (eventPayload.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
+                swModuleGridLayout.filterGridByType(eventPayload.getType());
             } else {
                 swModuleGridLayout.filterGridByType(null);
             }

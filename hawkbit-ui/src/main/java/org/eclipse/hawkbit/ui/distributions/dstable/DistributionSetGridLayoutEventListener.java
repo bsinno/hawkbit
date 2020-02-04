@@ -17,13 +17,13 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
-import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -90,10 +90,14 @@ public class DistributionSetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DSTypeFilterButtons.class)
-        private void onDsEvent(final TypeFilterChangedEventPayload<DistributionSetType> typeFilter) {
-            if (typeFilter.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
-                distributionSetGridLayout.filterGridByType(typeFilter.getType());
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTypeChangedEvent(final TypeFilterChangedEventPayload<DistributionSetType> eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS || eventPayload.getLayout() != Layout.DS_TYPE_FILTER) {
+                return;
+            }
+
+            if (eventPayload.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
+                distributionSetGridLayout.filterGridByType(eventPayload.getType());
             } else {
                 distributionSetGridLayout.filterGridByType(null);
             }

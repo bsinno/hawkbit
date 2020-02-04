@@ -21,8 +21,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
@@ -117,7 +119,7 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
                     new TypeFilterChangedEventPayload<SoftwareModuleType>(
                             ClickBehaviourType.CLICKED == clickType ? TypeFilterChangedEventType.TYPE_CLICKED
                                     : TypeFilterChangedEventType.TYPE_UNCLICKED,
-                            smType));
+                            smType, Layout.SM_TYPE_FILTER, View.UPLOAD));
 
             smTypeFilterLayoutUiState
                     .setClickedSmTypeId(ClickBehaviourType.CLICKED == clickType ? smType.getId() : null);

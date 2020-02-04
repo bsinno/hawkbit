@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
-import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterButtons;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
@@ -89,10 +89,14 @@ public class SoftwareModuleGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = SMTypeFilterButtons.class)
-        private void onSmEvent(final TypeFilterChangedEventPayload<SoftwareModuleType> typeFilter) {
-            if (typeFilter.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
-                softwareModuleGridLayout.filterGridByType(typeFilter.getType());
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTypeChangedEvent(final TypeFilterChangedEventPayload<SoftwareModuleType> eventPayload) {
+            if (eventPayload.getView() != View.UPLOAD || eventPayload.getLayout() != Layout.SM_TYPE_FILTER) {
+                return;
+            }
+
+            if (eventPayload.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
+                softwareModuleGridLayout.filterGridByType(eventPayload.getType());
             } else {
                 softwareModuleGridLayout.filterGridByType(null);
             }
