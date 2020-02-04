@@ -20,9 +20,11 @@ import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.Custo
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -77,9 +79,13 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetGridHeader.class)
-        private void onTargetEvent(final String searchFilter) {
-            targetGridLayout.filterGridBySearch(searchFilter);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != targetGridLayout.getLayout()) {
+                return;
+            }
+
+            targetGridLayout.filterGridBySearch(eventPayload.getFilter());
         }
     }
 

@@ -51,8 +51,8 @@ public class RolloutGridHeader extends AbstractGridHeader {
         final List<HeaderSupport> headerSupports = new ArrayList<>();
 
         headerSupports.add(new SearchHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_LIST_SEARCH_BOX_ID,
-                UIComponentIdProvider.ROLLOUT_LIST_SEARCH_RESET_ICON_ID, this::getSearchTextFromUiState, this::searchBy,
-                () -> searchBy(null)));
+                UIComponentIdProvider.ROLLOUT_LIST_SEARCH_RESET_ICON_ID, this::getSearchTextFromUiState,
+                this::searchBy));
         if (permChecker.hasRolloutCreatePermission()) {
             headerSupports.add(new AddHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_ADD_ICON_ID,
                     this::addNewRollout, () -> false));

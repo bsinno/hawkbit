@@ -17,8 +17,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.management.ds.DistributionGrid;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -71,9 +73,14 @@ public class DistributionGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionGridHeader.class)
-        private void onDsEvent(final String searchFilter) {
-            distributionGridLayout.filterGridBySearch(searchFilter);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT
+                    || eventPayload.getLayout() != distributionGridLayout.getLayout()) {
+                return;
+            }
+
+            distributionGridLayout.filterGridBySearch(eventPayload.getFilter());
         }
     }
 

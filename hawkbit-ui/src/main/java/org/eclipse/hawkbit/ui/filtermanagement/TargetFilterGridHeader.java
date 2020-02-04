@@ -61,8 +61,8 @@ public class TargetFilterGridHeader extends AbstractGridHeader {
         this.uiState = uiState;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.TARGET_FILTER_SEARCH_TEXT,
-                UIComponentIdProvider.TARGET_FILTER_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState, this::searchBy,
-                () -> searchBy(""));
+                UIComponentIdProvider.TARGET_FILTER_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState,
+                this::searchBy);
         // TODO: consider moving permission check to header support or parent
         // header
         if (permChecker.hasCreateTargetPermission()) {
@@ -97,6 +97,7 @@ public class TargetFilterGridHeader extends AbstractGridHeader {
                 FormType.ADD, ProxyTargetFilterQuery.class, View.TARGET_FILTER));
     }
 
+    @Override
     public void restoreState() {
         this.searchHeaderSupport.restoreState();
     }

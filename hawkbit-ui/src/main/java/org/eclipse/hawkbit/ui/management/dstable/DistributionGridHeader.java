@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
@@ -54,8 +55,7 @@ public class DistributionGridHeader extends AbstractGridHeader {
         this.distributionTagLayoutUiState = distributionTagLayoutUiState;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.DIST_SEARCH_TEXTFIELD,
-                UIComponentIdProvider.DIST_SEARCH_ICON, this::getSearchTextFromUiState, this::searchBy,
-                this::resetSearchText);
+                UIComponentIdProvider.DIST_SEARCH_ICON, this::getSearchTextFromUiState, this::searchBy);
         this.filterButtonsHeaderSupport = new FilterButtonsHeaderSupport(i18n, UIComponentIdProvider.SHOW_DIST_TAG_ICON,
                 this::showFilterButtonsLayout, this::onLoadIsShowFilterButtonDisplayed);
         this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, UIComponentIdProvider.DS_MAX_MIN_TABLE_ICON,
@@ -76,16 +76,10 @@ public class DistributionGridHeader extends AbstractGridHeader {
     }
 
     private void searchBy(final String newSearchText) {
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this,
+                new SearchFilterEventPayload(newSearchText, Layout.DS_LIST, View.DEPLOYMENT));
 
         distributionGridLayoutUiState.setSearchFilter(newSearchText);
-    }
-
-    // TODO: check if needed or can be done by searchBy
-    private void resetSearchText() {
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, "");
-
-        distributionGridLayoutUiState.setSearchFilter(null);
     }
 
     private void showFilterButtonsLayout() {

@@ -17,10 +17,12 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGrid;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -80,9 +82,14 @@ public class SwModuleGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = SwModuleGridHeader.class)
-        private void onSmEvent(final String searchFilter) {
-            swModuleGridLayout.filterGridBySearch(searchFilter);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS
+                    || eventPayload.getLayout() != swModuleGridLayout.getLayout()) {
+                return;
+            }
+
+            swModuleGridLayout.filterGridBySearch(eventPayload.getFilter());
         }
     }
 

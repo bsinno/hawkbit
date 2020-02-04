@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
@@ -95,8 +96,7 @@ public class TargetGridHeader extends AbstractGridHeader {
                 uiproperties, uiExecutor, targetBulkUploadUiState);
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.TARGET_TEXT_FIELD,
-                UIComponentIdProvider.TARGET_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState, this::searchBy,
-                this::resetSearchText);
+                UIComponentIdProvider.TARGET_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState, this::searchBy);
         this.filterButtonsHeaderSupport = new FilterButtonsHeaderSupport(i18n, UIComponentIdProvider.SHOW_TARGET_TAGS,
                 this::showFilterButtonsLayout, this::onLoadIsShowFilterButtonDisplayed);
         // TODO: consider moving permission check to header support or parent
@@ -154,16 +154,10 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     private void searchBy(final String newSearchText) {
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this,
+                new SearchFilterEventPayload(newSearchText, Layout.TARGET_LIST, View.DEPLOYMENT));
 
         targetGridLayoutUiState.setSearchFilter(newSearchText);
-    }
-
-    // TODO: check if needed or can be done by searchBy
-    private void resetSearchText() {
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, "");
-
-        targetGridLayoutUiState.setSearchFilter(null);
     }
 
     private void showFilterButtonsLayout() {
