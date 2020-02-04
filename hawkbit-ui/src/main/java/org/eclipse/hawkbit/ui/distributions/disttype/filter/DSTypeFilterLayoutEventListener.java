@@ -11,7 +11,9 @@ package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.event.DsTypeModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -61,7 +63,12 @@ public class DSTypeFilterLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsTypeEvent(final DsTypeModifiedEventPayload eventPayload) {
+        private void onDsTypeEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getParentType())
+                    || !ProxyType.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             dSTypeFilterLayout.refreshFilterButtons();
         }
     }

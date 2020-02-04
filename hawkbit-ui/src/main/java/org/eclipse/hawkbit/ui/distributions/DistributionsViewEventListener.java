@@ -14,7 +14,7 @@ import java.util.List;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
@@ -155,7 +155,11 @@ public class DistributionsViewEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsEvent(final DsModifiedEventPayload eventPayload) {
+        private void onDsEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 distributionsView.onDsUpdated(eventPayload.getEntityIds());
             }

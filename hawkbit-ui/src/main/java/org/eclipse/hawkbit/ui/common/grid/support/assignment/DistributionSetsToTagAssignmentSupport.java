@@ -20,7 +20,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
@@ -79,8 +79,8 @@ public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<Pr
             final List<ProxyDistributionSet> sourceItemsToAssign, final ProxyTag targetItem) {
         final List<Long> assignedDsIds = sourceItemsToAssign.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, assignedDsIds));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, assignedDsIds));
 
         // TODO: should we additionally send tag assignment event in order to
         // refresh the grid?

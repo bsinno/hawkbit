@@ -3,9 +3,10 @@ package org.eclipse.hawkbit.ui.rollout.rollout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.RolloutModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -63,13 +64,17 @@ public class RolloutGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onRolloutModified(final RolloutModifiedEventPayload payload) {
-            final EntityModifiedEventType modificationType = payload.getEntityModifiedEventType();
+        private void onRolloutModified(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyRollout.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
+            final EntityModifiedEventType modificationType = eventPayload.getEntityModifiedEventType();
             if (modificationType == EntityModifiedEventType.ENTITY_ADDED
                     || modificationType == EntityModifiedEventType.ENTITY_REMOVED) {
                 rolloutGridLayout.refreshGrid();
             } else if (modificationType == EntityModifiedEventType.ENTITY_UPDATED) {
-                rolloutGridLayout.refreshGridItems(payload.getEntityIds());
+                rolloutGridLayout.refreshGridItems(eventPayload.getEntityIds());
             }
         }
     }

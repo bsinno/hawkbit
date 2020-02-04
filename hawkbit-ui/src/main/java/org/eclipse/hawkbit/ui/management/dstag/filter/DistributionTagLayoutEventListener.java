@@ -11,7 +11,9 @@ package org.eclipse.hawkbit.ui.management.dstag.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -61,7 +63,12 @@ public class DistributionTagLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsTagEvent(final DsTagModifiedEventPayload eventPayload) {
+        private void onDsTagEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getParentType())
+                    || !ProxyTag.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             distributionTagLayout.refreshFilterButtons();
         }
     }

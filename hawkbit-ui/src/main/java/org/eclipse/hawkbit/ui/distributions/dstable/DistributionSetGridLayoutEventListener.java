@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
@@ -79,7 +79,11 @@ public class DistributionSetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsEvent(final DsModifiedEventPayload eventPayload) {
+        private void onDsEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             distributionSetGridLayout.refreshGrid();
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the
@@ -90,7 +94,12 @@ public class DistributionSetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsTagEvent(final DsTagModifiedEventPayload eventPayload) {
+        private void onDsTagEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getParentType())
+                    || !ProxyTag.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             distributionSetGridLayout.onDsTagsModified(eventPayload.getEntityIds(),
                     eventPayload.getEntityModifiedEventType());
         }

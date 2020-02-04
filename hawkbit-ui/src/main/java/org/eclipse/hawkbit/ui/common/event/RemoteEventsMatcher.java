@@ -11,6 +11,15 @@ package org.eclipse.hawkbit.ui.common.event;
 import java.util.Map;
 import java.util.Objects;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.push.DistributionSetCreatedEventContainer;
 import org.eclipse.hawkbit.ui.push.DistributionSetDeletedEventContainer;
@@ -54,70 +63,72 @@ public class RemoteEventsMatcher {
 
     static {
         EVENT_MATCHERS.put(TargetCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                TargetModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "target.created"));
+                ProxyTarget.class, EntityModifiedEventType.ENTITY_ADDED, "target.created"));
         EVENT_MATCHERS.put(TargetUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                TargetModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "target.updated"));
+                ProxyTarget.class, EntityModifiedEventType.ENTITY_UPDATED, "target.updated"));
         EVENT_MATCHERS.put(TargetDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                TargetModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "target.deleted"));
+                ProxyTarget.class, EntityModifiedEventType.ENTITY_REMOVED, "target.deleted"));
 
         EVENT_MATCHERS.put(TargetTagCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                TargetTagModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "target.tag.created"));
+                ProxyTarget.class, ProxyTag.class, EntityModifiedEventType.ENTITY_ADDED, "target.tag.created"));
         EVENT_MATCHERS.put(TargetTagUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                TargetTagModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "target.tag.updated"));
+                ProxyTarget.class, ProxyTag.class, EntityModifiedEventType.ENTITY_UPDATED, "target.tag.updated"));
         EVENT_MATCHERS.put(TargetTagDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                TargetTagModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "target.tag.deleted"));
+                ProxyTarget.class, ProxyTag.class, EntityModifiedEventType.ENTITY_REMOVED, "target.tag.deleted"));
 
         EVENT_MATCHERS.put(DistributionSetCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                DsModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "ds.created"));
+                ProxyDistributionSet.class, EntityModifiedEventType.ENTITY_ADDED, "ds.created"));
         EVENT_MATCHERS.put(DistributionSetUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                DsModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "ds.updated"));
+                ProxyDistributionSet.class, EntityModifiedEventType.ENTITY_UPDATED, "ds.updated"));
         EVENT_MATCHERS.put(DistributionSetDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                DsModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "ds.deleted"));
+                ProxyDistributionSet.class, EntityModifiedEventType.ENTITY_REMOVED, "ds.deleted"));
 
         EVENT_MATCHERS.put(SoftwareModuleCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                SmModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "sm.created"));
+                ProxySoftwareModule.class, EntityModifiedEventType.ENTITY_ADDED, "sm.created"));
         EVENT_MATCHERS.put(SoftwareModuleUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                SmModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "sm.updated"));
+                ProxySoftwareModule.class, EntityModifiedEventType.ENTITY_UPDATED, "sm.updated"));
         EVENT_MATCHERS.put(SoftwareModuleDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                SmModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "sm.deleted"));
+                ProxySoftwareModule.class, EntityModifiedEventType.ENTITY_REMOVED, "sm.deleted"));
 
         EVENT_MATCHERS.put(DistributionSetTypeCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                DsTypeModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "ds.type.created"));
-        EVENT_MATCHERS.put(DistributionSetTypeUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                DsTypeModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "ds.type.updated"));
-        EVENT_MATCHERS.put(DistributionSetTypeDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                DsTypeModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "ds.type.deleted"));
+                ProxyDistributionSet.class, ProxyType.class, EntityModifiedEventType.ENTITY_ADDED, "ds.type.created"));
+        EVENT_MATCHERS.put(DistributionSetTypeUpdatedEventContainer.class,
+                new EntityModifiedEventPayloadIdentifier(ProxyDistributionSet.class, ProxyType.class,
+                        EntityModifiedEventType.ENTITY_UPDATED, "ds.type.updated"));
+        EVENT_MATCHERS.put(DistributionSetTypeDeletedEventContainer.class,
+                new EntityModifiedEventPayloadIdentifier(ProxyDistributionSet.class, ProxyType.class,
+                        EntityModifiedEventType.ENTITY_REMOVED, "ds.type.deleted"));
 
         EVENT_MATCHERS.put(DistributionSetTagCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                DsTagModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "ds.tag.created"));
+                ProxyDistributionSet.class, ProxyTag.class, EntityModifiedEventType.ENTITY_ADDED, "ds.tag.created"));
         EVENT_MATCHERS.put(DistributionSetTagUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                DsTagModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "ds.tag.updated"));
+                ProxyDistributionSet.class, ProxyTag.class, EntityModifiedEventType.ENTITY_UPDATED, "ds.tag.updated"));
         EVENT_MATCHERS.put(DistributionSetTagDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                DsTagModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "ds.tag.deleted"));
+                ProxyDistributionSet.class, ProxyTag.class, EntityModifiedEventType.ENTITY_REMOVED, "ds.tag.deleted"));
 
         EVENT_MATCHERS.put(SoftwareModuleTypeCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                SmTypeModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "sm.type.created"));
+                ProxySoftwareModule.class, ProxyType.class, EntityModifiedEventType.ENTITY_ADDED, "sm.type.created"));
         EVENT_MATCHERS.put(SoftwareModuleTypeUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                SmTypeModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "sm.type.updated"));
+                ProxySoftwareModule.class, ProxyType.class, EntityModifiedEventType.ENTITY_UPDATED, "sm.type.updated"));
         EVENT_MATCHERS.put(SoftwareModuleTypeDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                SmTypeModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "sm.type.deleted"));
+                ProxySoftwareModule.class, ProxyType.class, EntityModifiedEventType.ENTITY_REMOVED, "sm.type.deleted"));
 
         EVENT_MATCHERS.put(TargetFilterQueryCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "tqf.created"));
+                ProxyTargetFilterQuery.class, EntityModifiedEventType.ENTITY_ADDED, "tqf.created"));
         EVENT_MATCHERS.put(TargetFilterQueryUpdatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "tqf.updated"));
+                ProxyTargetFilterQuery.class, EntityModifiedEventType.ENTITY_UPDATED, "tqf.updated"));
         EVENT_MATCHERS.put(TargetFilterQueryDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                TargetFilterModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "tqf.deleted"));
+                ProxyTargetFilterQuery.class, EntityModifiedEventType.ENTITY_REMOVED, "tqf.deleted"));
 
         EVENT_MATCHERS.put(RolloutCreatedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                RolloutModifiedEventPayload.class, EntityModifiedEventType.ENTITY_ADDED, "rollout.created"));
+                ProxyRollout.class, EntityModifiedEventType.ENTITY_ADDED, "rollout.created"));
         EVENT_MATCHERS.put(RolloutChangedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                RolloutModifiedEventPayload.class, EntityModifiedEventType.ENTITY_UPDATED, "rollout.updated"));
+                ProxyRollout.class, EntityModifiedEventType.ENTITY_UPDATED, "rollout.updated"));
         EVENT_MATCHERS.put(RolloutDeletedEventContainer.class, new EntityModifiedEventPayloadIdentifier(
-                RolloutModifiedEventPayload.class, EntityModifiedEventType.ENTITY_REMOVED, "rollout.deleted"));
+                ProxyRollout.class, EntityModifiedEventType.ENTITY_REMOVED, "rollout.deleted"));
 
         EVENT_MATCHERS.put(RolloutGroupChangedEventContainer.class,
-                new EntityModifiedEventPayloadIdentifier(RolloutGroupModifiedEventPayload.class,
+                new EntityModifiedEventPayloadIdentifier(ProxyRollout.class, ProxyRolloutGroup.class,
                         EntityModifiedEventType.ENTITY_UPDATED, "rollout.group.updated"));
     }
 
@@ -126,24 +137,42 @@ public class RemoteEventsMatcher {
     }
 
     public static class EntityModifiedEventPayloadIdentifier {
-        private final Class<? extends EntityModifiedEventPayload> eventPayloadType;
+        private final Class<? extends ProxyIdentifiableEntity> parentType;
+        private final Class<? extends ProxyIdentifiableEntity> entityType;
         private final EntityModifiedEventType modifiedEventType;
         private final String eventTypeMessageKey;
 
-        public EntityModifiedEventPayloadIdentifier(final Class<? extends EntityModifiedEventPayload> eventPayloadType,
+        public EntityModifiedEventPayloadIdentifier(final Class<? extends ProxyIdentifiableEntity> entityType,
                 final EntityModifiedEventType modifiedEventType) {
-            this(eventPayloadType, modifiedEventType, null);
+            this(entityType, modifiedEventType, null);
         }
 
-        public EntityModifiedEventPayloadIdentifier(final Class<? extends EntityModifiedEventPayload> eventPayloadType,
+        public EntityModifiedEventPayloadIdentifier(final Class<? extends ProxyIdentifiableEntity> entityType,
                 final EntityModifiedEventType modifiedEventType, final String eventTypeMessageKey) {
-            this.eventPayloadType = eventPayloadType;
+            this(null, entityType, modifiedEventType, eventTypeMessageKey);
+        }
+
+        public EntityModifiedEventPayloadIdentifier(final Class<? extends ProxyIdentifiableEntity> parentType,
+                final Class<? extends ProxyIdentifiableEntity> entityType,
+                final EntityModifiedEventType modifiedEventType) {
+            this(parentType, entityType, modifiedEventType, null);
+        }
+
+        public EntityModifiedEventPayloadIdentifier(final Class<? extends ProxyIdentifiableEntity> parentType,
+                final Class<? extends ProxyIdentifiableEntity> entityType,
+                final EntityModifiedEventType modifiedEventType, final String eventTypeMessageKey) {
+            this.parentType = parentType;
+            this.entityType = entityType;
             this.modifiedEventType = modifiedEventType;
             this.eventTypeMessageKey = eventTypeMessageKey;
         }
 
-        public Class<? extends EntityModifiedEventPayload> getEventPayloadType() {
-            return eventPayloadType;
+        public Class<? extends ProxyIdentifiableEntity> getParentType() {
+            return parentType;
+        }
+
+        public Class<? extends ProxyIdentifiableEntity> getEntityType() {
+            return entityType;
         }
 
         public EntityModifiedEventType getModifiedEventType() {
@@ -158,7 +187,9 @@ public class RemoteEventsMatcher {
         public int hashCode() {
             // eventTypeMessageKey is omitted intentionally, because it is not
             // relevant for event identification
-            return Objects.hash(eventPayloadType.getName(), modifiedEventType);
+            return getParentType() != null
+                    ? Objects.hash(getParentType().getName(), getEntityType().getName(), modifiedEventType)
+                    : Objects.hash(getEntityType().getName(), modifiedEventType);
         }
 
         @Override
@@ -173,14 +204,17 @@ public class RemoteEventsMatcher {
 
             // eventTypeMessageKey is omitted intentionally, because it is not
             // relevant for event identification
-            return Objects.equals(this.eventPayloadType, other.eventPayloadType)
+            return Objects.equals(this.getParentType(), other.getParentType())
+                    && Objects.equals(this.getEntityType(), other.getEntityType())
                     && Objects.equals(this.modifiedEventType, other.modifiedEventType);
         }
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper(this).add("EventPayloadType", eventPayloadType.getName())
-                    .add("ModifiedEventType", modifiedEventType.name()).toString();
+            return MoreObjects.toStringHelper(this)
+                    .add("Parent Type", getParentType() != null ? getParentType().getName() : "-")
+                    .add("Entity Type", getEntityType().getName()).add("ModifiedEventType", modifiedEventType.name())
+                    .toString();
         }
     }
 }

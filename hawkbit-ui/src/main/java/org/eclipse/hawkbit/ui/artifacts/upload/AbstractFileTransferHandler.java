@@ -30,9 +30,10 @@ import org.eclipse.hawkbit.repository.model.ArtifactUpload;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress.FileUploadStatus;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.SpringContextHelper;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -193,8 +194,8 @@ public abstract class AbstractFileTransferHandler implements Serializable {
     }
 
     protected void publishArtifactsChanged(final FileUploadId fileUploadId) {
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, fileUploadId.getSoftwareModuleId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class, fileUploadId.getSoftwareModuleId()));
     }
 
     protected void publishUploadFailedAndFinishedEvent(final FileUploadId fileUploadId) {

@@ -11,10 +11,13 @@ package org.eclipse.hawkbit.ui.management.targettag.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -34,8 +37,8 @@ public class TargetTagFilterLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new FilterButtonsActionsChangedListener());
-        eventListeners.add(new EntityModifiedListener());
         eventListeners.add(new TabChangedListener());
+        eventListeners.add(new EntityModifiedListener());
     }
 
     private class FilterButtonsActionsChangedListener {
@@ -56,18 +59,6 @@ public class TargetTagFilterLayoutEventListener {
         }
     }
 
-    private class EntityModifiedListener {
-
-        public EntityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetTagEvent(final TargetTagModifiedEventPayload eventPayload) {
-            targetTagFilterLayout.refreshFilterButtons();
-        }
-    }
-
     private class TabChangedListener {
 
         public TabChangedListener() {
@@ -77,6 +68,32 @@ public class TargetTagFilterLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onTagChangedEvent(final TargetFilterTabChangedEventPayload eventPayload) {
             targetTagFilterLayout.onTargetFilterTabChanged(TargetFilterTabChangedEventPayload.CUSTOM == eventPayload);
+        }
+    }
+
+    private class EntityModifiedListener {
+
+        public EntityModifiedListener() {
+            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetTagEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyTarget.class.equals(eventPayload.getParentType())
+                    || !ProxyTag.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
+            targetTagFilterLayout.refreshFilterButtons();
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetFilterEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyTargetFilterQuery.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
+            targetTagFilterLayout.refreshFilterButtons();
         }
     }
 

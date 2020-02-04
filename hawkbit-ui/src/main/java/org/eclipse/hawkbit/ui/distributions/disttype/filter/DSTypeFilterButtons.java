@@ -17,8 +17,9 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.TypeFilterButtonClick;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.DsTypeModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
@@ -144,7 +145,8 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
             distributionSetTypeManagement.delete(dsTypeToDeleteId);
 
             eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new DsTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, dsTypeToDeleteId));
+                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class,
+                            ProxyType.class, dsTypeToDeleteId));
         }
     }
 

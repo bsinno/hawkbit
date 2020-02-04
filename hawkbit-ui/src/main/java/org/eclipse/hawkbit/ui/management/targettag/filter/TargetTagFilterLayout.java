@@ -98,6 +98,10 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
         multipleTargetFilter.getTargetTagFilterButtons().refreshContainer();
     }
 
+    public void refreshTargetFilterQueryButtons() {
+        multipleTargetFilter.getCustomFilterTab().refreshContainer();
+    }
+
     void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
         if (isCustomFilterTabSelected) {
             targetTagFilterHeader.disableCrudMenu();

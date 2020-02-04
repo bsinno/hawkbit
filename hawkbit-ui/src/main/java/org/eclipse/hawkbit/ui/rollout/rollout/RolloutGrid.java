@@ -29,9 +29,9 @@ import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.RolloutModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
@@ -324,7 +324,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                 clickEvent -> startOrResumeRollout(rollout.getId(), rollout.getName(), rollout.getStatus()),
                 VaadinIcons.PLAY, UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN,
                 isStartingAndResumingAllowed(rollout.getStatus()), UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID))
-                        .setId(RUN_BUTTON_ID).setCaption(i18n.getMessage("header.action.run")).setHidable(false).setExpandRatio(1);
+                        .setId(RUN_BUTTON_ID).setCaption(i18n.getMessage("header.action.run")).setHidable(false)
+                        .setExpandRatio(1);
 
         addComponentColumn(rollout -> buildActionButton(clickEvent -> approveRollout(rollout), VaadinIcons.HANDSHAKE,
                 UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE, isApprovingAllowed(rollout.getStatus()),
@@ -467,9 +468,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                         return;
                     }
                     rolloutManagement.delete(rolloutId);
+
                     uiNotification.displaySuccess(i18n.getMessage("message.rollout.deleted", rolloutName));
-                    eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                            new RolloutModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, rolloutId));
+                    eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                            EntityModifiedEventType.ENTITY_REMOVED, ProxyRollout.class, rolloutId));
                 }, UIComponentIdProvider.ROLLOUT_DELETE_CONFIRMATION_DIALOG);
         UI.getCurrent().addWindow(confirmationDialog.getWindow());
         confirmationDialog.getWindow().bringToFront();

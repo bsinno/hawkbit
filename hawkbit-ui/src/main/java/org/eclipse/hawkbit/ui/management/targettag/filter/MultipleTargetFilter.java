@@ -99,14 +99,14 @@ public class MultipleTargetFilter extends Accordion {
 
     private void addTabs() {
         addTab(simpleFilterTab).setId(UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB);
-        addTab(customFilterTab).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
+        addTab(getCustomFilterTab()).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
     }
 
     public void selectedTabChanged() {
         final String selectedTabId = getTab(getSelectedTab()).getId();
 
         if (UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB.equals(selectedTabId)) {
-            customFilterTab.clearAppliedTargetFilterQuery();
+            getCustomFilterTab().clearAppliedTargetFilterQuery();
 
             targetTagFilterLayoutUiState.setCustomFilterTabSelected(false);
 
@@ -123,9 +123,9 @@ public class MultipleTargetFilter extends Accordion {
 
     public void restoreState() {
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
-            customFilterTab.restoreState();
+            getCustomFilterTab().restoreState();
 
-            setSelectedTab(customFilterTab);
+            setSelectedTab(getCustomFilterTab());
         } else {
             filterByButtons.restoreState();
             filterByStatusFooter.restoreState();
@@ -136,5 +136,9 @@ public class MultipleTargetFilter extends Accordion {
 
     public TargetTagFilterButtons getTargetTagFilterButtons() {
         return filterByButtons;
+    }
+
+    public TargetFilterQueryButtons getCustomFilterTab() {
+        return customFilterTab;
     }
 }

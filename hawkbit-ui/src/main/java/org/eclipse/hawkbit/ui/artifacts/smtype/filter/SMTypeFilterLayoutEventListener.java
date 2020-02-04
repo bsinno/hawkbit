@@ -11,9 +11,11 @@ package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.SmTypeModifiedEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -61,7 +63,12 @@ public class SMTypeFilterLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSmTypeEvent(final SmTypeModifiedEventPayload eventPayload) {
+        private void onSmTypeEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxySoftwareModule.class.equals(eventPayload.getParentType())
+                    || !ProxyType.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             smTypeFilterLayout.refreshFilterButtons();
         }
     }

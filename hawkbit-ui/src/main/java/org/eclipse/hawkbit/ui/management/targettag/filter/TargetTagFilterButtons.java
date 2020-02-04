@@ -20,9 +20,10 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetTagDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
@@ -165,8 +166,8 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         } else {
             targetTagManagement.delete(targetTagToDeleteName);
 
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new TargetTagModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, targetTagToDeleteId));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_REMOVED, ProxyTarget.class, ProxyTag.class, targetTagToDeleteId));
         }
     }
 

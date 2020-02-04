@@ -26,7 +26,7 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModuleDetails;
-import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -229,8 +229,8 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         } else {
             distributionSetManagement.unassignSoftwareModule(dsId, smId);
 
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, dsId));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, dsId));
             uiNotification.displaySuccess(i18n.getMessage("message.sw.unassigned", smNameAndVersion));
         }
     }

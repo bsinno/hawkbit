@@ -14,12 +14,11 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.event.ActionModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGrid;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -87,14 +86,22 @@ public class ActionHistoryGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final TargetModifiedEventPayload eventPayload) {
+        private void onTargetEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyTarget.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 actionHistoryGridLayout.onTargetUpdated(eventPayload.getEntityIds());
             }
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onActionEvent(final ActionModifiedEventPayload eventPayload) {
+        private void onActionEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyAction.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             actionHistoryGridLayout.refreshGrid();
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the

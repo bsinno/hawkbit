@@ -12,9 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -45,7 +46,11 @@ public class ArtifactDetailsGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSmUpdatedEvent(final SmModifiedEventPayload eventPayload) {
+        private void onSmUpdatedEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxySoftwareModule.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             // we do not know if Software Module was updated due to Artifacts
             // change or fields change, so we always refresh the Artifacts grid
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
