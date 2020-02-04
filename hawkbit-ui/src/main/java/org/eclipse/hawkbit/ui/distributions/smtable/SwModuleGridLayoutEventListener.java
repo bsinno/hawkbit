@@ -24,7 +24,6 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.Selectio
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
-import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGrid;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -57,8 +56,12 @@ public class SwModuleGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = SwModuleGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onSmEvent(final SelectionChangedEventPayload<ProxySoftwareModule> eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS || eventPayload.getLayout() != Layout.SM_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 swModuleGridLayout.onSmChanged(eventPayload.getEntity());
             } else {
@@ -66,8 +69,12 @@ public class SwModuleGridLayoutEventListener {
             }
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onDsEvent(final SelectionChangedEventPayload<ProxyDistributionSet> eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS || eventPayload.getLayout() != Layout.DS_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 swModuleGridLayout.onDsSelected(eventPayload.getEntity());
             } else {

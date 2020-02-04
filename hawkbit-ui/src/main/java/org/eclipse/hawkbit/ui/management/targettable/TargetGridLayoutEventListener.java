@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.Custo
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
@@ -63,8 +64,12 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onTargetEvent(final SelectionChangedEventPayload<ProxyTarget> eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 targetGridLayout.onTargetChanged(eventPayload.getEntity());
             } else {

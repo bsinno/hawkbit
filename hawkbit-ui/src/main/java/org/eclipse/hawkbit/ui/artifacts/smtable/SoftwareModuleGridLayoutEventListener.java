@@ -56,8 +56,12 @@ public class SoftwareModuleGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = SoftwareModuleGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onSmEvent(final SelectionChangedEventPayload<ProxySoftwareModule> eventPayload) {
+            if (eventPayload.getView() != View.UPLOAD || eventPayload.getLayout() != Layout.SM_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 softwareModuleGridLayout.onSmChanged(eventPayload.getEntity());
             } else {

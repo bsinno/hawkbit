@@ -122,7 +122,8 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
             // !important is needed because we are overriding valo theme here
             // (alternatively we could provide more specific selector)
             return String.format(
-                    "addStyleRule(stylesheet, '.%1$s, .%1$s > td, .%1$s .v-grid-cell', 'background-color:%2$s !important;')",
+                    "addStyleRule(stylesheet, '.%1$s, .%1$s > td, .%1$s .v-grid-cell', "
+                            + "'background-color:%2$s !important; background-image: none !important;')",
                     typeClass, typeColor);
         }).collect(Collectors.joining(";"));
     }

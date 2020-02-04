@@ -57,8 +57,12 @@ public class DistributionSetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onDsEvent(final SelectionChangedEventPayload<ProxyDistributionSet> eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS || eventPayload.getLayout() != Layout.DS_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 distributionSetGridLayout.onDsChanged(eventPayload.getEntity());
             } else {

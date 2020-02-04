@@ -17,9 +17,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.management.targettable.TargetGrid;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -51,8 +52,12 @@ public class ActionHistoryGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onTargetEvent(final SelectionChangedEventPayload<ProxyTarget> eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 actionHistoryGridLayout.onTargetSelected(eventPayload.getEntity());
             } else {
@@ -60,8 +65,12 @@ public class ActionHistoryGridLayoutEventListener {
             }
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = ActionHistoryGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onActionEvent(final SelectionChangedEventPayload<ProxyAction> eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.ACTION_HISTORY_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 actionHistoryGridLayout.onActionChanged(eventPayload.getEntity());
             } else {
@@ -69,8 +78,13 @@ public class ActionHistoryGridLayoutEventListener {
             }
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = ActionStatusGridLayout.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onActionStatusEvent(final SelectionChangedEventPayload<ProxyActionStatus> eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT
+                    || eventPayload.getLayout() != Layout.ACTION_HISTORY_STATUS_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 actionHistoryGridLayout.onActionStatusChanged(eventPayload.getEntity());
             } else {
