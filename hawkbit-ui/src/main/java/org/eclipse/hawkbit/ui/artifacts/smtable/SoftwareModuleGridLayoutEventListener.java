@@ -11,12 +11,16 @@ package org.eclipse.hawkbit.ui.artifacts.smtable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
+import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterButtons;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -40,6 +44,7 @@ public class SoftwareModuleGridLayoutEventListener {
     private void registerEventListeners() {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
+        eventListeners.add(new TypeFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -68,6 +73,22 @@ public class SoftwareModuleGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI, source = SoftwareModuleGridHeader.class)
         private void onSmEvent(final String searchFilter) {
             softwareModuleGridLayout.filterGridBySearch(searchFilter);
+        }
+    }
+
+    private class TypeFilterChangedListener {
+
+        public TypeFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = SMTypeFilterButtons.class)
+        private void onSmEvent(final TypeFilterChangedEventPayload<SoftwareModuleType> typeFilter) {
+            if (typeFilter.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
+                softwareModuleGridLayout.filterGridByType(typeFilter.getType());
+            } else {
+                softwareModuleGridLayout.filterGridByType(null);
+            }
         }
     }
 

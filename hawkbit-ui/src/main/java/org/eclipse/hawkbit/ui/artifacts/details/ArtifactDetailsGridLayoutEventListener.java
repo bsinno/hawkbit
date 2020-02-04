@@ -11,11 +11,14 @@ package org.eclipse.hawkbit.ui.artifacts.details;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGrid;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -35,8 +38,37 @@ public class ArtifactDetailsGridLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new EntityModifiedListener());
+        eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new FileUploadChangedListener());
+        eventListeners.add(new EntityModifiedListener());
+    }
+
+    private class SelectionChangedListener {
+
+        public SelectionChangedListener() {
+            eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = SoftwareModuleGrid.class)
+        private void onSmEvent(final SelectionChangedEventPayload<ProxySoftwareModule> eventPayload) {
+            if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
+                artifactDetailsGridLayout.onSmSelected(eventPayload.getEntity());
+            } else {
+                artifactDetailsGridLayout.onSmSelected(null);
+            }
+        }
+    }
+
+    private class FileUploadChangedListener {
+
+        public FileUploadChangedListener() {
+            eventBus.subscribe(this, EventTopics.FILE_UPLOAD_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onArtifactEvent(final FileUploadProgress fileUploadProgress) {
+            artifactDetailsGridLayout.onUploadChanged(fileUploadProgress);
+        }
     }
 
     private class EntityModifiedListener {
@@ -56,18 +88,6 @@ public class ArtifactDetailsGridLayoutEventListener {
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 artifactDetailsGridLayout.refreshGrid();
             }
-        }
-    }
-
-    private class FileUploadChangedListener {
-
-        public FileUploadChangedListener() {
-            eventBus.subscribe(this, EventTopics.FILE_UPLOAD_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onArtifactEvent(final FileUploadProgress fileUploadProgress) {
-            artifactDetailsGridLayout.onUploadChanged(fileUploadProgress);
         }
     }
 

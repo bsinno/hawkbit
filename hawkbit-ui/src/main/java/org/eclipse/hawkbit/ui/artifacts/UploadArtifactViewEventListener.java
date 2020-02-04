@@ -9,22 +9,16 @@
 package org.eclipse.hawkbit.ui.artifacts;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
-import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridHeader;
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGrid;
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridHeader;
-import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterButtons;
-import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterHeader;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -43,38 +37,27 @@ public class UploadArtifactViewEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new SelectionChangedListener());
-        eventListeners.add(new LayoutVisibilityChangedListener());
+        eventListeners.add(new LayoutVisibilityListener());
         eventListeners.add(new LayoutResizedListener());
-        eventListeners.add(new TypeFilterChangedListener());
     }
 
-    private class SelectionChangedListener {
+    private class LayoutVisibilityListener {
 
-        public SelectionChangedListener() {
-            eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
+        public LayoutVisibilityListener() {
+            eventBus.subscribe(this, CommandTopics.CHANGE_LAYOUT_VISIBILITY);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = SoftwareModuleGrid.class)
-        private void onSmEvent(final SelectionChangedEventPayload<ProxySoftwareModule> eventPayload) {
-            if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                uploadArtifactView.onSmSelected(eventPayload.getEntity());
-            } else {
-                uploadArtifactView.onSmSelected(null);
+        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.SM_TYPE_FILTER);
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onLayoutVisibilityEvent(final LayoutVisibilityEventPayload eventPayload) {
+            if (eventPayload.getView() != View.UPLOAD || !availableLayouts.contains(eventPayload.getLayout())) {
+                return;
             }
-        }
-    }
 
-    private class LayoutVisibilityChangedListener {
+            final VisibilityType visibilityType = eventPayload.getVisibilityType();
 
-        public LayoutVisibilityChangedListener() {
-            eventBus.subscribe(this, EventTopics.LAYOUT_VISIBILITY_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI, source = { SMTypeFilterHeader.class,
-                SoftwareModuleGridHeader.class })
-        private void onSmTypeEvent(final LayoutVisibilityChangedEventPayload eventPayload) {
-            if (eventPayload == LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN) {
+            if (visibilityType == VisibilityType.SHOW) {
                 uploadArtifactView.showSmTypeLayout();
             } else {
                 uploadArtifactView.hideSmTypeLayout();
@@ -85,40 +68,34 @@ public class UploadArtifactViewEventListener {
     private class LayoutResizedListener {
 
         public LayoutResizedListener() {
-            eventBus.subscribe(this, EventTopics.LAYOUT_RESIZED);
+            eventBus.subscribe(this, CommandTopics.RESIZE_LAYOUT);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = SoftwareModuleGridHeader.class)
-        private void onSmEvent(final LayoutResizedEventPayload eventPayload) {
-            if (eventPayload == LayoutResizedEventPayload.LAYOUT_MAXIMIZED) {
-                uploadArtifactView.maximizeSmGridLayout();
-            } else {
-                uploadArtifactView.minimizeSmGridLayout();
+        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.SM_LIST, Layout.ARTIFACT_LIST);
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onLayoutResizeEvent(final LayoutResizeEventPayload eventPayload) {
+            if (eventPayload.getView() != View.UPLOAD || !availableLayouts.contains(eventPayload.getLayout())) {
+                return;
             }
-        }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = ArtifactDetailsGridHeader.class)
-        private void onArtifactEvent(final LayoutResizedEventPayload eventPayload) {
-            if (eventPayload == LayoutResizedEventPayload.LAYOUT_MAXIMIZED) {
-                uploadArtifactView.maximizeArtifactGridLayout();
-            } else {
-                uploadArtifactView.minimizeArtifactGridLayout();
+            final Layout changedLayout = eventPayload.getLayout();
+            final ResizeType visibilityType = eventPayload.getResizeType();
+
+            if (changedLayout == Layout.SM_LIST) {
+                if (visibilityType == ResizeType.MAXIMIZE) {
+                    uploadArtifactView.maximizeSmGridLayout();
+                } else {
+                    uploadArtifactView.minimizeSmGridLayout();
+                }
             }
-        }
-    }
 
-    private class TypeFilterChangedListener {
-
-        public TypeFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI, source = SMTypeFilterButtons.class)
-        private void onSmEvent(final TypeFilterChangedEventPayload<SoftwareModuleType> typeFilter) {
-            if (typeFilter.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
-                uploadArtifactView.filterSmGridByType(typeFilter.getType());
-            } else {
-                uploadArtifactView.filterSmGridByType(null);
+            if (changedLayout == Layout.ARTIFACT_LIST) {
+                if (visibilityType == ResizeType.MAXIMIZE) {
+                    uploadArtifactView.maximizeArtifactGridLayout();
+                } else {
+                    uploadArtifactView.minimizeArtifactGridLayout();
+                }
             }
         }
     }

@@ -9,6 +9,8 @@
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -89,5 +91,15 @@ public class DSTypeFilterHeader extends AbstractFilterHeader {
     @Override
     protected void updateHiddenUiState() {
         dSTypeFilterLayoutUiState.setHidden(true);
+    }
+
+    @Override
+    protected Layout getLayout() {
+        return Layout.DS_TYPE_FILTER;
+    }
+
+    @Override
+    protected View getView() {
+        return View.DISTRIBUTIONS;
     }
 }
