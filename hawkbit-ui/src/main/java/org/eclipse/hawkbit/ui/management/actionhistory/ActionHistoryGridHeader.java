@@ -10,8 +10,11 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.util.Arrays;
 
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -70,13 +73,15 @@ public class ActionHistoryGridHeader extends AbstractGridHeader {
     }
 
     private void maximizeTable() {
-        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
+                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, Layout.ACTION_HISTORY_LIST, View.DEPLOYMENT));
 
         actionHistoryGridLayoutUiState.setMaximized(true);
     }
 
     private void minimizeTable() {
-        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
+                new LayoutResizeEventPayload(ResizeType.MINIMIZE, Layout.ACTION_HISTORY_LIST, View.DEPLOYMENT));
 
         actionHistoryGridLayoutUiState.setMaximized(false);
     }

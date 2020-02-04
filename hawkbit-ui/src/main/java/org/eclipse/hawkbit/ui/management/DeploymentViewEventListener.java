@@ -9,16 +9,16 @@
 package org.eclipse.hawkbit.ui.management;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
-import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridHeader;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionGridHeader;
-import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagFilterHeader;
-import org.eclipse.hawkbit.ui.management.targettable.TargetGridHeader;
-import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterHeader;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -37,66 +37,85 @@ public class DeploymentViewEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new LayoutVisibilityChangedListener());
-        eventListeners.add(new LayoutResizedListener());
+        eventListeners.add(new LayoutVisibilityListener());
+        eventListeners.add(new LayoutResizeListener());
     }
 
-    private class LayoutVisibilityChangedListener {
+    private class LayoutVisibilityListener {
 
-        public LayoutVisibilityChangedListener() {
-            eventBus.subscribe(this, EventTopics.LAYOUT_VISIBILITY_CHANGED);
+        public LayoutVisibilityListener() {
+            eventBus.subscribe(this, CommandTopics.CHANGE_LAYOUT_VISIBILITY);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = { TargetTagFilterHeader.class, TargetGridHeader.class })
-        private void onTargetTagEvent(final LayoutVisibilityChangedEventPayload eventPayload) {
-            if (eventPayload == LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN) {
-                deploymentView.showTargetTagLayout();
-            } else {
-                deploymentView.hideTargetTagLayout();
+        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.TARGET_TAG_FILTER, Layout.DS_TAG_FILTER);
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onLayoutVisibilityEvent(final LayoutVisibilityEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || !availableLayouts.contains(eventPayload.getLayout())) {
+                return;
             }
-        }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = { DistributionTagFilterHeader.class,
-                DistributionGridHeader.class })
-        private void onDsTagEvent(final LayoutVisibilityChangedEventPayload eventPayload) {
-            if (eventPayload == LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN) {
-                deploymentView.showDsTagLayout();
-            } else {
-                deploymentView.hideDsTagLayout();
+            final Layout changedLayout = eventPayload.getLayout();
+            final VisibilityType visibilityType = eventPayload.getVisibilityType();
+
+            if (changedLayout == Layout.TARGET_TAG_FILTER) {
+                if (visibilityType == VisibilityType.SHOW) {
+                    deploymentView.showTargetTagLayout();
+                } else {
+                    deploymentView.hideTargetTagLayout();
+                }
+            }
+
+            if (changedLayout == Layout.DS_TAG_FILTER) {
+                if (visibilityType == VisibilityType.SHOW) {
+                    deploymentView.showDsTagLayout();
+                } else {
+                    deploymentView.hideDsTagLayout();
+                }
             }
         }
     }
 
-    private class LayoutResizedListener {
+    private class LayoutResizeListener {
 
-        public LayoutResizedListener() {
-            eventBus.subscribe(this, EventTopics.LAYOUT_RESIZED);
+        public LayoutResizeListener() {
+            eventBus.subscribe(this, CommandTopics.RESIZE_LAYOUT);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetGridHeader.class)
-        private void onTargetEvent(final LayoutResizedEventPayload eventPayload) {
-            if (eventPayload == LayoutResizedEventPayload.LAYOUT_MAXIMIZED) {
-                deploymentView.maximizeTargetGridLayout();
-            } else {
-                deploymentView.minimizeTargetGridLayout();
+        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.TARGET_LIST, Layout.DS_LIST,
+                Layout.ACTION_HISTORY_LIST);
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onLayoutResizeEvent(final LayoutResizeEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || !availableLayouts.contains(eventPayload.getLayout())) {
+                return;
             }
-        }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionGridHeader.class)
-        private void onDsEvent(final LayoutResizedEventPayload eventPayload) {
-            if (eventPayload == LayoutResizedEventPayload.LAYOUT_MAXIMIZED) {
-                deploymentView.maximizeDsGridLayout();
-            } else {
-                deploymentView.minimizeDsGridLayout();
+            final Layout changedLayout = eventPayload.getLayout();
+            final ResizeType visibilityType = eventPayload.getResizeType();
+
+            if (changedLayout == Layout.TARGET_LIST) {
+                if (visibilityType == ResizeType.MAXIMIZE) {
+                    deploymentView.maximizeTargetGridLayout();
+                } else {
+                    deploymentView.minimizeTargetGridLayout();
+                }
             }
-        }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = ActionHistoryGridHeader.class)
-        private void onActionHistoryEvent(final LayoutResizedEventPayload eventPayload) {
-            if (eventPayload == LayoutResizedEventPayload.LAYOUT_MAXIMIZED) {
-                deploymentView.maximizeActionHistoryGridLayout();
-            } else {
-                deploymentView.minimizeActionHistoryGridLayout();
+            if (changedLayout == Layout.DS_LIST) {
+                if (visibilityType == ResizeType.MAXIMIZE) {
+                    deploymentView.maximizeDsGridLayout();
+                } else {
+                    deploymentView.minimizeDsGridLayout();
+                }
+            }
+
+            if (changedLayout == Layout.ACTION_HISTORY_LIST) {
+                if (visibilityType == ResizeType.MAXIMIZE) {
+                    deploymentView.maximizeActionHistoryGridLayout();
+                } else {
+                    deploymentView.minimizeActionHistoryGridLayout();
+                }
             }
         }
     }

@@ -12,9 +12,14 @@ import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
@@ -84,7 +89,8 @@ public class DistributionGridHeader extends AbstractGridHeader {
     }
 
     private void showFilterButtonsLayout() {
-        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this, LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN);
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.DS_TAG_FILTER, View.DEPLOYMENT));
 
         distributionTagLayoutUiState.setHidden(false);
     }
@@ -98,13 +104,15 @@ public class DistributionGridHeader extends AbstractGridHeader {
     }
 
     private void maximizeTable() {
-        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
+                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, Layout.DS_LIST, View.DEPLOYMENT));
 
         distributionGridLayoutUiState.setMaximized(true);
     }
 
     private void minimizeTable() {
-        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
+                new LayoutResizeEventPayload(ResizeType.MINIMIZE, Layout.DS_LIST, View.DEPLOYMENT));
 
         distributionGridLayoutUiState.setMaximized(false);
     }

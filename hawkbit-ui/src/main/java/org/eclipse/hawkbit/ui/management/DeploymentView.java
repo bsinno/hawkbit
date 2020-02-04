@@ -47,6 +47,7 @@ import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -67,6 +68,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
     private final DistributionGridLayout distributionGridLayout;
     private final DistributionTagLayout distributionTagLayout;
     private final ActionHistoryLayout actionHistoryLayout;
+    private final Layout targetCountLayout;
 
     private HorizontalLayout mainLayout;
 
@@ -98,6 +100,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
                     managementUIState.getTargetTagFilterLayoutUiState(), managementUIState.getTargetGridLayoutUiState(),
                     managementUIState.getTargetBulkUploadUiState(),
                     managementUIState.getDistributionGridLayoutUiState());
+            this.targetCountLayout = targetGridLayout.getCountMessageLabel().createFooterMessageComponent();
 
             this.actionHistoryLayout = new ActionHistoryLayout(i18n, deploymentManagement, eventBus, uiNotification,
                     permChecker, managementUIState.getActionHistoryGridLayoutUiState(),
@@ -106,6 +109,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         } else {
             this.targetTagFilterLayout = null;
             this.targetGridLayout = null;
+            this.targetCountLayout = null;
             this.actionHistoryLayout = null;
         }
 
@@ -152,8 +156,8 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         setExpandRatio(mainLayout, 1.0F);
 
         // TODO: check if we can do better
-        if (targetGridLayout != null) {
-            addComponent(targetGridLayout.getCountMessageLabel().createFooterMessageComponent());
+        if (targetCountLayout != null) {
+            addComponent(targetCountLayout);
         }
     }
 
@@ -274,6 +278,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
     void maximizeActionHistoryGridLayout() {
         targetTagFilterLayout.setVisible(false);
         targetGridLayout.setVisible(false);
+        targetCountLayout.setVisible(false);
         if (distributionGridLayout != null) {
             distributionGridLayout.setVisible(false);
         }
@@ -306,6 +311,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
         if (targetGridLayout != null) {
             targetGridLayout.setVisible(false);
+            targetCountLayout.setVisible(false);
         }
         if (actionHistoryLayout != null) {
             actionHistoryLayout.setVisible(false);
@@ -374,6 +380,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
         if (targetGridLayout != null) {
             targetGridLayout.setVisible(true);
+            targetCountLayout.setVisible(true);
         }
         if (actionHistoryLayout != null) {
             actionHistoryLayout.setVisible(true);
@@ -394,6 +401,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
             targetTagFilterLayout.setVisible(true);
         }
         targetGridLayout.setVisible(true);
+        targetCountLayout.setVisible(true);
         if (distributionGridLayout != null) {
             distributionGridLayout.setVisible(true);
         }
