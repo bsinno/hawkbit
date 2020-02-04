@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.dstable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
@@ -18,6 +19,9 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
+import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -41,6 +45,7 @@ public class DistributionSetGridLayoutEventListener {
     private void registerEventListeners() {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
+        eventListeners.add(new TypeFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -69,6 +74,22 @@ public class DistributionSetGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGridHeader.class)
         private void onDsEvent(final String searchFilter) {
             distributionSetGridLayout.filterGridBySearch(searchFilter);
+        }
+    }
+
+    private class TypeFilterChangedListener {
+
+        public TypeFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = DSTypeFilterButtons.class)
+        private void onDsEvent(final TypeFilterChangedEventPayload<DistributionSetType> typeFilter) {
+            if (typeFilter.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
+                distributionSetGridLayout.filterGridByType(typeFilter.getType());
+            } else {
+                distributionSetGridLayout.filterGridByType(null);
+            }
         }
     }
 

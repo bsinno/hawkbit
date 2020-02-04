@@ -38,7 +38,7 @@ public class UploadArtifactViewEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new LayoutVisibilityListener());
-        eventListeners.add(new LayoutResizedListener());
+        eventListeners.add(new LayoutResizeListener());
     }
 
     private class LayoutVisibilityListener {
@@ -65,9 +65,9 @@ public class UploadArtifactViewEventListener {
         }
     }
 
-    private class LayoutResizedListener {
+    private class LayoutResizeListener {
 
-        public LayoutResizedListener() {
+        public LayoutResizeListener() {
             eventBus.subscribe(this, CommandTopics.RESIZE_LAYOUT);
         }
 

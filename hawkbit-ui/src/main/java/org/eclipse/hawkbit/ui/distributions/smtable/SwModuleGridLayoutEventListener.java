@@ -11,12 +11,18 @@ package org.eclipse.hawkbit.ui.distributions.smtable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
+import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGrid;
+import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -39,6 +45,7 @@ public class SwModuleGridLayoutEventListener {
     private void registerEventListeners() {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
+        eventListeners.add(new TypeFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -56,6 +63,15 @@ public class SwModuleGridLayoutEventListener {
                 swModuleGridLayout.onSmChanged(null);
             }
         }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGrid.class)
+        private void onDsEvent(final SelectionChangedEventPayload<ProxyDistributionSet> eventPayload) {
+            if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
+                swModuleGridLayout.onDsSelected(eventPayload.getEntity());
+            } else {
+                swModuleGridLayout.onDsSelected(null);
+            }
+        }
     }
 
     private class SearchFilterChangedListener {
@@ -67,6 +83,22 @@ public class SwModuleGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI, source = SwModuleGridHeader.class)
         private void onSmEvent(final String searchFilter) {
             swModuleGridLayout.filterGridBySearch(searchFilter);
+        }
+    }
+
+    private class TypeFilterChangedListener {
+
+        public TypeFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI, source = DistSMTypeFilterButtons.class)
+        private void onSmEvent(final TypeFilterChangedEventPayload<SoftwareModuleType> typeFilter) {
+            if (typeFilter.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
+                swModuleGridLayout.filterGridByType(typeFilter.getType());
+            } else {
+                swModuleGridLayout.filterGridByType(null);
+            }
         }
     }
 
@@ -88,6 +120,17 @@ public class SwModuleGridLayoutEventListener {
                 // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
                 // right or improve
                 UI.getCurrent().access(() -> swModuleGridLayout.onSmUpdated(eventPayload.getEntityIds()));
+            }
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onDsEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
+            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+                swModuleGridLayout.onDsUpdated(eventPayload.getEntityIds());
             }
         }
     }

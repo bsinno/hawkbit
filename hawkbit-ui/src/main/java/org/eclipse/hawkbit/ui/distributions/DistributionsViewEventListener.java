@@ -9,27 +9,16 @@
 package org.eclipse.hawkbit.ui.distributions;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
-import org.eclipse.hawkbit.repository.model.DistributionSetType;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
-import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterButtons;
-import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterHeader;
-import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGrid;
-import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridHeader;
-import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleGridHeader;
-import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterButtons;
-import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterHeader;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -48,120 +37,76 @@ public class DistributionsViewEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new SelectionChangedListener());
-        eventListeners.add(new LayoutVisibilityChangedListener());
-        eventListeners.add(new LayoutResizedListener());
-        eventListeners.add(new TypeFilterChangedListener());
-        eventListeners.add(new EntityModifiedListener());
+        eventListeners.add(new LayoutVisibilityListener());
+        eventListeners.add(new LayoutResizeListener());
     }
 
-    private class SelectionChangedListener {
+    private class LayoutVisibilityListener {
 
-        public SelectionChangedListener() {
-            eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
+        public LayoutVisibilityListener() {
+            eventBus.subscribe(this, CommandTopics.CHANGE_LAYOUT_VISIBILITY);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGrid.class)
-        private void onDsEvent(final SelectionChangedEventPayload<ProxyDistributionSet> eventPayload) {
-            if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                distributionsView.onDsSelected(eventPayload.getEntity());
-            } else {
-                distributionsView.onDsSelected(null);
-            }
-        }
-    }
-
-    private class LayoutVisibilityChangedListener {
-
-        public LayoutVisibilityChangedListener() {
-            eventBus.subscribe(this, EventTopics.LAYOUT_VISIBILITY_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI, source = { DSTypeFilterHeader.class,
-                DistributionSetGridHeader.class })
-        private void onDsTypeEvent(final LayoutVisibilityChangedEventPayload eventPayload) {
-            if (eventPayload == LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN) {
-                distributionsView.showDsTypeLayout();
-            } else {
-                distributionsView.hideDsTypeLayout();
-            }
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI, source = { DistSMTypeFilterHeader.class,
-                SwModuleGridHeader.class })
-        private void onSmTypeEvent(final LayoutVisibilityChangedEventPayload eventPayload) {
-            if (eventPayload == LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN) {
-                distributionsView.showSmTypeLayout();
-            } else {
-                distributionsView.hideSmTypeLayout();
-            }
-        }
-    }
-
-    private class LayoutResizedListener {
-
-        public LayoutResizedListener() {
-            eventBus.subscribe(this, EventTopics.LAYOUT_RESIZED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGridHeader.class)
-        private void onDsEvent(final LayoutResizedEventPayload eventPayload) {
-            if (eventPayload == LayoutResizedEventPayload.LAYOUT_MAXIMIZED) {
-                distributionsView.maximizeDsGridLayout();
-            } else {
-                distributionsView.minimizeDsGridLayout();
-            }
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI, source = SwModuleGridHeader.class)
-        private void onSmEvent(final LayoutResizedEventPayload eventPayload) {
-            if (eventPayload == LayoutResizedEventPayload.LAYOUT_MAXIMIZED) {
-                distributionsView.maximizeSmGridLayout();
-            } else {
-                distributionsView.minimizeSmGridLayout();
-            }
-        }
-    }
-
-    private class TypeFilterChangedListener {
-
-        public TypeFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI, source = DSTypeFilterButtons.class)
-        private void onDsEvent(final TypeFilterChangedEventPayload<DistributionSetType> typeFilter) {
-            if (typeFilter.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
-                distributionsView.filterDsGridByType(typeFilter.getType());
-            } else {
-                distributionsView.filterDsGridByType(null);
-            }
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistSMTypeFilterButtons.class)
-        private void onSmEvent(final TypeFilterChangedEventPayload<SoftwareModuleType> typeFilter) {
-            if (typeFilter.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
-                distributionsView.filterSmGridByType(typeFilter.getType());
-            } else {
-                distributionsView.filterSmGridByType(null);
-            }
-        }
-    }
-
-    private class EntityModifiedListener {
-
-        public EntityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
+        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.DS_TYPE_FILTER, Layout.SM_TYPE_FILTER);
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyDistributionSet.class.equals(eventPayload.getEntityType())) {
+        private void onLayoutVisibilityEvent(final LayoutVisibilityEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS || !availableLayouts.contains(eventPayload.getLayout())) {
                 return;
             }
 
-            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
-                distributionsView.onDsUpdated(eventPayload.getEntityIds());
+            final Layout changedLayout = eventPayload.getLayout();
+            final VisibilityType visibilityType = eventPayload.getVisibilityType();
+
+            if (changedLayout == Layout.DS_TYPE_FILTER) {
+                if (visibilityType == VisibilityType.SHOW) {
+                    distributionsView.showDsTypeLayout();
+                } else {
+                    distributionsView.hideDsTypeLayout();
+                }
+            }
+
+            if (changedLayout == Layout.SM_TYPE_FILTER) {
+                if (visibilityType == VisibilityType.SHOW) {
+                    distributionsView.showSmTypeLayout();
+                } else {
+                    distributionsView.hideSmTypeLayout();
+                }
+            }
+        }
+    }
+
+    private class LayoutResizeListener {
+
+        public LayoutResizeListener() {
+            eventBus.subscribe(this, CommandTopics.RESIZE_LAYOUT);
+        }
+
+        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.DS_LIST, Layout.SM_LIST);
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onLayoutResizeEvent(final LayoutResizeEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS || !availableLayouts.contains(eventPayload.getLayout())) {
+                return;
+            }
+
+            final Layout changedLayout = eventPayload.getLayout();
+            final ResizeType visibilityType = eventPayload.getResizeType();
+
+            if (changedLayout == Layout.DS_LIST) {
+                if (visibilityType == ResizeType.MAXIMIZE) {
+                    distributionsView.maximizeDsGridLayout();
+                } else {
+                    distributionsView.minimizeDsGridLayout();
+                }
+            }
+
+            if (changedLayout == Layout.SM_LIST) {
+                if (visibilityType == ResizeType.MAXIMIZE) {
+                    distributionsView.maximizeSmGridLayout();
+                } else {
+                    distributionsView.minimizeSmGridLayout();
+                }
             }
         }
     }

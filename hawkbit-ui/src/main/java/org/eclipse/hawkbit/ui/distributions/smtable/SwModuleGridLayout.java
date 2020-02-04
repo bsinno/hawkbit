@@ -115,6 +115,14 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         swModuleGrid.updateMasterEntityFilter(selectedDs != null ? selectedDs.getId() : null);
     }
 
+    public void onDsUpdated(final Collection<Long> entityIds) {
+        final Long lastSelectedDsId = swModuleGrid.getMasterEntityFilter();
+
+        if (lastSelectedDsId != null && entityIds.contains(lastSelectedDsId)) {
+            swModuleGrid.refreshContainer();
+        }
+    }
+
     public void showSmTypeHeaderIcon() {
         swModuleGridHeader.showSmTypeIcon();
     }

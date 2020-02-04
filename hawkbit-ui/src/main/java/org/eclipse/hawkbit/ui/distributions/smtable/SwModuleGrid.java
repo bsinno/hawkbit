@@ -171,6 +171,10 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         getFilterDataProvider().setFilter(smFilter);
     }
 
+    public Long getMasterEntityFilter() {
+        return smFilter.getLastSelectedDistributionId();
+    }
+
     /**
      * Creates the grid content for maximized-state.
      */
