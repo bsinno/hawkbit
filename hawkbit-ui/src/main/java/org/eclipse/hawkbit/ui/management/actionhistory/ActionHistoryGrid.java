@@ -32,8 +32,6 @@ import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
 import org.eclipse.hawkbit.ui.push.CancelTargetAssignmentEventContainer;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -435,7 +433,10 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private void updateTargetAndDsTable() {
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.UPDATED_ENTITY, selectedMasterTarget));
+        // TODO: adapt
+        // eventBus.publish(this, new
+        // TargetTableEvent(BaseEntityEventType.UPDATED_ENTITY,
+        // selectedMasterTarget));
         updateDistributionTableStyle();
     }
 

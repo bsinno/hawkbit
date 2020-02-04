@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
@@ -21,12 +20,13 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
-import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterButtons;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -112,9 +112,13 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.TAG_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
-        private void onTargetTagEvent(final Collection<String> eventPayload) {
-            targetGridLayout.filterGridByTags(eventPayload);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetTagEvent(final TagFilterChangedEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_TAG_FILTER) {
+                return;
+            }
+
+            targetGridLayout.filterGridByTags(eventPayload.getTagNames());
         }
     }
 
@@ -124,9 +128,13 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.NO_TAG_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
-        private void onTargetNoTagEvent(final Boolean eventPayload) {
-            targetGridLayout.filterGridByNoTag(eventPayload);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetNoTagEvent(final NoTagFilterChangedEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_TAG_FILTER) {
+                return;
+            }
+
+            targetGridLayout.filterGridByNoTag(eventPayload.getIsNoTagActive());
         }
     }
 

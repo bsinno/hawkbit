@@ -35,17 +35,11 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.DistributionSetFilterDr
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.management.event.BulkUploadPopupEvent;
-import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -227,34 +221,42 @@ public class TargetGridHeader extends AbstractGridHeader {
                 || targetBulkUploadUiState.getFailedUploadCount() != 0;
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final BulkUploadPopupEvent event) {
-        if (BulkUploadPopupEvent.MAXIMIMIZED == event) {
-            bulkUpload();
-            targetBulkUpdateWindow.restoreComponentsValue();
-        } else if (BulkUploadPopupEvent.CLOSED == event) {
-            UI.getCurrent().access(bulkUploadHeaderSupport::showBulkUpload);
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final BulkUploadValidationMessageEvent event) {
-        this.getUI().access(() -> notification.displayValidationError(event.getValidationErrorMessage()));
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent event) {
-        if (TargetComponentEvent.BULK_TARGET_CREATED == event.getTargetComponentEvent()) {
-            this.getUI().access(() -> targetBulkUpdateWindow
-                    .setProgressBarValue(targetBulkUploadUiState.getProgressBarCurrentValue()));
-        } else if (TargetComponentEvent.BULK_UPLOAD_COMPLETED == event.getTargetComponentEvent()) {
-            this.getUI().access(targetBulkUpdateWindow::onUploadCompletion);
-        } else if (TargetComponentEvent.BULK_TARGET_UPLOAD_STARTED == event.getTargetComponentEvent()) {
-            this.getUI().access(this::onStartOfBulkUpload);
-        } else if (TargetComponentEvent.BULK_UPLOAD_PROCESS_STARTED == event.getTargetComponentEvent()) {
-            this.getUI().access(() -> targetBulkUpdateWindow.getBulkUploader().getUpload().setEnabled(false));
-        }
-    }
+    // TODO:implement/adapt
+    // @EventBusListenerMethod(scope = EventScope.UI)
+    // void onEvent(final BulkUploadPopupEvent event) {
+    // if (BulkUploadPopupEvent.MAXIMIMIZED == event) {
+    // bulkUpload();
+    // targetBulkUpdateWindow.restoreComponentsValue();
+    // } else if (BulkUploadPopupEvent.CLOSED == event) {
+    // UI.getCurrent().access(bulkUploadHeaderSupport::showBulkUpload);
+    // }
+    // }
+    //
+    // @EventBusListenerMethod(scope = EventScope.UI)
+    // void onEvent(final BulkUploadValidationMessageEvent event) {
+    // this.getUI().access(() ->
+    // notification.displayValidationError(event.getValidationErrorMessage()));
+    // }
+    //
+    //
+    // @EventBusListenerMethod(scope = EventScope.UI)
+    // void onEvent(final TargetTableEvent event) {
+    // if (TargetComponentEvent.BULK_TARGET_CREATED ==
+    // event.getTargetComponentEvent()) {
+    // this.getUI().access(() -> targetBulkUpdateWindow
+    // .setProgressBarValue(targetBulkUploadUiState.getProgressBarCurrentValue()));
+    // } else if (TargetComponentEvent.BULK_UPLOAD_COMPLETED ==
+    // event.getTargetComponentEvent()) {
+    // this.getUI().access(targetBulkUpdateWindow::onUploadCompletion);
+    // } else if (TargetComponentEvent.BULK_TARGET_UPLOAD_STARTED ==
+    // event.getTargetComponentEvent()) {
+    // this.getUI().access(this::onStartOfBulkUpload);
+    // } else if (TargetComponentEvent.BULK_UPLOAD_PROCESS_STARTED ==
+    // event.getTargetComponentEvent()) {
+    // this.getUI().access(() ->
+    // targetBulkUpdateWindow.getBulkUploader().getUpload().setEnabled(false));
+    // }
+    // }
 
     private void onStartOfBulkUpload() {
         bulkUploadHeaderSupport.disableBulkUpload();

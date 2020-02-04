@@ -24,13 +24,20 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTagAssignmentSupport;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
+import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -39,6 +46,7 @@ import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -52,6 +60,8 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
 
     private final DistributionTagLayoutUiState distributionTagLayoutUiState;
     private final UINotification uiNotification;
+
+    private final Button noTagButton;
 
     private final transient DistributionSetTagManagement distributionSetTagManagement;
     private final transient DistributionTagButtonClick distributionTagButtonClickBehaviour;
@@ -73,6 +83,8 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         this.distributionSetTagManagement = distributionSetTagManagement;
         this.dsTagWindowBuilder = dsTagWindowBuilder;
 
+        this.noTagButton = buildNoTagButton();
+
         this.distributionTagButtonClickBehaviour = new DistributionTagButtonClick(this::publishFilterChangedEvent,
                 this::publishNoTagChangedEvent);
         this.dsTagDataProvider = new DistributionSetTagDataProvider(distributionSetTagManagement,
@@ -86,6 +98,22 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         this.dragAndDropSupport.addDragAndDrop();
 
         init();
+    }
+
+    // TODO: remove duplication with TargetTagFilterButtons
+    private Button buildNoTagButton() {
+        final Button noTag = SPUIComponentProvider.getButton(
+                SPUIDefinitions.DISTRIBUTION_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
+                i18n.getMessage(UIMessageIdProvider.LABEL_NO_TAG),
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
+                SPUITagButtonStyle.class);
+
+        final ProxyTag dummyNoTag = new ProxyTag();
+        dummyNoTag.setNoTag(true);
+
+        noTag.addClickListener(event -> distributionTagButtonClickBehaviour.processFilterClick(dummyNoTag));
+
+        return noTag;
     }
 
     @Override
@@ -113,17 +141,25 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         // needed to trigger style generator
         getDataCommunicator().reset();
 
-        eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this, activeTagIdsWithName.values());
+        eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this,
+                new TagFilterChangedEventPayload(activeTagIdsWithName.values(), Layout.DS_TAG_FILTER, View.DEPLOYMENT));
 
         distributionTagLayoutUiState.setClickedDsTagIds(activeTagIdsWithName.keySet());
     }
 
     private void publishNoTagChangedEvent(final ClickBehaviourType clickType) {
-        // TODO: add gray styling to NO_TAG Button
+        final boolean isNoTagActivated = ClickBehaviourType.CLICKED == clickType;
 
-        eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this, ClickBehaviourType.CLICKED == clickType);
+        if (isNoTagActivated) {
+            noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+        } else {
+            noTagButton.removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+        }
 
-        distributionTagLayoutUiState.setNoTagClicked(ClickBehaviourType.CLICKED == clickType);
+        eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this,
+                new NoTagFilterChangedEventPayload(isNoTagActivated, Layout.DS_TAG_FILTER, View.DEPLOYMENT));
+
+        distributionTagLayoutUiState.setNoTagClicked(isNoTagActivated);
     }
 
     @Override
@@ -160,21 +196,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         return SPUIDefinitions.DISTRIBUTION_TAG_ID_PREFIXS;
     }
 
-    public void clearDsTagFilters() {
-        if (distributionTagButtonClickBehaviour.getPreviouslyClickedFiltersSize() > 0) {
-            distributionTagButtonClickBehaviour.clearPreviouslyClickedFilters();
-
-            // TODO: should we reset data communicator here for styling update
-
-            eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this, Collections.emptyList());
-
-            distributionTagLayoutUiState.setClickedDsTagIds(Collections.emptySet());
-
-            if (distributionTagLayoutUiState.isNoTagClicked()) {
-                eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this, false);
-
-                distributionTagLayoutUiState.setNoTagClicked(false);
-            }
-        }
+    public Button getNoTagButton() {
+        return noTagButton;
     }
 }

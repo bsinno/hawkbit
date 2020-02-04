@@ -39,8 +39,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.components.HawkbitErrorNotificationMessage;
 import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
@@ -197,7 +195,9 @@ public class BulkUploadHandler extends CustomComponent
                  * upload button is re-enabled. To disable the button firing
                  * below event.
                  */
-                eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.BULK_UPLOAD_PROCESS_STARTED));
+                // TODO:adapt
+                // eventBus.publish(this, new
+                // TargetTableEvent(TargetComponentEvent.BULK_UPLOAD_PROCESS_STARTED));
 
                 while ((line = reader.readLine()) != null) {
                     readLine(line, reader.getLineNumber(), totalNumberOfLines);
@@ -212,7 +212,9 @@ public class BulkUploadHandler extends CustomComponent
             }
             syncCountAfterUpload(totalNumberOfLines.intValue());
             doAssignments();
-            eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.BULK_UPLOAD_COMPLETED));
+            // TODO: adapt
+            // eventBus.publish(this, new
+            // TargetTableEvent(TargetComponentEvent.BULK_UPLOAD_COMPLETED));
             // Clearing after assignments are done
             targetBulkUploadUiState.getTargetsCreated().clear();
             resetSuccessfullTargetCount();
@@ -223,7 +225,9 @@ public class BulkUploadHandler extends CustomComponent
             targetBulkUploadUiState.setSucessfulUploadCount(successfullTargetCount);
             targetBulkUploadUiState.setFailedUploadCount(syncedFailedTargetCount);
             targetBulkUploadUiState.setProgressBarCurrentValue(1);
-            eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.BULK_TARGET_CREATED));
+            // TODO:adapt
+            // eventBus.publish(this, new
+            // TargetTableEvent(TargetComponentEvent.BULK_TARGET_CREATED));
         }
 
         private BigDecimal getTotalNumberOfLines() {
@@ -278,7 +282,9 @@ public class BulkUploadHandler extends CustomComponent
             if (done > previous) {
                 targetBulkUploadUiState.setSucessfulUploadCount(successfullTargetCount);
                 targetBulkUploadUiState.setProgressBarCurrentValue(done);
-                eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.BULK_TARGET_CREATED));
+                // TODO:adapt
+                // eventBus.publish(this, new
+                // TargetTableEvent(TargetComponentEvent.BULK_TARGET_CREATED));
             }
         }
 
@@ -393,7 +399,9 @@ public class BulkUploadHandler extends CustomComponent
             LOG.error("Wrong file format for file {}", event.getFilename());
             upload.interruptUpload();
         } else {
-            eventBus.publish(this, new TargetTableEvent(TargetComponentEvent.BULK_TARGET_UPLOAD_STARTED));
+            // TODO: adapt
+            // eventBus.publish(this, new
+            // TargetTableEvent(TargetComponentEvent.BULK_TARGET_UPLOAD_STARTED));
         }
     }
 

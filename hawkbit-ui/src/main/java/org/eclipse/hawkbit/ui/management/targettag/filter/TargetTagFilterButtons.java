@@ -24,6 +24,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
@@ -135,21 +139,25 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         // needed to trigger style generator
         getDataCommunicator().reset();
 
-        eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this, activeTagIdsWithName.values());
+        eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this, new TagFilterChangedEventPayload(
+                activeTagIdsWithName.values(), Layout.TARGET_TAG_FILTER, View.DEPLOYMENT));
 
         targetTagFilterLayoutUiState.setClickedTargetTagIdsWithName(activeTagIdsWithName);
     }
 
     private void publishNoTagChangedEvent(final ClickBehaviourType clickType) {
-        if (ClickBehaviourType.CLICKED == clickType) {
+        final boolean isNoTagActivated = ClickBehaviourType.CLICKED == clickType;
+
+        if (isNoTagActivated) {
             noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         } else {
             noTagButton.removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
 
-        eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this, ClickBehaviourType.CLICKED == clickType);
+        eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this,
+                new NoTagFilterChangedEventPayload(isNoTagActivated, Layout.TARGET_TAG_FILTER, View.DEPLOYMENT));
 
-        targetTagFilterLayoutUiState.setNoTagClicked(ClickBehaviourType.CLICKED == clickType);
+        targetTagFilterLayoutUiState.setNoTagClicked(isNoTagActivated);
     }
 
     @Override
