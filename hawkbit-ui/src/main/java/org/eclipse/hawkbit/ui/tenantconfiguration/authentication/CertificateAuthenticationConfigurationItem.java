@@ -10,11 +10,9 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
-import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
-import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
@@ -27,7 +25,7 @@ import com.vaadin.ui.VerticalLayout;
  * This class represents the UI item for the certificate authenticated by an
  * reverse proxy in the authentication configuration view.
  */
-public class CertificateAuthenticationConfigurationItem extends AbstractBooleanTenantConfigurationItem {
+public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,10 +36,10 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
 
     public CertificateAuthenticationConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
             final VaadinMessageSource i18n, Binder<ProxySystemConfigWindow> binder) {
-        super(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_ENABLED, tenantConfigurationManagement, i18n);
         this.binder = binder;
-
-        super.init("label.configuration.auth.header");
+        this.setSpacing(false);
+        this.setMargin(false);
+        addComponent(new LabelBuilder().name(i18n.getMessage("label.configuration.auth.header")).buildLabel());
         detailLayout = new VerticalLayout();
         detailLayout.setMargin(false);
         detailLayout.setSpacing(false);
@@ -69,25 +67,7 @@ public class CertificateAuthenticationConfigurationItem extends AbstractBooleanT
         }
     }
 
-    @Override
-    public void configEnable() {
-        setDetailVisible(true);
-    }
-
-    @Override
-    public void configDisable() {
-        setDetailVisible(false);
-    }
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void undo() {
-    }
-
-    private void setDetailVisible(final boolean visible) {
+    public void setDetailVisible(final boolean visible) {
         if (visible) {
             addComponent(detailLayout);
         } else {

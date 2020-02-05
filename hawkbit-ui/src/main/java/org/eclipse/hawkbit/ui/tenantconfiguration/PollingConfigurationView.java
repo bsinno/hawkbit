@@ -21,17 +21,12 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.tenancy.configuration.DurationHelper;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.tenantconfiguration.polling.DurationConfigField;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.Result;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.validator.DateRangeValidator;
-import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -40,8 +35,7 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * View to configure the polling interval and the overdue time.
  */
-public class PollingConfigurationView extends CustomComponent
-        implements ConfigurationItem.ConfigurationItemChangeListener {
+public class PollingConfigurationView extends CustomComponent {
 
     private static final long serialVersionUID = 1L;
 
@@ -54,7 +48,7 @@ public class PollingConfigurationView extends CustomComponent
 
     private transient Duration tenantPollTime;
     private transient Duration tenantOverdueTime;
-
+    private static final String MSG_KEY_EMPTY_VALUE = "configuration.polling.custom.value";
     private final Binder<ProxySystemConfigWindow> binder;
 
     PollingConfigurationView(final VaadinMessageSource i18n, final ControllerPollProperties controllerPollProperties,
@@ -109,8 +103,7 @@ public class PollingConfigurationView extends CustomComponent
                 .bind(ProxySystemConfigWindow::isPollingTime, ProxySystemConfigWindow::setPollingTime);
 
         binder.forField(fieldPollTime.getDurationField())
-                //TODO: use i18n
-                .asRequired("should not be empty")
+                .asRequired(i18n.getMessage(MSG_KEY_EMPTY_VALUE))
                 .withConverter(PollingConfigurationView::localDateTimeToDuration,
                         PollingConfigurationView::durationToLocalDateTime)
                 .bind(ProxySystemConfigWindow::getPollingTimeDuration, ProxySystemConfigWindow::setPollingTimeDuration);
@@ -128,13 +121,12 @@ public class PollingConfigurationView extends CustomComponent
                 .bind(ProxySystemConfigWindow::isPollingOverdue, ProxySystemConfigWindow::setPollingOverdue);
 
         binder.forField(fieldPollingOverdueTime.getDurationField())
-                //TODO: use i18n
-                .asRequired("should not be empty")
+                .asRequired(i18n.getMessage(MSG_KEY_EMPTY_VALUE))
                 .withConverter(PollingConfigurationView::localDateTimeToDuration,
                         PollingConfigurationView::durationToLocalDateTime)
                 .bind(ProxySystemConfigWindow::getPollingOverdueDuration,
                         ProxySystemConfigWindow::setPollingOverdueDuration);
-        //        fieldPollingOverdueTime.addChangeListener(this);
+
         vLayout.addComponent(fieldPollingOverdueTime);
 
         rootPanel.setContent(vLayout);
@@ -152,62 +144,4 @@ public class PollingConfigurationView extends CustomComponent
         final Date date = Date.from(lt.atDate(LocalDate.now(ZONEID_UTC)).atZone(ZONEID_UTC).toInstant());
         return LocalDateTime.ofInstant(date.toInstant(), ZONEID_UTC);
     }
-
-    //    @Override
-    public void save() {
-        // make sure values are only saved, when the value has been changed
-        //
-        //        if (!compareDurations(tenantPollTime, fieldPollTime.getValue())) {
-        //            tenantPollTime = fieldPollTime.getValue();
-        //            saveDurationConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL, tenantPollTime);
-        //        }
-        //
-        //        if (!compareDurations(tenantOverdueTime, fieldPollingOverdueTime.getValue())) {
-        //            tenantOverdueTime = fieldPollingOverdueTime.getValue();
-        //            saveDurationConfigurationValue(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, tenantOverdueTime);
-        //        }
-    }
-
-    @Override
-    public void configurationHasChanged() {
-
-    }
-
-    private void saveDurationConfigurationValue(final String key, final Duration duration) {
-        if (duration == null) {
-            tenantConfigurationManagement.deleteConfiguration(key);
-        } else {
-            tenantConfigurationManagement.addOrUpdateConfiguration(key,
-                    DurationHelper.durationToFormattedString(duration));
-        }
-    }
-
-    //    @Override
-    //    public void undo() {
-    //        //        fieldPollTime.setValue(tenantPollTime);
-    //        //        fieldPollingOverdueTime.setValue(tenantOverdueTime);
-    //    }
-
-    //    @Override
-    //    public boolean isUserInputValid() {
-    //        return fieldPollTime.isUserInputValid() && fieldPollingOverdueTime.isUserInputValid();
-    //    }
-    //
-    //    @Override
-    //    public void configurationHasChanged() {
-    //        notifyConfigurationChanged();
-    //    }
-    //
-    //    private static boolean compareDurations(final Duration d1, final Duration d2) {
-    //        if (d1 == null && d2 == null) {
-    //            return true;
-    //        }
-    //
-    //        if (d1 != null) {
-    //            return d1.equals(d2);
-    //        }
-    //
-    //        // d1 == null, d2 != null
-    //        return false;
-    //    }
 }

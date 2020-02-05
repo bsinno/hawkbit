@@ -3,7 +3,7 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 import java.io.Serializable;
 import java.time.Duration;
 
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem.ActionStatusOption;
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.ActionStatusOption;
 
 public class ProxySystemConfigWindow implements Serializable {
 

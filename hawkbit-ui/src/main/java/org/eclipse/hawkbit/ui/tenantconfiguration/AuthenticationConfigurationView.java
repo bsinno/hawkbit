@@ -15,14 +15,13 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.AnonymousDownlo
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.CertificateAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.GatewaySecurityTokenAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.TargetSecurityTokenAuthenticationConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.generic.BooleanConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.HasValue;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
@@ -32,8 +31,7 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * View to configure the authentication mode.
  */
-public class AuthenticationConfigurationView extends BaseConfigurationView
-        implements ConfigurationItem.ConfigurationItemChangeListener {
+public class AuthenticationConfigurationView extends CustomComponent {
 
     private static final String DIST_CHECKBOX_STYLE = "dist-checkbox-style";
 
@@ -102,7 +100,8 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
         certificateAuthCheckbox = new CheckBox();
         certificateAuthCheckbox.setStyleName(DIST_CHECKBOX_STYLE);
         certificateAuthCheckbox.addValueChangeListener(
-                valueChangeEvent -> changeEvent(valueChangeEvent, certificateAuthenticationConfigurationItem));
+                valueChangeEvent -> certificateAuthenticationConfigurationItem.setDetailVisible(
+                        valueChangeEvent.getValue()));
         binder.bind(certificateAuthCheckbox, ProxySystemConfigWindow::isCertificateAuth,
                 ProxySystemConfigWindow::setCertificateAuth);
         gridLayout.addComponent(certificateAuthCheckbox, 0, 0);
@@ -119,7 +118,8 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
         gatewaySecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         gatewaySecTokenCheckBox.setId("gatewaysecuritycheckbox");
         gatewaySecTokenCheckBox.addValueChangeListener(
-                valueChangeEvent -> changeEvent(valueChangeEvent, gatewaySecurityTokenAuthenticationConfigurationItem));
+                valueChangeEvent -> gatewaySecurityTokenAuthenticationConfigurationItem.setDetailVisible(
+                        valueChangeEvent.getValue()));
         binder.bind(gatewaySecTokenCheckBox, ProxySystemConfigWindow::isGatewaySecToken,
                 ProxySystemConfigWindow::setGatewaySecToken);
         gridLayout.addComponent(gatewaySecTokenCheckBox, 0, 2);
@@ -142,25 +142,5 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
         vLayout.addComponent(gridLayout);
         rootPanel.setContent(vLayout);
         setCompositionRoot(rootPanel);
-    }
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void undo() {
-    }
-
-    @Override
-    public void configurationHasChanged() {
-    }
-
-    public void changeEvent(final HasValue.ValueChangeEvent event, final BooleanConfigurationItem configurationItem) {
-        if (event.getValue().equals(Boolean.TRUE)) {
-            configurationItem.configEnable();
-        } else {
-            configurationItem.configDisable();
-        }
     }
 }

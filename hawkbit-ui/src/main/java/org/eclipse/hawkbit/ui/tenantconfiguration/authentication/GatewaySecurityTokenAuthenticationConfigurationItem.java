@@ -11,12 +11,11 @@ package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
-import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
-import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
@@ -31,7 +30,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * This class represents the UI item for the gateway security token section in
  * the authentication configuration view.
  */
-public class GatewaySecurityTokenAuthenticationConfigurationItem extends AbstractBooleanTenantConfigurationItem {
+public class GatewaySecurityTokenAuthenticationConfigurationItem extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,11 +42,11 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
     public GatewaySecurityTokenAuthenticationConfigurationItem(
             final TenantConfigurationManagement tenantConfigurationManagement, final VaadinMessageSource i18n,
             final SecurityTokenGenerator securityTokenGenerator, Binder<ProxySystemConfigWindow> binder) {
-        super(TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_ENABLED, tenantConfigurationManagement,
-                i18n);
         this.securityTokenGenerator = securityTokenGenerator;
         this.binder = binder;
-        super.init("label.configuration.auth.gatewaytoken");
+        this.setSpacing(false);
+        this.setMargin(false);
+        addComponent(new LabelBuilder().name(i18n.getMessage("label.configuration.auth.gatewaytoken")).buildLabel());
 
         detailLayout = new VerticalLayout();
         detailLayout.setMargin(false);
@@ -88,23 +87,4 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Abstrac
         binder.getBean().setGatewaySecurityToken(securityTokenGenerator.generateToken());
         binder.setBean(binder.getBean());
     }
-
-    @Override
-    public void configEnable() {
-        setDetailVisible(true);
-    }
-
-    @Override
-    public void configDisable() {
-        setDetailVisible(false);
-    }
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void undo() {
-    }
-
 }

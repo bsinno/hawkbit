@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
+package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
@@ -18,14 +18,12 @@ import com.vaadin.ui.VerticalLayout;
  * This class represents the UI item for the target security token section in
  * the authentication configuration view.
  */
-public class TargetSecurityTokenAuthenticationConfigurationItem extends VerticalLayout {
+public class ActionAutoCloseConfigurationItem extends VerticalLayout {
 
-    private static final long serialVersionUID = 1L;
-
-    public TargetSecurityTokenAuthenticationConfigurationItem(
-            final TenantConfigurationManagement tenantConfigurationManagement, final VaadinMessageSource i18n) {
+    public ActionAutoCloseConfigurationItem(TenantConfigurationManagement tenantConfigurationManagement, final VaadinMessageSource i18n) {
         this.setSpacing(false);
         this.setMargin(false);
-        addComponent(new LabelBuilder().name(i18n.getMessage("label.configuration.auth.targettoken")).buildLabel());
+        addComponent(new LabelBuilder().name(i18n.getMessage("label.configuration.repository.autoclose.action"))
+                .buildLabel());
     }
 }

@@ -17,11 +17,9 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
-import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
-import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
@@ -42,11 +40,11 @@ import com.vaadin.ui.themes.ValoTheme;
  * This class represents the UI item for configuring automatic action cleanup in
  * the Repository Configuration section of the System Configuration view.
  */
-public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantConfigurationItem {
+public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActionAutocleanupConfigurationItem.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActionAutoCleanupConfigurationItem.class);
 
     private static final int MAX_EXPIRY_IN_DAYS = 1000;
     public static final EnumSet<Status> EMPTY_STATUS_SET = EnumSet.noneOf(Status.class);
@@ -78,13 +76,14 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
      * @param binder
      * @param i18n
      */
-    public ActionAutocleanupConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
+    public ActionAutoCleanupConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
             Binder<ProxySystemConfigWindow> binder, final VaadinMessageSource i18n) {
-        super(TenantConfigurationKey.ACTION_CLEANUP_ENABLED, tenantConfigurationManagement, i18n);
         this.binder = binder;
-        super.init("label.configuration.repository.autocleanup.action");
-
         this.i18n = i18n;
+        this.setSpacing(false);
+        this.setMargin(false);
+        addComponent(new LabelBuilder().name(i18n.getMessage("label.configuration.repository.autocleanup.action"))
+                .buildLabel());
         container = new VerticalLayout();
         container.setSpacing(false);
         container.setMargin(false);
@@ -129,29 +128,6 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         }
     }
 
-    @Override
-    public void configEnable() {
-        setSettingsVisible(true);
-    }
-
-    @Override
-    public void configDisable() {
-        setSettingsVisible(false);
-    }
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public boolean isUserInputValid() {
-        return !actionExpiryInputBinding.validate(false).isError();
-    }
-
-    @Override
-    public void undo() {
-    }
-
     private Label newLabel(final String msgKey) {
         final Label label = new LabelBuilder().name(i18n.getMessage(msgKey)).buildLabel();
         label.setWidthUndefined();
@@ -164,7 +140,7 @@ public class ActionAutocleanupConfigurationItem extends AbstractBooleanTenantCon
         return layout;
     }
 
-    private void setSettingsVisible(final boolean visible) {
+    public void setSettingsVisible(final boolean visible) {
         if (visible) {
             addComponent(container);
         } else {

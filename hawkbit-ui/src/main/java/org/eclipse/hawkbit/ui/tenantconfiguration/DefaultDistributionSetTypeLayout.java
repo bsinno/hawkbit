@@ -24,6 +24,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.HasValue;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -32,8 +33,7 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * Default DistributionSet Panel.
  */
-public class DefaultDistributionSetTypeLayout extends BaseConfigurationView
-        implements ConfigurationItem.ConfigurationItemChangeListener {
+public class DefaultDistributionSetTypeLayout extends CustomComponent {
 
     private static final long serialVersionUID = 1L;
 
@@ -118,18 +118,6 @@ public class DefaultDistributionSetTypeLayout extends BaseConfigurationView
         } else {
             changeIcon.setVisible(false);
         }
-    }
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void undo() {
-    }
-
-    @Override
-    public void configurationHasChanged() {
     }
 
 }

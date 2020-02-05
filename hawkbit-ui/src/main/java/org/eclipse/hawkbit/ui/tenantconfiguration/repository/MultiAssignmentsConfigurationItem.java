@@ -9,10 +9,8 @@
 package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
-import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
@@ -23,7 +21,7 @@ import com.vaadin.ui.VerticalLayout;
  * This class represents the UI item for enabling /disabling the
  * Multi-Assignments feature as part of the repository configuration view.
  */
-public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConfigurationItem {
+public class MultiAssignmentsConfigurationItem extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,33 +43,18 @@ public class MultiAssignmentsConfigurationItem extends AbstractBooleanTenantConf
      */
     public MultiAssignmentsConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
             final VaadinMessageSource i18n, Binder<ProxySystemConfigWindow> binder) {
-        super(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED, tenantConfigurationManagement, i18n);
         this.i18n = i18n;
         this.binder = binder;
-        super.init(MSG_KEY_CHECKBOX);
+        this.setSpacing(false);
+        this.setMargin(false);
+        addComponent(new LabelBuilder().name(i18n.getMessage(MSG_KEY_CHECKBOX)).buildLabel());
         container = new VerticalLayout();
+        container.setSpacing(false);
+        container.setMargin(false);
         container.addComponent(newLabel(MSG_KEY_NOTICE));
         if (binder.getBean().isMultiAssignments()) {
             setSettingsVisible(true);
         }
-    }
-
-    @Override
-    public void configEnable() {
-        setSettingsVisible(true);
-    }
-
-    @Override
-    public void configDisable() {
-        setSettingsVisible(false);
-    }
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void undo() {
     }
 
     public void setSettingsVisible(final boolean visible) {

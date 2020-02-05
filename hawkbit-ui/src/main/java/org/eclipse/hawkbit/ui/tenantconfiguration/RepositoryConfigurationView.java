@@ -11,17 +11,16 @@ package org.eclipse.hawkbit.ui.tenantconfiguration;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.tenantconfiguration.generic.BooleanConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocloseConfigurationItem;
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem;
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCloseConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.MultiAssignmentsConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
@@ -31,8 +30,7 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * View to configure the authentication mode.
  */
-public class RepositoryConfigurationView extends BaseConfigurationView
-        implements ConfigurationGroup, ConfigurationItem.ConfigurationItemChangeListener {
+public class RepositoryConfigurationView extends CustomComponent {
 
     private static final String DIST_CHECKBOX_STYLE = "dist-checkbox-style";
 
@@ -42,9 +40,9 @@ public class RepositoryConfigurationView extends BaseConfigurationView
 
     private final UiProperties uiProperties;
 
-    private final ActionAutocloseConfigurationItem actionAutocloseConfigurationItem;
+    private final ActionAutoCloseConfigurationItem actionAutocloseConfigurationItem;
 
-    private final ActionAutocleanupConfigurationItem actionAutocleanupConfigurationItem;
+    private final ActionAutoCleanupConfigurationItem actionAutocleanupConfigurationItem;
 
     private final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem;
 
@@ -55,8 +53,8 @@ public class RepositoryConfigurationView extends BaseConfigurationView
     private final Binder<ProxySystemConfigWindow> binder;
 
     RepositoryConfigurationView(final VaadinMessageSource i18n, final UiProperties uiProperties,
-            final ActionAutocloseConfigurationItem actionAutocloseConfigurationItem,
-            final ActionAutocleanupConfigurationItem actionAutocleanupConfigurationItem,
+            final ActionAutoCloseConfigurationItem actionAutocloseConfigurationItem,
+            final ActionAutoCleanupConfigurationItem actionAutocleanupConfigurationItem,
             final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem,
             final Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
@@ -109,7 +107,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         multiAssignmentsCheckBox.addValueChangeListener(event -> {
             actionAutoCloseCheckBox.setEnabled(!event.getValue());
             actionAutocloseConfigurationItem.setEnabled(!event.getValue());
-            changeListener(event, multiAssignmentsConfigurationItem);
+            multiAssignmentsConfigurationItem.setSettingsVisible(event.getValue());
         });
         binder.bind(multiAssignmentsCheckBox, ProxySystemConfigWindow::isMultiAssignments,
                 ProxySystemConfigWindow::setMultiAssignments);
@@ -120,7 +118,7 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         actionAutoCleanupCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         actionAutoCleanupCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX);
         actionAutoCleanupCheckBox.addValueChangeListener(
-                event -> changeListener(event, actionAutocleanupConfigurationItem));
+                event -> actionAutocleanupConfigurationItem.setSettingsVisible(event.getValue()));
         binder.bind(actionAutoCleanupCheckBox, ProxySystemConfigWindow::isActionAutocleanup,
                 ProxySystemConfigWindow::setActionAutocleanup);
         gridLayout.addComponent(actionAutoCleanupCheckBox, 0, 2);
@@ -136,28 +134,9 @@ public class RepositoryConfigurationView extends BaseConfigurationView
         setCompositionRoot(rootPanel);
     }
 
-    private void changeListener(final ValueChangeEvent event, final BooleanConfigurationItem configurationItem) {
-        if (event.getValue().equals(Boolean.TRUE)) {
-            configurationItem.configEnable();
-        } else {
-            configurationItem.configDisable();
-        }
-    }
-
     public void disableMultipleAssignmentOption() {
         multiAssignmentsCheckBox.setEnabled(false);
         multiAssignmentsConfigurationItem.setEnabled(false);
     }
 
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void undo() {
-    }
-
-    @Override
-    public void configurationHasChanged() {
-    }
 }

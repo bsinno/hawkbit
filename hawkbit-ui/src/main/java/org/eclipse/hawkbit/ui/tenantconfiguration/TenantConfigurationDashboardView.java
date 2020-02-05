@@ -10,8 +10,8 @@ package org.eclipse.hawkbit.ui.tenantconfiguration;
 
 import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY;
 import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_STATUS;
-import static org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem.ACTION_STATUS_OPTIONS;
-import static org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem.EMPTY_STATUS_SET;
+import static org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.ACTION_STATUS_OPTIONS;
+import static org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.EMPTY_STATUS_SET;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -44,9 +44,9 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.AnonymousDownlo
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.CertificateAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.GatewaySecurityTokenAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.TargetSecurityTokenAuthenticationConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem.ActionStatusOption;
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocloseConfigurationItem;
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem;
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.ActionStatusOption;
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCloseConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.MultiAssignmentsConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.rollout.ApprovalConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -102,9 +102,9 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     private Button undoConfigurationBtn;
     private final SystemManagement systemManagement;
     private final ApprovalConfigurationItem approvalConfigurationItem;
-    private final ActionAutocloseConfigurationItem actionAutocloseConfigurationItem;
+    private final ActionAutoCloseConfigurationItem actionAutocloseConfigurationItem;
     private final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem;
-    private final ActionAutocleanupConfigurationItem actionAutocleanupConfigurationItem;
+    private final ActionAutoCleanupConfigurationItem actionAutocleanupConfigurationItem;
     private final TargetSecurityTokenAuthenticationConfigurationItem targetSecurityTokenAuthenticationConfigurationItem;
     private final TenantConfigurationManagement tenantConfigurationManagement;
     private final Binder<ProxySystemConfigWindow> binder;
@@ -128,11 +128,11 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         binder.setBean(populateAndGetSystemConfig());
         this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
                 tenantConfigurationManagement, i18n);
-        this.actionAutocloseConfigurationItem = new ActionAutocloseConfigurationItem(tenantConfigurationManagement,
+        this.actionAutocloseConfigurationItem = new ActionAutoCloseConfigurationItem(tenantConfigurationManagement,
                 i18n);
         this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
                 i18n, binder);
-        this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
+        this.actionAutocleanupConfigurationItem = new ActionAutoCleanupConfigurationItem(tenantConfigurationManagement,
                 binder, i18n);
         this.approvalConfigurationItem = new ApprovalConfigurationItem(tenantConfigurationManagement, i18n);
         this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(
@@ -169,11 +169,11 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     @PostConstruct
     public void init() {
         if (defaultDistributionSetTypeLayout.getComponentCount() > 0) {
-            configurationViews.add(defaultDistributionSetTypeLayout);
+            customComponents.add(defaultDistributionSetTypeLayout);
         }
-        configurationViews.add(repositoryConfigurationView);
+        customComponents.add(repositoryConfigurationView);
         customComponents.add(rolloutConfigurationView);
-        configurationViews.add(authenticationConfigurationView);
+        customComponents.add(authenticationConfigurationView);
         customComponents.add(pollingConfigurationView);
         if (customConfigurationViews != null) {
             configurationViews.addAll(
@@ -230,14 +230,12 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         final TenantConfigurationValue<String> pollingTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
                 TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class);
         configBean.setPollingTime(!pollingTimeConfValue.isGlobal());
-        configBean.setPollingTimeDuration(
-                DurationHelper.formattedStringToDuration(pollingTimeConfValue.getValue()));
+        configBean.setPollingTimeDuration(DurationHelper.formattedStringToDuration(pollingTimeConfValue.getValue()));
 
         final TenantConfigurationValue<String> overdueTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
                 TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class);
         configBean.setPollingOverdue(!overdueTimeConfValue.isGlobal());
-        configBean.setPollingOverdueDuration(
-                DurationHelper.formattedStringToDuration(overdueTimeConfValue.getValue()));
+        configBean.setPollingOverdueDuration(DurationHelper.formattedStringToDuration(overdueTimeConfValue.getValue()));
 
         return configBean;
     }
@@ -342,6 +340,21 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
                     configWindowBean.getCaRootAuthority() != null ? configWindowBean.getCaRootAuthority() : "";
             writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, value);
         }
+
+        if (configWindowBean.isPollingTime()) {
+            tenantConfigurationManagement.addOrUpdateConfiguration(TenantConfigurationKey.POLLING_TIME_INTERVAL,
+                    DurationHelper.durationToFormattedString(configWindowBean.getPollingTimeDuration()));
+        } else {
+            tenantConfigurationManagement.deleteConfiguration(TenantConfigurationKey.POLLING_TIME_INTERVAL);
+        }
+
+        if (configWindowBean.isPollingOverdue()) {
+            tenantConfigurationManagement.addOrUpdateConfiguration(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL,
+                    DurationHelper.durationToFormattedString(configWindowBean.getPollingOverdueDuration()));
+        } else {
+            tenantConfigurationManagement.deleteConfiguration(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL);
+        }
+
         populateAndGetSystemConfig();
     }
 
