@@ -8,19 +8,17 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class TypeFilterChangedEventPayload<T> {
+public class TypeFilterChangedEventPayload<T> extends LayoutAwareEventPayload {
 
     private final TypeFilterChangedEventType typeFilterChangedEventType;
     private final T type;
-    private final Layout layout;
-    private final View view;
 
     public TypeFilterChangedEventPayload(final TypeFilterChangedEventType typeFilterChangedEventType, final T type,
             final Layout layout, final View view) {
+        super(layout, view);
+
         this.typeFilterChangedEventType = typeFilterChangedEventType;
         this.type = type;
-        this.layout = layout;
-        this.view = view;
     }
 
     public TypeFilterChangedEventType getTypeFilterChangedEventType() {
@@ -29,14 +27,6 @@ public class TypeFilterChangedEventPayload<T> {
 
     public T getType() {
         return type;
-    }
-
-    public Layout getLayout() {
-        return layout;
-    }
-
-    public View getView() {
-        return view;
     }
 
     public enum TypeFilterChangedEventType {

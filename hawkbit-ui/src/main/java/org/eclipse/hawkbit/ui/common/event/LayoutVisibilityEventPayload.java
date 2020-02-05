@@ -8,27 +8,17 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class LayoutVisibilityEventPayload {
+public class LayoutVisibilityEventPayload extends LayoutAwareEventPayload {
     private final VisibilityType visibilityType;
-    private final Layout layout;
-    private final View view;
 
     public LayoutVisibilityEventPayload(final VisibilityType visibilityType, final Layout layout, final View view) {
+        super(layout, view);
+
         this.visibilityType = visibilityType;
-        this.layout = layout;
-        this.view = view;
     }
 
     public VisibilityType getVisibilityType() {
         return visibilityType;
-    }
-
-    public Layout getLayout() {
-        return layout;
-    }
-
-    public View getView() {
-        return view;
     }
 
     public enum VisibilityType {

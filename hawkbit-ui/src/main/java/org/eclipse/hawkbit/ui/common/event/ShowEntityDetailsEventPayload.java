@@ -8,12 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class ShowEntityDetailsEventPayload {
+public class ShowEntityDetailsEventPayload extends ViewAwareEventPayload {
     private final Class<?> entityType;
     private final Long entityId;
     private final String entityName;
     private final String parentEntityName;
-    private final View view;
 
     public ShowEntityDetailsEventPayload(final Class<?> entityType, final Long entityId, final String entityName,
             final View view) {
@@ -22,11 +21,12 @@ public class ShowEntityDetailsEventPayload {
 
     public ShowEntityDetailsEventPayload(final Class<?> entityType, final Long entityId, final String entityName,
             final String parentEntityName, final View view) {
+        super(view);
+
         this.entityType = entityType;
         this.entityId = entityId;
         this.entityName = entityName;
         this.parentEntityName = parentEntityName;
-        this.view = view;
     }
 
     public Class<?> getEntityType() {
@@ -43,9 +43,5 @@ public class ShowEntityDetailsEventPayload {
 
     public String getParentEntityName() {
         return parentEntityName;
-    }
-
-    public View getView() {
-        return view;
     }
 }
