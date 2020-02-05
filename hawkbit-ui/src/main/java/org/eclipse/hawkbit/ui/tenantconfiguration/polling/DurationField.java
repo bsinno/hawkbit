@@ -88,8 +88,6 @@ public class DurationField extends DateTimeField {
     @Override
     protected Result<LocalDateTime> handleUnparsableDateString(final String value) {
         try {
-            final LocalDateTime parsedDate = LocalDateTime.ofInstant(durationFormat.parse(value).toInstant(),
-                    ZONEID_UTC);
             return Result.ok(LocalDateTime.ofInstant(durationFormat.parse(value).toInstant(), ZONEID_UTC));
         } catch (final ParseException e) {
             try {
