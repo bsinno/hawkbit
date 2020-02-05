@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.push.HawkbitEventProvider.EntityModifiedEventPayloadIdentifier;
 
 public class EntityModifiedEventPayload {
 
@@ -71,6 +72,17 @@ public class EntityModifiedEventPayload {
 
     public Collection<Long> getEntityIds() {
         return entityIds;
+    }
+
+    public static EntityModifiedEventPayload of(final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier,
+            final Long parentId, final Collection<Long> entityIds) {
+        return new EntityModifiedEventPayload(eventPayloadIdentifier.getModifiedEventType(),
+                eventPayloadIdentifier.getParentType(), parentId, eventPayloadIdentifier.getEntityType(), entityIds);
+    }
+
+    public static EntityModifiedEventPayload of(final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier,
+            final Collection<Long> entityIds) {
+        return of(eventPayloadIdentifier, null, entityIds);
     }
 
     public enum EntityModifiedEventType {

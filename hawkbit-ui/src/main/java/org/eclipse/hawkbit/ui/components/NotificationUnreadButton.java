@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher.EntityModifiedEventPayloadIdentifier;
+import org.eclipse.hawkbit.ui.push.HawkbitEventProvider.EntityModifiedEventPayloadIdentifier;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,12 +162,9 @@ public class NotificationUnreadButton extends Button {
     }
 
     private EntityModifiedEventPayload buildEntityModifiedEventPayload(
-            final Entry<EntityModifiedEventPayloadIdentifier, Collection<Long>> remotelyOriginatedEvent) {
-        final EntityModifiedEventPayloadIdentifier eventIdentifier = remotelyOriginatedEvent.getKey();
-        final Collection<Long> entityIds = remotelyOriginatedEvent.getValue();
-
-        return new EntityModifiedEventPayload(eventIdentifier.getModifiedEventType(), eventIdentifier.getParentType(),
-                eventIdentifier.getEntityType(), entityIds);
+            final Entry<EntityModifiedEventPayloadIdentifier, Collection<Long>> remotelyOriginatedEventEntry) {
+        return EntityModifiedEventPayload.of(remotelyOriginatedEventEntry.getKey(),
+                remotelyOriginatedEventEntry.getValue());
     }
 
     private void clear() {

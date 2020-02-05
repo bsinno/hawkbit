@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.push.event;
 
+import org.eclipse.hawkbit.repository.event.entity.EntityUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.RemoteIdEvent;
 import org.eclipse.hawkbit.repository.model.Rollout;
 
@@ -16,7 +17,7 @@ import org.eclipse.hawkbit.repository.model.Rollout;
  * been changed.
  * 
  */
-public class RolloutChangedEvent extends RemoteIdEvent {
+public class RolloutChangedEvent extends RemoteIdEvent implements EntityUpdatedEvent {
     private static final long serialVersionUID = 1L;
 
     /**

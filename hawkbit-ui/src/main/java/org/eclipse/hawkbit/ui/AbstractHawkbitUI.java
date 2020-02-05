@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.ui.menu.DashboardEvent.PostViewChangeEvent;
 import org.eclipse.hawkbit.ui.menu.DashboardMenu;
 import org.eclipse.hawkbit.ui.menu.DashboardMenuItem;
 import org.eclipse.hawkbit.ui.push.EventPushStrategy;
+import org.eclipse.hawkbit.ui.push.UIEventProvider;
 import org.eclipse.hawkbit.ui.themes.HawkbitTheme;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -75,9 +76,10 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
     private final transient RemoteEventsListener remoteEventsListener;
 
     protected AbstractHawkbitUI(final EventPushStrategy pushStrategy, final UIEventBus eventBus,
-            final SpringViewProvider viewProvider, final ApplicationContext context, final DashboardMenu dashboardMenu,
-            final ErrorView errorview, final NotificationUnreadButton notificationUnreadButton,
-            final UiProperties uiProperties, final VaadinMessageSource i18n) {
+            final UIEventProvider eventProvider, final SpringViewProvider viewProvider,
+            final ApplicationContext context, final DashboardMenu dashboardMenu, final ErrorView errorview,
+            final NotificationUnreadButton notificationUnreadButton, final UiProperties uiProperties,
+            final VaadinMessageSource i18n) {
         this.pushStrategy = pushStrategy;
         this.viewProvider = viewProvider;
         this.context = context;
@@ -87,7 +89,7 @@ public abstract class AbstractHawkbitUI extends UI implements DetachListener {
         this.uiProperties = uiProperties;
         this.i18n = i18n;
 
-        this.remoteEventsListener = new RemoteEventsListener(eventBus, notificationUnreadButton);
+        this.remoteEventsListener = new RemoteEventsListener(eventBus, eventProvider, notificationUnreadButton);
     }
 
     @Override
