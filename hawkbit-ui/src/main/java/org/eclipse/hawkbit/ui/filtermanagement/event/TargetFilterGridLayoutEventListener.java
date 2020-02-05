@@ -11,9 +11,10 @@ package org.eclipse.hawkbit.ui.filtermanagement.event;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
-import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGridLayout;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -61,7 +62,11 @@ public class TargetFilterGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetFilterModified(final TargetFilterModifiedEventPayload payload) {
+        private void onTargetFilterModified(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyTargetFilterQuery.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             targetFilterGridLayout.refreshGrid();
         }
     }

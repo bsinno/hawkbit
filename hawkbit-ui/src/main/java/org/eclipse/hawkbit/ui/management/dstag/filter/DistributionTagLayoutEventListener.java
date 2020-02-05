@@ -11,9 +11,14 @@ package org.eclipse.hawkbit.ui.management.dstag.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload.ActionsVisibilityType;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -39,16 +44,23 @@ public class DistributionTagLayoutEventListener {
     private class FilterButtonsActionsChangedListener {
 
         public FilterButtonsActionsChangedListener() {
-            eventBus.subscribe(this, EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED);
+            eventBus.subscribe(this, CommandTopics.CHANGE_ACTIONS_VISIBILITY);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionTagFilterHeader.class)
-        private void onDsTagEvent(final FilterButtonsActionsChangedEventPayload eventPayload) {
-            if (eventPayload == FilterButtonsActionsChangedEventPayload.HIDE_ALL) {
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onActionsVisibilityEvent(final ActionsVisibilityEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT
+                    || eventPayload.getLayout() != distributionTagLayout.getLayout()) {
+                return;
+            }
+
+            final ActionsVisibilityType actionsVisibilityType = eventPayload.getActionsVisibilityType();
+
+            if (actionsVisibilityType == ActionsVisibilityType.HIDE_ALL) {
                 distributionTagLayout.hideFilterButtonsActionIcons();
-            } else if (eventPayload == FilterButtonsActionsChangedEventPayload.SHOW_EDIT) {
+            } else if (actionsVisibilityType == ActionsVisibilityType.SHOW_EDIT) {
                 distributionTagLayout.showFilterButtonsEditIcon();
-            } else if (eventPayload == FilterButtonsActionsChangedEventPayload.SHOW_DELETE) {
+            } else if (actionsVisibilityType == ActionsVisibilityType.SHOW_DELETE) {
                 distributionTagLayout.showFilterButtonsDeleteIcon();
             }
         }
@@ -61,7 +73,12 @@ public class DistributionTagLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsTagEvent(final DsTagModifiedEventPayload eventPayload) {
+        private void onDsTagEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getParentType())
+                    || !ProxyTag.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             distributionTagLayout.refreshFilterButtons();
         }
     }

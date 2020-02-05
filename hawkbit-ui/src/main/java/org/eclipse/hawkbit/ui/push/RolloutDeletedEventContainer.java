@@ -17,6 +17,8 @@ import org.eclipse.hawkbit.repository.event.remote.RolloutDeletedEvent;
  *
  */
 public class RolloutDeletedEventContainer implements EventContainer<RolloutDeletedEvent> {
+    private static final String I18N_UNREAD_NOTIFICATION_UNREAD_MESSAGE = "rollout.deleted.event.container.notifcation.message";
+
     private final List<RolloutDeletedEvent> events;
 
     RolloutDeletedEventContainer(final List<RolloutDeletedEvent> events) {
@@ -28,4 +30,8 @@ public class RolloutDeletedEventContainer implements EventContainer<RolloutDelet
         return events;
     }
 
+    @Override
+    public String getUnreadNotificationMessageKey() {
+        return I18N_UNREAD_NOTIFICATION_UNREAD_MESSAGE;
+    }
 }

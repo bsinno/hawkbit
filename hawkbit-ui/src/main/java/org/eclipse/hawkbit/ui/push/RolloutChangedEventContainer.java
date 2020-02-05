@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH, Germany. All rights reserved.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,14 +12,10 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 
-/**
- * EventHolder for {@link RolloutChangedEvent}s.
- *
- */
-public class RolloutChangeEventContainer implements EventContainer<RolloutChangedEvent> {
+public class RolloutChangedEventContainer implements EventContainer<RolloutChangedEvent> {
     private final List<RolloutChangedEvent> events;
 
-    RolloutChangeEventContainer(final List<RolloutChangedEvent> events) {
+    RolloutChangedEventContainer(final List<RolloutChangedEvent> events) {
         this.events = events;
     }
 

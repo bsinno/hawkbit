@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.rollout;
 
-import java.util.Optional;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -21,27 +19,23 @@ import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.rollout.rollout.RolloutGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgroup.RolloutGroupGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets.RolloutGroupTargetGridLayout;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -50,154 +44,107 @@ import com.vaadin.ui.VerticalLayout;
 @UIScope
 @SpringView(name = RolloutView.VIEW_NAME, ui = AbstractHawkbitUI.class)
 public class RolloutView extends VerticalLayout implements View {
-
-    private static final long serialVersionUID = -6199789714170913988L;
+    private static final long serialVersionUID = 1L;
 
     public static final String VIEW_NAME = "rollout";
 
-    private final SpPermissionChecker permChecker;
+    private final RolloutGridLayout rolloutsLayout;
+    private final RolloutGroupGridLayout rolloutGroupsLayout;
+    private final RolloutGroupTargetGridLayout rolloutGroupTargetsLayout;
+    private final RolloutManagementUIState uiState;
 
-    private final RolloutGridLayout rolloutListView;
-
-    private final RolloutGroupGridLayout rolloutGroupsListView;
-
-    private final RolloutGroupTargetGridLayout rolloutGroupTargetsListView;
-
-    private final RolloutUIState rolloutUIState;
-
-    private final transient RolloutManagement rolloutManagement;
-
-    private final transient EventBus.UIEventBus eventBus;
+    private final transient RolloutViewEventListener eventListener;
 
     @Autowired
-    RolloutView(final SpPermissionChecker permissionChecker, final RolloutUIState rolloutUIState,
+    RolloutView(final SpPermissionChecker permissionChecker, final RolloutManagementUIState uiState,
             final UIEventBus eventBus, final RolloutManagement rolloutManagement,
             final RolloutGroupManagement rolloutGroupManagement, final TargetManagement targetManagement,
             final UINotification uiNotification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final VaadinMessageSource i18n, final TargetFilterQueryManagement targetFilterQueryManagement,
             final QuotaManagement quotaManagement, final TenantConfigurationManagement tenantConfigManagement,
             final DistributionSetManagement distributionSetManagement) {
-        this.permChecker = permissionChecker;
-        this.rolloutManagement = rolloutManagement;
+        this.uiState = uiState;
 
-        this.rolloutListView = new RolloutGridLayout(permissionChecker, rolloutUIState, eventBus, rolloutManagement,
-                targetManagement, uiNotification, uiProperties, entityFactory, i18n, targetFilterQueryManagement,
-                rolloutGroupManagement, quotaManagement, tenantConfigManagement, distributionSetManagement);
-        this.rolloutGroupsListView = new RolloutGroupGridLayout(i18n, eventBus, rolloutGroupManagement, rolloutUIState,
-                permissionChecker);
-        this.rolloutGroupTargetsListView = new RolloutGroupTargetGridLayout(eventBus, i18n, rolloutUIState,
-                rolloutGroupManagement);
-        this.rolloutUIState = rolloutUIState;
-        this.eventBus = eventBus;
+        this.rolloutsLayout = new RolloutGridLayout(permissionChecker, uiState.getRolloutUIState(), eventBus,
+                rolloutManagement, targetManagement, uiNotification, uiProperties, entityFactory, i18n,
+                targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, tenantConfigManagement,
+                distributionSetManagement);
+        this.rolloutGroupsLayout = new RolloutGroupGridLayout(i18n, eventBus, rolloutGroupManagement,
+                uiState.getGroupUIState(), permissionChecker);
+        this.rolloutGroupTargetsLayout = new RolloutGroupTargetGridLayout(eventBus, i18n, rolloutGroupManagement,
+                uiState.getGroupTargetUIState());
+
+        this.eventListener = new RolloutViewEventListener(this, eventBus);
     }
 
     @PostConstruct
     void init() {
-        setSpacing(false);
-        setMargin(false);
-        setSizeFull();
-        if (!(rolloutUIState.isShowRollOuts() || rolloutUIState.isShowRolloutGroups()
-                || rolloutUIState.isShowRolloutGroupTargets())) {
-            rolloutUIState.setShowRollOuts(true);
-        }
         buildLayout();
-        eventBus.subscribe(this);
+        restoreState();
     }
 
     @PreDestroy
     void destroy() {
-        eventBus.unsubscribe(this);
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final RolloutEvent event) {
-        if (event == RolloutEvent.SHOW_ROLLOUTS) {
-            rolloutUIState.setShowRollOuts(true);
-            rolloutUIState.setShowRolloutGroups(false);
-            rolloutUIState.setShowRolloutGroupTargets(false);
-            buildLayout();
-        } else if (event == RolloutEvent.SHOW_ROLLOUT_GROUPS) {
-            rolloutUIState.setShowRollOuts(false);
-            rolloutUIState.setShowRolloutGroups(true);
-            rolloutUIState.setShowRolloutGroupTargets(false);
-            buildLayout();
-        } else if (event == RolloutEvent.SHOW_ROLLOUT_GROUP_TARGETS) {
-            rolloutUIState.setShowRollOuts(false);
-            rolloutUIState.setShowRolloutGroups(false);
-            rolloutUIState.setShowRolloutGroupTargets(true);
-            buildLayout();
-        }
+        eventListener.unsubscribeListeners();
     }
 
     private void buildLayout() {
-        if (permChecker.hasRolloutReadPermission() && rolloutUIState.isShowRollOuts()) {
+        setSpacing(false);
+        setMargin(false);
+        setSizeFull();
+
+        addComponent(rolloutsLayout);
+        setComponentAlignment(rolloutsLayout, Alignment.TOP_CENTER);
+        setExpandRatio(rolloutsLayout, 1.0F);
+
+        rolloutGroupsLayout.setVisible(false);
+        addComponent(rolloutGroupsLayout);
+        setComponentAlignment(rolloutGroupsLayout, Alignment.TOP_CENTER);
+        setExpandRatio(rolloutGroupsLayout, 1.0F);
+
+        rolloutGroupTargetsLayout.setVisible(false);
+        addComponent(rolloutGroupTargetsLayout);
+        setComponentAlignment(rolloutGroupTargetsLayout, Alignment.TOP_CENTER);
+        setExpandRatio(rolloutGroupTargetsLayout, 1.0F);
+    }
+
+    void showRolloutGroupTargetsListView() {
+        uiState.setCurrentLayout(Layout.ROLLOUT_GROUP_TARGET_LIST);
+        rolloutsLayout.setVisible(false);
+        rolloutGroupsLayout.setVisible(false);
+        rolloutGroupTargetsLayout.setVisible(true);
+    }
+
+    void showRolloutGroupListView() {
+        uiState.setCurrentLayout(Layout.ROLLOUT_GROUP_LIST);
+        rolloutsLayout.setVisible(false);
+        rolloutGroupTargetsLayout.setVisible(false);
+        rolloutGroupsLayout.setVisible(true);
+    }
+
+    void showRolloutListView() {
+        uiState.setCurrentLayout(Layout.ROLLOUT_LIST);
+        rolloutGroupsLayout.setVisible(false);
+        rolloutGroupTargetsLayout.setVisible(false);
+        rolloutsLayout.setVisible(true);
+    }
+
+    private void restoreState() {
+        final Layout layout = uiState.getCurrentLayout().orElse(Layout.ROLLOUT_LIST);
+        switch (layout) {
+        case ROLLOUT_LIST:
             showRolloutListView();
-        } else if (permChecker.hasRolloutReadPermission() && rolloutUIState.isShowRolloutGroups()) {
+            break;
+        case ROLLOUT_GROUP_LIST:
             showRolloutGroupListView();
-        } else if (permChecker.hasRolloutTargetsReadPermission() && rolloutUIState.isShowRolloutGroupTargets()) {
+            break;
+        case ROLLOUT_GROUP_TARGET_LIST:
             showRolloutGroupTargetsListView();
+            break;
+        default:
+            break;
         }
+        rolloutGroupsLayout.restoreState();
+        rolloutGroupTargetsLayout.restoreState();
     }
-
-    private void showRolloutGroupTargetsListView() {
-        if (isRolloutDeleted()) {
-            showRolloutListView();
-            return;
-        }
-
-        rolloutGroupTargetsListView.setVisible(true);
-        if (rolloutListView.isVisible()) {
-            rolloutListView.setVisible(false);
-        }
-        if (rolloutGroupsListView.isVisible()) {
-            rolloutGroupsListView.setVisible(false);
-        }
-        addComponent(rolloutGroupTargetsListView);
-        setExpandRatio(rolloutGroupTargetsListView, 1.0F);
-    }
-
-    private void showRolloutGroupListView() {
-        if (isRolloutDeleted()) {
-            showRolloutListView();
-            return;
-        }
-
-        rolloutGroupsListView.setVisible(true);
-        if (rolloutListView.isVisible()) {
-            rolloutListView.setVisible(false);
-        }
-        if (rolloutGroupTargetsListView.isVisible()) {
-            rolloutGroupTargetsListView.setVisible(false);
-        }
-        addComponent(rolloutGroupsListView);
-        setExpandRatio(rolloutGroupsListView, 1.0F);
-    }
-
-    private boolean isRolloutDeleted() {
-        final Optional<Long> rolloutIdInState = rolloutUIState.getRolloutId();
-        if (!rolloutIdInState.isPresent()) {
-            return true;
-        }
-
-        final Optional<Rollout> rollout = rolloutManagement.get(rolloutIdInState.get());
-        return !rollout.isPresent() || rollout.get().isDeleted();
-    }
-
-    private void showRolloutListView() {
-        rolloutListView.setVisible(true);
-        if (rolloutGroupsListView.isVisible()) {
-            rolloutGroupsListView.setVisible(false);
-        }
-        if (rolloutGroupTargetsListView.isVisible()) {
-            rolloutGroupTargetsListView.setVisible(false);
-        }
-        addComponent(rolloutListView);
-        setExpandRatio(rolloutListView, 1.0F);
-    }
-
-    @Override
-    public void enter(final ViewChangeEvent event) {
-        // This view is constructed in the init() method()
-    }
-
 }

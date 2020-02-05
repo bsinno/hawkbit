@@ -27,7 +27,7 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -171,8 +171,8 @@ public class SwModulesToDistributionSetAssignmentSupport
         dsManagement.assignSoftwareModules(ds.getId(), swModuleIdsToAssign);
 
         notification.displaySuccess(i18n.getMessage("message.software.assignment", swModuleIdsToAssign.size()));
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ds.getId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, ds.getId()));
     }
 
     @Override

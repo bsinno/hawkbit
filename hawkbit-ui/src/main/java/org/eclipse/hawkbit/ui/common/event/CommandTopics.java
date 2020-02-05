@@ -9,14 +9,13 @@
 package org.eclipse.hawkbit.ui.common.event;
 
 public final class CommandTopics {
-    // public static final String CHANGE_LAYOUT_VISIBILITY =
-    // "changeLayoutVisibility";
-    // public static final String SHOW_CREATE_ENTITY = "showCreateEntity";
-    // public static final String SHOW_EDIT_ENTITY = "showEditEntity";
-    // public static final String SHOW_LIST_ENTITY = "showListEntity";
-
     public static final String CHANGE_LAYOUT_VISIBILITY = "changeLayoutVisibility";
+    public static final String RESIZE_LAYOUT = "resizeLayout";
+
     public static final String SHOW_ENTITY_FORM_LAYOUT = "showEntityForm";
+    public static final String SHOW_ENTITY_DETAILS_LAYOUT = "showEntityDetails";
+
+    public static final String CHANGE_ACTIONS_VISIBILITY = "changeActionsVisibility";
 
     private CommandTopics() {
     }

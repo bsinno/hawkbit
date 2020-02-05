@@ -13,9 +13,15 @@ import java.util.Arrays;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
@@ -56,8 +62,7 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
         this.smWindowBuilder = smWindowBuilder;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.SW_MODULE_SEARCH_TEXT_FIELD,
-                UIComponentIdProvider.SW_MODULE_SEARCH_RESET_ICON, this::getSearchTextFromUiState, this::searchBy,
-                this::resetSearchText);
+                UIComponentIdProvider.SW_MODULE_SEARCH_RESET_ICON, this::getSearchTextFromUiState, this::searchBy);
         this.filterButtonsHeaderSupport = new FilterButtonsHeaderSupport(i18n, UIComponentIdProvider.SHOW_SM_TYPE_ICON,
                 this::showFilterButtonsLayout, this::onLoadIsShowFilterButtonDisplayed);
         // TODO: consider moving permission check to header support or parent
@@ -86,20 +91,15 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     }
 
     private void searchBy(final String newSearchText) {
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this,
+                new SearchFilterEventPayload(newSearchText, Layout.SM_LIST, View.UPLOAD));
 
         smGridLayoutUiState.setSearchFilter(newSearchText);
     }
 
-    // TODO: check if needed or can be done by searchBy
-    private void resetSearchText() {
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, "");
-
-        smGridLayoutUiState.setSearchFilter(null);
-    }
-
     private void showFilterButtonsLayout() {
-        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this, LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN);
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.SM_TYPE_FILTER, View.UPLOAD));
 
         smTypeFilterLayoutUiState.setHidden(false);
     }
@@ -121,7 +121,8 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     }
 
     private void maximizeTable() {
-        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
+                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, Layout.SM_LIST, View.UPLOAD));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.hideAddIcon();
@@ -131,7 +132,8 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     }
 
     private void minimizeTable() {
-        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
+                new LayoutResizeEventPayload(ResizeType.MINIMIZE, Layout.SM_LIST, View.UPLOAD));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.showAddIcon();

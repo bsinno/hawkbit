@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.repository.model.Type;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -121,7 +122,8 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
             // !important is needed because we are overriding valo theme here
             // (alternatively we could provide more specific selector)
             return String.format(
-                    "addStyleRule(stylesheet, '.%1$s, .%1$s > td, .%1$s .v-grid-cell', 'background-color:%2$s !important;')",
+                    "addStyleRule(stylesheet, '.%1$s, .%1$s > td, .%1$s .v-grid-cell', "
+                            + "'background-color:%2$s !important; background-image: none !important;')",
                     typeClass, typeColor);
         }).collect(Collectors.joining(";"));
     }
@@ -159,5 +161,9 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+    }
+
+    public Layout getLayout() {
+        return Layout.SM_TYPE_FILTER;
     }
 }

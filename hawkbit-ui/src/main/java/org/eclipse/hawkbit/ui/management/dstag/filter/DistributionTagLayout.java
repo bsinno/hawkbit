@@ -19,12 +19,9 @@ import org.eclipse.hawkbit.repository.model.DistributionSetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -47,7 +44,6 @@ public class DistributionTagLayout extends AbstractFilterLayout {
     private final transient TagToProxyTagMapper<DistributionSetTag> dsTagMapper;
 
     private final DistributionTagFilterHeader distributionTagFilterHeader;
-    private final Button noTagButton;
     private final DistributionTagButtons distributionTagButtons;
 
     private final DistributionTagLayoutUiState distributionTagLayoutUiState;
@@ -82,8 +78,6 @@ public class DistributionTagLayout extends AbstractFilterLayout {
         this.dsTagMapper = new TagToProxyTagMapper<>();
         this.distributionTagLayoutUiState = distributionTagLayoutUiState;
 
-        this.noTagButton = buildNoTagButton();
-
         final DsTagWindowBuilder dsTagWindowBuilder = new DsTagWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, distributionSetTagManagement);
 
@@ -98,29 +92,6 @@ public class DistributionTagLayout extends AbstractFilterLayout {
         buildLayout();
     }
 
-    // TODO: remove duplication with MultipleTargetFilter
-    private Button buildNoTagButton() {
-        final Button noTag = SPUIComponentProvider.getButton(
-                SPUIDefinitions.DISTRIBUTION_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
-                i18n.getMessage(UIMessageIdProvider.LABEL_NO_TAG),
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
-                SPUITagButtonStyle.class);
-
-        final ProxyTag dummyNoTag = new ProxyTag();
-        dummyNoTag.setNoTag(true);
-
-        noTag.addClickListener(
-                event -> distributionTagButtons.getFilterButtonClickBehaviour().processFilterClick(dummyNoTag));
-
-        // TODO
-        // if
-        // (managementUIState.getDistributionTableFilters().isNoTagSelected()) {
-        // distributionTagButtons.getFilterButtonClickBehaviour().setDefaultClickedButton(noTagButton);
-        // }
-
-        return noTag;
-    }
-
     @Override
     protected DistributionTagFilterHeader getFilterHeader() {
         return distributionTagFilterHeader;
@@ -130,6 +101,7 @@ public class DistributionTagLayout extends AbstractFilterLayout {
     protected ComponentContainer getFilterContent() {
         final VerticalLayout filterButtonsLayout = wrapFilterContent(distributionTagButtons);
 
+        final Button noTagButton = distributionTagButtons.getNoTagButton();
         filterButtonsLayout.addComponent(noTagButton, 0);
         filterButtonsLayout.setComponentAlignment(noTagButton, Alignment.TOP_LEFT);
 
@@ -169,5 +141,9 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+    }
+
+    public Layout getLayout() {
+        return Layout.DS_TAG_FILTER;
     }
 }

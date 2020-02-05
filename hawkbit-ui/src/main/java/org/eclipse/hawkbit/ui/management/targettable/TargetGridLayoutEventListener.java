@@ -9,21 +9,24 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
-import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterButtons;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -61,8 +64,12 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onTargetEvent(final SelectionChangedEventPayload<ProxyTarget> eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 targetGridLayout.onTargetChanged(eventPayload.getEntity());
             } else {
@@ -77,9 +84,13 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetGridHeader.class)
-        private void onTargetEvent(final String searchFilter) {
-            targetGridLayout.filterGridBySearch(searchFilter);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != targetGridLayout.getLayout()) {
+                return;
+            }
+
+            targetGridLayout.filterGridBySearch(eventPayload.getFilter());
         }
     }
 
@@ -101,9 +112,13 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.TAG_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
-        private void onTargetTagEvent(final Collection<String> eventPayload) {
-            targetGridLayout.filterGridByTags(eventPayload);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetTagEvent(final TagFilterChangedEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_TAG_FILTER) {
+                return;
+            }
+
+            targetGridLayout.filterGridByTags(eventPayload.getTagNames());
         }
     }
 
@@ -113,9 +128,13 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.NO_TAG_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = TargetTagFilterButtons.class)
-        private void onTargetNoTagEvent(final Boolean eventPayload) {
-            targetGridLayout.filterGridByNoTag(eventPayload);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetNoTagEvent(final NoTagFilterChangedEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_TAG_FILTER) {
+                return;
+            }
+
+            targetGridLayout.filterGridByNoTag(eventPayload.getIsNoTagActive());
         }
     }
 
@@ -166,7 +185,11 @@ public class TargetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final TargetModifiedEventPayload eventPayload) {
+        private void onTargetEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyTarget.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             targetGridLayout.refreshGrid();
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the
@@ -177,7 +200,12 @@ public class TargetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetTagEvent(final TargetTagModifiedEventPayload eventPayload) {
+        private void onTargetTagEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyTarget.class.equals(eventPayload.getParentType())
+                    || !ProxyTag.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             targetGridLayout.onTargetTagsModified(eventPayload.getEntityIds(),
                     eventPayload.getEntityModifiedEventType());
         }

@@ -19,6 +19,9 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 public class RolloutGroupToProxyRolloutGroupMapper
         extends AbstractNamedEntityToProxyNamedEntityMapper<ProxyRolloutGroup, RolloutGroup> {
 
+    public static ProxyRolloutGroup mapGroup(final RolloutGroup group) {
+        return new RolloutGroupToProxyRolloutGroupMapper().map(group);
+    }
     @Override
     public ProxyRolloutGroup map(final RolloutGroup rolloutGroup) {
         final ProxyRolloutGroup proxyRolloutGroup = new ProxyRolloutGroup();

@@ -21,16 +21,17 @@ import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.distributions.DistributionsView;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -91,8 +92,8 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
 
         setResizeSupport(new SwModuleResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, DistributionsView.VIEW_NAME,
-                this::updateLastSelectedSmUiState));
+        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, Layout.SM_LIST,
+                View.DISTRIBUTIONS, this::updateLastSelectedSmUiState));
         if (swModuleGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -131,8 +132,8 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
 
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, swModuleToBeDeletedIds));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_REMOVED, ProxySoftwareModule.class, swModuleToBeDeletedIds));
     }
 
     private void initMasterDsStyleGenerator() {
@@ -167,8 +168,15 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     }
 
     public void updateMasterEntityFilter(final Long masterEntityId) {
-        smFilter.setLastSelectedDistributionId(masterEntityId);
-        getFilterDataProvider().setFilter(smFilter);
+        if ((masterEntityId == null && getMasterEntityFilter() != null)
+                || (masterEntityId != null && softwareModuleManagement.countByAssignedTo(masterEntityId) > 0)) {
+            smFilter.setLastSelectedDistributionId(masterEntityId);
+            getFilterDataProvider().setFilter(smFilter);
+        }
+    }
+
+    public Long getMasterEntityFilter() {
+        return smFilter.getLastSelectedDistributionId();
     }
 
     /**

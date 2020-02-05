@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.management.event.TargetFilterEvent;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -166,7 +165,8 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         dropAreaLayout.addComponent(filterLabelClose);
         dropAreaLayout.setExpandRatio(filteredDistLabel, 1.0F);
 
-        eventBus.publish(this, TargetFilterEvent.FILTER_BY_DISTRIBUTION);
+        // TODO: implement
+        // eventBus.publish(this, TargetFilterEvent.FILTER_BY_DISTRIBUTION);
     }
 
     @Override

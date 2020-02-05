@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterHeader;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -33,5 +34,10 @@ public class DistSMTypeFilterHeader extends SMTypeFilterHeader {
     @Override
     protected void updateHiddenUiState() {
         distSMTypeFilterLayoutUiState.setHidden(true);
+    }
+
+    @Override
+    protected View getView() {
+        return View.DISTRIBUTIONS;
     }
 }

@@ -11,13 +11,19 @@ package org.eclipse.hawkbit.ui.distributions.dstable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -41,6 +47,7 @@ public class DistributionSetGridLayoutEventListener {
     private void registerEventListeners() {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
+        eventListeners.add(new TypeFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -50,8 +57,12 @@ public class DistributionSetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onDsEvent(final SelectionChangedEventPayload<ProxyDistributionSet> eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS || eventPayload.getLayout() != Layout.DS_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 distributionSetGridLayout.onDsChanged(eventPayload.getEntity());
             } else {
@@ -66,9 +77,34 @@ public class DistributionSetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = DistributionSetGridHeader.class)
-        private void onDsEvent(final String searchFilter) {
-            distributionSetGridLayout.filterGridBySearch(searchFilter);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS
+                    || eventPayload.getLayout() != distributionSetGridLayout.getLayout()) {
+                return;
+            }
+
+            distributionSetGridLayout.filterGridBySearch(eventPayload.getFilter());
+        }
+    }
+
+    private class TypeFilterChangedListener {
+
+        public TypeFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTypeChangedEvent(final TypeFilterChangedEventPayload<DistributionSetType> eventPayload) {
+            if (eventPayload.getView() != View.DISTRIBUTIONS || eventPayload.getLayout() != Layout.DS_TYPE_FILTER) {
+                return;
+            }
+
+            if (eventPayload.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
+                distributionSetGridLayout.filterGridByType(eventPayload.getType());
+            } else {
+                distributionSetGridLayout.filterGridByType(null);
+            }
         }
     }
 
@@ -79,7 +115,11 @@ public class DistributionSetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsEvent(final DsModifiedEventPayload eventPayload) {
+        private void onDsEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             distributionSetGridLayout.refreshGrid();
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the
@@ -90,7 +130,12 @@ public class DistributionSetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsTagEvent(final DsTagModifiedEventPayload eventPayload) {
+        private void onDsTagEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getParentType())
+                    || !ProxyTag.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             distributionSetGridLayout.onDsTagsModified(eventPayload.getEntityIds(),
                     eventPayload.getEntityModifiedEventType());
         }

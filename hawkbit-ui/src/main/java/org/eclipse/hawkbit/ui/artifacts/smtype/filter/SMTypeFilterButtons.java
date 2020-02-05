@@ -16,12 +16,15 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.SmTypeModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
@@ -116,7 +119,7 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
                     new TypeFilterChangedEventPayload<SoftwareModuleType>(
                             ClickBehaviourType.CLICKED == clickType ? TypeFilterChangedEventType.TYPE_CLICKED
                                     : TypeFilterChangedEventType.TYPE_UNCLICKED,
-                            smType));
+                            smType, Layout.SM_TYPE_FILTER, View.UPLOAD));
 
             smTypeFilterLayoutUiState
                     .setClickedSmTypeId(ClickBehaviourType.CLICKED == clickType ? smType.getId() : null);
@@ -138,7 +141,8 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
             softwareModuleTypeManagement.delete(distSMTypeToDeleteId);
 
             eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new SmTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, distSMTypeToDeleteId));
+                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, ProxySoftwareModule.class,
+                            ProxyType.class, distSMTypeToDeleteId));
         }
     }
 

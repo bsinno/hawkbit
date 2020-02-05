@@ -12,19 +12,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher.EntityModifiedEventPayloadIdentifier;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -46,7 +42,6 @@ import com.vaadin.ui.themes.ValoTheme;
 @UIScope
 public class NotificationUnreadButton extends Button {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationUnreadButton.class);
 
     private static final String TITLE = "notification.unread.button.title";
     private static final String DESCRIPTION = "notification.unread.button.description";
@@ -160,9 +155,8 @@ public class NotificationUnreadButton extends Button {
 
     private void dispatchEntityModifiedEvents() {
         final List<EntityModifiedEventPayload> eventPayloads = remotelyOriginatedEventsStore.entrySet().stream()
-                .map(this::buildEntityModifiedEventPayload).filter(Objects::nonNull).collect(Collectors.toList());
+                .map(this::buildEntityModifiedEventPayload).collect(Collectors.toList());
 
-        // TODO: check if the sender is correct
         eventPayloads
                 .forEach(eventPayload -> eventBus.publish(EventTopics.ENTITY_MODIFIED, UI.getCurrent(), eventPayload));
     }
@@ -172,17 +166,8 @@ public class NotificationUnreadButton extends Button {
         final EntityModifiedEventPayloadIdentifier eventIdentifier = remotelyOriginatedEvent.getKey();
         final Collection<Long> entityIds = remotelyOriginatedEvent.getValue();
 
-        try {
-            return eventIdentifier.getEventPayloadType()
-                    .getDeclaredConstructor(EntityModifiedEventType.class, Collection.class)
-                    .newInstance(eventIdentifier.getModifiedEventType(), entityIds);
-        } catch (final ReflectiveOperationException e) {
-            LOG.error(
-                    "Failed to create EntityModifiedEventPayload for received remote event identified by {} with entity ids {}!",
-                    eventIdentifier, entityIds);
-        }
-
-        return null;
+        return new EntityModifiedEventPayload(eventIdentifier.getModifiedEventType(), eventIdentifier.getParentType(),
+                eventIdentifier.getEntityType(), entityIds);
     }
 
     private void clear() {

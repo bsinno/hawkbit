@@ -12,10 +12,15 @@ public class SelectionChangedEventPayload<T> {
 
     private final SelectionChangedEventType selectionChangedEventType;
     private final T entity;
+    private final Layout layout;
+    private final View view;
 
-    public SelectionChangedEventPayload(final SelectionChangedEventType selectionChangedEventType, final T entity) {
+    public SelectionChangedEventPayload(final SelectionChangedEventType selectionChangedEventType, final T entity,
+            final Layout layout, final View view) {
         this.selectionChangedEventType = selectionChangedEventType;
         this.entity = entity;
+        this.layout = layout;
+        this.view = view;
     }
 
     public SelectionChangedEventType getSelectionChangedEventType() {
@@ -24,6 +29,14 @@ public class SelectionChangedEventPayload<T> {
 
     public T getEntity() {
         return entity;
+    }
+
+    public Layout getLayout() {
+        return layout;
+    }
+
+    public View getView() {
+        return view;
     }
 
     public enum SelectionChangedEventType {

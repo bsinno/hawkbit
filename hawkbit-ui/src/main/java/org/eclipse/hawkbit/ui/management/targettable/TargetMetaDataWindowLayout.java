@@ -18,14 +18,15 @@ import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractMetaDataWindowLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.AddMetaDataWindowController;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetaDataAddUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetaDataWindowGrid;
 import org.eclipse.hawkbit.ui.common.detailslayout.UpdateMetaDataWindowController;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
@@ -129,8 +130,8 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
 
     @Override
     protected void publishEntityModifiedEvent() {
-        targetManagement.getByControllerID(masterEntityFilter).map(Target::getId)
-                .ifPresent(targetId -> eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                        new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, targetId)));
+        targetManagement.getByControllerID(masterEntityFilter).map(Target::getId).ifPresent(
+                targetId -> eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                        EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, targetId)));
     }
 }

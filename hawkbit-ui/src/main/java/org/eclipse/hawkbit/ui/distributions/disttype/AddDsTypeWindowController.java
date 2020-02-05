@@ -16,9 +16,10 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
-import org.eclipse.hawkbit.ui.common.event.DsTypeModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -81,9 +82,8 @@ public class AddDsTypeWindowController extends AbstractEntityWindowController<Pr
                 .colour(entity.getColour()).mandatory(mandatorySmTypeIds).optional(optionalSmTypeIds));
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", newDsType.getName()));
-        // TODO: verify if sender is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new DsTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newDsType.getId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_ADDED, ProxyDistributionSet.class, ProxyType.class, newDsType.getId()));
     }
 
     @Override

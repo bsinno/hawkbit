@@ -9,16 +9,12 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
-import org.eclipse.hawkbit.ui.common.data.mappers.TargetWithActionStatusToProxyTargetMapper;
-import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupTargetsDataProvider;
-import org.eclipse.hawkbit.ui.common.grid.AbstractFooterSupport;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterCountMessageLabel;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupTargetLayoutUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.ui.Label;
 
 /**
  * Rollout Group Targets List View.
@@ -28,40 +24,57 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
 
     private final RolloutGroupTargetGridHeader rolloutGroupTargetsListHeader;
     private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
+    private final RolloutGroupTargetLayoutUIState uiState;
+    private final transient TargetFilterCountMessageLabel rolloutGroupTargetCountMessageLabel;
+
+    private final transient RolloutGroupTargetGridLayoutEventListener eventListener;
 
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final RolloutUIState rolloutUIState, final RolloutGroupManagement rolloutGroupManagement) {
-        final RolloutGroupTargetsDataProvider rolloutGroupTargetsDataProvider = new RolloutGroupTargetsDataProvider(
-                rolloutGroupManagement, rolloutUIState, new TargetWithActionStatusToProxyTargetMapper());
+            final RolloutGroupManagement rolloutGroupManagement, final RolloutGroupTargetLayoutUIState uiState) {
+        this.rolloutGroupTargetsListHeader = new RolloutGroupTargetGridHeader(eventBus, i18n, uiState);
+        this.rolloutGroupTargetsListGrid = new RolloutGroupTargetGrid(i18n, eventBus, rolloutGroupManagement, uiState);
+        this.rolloutGroupTargetCountMessageLabel = new TargetFilterCountMessageLabel(i18n);
+        this.uiState = uiState;
 
-        this.rolloutGroupTargetsListHeader = new RolloutGroupTargetGridHeader(eventBus, i18n, rolloutUIState);
-        this.rolloutGroupTargetsListGrid = new RolloutGroupTargetGrid(i18n, eventBus, rolloutUIState,
-                rolloutGroupTargetsDataProvider);
+        initGridDataUpdatedListener();
 
-        buildLayout(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid,
-                new RolloutTargetsCountFooterSupport(i18n, rolloutUIState, rolloutGroupTargetsListGrid));
+        this.eventListener = new RolloutGroupTargetGridLayoutEventListener(this, eventBus);
+
+        buildLayout(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid, rolloutGroupTargetCountMessageLabel);
     }
 
-    private static class RolloutTargetsCountFooterSupport extends AbstractFooterSupport {
-        private final VaadinMessageSource i18n;
-        private final RolloutUIState rolloutUIState;
-        private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
+    private void initGridDataUpdatedListener() {
+        rolloutGroupTargetsListGrid.getFilterDataProvider()
+                .addDataProviderListener(event -> rolloutGroupTargetCountMessageLabel
+                        .updateTotalFilteredTargetsCount(rolloutGroupTargetsListGrid.getDataSize()));
+    }
 
-        RolloutTargetsCountFooterSupport(final VaadinMessageSource i18n, final RolloutUIState rolloutUIState,
-                final RolloutGroupTargetGrid rolloutGroupTargetsListGrid) {
-            this.i18n = i18n;
-            this.rolloutUIState = rolloutUIState;
-            this.rolloutGroupTargetsListGrid = rolloutGroupTargetsListGrid;
-        }
+    public void showTargetsForGroup(final Long groupId, final String groupName, final String rolloutName) {
+        uiState.setSelectedRolloutGroupId(groupId);
+        uiState.setParentRolloutName(rolloutName);
+        uiState.setSelectedRolloutGroupName(groupName);
+        rolloutGroupTargetsListHeader.setRolloutName(rolloutName);
+        rolloutGroupTargetsListHeader.setRolloutGroupName(groupName);
+        rolloutGroupTargetsListGrid.updateMasterEntityFilter(groupId);
+    }
 
-        @Override
-        protected Label getFooterMessageLabel() {
-            // TODO: do we really need to pass Grid here???
-            final RolloutGroupTargetsCountLabelMessage countMessageLabel = new RolloutGroupTargetsCountLabelMessage(
-                    rolloutUIState, rolloutGroupTargetsListGrid, i18n);
-            countMessageLabel.setId(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_LABEL);
+    public Long getCurrentRolloutGroupId() {
+        return uiState.getSelectedRolloutGroupId();
+    }
 
-            return countMessageLabel;
-        }
+    public void restoreState() {
+        showTargetsForGroup(uiState.getSelectedRolloutGroupId(), uiState.getSelectedRolloutGroupName(),
+                uiState.getParentRolloutName());
+    }
+
+    public Layout getLayout() {
+        return Layout.ROLLOUT_GROUP_TARGET_LIST;
+    }
+
+    /**
+     * unsubscribe all listener
+     */
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

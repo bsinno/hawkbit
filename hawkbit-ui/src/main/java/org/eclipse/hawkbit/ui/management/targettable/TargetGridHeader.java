@@ -19,9 +19,15 @@ import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutResizedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.BulkUploadHeaderSupport;
@@ -29,17 +35,11 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.DistributionSetFilterDr
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.management.event.BulkUploadPopupEvent;
-import org.eclipse.hawkbit.ui.management.event.BulkUploadValidationMessageEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent.TargetComponentEvent;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -90,8 +90,7 @@ public class TargetGridHeader extends AbstractGridHeader {
                 uiproperties, uiExecutor, targetBulkUploadUiState);
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.TARGET_TEXT_FIELD,
-                UIComponentIdProvider.TARGET_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState, this::searchBy,
-                this::resetSearchText);
+                UIComponentIdProvider.TARGET_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState, this::searchBy);
         this.filterButtonsHeaderSupport = new FilterButtonsHeaderSupport(i18n, UIComponentIdProvider.SHOW_TARGET_TAGS,
                 this::showFilterButtonsLayout, this::onLoadIsShowFilterButtonDisplayed);
         // TODO: consider moving permission check to header support or parent
@@ -149,20 +148,15 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     private void searchBy(final String newSearchText) {
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, newSearchText);
+        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this,
+                new SearchFilterEventPayload(newSearchText, Layout.TARGET_LIST, View.DEPLOYMENT));
 
         targetGridLayoutUiState.setSearchFilter(newSearchText);
     }
 
-    // TODO: check if needed or can be done by searchBy
-    private void resetSearchText() {
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this, "");
-
-        targetGridLayoutUiState.setSearchFilter(null);
-    }
-
     private void showFilterButtonsLayout() {
-        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this, LayoutVisibilityChangedEventPayload.LAYOUT_SHOWN);
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.TARGET_TAG_FILTER, View.DEPLOYMENT));
 
         targetTagFilterLayoutUiState.setHidden(false);
     }
@@ -184,7 +178,8 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     private void maximizeTable() {
-        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MAXIMIZED);
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
+                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, Layout.TARGET_LIST, View.DEPLOYMENT));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.hideAddIcon();
@@ -198,7 +193,8 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     private void minimizeTable() {
-        eventBus.publish(EventTopics.LAYOUT_RESIZED, this, LayoutResizedEventPayload.LAYOUT_MINIMIZED);
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
+                new LayoutResizeEventPayload(ResizeType.MINIMIZE, Layout.TARGET_LIST, View.DEPLOYMENT));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.showAddIcon();
@@ -225,34 +221,42 @@ public class TargetGridHeader extends AbstractGridHeader {
                 || targetBulkUploadUiState.getFailedUploadCount() != 0;
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final BulkUploadPopupEvent event) {
-        if (BulkUploadPopupEvent.MAXIMIMIZED == event) {
-            bulkUpload();
-            targetBulkUpdateWindow.restoreComponentsValue();
-        } else if (BulkUploadPopupEvent.CLOSED == event) {
-            UI.getCurrent().access(bulkUploadHeaderSupport::showBulkUpload);
-        }
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final BulkUploadValidationMessageEvent event) {
-        this.getUI().access(() -> notification.displayValidationError(event.getValidationErrorMessage()));
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final TargetTableEvent event) {
-        if (TargetComponentEvent.BULK_TARGET_CREATED == event.getTargetComponentEvent()) {
-            this.getUI().access(() -> targetBulkUpdateWindow
-                    .setProgressBarValue(targetBulkUploadUiState.getProgressBarCurrentValue()));
-        } else if (TargetComponentEvent.BULK_UPLOAD_COMPLETED == event.getTargetComponentEvent()) {
-            this.getUI().access(targetBulkUpdateWindow::onUploadCompletion);
-        } else if (TargetComponentEvent.BULK_TARGET_UPLOAD_STARTED == event.getTargetComponentEvent()) {
-            this.getUI().access(this::onStartOfBulkUpload);
-        } else if (TargetComponentEvent.BULK_UPLOAD_PROCESS_STARTED == event.getTargetComponentEvent()) {
-            this.getUI().access(() -> targetBulkUpdateWindow.getBulkUploader().getUpload().setEnabled(false));
-        }
-    }
+    // TODO:implement/adapt
+    // @EventBusListenerMethod(scope = EventScope.UI)
+    // void onEvent(final BulkUploadPopupEvent event) {
+    // if (BulkUploadPopupEvent.MAXIMIMIZED == event) {
+    // bulkUpload();
+    // targetBulkUpdateWindow.restoreComponentsValue();
+    // } else if (BulkUploadPopupEvent.CLOSED == event) {
+    // UI.getCurrent().access(bulkUploadHeaderSupport::showBulkUpload);
+    // }
+    // }
+    //
+    // @EventBusListenerMethod(scope = EventScope.UI)
+    // void onEvent(final BulkUploadValidationMessageEvent event) {
+    // this.getUI().access(() ->
+    // notification.displayValidationError(event.getValidationErrorMessage()));
+    // }
+    //
+    //
+    // @EventBusListenerMethod(scope = EventScope.UI)
+    // void onEvent(final TargetTableEvent event) {
+    // if (TargetComponentEvent.BULK_TARGET_CREATED ==
+    // event.getTargetComponentEvent()) {
+    // this.getUI().access(() -> targetBulkUpdateWindow
+    // .setProgressBarValue(targetBulkUploadUiState.getProgressBarCurrentValue()));
+    // } else if (TargetComponentEvent.BULK_UPLOAD_COMPLETED ==
+    // event.getTargetComponentEvent()) {
+    // this.getUI().access(targetBulkUpdateWindow::onUploadCompletion);
+    // } else if (TargetComponentEvent.BULK_TARGET_UPLOAD_STARTED ==
+    // event.getTargetComponentEvent()) {
+    // this.getUI().access(this::onStartOfBulkUpload);
+    // } else if (TargetComponentEvent.BULK_UPLOAD_PROCESS_STARTED ==
+    // event.getTargetComponentEvent()) {
+    // this.getUI().access(() ->
+    // targetBulkUpdateWindow.getBulkUploader().getUpload().setEnabled(false));
+    // }
+    // }
 
     private void onStartOfBulkUpload() {
         bulkUploadHeaderSupport.disableBulkUpload();

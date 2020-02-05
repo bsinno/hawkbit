@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTagUpda
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetUpdatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.RolloutCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeUpdatedEvent;
@@ -47,7 +48,7 @@ import com.google.common.collect.Maps;
  */
 public class HawkbitEventProvider implements UIEventProvider {
 
-    private static final Map<Class<? extends TenantAwareEvent>, Class<?>> EVENTS = Maps.newHashMapWithExpectedSize(27);
+    private static final Map<Class<? extends TenantAwareEvent>, Class<?>> EVENTS = Maps.newHashMapWithExpectedSize(29);
 
     static {
         EVENTS.put(TargetCreatedEvent.class, TargetCreatedEventContainer.class);
@@ -78,8 +79,10 @@ public class HawkbitEventProvider implements UIEventProvider {
         EVENTS.put(SoftwareModuleTypeUpdatedEvent.class, SoftwareModuleTypeUpdatedEventContainer.class);
         EVENTS.put(SoftwareModuleTypeDeletedEvent.class, SoftwareModuleTypeDeletedEventContainer.class);
 
-        EVENTS.put(RolloutChangedEvent.class, RolloutChangeEventContainer.class);
+        EVENTS.put(RolloutCreatedEvent.class, RolloutCreatedEventContainer.class);
         EVENTS.put(RolloutDeletedEvent.class, RolloutDeletedEventContainer.class);
+
+        EVENTS.put(RolloutChangedEvent.class, RolloutChangedEventContainer.class);
         EVENTS.put(RolloutGroupChangedEvent.class, RolloutGroupChangedEventContainer.class);
 
         EVENTS.put(CancelTargetAssignmentEvent.class, CancelTargetAssignmentEventContainer.class);

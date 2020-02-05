@@ -47,4 +47,8 @@
     .grid-row-border .v-grid-body .v-grid-row-selected {
         border-top: none
     }
+
+    .v-grid-row-selected>.v-grid-cell {
+        color: #efe7f1;
+    }
 }

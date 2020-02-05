@@ -17,12 +17,15 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.TypeFilterButtonClick;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.DsTypeModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
@@ -120,7 +123,7 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
                     new TypeFilterChangedEventPayload<DistributionSetType>(
                             ClickBehaviourType.CLICKED == clickType ? TypeFilterChangedEventType.TYPE_CLICKED
                                     : TypeFilterChangedEventType.TYPE_UNCLICKED,
-                            dsType));
+                            dsType, Layout.DS_TYPE_FILTER, View.DISTRIBUTIONS));
 
             dSTypeFilterLayoutUiState
                     .setClickedDsTypeId(ClickBehaviourType.CLICKED == clickType ? dsType.getId() : null);
@@ -144,7 +147,8 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
             distributionSetTypeManagement.delete(dsTypeToDeleteId);
 
             eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new DsTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, dsTypeToDeleteId));
+                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class,
+                            ProxyType.class, dsTypeToDeleteId));
         }
     }
 
