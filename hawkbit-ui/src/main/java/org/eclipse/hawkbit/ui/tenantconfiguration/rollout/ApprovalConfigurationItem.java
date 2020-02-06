@@ -8,46 +8,29 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.rollout;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
-import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+
+import com.vaadin.ui.HorizontalLayout;
 
 /**
  * This class represents the UI item for the target security token section in
  * the authentication configuration view.
  */
-public class ApprovalConfigurationItem extends AbstractBooleanTenantConfigurationItem {
+public class ApprovalConfigurationItem extends HorizontalLayout {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Constructor for tenant specific approval mode setting.
      *
-     * @param tenantConfigurationManagement
-     *         used to enable/disable the approval mode per tenant
      * @param i18n
      *         used to translate labels
      */
-    public ApprovalConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-            final VaadinMessageSource i18n) {
-        super(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED, tenantConfigurationManagement, i18n);
-        super.init("configuration.rollout.approval.label");
+    public ApprovalConfigurationItem(final VaadinMessageSource i18n) {
+        setSpacing(false);
+        setMargin(false);
+        addComponent(new LabelBuilder().name(i18n.getMessage("configuration.rollout.approval.label")).buildLabel());
     }
 
-    @Override
-    public void configEnable() {
-    }
-
-    @Override
-    public void configDisable() {
-    }
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void undo() {
-    }
 }

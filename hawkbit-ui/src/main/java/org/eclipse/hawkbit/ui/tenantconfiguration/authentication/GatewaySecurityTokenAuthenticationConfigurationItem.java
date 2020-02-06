@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
@@ -39,8 +38,7 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Vertica
     private final VerticalLayout detailLayout;
     private final Binder<ProxySystemConfigWindow> binder;
 
-    public GatewaySecurityTokenAuthenticationConfigurationItem(
-            final TenantConfigurationManagement tenantConfigurationManagement, final VaadinMessageSource i18n,
+    public GatewaySecurityTokenAuthenticationConfigurationItem(final VaadinMessageSource i18n,
             final SecurityTokenGenerator securityTokenGenerator, Binder<ProxySystemConfigWindow> binder) {
         this.securityTokenGenerator = securityTokenGenerator;
         this.binder = binder;

@@ -127,21 +127,17 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         this.binder = new Binder<>();
         binder.setBean(populateAndGetSystemConfig());
         this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n);
-        this.actionAutocloseConfigurationItem = new ActionAutoCloseConfigurationItem(tenantConfigurationManagement,
                 i18n);
-        this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
-                i18n, binder);
-        this.actionAutocleanupConfigurationItem = new ActionAutoCleanupConfigurationItem(tenantConfigurationManagement,
-                binder, i18n);
-        this.approvalConfigurationItem = new ApprovalConfigurationItem(tenantConfigurationManagement, i18n);
-        this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n, binder);
+        this.actionAutocloseConfigurationItem = new ActionAutoCloseConfigurationItem(i18n);
+        this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(i18n, binder);
+        this.actionAutocleanupConfigurationItem = new ActionAutoCleanupConfigurationItem(binder, i18n);
+        this.approvalConfigurationItem = new ApprovalConfigurationItem(i18n);
+        this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(i18n, binder);
 
         this.gatewaySecurityTokenAuthenticationConfigurationItem = new GatewaySecurityTokenAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n, securityTokenGenerator, binder);
+                i18n, securityTokenGenerator, binder);
         this.anonymousDownloadAuthenticationConfigurationItem = new AnonymousDownloadAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n);
+                i18n);
 
         this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n,
                 permChecker, binder, distributionSetTypeManagement);

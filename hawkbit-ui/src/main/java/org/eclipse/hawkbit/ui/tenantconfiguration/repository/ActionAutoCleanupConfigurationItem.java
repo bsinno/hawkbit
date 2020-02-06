@@ -14,7 +14,6 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
@@ -70,14 +69,10 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
     /**
      * Constructs the Action Cleanup configuration UI.
      *
-     * @param tenantConfigurationManagement
-     *         Configuration service to read /write tenant-specific
-     *         configuration settings.
      * @param binder
      * @param i18n
      */
-    public ActionAutoCleanupConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-            Binder<ProxySystemConfigWindow> binder, final VaadinMessageSource i18n) {
+    public ActionAutoCleanupConfigurationItem(Binder<ProxySystemConfigWindow> binder, final VaadinMessageSource i18n) {
         this.binder = binder;
         this.i18n = i18n;
         this.setSpacing(false);

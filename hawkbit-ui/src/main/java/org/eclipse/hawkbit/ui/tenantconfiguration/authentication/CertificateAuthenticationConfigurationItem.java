@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
@@ -34,8 +33,8 @@ public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
 
     private final Binder<ProxySystemConfigWindow> binder;
 
-    public CertificateAuthenticationConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-            final VaadinMessageSource i18n, Binder<ProxySystemConfigWindow> binder) {
+    public CertificateAuthenticationConfigurationItem(final VaadinMessageSource i18n,
+            Binder<ProxySystemConfigWindow> binder) {
         this.binder = binder;
         this.setSpacing(false);
         this.setMargin(false);

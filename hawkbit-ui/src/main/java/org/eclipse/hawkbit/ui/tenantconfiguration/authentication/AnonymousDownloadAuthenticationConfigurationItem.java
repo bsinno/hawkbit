@@ -8,39 +8,22 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
-import org.eclipse.hawkbit.ui.tenantconfiguration.generic.AbstractBooleanTenantConfigurationItem;
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+
+import com.vaadin.ui.HorizontalLayout;
 
 /**
  * This class represents the UI item for the anonymous download by in the
  * authentication configuration view.
  */
-public class AnonymousDownloadAuthenticationConfigurationItem extends AbstractBooleanTenantConfigurationItem {
+public class AnonymousDownloadAuthenticationConfigurationItem extends HorizontalLayout {
 
     private static final long serialVersionUID = 1L;
 
-    public AnonymousDownloadAuthenticationConfigurationItem(
-            final TenantConfigurationManagement tenantConfigurationManagement, final VaadinMessageSource i18n) {
-        super(TenantConfigurationKey.ANONYMOUS_DOWNLOAD_MODE_ENABLED, tenantConfigurationManagement, i18n);
-        super.init("label.configuration.anonymous.download");
+    public AnonymousDownloadAuthenticationConfigurationItem(final VaadinMessageSource i18n) {
+        setSpacing(false);
+        setMargin(false);
+        addComponent(new LabelBuilder().name(i18n.getMessage("label.configuration.anonymous.download")).buildLabel());
     }
-
-    @Override
-    public void configEnable() {
-    }
-
-    @Override
-    public void configDisable() {
-    }
-
-    @Override
-    public void save() {
-    }
-
-    @Override
-    public void undo() {
-    }
-
 }

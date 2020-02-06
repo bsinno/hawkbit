@@ -8,22 +8,20 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
 
 /**
  * This class represents the UI item for the target security token section in
  * the authentication configuration view.
  */
-public class TargetSecurityTokenAuthenticationConfigurationItem extends VerticalLayout {
+public class TargetSecurityTokenAuthenticationConfigurationItem extends HorizontalLayout {
 
     private static final long serialVersionUID = 1L;
 
-    public TargetSecurityTokenAuthenticationConfigurationItem(
-            final TenantConfigurationManagement tenantConfigurationManagement, final VaadinMessageSource i18n) {
+    public TargetSecurityTokenAuthenticationConfigurationItem(final VaadinMessageSource i18n) {
         this.setSpacing(false);
         this.setMargin(false);
         addComponent(new LabelBuilder().name(i18n.getMessage("label.configuration.auth.targettoken")).buildLabel());

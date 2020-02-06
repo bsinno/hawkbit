@@ -48,7 +48,6 @@ public class PollingConfigurationView extends CustomComponent {
 
     private transient Duration tenantPollTime;
     private transient Duration tenantOverdueTime;
-    private static final String MSG_KEY_EMPTY_VALUE = "configuration.polling.custom.value";
     private final Binder<ProxySystemConfigWindow> binder;
 
     PollingConfigurationView(final VaadinMessageSource i18n, final ControllerPollProperties controllerPollProperties,
@@ -85,13 +84,13 @@ public class PollingConfigurationView extends CustomComponent {
 
         final VerticalLayout vLayout = new VerticalLayout();
         vLayout.setSpacing(false);
-        vLayout.setMargin(true);
+        vLayout.setMargin(false);
 
         final Label headerDisSetType = new Label(i18n.getMessage("configuration.polling.title"));
         headerDisSetType.addStyleName("config-panel-header");
         vLayout.addComponent(headerDisSetType);
 
-        fieldPollTime = DurationConfigField.builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_POLLING)
+        fieldPollTime = DurationConfigField.builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_POLLING, i18n)
                 .caption(i18n.getMessage("configuration.polling.time"))
                 .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value"))
                 .range(minDuration, maxDuration)
@@ -103,14 +102,13 @@ public class PollingConfigurationView extends CustomComponent {
                 .bind(ProxySystemConfigWindow::isPollingTime, ProxySystemConfigWindow::setPollingTime);
 
         binder.forField(fieldPollTime.getDurationField())
-                .asRequired(i18n.getMessage(MSG_KEY_EMPTY_VALUE))
                 .withConverter(PollingConfigurationView::localDateTimeToDuration,
                         PollingConfigurationView::durationToLocalDateTime)
                 .bind(ProxySystemConfigWindow::getPollingTimeDuration, ProxySystemConfigWindow::setPollingTimeDuration);
 
         vLayout.addComponent(fieldPollTime);
 
-        fieldPollingOverdueTime = DurationConfigField.builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_OVERDUE)
+        fieldPollingOverdueTime = DurationConfigField.builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_OVERDUE, i18n)
                 .caption(i18n.getMessage("configuration.polling.overduetime"))
                 .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value"))
                 .range(minDuration, maxDuration)
@@ -121,7 +119,6 @@ public class PollingConfigurationView extends CustomComponent {
                 .bind(ProxySystemConfigWindow::isPollingOverdue, ProxySystemConfigWindow::setPollingOverdue);
 
         binder.forField(fieldPollingOverdueTime.getDurationField())
-                .asRequired(i18n.getMessage(MSG_KEY_EMPTY_VALUE))
                 .withConverter(PollingConfigurationView::localDateTimeToDuration,
                         PollingConfigurationView::durationToLocalDateTime)
                 .bind(ProxySystemConfigWindow::getPollingOverdueDuration,

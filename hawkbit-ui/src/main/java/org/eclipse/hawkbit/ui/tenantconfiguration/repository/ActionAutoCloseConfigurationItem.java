@@ -8,19 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
 
 /**
  * This class represents the UI item for the target security token section in
  * the authentication configuration view.
  */
-public class ActionAutoCloseConfigurationItem extends VerticalLayout {
+public class ActionAutoCloseConfigurationItem extends HorizontalLayout {
 
-    public ActionAutoCloseConfigurationItem(TenantConfigurationManagement tenantConfigurationManagement, final VaadinMessageSource i18n) {
+    public ActionAutoCloseConfigurationItem(final VaadinMessageSource i18n) {
         this.setSpacing(false);
         this.setMargin(false);
         addComponent(new LabelBuilder().name(i18n.getMessage("label.configuration.repository.autoclose.action"))

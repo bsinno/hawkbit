@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -36,13 +35,10 @@ public class MultiAssignmentsConfigurationItem extends VerticalLayout {
     /**
      * Constructor.
      *
-     * @param tenantConfigurationManagement
-     *         to read /write tenant-specific configuration properties
      * @param i18n
      * @param binder
      */
-    public MultiAssignmentsConfigurationItem(final TenantConfigurationManagement tenantConfigurationManagement,
-            final VaadinMessageSource i18n, Binder<ProxySystemConfigWindow> binder) {
+    public MultiAssignmentsConfigurationItem(final VaadinMessageSource i18n, Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
         this.binder = binder;
         this.setSpacing(false);
