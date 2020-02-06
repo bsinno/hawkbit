@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.push.event;
 
+import org.eclipse.hawkbit.repository.event.entity.EntityUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.RemoteIdEvent;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 
@@ -17,7 +18,7 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup;
  * 
  *
  */
-public class RolloutGroupChangedEvent extends RemoteIdEvent {
+public class RolloutGroupChangedEvent extends RemoteIdEvent implements EntityUpdatedEvent, ParentIdAwareEvent {
     private static final long serialVersionUID = 1L;
 
     private final Long rolloutId;
@@ -45,7 +46,8 @@ public class RolloutGroupChangedEvent extends RemoteIdEvent {
         this.rolloutId = rolloutId;
     }
 
-    public Long getRolloutId() {
+    @Override
+    public Long getParentEntityId() {
         return rolloutId;
     }
 }

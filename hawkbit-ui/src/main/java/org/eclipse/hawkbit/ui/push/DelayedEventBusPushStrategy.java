@@ -9,9 +9,9 @@
 package org.eclipse.hawkbit.ui.push;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -19,16 +19,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
 import org.eclipse.hawkbit.im.authentication.UserPrincipal;
-import org.eclipse.hawkbit.repository.event.TenantAwareEvent;
+import org.eclipse.hawkbit.repository.event.entity.EntityIdEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.ActionCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.ActionUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutGroupCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutGroupUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutUpdatedEvent;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.push.HawkbitEventProvider.EntityModifiedEventPayloadIdentifier;
+import org.eclipse.hawkbit.ui.push.event.ParentIdAwareEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
 import org.slf4j.Logger;
@@ -70,7 +74,7 @@ public class DelayedEventBusPushStrategy
     private static final Logger LOG = LoggerFactory.getLogger(DelayedEventBusPushStrategy.class);
 
     private static final int BLOCK_SIZE = 10_000;
-    private final transient BlockingDeque<TenantAwareEvent> queue = new LinkedBlockingDeque<>(BLOCK_SIZE);
+    private final transient BlockingDeque<EntityIdEvent> queue = new LinkedBlockingDeque<>(BLOCK_SIZE);
 
     private final transient ScheduledExecutorService executorService;
     private final transient UIEventBus eventBus;
@@ -101,7 +105,7 @@ public class DelayedEventBusPushStrategy
         this.delay = delay;
     }
 
-    private boolean isEventProvided(final TenantAwareEvent event) {
+    private boolean isEventProvided(final EntityIdEvent event) {
         return eventProvider.getEvents().containsKey(event.getClass());
     }
 
@@ -150,7 +154,7 @@ public class DelayedEventBusPushStrategy
                 return;
             }
 
-            final List<TenantAwareEvent> events = new ArrayList<>(size);
+            final List<EntityIdEvent> events = new ArrayList<>(size);
             final int eventsSize = queue.drainTo(events);
 
             if (events.isEmpty()) {
@@ -179,7 +183,7 @@ public class DelayedEventBusPushStrategy
          * @return {@code true} if the event can be dispatched to the UI
          *         otherwise {@code false}
          */
-        private boolean eventSecurityCheck(final SecurityContext userContext, final TenantAwareEvent event) {
+        private boolean eventSecurityCheck(final SecurityContext userContext, final EntityIdEvent event) {
             if (userContext == null || userContext.getAuthentication() == null) {
                 return false;
             }
@@ -195,23 +199,22 @@ public class DelayedEventBusPushStrategy
             return false;
         }
 
-        private void doDispatch(final List<TenantAwareEvent> events, final WrappedSession wrappedSession) {
+        private void doDispatch(final List<EntityIdEvent> events, final WrappedSession wrappedSession) {
             final SecurityContext userContext = (SecurityContext) wrappedSession
                     .getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
             final SecurityContext oldContext = SecurityContextHolder.getContext();
             try {
                 SecurityContextHolder.setContext(userContext);
 
-                final List<EventContainer<TenantAwareEvent>> groupedEvents = groupEvents(events, userContext,
-                        eventProvider);
+                final List<EntityModifiedEventPayload> groupedEventPayloads = groupEvents(events, userContext);
 
                 vaadinUI.access(() -> {
                     if (vaadinSession.getState() != State.OPEN) {
                         return;
                     }
                     LOG.debug("UI EventBus aggregator of UI {} got lock on session.", vaadinUI.getUIId());
-                    groupedEvents.forEach(eventContainer -> eventBus.publish(EventTopics.REMOTE_EVENT_RECEIVED,
-                            vaadinUI, eventContainer));
+                    groupedEventPayloads.forEach(eventPayload -> eventBus.publish(EventTopics.REMOTE_EVENT_RECEIVED,
+                            vaadinUI, eventPayload));
                     LOG.debug("UI EventBus aggregator of UI {} left lock on session.", vaadinUI.getUIId());
                 }).get();
             } catch (InterruptedException | ExecutionException e) {
@@ -222,47 +225,64 @@ public class DelayedEventBusPushStrategy
             }
         }
 
-        @SuppressWarnings("unchecked")
-        private List<EventContainer<TenantAwareEvent>> groupEvents(final List<TenantAwareEvent> events,
-                final SecurityContext userContext, final UIEventProvider eventProvider) {
-
+        private List<EntityModifiedEventPayload> groupEvents(final List<EntityIdEvent> events,
+                final SecurityContext userContext) {
             return events.stream().filter(event -> eventSecurityCheck(userContext, event))
-                    .collect(Collectors.groupingBy(TenantAwareEvent::getClass)).entrySet().stream().map(entry -> {
-                        EventContainer<TenantAwareEvent> eventContainer = null;
-                        try {
-                            final Constructor<TenantAwareEvent> declaredConstructor = (Constructor<TenantAwareEvent>) eventProvider
-                                    .getEvents().get(entry.getKey()).getDeclaredConstructor(List.class);
-                            declaredConstructor.setAccessible(true);
+                    .collect(Collectors.groupingBy(EntityIdEvent::getClass)).entrySet().stream().flatMap(entry -> {
+                        final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier = eventProvider.getEvents()
+                                .get(entry.getKey());
 
-                            eventContainer = (EventContainer<TenantAwareEvent>) declaredConstructor
-                                    .newInstance(entry.getValue());
-                        } catch (final ReflectiveOperationException e) {
-                            LOG.error("Failed to create EventContainer!", e);
+                        if (ParentIdAwareEvent.class.isAssignableFrom(entry.getKey())) {
+                            return mapToEntityModifiedEventPayload(eventPayloadIdentifier,
+                                    getParentAwareEventIds(entry.getValue()));
+
                         }
 
-                        return eventContainer;
+                        return mapToEntityModifiedEventPayload(eventPayloadIdentifier, getEventIds(entry.getValue()));
                     }).collect(Collectors.toList());
+        }
+
+        private Map<Long, List<Long>> getParentAwareEventIds(final List<EntityIdEvent> events) {
+            return events.stream().filter(event -> event instanceof ParentIdAwareEvent)
+                    .collect(Collectors.groupingBy(event -> ((ParentIdAwareEvent) event).getParentEntityId(),
+                            Collectors.mapping(EntityIdEvent::getEntityId, Collectors.toList())));
+        }
+
+        private Stream<EntityModifiedEventPayload> mapToEntityModifiedEventPayload(
+                final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier,
+                final Map<Long, List<Long>> parentAwareEntityIds) {
+            return parentAwareEntityIds.entrySet().stream().map(parentAwareEntry -> EntityModifiedEventPayload
+                    .of(eventPayloadIdentifier, parentAwareEntry.getKey(), parentAwareEntry.getValue()));
+        }
+
+        private List<Long> getEventIds(final List<EntityIdEvent> events) {
+            return events.stream().map(EntityIdEvent::getEntityId).collect(Collectors.toList());
+        }
+
+        private Stream<EntityModifiedEventPayload> mapToEntityModifiedEventPayload(
+                final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier, final List<Long> entityIds) {
+            return Stream.of(EntityModifiedEventPayload.of(eventPayloadIdentifier, entityIds));
         }
     }
 
     /**
      * An application event publisher subscriber which subscribes
-     * {@link TenantAwareEvent} from the repository to dispatch these events to
-     * the UI {@link SessionEventBus} .
+     * {@link EntityIdEvent} from the repository to dispatch these events to the
+     * UI {@link SessionEventBus} .
      * 
      * @param applicationEvent
      *            the entity event which has been published from the repository
      */
     @Override
     public void onApplicationEvent(final ApplicationEvent applicationEvent) {
-        if (!(applicationEvent instanceof TenantAwareEvent)) {
+        if (!(applicationEvent instanceof EntityIdEvent)) {
             return;
         }
 
-        final TenantAwareEvent event = (TenantAwareEvent) applicationEvent;
+        final EntityIdEvent event = (EntityIdEvent) applicationEvent;
 
         collectRolloutEvent(event);
-        // to dispatch too many events which are not interested on the UI
+        // filter out non-relevant UI
         if (!isEventProvided(event)) {
             LOG.trace("Event is not supported in the UI!!! Dropped event is {}", event);
             return;
@@ -270,20 +290,20 @@ public class DelayedEventBusPushStrategy
         offerEvent(event);
     }
 
-    private void offerEventIfNotContains(final TenantAwareEvent event) {
+    private void offerEventIfNotContains(final EntityIdEvent event) {
         if (queue.contains(event)) {
             return;
         }
         offerEvent(event);
     }
 
-    private void offerEvent(final TenantAwareEvent event) {
+    private void offerEvent(final EntityIdEvent event) {
         if (!queue.offer(event)) {
             LOG.trace("Deque limit is reached, cannot add more events!!! Dropped event is {}", event);
         }
     }
 
-    private void collectRolloutEvent(final TenantAwareEvent event) {
+    private void collectRolloutEvent(final EntityIdEvent event) {
         Long rolloutId;
         Long rolloutGroupId = null;
         if (event instanceof ActionCreatedEvent) {

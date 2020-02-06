@@ -10,27 +10,17 @@ package org.eclipse.hawkbit.ui.common.event;
 
 import java.util.Collection;
 
-public class TagFilterChangedEventPayload {
+public class TagFilterChangedEventPayload extends LayoutAwareEventPayload {
 
     private final Collection<String> tagNames;
-    private final Layout layout;
-    private final View view;
 
     public TagFilterChangedEventPayload(final Collection<String> tagNames, final Layout layout, final View view) {
+        super(layout, view);
+
         this.tagNames = tagNames;
-        this.layout = layout;
-        this.view = view;
     }
 
     public Collection<String> getTagNames() {
         return tagNames;
-    }
-
-    public Layout getLayout() {
-        return layout;
-    }
-
-    public View getView() {
-        return view;
     }
 }

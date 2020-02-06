@@ -12,38 +12,17 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.hawkbit.repository.event.remote.RemoteIdEvent;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher;
-import org.eclipse.hawkbit.ui.common.event.RemoteEventsMatcher.EntityModifiedEventPayloadIdentifier;
 import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
-import org.eclipse.hawkbit.ui.push.DistributionSetCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetTagCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetTagDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.DistributionSetTagUpdatedEventContainer;
-import org.eclipse.hawkbit.ui.push.EventContainer;
-import org.eclipse.hawkbit.ui.push.RolloutGroupChangedEventContainer;
-import org.eclipse.hawkbit.ui.push.SoftwareModuleCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.SoftwareModuleDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetTagCreatedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetTagDeletedEventContainer;
-import org.eclipse.hawkbit.ui.push.TargetTagUpdatedEventContainer;
-import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
+import org.eclipse.hawkbit.ui.push.HawkbitEventProvider.EntityModifiedEventPayloadIdentifier;
+import org.eclipse.hawkbit.ui.push.UIEventProvider;
+import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -54,41 +33,16 @@ import com.vaadin.ui.UI;
 
 public class RemoteEventsListener {
     private final UIEventBus eventBus;
+    private final UIEventProvider eventProvider;
     private final NotificationUnreadButton notificationUnreadButton;
 
     private final Cache<EntityModifiedEventPayloadIdentifier, Collection<Long>> uiOriginatedEventsCache;
     private final List<Object> eventListeners;
 
-    private final Set<Class<? extends EventContainer<?>>> supportedEvents = RemoteEventsMatcher.getEventMatchers()
-            .keySet();
-
-    private static final EntityModifiedEventPayloadIdentifier rolloutGroupModifiedEvent = RemoteEventsMatcher
-            .getEventMatchers().get(RolloutGroupChangedEventContainer.class);
-    private static final Set<EntityModifiedEventPayloadIdentifier> eventsToBeDeferred = new HashSet<>();
-    static {
-        eventsToBeDeferred.add(RemoteEventsMatcher.getEventMatchers().get(TargetCreatedEventContainer.class));
-        eventsToBeDeferred.add(RemoteEventsMatcher.getEventMatchers().get(TargetDeletedEventContainer.class));
-
-        eventsToBeDeferred.add(RemoteEventsMatcher.getEventMatchers().get(DistributionSetCreatedEventContainer.class));
-        eventsToBeDeferred.add(RemoteEventsMatcher.getEventMatchers().get(DistributionSetDeletedEventContainer.class));
-
-        eventsToBeDeferred.add(RemoteEventsMatcher.getEventMatchers().get(SoftwareModuleCreatedEventContainer.class));
-        eventsToBeDeferred.add(RemoteEventsMatcher.getEventMatchers().get(SoftwareModuleDeletedEventContainer.class));
-
-        eventsToBeDeferred.add(RemoteEventsMatcher.getEventMatchers().get(TargetTagCreatedEventContainer.class));
-        eventsToBeDeferred.add(RemoteEventsMatcher.getEventMatchers().get(TargetTagUpdatedEventContainer.class));
-        eventsToBeDeferred.add(RemoteEventsMatcher.getEventMatchers().get(TargetTagDeletedEventContainer.class));
-
-        eventsToBeDeferred
-                .add(RemoteEventsMatcher.getEventMatchers().get(DistributionSetTagCreatedEventContainer.class));
-        eventsToBeDeferred
-                .add(RemoteEventsMatcher.getEventMatchers().get(DistributionSetTagUpdatedEventContainer.class));
-        eventsToBeDeferred
-                .add(RemoteEventsMatcher.getEventMatchers().get(DistributionSetTagDeletedEventContainer.class));
-    }
-
-    RemoteEventsListener(final UIEventBus eventBus, final NotificationUnreadButton notificationUnreadButton) {
+    RemoteEventsListener(final UIEventBus eventBus, final UIEventProvider eventProvider,
+            final NotificationUnreadButton notificationUnreadButton) {
         this.eventBus = eventBus;
+        this.eventProvider = eventProvider;
         this.notificationUnreadButton = notificationUnreadButton;
 
         this.uiOriginatedEventsCache = CacheBuilder.newBuilder().expireAfterAccess(10, SECONDS).build();
@@ -110,11 +64,9 @@ public class RemoteEventsListener {
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onEntityModifiedEvent(final EntityModifiedEventPayload eventPayload) {
-            uiOriginatedEventsCache.asMap()
-                    .merge(new EntityModifiedEventPayloadIdentifier(eventPayload.getParentType(),
-                            eventPayload.getEntityType(), eventPayload.getEntityModifiedEventType()),
-                            eventPayload.getEntityIds(), (oldEntityIds, newEntityIds) -> Stream
-                                    .concat(oldEntityIds.stream(), newEntityIds.stream()).collect(Collectors.toList()));
+            uiOriginatedEventsCache.asMap().merge(EntityModifiedEventPayloadIdentifier.of(eventPayload),
+                    eventPayload.getEntityIds(), (oldEntityIds, newEntityIds) -> Stream
+                            .concat(oldEntityIds.stream(), newEntityIds.stream()).collect(Collectors.toList()));
         }
     }
 
@@ -125,62 +77,45 @@ public class RemoteEventsListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onRemoteEventReceived(final EventContainer<?> eventContainer) {
-            if (!isEventContainerTypeSupported(eventContainer.getClass()) || eventContainer.getEvents().isEmpty()) {
+        private void onRemoteEventReceived(final EntityModifiedEventPayload eventPayload) {
+            if (eventPayload.getEntityType() == null || eventPayload.getEntityModifiedEventType() == null
+                    || CollectionUtils.isEmpty(eventPayload.getEntityIds())) {
                 return;
             }
 
-            final EntityModifiedEventPayloadIdentifier matchingEventPayloadIdentifier = RemoteEventsMatcher
-                    .getEventMatchers().get(eventContainer.getClass());
+            getEventPayloadIdentifierFromProvider(eventPayload).ifPresent(eventPayloadIdentifier -> {
+                final Collection<Long> remotelyModifiedEntityIds = getRemotelyModifiedEntityIds(eventPayloadIdentifier,
+                        eventPayload.getEntityIds());
 
-            // TODO: should we make parent aware events (with parent id) in
-            // general (e.g. add parentId to
-            // EntityModifiedEventPayloadIdentifier)?
-            // should be treated specially due to rollout id:
-            if (rolloutGroupModifiedEvent.equals(matchingEventPayloadIdentifier)) {
-                dispatchRolloutGroupModifiedEvent(eventContainer.getEvents());
-                return;
-            }
+                if (!remotelyModifiedEntityIds.isEmpty()) {
+                    final EntityModifiedEventPayload remoteEventPayload = eventPayload.getParentId() != null
+                            ? EntityModifiedEventPayload.of(eventPayloadIdentifier, eventPayload.getParentId(),
+                                    remotelyModifiedEntityIds)
+                            : EntityModifiedEventPayload.of(eventPayloadIdentifier, remotelyModifiedEntityIds);
 
-            final Collection<Long> remotelyModifiedEntityIds = filterRemoteOriginatedEvents(
-                    matchingEventPayloadIdentifier, eventContainer.getEvents());
-
-            if (!remotelyModifiedEntityIds.isEmpty()) {
-                if (eventsToBeDeferred.contains(matchingEventPayloadIdentifier)) {
-                    notificationUnreadButton.incrementUnreadNotification(matchingEventPayloadIdentifier,
-                            remotelyModifiedEntityIds);
-                } else {
-                    dispatchEntityModifiedEvent(matchingEventPayloadIdentifier, remotelyModifiedEntityIds);
+                    if (eventPayloadIdentifier.shouldBeDeffered()) {
+                        // TODO: use remoteEventPayload to preserve parent id
+                        notificationUnreadButton.incrementUnreadNotification(eventPayloadIdentifier,
+                                remotelyModifiedEntityIds);
+                    } else {
+                        eventBus.publish(EventTopics.ENTITY_MODIFIED, UI.getCurrent(), remoteEventPayload);
+                    }
                 }
-            }
-        }
-
-        private boolean isEventContainerTypeSupported(final Class<?> eventContainerType) {
-            return supportedEvents.contains(eventContainerType);
-        }
-
-        private void dispatchRolloutGroupModifiedEvent(final List<?> events) {
-            final Map<Long, List<Long>> rolloutIdWithGroupIds = events.stream()
-                    .map(event -> (RolloutGroupChangedEvent) event)
-                    .collect(Collectors.groupingBy(RolloutGroupChangedEvent::getRolloutId,
-                            Collectors.mapping(RolloutGroupChangedEvent::getEntityId, Collectors.toList())));
-
-            rolloutIdWithGroupIds.entrySet().forEach(entry -> {
-                final EntityModifiedEventPayload eventPayload = new EntityModifiedEventPayload(
-                        EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, entry.getKey(),
-                        ProxyRolloutGroup.class, entry.getValue());
-
-                eventBus.publish(EventTopics.ENTITY_MODIFIED, UI.getCurrent(), eventPayload);
             });
         }
 
-        private Collection<Long> filterRemoteOriginatedEvents(
-                final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier, final List<?> remoteEvents) {
-            final Collection<Long> cachedEventEntityIds = uiOriginatedEventsCache.getIfPresent(eventPayloadIdentifier);
-            final List<Long> remoteEventEntityIds = remoteEvents.stream().filter(Objects::nonNull)
-                    .map(event -> (RemoteIdEvent) event).map(RemoteIdEvent::getEntityId).collect(Collectors.toList());
+        private Optional<EntityModifiedEventPayloadIdentifier> getEventPayloadIdentifierFromProvider(
+                final EntityModifiedEventPayload eventPayload) {
+            return eventProvider.getEvents().values().stream().filter(providedIdentifier -> providedIdentifier
+                    .equals(EntityModifiedEventPayloadIdentifier.of(eventPayload))).findAny();
+        }
 
-            if (cachedEventEntityIds == null || cachedEventEntityIds.isEmpty()) {
+        private Collection<Long> getRemotelyModifiedEntityIds(
+                final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier,
+                final Collection<Long> remoteEventEntityIds) {
+            final Collection<Long> cachedEventEntityIds = uiOriginatedEventsCache.getIfPresent(eventPayloadIdentifier);
+
+            if (CollectionUtils.isEmpty(cachedEventEntityIds)) {
                 return remoteEventEntityIds;
             }
 
@@ -193,35 +128,24 @@ public class RemoteEventsListener {
             return remoteEventEntityIds;
         }
 
-        private Collection<Long> getCommonEntityIds(final Collection<Long> matchingCachedEventEntityIds,
-                final List<Long> remoteEventEntityIds) {
-            final List<Long> commonEntityIds = new ArrayList<>(matchingCachedEventEntityIds);
+        private Collection<Long> getCommonEntityIds(final Collection<Long> cachedEventEntityIds,
+                final Collection<Long> remoteEventEntityIds) {
+            final List<Long> commonEntityIds = new ArrayList<>(cachedEventEntityIds);
             commonEntityIds.retainAll(remoteEventEntityIds);
 
             return commonEntityIds;
         }
 
-        private void updateCache(final EntityModifiedEventPayloadIdentifier matchingUiEventPayloadIdentifier,
-                final Collection<Long> matchingCachedEventEntityIds, final Collection<Long> commonEntityIds) {
-            final List<Long> updatedMatchingCachedEventEntityIds = new ArrayList<>(matchingCachedEventEntityIds);
-            updatedMatchingCachedEventEntityIds.removeAll(commonEntityIds);
+        private void updateCache(final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier,
+                final Collection<Long> cachedEventEntityIds, final Collection<Long> commonEntityIds) {
+            final List<Long> updatedCachedEventEntityIds = new ArrayList<>(cachedEventEntityIds);
+            updatedCachedEventEntityIds.removeAll(commonEntityIds);
 
-            if (updatedMatchingCachedEventEntityIds.isEmpty()) {
-                uiOriginatedEventsCache.invalidate(matchingUiEventPayloadIdentifier);
+            if (updatedCachedEventEntityIds.isEmpty()) {
+                uiOriginatedEventsCache.invalidate(eventPayloadIdentifier);
             } else {
-                uiOriginatedEventsCache.put(matchingUiEventPayloadIdentifier, updatedMatchingCachedEventEntityIds);
+                uiOriginatedEventsCache.put(eventPayloadIdentifier, updatedCachedEventEntityIds);
             }
-        }
-
-        // TODO: remove duplication with NotificationUnreadButton
-        private void dispatchEntityModifiedEvent(final EntityModifiedEventPayloadIdentifier eventPayloadIdentifier,
-                final Collection<Long> eventEntityIds) {
-            // TODO: should we somehow add parentId here?
-            final EntityModifiedEventPayload eventPayload = new EntityModifiedEventPayload(
-                    eventPayloadIdentifier.getModifiedEventType(), eventPayloadIdentifier.getParentType(),
-                    eventPayloadIdentifier.getEntityType(), eventEntityIds);
-
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, UI.getCurrent(), eventPayload);
         }
     }
 

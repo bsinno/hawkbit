@@ -8,17 +8,14 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class NoTagFilterChangedEventPayload extends LayoutAwareEventPayload {
+public abstract class ViewAwareEventPayload {
+    private final View view;
 
-    private final Boolean isNoTagActive;
-
-    public NoTagFilterChangedEventPayload(final Boolean isNoTagActive, final Layout layout, final View view) {
-        super(layout, view);
-
-        this.isNoTagActive = isNoTagActive;
+    protected ViewAwareEventPayload(final View view) {
+        this.view = view;
     }
 
-    public Boolean getIsNoTagActive() {
-        return isNoTagActive;
+    public View getView() {
+        return view;
     }
 }

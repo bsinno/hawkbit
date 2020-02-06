@@ -8,27 +8,17 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class LayoutResizeEventPayload {
+public class LayoutResizeEventPayload extends LayoutAwareEventPayload {
     private final ResizeType resizeType;
-    private final Layout layout;
-    private final View view;
 
     public LayoutResizeEventPayload(final ResizeType resizeType, final Layout layout, final View view) {
+        super(layout, view);
+
         this.resizeType = resizeType;
-        this.layout = layout;
-        this.view = view;
     }
 
     public ResizeType getResizeType() {
         return resizeType;
-    }
-
-    public Layout getLayout() {
-        return layout;
-    }
-
-    public View getView() {
-        return view;
     }
 
     public enum ResizeType {
