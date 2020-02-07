@@ -63,6 +63,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Concrete implementation of Target grid which is displayed on the Deployment
@@ -353,6 +354,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                     VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                     UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true);
 
+            // TODO: try to use same as delete support, do not build button in
+            // support
             return pinSupport.buildPinActionButton(pinBtn, target);
         }).setId(TARGET_PIN_BUTTON_ID).setMinimumWidth(50d);
 
@@ -375,10 +378,11 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         actionButton.setDescription(i18n.getMessage(descriptionProperty));
         actionButton.setEnabled(enabled);
         actionButton.setId(buttonId);
-        actionButton.addStyleName("tiny");
-        actionButton.addStyleName("borderless");
+        actionButton.addStyleName(ValoTheme.LABEL_TINY);
+        actionButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
         actionButton.addStyleName("button-no-border");
         actionButton.addStyleName("action-type-padding");
+        actionButton.addStyleName("icon-only");
         actionButton.addStyleName(style);
 
         return actionButton;

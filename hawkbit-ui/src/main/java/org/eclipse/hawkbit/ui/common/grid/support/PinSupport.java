@@ -26,7 +26,7 @@ import com.vaadin.ui.Button;
  *            The item-type used by the grid
  */
 public class PinSupport<T extends ProxyIdentifiableEntity> {
-    private static final String PINNED_STYLE = "itemPinned";
+    private static final String UN_PINNED_STYLE = "rotate-90-deg";
     private static final String STATUS_PIN_TOGGLE = "statusPinToggle";
 
     private final Runnable restoreRowStyleCallback;
@@ -66,6 +66,7 @@ public class PinSupport<T extends ProxyIdentifiableEntity> {
         if (isPinned(item)) {
             pinItem(pinBtn);
         }
+        pinBtn.addStyleName(UN_PINNED_STYLE);
         pinBtn.addStyleName(STATUS_PIN_TOGGLE);
 
         return pinBtn;
@@ -78,7 +79,7 @@ public class PinSupport<T extends ProxyIdentifiableEntity> {
     private void pinItem(final Button pinBtn) {
         publishPinItem();
         restoreRowStyleCallback.run();
-        pinBtn.addStyleName(PINNED_STYLE);
+        pinBtn.removeStyleName(UN_PINNED_STYLE);
     }
 
     private void publishPinItem() {
@@ -105,7 +106,7 @@ public class PinSupport<T extends ProxyIdentifiableEntity> {
 
     private void unPinItem(final Button pinBtn) {
         publishUnPinItem();
-        pinBtn.removeStyleName(PINNED_STYLE);
+        pinBtn.addStyleName(UN_PINNED_STYLE);
     }
 
     public void unPinItemAfterDeletion(final Long pinnedItemId, final Collection<Long> deletedItemIds) {
