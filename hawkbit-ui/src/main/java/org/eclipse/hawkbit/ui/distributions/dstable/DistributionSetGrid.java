@@ -108,7 +108,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         }
 
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
-                permissionChecker, notification, this::deleteDistributionSets,
+                ProxyDistributionSet::getNameVersion, permissionChecker, notification, this::deleteDistributionSets,
                 UIComponentIdProvider.DS_DELETE_CONFIRMATION_DIALOG);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
@@ -224,12 +224,12 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     }
 
     private void addActionColumns() {
-        addComponentColumn(ds -> buildActionButton(
-                clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds, ds.getNameVersion()),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
-                distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
+        addComponentColumn(
+                ds -> buildActionButton(clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds),
+                        VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                        UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
+                        distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
+                                .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
     }
 
     // TODO: remove duplication

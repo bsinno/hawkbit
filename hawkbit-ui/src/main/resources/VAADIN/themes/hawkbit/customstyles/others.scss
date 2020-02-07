@@ -51,12 +51,12 @@
 
   //Deployment view information message - Color of assigned count
   .assigned-count-message {
-    color: $installed-row-color;
+    color: $assigned-row-color;
   }
 
   //Deployment view information message - Color of installed count
   .installed-count-message {
-    color: $assigned-row-color;
+    color: $installed-row-color;
   }
 
   //Create distribution twin table - Check box style
@@ -323,7 +323,7 @@
     right: 6px;
   }
 
-  .rotate-90-deg {
+  .rotate-widget-90-deg .v-widget {
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);

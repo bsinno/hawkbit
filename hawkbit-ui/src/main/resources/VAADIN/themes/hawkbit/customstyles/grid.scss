@@ -51,4 +51,18 @@
     .v-grid-row-selected>.v-grid-cell {
         color: #efe7f1;
     }
+
+    //Row color - installed
+    .v-grid-row.highlight-green,
+    .v-grid-row.highlight-green>td,
+    .v-grid-row.highlight-green .v-grid-cell {
+        @include valo-gradient($installed-row-color);
+    }
+
+    //Row color - assigned
+    .v-grid-row.highlight-orange,
+    .v-grid-row.highlight-orange>td,
+    .v-grid-row.highlight-orange .v-grid-cell {
+        @include valo-gradient($assigned-row-color);
+    }
 }

@@ -22,6 +22,8 @@ public final class EventTopics {
     public static final String OVERDUE_FILTER_CHANGED = "overdueFilterChanged";
     public static final String CUSTOM_FILTER_CHANGED = "customFilterChanged";
 
+    public static final String PINNING_CHANGED = "pinningChanged";
+
     public static final String REMOTE_EVENT_RECEIVED = "remoteEventReceived";
 
     public static final String FILE_UPLOAD_CHANGED = "fileUploadChanged";

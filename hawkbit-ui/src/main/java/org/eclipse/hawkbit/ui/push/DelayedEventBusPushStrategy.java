@@ -324,7 +324,9 @@ public class DelayedEventBusPushStrategy
             return;
         }
 
-        offerEventIfNotContains(new RolloutChangedEvent(event.getTenant(), rolloutId));
+        if (rolloutId != null) {
+            offerEventIfNotContains(new RolloutChangedEvent(event.getTenant(), rolloutId));
+        }
 
         if (rolloutGroupId != null) {
             offerEventIfNotContains(new RolloutGroupChangedEvent(event.getTenant(), rolloutId, rolloutGroupId));
