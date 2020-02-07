@@ -382,6 +382,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     private void undoConfiguration() {
         binder.setBean(populateAndGetSystemConfig());
+        configurationViews.forEach(ConfigurationGroup::undo);
         // More methods
         saveConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.setEnabled(false);
