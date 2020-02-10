@@ -20,11 +20,11 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.v7.ui.Label;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * View class that is instantiated when no other view matches the navigation
@@ -49,6 +49,8 @@ public class ErrorView extends VerticalLayout implements View {
         this.i18n = i18n;
         this.dashboardMenu = dashboardMenu;
         setMargin(true);
+        setSpacing(false);
+
         message = new Label();
         addComponent(message);
     }

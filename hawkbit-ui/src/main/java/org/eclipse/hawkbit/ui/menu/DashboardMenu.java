@@ -30,7 +30,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
@@ -43,12 +42,12 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * A responsive menu component providing user information and the controls for
@@ -110,7 +109,10 @@ public final class DashboardMenu extends CustomComponent {
 
     private Component buildContent() {
         final VerticalLayout dashboardMenuLayout = new VerticalLayout();
+        dashboardMenuLayout.setSpacing(false);
+        dashboardMenuLayout.setMargin(false);
         dashboardMenuLayout.setSizeFull();
+
         final VerticalLayout menuContent = getMenuLayout();
         menuContent.addComponent(buildUserMenu(uiProperties));
         menuContent.addComponent(buildToggleButton());
@@ -124,24 +126,29 @@ public final class DashboardMenu extends CustomComponent {
         menuContent.setExpandRatio(menus, 1.0F);
 
         dashboardMenuLayout.addComponent(menuContent);
+
         return dashboardMenuLayout;
     }
 
     private static VerticalLayout getMenuLayout() {
         final VerticalLayout menuContent = new VerticalLayout();
-        menuContent.addStyleName(ValoTheme.MENU_PART);
-        menuContent.addStyleName("sidebar");
-
-        menuContent.addStyleName("no-vertical-drag-hints");
-        menuContent.addStyleName("no-horizontal-drag-hints");
+        menuContent.setSpacing(false);
+        menuContent.setMargin(false);
         menuContent.setWidth(null);
         menuContent.setHeight("100%");
+
+        menuContent.addStyleName(ValoTheme.MENU_PART);
+        menuContent.addStyleName("sidebar");
+        menuContent.addStyleName("no-vertical-drag-hints");
+        menuContent.addStyleName("no-horizontal-drag-hints");
+
         return menuContent;
     }
 
     private VerticalLayout buildLinksAndVersion() {
         final VerticalLayout links = new VerticalLayout();
         links.setSpacing(true);
+        links.setMargin(false);
         links.addStyleName("links");
         final String linkStyle = "v-link";
 
@@ -228,7 +235,7 @@ public final class DashboardMenu extends CustomComponent {
     private Component buildToggleButton() {
         final Button valoMenuToggleButton = new Button(i18n.getMessage("label.menu"),
                 new MenuToggleClickListenerMyClickListener());
-        valoMenuToggleButton.setIcon(FontAwesome.LIST);
+        valoMenuToggleButton.setIcon(VaadinIcons.LIST);
         valoMenuToggleButton.addStyleName("valo-menu-toggle");
         valoMenuToggleButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
         valoMenuToggleButton.addStyleName(ValoTheme.BUTTON_SMALL);
@@ -237,6 +244,8 @@ public final class DashboardMenu extends CustomComponent {
 
     private VerticalLayout buildMenuItems() {
         final VerticalLayout menuItemsLayout = new VerticalLayout();
+        menuItemsLayout.setSpacing(false);
+        menuItemsLayout.setMargin(false);
         menuItemsLayout.addStyleName("valo-menuitems");
         menuItemsLayout.setHeight(100.0F, Unit.PERCENTAGE);
 
