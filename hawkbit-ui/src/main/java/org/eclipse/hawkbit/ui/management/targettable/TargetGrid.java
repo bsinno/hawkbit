@@ -192,9 +192,14 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyTarget pinnedItem) {
-        // TODO: somehow move it to abstract class/TypeFilterButtonClick
-        // needed to trigger style generator
-        getDataCommunicator().reset();
+        if (targetFilter.getPinnedDistId() != null) {
+            targetFilter.setPinnedDistId(null, Collections.emptyList(), Collections.emptyList());
+            getFilterDataProvider().setFilter(targetFilter);
+        } else {
+            // TODO: somehow move it to abstract class/TypeFilterButtonClick
+            // needed to trigger style generator
+            getDataCommunicator().reset();
+        }
 
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
                 new PinningChangedEventPayload<String>(
@@ -202,7 +207,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                                 : PinningChangedEventType.ENTITY_UNPINNED,
                         ProxyTarget.class, pinnedItem.getControllerId()));
 
-        targetGridLayoutUiState.setPinnedTargetId(pinType == PinBehaviourType.PINNED ? pinnedItem.getId() : null);
+        targetGridLayoutUiState
+                .setPinnedControllerId(pinType == PinBehaviourType.PINNED ? pinnedItem.getControllerId() : null);
     }
 
     private void initDsPinningStyleGenerator() {
@@ -292,11 +298,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     public void updatePinnedDsFilter(final Long pinnedDsId) {
-        // TODO: adapt to reduce conditional logic
-        if (pinnedDsId == null && targetFilter.getPinnedDistId() != null) {
-            targetFilter.setPinnedDistId(null, Collections.emptyList(), Collections.emptyList());
-            getFilterDataProvider().setFilter(targetFilter);
+        if (pinSupport.clearPinning()) {
+            // in order to update pinning column style
+            getDataCommunicator().reset();
+            targetGridLayoutUiState.setPinnedControllerId(null);
+        }
 
+        if (pinnedDsId == null && targetFilter.getPinnedDistId() == null) {
             return;
         }
 
@@ -310,12 +318,10 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
                 return;
             }
-
-            if (targetFilter.getPinnedDistId() != null) {
-                targetFilter.setPinnedDistId(null, Collections.emptyList(), Collections.emptyList());
-                getFilterDataProvider().setFilter(targetFilter);
-            }
         }
+
+        targetFilter.setPinnedDistId(null, Collections.emptyList(), Collections.emptyList());
+        getFilterDataProvider().setFilter(targetFilter);
     }
 
     private Collection<Long> getAssignedToDsTargetIds(final Long pinnedDsId) {
@@ -325,7 +331,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private Collection<Long> getTargetIdsByFunction(final Function<Pageable, Page<Target>> findTargetsFunction) {
         // TODO: check if it is possible to use lazy loading here, by only
         // loading targets that are relevant for data provider with filter,
-        // offset and limit
+        // offset and limit or alternatively only load the corresponding target
+        // ids
         Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
         Slice<Target> targetSlice;
         final List<Target> targets = new ArrayList<>();

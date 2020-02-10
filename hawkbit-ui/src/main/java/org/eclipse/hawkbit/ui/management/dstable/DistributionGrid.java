@@ -78,7 +78,9 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     private static final String DS_PIN_BUTTON_ID = "dsPinnButton";
     private static final String DS_DELETE_BUTTON_ID = "dsDeleteButton";
 
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
+    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
     private final transient DistributionSetManagement distributionSetManagement;
     private final transient DeploymentManagement deploymentManagement;
 
@@ -99,7 +101,9 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             final DistributionTagLayoutUiState distributionTagLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
+        this.targetGridLayoutUiState = targetGridLayoutUiState;
         this.distributionGridLayoutUiState = distributionGridLayoutUiState;
+        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.distributionSetManagement = distributionSetManagement;
         this.deploymentManagement = deploymentManagement;
 
@@ -175,9 +179,14 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyDistributionSet pinnedItem) {
-        // TODO: somehow move it to abstract class/TypeFilterButtonClick
-        // needed to trigger style generator
-        getDataCommunicator().reset();
+        if (!StringUtils.isEmpty(dsFilter.getPinnedTargetControllerId())) {
+            dsFilter.setPinnedTargetControllerId(null, Collections.emptyList(), null);
+            getFilterDataProvider().setFilter(dsFilter);
+        } else {
+            // TODO: somehow move it to abstract class/TypeFilterButtonClick
+            // needed to trigger style generator
+            getDataCommunicator().reset();
+        }
 
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
                 new PinningChangedEventPayload<Long>(
@@ -239,15 +248,17 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     public void updatePinnedTargetFilter(final String pinnedControllerId) {
-        // TODO: adapt
-        if (pinnedControllerId == null && dsFilter.getPinnedTargetControllerId() != null) {
-            dsFilter.setPinnedTargetControllerId(null, Collections.emptyList(), null);
-            getFilterDataProvider().setFilter(dsFilter);
+        if (pinSupport.clearPinning()) {
+            // in order to update pinning column style
+            getDataCommunicator().reset();
+            distributionGridLayoutUiState.setPinnedDsId(null);
+        }
 
+        if (StringUtils.isEmpty(pinnedControllerId) && dsFilter.getPinnedTargetControllerId() == null) {
             return;
         }
 
-        if (pinnedControllerId != null) {
+        if (!StringUtils.isEmpty(pinnedControllerId)) {
             final Collection<Long> assignedDsIds = getAssignedToTargetDsIds(pinnedControllerId);
             final Long installedDsId = getInstalledToTargetDsId(pinnedControllerId);
 
@@ -257,11 +268,10 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
                 return;
             }
-
-            if (dsFilter.getPinnedTargetControllerId() != null) {
-                dsFilter.setPinnedTargetControllerId(null, Collections.emptyList(), null);
-            }
         }
+
+        dsFilter.setPinnedTargetControllerId(null, Collections.emptyList(), null);
+        getFilterDataProvider().setFilter(dsFilter);
     }
 
     private Collection<Long> getAssignedToTargetDsIds(final String controllerId) {
@@ -358,6 +368,32 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         actionButton.addStyleName(style);
 
         return actionButton;
+    }
+
+    public void restoreState() {
+        final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
+        // TODO: remove duplication with updatePinnedTargetFilter method
+        if (!StringUtils.isEmpty(pinnedControllerId)) {
+            final Collection<Long> assignedDsIds = getAssignedToTargetDsIds(pinnedControllerId);
+            final Long installedDsId = getInstalledToTargetDsId(pinnedControllerId);
+
+            if (!CollectionUtils.isEmpty(assignedDsIds) || installedDsId != null) {
+                dsFilter.setPinnedTargetControllerId(pinnedControllerId, assignedDsIds, installedDsId);
+            }
+        }
+
+        final String searchFilter = distributionGridLayoutUiState.getSearchFilter();
+        dsFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+
+        dsFilter.setNoTagClicked(distributionTagLayoutUiState.isNoTagClicked());
+
+        final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedTargetTagIdsWithName()
+                .values();
+        if (!CollectionUtils.isEmpty(tagFilterNames)) {
+            dsFilter.setDistributionSetTags(tagFilterNames);
+        }
+
+        getFilterDataProvider().setFilter(dsFilter);
     }
 
     /**

@@ -61,6 +61,15 @@ public class PinSupport<T extends ProxyIdentifiableEntity> {
         }
     }
 
+    public boolean clearPinning() {
+        if (pinnedItem != null) {
+            pinnedItem = null;
+            return true;
+        }
+
+        return false;
+    }
+
     public enum PinBehaviourType {
         PINNED, UNPINNED;
     }
