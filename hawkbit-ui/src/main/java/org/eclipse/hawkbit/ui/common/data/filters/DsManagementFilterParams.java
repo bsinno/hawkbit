@@ -25,8 +25,6 @@ public class DsManagementFilterParams implements Serializable {
     private boolean noTagClicked;
     private Collection<String> distributionSetTags;
     private String pinnedTargetControllerId;
-    private Collection<Long> assignedToTargetDsIds;
-    private Long installedToTargetDsId;
 
     /**
      * Constructor.
@@ -64,19 +62,8 @@ public class DsManagementFilterParams implements Serializable {
         return pinnedTargetControllerId;
     }
 
-    public void setPinnedTargetControllerId(final String pinnedTargetControllerId,
-            final Collection<Long> assignedToTargetDsIds, final Long installedToTargetDsId) {
+    public void setPinnedTargetControllerId(final String pinnedTargetControllerId) {
         this.pinnedTargetControllerId = pinnedTargetControllerId;
-        this.assignedToTargetDsIds = assignedToTargetDsIds;
-        this.installedToTargetDsId = installedToTargetDsId;
-    }
-
-    public Collection<Long> getAssignedToTargetDsIds() {
-        return assignedToTargetDsIds;
-    }
-
-    public Long getInstalledToTargetDsId() {
-        return installedToTargetDsId;
     }
 
     public DsManagementFilterParams() {

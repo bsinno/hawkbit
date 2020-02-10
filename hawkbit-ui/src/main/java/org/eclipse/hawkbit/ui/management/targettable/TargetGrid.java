@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +103,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final transient TargetToProxyTargetMapper targetToProxyTargetMapper;
     private final TargetManagementFilterParams targetFilter;
 
-    private final transient PinSupport<ProxyTarget> pinSupport;
+    private final transient PinSupport<ProxyTarget, Long> pinSupport;
     private final transient DeleteSupport<ProxyTarget> targetDeleteSupport;
     private final transient DragAndDropSupport<ProxyTarget> dragAndDropSupport;
 
@@ -137,7 +136,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             getSelectionSupport().enableMultiSelection();
         }
 
-        this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent);
+        this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent, this::refreshItem,
+                this::getAssignedToDsTargetIds, this::getInstalledToDsTargetIds);
 
         this.targetDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("target.details.header"),
                 ProxyTarget::getName, permChecker, notification, this::deleteTargets,
@@ -193,12 +193,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyTarget pinnedItem) {
         if (targetFilter.getPinnedDistId() != null) {
-            targetFilter.setPinnedDistId(null, Collections.emptyList(), Collections.emptyList());
+            targetFilter.setPinnedDistId(null);
             getFilterDataProvider().setFilter(targetFilter);
-        } else {
-            // TODO: somehow move it to abstract class/TypeFilterButtonClick
-            // needed to trigger style generator
-            getDataCommunicator().reset();
         }
 
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
@@ -207,34 +203,44 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                                 : PinningChangedEventType.ENTITY_UNPINNED,
                         ProxyTarget.class, pinnedItem.getControllerId()));
 
+        targetGridLayoutUiState.setPinnedTargetId(pinType == PinBehaviourType.PINNED ? pinnedItem.getId() : null);
         targetGridLayoutUiState
                 .setPinnedControllerId(pinType == PinBehaviourType.PINNED ? pinnedItem.getControllerId() : null);
     }
 
+    private Collection<Long> getAssignedToDsTargetIds(final Long pinnedDsId) {
+        return getTargetIdsByFunction(query -> targetManagement.findByAssignedDistributionSet(query, pinnedDsId));
+    }
+
+    private Collection<Long> getTargetIdsByFunction(final Function<Pageable, Page<Target>> findTargetsFunction) {
+        // TODO: check if it is possible to use lazy loading here, by only
+        // loading targets that are relevant for data provider with filter,
+        // offset and limit or alternatively only load the corresponding target
+        // ids
+        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
+        Slice<Target> targetSlice;
+        final List<Target> targets = new ArrayList<>();
+
+        do {
+            targetSlice = findTargetsFunction.apply(query);
+            targets.addAll(targetSlice.getContent());
+        } while ((query = targetSlice.nextPageable()) != Pageable.unpaged());
+
+        return targets.stream().map(Target::getId).collect(Collectors.toList());
+    }
+
+    private Collection<Long> getInstalledToDsTargetIds(final Long pinnedDsId) {
+        return getTargetIdsByFunction(query -> targetManagement.findByInstalledDistributionSet(query, pinnedDsId));
+    }
+
     private void initDsPinningStyleGenerator() {
         setStyleGenerator(target -> {
-            if (targetFilter.getPinnedDistId() != null) {
-                return getAssignedOrInstalledStyle(targetFilter.getAssignedToDsTargetIds(),
-                        targetFilter.getInstalledToDsTargetIds(), target.getId());
+            if (targetFilter.getPinnedDistId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
+                return pinSupport.getAssignedOrInstalledRowStyle(target.getId());
             }
 
             return null;
         });
-    }
-
-    private String getAssignedOrInstalledStyle(final Collection<Long> assignedToPinnedDsFilterTargetIds,
-            final Collection<Long> installedToPinnedDsFilterTargetIds, final Long targetId) {
-        if (!CollectionUtils.isEmpty(installedToPinnedDsFilterTargetIds)
-                && installedToPinnedDsFilterTargetIds.contains(targetId)) {
-            return SPUIDefinitions.HIGHLIGHT_GREEN;
-        }
-
-        if (!CollectionUtils.isEmpty(assignedToPinnedDsFilterTargetIds)
-                && assignedToPinnedDsFilterTargetIds.contains(targetId)) {
-            return SPUIDefinitions.HIGHLIGHT_ORANGE;
-        }
-
-        return null;
     }
 
     // TODO: check if icons are correct
@@ -299,54 +305,16 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     public void updatePinnedDsFilter(final Long pinnedDsId) {
         if (pinSupport.clearPinning()) {
-            // in order to update pinning column style
-            getDataCommunicator().reset();
+            targetGridLayoutUiState.setPinnedTargetId(null);
             targetGridLayoutUiState.setPinnedControllerId(null);
         }
 
-        if (pinnedDsId == null && targetFilter.getPinnedDistId() == null) {
-            return;
+        if ((pinnedDsId == null && targetFilter.getPinnedDistId() != null) || pinnedDsId != null) {
+            pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
+
+            targetFilter.setPinnedDistId(pinnedDsId);
+            getFilterDataProvider().setFilter(targetFilter);
         }
-
-        if (pinnedDsId != null) {
-            final Collection<Long> assignedTargetIds = getAssignedToDsTargetIds(pinnedDsId);
-            final Collection<Long> installedTargetIds = getInstalledToDsTargetIds(pinnedDsId);
-
-            if (!CollectionUtils.isEmpty(assignedTargetIds) || !CollectionUtils.isEmpty(installedTargetIds)) {
-                targetFilter.setPinnedDistId(pinnedDsId, assignedTargetIds, installedTargetIds);
-                getFilterDataProvider().setFilter(targetFilter);
-
-                return;
-            }
-        }
-
-        targetFilter.setPinnedDistId(null, Collections.emptyList(), Collections.emptyList());
-        getFilterDataProvider().setFilter(targetFilter);
-    }
-
-    private Collection<Long> getAssignedToDsTargetIds(final Long pinnedDsId) {
-        return getTargetIdsByFunction(query -> targetManagement.findByAssignedDistributionSet(query, pinnedDsId));
-    }
-
-    private Collection<Long> getTargetIdsByFunction(final Function<Pageable, Page<Target>> findTargetsFunction) {
-        // TODO: check if it is possible to use lazy loading here, by only
-        // loading targets that are relevant for data provider with filter,
-        // offset and limit or alternatively only load the corresponding target
-        // ids
-        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
-        Slice<Target> targetSlice;
-        final List<Target> targets = new ArrayList<>();
-
-        do {
-            targetSlice = findTargetsFunction.apply(query);
-            targets.addAll(targetSlice.getContent());
-        } while ((query = targetSlice.nextPageable()) != Pageable.unpaged());
-
-        return targets.stream().map(Target::getId).collect(Collectors.toList());
-    }
-
-    private Collection<Long> getInstalledToDsTargetIds(final Long pinnedDsId) {
-        return getTargetIdsByFunction(query -> targetManagement.findByInstalledDistributionSet(query, pinnedDsId));
     }
 
     public void updateDsFilter(final Long dsId) {
@@ -483,15 +451,17 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     public void restoreState() {
-        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
-        // TODO: remove duplication with updatePinnedDsFilter method
-        if (pinnedDsId != null) {
-            final Collection<Long> assignedTargetIds = getAssignedToDsTargetIds(pinnedDsId);
-            final Collection<Long> installedTargetIds = getInstalledToDsTargetIds(pinnedDsId);
+        final Long pinnedTargetId = targetGridLayoutUiState.getPinnedTargetId();
+        if (pinnedTargetId != null) {
+            final ProxyTarget pinnedTarget = new ProxyTarget();
+            pinnedTarget.setId(pinnedTargetId);
+            pinSupport.restorePinning(pinnedTarget);
+        }
 
-            if (!CollectionUtils.isEmpty(assignedTargetIds) || !CollectionUtils.isEmpty(installedTargetIds)) {
-                targetFilter.setPinnedDistId(pinnedDsId, assignedTargetIds, installedTargetIds);
-            }
+        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
+        if (pinnedDsId != null) {
+            pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
+            targetFilter.setPinnedDistId(pinnedDsId);
         }
 
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {

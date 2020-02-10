@@ -27,7 +27,6 @@ import com.vaadin.ui.Label;
  * Count message label which display current filter details and details on
  * pinning.
  */
-// TODO: refactor
 public class CountMessageLabel extends AbstractFooterSupport {
     private final VaadinMessageSource i18n;
 
@@ -55,9 +54,13 @@ public class CountMessageLabel extends AbstractFooterSupport {
         targetCountLabel.setId(UIComponentIdProvider.COUNT_LABEL);
         targetCountLabel.addStyleName(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
         targetCountLabel.setContentMode(ContentMode.HTML);
+        targetCountLabel.setIcon(null);
+        targetCountLabel.setDescription(null);
     }
 
     public void displayTargetCountStatus(final long count, final TargetManagementFilterParams targetFilterParams) {
+        // TODO: adapt so we don't always get the total targets value from the
+        // database if it hasn't changed
         final StringBuilder message = getTotalTargetMessage();
 
         if (targetFilterParams.isAnyFilterSelected()) {
@@ -89,28 +92,15 @@ public class CountMessageLabel extends AbstractFooterSupport {
         }
 
         targetCountLabel.setCaption(message.toString());
+
+        updatePinningDetails(targetFilterParams.getPinnedDistId());
     }
 
     private StringBuilder getTotalTargetMessage() {
-        targetCountLabel.setIcon(null);
-        targetCountLabel.setDescription(null);
-
         final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.filter.count"));
         message.append(targetManagement.count());
 
         return message;
-    }
-
-    public void displayCountLabel(final Long distId) {
-        final Long targetsWithAssigedDsCount = targetManagement.countByAssignedDistributionSet(distId);
-        final Long targetsWithInstalledDsCount = targetManagement.countByInstalledDistributionSet(distId);
-        final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.count"));
-        message.append("<span class=\"assigned-count-message\">");
-        message.append(i18n.getMessage("label.assigned.count", targetsWithAssigedDsCount));
-        message.append("</span>, <span class=\"installed-count-message\"> ");
-        message.append(i18n.getMessage("label.installed.count", targetsWithInstalledDsCount));
-        message.append("</span>");
-        targetCountLabel.setValue(message.toString());
     }
 
     private static String getStatusMsg(final Collection<TargetUpdateStatus> status, final String param) {
@@ -124,6 +114,25 @@ public class CountMessageLabel extends AbstractFooterSupport {
     private static String getTagsMsg(final Boolean noTargetTagSelected, final String[] tags, final String param) {
         return (tags == null || tags.length == 0)
                 && (noTargetTagSelected == null || !noTargetTagSelected.booleanValue()) ? " " : param;
+    }
+
+    public void updatePinningDetails(final Long pinnedDsId) {
+        if (pinnedDsId == null) {
+            targetCountLabel.setValue("");
+            return;
+        }
+
+        final Long targetsWithAssigedDsCount = targetManagement.countByAssignedDistributionSet(pinnedDsId);
+        final Long targetsWithInstalledDsCount = targetManagement.countByInstalledDistributionSet(pinnedDsId);
+
+        final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.count"));
+        message.append("<span class=\"assigned-count-message\">");
+        message.append(i18n.getMessage("label.assigned.count", targetsWithAssigedDsCount));
+        message.append("</span>, <span class=\"installed-count-message\"> ");
+        message.append(i18n.getMessage("label.installed.count", targetsWithInstalledDsCount));
+        message.append("</span>");
+
+        targetCountLabel.setValue(message.toString());
     }
 
     @Override

@@ -96,6 +96,13 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     }
 
     public void restoreState() {
+        distributionGridHeader.restoreState();
+        distributionGrid.restoreState();
+
+        restoreGridSelection();
+    }
+
+    private void restoreGridSelection() {
         final Long lastSelectedEntityId = distributionGridLayoutUiState.getSelectedDsId();
 
         if (lastSelectedEntityId != null) {

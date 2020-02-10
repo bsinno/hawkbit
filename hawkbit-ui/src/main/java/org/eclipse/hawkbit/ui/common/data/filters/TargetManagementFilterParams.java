@@ -24,8 +24,6 @@ public class TargetManagementFilterParams implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long pinnedDistId;
-    private Collection<Long> assignedToDsTargetIds;
-    private Collection<Long> installedToDsTargetIds;
     private String searchText;
     private Collection<TargetUpdateStatus> targetUpdateStatusList;
     private boolean overdueState;
@@ -77,19 +75,8 @@ public class TargetManagementFilterParams implements Serializable {
         return pinnedDistId;
     }
 
-    public void setPinnedDistId(final Long pinnedDistId, final Collection<Long> assignedToDsTargetIds,
-            final Collection<Long> installedToDsTargetIds) {
+    public void setPinnedDistId(final Long pinnedDistId) {
         this.pinnedDistId = pinnedDistId;
-        this.assignedToDsTargetIds = assignedToDsTargetIds;
-        this.installedToDsTargetIds = installedToDsTargetIds;
-    }
-
-    public Collection<Long> getAssignedToDsTargetIds() {
-        return assignedToDsTargetIds;
-    }
-
-    public Collection<Long> getInstalledToDsTargetIds() {
-        return installedToDsTargetIds;
     }
 
     public String getSearchText() {

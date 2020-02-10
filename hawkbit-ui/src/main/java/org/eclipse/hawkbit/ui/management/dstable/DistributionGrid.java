@@ -47,7 +47,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToDistributi
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -88,7 +87,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     private final transient DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
     private final DsManagementFilterParams dsFilter;
 
-    private final transient PinSupport<ProxyDistributionSet> pinSupport;
+    private final transient PinSupport<ProxyDistributionSet, String> pinSupport;
     private final transient DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
     private final transient DragAndDropSupport<ProxyDistributionSet> dragAndDropSupport;
 
@@ -122,7 +121,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             getSelectionSupport().enableMultiSelection();
         }
 
-        this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent);
+        this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent, this::refreshItem,
+                this::getAssignedToTargetDsIds, this::getInstalledToTargetDsIds);
 
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
                 ProxyDistributionSet::getNameVersion, permissionChecker, notification, this::deleteDistributionSets,
@@ -180,12 +180,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyDistributionSet pinnedItem) {
         if (!StringUtils.isEmpty(dsFilter.getPinnedTargetControllerId())) {
-            dsFilter.setPinnedTargetControllerId(null, Collections.emptyList(), null);
+            dsFilter.setPinnedTargetControllerId(null);
             getFilterDataProvider().setFilter(dsFilter);
-        } else {
-            // TODO: somehow move it to abstract class/TypeFilterButtonClick
-            // needed to trigger style generator
-            getDataCommunicator().reset();
         }
 
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
@@ -197,29 +193,34 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         distributionGridLayoutUiState.setPinnedDsId(pinType == PinBehaviourType.PINNED ? pinnedItem.getId() : null);
     }
 
+    private Collection<Long> getAssignedToTargetDsIds(final String controllerId) {
+        // currently we do not support getting all assigned distribution sets
+        // even in multi-assignment mode
+        final Long assignedDsId = deploymentManagement.getAssignedDistributionSet(controllerId)
+                .map(DistributionSet::getId).orElse(null);
+
+        if (assignedDsId != null) {
+            return Collections.singletonList(assignedDsId);
+        }
+
+        return Collections.emptyList();
+    }
+
+    private Collection<Long> getInstalledToTargetDsIds(final String controllerId) {
+        final Long installedDsId = deploymentManagement.getInstalledDistributionSet(controllerId)
+                .map(DistributionSet::getId).orElse(null);
+
+        return installedDsId != null ? Collections.singletonList(installedDsId) : Collections.emptyList();
+    }
+
     private void initTargetPinningStyleGenerator() {
         setStyleGenerator(ds -> {
-            if (dsFilter.getPinnedTargetControllerId() != null) {
-                return getAssignedOrInstalledStyle(dsFilter.getAssignedToTargetDsIds(),
-                        dsFilter.getInstalledToTargetDsId(), ds.getId());
+            if (dsFilter.getPinnedTargetControllerId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
+                return pinSupport.getAssignedOrInstalledRowStyle(ds.getId());
             }
 
             return null;
         });
-    }
-
-    private String getAssignedOrInstalledStyle(final Collection<Long> assignedToPinnedTargetFilterDsIds,
-            final Long installedToPinnedTargetFilterDsId, final Long dsId) {
-        if (installedToPinnedTargetFilterDsId != null && installedToPinnedTargetFilterDsId.equals(dsId)) {
-            return SPUIDefinitions.HIGHLIGHT_GREEN;
-        }
-
-        if (!CollectionUtils.isEmpty(assignedToPinnedTargetFilterDsIds)
-                && assignedToPinnedTargetFilterDsIds.contains(dsId)) {
-            return SPUIDefinitions.HIGHLIGHT_ORANGE;
-        }
-
-        return null;
     }
 
     @Override
@@ -249,46 +250,16 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     public void updatePinnedTargetFilter(final String pinnedControllerId) {
         if (pinSupport.clearPinning()) {
-            // in order to update pinning column style
-            getDataCommunicator().reset();
             distributionGridLayoutUiState.setPinnedDsId(null);
         }
 
-        if (StringUtils.isEmpty(pinnedControllerId) && dsFilter.getPinnedTargetControllerId() == null) {
-            return;
+        if ((StringUtils.isEmpty(pinnedControllerId) && dsFilter.getPinnedTargetControllerId() != null)
+                || !StringUtils.isEmpty(pinnedControllerId)) {
+            pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
+
+            dsFilter.setPinnedTargetControllerId(pinnedControllerId);
+            getFilterDataProvider().setFilter(dsFilter);
         }
-
-        if (!StringUtils.isEmpty(pinnedControllerId)) {
-            final Collection<Long> assignedDsIds = getAssignedToTargetDsIds(pinnedControllerId);
-            final Long installedDsId = getInstalledToTargetDsId(pinnedControllerId);
-
-            if (!CollectionUtils.isEmpty(assignedDsIds) || installedDsId != null) {
-                dsFilter.setPinnedTargetControllerId(pinnedControllerId, assignedDsIds, installedDsId);
-                getFilterDataProvider().setFilter(dsFilter);
-
-                return;
-            }
-        }
-
-        dsFilter.setPinnedTargetControllerId(null, Collections.emptyList(), null);
-        getFilterDataProvider().setFilter(dsFilter);
-    }
-
-    private Collection<Long> getAssignedToTargetDsIds(final String controllerId) {
-        // currently we do not support getting all assigned distribution sets
-        // even in multi-assignment mode
-        final Long assignedDsId = deploymentManagement.getAssignedDistributionSet(controllerId)
-                .map(DistributionSet::getId).orElse(null);
-
-        if (assignedDsId != null) {
-            return Collections.singletonList(assignedDsId);
-        }
-
-        return Collections.emptyList();
-    }
-
-    private Long getInstalledToTargetDsId(final String controllerId) {
-        return deploymentManagement.getInstalledDistributionSet(controllerId).map(DistributionSet::getId).orElse(null);
     }
 
     /**
@@ -371,15 +342,17 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     public void restoreState() {
-        final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
-        // TODO: remove duplication with updatePinnedTargetFilter method
-        if (!StringUtils.isEmpty(pinnedControllerId)) {
-            final Collection<Long> assignedDsIds = getAssignedToTargetDsIds(pinnedControllerId);
-            final Long installedDsId = getInstalledToTargetDsId(pinnedControllerId);
+        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
+        if (pinnedDsId != null) {
+            final ProxyDistributionSet pinnedDs = new ProxyDistributionSet();
+            pinnedDs.setId(pinnedDsId);
+            pinSupport.restorePinning(pinnedDs);
+        }
 
-            if (!CollectionUtils.isEmpty(assignedDsIds) || installedDsId != null) {
-                dsFilter.setPinnedTargetControllerId(pinnedControllerId, assignedDsIds, installedDsId);
-            }
+        final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
+        if (!StringUtils.isEmpty(pinnedControllerId)) {
+            pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
+            dsFilter.setPinnedTargetControllerId(pinnedControllerId);
         }
 
         final String searchFilter = distributionGridLayoutUiState.getSearchFilter();
