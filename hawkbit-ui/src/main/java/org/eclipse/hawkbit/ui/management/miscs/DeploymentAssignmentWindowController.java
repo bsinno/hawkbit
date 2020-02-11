@@ -27,11 +27,10 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
-import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -39,6 +38,7 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
@@ -131,12 +131,14 @@ public class DeploymentAssignmentWindowController {
             // use the last one for the notification box
             showAssignmentResultNotifications(assignmentResults.get(assignmentResults.size() - 1));
 
+            final Set<String> assignedControllerIds = proxyTargets.stream().map(ProxyTarget::getControllerId)
+                    .collect(Collectors.toSet());
+            refreshPinnedDetails(dsIdsToAssign, assignedControllerIds);
+
             final Set<Long> assignedTargetIds = proxyTargets.stream().map(ProxyTarget::getId)
                     .collect(Collectors.toSet());
-            refreshPinnedDetails(dsIdsToAssign, assignedTargetIds);
-
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, assignedTargetIds));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, assignedTargetIds));
         } catch (final MultiAssignmentIsNotEnabledException e) {
             notification.displayValidationError(i18n.getMessage("message.target.ds.multiassign.error"));
             LOG.error("UI allowed multiassignment although it is not enabled: {}", e);
@@ -159,16 +161,17 @@ public class DeploymentAssignmentWindowController {
         notification.displaySuccess(i18n.getMessage("message.target.ds.assign.success"));
     }
 
-    private void refreshPinnedDetails(final Set<Long> assignedDsIds, final Set<Long> assignedTargetIds) {
+    // TODO: check if needed
+    private void refreshPinnedDetails(final Set<Long> assignedDsIds, final Set<String> assignedControllerIds) {
         final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
-        final Long pinnedTargetId = targetGridLayoutUiState.getPinnedTargetId();
+        final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
 
         if (pinnedDsId != null && assignedDsIds.contains(pinnedDsId)) {
-            eventBus.publish(this, PinUnpinEvent.PIN_DISTRIBUTION);
+            // eventBus.publish(this, PinUnpinEvent.PIN_DISTRIBUTION);
         }
 
-        if (pinnedTargetId != null && assignedTargetIds.contains(pinnedTargetId)) {
-            eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
+        if (!StringUtils.isEmpty(pinnedControllerId) && assignedControllerIds.contains(pinnedControllerId)) {
+            // eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
         }
     }
 

@@ -12,10 +12,6 @@ public final class EventTopics {
     public static final String ENTITY_MODIFIED = "entityModified";
     public static final String SELECTION_CHANGED = "selectionChanged";
 
-    public static final String LAYOUT_VISIBILITY_CHANGED = "layoutVisibilityChanged";
-    public static final String LAYOUT_RESIZED = "layoutResized";
-
-    public static final String FILTER_BUTTONS_ACTIONS_CHANGED = "filterButtonsActionsChanged";
     public static final String TARGET_FILTER_TAB_CHANGED = "targetFilterTabChanged";
 
     public static final String SEARCH_FILTER_CHANGED = "searchFilterChanged";
@@ -25,6 +21,8 @@ public final class EventTopics {
     public static final String STATUS_FILTER_CHANGED = "statusFilterChanged";
     public static final String OVERDUE_FILTER_CHANGED = "overdueFilterChanged";
     public static final String CUSTOM_FILTER_CHANGED = "customFilterChanged";
+
+    public static final String PINNING_CHANGED = "pinningChanged";
 
     public static final String REMOTE_EVENT_RECEIVED = "remoteEventReceived";
 

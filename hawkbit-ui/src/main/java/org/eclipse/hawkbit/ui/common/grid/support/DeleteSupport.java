@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
@@ -36,28 +37,34 @@ public class DeleteSupport<T> {
     private final UINotification notification;
     private final Consumer<Collection<T>> itemsDeletionCallback;
     private final String deletionWindowId;
+    private final Function<T, String> entityNameGenerator;
 
     public DeleteSupport(final Grid<T> grid, final VaadinMessageSource i18n, final String entityType,
-            final SpPermissionChecker permissionChecker, final UINotification notification,
-            final Consumer<Collection<T>> itemsDeletionCallback, final String deletionWindowId) {
+            final Function<T, String> entityNameGenerator, final SpPermissionChecker permissionChecker,
+            final UINotification notification, final Consumer<Collection<T>> itemsDeletionCallback,
+            final String deletionWindowId) {
         this.grid = grid;
         this.i18n = i18n;
         this.entityType = entityType;
+        this.entityNameGenerator = entityNameGenerator;
         this.permissionChecker = permissionChecker;
         this.notification = notification;
         this.itemsDeletionCallback = itemsDeletionCallback;
         this.deletionWindowId = deletionWindowId;
     }
 
-    public void openConfirmationWindowDeleteAction(final T clickedItem, final String clickedItemName) {
+    public void openConfirmationWindowDeleteAction(final T clickedItem) {
         final Set<T> itemsToBeDeleted = getItemsForDeletion(clickedItem);
         final int itemsToBeDeletedSize = itemsToBeDeleted.size();
 
+        final String clickedItemName = entityNameGenerator.apply(clickedItem);
         final String confirmationCaption = i18n.getMessage("caption.entity.delete.action.confirmbox", entityType);
+
         final String confirmationQuestion = createDeletionText(UIMessageIdProvider.MESSAGE_CONFIRM_DELETE_ENTITY,
                 itemsToBeDeletedSize, clickedItemName);
         final String successNotificationText = createDeletionText("message.delete.success", itemsToBeDeletedSize,
                 clickedItemName);
+
         final ConfirmationDialog confirmDeleteDialog = createConfirmationWindowForDeletion(itemsToBeDeleted,
                 confirmationCaption, confirmationQuestion, successNotificationText);
 

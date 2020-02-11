@@ -14,9 +14,9 @@ import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -63,9 +63,8 @@ public class AddTargetWindowController extends AbstractEntityWindowController<Pr
                 .controllerId(entity.getControllerId()).name(entity.getName()).description(entity.getDescription()));
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", newTarget.getName()));
-        // TODO: verify if sender is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newTarget.getId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_ADDED, ProxyTarget.class, newTarget.getId()));
     }
 
     @Override

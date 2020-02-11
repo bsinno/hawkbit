@@ -21,9 +21,9 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.TargetModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
@@ -60,8 +60,8 @@ public class TargetTagToken extends AbstractTagToken<ProxyTarget> {
         if (checkAssignmentResult(assignedTargets, selectedEntity.getId())) {
             uinotification.displaySuccess(
                     i18n.getMessage("message.target.assigned.one", selectedEntity.getName(), tagData.getName()));
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, selectedEntity.getId()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, selectedEntity.getId()));
 
             // TODO: check if needed
             tagPanelLayout.setAssignedTag(tagData);
@@ -74,8 +74,8 @@ public class TargetTagToken extends AbstractTagToken<ProxyTarget> {
         if (checkUnassignmentResult(unassignedTarget, selectedEntity.getId())) {
             uinotification.displaySuccess(
                     i18n.getMessage("message.target.unassigned.one", selectedEntity.getName(), tagData.getName()));
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new TargetModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, selectedEntity.getId()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, selectedEntity.getId()));
 
             // TODO: check if needed
             tagPanelLayout.removeAssignedTag(tagData);

@@ -17,9 +17,9 @@ import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -77,9 +77,8 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success",
                 newSoftwareModule.getName() + ":" + newSoftwareModule.getVersion()));
-        // TODO: verify if sender is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newSoftwareModule.getId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_ADDED, ProxySoftwareModule.class, newSoftwareModule.getId()));
     }
 
     @Override

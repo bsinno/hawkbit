@@ -442,6 +442,15 @@ public class JpaSoftwareModuleManagement implements SoftwareModuleManagement {
     }
 
     @Override
+    public long countByAssignedTo(final long setId) {
+        if (!distributionSetRepository.existsById(setId)) {
+            throw new EntityNotFoundException(DistributionSet.class, setId);
+        }
+
+        return softwareModuleRepository.countByAssignedToId(setId);
+    }
+
+    @Override
     @Transactional
     @Retryable(include = {
             ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))

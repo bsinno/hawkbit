@@ -24,11 +24,11 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
-import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -92,7 +92,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
 
         this.targetFilterDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.filter.custom"),
-                permChecker, notification, this::targetFiltersDeletionCallback,
+                ProxyTargetFilterQuery::getName, permChecker, notification, this::targetFiltersDeletionCallback,
                 UIComponentIdProvider.TARGET_FILTER_DELETE_CONFIRMATION_DIALOG);
 
         initActionTypeIconMap();
@@ -114,8 +114,8 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         targetFilterIdsToBeDeleted.forEach(targetFilterQueryManagement::delete);
 
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new TargetFilterModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_REMOVED, targetFilterIdsToBeDeleted));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_REMOVED, ProxyTargetFilterQuery.class, targetFilterIdsToBeDeleted));
     }
 
     public void setFilter(final String filter) {
@@ -157,8 +157,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 .setText(i18n.getMessage("header.auto.assignment.ds"));
 
         addComponentColumn(targetFilter -> buildActionButton(
-                clickEvent -> targetFilterDeleteSupport.openConfirmationWindowDeleteAction(targetFilter,
-                        targetFilter.getName()),
+                clickEvent -> targetFilterDeleteSupport.openConfirmationWindowDeleteAction(targetFilter),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON + "." + targetFilter.getId(),
                 targetFilterDeleteSupport.hasDeletePermission())).setId(FILTER_DELETE_BUTTON_ID)

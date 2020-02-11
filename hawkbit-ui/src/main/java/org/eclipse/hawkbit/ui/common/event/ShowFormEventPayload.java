@@ -8,12 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class ShowFormEventPayload<T> {
+public class ShowFormEventPayload<T> extends ViewAwareEventPayload {
     private final FormType formType;
     private final Class<?> entityType;
     private final Class<?> parentEntityType;
     private final T entity;
-    private final View view;
 
     public ShowFormEventPayload(final FormType formType, final Class<?> entityType, final View view) {
         this(formType, entityType, null, null, view);
@@ -35,11 +34,12 @@ public class ShowFormEventPayload<T> {
 
     private ShowFormEventPayload(final FormType formType, final Class<?> entityType, final Class<?> parentEntityType,
             final T entity, final View view) {
+        super(view);
+
         this.formType = formType;
         this.entityType = entityType;
         this.parentEntityType = parentEntityType;
         this.entity = entity;
-        this.view = view;
     }
 
     public FormType getFormType() {
@@ -56,10 +56,6 @@ public class ShowFormEventPayload<T> {
 
     public T getEntity() {
         return entity;
-    }
-
-    public View getView() {
-        return view;
     }
 
     public enum FormType {

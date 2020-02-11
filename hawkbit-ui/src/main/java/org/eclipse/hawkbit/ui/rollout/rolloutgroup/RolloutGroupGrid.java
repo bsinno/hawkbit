@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -16,23 +17,24 @@ import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.push.RolloutGroupChangedEventContainer;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
-import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutUIState;
+import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupLayoutUIState;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.google.common.base.Predicates;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
@@ -42,41 +44,28 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 /**
  * Rollout group list grid component.
  */
-public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
-
+public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
     private static final long serialVersionUID = 1L;
 
     private static final String ROLLOUT_GROUP_LINK_ID = "rolloutGroup";
 
+    private final RolloutGroupLayoutUIState rolloutUIState;
     private final transient RolloutGroupManagement rolloutGroupManagement;
-
-    private final RolloutUIState rolloutUIState;
 
     private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
 
-    private final ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Void> rolloutGroupDataProvider;
+    private final ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Long> rolloutGroupDataProvider;
 
-    /**
-     * Constructor for RolloutGroupListGrid (Header with breadcrumbs)
-     * 
-     * @param i18n
-     *            I18N
-     * @param eventBus
-     *            UIEventBus
-     * @param rolloutGroupManagement
-     *            RolloutGroupManagement
-     * @param rolloutUIState
-     *            RolloutUIState
-     * @param permissionChecker
-     *            SpPermissionChecker
-     */
     public RolloutGroupGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final RolloutGroupManagement rolloutGroupManagement, final RolloutUIState rolloutUIState,
-            final SpPermissionChecker permissionChecker, final RolloutGroupDataProvider rolloutGroupDataProvider) {
+            final SpPermissionChecker permissionChecker, final RolloutGroupManagement rolloutGroupManagement,
+            final RolloutGroupLayoutUIState rolloutUIState) {
         super(i18n, eventBus, permissionChecker);
-        this.rolloutGroupManagement = rolloutGroupManagement;
+
         this.rolloutUIState = rolloutUIState;
-        this.rolloutGroupDataProvider = rolloutGroupDataProvider.withConfigurableFilter();
+        this.rolloutGroupManagement = rolloutGroupManagement;
+
+        this.rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement,
+                new RolloutGroupToProxyRolloutGroupMapper()).withConfigurableFilter();
 
         initStatusIconMap();
 
@@ -84,7 +73,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
     }
 
     @Override
-    public ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Void> getFilterDataProvider() {
+    public ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Long> getFilterDataProvider() {
         return rolloutGroupDataProvider;
     }
 
@@ -109,38 +98,6 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
     @Override
     public String getGridId() {
         return UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID;
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onEvent(final RolloutEvent event) {
-        if (RolloutEvent.SHOW_ROLLOUTS == event) {
-            rolloutUIState.setShowRollOuts(true);
-            rolloutUIState.setShowRolloutGroups(false);
-            rolloutUIState.setShowRolloutGroupTargets(false);
-        }
-        if (RolloutEvent.SHOW_ROLLOUT_GROUPS != event) {
-            return;
-        }
-
-        getDataProvider().refreshAll();
-    }
-
-    /**
-     *
-     * Handles the RolloutGroupChangeEvent to refresh the item in the grid.
-     *
-     *
-     * @param eventContainer
-     *            the event which contains the rollout group which has been
-     *            change
-     */
-    @EventBusListenerMethod(scope = EventScope.UI)
-    public void onRolloutGroupChangeEvent(final RolloutGroupChangedEventContainer eventContainer) {
-        if (!rolloutUIState.isShowRolloutGroups()) {
-            return;
-        }
-
-        getDataProvider().refreshAll();
     }
 
     @Override
@@ -205,7 +162,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
         final Button rolloutGroupLink = new Button();
 
         if (permissionChecker.hasRolloutTargetsReadPermission()) {
-            rolloutGroupLink.addClickListener(clickEvent -> onClickOfRolloutGroupName(rolloutGroup.getId()));
+            rolloutGroupLink.addClickListener(
+                    clickEvent -> onClickOfRolloutGroupName(rolloutGroup.getId(), rolloutGroup.getName()));
         }
 
         rolloutGroupLink.setId(new StringBuilder("rolloutgroup.link.").append(rolloutGroup.getId()).toString());
@@ -234,13 +192,23 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Void> {
         return rolloutGroupLink;
     }
 
-    private void onClickOfRolloutGroupName(final Long rolloutGroupId) {
-        final Optional<RolloutGroup> group = rolloutGroupManagement.getWithDetailedStatus(rolloutGroupId);
-        if (!group.isPresent()) {
-            eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
-            return;
-        }
-        rolloutUIState.setRolloutGroup(group.get());
-        eventBus.publish(this, RolloutEvent.SHOW_ROLLOUT_GROUP_TARGETS);
+    private void onClickOfRolloutGroupName(final Long rolloutGroupId, final String rolloutGroupName) {
+        eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this,
+                new ShowEntityDetailsEventPayload(ProxyRolloutGroup.class, rolloutGroupId, rolloutGroupName,
+                        rolloutUIState.getSelectedRolloutName(), View.ROLLOUT));
+    }
+
+    public void updateMasterEntityFilter(final Long masterEntityId) {
+        getFilterDataProvider().setFilter(masterEntityId);
+    }
+
+    public void updateGridItems(final Collection<Long> ids) {
+        ids.stream().filter(Predicates.notNull()).map(rolloutGroupManagement::getWithDetailedStatus)
+                .forEach(rolloutGroup -> rolloutGroup.ifPresent(this::updateGridItem));
+    }
+
+    private void updateGridItem(final RolloutGroup rolloutGroup) {
+        final ProxyRolloutGroup proxyRolloutGroup = RolloutGroupToProxyRolloutGroupMapper.mapGroup(rolloutGroup);
+        getDataProvider().refreshItem(proxyRolloutGroup);
     }
 }

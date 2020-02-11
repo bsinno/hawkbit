@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.distributions;
 
-import java.util.Collection;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -24,12 +22,9 @@ import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.DistributionSetType;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridLayout;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleGridLayout;
@@ -47,7 +42,7 @@ import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -69,7 +64,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     private final SwModuleGridLayout swModuleGridLayout;
     private final DistSMTypeFilterLayout distSMTypeFilterLayout;
 
-    private GridLayout mainLayout;
+    private HorizontalLayout mainLayout;
 
     private final transient DistributionsViewEventListener eventListener;
 
@@ -134,20 +129,20 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     }
 
     private void createMainLayout() {
-        mainLayout = new GridLayout(4, 1);
+        mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
         mainLayout.setMargin(false);
         mainLayout.setSpacing(true);
-        mainLayout.setStyleName("fullSize");
 
-        mainLayout.setRowExpandRatio(0, 1.0F);
-        mainLayout.setColumnExpandRatio(1, 0.5F);
-        mainLayout.setColumnExpandRatio(2, 0.5F);
+        mainLayout.addComponent(dsTypeFilterLayout);
+        mainLayout.addComponent(distributionSetGridLayout);
+        mainLayout.addComponent(swModuleGridLayout);
+        mainLayout.addComponent(distSMTypeFilterLayout);
 
-        mainLayout.addComponent(dsTypeFilterLayout, 0, 0);
-        mainLayout.addComponent(distributionSetGridLayout, 1, 0);
-        mainLayout.addComponent(swModuleGridLayout, 2, 0);
-        mainLayout.addComponent(distSMTypeFilterLayout, 3, 0);
+        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
+        mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
+        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
     }
 
     private void restoreState() {
@@ -190,8 +185,10 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         swModuleGridLayout.setVisible(false);
         distSMTypeFilterLayout.setVisible(false);
 
-        mainLayout.setColumnExpandRatio(2, 0F);
-        mainLayout.setColumnExpandRatio(3, 0F);
+        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(distributionSetGridLayout, 1.0F);
+        mainLayout.setExpandRatio(swModuleGridLayout, 0F);
+        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
 
         distributionSetGridLayout.maximize();
     }
@@ -200,9 +197,10 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         dsTypeFilterLayout.setVisible(false);
         distributionSetGridLayout.setVisible(false);
 
-        mainLayout.setColumnExpandRatio(2, 1F);
-        mainLayout.setColumnExpandRatio(0, 0F);
-        mainLayout.setColumnExpandRatio(1, 0F);
+        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(distributionSetGridLayout, 0F);
+        mainLayout.setExpandRatio(swModuleGridLayout, 1.0F);
+        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
 
         swModuleGridLayout.maximize();
     }
@@ -242,26 +240,16 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         }
     }
 
-    void onDsSelected(final ProxyDistributionSet ds) {
-        swModuleGridLayout.onDsSelected(ds);
-    }
-
-    void onDsUpdated(final Collection<Long> entityIds) {
-        final Long lastSelectedDsId = manageDistUIState.getDistributionSetGridLayoutUiState().getSelectedDsId();
-
-        if (lastSelectedDsId != null && entityIds.contains(lastSelectedDsId)) {
-            swModuleGridLayout.refreshGrid();
-        }
-    }
-
     void minimizeDsGridLayout() {
         swModuleGridLayout.setVisible(true);
         if (!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
             distSMTypeFilterLayout.setVisible(true);
         }
 
-        mainLayout.setColumnExpandRatio(1, 0.5F);
-        mainLayout.setColumnExpandRatio(2, 0.5F);
+        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
+        mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
+        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
 
         distributionSetGridLayout.minimize();
     }
@@ -272,18 +260,12 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         }
         distributionSetGridLayout.setVisible(true);
 
-        mainLayout.setColumnExpandRatio(1, 0.5F);
-        mainLayout.setColumnExpandRatio(2, 0.5F);
+        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
+        mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
+        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
 
         swModuleGridLayout.minimize();
-    }
-
-    void filterDsGridByType(final DistributionSetType typeFilter) {
-        distributionSetGridLayout.filterGridByType(typeFilter);
-    }
-
-    void filterSmGridByType(final SoftwareModuleType typeFilter) {
-        swModuleGridLayout.filterGridByType(typeFilter);
     }
 
     @PreDestroy

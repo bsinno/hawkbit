@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -143,5 +144,9 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+    }
+
+    public Layout getLayout() {
+        return Layout.SM_LIST;
     }
 }

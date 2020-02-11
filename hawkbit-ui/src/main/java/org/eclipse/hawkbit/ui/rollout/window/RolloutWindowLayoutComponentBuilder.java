@@ -21,6 +21,10 @@ import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
@@ -79,12 +83,20 @@ public final class RolloutWindowLayoutComponentBuilder {
 
     private static final RolloutGroupConditions defaultRolloutGroupConditions;
 
+    private final DistributionSetStatelessDataProvider distributionSetDataProvider;
+    private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
+
     static {
         defaultRolloutGroupConditions = new RolloutGroupConditionBuilder().withDefaults().build();
     }
 
     public RolloutWindowLayoutComponentBuilder(final RolloutWindowDependencies rolloutWindowDependecies) {
         this.dependencies = rolloutWindowDependecies;
+
+        this.distributionSetDataProvider = new DistributionSetStatelessDataProvider(
+                dependencies.getDistributionSetManagement(), new DistributionSetToProxyDistributionMapper());
+        this.targetFilterQueryDataProvider = new TargetFilterQueryDataProvider(
+                dependencies.getTargetFilterQueryManagement(), new TargetFilterQueryToProxyTargetFilterMapper());
     }
 
     public TextField createRolloutNameField(final Binder<ProxyRolloutWindow> binder) {
@@ -108,7 +120,8 @@ public final class RolloutWindowLayoutComponentBuilder {
         distributionSet.addStyleName(ValoTheme.COMBOBOX_SMALL);
 
         distributionSet.setItemCaptionGenerator(ProxyDistributionSet::getNameVersion);
-        distributionSet.setDataProvider(dependencies.getDistributionSetDataProvider());
+
+        distributionSet.setDataProvider(distributionSetDataProvider);
 
         // TODO: use i18n for all the required fields messages
         binder.forField(distributionSet).asRequired("You must provide the distribution set").withConverter(ds -> {
@@ -139,7 +152,7 @@ public final class RolloutWindowLayoutComponentBuilder {
         targetFilterQueryCombo.addStyleName(ValoTheme.COMBOBOX_SMALL);
 
         targetFilterQueryCombo.setItemCaptionGenerator(ProxyTargetFilterQuery::getName);
-        targetFilterQueryCombo.setDataProvider(dependencies.getTargetFilterQueryDataProvider());
+        targetFilterQueryCombo.setDataProvider(targetFilterQueryDataProvider);
 
         // TODO: use i18n for all the required fields messages
         binder.forField(targetFilterQueryCombo).asRequired("You must provide the target filter")
@@ -463,7 +476,7 @@ public final class RolloutWindowLayoutComponentBuilder {
         final DefineGroupsLayout defineGroupsLayout = new DefineGroupsLayout(dependencies.getI18n(),
                 dependencies.getEntityFactory(), dependencies.getRolloutManagement(),
                 dependencies.getTargetFilterQueryManagement(), dependencies.getRolloutGroupManagement(),
-                dependencies.getQuotaManagement(), dependencies.getTargetFilterQueryDataProvider());
+                dependencies.getQuotaManagement(), targetFilterQueryDataProvider);
         defineGroupsLayout.setDefaultErrorThreshold(defaultRolloutGroupConditions.getErrorConditionExp());
         defineGroupsLayout.setDefaultTriggerThreshold(defaultRolloutGroupConditions.getSuccessConditionExp());
 

@@ -23,6 +23,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -115,6 +116,14 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         swModuleGrid.updateMasterEntityFilter(selectedDs != null ? selectedDs.getId() : null);
     }
 
+    public void onDsUpdated(final Collection<Long> entityIds) {
+        final Long lastSelectedDsId = swModuleGrid.getMasterEntityFilter();
+
+        if (lastSelectedDsId != null && entityIds.contains(lastSelectedDsId)) {
+            swModuleGrid.refreshContainer();
+        }
+    }
+
     public void showSmTypeHeaderIcon() {
         swModuleGridHeader.showSmTypeIcon();
     }
@@ -149,5 +158,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+    }
+
+    public Layout getLayout() {
+        return Layout.SM_LIST;
     }
 }

@@ -9,13 +9,10 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
-import org.eclipse.hawkbit.repository.event.remote.entity.CancelTargetAssignmentEvent;
 import org.eclipse.hawkbit.repository.exception.CancelActionNotAllowedException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Action.Status;
@@ -26,14 +23,12 @@ import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.common.table.BaseEntityEventType;
-import org.eclipse.hawkbit.ui.management.DeploymentView;
-import org.eclipse.hawkbit.ui.management.event.TargetTableEvent;
-import org.eclipse.hawkbit.ui.push.CancelTargetAssignmentEventContainer;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -45,8 +40,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
@@ -103,8 +96,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .withConfigurableFilter();
 
         setResizeSupport(new ActionHistoryResizeSupport());
-        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, DeploymentView.VIEW_NAME,
-                this::updateLastSelectedActionUiState));
+        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, Layout.ACTION_HISTORY_LIST,
+                View.DEPLOYMENT, this::updateLastSelectedActionUiState));
         if (actionHistoryGridLayoutUiState.isMaximized()) {
             getSelectionSupport().enableSingleSelection();
         } else {
@@ -205,20 +198,23 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         }
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    void onCancelTargetAssignmentEvents(final CancelTargetAssignmentEventContainer eventContainer) {
-        final List<Long> actionIds = eventContainer.getEvents().stream().filter(
-                event -> event.getEntity() != null && event.getEntity().getId().equals(selectedMasterTarget.getId()))
-                .map(CancelTargetAssignmentEvent::getActionId).collect(Collectors.toList());
-
-        if (!actionIds.isEmpty()) {
-            // TODO: Consider updating only corresponding actions with
-            // dataProvider.refreshItem() based on
-            // action ids instead of full refresh (evaluate
-            // getDataCommunicator().getKeyMapper())
-            refreshContainer();
-        }
-    }
+    // TODO: adapt
+    // @EventBusListenerMethod(scope = EventScope.UI)
+    // void onCancelTargetAssignmentEvents(final
+    // CancelTargetAssignmentEventContainer eventContainer) {
+    // final List<Long> actionIds = eventContainer.getEvents().stream().filter(
+    // event -> event.getEntity() != null &&
+    // event.getEntity().getId().equals(selectedMasterTarget.getId()))
+    // .map(CancelTargetAssignmentEvent::getActionId).collect(Collectors.toList());
+    //
+    // if (!actionIds.isEmpty()) {
+    // // TODO: Consider updating only corresponding actions with
+    // // dataProvider.refreshItem() based on
+    // // action ids instead of full refresh (evaluate
+    // // getDataCommunicator().getKeyMapper())
+    // refreshContainer();
+    // }
+    // }
 
     public void updateMasterEntityFilter(final ProxyTarget masterEntity) {
         this.selectedMasterTarget = masterEntity;
@@ -434,7 +430,10 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private void updateTargetAndDsTable() {
-        eventBus.publish(this, new TargetTableEvent(BaseEntityEventType.UPDATED_ENTITY, selectedMasterTarget));
+        // TODO: adapt
+        // eventBus.publish(this, new
+        // TargetTableEvent(BaseEntityEventType.UPDATED_ENTITY,
+        // selectedMasterTarget));
         updateDistributionTableStyle();
     }
 

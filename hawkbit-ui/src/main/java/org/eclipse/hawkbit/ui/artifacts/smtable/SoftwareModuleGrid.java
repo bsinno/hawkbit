@@ -15,17 +15,18 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.artifacts.UploadArtifactView;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleArtifactsStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
@@ -91,7 +92,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
         setResizeSupport(new SwModuleResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, UploadArtifactView.VIEW_NAME,
+        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, Layout.SM_LIST, View.UPLOAD,
                 this::updateLastSelectedSmUiState));
         if (smGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
@@ -100,7 +101,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
 
         this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.software.module"),
-                permissionChecker, notification, this::deleteSoftwareModules,
+                ProxySoftwareModule::getNameAndVersion, permissionChecker, notification, this::deleteSoftwareModules,
                 UIComponentIdProvider.SM_DELETE_CONFIRMATION_DIALOG);
 
         init();
@@ -132,8 +133,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
 
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new SmModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, swModuleToBeDeletedIds));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_REMOVED, ProxySoftwareModule.class, swModuleToBeDeletedIds));
     }
 
     private boolean isUploadInProgressForSoftwareModule(final Collection<Long> swModuleToBeDeletedIds) {
@@ -214,8 +215,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     private void addActionColumns() {
         addComponentColumn(sm -> buildActionButton(
-                clickEvent -> swModuleDeleteSupport.openConfirmationWindowDeleteAction(sm, sm.getNameAndVersion()),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                clickEvent -> swModuleDeleteSupport.openConfirmationWindowDeleteAction(sm), VaadinIcons.TRASH,
+                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(), swModuleDeleteSupport.hasDeletePermission()))
                         .setId(SM_DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete"))
                         .setMinimumWidth(80d);

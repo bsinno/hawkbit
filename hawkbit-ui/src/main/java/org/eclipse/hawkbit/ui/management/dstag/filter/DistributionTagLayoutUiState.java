@@ -9,13 +9,14 @@
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DistributionTagLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean hidden;
-    private Set<Long> clickedDsTagIds;
+    private final Map<Long, String> clickedTargetTagIdsWithName = new HashMap<>();
     private boolean noTagClicked;
 
     public boolean isHidden() {
@@ -26,19 +27,20 @@ public class DistributionTagLayoutUiState implements Serializable {
         this.hidden = hidden;
     }
 
-    public Set<Long> getClickedDsTagIds() {
-        return clickedDsTagIds;
-    }
-
-    public void setClickedDsTagIds(final Set<Long> clickedDsTagIds) {
-        this.clickedDsTagIds = clickedDsTagIds;
-    }
-
     public boolean isNoTagClicked() {
         return noTagClicked;
     }
 
     public void setNoTagClicked(final boolean noTagClicked) {
         this.noTagClicked = noTagClicked;
+    }
+
+    public Map<Long, String> getClickedTargetTagIdsWithName() {
+        return clickedTargetTagIdsWithName;
+    }
+
+    public void setClickedTargetTagIdsWithName(final Map<Long, String> clickedTargetTagIdsWithName) {
+        this.clickedTargetTagIdsWithName.clear();
+        this.clickedTargetTagIdsWithName.putAll(clickedTargetTagIdsWithName);
     }
 }

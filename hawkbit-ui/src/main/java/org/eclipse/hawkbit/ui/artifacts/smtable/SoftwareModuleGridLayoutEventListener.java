@@ -11,12 +11,18 @@ package org.eclipse.hawkbit.ui.artifacts.smtable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.SmModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -40,6 +46,7 @@ public class SoftwareModuleGridLayoutEventListener {
     private void registerEventListeners() {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
+        eventListeners.add(new TypeFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -49,8 +56,12 @@ public class SoftwareModuleGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = SoftwareModuleGrid.class)
+        @EventBusListenerMethod(scope = EventScope.UI)
         private void onSmEvent(final SelectionChangedEventPayload<ProxySoftwareModule> eventPayload) {
+            if (eventPayload.getView() != View.UPLOAD || eventPayload.getLayout() != Layout.SM_LIST) {
+                return;
+            }
+
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
                 softwareModuleGridLayout.onSmChanged(eventPayload.getEntity());
             } else {
@@ -65,9 +76,34 @@ public class SoftwareModuleGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI, source = SoftwareModuleGridHeader.class)
-        private void onSmEvent(final String searchFilter) {
-            softwareModuleGridLayout.filterGridBySearch(searchFilter);
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
+            if (eventPayload.getView() != View.UPLOAD
+                    || eventPayload.getLayout() != softwareModuleGridLayout.getLayout()) {
+                return;
+            }
+
+            softwareModuleGridLayout.filterGridBySearch(eventPayload.getFilter());
+        }
+    }
+
+    private class TypeFilterChangedListener {
+
+        public TypeFilterChangedListener() {
+            eventBus.subscribe(this, EventTopics.TYPE_FILTER_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTypeChangedEvent(final TypeFilterChangedEventPayload<SoftwareModuleType> eventPayload) {
+            if (eventPayload.getView() != View.UPLOAD || eventPayload.getLayout() != Layout.SM_TYPE_FILTER) {
+                return;
+            }
+
+            if (eventPayload.getTypeFilterChangedEventType() == TypeFilterChangedEventType.TYPE_CLICKED) {
+                softwareModuleGridLayout.filterGridByType(eventPayload.getType());
+            } else {
+                softwareModuleGridLayout.filterGridByType(null);
+            }
         }
     }
 
@@ -78,7 +114,11 @@ public class SoftwareModuleGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSmEvent(final SmModifiedEventPayload eventPayload) {
+        private void onSmEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxySoftwareModule.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
             softwareModuleGridLayout.refreshGrid();
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the

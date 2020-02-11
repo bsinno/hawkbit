@@ -12,9 +12,13 @@ import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.FilterButtonsActionsChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload.ActionsVisibilityType;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -72,24 +76,24 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
 
     private Command getUpdateButtonCommand() {
         return command -> {
-            eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
-                    FilterButtonsActionsChangedEventPayload.SHOW_EDIT);
+            eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
+                    new ActionsVisibilityEventPayload(ActionsVisibilityType.SHOW_EDIT, getLayout(), getView()));
             crudMenuHeaderSupport.activateEditMode();
         };
     }
 
     private Command getDeleteButtonCommand() {
         return command -> {
-            eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
-                    FilterButtonsActionsChangedEventPayload.SHOW_DELETE);
+            eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
+                    new ActionsVisibilityEventPayload(ActionsVisibilityType.SHOW_DELETE, getLayout(), getView()));
             crudMenuHeaderSupport.activateEditMode();
         };
     }
 
     private Command getCloseButtonCommand() {
         return command -> {
-            eventBus.publish(EventTopics.FILTER_BUTTONS_ACTIONS_CHANGED, this,
-                    FilterButtonsActionsChangedEventPayload.HIDE_ALL);
+            eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
+                    new ActionsVisibilityEventPayload(ActionsVisibilityType.HIDE_ALL, getLayout(), getView()));
             crudMenuHeaderSupport.activateSelectMode();
         };
     }
@@ -97,11 +101,15 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
     protected abstract String getCloseIconId();
 
     private void hideFilterLayout() {
-        eventBus.publish(EventTopics.LAYOUT_VISIBILITY_CHANGED, this,
-                LayoutVisibilityChangedEventPayload.LAYOUT_HIDDEN);
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.HIDE, getLayout(), getView()));
 
         updateHiddenUiState();
     }
+
+    protected abstract Layout getLayout();
+
+    protected abstract View getView();
 
     protected abstract void updateHiddenUiState();
 

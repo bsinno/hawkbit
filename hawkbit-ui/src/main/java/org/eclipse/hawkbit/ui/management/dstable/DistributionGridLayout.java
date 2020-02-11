@@ -27,11 +27,11 @@ import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistribu
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
 import org.eclipse.hawkbit.ui.management.ManagementUIState;
-import org.eclipse.hawkbit.ui.management.ds.DistributionGrid;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -96,6 +96,13 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     }
 
     public void restoreState() {
+        distributionGridHeader.restoreState();
+        distributionGrid.restoreState();
+
+        restoreGridSelection();
+    }
+
+    private void restoreGridSelection() {
         final Long lastSelectedEntityId = distributionGridLayoutUiState.getSelectedDsId();
 
         if (lastSelectedEntityId != null) {
@@ -150,6 +157,11 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         distributionGrid.deselectAll();
     }
 
+    public void filterGridByPinnedTarget(final String controllerId) {
+        distributionGrid.updatePinnedTargetFilter(controllerId);
+        distributionGrid.deselectAll();
+    }
+
     public void maximize() {
         distributionGrid.createMaximizedContent();
         hideDetailsLayout();
@@ -166,5 +178,9 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+    }
+
+    public Layout getLayout() {
+        return Layout.DS_LIST;
     }
 }

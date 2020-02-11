@@ -13,11 +13,12 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.SmTypeModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -72,9 +73,8 @@ public class AddSmTypeWindowController extends AbstractEntityWindowController<Pr
                         .description(entity.getDescription()).colour(entity.getColour()).maxAssignments(assignNumber));
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", newSmType.getName()));
-        // TODO: verify if sender is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new SmTypeModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newSmType.getId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_ADDED, ProxySoftwareModule.class, ProxyType.class, newSmType.getId()));
     }
 
     @Override

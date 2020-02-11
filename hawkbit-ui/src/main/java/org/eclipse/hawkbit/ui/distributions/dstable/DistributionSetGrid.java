@@ -25,10 +25,12 @@ import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistribu
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetDistributionsStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
@@ -36,7 +38,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.SwModulesToDistributionSetAssignmentSupport;
-import org.eclipse.hawkbit.ui.distributions.DistributionsView;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -98,8 +99,8 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
         setResizeSupport(new DistributionSetResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, DistributionsView.VIEW_NAME,
-                this::updateLastSelectedDsUiState));
+        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, Layout.DS_LIST,
+                View.DISTRIBUTIONS, this::updateLastSelectedDsUiState));
         if (distributionSetGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -107,7 +108,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         }
 
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
-                permissionChecker, notification, this::deleteDistributionSets,
+                ProxyDistributionSet::getNameVersion, permissionChecker, notification, this::deleteDistributionSets,
                 UIComponentIdProvider.DS_DELETE_CONFIRMATION_DIALOG);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
@@ -144,8 +145,8 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
                 .collect(Collectors.toList());
         dsManagement.delete(dsToBeDeletedIds);
 
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, dsToBeDeletedIds));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class, dsToBeDeletedIds));
 
         // TODO: check if we need to notify Deployment View if deleted DS was
         // pinned
@@ -223,12 +224,12 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     }
 
     private void addActionColumns() {
-        addComponentColumn(ds -> buildActionButton(
-                clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds, ds.getNameVersion()),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
-                distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
+        addComponentColumn(
+                ds -> buildActionButton(clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds),
+                        VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                        UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
+                        distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
+                                .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
     }
 
     // TODO: remove duplication

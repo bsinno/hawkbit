@@ -14,9 +14,10 @@ import org.eclipse.hawkbit.repository.model.TargetTag;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.TargetTagModifiedEventPayload;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -68,9 +69,8 @@ public class AddTargetTagWindowController extends AbstractEntityWindowController
                 .description(entity.getDescription()).colour(entity.getColour()));
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", newTargetTag.getName()));
-        // TODO: verify if sender is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new TargetTagModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newTargetTag.getId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_ADDED, ProxyTarget.class, ProxyTag.class, newTargetTag.getId()));
     }
 
     @Override

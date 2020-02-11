@@ -115,6 +115,10 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         getFilterDataProvider().refreshAll();
     }
 
+    public void refreshItem(final T item) {
+        getFilterDataProvider().refreshItem(item);
+    }
+
     public int getDataSize() {
         return getDataCommunicator().getDataProviderSize();
     }

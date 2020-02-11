@@ -16,13 +16,11 @@ import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayout;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.dd.criteria.UploadViewClientCriterion;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -36,7 +34,7 @@ import com.vaadin.server.Page.BrowserWindowResizeEvent;
 import com.vaadin.server.Page.BrowserWindowResizeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -56,7 +54,7 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     private final SoftwareModuleGridLayout smGridLayout;
     private final ArtifactDetailsGridLayout artifactDetailsGridLayout;
 
-    private GridLayout mainLayout;
+    private HorizontalLayout mainLayout;
 
     private final transient UploadArtifactViewEventListener eventListener;
 
@@ -109,19 +107,18 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     private void createMainLayout() {
-        mainLayout = new GridLayout(3, 1);
+        mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
         mainLayout.setMargin(false);
         mainLayout.setSpacing(true);
-        mainLayout.setStyleName("fullSize");
 
-        mainLayout.setRowExpandRatio(0, 1.0F);
-        mainLayout.setColumnExpandRatio(1, 0.5F);
-        mainLayout.setColumnExpandRatio(2, 0.5F);
+        mainLayout.addComponent(smTypeFilterLayout);
+        mainLayout.addComponent(smGridLayout);
+        mainLayout.addComponent(artifactDetailsGridLayout);
 
-        mainLayout.addComponent(smTypeFilterLayout, 0, 0);
-        mainLayout.addComponent(smGridLayout, 1, 0);
-        mainLayout.addComponent(artifactDetailsGridLayout, 2, 0);
+        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(smGridLayout, 0.5F);
+        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
     }
 
     private void restoreState() {
@@ -156,8 +153,9 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     void maximizeSmGridLayout() {
         artifactDetailsGridLayout.setVisible(false);
 
-        mainLayout.setColumnExpandRatio(1, 1.0F);
-        mainLayout.setColumnExpandRatio(2, 0.0F);
+        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(smGridLayout, 1.0F);
+        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0F);
 
         smGridLayout.maximize();
     }
@@ -166,9 +164,9 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         smTypeFilterLayout.setVisible(false);
         smGridLayout.setVisible(false);
 
-        mainLayout.setSpacing(false);
-        mainLayout.setColumnExpandRatio(1, 0.0F);
-        mainLayout.setColumnExpandRatio(2, 1.0F);
+        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(smGridLayout, 0F);
+        mainLayout.setExpandRatio(artifactDetailsGridLayout, 1.0F);
 
         artifactDetailsGridLayout.maximize();
     }
@@ -190,15 +188,12 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         }
     }
 
-    void onSmSelected(final ProxySoftwareModule sm) {
-        artifactDetailsGridLayout.onSmSelected(sm);
-    }
-
     void minimizeSmGridLayout() {
         artifactDetailsGridLayout.setVisible(true);
 
-        mainLayout.setColumnExpandRatio(1, 0.5F);
-        mainLayout.setColumnExpandRatio(2, 0.5F);
+        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(smGridLayout, 0.5F);
+        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
 
         smGridLayout.minimize();
     }
@@ -209,15 +204,11 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         }
         smGridLayout.setVisible(true);
 
-        mainLayout.setSpacing(true);
-        mainLayout.setColumnExpandRatio(1, 0.5F);
-        mainLayout.setColumnExpandRatio(2, 0.5F);
+        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(smGridLayout, 0.5F);
+        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
 
         artifactDetailsGridLayout.minimize();
-    }
-
-    void filterSmGridByType(final SoftwareModuleType typeFilter) {
-        smGridLayout.filterGridByType(typeFilter);
     }
 
     @PreDestroy

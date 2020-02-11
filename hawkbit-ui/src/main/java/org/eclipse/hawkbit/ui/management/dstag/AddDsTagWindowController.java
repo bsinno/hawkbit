@@ -13,8 +13,9 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.model.DistributionSetTag;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.DsTagModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
@@ -69,9 +70,8 @@ public class AddDsTagWindowController extends AbstractEntityWindowController<Pro
                 .description(entity.getDescription()).colour(entity.getColour()));
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", newDsTag.getName()));
-        // TODO: verify if sender is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new DsTagModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newDsTag.getId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_ADDED, ProxyDistributionSet.class, ProxyTag.class, newDsTag.getId()));
     }
 
     @Override

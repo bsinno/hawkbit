@@ -16,9 +16,9 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -128,8 +128,8 @@ public class AutoAssignmentWindowController
     }
 
     private void publishModifiedEvent(final Long entityId) {
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new TargetFilterModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, entityId));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_UPDATED, ProxyTargetFilterQuery.class, entityId));
     }
 
     @Override

@@ -32,21 +32,19 @@ public class SearchHeaderSupport implements HeaderSupport {
     private final String searchResetIconId;
     private final Supplier<String> searchStateSupplier;
     private final Consumer<String> searchByCallback;
-    private final Runnable resetSearchCallback;
 
     private final TextField searchField;
     private final Button searchResetIcon;
 
     public SearchHeaderSupport(final VaadinMessageSource i18n, final String searchFieldId,
             final String searchResetIconId, final Supplier<String> searchStateSupplier,
-            final Consumer<String> searchByCallback, final Runnable resetSearchCallback) {
+            final Consumer<String> searchByCallback) {
         this.i18n = i18n;
 
         this.searchFieldId = searchFieldId;
         this.searchResetIconId = searchResetIconId;
         this.searchStateSupplier = searchStateSupplier;
         this.searchByCallback = searchByCallback;
-        this.resetSearchCallback = resetSearchCallback;
 
         this.searchField = createSearchField();
         this.searchResetIcon = createSearchResetIcon();
@@ -109,8 +107,7 @@ public class SearchHeaderSupport implements HeaderSupport {
         searchField.setValue("");
         searchField.setVisible(false);
 
-        // TODO: check if it is needed or can be done within searchByCallback
-        resetSearchCallback.run();
+        searchByCallback.accept(null);
     }
 
     @Override

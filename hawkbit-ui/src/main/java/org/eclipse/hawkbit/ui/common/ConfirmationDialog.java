@@ -18,17 +18,17 @@ import org.springframework.util.StringUtils;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
 
 /**
  * Class for the confirmation dialog which pops up when deleting, assigning...
@@ -237,6 +237,9 @@ public class ConfirmationDialog implements Button.ClickListener {
             this.callback = callback;
         }
         final VerticalLayout vLayout = new VerticalLayout();
+        vLayout.setMargin(false);
+        vLayout.setSpacing(false);
+
         if (question != null) {
             vLayout.addComponent(createConfirmationQuestion(question));
         }
@@ -263,6 +266,8 @@ public class ConfirmationDialog implements Button.ClickListener {
     private HorizontalLayout createButtonLayout(final Button cancelButton) {
         final HorizontalLayout hButtonLayout = new HorizontalLayout();
         hButtonLayout.setSpacing(true);
+        hButtonLayout.setMargin(false);
+
         hButtonLayout.addComponent(okButton);
         hButtonLayout.addComponent(cancelButton);
         hButtonLayout.setSizeUndefined();

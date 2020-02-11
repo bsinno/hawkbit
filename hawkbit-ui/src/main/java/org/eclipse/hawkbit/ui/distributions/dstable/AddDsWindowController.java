@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.DsModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -76,8 +76,8 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
         uiNotification
                 .displaySuccess(i18n.getMessage("message.save.success", newDs.getName() + ":" + newDs.getVersion()));
         // TODO: verify if sender is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new DsModifiedEventPayload(EntityModifiedEventType.ENTITY_ADDED, newDs.getId()));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_ADDED, ProxyDistributionSet.class, newDs.getId()));
     }
 
     @Override

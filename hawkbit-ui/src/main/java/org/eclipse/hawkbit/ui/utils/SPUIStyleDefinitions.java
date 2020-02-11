@@ -48,13 +48,7 @@ public final class SPUIStyleDefinitions {
      */
     public static final String ERROR_LABEL = "redErrorLabel";
 
-    public static final String DIST_PIN = "distributionPin";
-
-    public static final String DIST_PIN_BLUE = "distributionPinBlue";
-
-    public static final String TARGET_PIN_BLUE = "targetPinBlue";
-
-    public static final String TARGET_STATUS_PIN_TOGGLE = "targetStatusPinToggle";
+    public static final String UN_PINNED_STYLE = "rotate-widget-90-deg";
 
     public static final String SP_FILTER_BTN_CLICKED_STYLE = "filter-btn-clicked";
 

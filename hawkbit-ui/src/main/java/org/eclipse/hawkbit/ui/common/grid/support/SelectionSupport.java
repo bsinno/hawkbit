@@ -12,8 +12,10 @@ import java.util.function.BiConsumer;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Grid;
@@ -32,19 +34,21 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
 public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     private final Grid<T> grid;
     private final UIEventBus eventBus;
-    private final Object selectedEventSender;
+    private final Layout layout;
+    private final View view;
     private final BiConsumer<SelectionChangedEventType, T> updateLastSelectedUiStateCallback;
 
-    // for grids without selection or master-details support
+    // for grids without selection support
     public SelectionSupport(final Grid<T> grid) {
-        this(grid, null, null, null);
+        this(grid, null, null, null, null);
     }
 
-    public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final Object selectedEventSender,
+    public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final Layout layout, final View view,
             final BiConsumer<SelectionChangedEventType, T> updateLastSelectedUiStateCallback) {
         this.grid = grid;
         this.eventBus = eventBus;
-        this.selectedEventSender = selectedEventSender;
+        this.layout = layout;
+        this.view = view;
         this.updateLastSelectedUiStateCallback = updateLastSelectedUiStateCallback;
     }
 
@@ -56,26 +60,27 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         grid.setSelectionMode(SelectionMode.SINGLE);
 
         grid.asSingleSelect().addSingleSelectionListener(event -> {
-            final SelectionChangedEventType type = event.getSelectedItem().isPresent()
+            final SelectionChangedEventType selectionType = event.getSelectedItem().isPresent()
                     ? SelectionChangedEventType.ENTITY_SELECTED
                     : SelectionChangedEventType.ENTITY_DESELECTED;
             final T itemToSend = event.getSelectedItem().orElse(event.getOldValue());
 
-            sendEvent(type, itemToSend);
+            sendEvent(selectionType, itemToSend);
         });
     }
 
-    private void sendEvent(final SelectionChangedEventType type, final T itemToSend) {
+    private void sendEvent(final SelectionChangedEventType selectionType, final T itemToSend) {
         if (eventBus == null) {
             return;
         }
 
-        if (SelectionChangedEventType.ENTITY_SELECTED == type && itemToSend == null) {
+        if (SelectionChangedEventType.ENTITY_SELECTED == selectionType && itemToSend == null) {
             return;
         }
 
-        eventBus.publish(EventTopics.SELECTION_CHANGED, grid, new SelectionChangedEventPayload<>(type, itemToSend));
-        updateLastSelectedUiStateCallback.accept(type, itemToSend);
+        eventBus.publish(EventTopics.SELECTION_CHANGED, grid,
+                new SelectionChangedEventPayload<>(selectionType, itemToSend, layout, view));
+        updateLastSelectedUiStateCallback.accept(selectionType, itemToSend);
     }
 
     public final void enableMultiSelection() {

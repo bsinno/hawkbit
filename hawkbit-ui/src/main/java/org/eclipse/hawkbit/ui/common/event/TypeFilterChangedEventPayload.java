@@ -8,12 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class TypeFilterChangedEventPayload<T> {
+public class TypeFilterChangedEventPayload<T> extends LayoutAwareEventPayload {
 
     private final TypeFilterChangedEventType typeFilterChangedEventType;
     private final T type;
 
-    public TypeFilterChangedEventPayload(final TypeFilterChangedEventType typeFilterChangedEventType, final T type) {
+    public TypeFilterChangedEventPayload(final TypeFilterChangedEventType typeFilterChangedEventType, final T type,
+            final Layout layout, final View view) {
+        super(layout, view);
+
         this.typeFilterChangedEventType = typeFilterChangedEventType;
         this.type = type;
     }

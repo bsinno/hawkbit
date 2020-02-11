@@ -17,9 +17,9 @@ import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.TargetFilterModifiedEventPayload;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -88,10 +88,10 @@ public class UpdateTargetFilterController
         final TargetFilterQuery updatedTargetFilter;
         try {
             updatedTargetFilter = targetFilterManagement.update(targetFilterUpdate);
-            uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTargetFilter.getName()));
 
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new TargetFilterModifiedEventPayload(
-                    EntityModifiedEventType.ENTITY_UPDATED, updatedTargetFilter.getId()));
+            uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTargetFilter.getName()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTargetFilterQuery.class, updatedTargetFilter.getId()));
         } catch (final EntityNotFoundException e) {
             LOG.debug("TargetFilter can not be modified: Does not exist", e);
             uiNotification.displayWarning(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_ENTITY_DELETED));

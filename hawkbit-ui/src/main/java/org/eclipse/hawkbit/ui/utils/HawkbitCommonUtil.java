@@ -21,9 +21,9 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.UiProperties.Localization;
 import org.springframework.util.StringUtils;
 
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.shared.ui.label.ContentMode;
-import com.vaadin.v7.ui.Label;
 
 /**
  * Common util class.
