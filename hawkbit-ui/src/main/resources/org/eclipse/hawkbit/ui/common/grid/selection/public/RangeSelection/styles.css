@@ -1,0 +1,39 @@
+/*
+ *  Copyright (c) 2020 Bosch.IO GmbH and others.
+ *
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ */
+.multi-selection-grid .v-grid-cell-focused:before {
+	display: none !important;
+}
+
+.multi-selection-grid .v-grid-row-focused>.v-grid-cell:before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border-top: 2px solid #9882ac;
+	border-bottom: 2px solid #9882ac;
+	pointer-events: none;
+}
+
+.multi-selection-grid .v-grid-cell {
+	user-select: none;
+}
+
+.drag-drop-counter {
+	padding: 0.2em 0.5em;
+	background-color: red;
+	color: white;
+	border-radius: 0.5em;
+	font-weight: bold;
+	position: absolute;
+	top: -0.5em;
+	left: -0.5em;
+	z-index: 14;
+}

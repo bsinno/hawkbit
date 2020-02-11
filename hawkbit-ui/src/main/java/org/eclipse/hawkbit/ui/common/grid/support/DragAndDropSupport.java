@@ -8,11 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionGridDragSource;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -51,10 +53,13 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     public void addDragSource() {
-        final GridDragSource<T> dragSource = new GridDragSource<>(grid);
+        final GridDragSource<T> dragSource = new RangeSelectionGridDragSource<>(grid);
 
         dragSource.setDataTransferData("source_id", grid.getGridId());
-        dragSource.addGridDragStartListener(event -> dragSource.setDragData(event.getDraggedItems()));
+        dragSource.addGridDragStartListener(event -> {
+            final List<T> dragedItems = new ArrayList<>(event.getComponent().getSelectedItems());
+            dragSource.setDragData(dragedItems);
+        });
 
         dragSource.addGridDragEndListener(event -> {
             if (event.isCanceled()) {

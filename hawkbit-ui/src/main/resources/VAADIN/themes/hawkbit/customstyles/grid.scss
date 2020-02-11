@@ -40,7 +40,7 @@
     }
 
     .grid-row-border .v-grid-body tr {
-        border-top: 1px solid $widget-border-color
+        /* border-top: none; */
     }
 
     .grid-row-border .v-grid-body tr:first-child,
