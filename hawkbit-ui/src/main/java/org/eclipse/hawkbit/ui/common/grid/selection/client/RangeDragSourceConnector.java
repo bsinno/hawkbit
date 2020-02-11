@@ -13,12 +13,9 @@ import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionGridDragSource
 import com.google.gwt.animation.client.AnimationScheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.user.client.DOM;
 import com.vaadin.client.connectors.grid.GridDragSourceConnector;
 import com.vaadin.shared.ui.Connect;
-
-import elemental.events.Event;
 
 /**
  * Client side Connector to that connects to
@@ -40,28 +37,17 @@ public class RangeDragSourceConnector extends GridDragSourceConnector {
 
         final int countSelected = getState().getSelectionCount();
 
-        final Element counter = DOM.createSpan();
-        counter.setInnerHTML(String.valueOf(countSelected));
-        counter.setClassName(STYLE_DRAG_DROP_COUNTER);
-        draggedRowElement.appendChild(counter);
+        if (draggedRowElement.hasClassName("v-grid-row-selected")) {
+            final Element counter = DOM.createSpan();
+            counter.setInnerHTML(String.valueOf(countSelected));
+            counter.setClassName(STYLE_DRAG_DROP_COUNTER);
+            draggedRowElement.appendChild(counter);
 
-        AnimationScheduler.get().requestAnimationFrame(timestamp -> counter.removeFromParent(),
-                (Element) dragStartEvent.getEventTarget().cast());
-
+            AnimationScheduler.get().requestAnimationFrame(timestamp -> counter.removeFromParent(),
+                    (Element) dragStartEvent.getEventTarget().cast());
+        }
         fixDragImageOffsetsForDesktop(dragStartEvent, draggedRowElement);
         fixDragImageTransformForMobile(draggedRowElement);
-    }
-
-    @Override
-    protected void onDragStart(final Event event) {
-        final NativeEvent nativeEvent = (NativeEvent) event;
-
-        if (TableRowElement.is(nativeEvent.getEventTarget())) {
-            final TableRowElement row = nativeEvent.getEventTarget().cast();
-            if (row.hasClassName("v-grid-row-selected")) {
-                super.onDragStart(event);
-            }
-        }
     }
 
     @Override

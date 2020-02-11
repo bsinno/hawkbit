@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import com.cronutils.utils.StringUtils;
 import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.components.grid.GridDragSource;
+import com.vaadin.ui.components.grid.GridDragStartEvent;
 import com.vaadin.ui.components.grid.GridDropTarget;
 
 /**
@@ -56,16 +57,24 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         final GridDragSource<T> dragSource = new RangeSelectionGridDragSource<>(grid);
 
         dragSource.setDataTransferData("source_id", grid.getGridId());
-        dragSource.addGridDragStartListener(event -> {
-            final List<T> dragedItems = new ArrayList<>(event.getComponent().getSelectedItems());
-            dragSource.setDragData(dragedItems);
-        });
-
+        dragSource.addGridDragStartListener(event -> dragSource.setDragData(getItemsToDrag(event)));
         dragSource.addGridDragEndListener(event -> {
             if (event.isCanceled()) {
                 showActionNotAllowedNotification();
             }
         });
+    }
+
+    private List<T> getItemsToDrag(final GridDragStartEvent<T> event) {
+        final List<T> itemsToDrag = new ArrayList<>();
+        final List<T> selectedItems = new ArrayList<>(event.getComponent().getSelectedItems());
+
+        if (event.getDraggedItems().size() == 1 && !selectedItems.contains(event.getDraggedItems().get(0))) {
+            itemsToDrag.add(event.getDraggedItems().get(0));
+        } else {
+            itemsToDrag.addAll(selectedItems);
+        }
+        return itemsToDrag;
     }
 
     private void showActionNotAllowedNotification() {
