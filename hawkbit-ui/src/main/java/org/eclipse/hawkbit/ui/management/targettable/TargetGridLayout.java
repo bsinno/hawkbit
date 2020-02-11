@@ -25,6 +25,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.BulkUploadPopupEvent;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
@@ -196,6 +197,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     public void filterGridByPinnedDs(final Long pinnedDsId) {
         targetGrid.updatePinnedDsFilter(pinnedDsId);
         targetGrid.deselectAll();
+    }
+
+    public void onBulkUploadChanged(final BulkUploadPopupEvent eventPayload) {
+        targetGridHeader.onBulkUploadChanged(eventPayload);
     }
 
     public void maximize() {

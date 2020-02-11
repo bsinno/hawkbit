@@ -11,13 +11,16 @@ package org.eclipse.hawkbit.ui.management.targettable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TargetBulkUploadUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long dsNameAndVersion;
+    private Long dsId;
 
     private String description;
+
+    private Map<Long, String> tagIdsWithNameToAssign;
 
     private int sucessfulUploadCount;
 
@@ -37,20 +40,12 @@ public class TargetBulkUploadUiState implements Serializable {
         return assignedTagNames;
     }
 
-    public Long getDsNameAndVersion() {
-        return dsNameAndVersion;
-    }
-
     public float getProgressBarCurrentValue() {
         return progressBarCurrentValue;
     }
 
     public void setProgressBarCurrentValue(final float progressBarCurrentValue) {
         this.progressBarCurrentValue = progressBarCurrentValue;
-    }
-
-    public void setDsNameAndVersion(final Long dsNameAndVersion) {
-        this.dsNameAndVersion = dsNameAndVersion;
     }
 
     public String getDescription() {
@@ -75,5 +70,21 @@ public class TargetBulkUploadUiState implements Serializable {
 
     public void setFailedUploadCount(final int failedUploadCount) {
         this.failedUploadCount = failedUploadCount;
+    }
+
+    public Long getDsId() {
+        return dsId;
+    }
+
+    public void setDsId(final Long dsId) {
+        this.dsId = dsId;
+    }
+
+    public Map<Long, String> getTagIdsWithNameToAssign() {
+        return tagIdsWithNameToAssign;
+    }
+
+    public void setTagIdsWithNameToAssign(Map<Long, String> tagIdsWithNameToAssign) {
+        this.tagIdsWithNameToAssign = tagIdsWithNameToAssign;
     }
 }

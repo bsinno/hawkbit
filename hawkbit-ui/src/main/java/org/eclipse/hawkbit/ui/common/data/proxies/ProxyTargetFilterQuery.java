@@ -21,6 +21,7 @@ public class ProxyTargetFilterQuery extends ProxyNamedEntity {
 
     private boolean isAutoAssignmentEnabled;
 
+    // TODO: do we need the whole object or just id here?
     private ProxyDistributionSet autoAssignDistributionSet;
 
     private ActionType autoAssignActionType;

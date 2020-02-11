@@ -27,6 +27,7 @@ public final class EventTopics {
     public static final String REMOTE_EVENT_RECEIVED = "remoteEventReceived";
 
     public static final String FILE_UPLOAD_CHANGED = "fileUploadChanged";
+    public static final String BULK_UPLOAD_CHANGED = "bulkUploadChanged";
 
     private EventTopics() {
     }

@@ -63,10 +63,6 @@ public class TargetBulkTokenTags extends AbstractTagToken<ProxyTarget> {
         return checker.hasCreateTargetPermission();
     }
 
-    public boolean isTagSelectedForAssignment() {
-        return !tagPanelLayout.getAssignedTags().isEmpty();
-    }
-
     @Override
     protected List<ProxyTag> getAllTags() {
         return tagManagement.findAll(PageRequest.of(0, MAX_TAG_QUERY)).stream()

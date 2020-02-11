@@ -52,25 +52,25 @@ public class TargetWindowLayoutComponentBuilder {
     }
 
     public TextField createNameField(final Binder<ProxyTarget> binder) {
-        final TextField tagName = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE)
+        final TextField targetgName = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE)
                 .id(UIComponentIdProvider.TARGET_ADD_NAME).caption(i18n.getMessage(TEXTFIELD_NAME))
                 .prompt(i18n.getMessage(TEXTFIELD_NAME)).buildTextComponent();
-        tagName.setSizeUndefined();
+        targetgName.setSizeUndefined();
 
-        targetNameBinding = binder.forField(tagName).bind(ProxyTarget::getName, ProxyTarget::setName);
+        targetNameBinding = binder.forField(targetgName).bind(ProxyTarget::getName, ProxyTarget::setName);
 
-        return tagName;
+        return targetgName;
     }
 
     public TextArea createDescriptionField(final Binder<ProxyTarget> binder) {
-        final TextArea tagDescription = new TextAreaBuilder(NamedEntity.DESCRIPTION_MAX_SIZE)
+        final TextArea targetDescription = new TextAreaBuilder(NamedEntity.DESCRIPTION_MAX_SIZE)
                 .id(UIComponentIdProvider.TARGET_ADD_DESC).caption(i18n.getMessage(TEXTFIELD_DESCRIPTION))
                 .prompt(i18n.getMessage(TEXTFIELD_DESCRIPTION)).style("text-area-style").buildTextComponent();
-        tagDescription.setSizeUndefined();
+        targetDescription.setSizeUndefined();
 
-        binder.forField(tagDescription).bind(ProxyTarget::getDescription, ProxyTarget::setDescription);
+        binder.forField(targetDescription).bind(ProxyTarget::getDescription, ProxyTarget::setDescription);
 
-        return tagDescription;
+        return targetDescription;
     }
 
     public Binding<ProxyTarget, String> getTargetNameBinding() {
