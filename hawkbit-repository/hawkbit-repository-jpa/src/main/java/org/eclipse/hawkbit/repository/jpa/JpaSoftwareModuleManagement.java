@@ -382,7 +382,7 @@ public class JpaSoftwareModuleManagement implements SoftwareModuleManagement {
 
         smWithAssignedFlagList.forEach(smWithAssignedFlag -> resultList
                 .add(new AssignedSoftwareModule(smWithAssignedFlag.get("sm", JpaSoftwareModule.class),
-                        (Long) smWithAssignedFlag.get("assigned", Object.class) == 1)));
+                        smWithAssignedFlag.get("assigned", Number.class).longValue() == 1)));
 
         return new SliceImpl<>(Collections.unmodifiableList(resultList), pageable, hasNext);
     }
