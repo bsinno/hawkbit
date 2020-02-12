@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.event.BulkUploadPopupEvent;
+import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
@@ -58,7 +58,7 @@ public class TargetGridHeader extends AbstractGridHeader {
     private final TargetBulkUploadUiState targetBulkUploadUiState;
 
     private final transient TargetWindowBuilder targetWindowBuilder;
-    private final TargetBulkUpdateWindowLayout targetBulkUpdateWindow;
+    private final TargetBulkUpdateWindowLayout targetBulkUpdateWindowLayout;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
@@ -70,9 +70,9 @@ public class TargetGridHeader extends AbstractGridHeader {
     TargetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
             final UINotification notification, final TargetManagement targetManagement,
             final DeploymentManagement deploymentManagement, final UiProperties uiproperties,
-            final EntityFactory entityFactory, final UINotification uiNotification,
-            final TargetTagManagement tagManagement, final DistributionSetManagement distributionSetManagement,
-            final Executor uiExecutor, final TargetWindowBuilder targetWindowBuilder,
+            final EntityFactory entityFactory, final TargetTagManagement tagManagement,
+            final DistributionSetManagement distributionSetManagement, final Executor uiExecutor,
+            final TargetWindowBuilder targetWindowBuilder,
             final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
             final TargetGridLayoutUiState targetGridLayoutUiState,
             final TargetBulkUploadUiState targetBulkUploadUiState) {
@@ -83,7 +83,7 @@ public class TargetGridHeader extends AbstractGridHeader {
         this.targetBulkUploadUiState = targetBulkUploadUiState;
 
         this.targetWindowBuilder = targetWindowBuilder;
-        this.targetBulkUpdateWindow = new TargetBulkUpdateWindowLayout(i18n, eventBus, permChecker, notification,
+        this.targetBulkUpdateWindowLayout = new TargetBulkUpdateWindowLayout(i18n, eventBus, permChecker, notification,
                 targetManagement, deploymentManagement, tagManagement, distributionSetManagement, entityFactory,
                 uiproperties, uiExecutor, targetBulkUploadUiState);
 
@@ -112,7 +112,7 @@ public class TargetGridHeader extends AbstractGridHeader {
 
         // DistributionSetFilterDropArea is only available in TargetTableHeader
         this.distributionSetFilterDropAreaSupport = new DistributionSetFilterDropAreaSupport(i18n, eventBus,
-                uiNotification, distributionSetManagement, targetTagFilterLayoutUiState, targetGridLayoutUiState);
+                notification, distributionSetManagement, targetTagFilterLayoutUiState, targetGridLayoutUiState);
         final Component distributionSetFilterDropArea = distributionSetFilterDropAreaSupport.getHeaderComponent();
         addComponent(distributionSetFilterDropArea);
         setComponentAlignment(distributionSetFilterDropArea, Alignment.TOP_CENTER);
@@ -205,44 +205,54 @@ public class TargetGridHeader extends AbstractGridHeader {
         targetGridLayoutUiState.setMaximized(false);
     }
 
-    // TODO: refactor window handling
     private void showBulkUploadWindow() {
-        targetBulkUpdateWindow.reset();
-
-        final Window bulkUploadTargetWindow = targetBulkUpdateWindow.getWindow();
+        final Window bulkUploadTargetWindow = targetBulkUpdateWindowLayout.getWindow();
         UI.getCurrent().addWindow(bulkUploadTargetWindow);
         bulkUploadTargetWindow.setVisible(true);
     }
 
     private Boolean isBulkUploadInProgress() {
-        return targetBulkUploadUiState.getSucessfulUploadCount() != 0
-                || targetBulkUploadUiState.getFailedUploadCount() != 0;
+        return targetBulkUploadUiState.isInProgress();
     }
 
-    public void onBulkUploadChanged(final BulkUploadPopupEvent eventPayload) {
-        // TODO: adapt bulk upload icon here
-        switch (eventPayload) {
-        case PROCESS_STARTED:
-            UI.getCurrent().access(targetBulkUpdateWindow::disableInputs);
-            break;
+    public void onBulkUploadChanged(final BulkUploadEventPayload eventPayload) {
+        switch (eventPayload.getBulkUploadState()) {
         case STARTED:
             UI.getCurrent().access(this::onStartOfBulkUpload);
             break;
-        case TARGET_PROGRESS_UPDATED:
-            // TODO: adapt
-            UI.getCurrent().access(() -> targetBulkUpdateWindow
-                    .setProgressBarValue(targetBulkUploadUiState.getProgressBarCurrentValue()));
+        case PROGRESS_UPDATED:
+            UI.getCurrent().access(() -> onProgressOfBulkUpload(eventPayload.getBulkUploadProgress()));
             break;
         case COMPLETED:
-            UI.getCurrent().access(targetBulkUpdateWindow::onUploadCompletion);
+            UI.getCurrent().access(() -> onCompleteOfBulkUpload(eventPayload.getSuccessBulkUploadCount(),
+                    eventPayload.getFailBulkUploadCount()));
+            break;
+        case FAILED:
+            UI.getCurrent().access(() -> onFailOfBulkUpload(eventPayload.getFailureReason()));
             break;
         }
     }
 
     private void onStartOfBulkUpload() {
-        // TODO: adapt bulk upload icon here
-        bulkUploadHeaderSupport.disableBulkUpload();
-        targetBulkUpdateWindow.onStartOfUpload();
+        bulkUploadHeaderSupport.showProgressIndicator();
+        targetBulkUpdateWindowLayout.onStartOfUpload();
+        targetBulkUploadUiState.setInProgress(true);
+    }
+
+    private void onProgressOfBulkUpload(final float progress) {
+        targetBulkUpdateWindowLayout.setProgressBarValue(progress);
+    }
+
+    private void onCompleteOfBulkUpload(final int successCount, final int failCount) {
+        bulkUploadHeaderSupport.hideProgressIndicator();
+        targetBulkUpdateWindowLayout.onUploadCompletion(successCount, failCount);
+        targetBulkUploadUiState.setInProgress(false);
+    }
+
+    private void onFailOfBulkUpload(final String failureReason) {
+        bulkUploadHeaderSupport.hideProgressIndicator();
+        targetBulkUpdateWindowLayout.onUploadFailure(failureReason);
+        targetBulkUploadUiState.setInProgress(false);
     }
 
     public void showTargetTagIcon() {

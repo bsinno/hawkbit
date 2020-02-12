@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.event.BulkUploadPopupEvent;
+import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
@@ -211,7 +211,7 @@ public class TargetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onBulkUploadEvent(final BulkUploadPopupEvent eventPayload) {
+        private void onBulkUploadEvent(final BulkUploadEventPayload eventPayload) {
             targetGridLayout.onBulkUploadChanged(eventPayload);
         }
     }

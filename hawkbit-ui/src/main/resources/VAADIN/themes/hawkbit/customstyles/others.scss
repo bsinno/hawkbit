@@ -316,6 +316,25 @@
     margin-top: 12px;
     margin-left: -10px;
   }
+  
+  .bulk-upload-loading:before {
+  	background: none;
+	height: 18px !important;
+	width: 18px !important;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border: 2px solid transparent;
+	border-top-color: #551f62;
+	border-right-color: #551f62;
+	border-radius: 100%;
+	-webkit-animation: v-rotate-360 500ms infinite linear;
+	-moz-animation: v-rotate-360 500ms infinite linear;
+	-ms-animation: v-rotate-360 500ms infinite linear;
+	-o-animation: v-rotate-360 500ms infinite linear;
+	animation: v-rotate-360 500ms infinite linear;
+	pointer-events: none;
+  }
 
   #target\.attributes\.update {
     position: absolute;

@@ -8,9 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import java.util.Collections;
-import java.util.stream.Collectors;
-
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
@@ -18,11 +15,9 @@ import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistribu
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyBulkUploadWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.CollectionUtils;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.ComboBox;
@@ -80,29 +75,6 @@ public final class BulkUploadWindowLayoutComponentBuilder {
         }).bind(ProxyBulkUploadWindow::getDistributionSetId, ProxyBulkUploadWindow::setDistributionSetId);
 
         return distributionSet;
-    }
-
-    public BulkUploadTagsComponent createTargetTagsField(final Binder<ProxyBulkUploadWindow> binder,
-            final TargetBulkTokenTags targetBulkTokenTags) {
-        final BulkUploadTagsComponent bulkUploadTagsComponent = new BulkUploadTagsComponent(targetBulkTokenTags);
-        bulkUploadTagsComponent.setSizeFull();
-
-        binder.forField(bulkUploadTagsComponent).withConverter(tags -> {
-            if (CollectionUtils.isEmpty(tags)) {
-                return Collections.<Long, String> emptyMap();
-            }
-
-            return tags.stream().collect(Collectors.toMap(ProxyTag::getId, ProxyTag::getName));
-        }, tagIdsWithName -> {
-            if (CollectionUtils.isEmpty(tagIdsWithName)) {
-                return Collections.emptyList();
-            }
-
-            return targetBulkTokenTags
-                    .getTagsById(tagIdsWithName.keySet().stream().map(Long.class::cast).collect(Collectors.toList()));
-        }).bind(ProxyBulkUploadWindow::getTagIdsWithNameToAssign, ProxyBulkUploadWindow::setTagIdsWithNameToAssign);
-
-        return bulkUploadTagsComponent;
     }
 
     public TextArea createDescriptionField(final Binder<ProxyBulkUploadWindow> binder) {

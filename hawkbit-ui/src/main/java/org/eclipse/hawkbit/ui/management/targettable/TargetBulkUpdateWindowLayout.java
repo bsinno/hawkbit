@@ -8,7 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
+import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -20,6 +22,8 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyBulkUploadWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -41,7 +45,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TextArea;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -54,11 +57,12 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;
+    private final UINotification uinotification;
 
     private final TargetBulkUploadUiState targetBulkUploadUiState;
 
     private final ComboBox<ProxyDistributionSet> dsCombo;
-    private final BulkUploadTagsComponent tagsComponent;
+    private final transient TargetBulkTokenTags tagsComponent;
     private final TextArea descTextArea;
     private final ProgressBar progressBar;
     private final Label targetsCountLabel;
@@ -78,6 +82,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
             final EntityFactory entityFactory, final UiProperties uiproperties, final Executor uiExecutor,
             final TargetBulkUploadUiState targetBulkUploadUiState) {
         this.i18n = i18n;
+        this.uinotification = uinotification;
         this.targetBulkUploadUiState = targetBulkUploadUiState;
         this.binder = new Binder<>();
 
@@ -85,15 +90,16 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
                 distributionSetManagement);
 
         this.dsCombo = componentBuilder.createDistributionSetCombo(binder);
-        this.tagsComponent = componentBuilder.createTargetTagsField(binder, new TargetBulkTokenTags(i18n, eventBus,
-                checker, uinotification, tagManagement, targetBulkUploadUiState));
+
+        this.tagsComponent = new TargetBulkTokenTags(i18n, eventBus, checker, uinotification, tagManagement);
+
         this.descTextArea = componentBuilder.createDescriptionField(binder);
         this.progressBar = createProgressBar();
         this.targetsCountLabel = getStatusCountLabel();
 
-        final BulkUploadHandler bulkUploadHandler = new BulkUploadHandler(eventBus, targetManagement, tagManagement,
-                distributionSetManagement, deploymentManagement, i18n, uinotification, entityFactory, UI.getCurrent(),
-                uiExecutor, targetBulkUploadUiState, binder::getBean);
+        final BulkUploadHandler bulkUploadHandler = new BulkUploadHandler(i18n, eventBus, entityFactory, uiExecutor,
+                targetManagement, tagManagement, distributionSetManagement, deploymentManagement,
+                this::getBulkUploadInputsBean);
         this.uploadButton = createUploadButton(bulkUploadHandler);
 
         this.linkToSystemConfigHelp = SPUIComponentProvider.getHelpLink(i18n,
@@ -103,20 +109,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         this.closeButton = getCloseButton();
 
         buildLayout();
-        // TODO: adapt
-        binder.setBean(new ProxyBulkUploadWindow());
-    }
-
-    private Upload createUploadButton(final BulkUploadHandler uploadHandler) {
-        final Upload upload = new Upload();
-
-        upload.setButtonCaption(i18n.getMessage("caption.bulk.upload"));
-        upload.setReceiver(uploadHandler);
-        upload.addSucceededListener(uploadHandler);
-        upload.addFailedListener(uploadHandler);
-        upload.addStartedListener(uploadHandler);
-
-        return upload;
+        reset();
     }
 
     private static ProgressBar createProgressBar() {
@@ -137,6 +130,32 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         return countLabel;
     }
 
+    private ProxyBulkUploadWindow getBulkUploadInputsBean() {
+        final ProxyBulkUploadWindow bean = new ProxyBulkUploadWindow();
+        bean.setDistributionSetId(binder.getBean().getDistributionSetId());
+        bean.setTagIdsWithNameToAssign(getTagIdsWithNameToAssign());
+        bean.setDescription(binder.getBean().getDescription());
+
+        return bean;
+    }
+
+    private Map<Long, String> getTagIdsWithNameToAssign() {
+        return tagsComponent.getSelectedTagsForAssignment().stream()
+                .collect(Collectors.toMap(ProxyTag::getId, ProxyTag::getName));
+    }
+
+    private Upload createUploadButton(final BulkUploadHandler uploadHandler) {
+        final Upload upload = new Upload();
+
+        upload.setButtonCaption(i18n.getMessage("caption.bulk.upload"));
+        upload.setReceiver(uploadHandler);
+        upload.addSucceededListener(uploadHandler);
+        upload.addFailedListener(uploadHandler);
+        upload.addStartedListener(uploadHandler);
+
+        return upload;
+    }
+
     private Button getCloseButton() {
         final Button closeBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.BULK_UPLOAD_CLOSE_BUTTON_ID, "",
                 "", "", true, VaadinIcons.CLOSE, SPUIButtonStyleNoBorder.class);
@@ -146,24 +165,33 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     }
 
     private void closePopup() {
-        // TODO: adapt to either minimize or close
-        // managementUIState.setBulkUploadWindowMinimised(true);
-        // eventBus.publish(this, BulkUploadPopupEvent.MINIMIZED);
-        // eventBus.publish(this, BulkUploadPopupEvent.CLOSED);
-        clearPreviousSessionData();
-        reset();
+        if (!targetBulkUploadUiState.isInProgress()) {
+            clearPreviousSessionData();
+            reset();
+        }
         bulkUploadWindow.close();
     }
 
     private void clearPreviousSessionData() {
-        targetBulkUploadUiState.setDescription(null);
         targetBulkUploadUiState.setDsId(null);
-        targetBulkUploadUiState.setTagIdsWithNameToAssign(null);
+        targetBulkUploadUiState.getTagIdsWithNameToAssign().clear();
+        targetBulkUploadUiState.setDescription(null);
+    }
 
-        targetBulkUploadUiState.setFailedUploadCount(0);
-        targetBulkUploadUiState.setSucessfulUploadCount(0);
-        targetBulkUploadUiState.getAssignedTagNames().clear();
-        targetBulkUploadUiState.getTargetsCreated().clear();
+    /**
+     * Reset the values in popup.
+     */
+    private void reset() {
+        binder.setBean(new ProxyBulkUploadWindow());
+
+        // init with dummy master entity in order to init tag panel
+        tagsComponent.updateMasterEntityFilter(new ProxyTarget());
+
+        progressBar.setValue(0F);
+        progressBar.setVisible(false);
+
+        targetsCountLabel.setValue("");
+        targetsCountLabel.setVisible(false);
     }
 
     private void buildLayout() {
@@ -185,7 +213,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         tagsLayout.setHeight("100px");
         tagsLayout.addStyleName("bulk-target-tags-layout");
 
-        tagsLayout.addComponent(tagsComponent);
+        tagsLayout.addComponent(tagsComponent.getTagPanel());
 
         final HorizontalLayout uploaderLayout = new HorizontalLayout();
         uploaderLayout.setMargin(false);
@@ -214,50 +242,30 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     }
 
     public void onStartOfUpload() {
-        final ProxyBulkUploadWindow bulkUploadInputs = binder.getBean();
+        targetBulkUploadUiState.setDsId(binder.getBean().getDistributionSetId());
+        targetBulkUploadUiState.setTagIdsWithNameToAssign(getTagIdsWithNameToAssign());
+        targetBulkUploadUiState.setDescription(binder.getBean().getDescription());
 
-        targetBulkUploadUiState.setDsId(bulkUploadInputs.getDistributionSetId());
-        targetBulkUploadUiState.setDescription(bulkUploadInputs.getDescription());
-        targetBulkUploadUiState.setTagIdsWithNameToAssign(bulkUploadInputs.getTagIdsWithNameToAssign());
-
-        targetBulkUploadUiState.setProgressBarCurrentValue(0F);
-        targetBulkUploadUiState.setFailedUploadCount(0);
-        targetBulkUploadUiState.setSucessfulUploadCount(0);
+        disableInputs();
     }
 
-    public void setProgressBarValue(final Float value) {
+    public void setProgressBarValue(final float value) {
         progressBar.setValue(value);
         progressBar.setVisible(true);
-    }
-
-    /**
-     * Reset the values in popup.
-     */
-    public void reset() {
-        binder.setBean(new ProxyBulkUploadWindow());
-
-        progressBar.setValue(0F);
-        progressBar.setVisible(false);
-        targetBulkUploadUiState.setProgressBarCurrentValue(0F);
-        targetsCountLabel.setVisible(false);
     }
 
     /**
      * Restore the target bulk upload layout field values.
      */
     public void restoreComponentsValue() {
-        progressBar.setValue(targetBulkUploadUiState.getProgressBarCurrentValue());
-
         final ProxyBulkUploadWindow bulkUploadInputsToRestore = new ProxyBulkUploadWindow();
         bulkUploadInputsToRestore.setDistributionSetId(targetBulkUploadUiState.getDsId());
         bulkUploadInputsToRestore.setDescription(targetBulkUploadUiState.getDescription());
         bulkUploadInputsToRestore.setTagIdsWithNameToAssign(targetBulkUploadUiState.getTagIdsWithNameToAssign());
 
-        if (targetBulkUploadUiState.getProgressBarCurrentValue() >= 1) {
-            targetsCountLabel.setVisible(true);
-            targetsCountLabel.setCaption(getFormattedCountLabelValue(targetBulkUploadUiState.getSucessfulUploadCount(),
-                    targetBulkUploadUiState.getFailedUploadCount()));
-        }
+        binder.setBean(bulkUploadInputsToRestore);
+        tagsComponent.getTagsById(targetBulkUploadUiState.getTagIdsWithNameToAssign().keySet())
+                .forEach(tagsComponent::assignTag);
     }
 
     private String getFormattedCountLabelValue(final int successfulUploadCount, final int failedUploadCount) {
@@ -274,11 +282,21 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     /**
      * Actions once bulk upload is completed.
      */
-    public void onUploadCompletion() {
-        final String targetCountLabel = getFormattedCountLabelValue(targetBulkUploadUiState.getSucessfulUploadCount(),
-                targetBulkUploadUiState.getFailedUploadCount());
+    public void onUploadCompletion(final int successCount, final int failCount) {
+        final String targetCountLabel = getFormattedCountLabelValue(successCount, failCount);
         targetsCountLabel.setVisible(true);
         targetsCountLabel.setCaption(targetCountLabel);
+
+        enableInputs();
+    }
+
+    public void onUploadFailure(final String failureReason) {
+        targetsCountLabel.setVisible(true);
+        targetsCountLabel.setCaption(
+                new StringBuilder().append("<font color=RED>").append(failureReason).append("</font>").toString());
+
+        uinotification.displayValidationError(failureReason);
+        enableInputs();
     }
 
     /**
@@ -287,22 +305,28 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
      * @return Window window
      */
     public Window getWindow() {
-        // TODO: check if neede
-        // managementUIState.setBulkUploadWindowMinimised(false);
-
+        if (!targetBulkUploadUiState.isInProgress()) {
+            reset();
+        }
         bulkUploadWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption("").content(this)
                 .buildWindow();
         bulkUploadWindow.addStyleName("bulk-upload-window");
 
-        uploadButton.setEnabled(targetBulkUploadUiState.getProgressBarCurrentValue() <= 0);
-
         return bulkUploadWindow;
     }
 
-    public void disableInputs() {
-        dsCombo.setEnabled(false);
-        tagsComponent.setEnabled(false);
-        descTextArea.setEnabled(false);
-        uploadButton.setEnabled(false);
+    private void disableInputs() {
+        changeInputsState(false);
+    }
+
+    private void changeInputsState(final boolean enabled) {
+        dsCombo.setEnabled(enabled);
+        tagsComponent.getTagPanel().setEnabled(enabled);
+        descTextArea.setEnabled(enabled);
+        uploadButton.setEnabled(enabled);
+    }
+
+    private void enableInputs() {
+        changeInputsState(true);
     }
 }
