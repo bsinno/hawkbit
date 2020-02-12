@@ -64,6 +64,7 @@ public class RemoteEventsListener {
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onEntityModifiedEvent(final EntityModifiedEventPayload eventPayload) {
+            // parentId is ignored here because entityIds should be unique
             uiOriginatedEventsCache.asMap().merge(EntityModifiedEventPayloadIdentifier.of(eventPayload),
                     eventPayload.getEntityIds(), (oldEntityIds, newEntityIds) -> Stream
                             .concat(oldEntityIds.stream(), newEntityIds.stream()).collect(Collectors.toList()));
@@ -88,15 +89,12 @@ public class RemoteEventsListener {
                         eventPayload.getEntityIds());
 
                 if (!remotelyModifiedEntityIds.isEmpty()) {
-                    final EntityModifiedEventPayload remoteEventPayload = eventPayload.getParentId() != null
-                            ? EntityModifiedEventPayload.of(eventPayloadIdentifier, eventPayload.getParentId(),
-                                    remotelyModifiedEntityIds)
-                            : EntityModifiedEventPayload.of(eventPayloadIdentifier, remotelyModifiedEntityIds);
+                    final EntityModifiedEventPayload remoteEventPayload = EntityModifiedEventPayload
+                            .of(eventPayloadIdentifier, eventPayload.getParentId(), remotelyModifiedEntityIds);
 
                     if (eventPayloadIdentifier.shouldBeDeffered()) {
-                        // TODO: use remoteEventPayload to preserve parent id
-                        notificationUnreadButton.incrementUnreadNotification(eventPayloadIdentifier,
-                                remotelyModifiedEntityIds);
+                        notificationUnreadButton.incrementUnreadNotification(
+                                eventPayloadIdentifier.getEventTypeMessageKey(), remoteEventPayload);
                     } else {
                         eventBus.publish(EventTopics.ENTITY_MODIFIED, UI.getCurrent(), remoteEventPayload);
                     }

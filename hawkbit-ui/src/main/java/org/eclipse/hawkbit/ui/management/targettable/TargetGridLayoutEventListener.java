@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.BulkUploadPopupEvent;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
@@ -21,6 +23,8 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
@@ -55,6 +59,8 @@ public class TargetGridLayoutEventListener {
         eventListeners.add(new StatusFilterChangedListener());
         eventListeners.add(new OverdueFilterChangedListener());
         eventListeners.add(new CustomFilterChangedListener());
+        eventListeners.add(new PinnedDsChangedListener());
+        eventListeners.add(new BulkUploadChangedListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -175,6 +181,38 @@ public class TargetGridLayoutEventListener {
             } else {
                 targetGridLayout.filterGridByCustomFilter(null);
             }
+        }
+    }
+
+    private class PinnedDsChangedListener {
+
+        public PinnedDsChangedListener() {
+            eventBus.subscribe(this, EventTopics.PINNING_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetPinEvent(final PinningChangedEventPayload<Long> eventPayload) {
+            if (!ProxyDistributionSet.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
+            if (eventPayload.getPinningChangedEventType() == PinningChangedEventType.ENTITY_PINNED) {
+                targetGridLayout.filterGridByPinnedDs(eventPayload.getEntityId());
+            } else {
+                targetGridLayout.filterGridByPinnedDs(null);
+            }
+        }
+    }
+
+    private class BulkUploadChangedListener {
+
+        public BulkUploadChangedListener() {
+            eventBus.subscribe(this, EventTopics.BULK_UPLOAD_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onBulkUploadEvent(final BulkUploadPopupEvent eventPayload) {
+            targetGridLayout.onBulkUploadChanged(eventPayload);
         }
     }
 

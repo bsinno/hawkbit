@@ -13,11 +13,14 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
@@ -48,6 +51,7 @@ public class DistributionGridLayoutEventListener {
         eventListeners.add(new SearchFilterChangedListener());
         eventListeners.add(new TagFilterChangedListener());
         eventListeners.add(new NoTagFilterChangedListener());
+        eventListeners.add(new PinnedTargetChangedListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -117,6 +121,26 @@ public class DistributionGridLayoutEventListener {
             }
 
             distributionGridLayout.filterGridByNoTag(eventPayload.getIsNoTagActive());
+        }
+    }
+
+    private class PinnedTargetChangedListener {
+
+        public PinnedTargetChangedListener() {
+            eventBus.subscribe(this, EventTopics.PINNING_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onTargetPinEvent(final PinningChangedEventPayload<String> eventPayload) {
+            if (!ProxyTarget.class.equals(eventPayload.getEntityType())) {
+                return;
+            }
+
+            if (eventPayload.getPinningChangedEventType() == PinningChangedEventType.ENTITY_PINNED) {
+                distributionGridLayout.filterGridByPinnedTarget(eventPayload.getEntityId());
+            } else {
+                distributionGridLayout.filterGridByPinnedTarget(null);
+            }
         }
     }
 

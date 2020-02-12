@@ -144,7 +144,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this,
                 new TagFilterChangedEventPayload(activeTagIdsWithName.values(), Layout.DS_TAG_FILTER, View.DEPLOYMENT));
 
-        distributionTagLayoutUiState.setClickedDsTagIds(activeTagIdsWithName.keySet());
+        distributionTagLayoutUiState.setClickedTargetTagIdsWithName(activeTagIdsWithName);
     }
 
     private void publishNoTagChangedEvent(final ClickBehaviourType clickType) {
@@ -169,7 +169,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         final String dsTagToDeleteName = dsTagToDelete.getName();
         final Long dsTagToDeleteId = dsTagToDelete.getId();
 
-        final Set<Long> clickedDsTagIds = distributionTagLayoutUiState.getClickedDsTagIds();
+        final Set<Long> clickedDsTagIds = distributionTagLayoutUiState.getClickedTargetTagIdsWithName().keySet();
 
         if (!CollectionUtils.isEmpty(clickedDsTagIds) && clickedDsTagIds.contains(dsTagToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", dsTagToDeleteName));

@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.event.BulkUploadPopupEvent;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
@@ -52,8 +53,6 @@ import com.vaadin.ui.Window;
 public class TargetGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final UINotification notification;
-
     private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
     private final TargetGridLayoutUiState targetGridLayoutUiState;
     private final TargetBulkUploadUiState targetBulkUploadUiState;
@@ -79,7 +78,6 @@ public class TargetGridHeader extends AbstractGridHeader {
             final TargetBulkUploadUiState targetBulkUploadUiState) {
         super(i18n, permChecker, eventBus);
 
-        this.notification = notification;
         this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
         this.targetGridLayoutUiState = targetGridLayoutUiState;
         this.targetBulkUploadUiState = targetBulkUploadUiState;
@@ -98,7 +96,7 @@ public class TargetGridHeader extends AbstractGridHeader {
         if (permChecker.hasCreateTargetPermission()) {
             this.addHeaderSupport = new AddHeaderSupport(i18n, UIComponentIdProvider.TARGET_TBL_ADD_ICON_ID,
                     this::addNewItem, this::onLoadIsTableMaximized);
-            this.bulkUploadHeaderSupport = new BulkUploadHeaderSupport(i18n, this::bulkUpload,
+            this.bulkUploadHeaderSupport = new BulkUploadHeaderSupport(i18n, this::showBulkUploadWindow,
                     this::isBulkUploadInProgress, this::onLoadIsTableMaximized);
         } else {
             this.addHeaderSupport = null;
@@ -208,8 +206,8 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     // TODO: refactor window handling
-    private void bulkUpload() {
-        targetBulkUpdateWindow.resetComponents();
+    private void showBulkUploadWindow() {
+        targetBulkUpdateWindow.reset();
 
         final Window bulkUploadTargetWindow = targetBulkUpdateWindow.getWindow();
         UI.getCurrent().addWindow(bulkUploadTargetWindow);
@@ -221,44 +219,28 @@ public class TargetGridHeader extends AbstractGridHeader {
                 || targetBulkUploadUiState.getFailedUploadCount() != 0;
     }
 
-    // TODO:implement/adapt
-    // @EventBusListenerMethod(scope = EventScope.UI)
-    // void onEvent(final BulkUploadPopupEvent event) {
-    // if (BulkUploadPopupEvent.MAXIMIMIZED == event) {
-    // bulkUpload();
-    // targetBulkUpdateWindow.restoreComponentsValue();
-    // } else if (BulkUploadPopupEvent.CLOSED == event) {
-    // UI.getCurrent().access(bulkUploadHeaderSupport::showBulkUpload);
-    // }
-    // }
-    //
-    // @EventBusListenerMethod(scope = EventScope.UI)
-    // void onEvent(final BulkUploadValidationMessageEvent event) {
-    // this.getUI().access(() ->
-    // notification.displayValidationError(event.getValidationErrorMessage()));
-    // }
-    //
-    //
-    // @EventBusListenerMethod(scope = EventScope.UI)
-    // void onEvent(final TargetTableEvent event) {
-    // if (TargetComponentEvent.BULK_TARGET_CREATED ==
-    // event.getTargetComponentEvent()) {
-    // this.getUI().access(() -> targetBulkUpdateWindow
-    // .setProgressBarValue(targetBulkUploadUiState.getProgressBarCurrentValue()));
-    // } else if (TargetComponentEvent.BULK_UPLOAD_COMPLETED ==
-    // event.getTargetComponentEvent()) {
-    // this.getUI().access(targetBulkUpdateWindow::onUploadCompletion);
-    // } else if (TargetComponentEvent.BULK_TARGET_UPLOAD_STARTED ==
-    // event.getTargetComponentEvent()) {
-    // this.getUI().access(this::onStartOfBulkUpload);
-    // } else if (TargetComponentEvent.BULK_UPLOAD_PROCESS_STARTED ==
-    // event.getTargetComponentEvent()) {
-    // this.getUI().access(() ->
-    // targetBulkUpdateWindow.getBulkUploader().getUpload().setEnabled(false));
-    // }
-    // }
+    public void onBulkUploadChanged(final BulkUploadPopupEvent eventPayload) {
+        // TODO: adapt bulk upload icon here
+        switch (eventPayload) {
+        case PROCESS_STARTED:
+            UI.getCurrent().access(targetBulkUpdateWindow::disableInputs);
+            break;
+        case STARTED:
+            UI.getCurrent().access(this::onStartOfBulkUpload);
+            break;
+        case TARGET_PROGRESS_UPDATED:
+            // TODO: adapt
+            UI.getCurrent().access(() -> targetBulkUpdateWindow
+                    .setProgressBarValue(targetBulkUploadUiState.getProgressBarCurrentValue()));
+            break;
+        case COMPLETED:
+            UI.getCurrent().access(targetBulkUpdateWindow::onUploadCompletion);
+            break;
+        }
+    }
 
     private void onStartOfBulkUpload() {
+        // TODO: adapt bulk upload icon here
         bulkUploadHeaderSupport.disableBulkUpload();
         targetBulkUpdateWindow.onStartOfUpload();
     }

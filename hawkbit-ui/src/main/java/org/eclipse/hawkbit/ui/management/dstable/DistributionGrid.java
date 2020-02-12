@@ -6,9 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management.ds;
+package org.eclipse.hawkbit.ui.management.dstable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.filters.DsManagementFilterParams;
@@ -27,21 +29,22 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.PinSupport.PinBehaviourType;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DsTagsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToDistributionSetAssignmentSupport;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
-import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -49,6 +52,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -73,7 +77,9 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     private static final String DS_PIN_BUTTON_ID = "dsPinnButton";
     private static final String DS_DELETE_BUTTON_ID = "dsDeleteButton";
 
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
+    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
     private final transient DistributionSetManagement distributionSetManagement;
     private final transient DeploymentManagement deploymentManagement;
 
@@ -81,7 +87,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     private final transient DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
     private final DsManagementFilterParams dsFilter;
 
-    private final transient PinSupport<ProxyDistributionSet> pinSupport;
+    private final transient PinSupport<ProxyDistributionSet, String> pinSupport;
     private final transient DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
     private final transient DragAndDropSupport<ProxyDistributionSet> dragAndDropSupport;
 
@@ -94,7 +100,9 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             final DistributionTagLayoutUiState distributionTagLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
+        this.targetGridLayoutUiState = targetGridLayoutUiState;
         this.distributionGridLayoutUiState = distributionGridLayoutUiState;
+        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.distributionSetManagement = distributionSetManagement;
         this.deploymentManagement = deploymentManagement;
 
@@ -113,11 +121,11 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             getSelectionSupport().enableMultiSelection();
         }
 
-        this.pinSupport = new PinSupport<>(eventBus, PinUnpinEvent.PIN_DISTRIBUTION, PinUnpinEvent.UNPIN_DISTRIBUTION,
-                () -> setStyleGenerator(item -> null), this::getPinnedDsIdFromUiState, this::setPinnedDsIdInUiState);
+        this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent, this::refreshItem,
+                this::getAssignedToTargetDsIds, this::getInstalledToTargetDsIds);
 
         this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("distribution.details.header"),
-                permissionChecker, notification, this::deleteDistributionSets,
+                ProxyDistributionSet::getNameVersion, permissionChecker, notification, this::deleteDistributionSets,
                 UIComponentIdProvider.DS_DELETE_CONFIRMATION_DIALOG);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
@@ -139,6 +147,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies);
         this.dragAndDropSupport.addDragAndDrop();
 
+        initTargetPinningStyleGenerator();
         init();
     }
 
@@ -158,14 +167,6 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         }
     }
 
-    private Long getPinnedDsIdFromUiState() {
-        return distributionGridLayoutUiState.getPinnedDsId();
-    }
-
-    private void setPinnedDsIdInUiState(final Long dsId) {
-        distributionGridLayoutUiState.setPinnedDsId(dsId);
-    }
-
     private void deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
         final Collection<Long> dsToBeDeletedIds = setsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
@@ -174,10 +175,52 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class, dsToBeDeletedIds));
 
-        final Long pinnedDsId = getPinnedDsIdFromUiState();
-        if (pinnedDsId != null) {
-            pinSupport.unPinItemAfterDeletion(pinnedDsId, dsToBeDeletedIds);
+        pinSupport.unPinItemIfDeleted(dsToBeDeletedIds);
+    }
+
+    private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyDistributionSet pinnedItem) {
+        if (!StringUtils.isEmpty(dsFilter.getPinnedTargetControllerId())) {
+            dsFilter.setPinnedTargetControllerId(null);
+            getFilterDataProvider().setFilter(dsFilter);
         }
+
+        eventBus.publish(EventTopics.PINNING_CHANGED, this,
+                new PinningChangedEventPayload<Long>(
+                        pinType == PinBehaviourType.PINNED ? PinningChangedEventType.ENTITY_PINNED
+                                : PinningChangedEventType.ENTITY_UNPINNED,
+                        ProxyDistributionSet.class, pinnedItem.getId()));
+
+        distributionGridLayoutUiState.setPinnedDsId(pinType == PinBehaviourType.PINNED ? pinnedItem.getId() : null);
+    }
+
+    private Collection<Long> getAssignedToTargetDsIds(final String controllerId) {
+        // currently we do not support getting all assigned distribution sets
+        // even in multi-assignment mode
+        final Long assignedDsId = deploymentManagement.getAssignedDistributionSet(controllerId)
+                .map(DistributionSet::getId).orElse(null);
+
+        if (assignedDsId != null) {
+            return Collections.singletonList(assignedDsId);
+        }
+
+        return Collections.emptyList();
+    }
+
+    private Collection<Long> getInstalledToTargetDsIds(final String controllerId) {
+        final Long installedDsId = deploymentManagement.getInstalledDistributionSet(controllerId)
+                .map(DistributionSet::getId).orElse(null);
+
+        return installedDsId != null ? Collections.singletonList(installedDsId) : Collections.emptyList();
+    }
+
+    private void initTargetPinningStyleGenerator() {
+        setStyleGenerator(ds -> {
+            if (dsFilter.getPinnedTargetControllerId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
+                return pinSupport.getAssignedOrInstalledRowStyle(ds.getId());
+            }
+
+            return null;
+        });
     }
 
     @Override
@@ -206,8 +249,17 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     public void updatePinnedTargetFilter(final String pinnedControllerId) {
-        dsFilter.setPinnedTargetControllerId(pinnedControllerId);
-        getFilterDataProvider().setFilter(dsFilter);
+        if (pinSupport.clearPinning()) {
+            distributionGridLayoutUiState.setPinnedDsId(null);
+        }
+
+        if ((StringUtils.isEmpty(pinnedControllerId) && dsFilter.getPinnedTargetControllerId() != null)
+                || !StringUtils.isEmpty(pinnedControllerId)) {
+            pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
+
+            dsFilter.setPinnedTargetControllerId(pinnedControllerId);
+            getFilterDataProvider().setFilter(dsFilter);
+        }
     }
 
     /**
@@ -256,21 +308,17 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     private void addActionColumns() {
-        addComponentColumn(ds -> {
-            final Button pinBtn = buildActionButton(event -> pinSupport.pinItemListener(ds, event.getButton()),
-                    VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN,
-                    SPUIStyleDefinitions.STATUS_ICON_NEUTRAL, UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(),
-                    true);
+        addComponentColumn(ds -> buildActionButton(event -> pinSupport.changeItemPinning(ds), VaadinIcons.PIN,
+                UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(), true)).setId(DS_PIN_BUTTON_ID)
+                        .setMinimumWidth(50d).setStyleGenerator(pinSupport::getPinningStyle);
 
-            return pinSupport.buildPinActionButton(pinBtn, ds);
-        }).setId(DS_PIN_BUTTON_ID).setMinimumWidth(50d);
-
-        addComponentColumn(ds -> buildActionButton(
-                clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds, ds.getNameVersion()),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
-                distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d);
+        addComponentColumn(
+                ds -> buildActionButton(clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds),
+                        VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                        UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
+                        distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
+                                .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d);
 
         getDefaultHeaderRow().join(DS_PIN_BUTTON_ID, DS_DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
     }
@@ -291,6 +339,34 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         actionButton.addStyleName(style);
 
         return actionButton;
+    }
+
+    public void restoreState() {
+        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
+        if (pinnedDsId != null) {
+            final ProxyDistributionSet pinnedDs = new ProxyDistributionSet();
+            pinnedDs.setId(pinnedDsId);
+            pinSupport.restorePinning(pinnedDs);
+        }
+
+        final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
+        if (!StringUtils.isEmpty(pinnedControllerId)) {
+            pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
+            dsFilter.setPinnedTargetControllerId(pinnedControllerId);
+        }
+
+        final String searchFilter = distributionGridLayoutUiState.getSearchFilter();
+        dsFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+
+        dsFilter.setNoTagClicked(distributionTagLayoutUiState.isNoTagClicked());
+
+        final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedTargetTagIdsWithName()
+                .values();
+        if (!CollectionUtils.isEmpty(tagFilterNames)) {
+            dsFilter.setDistributionSetTags(tagFilterNames);
+        }
+
+        getFilterDataProvider().setFilter(dsFilter);
     }
 
     /**

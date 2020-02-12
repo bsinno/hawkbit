@@ -15,11 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -33,27 +35,34 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.PinSupport.PinBehaviourType;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
-import org.eclipse.hawkbit.ui.management.event.PinUnpinEvent;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
+import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -63,6 +72,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Concrete implementation of Target grid which is displayed on the Deployment
@@ -93,7 +103,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final transient TargetToProxyTargetMapper targetToProxyTargetMapper;
     private final TargetManagementFilterParams targetFilter;
 
-    private final transient PinSupport<ProxyTarget> pinSupport;
+    private final transient PinSupport<ProxyTarget, Long> pinSupport;
     private final transient DeleteSupport<ProxyTarget> targetDeleteSupport;
     private final transient DragAndDropSupport<ProxyTarget> dragAndDropSupport;
 
@@ -126,12 +136,11 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             getSelectionSupport().enableMultiSelection();
         }
 
-        this.pinSupport = new PinSupport<>(eventBus, PinUnpinEvent.PIN_TARGET, PinUnpinEvent.UNPIN_TARGET,
-                () -> setStyleGenerator(item -> null), targetGridLayoutUiState::getPinnedTargetId,
-                targetGridLayoutUiState::setPinnedTargetId);
+        this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent, this::refreshItem,
+                this::getAssignedToDsTargetIds, this::getInstalledToDsTargetIds);
 
         this.targetDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("target.details.header"),
-                permChecker, notification, this::deleteTargets,
+                ProxyTarget::getName, permChecker, notification, this::deleteTargets,
                 UIComponentIdProvider.TARGET_DELETE_CONFIRMATION_DIALOG);
 
         final Map<String, AssignmentSupport<?, ProxyTarget>> sourceTargetAssignmentStrategies = new HashMap<>();
@@ -150,6 +159,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies);
         this.dragAndDropSupport.addDragAndDrop();
 
+        initDsPinningStyleGenerator();
         initTargetStatusIconMap();
         init();
     }
@@ -178,10 +188,59 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyTarget.class, targetToBeDeletedIds));
 
-        final Long pinnedTargetId = targetGridLayoutUiState.getPinnedTargetId();
-        if (pinnedTargetId != null) {
-            pinSupport.unPinItemAfterDeletion(pinnedTargetId, targetToBeDeletedIds);
+        pinSupport.unPinItemIfDeleted(targetToBeDeletedIds);
+    }
+
+    private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyTarget pinnedItem) {
+        if (targetFilter.getPinnedDistId() != null) {
+            targetFilter.setPinnedDistId(null);
+            getFilterDataProvider().setFilter(targetFilter);
         }
+
+        eventBus.publish(EventTopics.PINNING_CHANGED, this,
+                new PinningChangedEventPayload<String>(
+                        pinType == PinBehaviourType.PINNED ? PinningChangedEventType.ENTITY_PINNED
+                                : PinningChangedEventType.ENTITY_UNPINNED,
+                        ProxyTarget.class, pinnedItem.getControllerId()));
+
+        targetGridLayoutUiState.setPinnedTargetId(pinType == PinBehaviourType.PINNED ? pinnedItem.getId() : null);
+        targetGridLayoutUiState
+                .setPinnedControllerId(pinType == PinBehaviourType.PINNED ? pinnedItem.getControllerId() : null);
+    }
+
+    private Collection<Long> getAssignedToDsTargetIds(final Long pinnedDsId) {
+        return getTargetIdsByFunction(query -> targetManagement.findByAssignedDistributionSet(query, pinnedDsId));
+    }
+
+    private Collection<Long> getTargetIdsByFunction(final Function<Pageable, Page<Target>> findTargetsFunction) {
+        // TODO: check if it is possible to use lazy loading here, by only
+        // loading targets that are relevant for data provider with filter,
+        // offset and limit or alternatively only load the corresponding target
+        // ids
+        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
+        Slice<Target> targetSlice;
+        final List<Target> targets = new ArrayList<>();
+
+        do {
+            targetSlice = findTargetsFunction.apply(query);
+            targets.addAll(targetSlice.getContent());
+        } while ((query = targetSlice.nextPageable()) != Pageable.unpaged());
+
+        return targets.stream().map(Target::getId).collect(Collectors.toList());
+    }
+
+    private Collection<Long> getInstalledToDsTargetIds(final Long pinnedDsId) {
+        return getTargetIdsByFunction(query -> targetManagement.findByInstalledDistributionSet(query, pinnedDsId));
+    }
+
+    private void initDsPinningStyleGenerator() {
+        setStyleGenerator(target -> {
+            if (targetFilter.getPinnedDistId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
+                return pinSupport.getAssignedOrInstalledRowStyle(target.getId());
+            }
+
+            return null;
+        });
     }
 
     // TODO: check if icons are correct
@@ -245,8 +304,17 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     public void updatePinnedDsFilter(final Long pinnedDsId) {
-        targetFilter.setPinnedDistId(pinnedDsId);
-        getFilterDataProvider().setFilter(targetFilter);
+        if (pinSupport.clearPinning()) {
+            targetGridLayoutUiState.setPinnedTargetId(null);
+            targetGridLayoutUiState.setPinnedControllerId(null);
+        }
+
+        if ((pinnedDsId == null && targetFilter.getPinnedDistId() != null) || pinnedDsId != null) {
+            pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
+
+            targetFilter.setPinnedDistId(pinnedDsId);
+            getFilterDataProvider().setFilter(targetFilter);
+        }
     }
 
     public void updateDsFilter(final Long dsId) {
@@ -348,17 +416,14 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void addActionColumns() {
-        addComponentColumn(target -> {
-            final Button pinBtn = buildActionButton(event -> pinSupport.pinItemListener(target, event.getButton()),
-                    VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                    UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true);
-
-            return pinSupport.buildPinActionButton(pinBtn, target);
-        }).setId(TARGET_PIN_BUTTON_ID).setMinimumWidth(50d);
+        addComponentColumn(target -> buildActionButton(clickEvent -> pinSupport.changeItemPinning(target),
+                VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true)).setId(TARGET_PIN_BUTTON_ID)
+                        .setMinimumWidth(50d).setStyleGenerator(pinSupport::getPinningStyle);
 
         addComponentColumn(target -> buildActionButton(
-                clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target, target.getName()),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target), VaadinIcons.TRASH,
+                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(),
                 targetDeleteSupport.hasDeletePermission())).setId(TARGET_DELETE_BUTTON_ID).setMinimumWidth(50d);
 
@@ -375,17 +440,29 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         actionButton.setDescription(i18n.getMessage(descriptionProperty));
         actionButton.setEnabled(enabled);
         actionButton.setId(buttonId);
-        actionButton.addStyleName("tiny");
-        actionButton.addStyleName("borderless");
+        actionButton.addStyleName(ValoTheme.LABEL_TINY);
+        actionButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
         actionButton.addStyleName("button-no-border");
         actionButton.addStyleName("action-type-padding");
+        actionButton.addStyleName("icon-only");
         actionButton.addStyleName(style);
 
         return actionButton;
     }
 
     public void restoreState() {
-        targetFilter.setPinnedDistId(distributionGridLayoutUiState.getPinnedDsId());
+        final Long pinnedTargetId = targetGridLayoutUiState.getPinnedTargetId();
+        if (pinnedTargetId != null) {
+            final ProxyTarget pinnedTarget = new ProxyTarget();
+            pinnedTarget.setId(pinnedTargetId);
+            pinSupport.restorePinning(pinnedTarget);
+        }
+
+        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
+        if (pinnedDsId != null) {
+            pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
+            targetFilter.setPinnedDistId(pinnedDsId);
+        }
 
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
             targetFilter.setTargetFilterQueryId(targetTagFilterLayoutUiState.getClickedTargetFilterQueryId());
