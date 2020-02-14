@@ -34,27 +34,21 @@ public class TargetBulkTokenTags extends AbstractTagToken<ProxyTarget> {
 
     private final TagToProxyTagMapper<TargetTag> tagMapper;
 
-    private final TargetBulkUploadUiState targetBulkUploadUiState;
-
     TargetBulkTokenTags(final VaadinMessageSource i18n, final UIEventBus eventBus, final SpPermissionChecker checker,
-            final UINotification uinotification, final TargetTagManagement tagManagement,
-            final TargetBulkUploadUiState targetBulkUploadUiState) {
+            final UINotification uinotification, final TargetTagManagement tagManagement) {
         super(checker, i18n, uinotification, eventBus);
 
         this.tagManagement = tagManagement;
         this.tagMapper = new TagToProxyTagMapper<>();
-        this.targetBulkUploadUiState = targetBulkUploadUiState;
     }
 
     @Override
     public void assignTag(final ProxyTag tagData) {
-        targetBulkUploadUiState.getAssignedTagNames().add(tagData.getName());
         tagPanelLayout.setAssignedTag(tagData);
     }
 
     @Override
     public void unassignTag(final ProxyTag tagData) {
-        targetBulkUploadUiState.getAssignedTagNames().remove(tagData.getName());
         tagPanelLayout.removeAssignedTag(tagData);
     }
 

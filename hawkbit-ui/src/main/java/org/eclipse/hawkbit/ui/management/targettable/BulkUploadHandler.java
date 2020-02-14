@@ -36,15 +36,16 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
+import org.eclipse.hawkbit.repository.exception.AssignmentQuotaExceededException;
 import org.eclipse.hawkbit.repository.exception.EntityAlreadyExistsException;
+import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
+import org.eclipse.hawkbit.repository.exception.IncompleteDistributionSetException;
+import org.eclipse.hawkbit.repository.exception.MultiAssignmentIsNotEnabledException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.DeploymentRequest;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyBulkUploadWindow;
-import org.eclipse.hawkbit.ui.common.event.BulkUploadPopupEvent;
+import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.components.HawkbitErrorNotificationMessage;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
-import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +54,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.google.common.base.Splitter;
 import com.google.common.io.ByteStreams;
-import com.vaadin.server.ClientConnector.ConnectorErrorEvent;
-import com.vaadin.server.Page;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FailedListener;
@@ -75,7 +74,6 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
     private static final Splitter SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
 
     private final VaadinMessageSource i18n;
-    private final UINotification notification;
 
     private final transient Executor uiExecutor;
     private final transient UIEventBus eventBus;
@@ -88,32 +86,20 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
 
     private File tempFile;
 
-    private int successfullTargetCount;
-
-    private final UI uiInstance;
-
     private final transient Supplier<ProxyBulkUploadWindow> bulkUploadInputsProvider;
-    private ProxyBulkUploadWindow bulkUploadInputs;
 
-    private final TargetBulkUploadUiState targetBulkUploadUiState;
-
-    BulkUploadHandler(final UIEventBus eventBus, final TargetManagement targetManagement,
-            final TargetTagManagement tagManagement, final DistributionSetManagement distributionSetManagement,
-            final DeploymentManagement deploymentManagement, final VaadinMessageSource i18n,
-            final UINotification notification, final EntityFactory entityFactory, final UI uiInstance,
-            final Executor uiExecutor, final TargetBulkUploadUiState targetBulkUploadUiState,
+    BulkUploadHandler(final VaadinMessageSource i18n, final UIEventBus eventBus, final EntityFactory entityFactory,
+            final Executor uiExecutor, final TargetManagement targetManagement, final TargetTagManagement tagManagement,
+            final DistributionSetManagement distributionSetManagement, final DeploymentManagement deploymentManagement,
             final Supplier<ProxyBulkUploadWindow> bulkUploadInputsProvider) {
-        this.uiInstance = uiInstance;
         this.targetManagement = targetManagement;
         this.deploymentManagement = deploymentManagement;
         this.i18n = i18n;
-        this.notification = notification;
         this.uiExecutor = uiExecutor;
         this.eventBus = eventBus;
         this.distributionSetManagement = distributionSetManagement;
         this.tagManagement = tagManagement;
         this.entityFactory = entityFactory;
-        this.targetBulkUploadUiState = targetBulkUploadUiState;
         this.bulkUploadInputsProvider = bulkUploadInputsProvider;
     }
 
@@ -124,36 +110,72 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
 
             return new FileOutputStream(tempFile);
         } catch (final FileNotFoundException e) {
-            LOG.error("File was not found with file name {}", filename, e);
+            LOG.warn("File was not found with file name '{}': ", filename, e);
+            publishUploadFailed();
         } catch (final IOException e) {
-            LOG.error("Error while reading file {}", filename, e);
+            LOG.warn("Error while reading file '{}': ", filename, e);
+            publishUploadFailed();
         }
+
         return ByteStreams.nullOutputStream();
     }
 
     @Override
     public void uploadFailed(final FailedEvent event) {
-        LOG.info("Upload failed for file :{} due to {}", event.getFilename(), event.getReason());
+        LOG.warn("Upload failed for file '{}' due to '{}'", event.getFilename(), event.getReason().getMessage());
+        publishUploadFailed();
+    }
+
+    private void publishUploadFailed() {
+        publishUploadFailed(i18n.getMessage("message.upload.failed"));
+    }
+
+    private void publishUploadFailed(final String failureReason) {
+        eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildFailed(failureReason));
     }
 
     @Override
     public void uploadSucceeded(final SucceededEvent event) {
-        uiExecutor.execute(new UploadAsync());
+        uiExecutor.execute(new UploadAsync(UI.getCurrent()));
     }
 
-    class UploadAsync implements Runnable {
+    private class UploadAsync implements Runnable {
+        private final UI vaadinUi;
+
+        private ProxyBulkUploadWindow bulkUploadInputs;
+
+        private List<String> provisionedControllerIds;
+        private float currentProgress;
+
+        public UploadAsync(final UI vaadinUi) {
+            this.vaadinUi = vaadinUi;
+
+            this.bulkUploadInputs = bulkUploadInputsProvider.get();
+
+            this.provisionedControllerIds = new ArrayList<>();
+            this.currentProgress = 0;
+        }
 
         @Override
         public void run() {
             if (tempFile == null) {
                 return;
             }
+
+            UI.setCurrent(vaadinUi);
+
             try (InputStream tempStream = new FileInputStream(tempFile)) {
                 readFileStream(tempStream);
             } catch (final FileNotFoundException e) {
-                LOG.error("Temporary file not found with name {}", tempFile.getName(), e);
+                LOG.warn("Temporary file not found with name '{}': ", tempFile.getName(), e);
+                publishUploadFailed();
             } catch (final IOException e) {
-                LOG.error("Error while opening temorary file ", e);
+                LOG.warn("Error while opening temporary file ", e);
+                publishUploadFailed();
+            } finally {
+                bulkUploadInputs = null;
+                provisionedControllerIds = null;
+                currentProgress = 0;
             }
         }
 
@@ -162,69 +184,47 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
             final BigDecimal totalNumberOfLines = new BigDecimal(getTotalNumberOfLines());
             try (final LineNumberReader reader = new LineNumberReader(
                     new InputStreamReader(tempStream, Charset.defaultCharset()))) {
-                LOG.info("Bulk file upload started");
-
-                /**
-                 * Once control is in upload succeeded method automatically
-                 * upload button is re-enabled. To disable the button firing
-                 * below event.
-                 */
-                eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadPopupEvent.PROCESS_STARTED);
-
+                LOG.trace("Bulk file upload started");
                 while ((line = reader.readLine()) != null) {
                     readLine(line, reader.getLineNumber(), totalNumberOfLines);
                 }
-            } catch (final IOException e) {
-                LOG.error("Error reading file {}", tempFile.getName(), e);
-            } catch (final RuntimeException e) {
-                uiInstance.getErrorHandler().error(new ConnectorErrorEvent(uiInstance, e));
+            } catch (final IOException | RuntimeException e) {
+                LOG.warn("Error reading file '{}': ", tempFile.getName(), e);
+                publishUploadFailed();
             } finally {
                 deleteFile();
             }
-            syncCountAfterUpload(totalNumberOfLines.intValue());
+
+            // TODO: shoud we publish Target provisioning completed event here?
 
             doAssignments();
 
-            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadPopupEvent.COMPLETED);
-
-            // Clearing after assignments are done
-            targetBulkUploadUiState.getTargetsCreated().clear();
-            resetSuccessfullTargetCount();
-        }
-
-        private void syncCountAfterUpload(final int totalNumberOfLines) {
-            final int syncedFailedTargetCount = totalNumberOfLines - successfullTargetCount;
-            targetBulkUploadUiState.setSucessfulUploadCount(successfullTargetCount);
-            targetBulkUploadUiState.setFailedUploadCount(syncedFailedTargetCount);
-            targetBulkUploadUiState.setProgressBarCurrentValue(1);
-
-            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadPopupEvent.TARGET_PROGRESS_UPDATED);
+            // TODO: shoud we publish assignment completed event here instead?
+            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildCompleted(
+                    provisionedControllerIds.size(), totalNumberOfLines.intValue() - provisionedControllerIds.size()));
         }
 
         private long getTotalNumberOfLines() {
             try (final Stream<String> linesStream = Files.lines(tempFile.toPath())) {
                 return linesStream.count();
             } catch (final IOException e) {
-                LOG.error("Error while reading temp file for upload.", e);
+                LOG.warn("Error while reading temp file for upload: ", e);
+                publishUploadFailed();
             }
 
             return 0L;
-        }
-
-        private void resetSuccessfullTargetCount() {
-            successfullTargetCount = 0;
         }
 
         private void deleteFile() {
             try {
                 Files.deleteIfExists(tempFile.toPath());
             } catch (final IOException e) {
-                LOG.warn("File {} was not deleted! Trying again...", tempFile.getName());
+                LOG.warn("File '{}' was not deleted! Trying again...", tempFile.getName());
 
                 try {
                     Files.deleteIfExists(tempFile.toPath());
                 } catch (final IOException ex) {
-                    LOG.error("File {} was not deleted! The reason is: {}", tempFile.getName(), ex.getMessage());
+                    LOG.warn("File '{}' was not deleted! The reason is: '{}'", tempFile.getName(), ex.getMessage());
                 }
             }
 
@@ -239,19 +239,18 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 addNewTarget(controllerId, targetName);
             }
 
-            final float previous = targetBulkUploadUiState.getProgressBarCurrentValue();
-            final float done = new BigDecimal(lineNumber).divide(totalNumberOfLines, 2, RoundingMode.UP).floatValue();
+            final float linesProcessedPercentage = new BigDecimal(lineNumber)
+                    .divide(totalNumberOfLines, 2, RoundingMode.UP).floatValue();
 
-            if (done > previous) {
-                targetBulkUploadUiState.setSucessfulUploadCount(successfullTargetCount);
-                targetBulkUploadUiState.setProgressBarCurrentValue(done);
+            if (linesProcessedPercentage > currentProgress) {
+                currentProgress = linesProcessedPercentage;
 
-                eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadPopupEvent.TARGET_PROGRESS_UPDATED);
+                eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+                        BulkUploadEventPayload.buildProgressUpdated(currentProgress));
             }
         }
 
         private void doAssignments() {
-            final StringBuilder errorMessage = new StringBuilder();
             String dsAssignmentFailedMsg = null;
             String tagAssignmentFailedMsg = null;
 
@@ -263,24 +262,29 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                     dsAssignmentFailedMsg = saveAllAssignments();
                 }
             }
-            displayValidationMessage(errorMessage, dsAssignmentFailedMsg, tagAssignmentFailedMsg);
+            displayValidationMessage(dsAssignmentFailedMsg, tagAssignmentFailedMsg);
         }
 
         private String saveAllAssignments() {
             final ActionType actionType = ActionType.FORCED;
             final long forcedTimeStamp = new Date().getTime();
-            final List<String> targetIds = targetBulkUploadUiState.getTargetsCreated();
             final Long dsId = bulkUploadInputs.getDistributionSetId();
 
             if (!distributionSetManagement.get(dsId).isPresent()) {
                 return i18n.getMessage("message.bulk.upload.assignment.failed");
             }
 
-            final List<DeploymentRequest> deploymentRequests = targetIds
-                    .stream().map(targetId -> DeploymentManagement.deploymentRequest(targetId, dsId)
+            final List<DeploymentRequest> deploymentRequests = provisionedControllerIds.stream()
+                    .map(controllerId -> DeploymentManagement.deploymentRequest(controllerId, dsId)
                             .setActionType(actionType).setForceTime(forcedTimeStamp).build())
                     .collect(Collectors.toList());
-            deploymentManagement.assignDistributionSets(deploymentRequests);
+            try {
+                deploymentManagement.assignDistributionSets(deploymentRequests);
+            } catch (EntityNotFoundException | IncompleteDistributionSetException | AssignmentQuotaExceededException
+                    | MultiAssignmentIsNotEnabledException e) {
+                LOG.warn("Bulk uploaded targets assignment to ds id '{}' failed due to '{}'", dsId, e.getMessage());
+                return i18n.getMessage("message.bulk.upload.assignment.failed");
+            }
 
             return null;
         }
@@ -293,8 +297,7 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 if (!tagManagement.get(tagIdWithName.getKey()).isPresent()) {
                     deletedTags.add(tagIdWithName.getValue());
                 } else {
-                    targetManagement.toggleTagAssignment(targetBulkUploadUiState.getTargetsCreated(),
-                            tagIdWithName.getValue());
+                    targetManagement.toggleTagAssignment(provisionedControllerIds, tagIdWithName.getValue());
                 }
             }
             if (deletedTags.isEmpty()) {
@@ -315,11 +318,12 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
         }
 
         private boolean areTargetsCreatedSuccessfully() {
-            return !CollectionUtils.isEmpty(targetBulkUploadUiState.getTargetsCreated());
+            return !CollectionUtils.isEmpty(provisionedControllerIds);
         }
 
-        private void displayValidationMessage(final StringBuilder errorMessage, final String dsAssignmentFailedMsg,
-                final String tagAssignmentFailedMsg) {
+        private void displayValidationMessage(final String dsAssignmentFailedMsg, final String tagAssignmentFailedMsg) {
+            final StringBuilder errorMessage = new StringBuilder();
+
             if (dsAssignmentFailedMsg != null) {
                 errorMessage.append(dsAssignmentFailedMsg);
             }
@@ -330,8 +334,8 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 errorMessage.append(tagAssignmentFailedMsg);
             }
             if (errorMessage.length() > 0) {
-                // TODO: use Ui.access?
-                notification.displayValidationError(errorMessage.toString());
+                // TODO: should we publish assignment failed here?
+                publishUploadFailed(errorMessage.toString());
             }
         }
 
@@ -342,12 +346,10 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 targetManagement.create(entityFactory.target().create().controllerId(controllerId).name(name)
                         .description(bulkUploadInputs.getDescription()));
 
-                targetBulkUploadUiState.getTargetsCreated().add(controllerId);
-                successfullTargetCount++;
-
+                provisionedControllerIds.add(controllerId);
             } catch (final EntityAlreadyExistsException ex) {
                 // Targets that exist already are simply ignored
-                LOG.info("Entity {} - {} already exists and will be ignored", controllerId, name);
+                LOG.trace("Entity '{} - {}' already exists and will be ignored", controllerId, name);
             }
         }
     }
@@ -355,15 +357,10 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
     @Override
     public void uploadStarted(final StartedEvent event) {
         if (!event.getFilename().endsWith(".csv")) {
-
-            new HawkbitErrorNotificationMessage(SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE, null,
-                    i18n.getMessage("bulk.targets.upload"), true).show(Page.getCurrent());
-            LOG.error("Wrong file format for file {}", event.getFilename());
+            publishUploadFailed(i18n.getMessage("bulkupload.wrong.file.format"));
             event.getUpload().interruptUpload();
         } else {
-            bulkUploadInputs = bulkUploadInputsProvider.get();
-
-            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadPopupEvent.STARTED);
+            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildStarted());
         }
     }
 

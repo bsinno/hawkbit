@@ -12,6 +12,7 @@ import java.util.function.BooleanSupplier;
 
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
+import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -66,6 +67,16 @@ public class BulkUploadHeaderSupport implements HeaderSupport {
         bulkUploadIcon.setVisible(true);
     }
 
+    public void showProgressIndicator() {
+        bulkUploadIcon.addStyleName(SPUIStyleDefinitions.BULK_UPLOAD_PROGRESS_INDICATOR_STYLE);
+        bulkUploadIcon.setIcon(null);
+    }
+
+    public void hideProgressIndicator() {
+        bulkUploadIcon.removeStyleName(SPUIStyleDefinitions.BULK_UPLOAD_PROGRESS_INDICATOR_STYLE);
+        bulkUploadIcon.setIcon(VaadinIcons.UPLOAD);
+    }
+
     @Override
     public Component getHeaderComponent() {
         return bulkUploadIcon;
@@ -78,7 +89,7 @@ public class BulkUploadHeaderSupport implements HeaderSupport {
         }
 
         if (bulkUploadInProgressStateSupplier.getAsBoolean()) {
-            disableBulkUpload();
+            showProgressIndicator();
         }
     }
 }

@@ -25,7 +25,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.event.BulkUploadPopupEvent;
+import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
@@ -75,9 +75,9 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 entityFactory, eventBus, uiNotification, permissionChecker, targetManagement);
 
         this.targetGridHeader = new TargetGridHeader(i18n, permissionChecker, eventBus, uiNotification,
-                targetManagement, deploymentManagement, uiProperties, entityFactory, uiNotification,
-                targetTagManagement, distributionSetManagement, uiExecutor, targetWindowBuilder,
-                targetTagFilterLayoutUiState, targetGridLayoutUiState, targetBulkUploadUiState);
+                targetManagement, deploymentManagement, uiProperties, entityFactory, targetTagManagement,
+                distributionSetManagement, uiExecutor, targetWindowBuilder, targetTagFilterLayoutUiState,
+                targetGridLayoutUiState, targetBulkUploadUiState);
         this.targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement, permissionChecker,
                 deploymentManagement, configManagement, systemSecurityContext, uiProperties, targetGridLayoutUiState,
                 distributionGridLayoutUiState, targetTagFilterLayoutUiState);
@@ -199,7 +199,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         targetGrid.deselectAll();
     }
 
-    public void onBulkUploadChanged(final BulkUploadPopupEvent eventPayload) {
+    public void onBulkUploadChanged(final BulkUploadEventPayload eventPayload) {
         targetGridHeader.onBulkUploadChanged(eventPayload);
     }
 
