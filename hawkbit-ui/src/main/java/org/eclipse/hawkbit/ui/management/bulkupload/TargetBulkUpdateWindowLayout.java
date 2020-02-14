@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management.targettable;
+package org.eclipse.hawkbit.ui.management.bulkupload;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -76,7 +76,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private final Binder<ProxyBulkUploadWindow> binder;
 
-    TargetBulkUpdateWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    public TargetBulkUpdateWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker checker, final UINotification uinotification,
             final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
             final TargetTagManagement tagManagement, final DistributionSetManagement distributionSetManagement,

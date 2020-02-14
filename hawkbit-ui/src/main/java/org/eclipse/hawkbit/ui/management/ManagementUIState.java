@@ -20,11 +20,11 @@ import org.eclipse.hawkbit.ui.common.entity.TargetIdName;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionStatusMsgGridLayoutUiState;
+import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUploadUiState;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.management.state.DistributionTableFilters;
 import org.eclipse.hawkbit.ui.management.state.TargetTableFilters;
-import org.eclipse.hawkbit.ui.management.targettable.TargetBulkUploadUiState;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 

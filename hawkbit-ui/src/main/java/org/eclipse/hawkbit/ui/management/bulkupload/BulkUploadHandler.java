@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.management.targettable;
+package org.eclipse.hawkbit.ui.management.bulkupload;
 
 import java.io.File;
 import java.io.FileInputStream;
