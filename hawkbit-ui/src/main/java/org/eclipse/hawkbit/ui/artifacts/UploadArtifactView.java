@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayout;
-import org.eclipse.hawkbit.ui.dd.criteria.UploadViewClientCriterion;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -63,7 +62,6 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
             final UINotification uiNotification, final ArtifactUploadState artifactUploadState,
             final EntityFactory entityFactory, final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement,
-            final UploadViewClientCriterion uploadViewClientCriterion,
             final MultipartConfigElement multipartConfigElement, final ArtifactManagement artifactManagement) {
         this.permChecker = permChecker;
         this.artifactUploadState = artifactUploadState;
