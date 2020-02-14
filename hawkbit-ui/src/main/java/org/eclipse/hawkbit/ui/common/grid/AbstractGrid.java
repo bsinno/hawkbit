@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.grid;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
@@ -21,6 +22,7 @@ import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.components.grid.GridSelectionModel;
 import com.vaadin.ui.components.grid.Header.Row;
 import com.vaadin.ui.components.grid.HeaderRow;
 
@@ -38,6 +40,7 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     private static final long serialVersionUID = 1L;
 
     protected static final String CENTER_ALIGN = "v-align-center";
+    private static final String MULTI_SELECTION_GRID_CLASS = "multi-selection-grid";
 
     protected final VaadinMessageSource i18n;
     protected final transient UIEventBus eventBus;
@@ -54,6 +57,18 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      */
     protected AbstractGrid(final VaadinMessageSource i18n, final UIEventBus eventBus) {
         this(i18n, eventBus, null);
+    }
+
+    @Override
+    public GridSelectionModel<T> setSelectionMode(final SelectionMode mode) {
+        if (mode == SelectionMode.MULTI) {
+            final RangeSelectionModel<T> model = new RangeSelectionModel<>();
+            setSelectionModel(model);
+            addStyleName(MULTI_SELECTION_GRID_CLASS);
+            return model;
+        }
+        return super.setSelectionMode(mode);
+
     }
 
     /**
@@ -88,6 +103,7 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         setDataProvider(getFilterDataProvider());
         addColumns();
         disableColumnSorting();
+        setFrozenColumnCount(-1);
     }
 
     // TODO: check if it is needed or could be called directly

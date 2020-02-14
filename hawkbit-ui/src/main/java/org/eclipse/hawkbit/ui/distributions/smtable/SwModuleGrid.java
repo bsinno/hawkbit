@@ -104,7 +104,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
                 ProxySoftwareModule::getNameAndVersion, permissionChecker, notification, this::deleteSoftwareModules,
                 UIComponentIdProvider.SM_DELETE_CONFIRMATION_DIALOG);
 
-        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap());
+        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap(), eventBus);
         this.dragAndDropSupport.addDragSource();
 
         initMasterDsStyleGenerator();

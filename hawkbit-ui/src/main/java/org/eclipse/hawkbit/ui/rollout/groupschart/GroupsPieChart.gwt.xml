@@ -18,4 +18,6 @@
     <inherits name="org.vaadin.alump.distributionbar.gwt.DistributionBarWidgetset"/>
 
     <inherits name="com.github.gwtd3.D3"/>
+
+    <inherits name="org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionWidgetset" />
 </module>
