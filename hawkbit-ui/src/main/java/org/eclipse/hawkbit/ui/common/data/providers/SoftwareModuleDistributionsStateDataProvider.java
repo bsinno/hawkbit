@@ -18,6 +18,8 @@ import org.eclipse.hawkbit.ui.common.data.mappers.AssignedSoftwareModuleToProxyM
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.util.StringUtils;
 
 /**
@@ -34,7 +36,7 @@ public class SoftwareModuleDistributionsStateDataProvider
 
     public SoftwareModuleDistributionsStateDataProvider(final SoftwareModuleManagement softwareModuleManagement,
             final AssignedSoftwareModuleToProxyMapper entityMapper) {
-        super(entityMapper);
+        super(entityMapper, Sort.by(Direction.ASC, "name", "version"));
 
         this.softwareModuleManagement = softwareModuleManagement;
     }

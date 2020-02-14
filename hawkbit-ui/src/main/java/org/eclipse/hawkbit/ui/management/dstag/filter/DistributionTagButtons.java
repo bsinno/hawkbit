@@ -94,7 +94,8 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
                 uiNotification, i18n, distributionSetManagement, eventBus, permChecker, distributionTagLayoutUiState);
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, uiNotification,
-                Collections.singletonMap(UIComponentIdProvider.DIST_TABLE_ID, distributionSetsToTagAssignment));
+                Collections.singletonMap(UIComponentIdProvider.DIST_TABLE_ID, distributionSetsToTagAssignment),
+                eventBus);
         this.dragAndDropSupport.addDragAndDrop();
 
         init();

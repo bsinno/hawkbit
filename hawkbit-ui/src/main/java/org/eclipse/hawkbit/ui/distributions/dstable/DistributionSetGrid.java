@@ -117,7 +117,8 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
                 dsTypeManagement, smTypeManagement);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.SOFTWARE_MODULE_TABLE, swModulesToDsAssignment);
 
-        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies);
+        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies,
+                eventBus);
         this.dragAndDropSupport.addDropTarget();
 
         initIsCompleteStyleGenerator();

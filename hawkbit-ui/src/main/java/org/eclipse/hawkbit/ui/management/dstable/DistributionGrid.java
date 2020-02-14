@@ -144,7 +144,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToDsAssignment);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.DISTRIBUTION_TAG_TABLE_ID, dsTagsToDsAssignment);
 
-        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies);
+        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies,
+                eventBus);
         this.dragAndDropSupport.addDragAndDrop();
 
         initTargetPinningStyleGenerator();

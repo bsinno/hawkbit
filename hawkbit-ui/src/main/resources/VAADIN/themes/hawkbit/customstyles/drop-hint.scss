@@ -15,6 +15,11 @@
   }
    
   .show-drop-hint {
+    .v-grid-tablewrapper {
+      border: 1px dashed $hawkbit-primary-color !important;
+    }
+  }
+  /*.show-drop-hint {
     .type-button-layout {
       border: 1px dashed $hawkbit-primary-color !important;
     } 
@@ -38,5 +43,5 @@
   //Target table header - distribution filter text field style
   .v-slot-filter-drop-hint-layout {
     line-height: 21px;
-  }
+  }*/
 }

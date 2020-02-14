@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.event.EntityDraggingEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityDraggingEventPayload.DraggingEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionGridDragSource;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
@@ -20,6 +23,9 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.CollectionUtils;
+import org.vaadin.spring.events.EventBus.UIEventBus;
+import org.vaadin.spring.events.EventScope;
+import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.cronutils.utils.StringUtils;
 import com.vaadin.shared.ui.grid.DropMode;
@@ -38,14 +44,16 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     private final VaadinMessageSource i18n;
     private final UINotification notification;
     private final Map<String, AssignmentSupport<?, T>> sourceTargetAssignmentStrategies;
+    private final UIEventBus eventBus;
 
     public DragAndDropSupport(final AbstractGrid<T, ?> grid, final VaadinMessageSource i18n,
             final UINotification notification,
-            final Map<String, AssignmentSupport<?, T>> sourceTargetAssignmentStrategies) {
+            final Map<String, AssignmentSupport<?, T>> sourceTargetAssignmentStrategies, final UIEventBus eventBus) {
         this.grid = grid;
         this.i18n = i18n;
         this.notification = notification;
         this.sourceTargetAssignmentStrategies = sourceTargetAssignmentStrategies;
+        this.eventBus = eventBus;
     }
 
     public void addDragAndDrop() {
@@ -56,12 +64,19 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     public void addDragSource() {
         final GridDragSource<T> dragSource = new RangeSelectionGridDragSource<>(grid);
 
-        dragSource.setDataTransferData("source_id", grid.getGridId());
-        dragSource.addGridDragStartListener(event -> dragSource.setDragData(getItemsToDrag(event)));
+        final String gridId = grid.getGridId();
+        dragSource.setDataTransferData("source_id", gridId);
+        dragSource.addGridDragStartListener(event -> {
+            dragSource.setDragData(getItemsToDrag(event));
+            eventBus.publish(EventTopics.ENTITY_DRAGGING, this,
+                    new EntityDraggingEventPayload(gridId, DraggingEventType.STARTED));
+        });
         dragSource.addGridDragEndListener(event -> {
             if (event.isCanceled()) {
                 showActionNotAllowedNotification();
             }
+            eventBus.publish(EventTopics.ENTITY_DRAGGING, this,
+                    new EntityDraggingEventPayload(gridId, DraggingEventType.STOPPED));
         });
     }
 
@@ -81,7 +96,20 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
     }
 
+    @EventBusListenerMethod(scope = EventScope.UI)
+    private void onLayoutResizeEvent(final EntityDraggingEventPayload eventPayload) {
+        final String sourceGridId = eventPayload.getSourceGridId();
+        final String style = "show-drop-hint";
+        if (sourceTargetAssignmentStrategies.containsKey(sourceGridId)
+                && eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
+            grid.addStyleName(style);
+        } else {
+            grid.removeStyleName(style);
+        }
+    }
+
     public void addDropTarget() {
+        eventBus.subscribe(this, EventTopics.ENTITY_DRAGGING);
         final GridDropTarget<T> dropTarget = new GridDropTarget<>(grid, DropMode.ON_TOP);
 
         dropTarget.addGridDropListener(event -> {
