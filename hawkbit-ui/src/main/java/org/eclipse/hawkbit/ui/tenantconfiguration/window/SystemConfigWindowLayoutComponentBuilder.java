@@ -33,7 +33,6 @@ public class SystemConfigWindowLayoutComponentBuilder {
         distributionSetType.setEmptySelectionAllowed(false);
         distributionSetType.setItemCaptionGenerator(ProxyType::getKeyAndName);
         distributionSetType.setDataProvider(dependencies.getDistributionSetTypeDataProvider());
-
         binder.forField(distributionSetType).withConverter(dst -> {
             if (dst == null) {
                 return null;

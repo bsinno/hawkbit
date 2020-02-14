@@ -1,6 +1,9 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import java.io.Serializable;
+import java.time.Duration;
+
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.ActionStatusOption;
 
 public class ProxySystemConfigWindow implements Serializable {
 
@@ -13,7 +16,13 @@ public class ProxySystemConfigWindow implements Serializable {
     private Long repositoryConfigId;
     private Long rolloutConfigId;
     private Long caRootAuthorityId;
-    private String actionCleanupStatusId;
+    private String caRootAuthority;
+    private String gatewaySecurityToken;
+    private ActionStatusOption actionCleanupStatus;
+    private boolean  pollingOverdue;
+    private Duration pollingOverdueDuration;
+    private boolean  pollingTime;
+    private Duration pollingTimeDuration;
     private String actionExpiryDays;
     private boolean rolloutApproval;
     private boolean actionAutoclose;
@@ -42,6 +51,54 @@ public class ProxySystemConfigWindow implements Serializable {
         this.name = name;
     }
 
+    public String getCaRootAuthority() {
+        return caRootAuthority;
+    }
+
+    public void setCaRootAuthority(String caRootAuthority) {
+        this.caRootAuthority = caRootAuthority;
+    }
+
+    public String getGatewaySecurityToken() {
+        return gatewaySecurityToken;
+    }
+
+    public void setGatewaySecurityToken(String gatewaySecurityToken) {
+        this.gatewaySecurityToken = gatewaySecurityToken;
+    }
+
+    public boolean isPollingTime() {
+        return pollingTime;
+    }
+
+    public void setPollingTime(boolean pollingTime) {
+        this.pollingTime = pollingTime;
+    }
+
+    public Duration getPollingTimeDuration() {
+        return pollingTimeDuration;
+    }
+
+    public void setPollingTimeDuration(Duration pollingTimeDuration) {
+        this.pollingTimeDuration = pollingTimeDuration;
+    }
+
+    public boolean isPollingOverdue() {
+        return pollingOverdue;
+    }
+
+    public void setPollingOverdue(boolean pollingOverdue) {
+        this.pollingOverdue = pollingOverdue;
+    }
+
+    public Duration getPollingOverdueDuration() {
+        return pollingOverdueDuration;
+    }
+
+    public void setPollingOverdueDuration(Duration pollingOverdueDuration) {
+        this.pollingOverdueDuration = pollingOverdueDuration;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -54,14 +111,6 @@ public class ProxySystemConfigWindow implements Serializable {
         return distributionSetTypeId;
     }
 
-    public String getActionCleanupStatusId() {
-        return actionCleanupStatusId;
-    }
-
-    public void setActionCleanupStatusId(String actionCleanupStatusId) {
-        this.actionCleanupStatusId = actionCleanupStatusId;
-    }
-
     public String getActionExpiryDays() {
         return actionExpiryDays;
     }
@@ -70,6 +119,13 @@ public class ProxySystemConfigWindow implements Serializable {
         this.actionExpiryDays = actionExpiryDays;
     }
 
+    public ActionStatusOption getActionCleanupStatus() {
+        return actionCleanupStatus;
+    }
+
+    public void setActionCleanupStatus(ActionStatusOption actionCleanupStatus) {
+        this.actionCleanupStatus = actionCleanupStatus;
+    }
     public Long getCaRootAuthorityId() {
         return caRootAuthorityId;
     }

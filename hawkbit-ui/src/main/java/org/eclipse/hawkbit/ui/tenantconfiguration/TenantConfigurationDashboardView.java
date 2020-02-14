@@ -8,8 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY;
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_STATUS;
+import static org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.ACTION_STATUS_OPTIONS;
+import static org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.EMPTY_STATUS_SET;
+
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +28,11 @@ import org.eclipse.hawkbit.ControllerPollProperties;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
+import org.eclipse.hawkbit.tenancy.configuration.DurationHelper;
+import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
@@ -30,14 +44,16 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.AnonymousDownlo
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.CertificateAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.GatewaySecurityTokenAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.TargetSecurityTokenAuthenticationConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocleanupConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutocloseConfigurationItem;
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem;
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.ActionStatusOption;
+import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCloseConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.MultiAssignmentsConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.rollout.ApprovalConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.vaadin.data.Binder;
@@ -86,14 +102,15 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     private Button undoConfigurationBtn;
     private final SystemManagement systemManagement;
     private final ApprovalConfigurationItem approvalConfigurationItem;
-    private final ActionAutocloseConfigurationItem actionAutocloseConfigurationItem;
+    private final ActionAutoCloseConfigurationItem actionAutocloseConfigurationItem;
     private final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem;
-    private final ActionAutocleanupConfigurationItem actionAutocleanupConfigurationItem;
+    private final ActionAutoCleanupConfigurationItem actionAutocleanupConfigurationItem;
     private final TargetSecurityTokenAuthenticationConfigurationItem targetSecurityTokenAuthenticationConfigurationItem;
-
+    private final TenantConfigurationManagement tenantConfigurationManagement;
     private final Binder<ProxySystemConfigWindow> binder;
     private final List<ConfigurationGroup> configurationViews = Lists.newArrayListWithExpectedSize(3);
-
+    private final List<CustomComponent> customComponents = Lists.newArrayListWithExpectedSize(3);
+    private final SecurityTokenGenerator securityTokenGenerator;
     @Autowired(required = false)
     private Collection<ConfigurationGroup> customConfigurationViews;
 
@@ -105,32 +122,32 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             final SecurityTokenGenerator securityTokenGenerator,
             final ControllerPollProperties controllerPollProperties, final SpPermissionChecker permChecker) {
         this.systemManagement = systemManagement;
+        this.tenantConfigurationManagement = tenantConfigurationManagement;
+        this.securityTokenGenerator = securityTokenGenerator;
         this.binder = new Binder<>();
+        binder.setBean(populateAndGetSystemConfig());
         this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n);
-        this.actionAutocloseConfigurationItem = new ActionAutocloseConfigurationItem(tenantConfigurationManagement,
                 i18n);
-        this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(tenantConfigurationManagement,
+        this.actionAutocloseConfigurationItem = new ActionAutoCloseConfigurationItem(i18n);
+        this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(i18n, binder);
+        this.actionAutocleanupConfigurationItem = new ActionAutoCleanupConfigurationItem(binder, i18n);
+        this.approvalConfigurationItem = new ApprovalConfigurationItem(i18n);
+        this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(i18n, binder);
+
+        this.gatewaySecurityTokenAuthenticationConfigurationItem = new GatewaySecurityTokenAuthenticationConfigurationItem(
+                i18n, securityTokenGenerator, binder);
+        this.anonymousDownloadAuthenticationConfigurationItem = new AnonymousDownloadAuthenticationConfigurationItem(
                 i18n);
-        this.actionAutocleanupConfigurationItem = new ActionAutocleanupConfigurationItem(tenantConfigurationManagement,
-                i18n);
-        this.approvalConfigurationItem = new ApprovalConfigurationItem(tenantConfigurationManagement, i18n);
 
         this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n,
                 permChecker, binder, distributionSetTypeManagement);
-        this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n);
 
-        this.gatewaySecurityTokenAuthenticationConfigurationItem = new GatewaySecurityTokenAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n, securityTokenGenerator);
-        this.anonymousDownloadAuthenticationConfigurationItem = new AnonymousDownloadAuthenticationConfigurationItem(
-                tenantConfigurationManagement, i18n);
         this.authenticationConfigurationView = new AuthenticationConfigurationView(i18n,
                 targetSecurityTokenAuthenticationConfigurationItem, certificateAuthenticationConfigurationItem,
                 gatewaySecurityTokenAuthenticationConfigurationItem, anonymousDownloadAuthenticationConfigurationItem,
                 uiProperties, binder);
         this.pollingConfigurationView = new PollingConfigurationView(i18n, controllerPollProperties,
-                tenantConfigurationManagement);
+                tenantConfigurationManagement, binder);
         this.repositoryConfigurationView = new RepositoryConfigurationView(i18n, uiProperties,
                 actionAutocloseConfigurationItem, actionAutocleanupConfigurationItem, multiAssignmentsConfigurationItem,
                 binder);
@@ -148,12 +165,12 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     @PostConstruct
     public void init() {
         if (defaultDistributionSetTypeLayout.getComponentCount() > 0) {
-            configurationViews.add(defaultDistributionSetTypeLayout);
+            customComponents.add(defaultDistributionSetTypeLayout);
         }
-        configurationViews.add(repositoryConfigurationView);
-        configurationViews.add(rolloutConfigurationView);
-        configurationViews.add(authenticationConfigurationView);
-        configurationViews.add(pollingConfigurationView);
+        customComponents.add(repositoryConfigurationView);
+        customComponents.add(rolloutConfigurationView);
+        customComponents.add(authenticationConfigurationView);
+        customComponents.add(pollingConfigurationView);
         if (customConfigurationViews != null) {
             configurationViews.addAll(
                     customConfigurationViews.stream().filter(ConfigurationGroup::show).collect(Collectors.toList()));
@@ -166,7 +183,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         rootLayout.setSizeFull();
         rootLayout.setMargin(true);
         rootLayout.setSpacing(true);
-
+        customComponents.forEach(rootLayout::addComponent);
         configurationViews.forEach(rootLayout::addComponent);
 
         final HorizontalLayout buttonContent = saveConfigurationButtonsLayout();
@@ -176,9 +193,6 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         setCompositionRoot(rootPanel);
 
         configurationViews.forEach(view -> view.addChangeListener(this));
-
-        binder.setBean(populateAndGetSystemConfig());
-
         binder.addStatusChangeListener(event -> {
             saveConfigurationBtn.setEnabled(event.getBinder().isValid());
             undoConfigurationBtn.setEnabled(event.getBinder().isValid());
@@ -189,19 +203,72 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         final ProxySystemConfigWindow configBean = new ProxySystemConfigWindow();
 
         configBean.setDistributionSetTypeId(systemManagement.getTenantMetadata().getDefaultDsType().getId());
-        configBean.setRolloutApproval(approvalConfigurationItem.isConfigEnabled());
-        configBean.setActionAutoclose(actionAutocloseConfigurationItem.isConfigEnabled());
-        configBean.setMultiAssignments(multiAssignmentsConfigurationItem.isConfigEnabled());
-        configBean.setActionAutocleanup(actionAutocleanupConfigurationItem.isConfigEnabled());
-        configBean.setCertificateAuth(certificateAuthenticationConfigurationItem.isConfigEnabled());
-        configBean.setTargetSecToken(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-        configBean.setGatewaySecToken(gatewaySecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-        configBean.setDownloadAnonymous(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
+        configBean.setRolloutApproval(readConfigOption(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED));
+        configBean.setActionAutoclose(readConfigOption(TenantConfigurationKey.REPOSITORY_ACTIONS_AUTOCLOSE_ENABLED));
+        configBean.setMultiAssignments(readConfigOption(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED));
+        configBean.setActionAutocleanup(readConfigOption(TenantConfigurationKey.ACTION_CLEANUP_ENABLED));
+        configBean.setCertificateAuth(readConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_ENABLED));
+        configBean.setTargetSecToken(
+                readConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_TARGET_SECURITY_TOKEN_ENABLED));
+        configBean.setGatewaySecToken(
+                readConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_ENABLED));
+        configBean.setDownloadAnonymous(readConfigOption(TenantConfigurationKey.ANONYMOUS_DOWNLOAD_MODE_ENABLED));
+        String securityToken = tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY, String.class).getValue();
+        if (StringUtils.isEmpty(securityToken)) {
+            securityToken = this.securityTokenGenerator.generateToken();
+        }
+        configBean.setGatewaySecurityToken(securityToken);
+        configBean.setCaRootAuthority(getCaRootAuthorityValue());
+        configBean.setActionCleanupStatus(getActionStatusOption());
+        configBean.setActionExpiryDays(String.valueOf(getActionExpiry()));
+
+        final TenantConfigurationValue<String> pollingTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class);
+        configBean.setPollingTime(!pollingTimeConfValue.isGlobal());
+        configBean.setPollingTimeDuration(DurationHelper.formattedStringToDuration(pollingTimeConfValue.getValue()));
+
+        final TenantConfigurationValue<String> overdueTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class);
+        configBean.setPollingOverdue(!overdueTimeConfValue.isGlobal());
+        configBean.setPollingOverdueDuration(DurationHelper.formattedStringToDuration(overdueTimeConfValue.getValue()));
+
         return configBean;
     }
 
-    private HorizontalLayout saveConfigurationButtonsLayout() {
+    private String getCaRootAuthorityValue() {
+        return tenantConfigurationManagement.getConfigurationValue(
+                TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, String.class).getValue();
+    }
 
+    private long getActionExpiry() {
+        return TimeUnit.MILLISECONDS.toDays(readConfigValue(ACTION_CLEANUP_ACTION_EXPIRY, Long.class).getValue());
+    }
+
+    private ActionStatusOption getActionStatusOption() {
+        final Set<Action.Status> actionStatus = getActionStatus();
+        return ACTION_STATUS_OPTIONS.stream()
+                .filter(option -> actionStatus.equals(option.getStatus()))
+                .findFirst()
+                .orElse(ACTION_STATUS_OPTIONS.iterator().next());
+    }
+
+    private EnumSet<Action.Status> getActionStatus() {
+        final TenantConfigurationValue<String> statusStr = readConfigValue(ACTION_CLEANUP_ACTION_STATUS, String.class);
+        if (statusStr != null) {
+            return Arrays.stream(statusStr.getValue().split("[;,]"))
+                    .map(Action.Status::valueOf)
+                    .collect(Collectors.toCollection(() -> EnumSet.noneOf(Action.Status.class)));
+        }
+        return EMPTY_STATUS_SET;
+    }
+
+    private <T extends Serializable> TenantConfigurationValue<T> readConfigValue(final String key,
+            final Class<T> valueType) {
+        return tenantConfigurationManagement.getConfigurationValue(key, valueType);
+    }
+
+    private HorizontalLayout saveConfigurationButtonsLayout() {
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
         saveConfigurationBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.SYSTEM_CONFIGURATION_SAVE, "", "",
@@ -225,6 +292,79 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         return hlayout;
     }
 
+    private void saveSystemConfigBean() {
+        final ProxySystemConfigWindow configWindowBean = binder.getBean();
+        systemManagement.updateTenantMetadata(configWindowBean.getDistributionSetTypeId());
+        writeConfigOption(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED, configWindowBean.isRolloutApproval());
+        writeConfigOption(TenantConfigurationKey.ACTION_CLEANUP_ENABLED, configWindowBean.isActionAutocleanup());
+        writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_TARGET_SECURITY_TOKEN_ENABLED,
+                configWindowBean.isTargetSecToken());
+        writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_ENABLED,
+                configWindowBean.isGatewaySecToken());
+        writeConfigOption(TenantConfigurationKey.ANONYMOUS_DOWNLOAD_MODE_ENABLED,
+                configWindowBean.isDownloadAnonymous());
+
+        if (configWindowBean.isGatewaySecToken()) {
+            writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY,
+                    configWindowBean.getGatewaySecurityToken());
+        }
+
+        if (configWindowBean.isActionAutocleanup()) {
+            writeConfigOption(ACTION_CLEANUP_ACTION_STATUS, configWindowBean.getActionCleanupStatus()
+                    .getStatus()
+                    .stream()
+                    .map(Action.Status::name)
+                    .collect(Collectors.joining(",")));
+
+            writeConfigOption(TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY,
+                    TimeUnit.DAYS.toMillis(Long.parseLong(configWindowBean.getActionExpiryDays())));
+        }
+        if (!readConfigOption(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED)) {
+            writeConfigOption(TenantConfigurationKey.REPOSITORY_ACTIONS_AUTOCLOSE_ENABLED,
+                    configWindowBean.isActionAutoclose());
+        }
+
+        if (configWindowBean.isMultiAssignments() && !readConfigOption(
+                TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED)) {
+            writeConfigOption(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED, configWindowBean.isMultiAssignments());
+            repositoryConfigurationView.disableMultipleAssignmentOption();
+        }
+        writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_ENABLED,
+                configWindowBean.isCertificateAuth());
+        if (configWindowBean.isCertificateAuth()) {
+            final String value =
+                    configWindowBean.getCaRootAuthority() != null ? configWindowBean.getCaRootAuthority() : "";
+            writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, value);
+        }
+
+        if (configWindowBean.isPollingTime()) {
+            tenantConfigurationManagement.addOrUpdateConfiguration(TenantConfigurationKey.POLLING_TIME_INTERVAL,
+                    DurationHelper.durationToFormattedString(configWindowBean.getPollingTimeDuration()));
+        } else {
+            tenantConfigurationManagement.deleteConfiguration(TenantConfigurationKey.POLLING_TIME_INTERVAL);
+        }
+
+        if (configWindowBean.isPollingOverdue()) {
+            tenantConfigurationManagement.addOrUpdateConfiguration(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL,
+                    DurationHelper.durationToFormattedString(configWindowBean.getPollingOverdueDuration()));
+        } else {
+            tenantConfigurationManagement.deleteConfiguration(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL);
+        }
+
+        populateAndGetSystemConfig();
+    }
+
+    private boolean readConfigOption(String configurationKey) {
+        final TenantConfigurationValue<Boolean> enabled = tenantConfigurationManagement.getConfigurationValue(
+                configurationKey, Boolean.class);
+
+        return enabled.getValue() && !enabled.isGlobal();
+    }
+
+    private <T extends Serializable> void writeConfigOption(String key, T value) {
+        tenantConfigurationManagement.addOrUpdateConfiguration(key, value);
+    }
+
     private void saveConfiguration() {
         final boolean isUserInputValid = configurationViews.stream().allMatch(ConfigurationGroup::isUserInputValid);
 
@@ -232,8 +372,8 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             uINotification.displayValidationError(i18n.getMessage("notification.configuration.save.notpossible"));
             return;
         }
+        saveSystemConfigBean();
         configurationViews.forEach(ConfigurationGroup::save);
-
         // More methods
         saveConfigurationBtn.setEnabled(false);
         undoConfigurationBtn.setEnabled(false);

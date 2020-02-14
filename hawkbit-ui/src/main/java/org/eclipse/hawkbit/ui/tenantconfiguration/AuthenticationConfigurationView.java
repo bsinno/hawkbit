@@ -15,14 +15,13 @@ import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.AnonymousDownlo
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.CertificateAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.GatewaySecurityTokenAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.TargetSecurityTokenAuthenticationConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.generic.BooleanConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.HasValue;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
@@ -32,8 +31,7 @@ import com.vaadin.ui.VerticalLayout;
 /**
  * View to configure the authentication mode.
  */
-public class AuthenticationConfigurationView extends BaseConfigurationView
-        implements ConfigurationItem.ConfigurationItemChangeListener {
+public class AuthenticationConfigurationView extends CustomComponent {
 
     private static final String DIST_CHECKBOX_STYLE = "dist-checkbox-style";
 
@@ -102,20 +100,17 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
         certificateAuthCheckbox = new CheckBox();
         certificateAuthCheckbox.setStyleName(DIST_CHECKBOX_STYLE);
         certificateAuthCheckbox.addValueChangeListener(
-                valueChangeEvent -> changeEvent(valueChangeEvent, certificateAuthenticationConfigurationItem));
+                valueChangeEvent -> certificateAuthenticationConfigurationItem.setDetailVisible(
+                        valueChangeEvent.getValue()));
         binder.bind(certificateAuthCheckbox, ProxySystemConfigWindow::isCertificateAuth,
                 ProxySystemConfigWindow::setCertificateAuth);
-        certificateAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(certificateAuthCheckbox, 0, 0);
         gridLayout.addComponent(certificateAuthenticationConfigurationItem, 1, 0);
         targetSecTokenCheckBox = new CheckBox();
         targetSecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        targetSecTokenCheckBox.addValueChangeListener(
-                valueChangeEvent -> changeEvent(valueChangeEvent, targetSecurityTokenAuthenticationConfigurationItem));
         binder.bind(targetSecTokenCheckBox, ProxySystemConfigWindow::isTargetSecToken,
                 ProxySystemConfigWindow::setTargetSecToken);
 
-        targetSecurityTokenAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(targetSecTokenCheckBox, 0, 1);
         gridLayout.addComponent(targetSecurityTokenAuthenticationConfigurationItem, 1, 1);
 
@@ -123,22 +118,19 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
         gatewaySecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         gatewaySecTokenCheckBox.setId("gatewaysecuritycheckbox");
         gatewaySecTokenCheckBox.addValueChangeListener(
-                valueChangeEvent -> changeEvent(valueChangeEvent, gatewaySecurityTokenAuthenticationConfigurationItem));
+                valueChangeEvent -> gatewaySecurityTokenAuthenticationConfigurationItem.setDetailVisible(
+                        valueChangeEvent.getValue()));
         binder.bind(gatewaySecTokenCheckBox, ProxySystemConfigWindow::isGatewaySecToken,
                 ProxySystemConfigWindow::setGatewaySecToken);
-        gatewaySecurityTokenAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(gatewaySecTokenCheckBox, 0, 2);
         gridLayout.addComponent(gatewaySecurityTokenAuthenticationConfigurationItem, 1, 2);
 
         downloadAnonymousCheckBox = new CheckBox();
         downloadAnonymousCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         downloadAnonymousCheckBox.setId(UIComponentIdProvider.DOWNLOAD_ANONYMOUS_CHECKBOX);
-        downloadAnonymousCheckBox.addValueChangeListener(
-                valueChangeEvent -> changeEvent(valueChangeEvent, anonymousDownloadAuthenticationConfigurationItem));
         binder.bind(downloadAnonymousCheckBox, ProxySystemConfigWindow::isDownloadAnonymous,
                 ProxySystemConfigWindow::setDownloadAnonymous);
 
-        anonymousDownloadAuthenticationConfigurationItem.addChangeListener(this);
         gridLayout.addComponent(downloadAnonymousCheckBox, 0, 3);
         gridLayout.addComponent(anonymousDownloadAuthenticationConfigurationItem, 1, 3);
 
@@ -150,38 +142,5 @@ public class AuthenticationConfigurationView extends BaseConfigurationView
         vLayout.addComponent(gridLayout);
         rootPanel.setContent(vLayout);
         setCompositionRoot(rootPanel);
-    }
-
-    @Override
-    public void save() {
-        certificateAuthenticationConfigurationItem.save();
-        targetSecurityTokenAuthenticationConfigurationItem.save();
-        gatewaySecurityTokenAuthenticationConfigurationItem.save();
-        anonymousDownloadAuthenticationConfigurationItem.save();
-    }
-
-    @Override
-    public void undo() {
-        certificateAuthenticationConfigurationItem.undo();
-        targetSecurityTokenAuthenticationConfigurationItem.undo();
-        gatewaySecurityTokenAuthenticationConfigurationItem.undo();
-        anonymousDownloadAuthenticationConfigurationItem.undo();
-        certificateAuthCheckbox.setValue(certificateAuthenticationConfigurationItem.isConfigEnabled());
-        targetSecTokenCheckBox.setValue(targetSecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-        gatewaySecTokenCheckBox.setValue(gatewaySecurityTokenAuthenticationConfigurationItem.isConfigEnabled());
-        downloadAnonymousCheckBox.setValue(anonymousDownloadAuthenticationConfigurationItem.isConfigEnabled());
-    }
-
-    @Override
-    public void configurationHasChanged() {
-        notifyConfigurationChanged();
-    }
-
-    public void changeEvent(final HasValue.ValueChangeEvent event, final BooleanConfigurationItem configurationItem) {
-        if (event.getValue().equals(Boolean.TRUE)) {
-            configurationItem.configEnable();
-        } else {
-            configurationItem.configDisable();
-        }
     }
 }
