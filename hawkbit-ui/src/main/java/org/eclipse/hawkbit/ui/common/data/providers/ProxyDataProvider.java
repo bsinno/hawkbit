@@ -33,12 +33,11 @@ import com.vaadin.data.provider.Query;
  */
 public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U extends Identifiable<Long>, F>
         extends AbstractBackEndDataProvider<T, F> {
-
     private static final long serialVersionUID = 1L;
 
     private final Sort defaultSortOrder;
 
-    private final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> entityMapper;
+    private final transient IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> entityMapper;
 
     public ProxyDataProvider(final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> mapper) {
         this(mapper, new Sort(Direction.ASC, "id"));

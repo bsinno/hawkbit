@@ -43,8 +43,9 @@ public class RangeDragSourceConnector extends GridDragSourceConnector {
             counter.setClassName(STYLE_DRAG_DROP_COUNTER);
             draggedRowElement.appendChild(counter);
 
-            AnimationScheduler.get().requestAnimationFrame(timestamp -> counter.removeFromParent(),
-                    (Element) dragStartEvent.getEventTarget().cast());
+            // removes the counter element from the dragged row after the drag
+            // image is rendered
+            AnimationScheduler.get().requestAnimationFrame(timestamp -> counter.removeFromParent(), draggedRowElement);
         }
         fixDragImageOffsetsForDesktop(dragStartEvent, draggedRowElement);
         fixDragImageTransformForMobile(draggedRowElement);

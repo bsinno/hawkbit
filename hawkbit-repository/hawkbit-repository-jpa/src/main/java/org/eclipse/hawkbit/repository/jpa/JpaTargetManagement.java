@@ -610,16 +610,10 @@ public class JpaTargetManagement implements TargetManagement {
         }
         // add the order to the multi select first based on the selectCase
         query.orderBy(cb.asc(selectCase), cb.desc(targetRoot.get(JpaTarget_.id)));
-        // the result is a Object[] due the fact that the selectCase is an extra
-        // column, so it cannot
-        // be mapped directly to a Target entity because the selectCase is not a
-        // attribute of the
-        // Target entity, the the Object array contains the Target on the first
-        // index of the array and
-        // the 2nd contains the selectCase int value.
+
         final int pageSize = pageable.getPageSize();
         final List<JpaTarget> resultList = entityManager.createQuery(query).setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageSize + 1).getResultList();
+                .setMaxResults(pageSize).getResultList();
         final boolean hasNext = resultList.size() > pageSize;
         return new SliceImpl<>(Collections.unmodifiableList(resultList), pageable, hasNext);
     }

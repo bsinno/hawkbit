@@ -14,11 +14,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.hawkbit.repository.OffsetBasedPageRequest;
 import org.eclipse.hawkbit.repository.model.ActionStatus;
 import org.eclipse.hawkbit.repository.model.MetaData;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,16 +40,18 @@ public abstract class AbstractMetaDataDataProvider<T extends MetaData, F>
 
     @Override
     protected Stream<ProxyMetaData> fetchFromBackEnd(final Query<ProxyMetaData, F> query) {
-        final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
-        final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
-
-        return loadBackendEntities(pageRequest, query.getFilter()).map(
+        return loadBackendEntities(convertToPageRequest(query, defaultSortOrder), query.getFilter()).map(
                 entities -> entities.getContent().stream().map(this::createProxyMetaData).collect(Collectors.toList()))
                 .orElse(Collections.emptyList()).stream();
     }
 
     protected abstract Optional<Page<T>> loadBackendEntities(final PageRequest pageRequest,
             final Optional<F> currentlySelectedMasterEntityId);
+
+    // TODO: remove duplication with ProxyDataProvider
+    private PageRequest convertToPageRequest(final Query<ProxyMetaData, F> query, final Sort sort) {
+        return new OffsetBasedPageRequest(query.getOffset(), query.getLimit(), sort);
+    }
 
     /**
      * Creates a list of {@link ProxyActionStatus} for presentation layer from
@@ -71,10 +73,7 @@ public abstract class AbstractMetaDataDataProvider<T extends MetaData, F>
 
     @Override
     protected int sizeInBackEnd(final Query<ProxyMetaData, F> query) {
-        final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
-        final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
-
-        final long size = sizeInBackEnd(pageRequest, query.getFilter());
+        final long size = sizeInBackEnd(convertToPageRequest(query, defaultSortOrder), query.getFilter());
 
         if (size > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;

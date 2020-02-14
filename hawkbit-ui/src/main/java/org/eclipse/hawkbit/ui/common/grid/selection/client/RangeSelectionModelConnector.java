@@ -31,10 +31,13 @@ public class RangeSelectionModelConnector extends MultiSelectionModelConnector {
     protected void initSelectionModel() {
         super.initSelectionModel();
 
-        final RangeSelectionServerRpc rpcProxy = getRpcProxy(RangeSelectionServerRpc.class);
+        final RangeSelectionHandler selectionHandler = new RangeSelectionHandler(
+                getRpcProxy(RangeSelectionServerRpc.class));
         final Grid<JsonObject> grid = getGrid();
-        new RangeSelectionHandler(grid, rpcProxy);
 
+        grid.addBodyClickHandler(selectionHandler);
+        grid.addBodyKeyDownHandler(selectionHandler);
+        grid.addBodyKeyUpHandler(selectionHandler);
         grid.getSelectionColumn().ifPresent(selectionCol -> {
             selectionCol.setHidable(false);
             selectionCol.setHidden(true);

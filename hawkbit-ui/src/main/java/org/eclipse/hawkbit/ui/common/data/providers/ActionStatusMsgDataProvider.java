@@ -16,10 +16,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.OffsetBasedPageRequest;
 import org.eclipse.hawkbit.repository.model.ActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -50,17 +50,19 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
 
     @Override
     protected Stream<ProxyMessage> fetchFromBackEnd(final Query<ProxyMessage, Long> query) {
-        final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
-        final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
-
-        return loadBackendEntities(pageRequest, query.getFilter()).map(this::createProxyMessages)
-                .orElse(Collections.emptyList()).stream();
+        return loadBackendEntities(convertToPageRequest(query, defaultSortOrder), query.getFilter())
+                .map(this::createProxyMessages).orElse(Collections.emptyList()).stream();
     }
 
     private Optional<Page<String>> loadBackendEntities(final PageRequest pageRequest,
             final Optional<Long> currentlySelectedActionStatusId) {
         return currentlySelectedActionStatusId
                 .map(id -> deploymentManagement.findMessagesByActionStatusId(pageRequest, id));
+    }
+
+    // TODO: remove duplication with ProxyDataProvider
+    private PageRequest convertToPageRequest(final Query<ProxyMessage, Long> query, final Sort sort) {
+        return new OffsetBasedPageRequest(query.getOffset(), query.getLimit(), sort);
     }
 
     /**
@@ -93,10 +95,7 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
 
     @Override
     protected int sizeInBackEnd(final Query<ProxyMessage, Long> query) {
-        final int pagesize = query.getLimit() > 0 ? query.getLimit() : SPUIDefinitions.PAGE_SIZE;
-        final PageRequest pageRequest = PageRequest.of(query.getOffset() / pagesize, pagesize, defaultSortOrder);
-
-        final long size = sizeInBackEnd(pageRequest, query.getFilter());
+        final long size = sizeInBackEnd(convertToPageRequest(query, defaultSortOrder), query.getFilter());
 
         if (size > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;

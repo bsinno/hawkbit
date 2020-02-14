@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.common.grid.support;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -81,36 +82,24 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private List<T> getItemsToDrag(final GridDragStartEvent<T> event) {
-        final List<T> itemsToDrag = new ArrayList<>();
         final List<T> selectedItems = new ArrayList<>(event.getComponent().getSelectedItems());
+        final List<T> draggedVisibleItems = event.getDraggedItems();
 
-        if (event.getDraggedItems().size() == 1 && !selectedItems.contains(event.getDraggedItems().get(0))) {
-            itemsToDrag.add(event.getDraggedItems().get(0));
+        if (draggedVisibleItems.size() == 1 && !selectedItems.contains(draggedVisibleItems.get(0))) {
+            return Collections.singletonList(draggedVisibleItems.get(0));
         } else {
-            itemsToDrag.addAll(selectedItems);
+            return selectedItems;
         }
-        return itemsToDrag;
     }
 
     private void showActionNotAllowedNotification() {
         notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
     }
 
-    @EventBusListenerMethod(scope = EventScope.UI)
-    private void onLayoutResizeEvent(final EntityDraggingEventPayload eventPayload) {
-        final String sourceGridId = eventPayload.getSourceGridId();
-        final String style = "show-drop-hint";
-        if (sourceTargetAssignmentStrategies.containsKey(sourceGridId)
-                && eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
-            grid.addStyleName(style);
-        } else {
-            grid.removeStyleName(style);
-        }
-    }
-
     public void addDropTarget() {
-        eventBus.subscribe(this, EventTopics.ENTITY_DRAGGING);
         final GridDropTarget<T> dropTarget = new GridDropTarget<>(grid, DropMode.ON_TOP);
+
+        addGridDropStylingListener();
 
         dropTarget.addGridDropListener(event -> {
             final String sourceId = event.getDataTransferData("source_id").orElse("");
@@ -134,6 +123,12 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         });
     }
 
+    private void addGridDropStylingListener() {
+        final EntityDraggingListener draggingListener = new EntityDraggingListener();
+        eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING);
+        grid.addDetachListener(event -> eventBus.unsubscribe(draggingListener));
+    }
+
     private boolean isDropValid(final String sourceId, final T dropTargetItem,
             final AssignmentSupport<?, T> assignmentStrategy) {
         if (StringUtils.isEmpty(sourceId) || !sourceTargetAssignmentStrategies.keySet().contains(sourceId)
@@ -150,5 +145,21 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         }
 
         return true;
+    }
+
+    private class EntityDraggingListener {
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onEntityDraggingEvent(final EntityDraggingEventPayload eventPayload) {
+            final String sourceGridId = eventPayload.getSourceGridId();
+            final String style = "show-drop-hint";
+
+            if (sourceTargetAssignmentStrategies.containsKey(sourceGridId)
+                    && eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
+                grid.addStyleName(style);
+            } else {
+                grid.removeStyleName(style);
+            }
+        }
     }
 }

@@ -10,14 +10,13 @@ package org.eclipse.hawkbit.ui.common.grid.selection;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.ui.common.grid.selection.client.RangeSelectionServerRpc;
 
-import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.provider.Query;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
+import com.vaadin.server.Page;
+import com.vaadin.server.WebBrowser;
 import com.vaadin.shared.communication.ServerRpc;
 import com.vaadin.ui.components.grid.MultiSelectionModelImpl;
 
@@ -60,20 +59,38 @@ public class RangeSelectionModel<T> extends MultiSelectionModelImpl<T> {
      * bound to the grid, the selection logic is moved to the client side.
      *
      */
-    private class SelectAllListener extends ShortcutListener {
+    private static class SelectAllListener extends ShortcutListener {
         private static final long serialVersionUID = 1L;
-        private static final int keyCode = ShortcutAction.KeyCode.A;
+
+        private static final int[] CTRL_MODIFIER_KEYS = { getCtrlOrMetaModifier() };
 
         /**
          * Constructor
          */
         public SelectAllListener() {
-            super("Select all", keyCode, new int[] { ModifierKey.CTRL });
+            super("Select all", ShortcutAction.KeyCode.A, CTRL_MODIFIER_KEYS);
         }
 
         @Override
         public void handleAction(final Object sender, final Object target) {
             // Do nothing
+        }
+
+        /**
+         * Returns the ctrl or meta modifier depending on the platform.
+         * 
+         * @return on mac return
+         *         {@link com.vaadin.event.ShortcutAction.ModifierKey#META}
+         *         other platform return
+         *         {@link com.vaadin.event.ShortcutAction.ModifierKey#CTRL}
+         */
+        public static int getCtrlOrMetaModifier() {
+            final WebBrowser webBrowser = Page.getCurrent().getWebBrowser();
+            if (webBrowser.isMacOSX()) {
+                return ShortcutAction.ModifierKey.META;
+            }
+
+            return ShortcutAction.ModifierKey.CTRL;
         }
     }
 
@@ -88,10 +105,8 @@ public class RangeSelectionModel<T> extends MultiSelectionModelImpl<T> {
         final int offset = Math.min(startIndex, endIndex);
         final int limit = Math.abs(startIndex - endIndex) + 1;
 
-        final DataProvider<T, ?> dataSource = getGrid().getDataProvider();
-        final Stream<T> stream = dataSource.fetch(new Query<>(offset, limit, Collections.emptyList(), null, null));
-        final LinkedHashSet<T> allItems = new LinkedHashSet<>();
-        stream.forEach(allItems::add);
-        updateSelection(allItems, Collections.emptySet(), true);
+        final LinkedHashSet<T> addedItems = new LinkedHashSet<>(
+                getGrid().getDataCommunicator().fetchItemsWithRange(offset, limit));
+        updateSelection(addedItems, Collections.emptySet(), true);
     }
 }

@@ -40,7 +40,7 @@
     }
 
     .grid-row-border .v-grid-body tr {
-        /* border-top: none; */
+        border-top: 1px solid $widget-border-color
     }
 
     .grid-row-border .v-grid-body tr:first-child,
@@ -64,5 +64,17 @@
     .v-grid-row.highlight-orange>td,
     .v-grid-row.highlight-orange .v-grid-cell {
         @include valo-gradient($assigned-row-color);
+    }
+
+    .drag-drop-counter {
+        padding: 0.2em 0.5em;
+        background-color: red;
+        color: white;
+        border-radius: 0.5em;
+        font-weight: bold;
+        position: absolute;
+        top: -0.5em;
+        left: -0.5em;
+        z-index: 14;
     }
 }

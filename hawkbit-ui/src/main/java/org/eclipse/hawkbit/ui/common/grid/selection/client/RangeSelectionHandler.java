@@ -8,13 +8,14 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.selection.client;
 
-import com.vaadin.client.widget.grid.EventCellReference;
+import com.vaadin.client.widget.grid.CellReference;
 import com.vaadin.client.widget.grid.events.BodyClickHandler;
 import com.vaadin.client.widget.grid.events.BodyKeyDownHandler;
+import com.vaadin.client.widget.grid.events.BodyKeyUpHandler;
 import com.vaadin.client.widget.grid.events.GridClickEvent;
 import com.vaadin.client.widget.grid.events.GridKeyDownEvent;
+import com.vaadin.client.widget.grid.events.GridKeyUpEvent;
 import com.vaadin.client.widget.grid.selection.SelectionModel;
-import com.vaadin.client.widgets.Grid;
 import com.vaadin.event.ShortcutAction.KeyCode;
 
 import elemental.json.JsonObject;
@@ -24,8 +25,7 @@ import elemental.json.JsonObject;
  * and forwards them to the server side.
  *
  */
-public class RangeSelectionHandler implements BodyClickHandler, BodyKeyDownHandler {
-    private final Grid<JsonObject> grid;
+public class RangeSelectionHandler implements BodyClickHandler, BodyKeyDownHandler, BodyKeyUpHandler {
     private final RangeSelectionServerRpc rangeSelectionServerRpc;
 
     private int previousRowIndex;
@@ -33,22 +33,17 @@ public class RangeSelectionHandler implements BodyClickHandler, BodyKeyDownHandl
     /**
      * Constructor
      * 
-     * @param grid
-     *            to listen on
      * @param rangeSelectionServerRpc
      *            RPC server to forward selection requests to
      */
-    public RangeSelectionHandler(final Grid<JsonObject> grid, final RangeSelectionServerRpc rangeSelectionServerRpc) {
-        this.grid = grid;
+    public RangeSelectionHandler(final RangeSelectionServerRpc rangeSelectionServerRpc) {
         this.rangeSelectionServerRpc = rangeSelectionServerRpc;
-        grid.addBodyClickHandler(this);
-        grid.addBodyKeyDownHandler(this);
     }
 
     @Override
     public void onClick(final GridClickEvent event) {
-        final SelectionModel<JsonObject> selectionModel = grid.getSelectionModel();
-        final EventCellReference<JsonObject> eventCell = grid.getEventCell();
+        final CellReference<JsonObject> eventCell = (CellReference<JsonObject>) event.getTargetCell();
+        final SelectionModel<JsonObject> selectionModel = eventCell.getGrid().getSelectionModel();
         final int currentRowIndex = eventCell.getRowIndex();
         final JsonObject item = eventCell.getRow();
 
@@ -57,7 +52,7 @@ public class RangeSelectionHandler implements BodyClickHandler, BodyKeyDownHandl
             return;
         }
 
-        if (event.isControlKeyDown()) {
+        if (event.isControlKeyDown() || event.isMetaKeyDown()) {
             if (selectionModel.isSelected(item)) {
                 selectionModel.deselect(item);
             } else {
@@ -73,8 +68,23 @@ public class RangeSelectionHandler implements BodyClickHandler, BodyKeyDownHandl
 
     @Override
     public void onKeyDown(final GridKeyDownEvent event) {
-        if (event.isControlKeyDown() && event.getNativeKeyCode() == KeyCode.A) {
+        if ((event.isControlKeyDown() || event.isMetaKeyDown()) && (event.getNativeKeyCode() == KeyCode.A)) {
             rangeSelectionServerRpc.selectAll();
+        }
+    }
+
+    @Override
+    public void onKeyUp(final GridKeyUpEvent event) {
+        if (event.isDownArrow() || event.isUpArrow()) {
+            final CellReference<JsonObject> eventCell = (CellReference<JsonObject>) event.getFocusedCell();
+            final SelectionModel<JsonObject> selectionModel = eventCell.getGrid().getSelectionModel();
+            final int currentRowIndex = eventCell.getRowIndex();
+            final JsonObject item = eventCell.getRow();
+
+            selectionModel.deselectAll();
+            selectionModel.select(item);
+
+            previousRowIndex = currentRowIndex;
         }
     }
 

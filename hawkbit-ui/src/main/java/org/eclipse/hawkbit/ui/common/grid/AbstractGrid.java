@@ -40,7 +40,6 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     private static final long serialVersionUID = 1L;
 
     protected static final String CENTER_ALIGN = "v-align-center";
-    private static final String MULTI_SELECTION_GRID_CLASS = "multi-selection-grid";
 
     protected final VaadinMessageSource i18n;
     protected final transient UIEventBus eventBus;
@@ -64,11 +63,11 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         if (mode == SelectionMode.MULTI) {
             final RangeSelectionModel<T> model = new RangeSelectionModel<>();
             setSelectionModel(model);
-            addStyleName(MULTI_SELECTION_GRID_CLASS);
+
             return model;
         }
-        return super.setSelectionMode(mode);
 
+        return super.setSelectionMode(mode);
     }
 
     /**
