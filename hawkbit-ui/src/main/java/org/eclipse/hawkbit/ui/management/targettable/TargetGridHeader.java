@@ -217,18 +217,27 @@ public class TargetGridHeader extends AbstractGridHeader {
 
     public void onBulkUploadChanged(final BulkUploadEventPayload eventPayload) {
         switch (eventPayload.getBulkUploadState()) {
-        case STARTED:
+        case UPLOAD_STARTED:
             UI.getCurrent().access(this::onStartOfBulkUpload);
             break;
-        case PROGRESS_UPDATED:
+        case UPLOAD_FAILED:
+            UI.getCurrent().access(() -> onFailOfBulkUpload(eventPayload.getFailureReason()));
+            break;
+        case TARGET_PROVISIONING_STARTED:
+            UI.getCurrent().access(this::onStartProvisioningOfBulkUpload);
+            break;
+        case TARGET_PROVISIONING_PROGRESS_UPDATED:
             UI.getCurrent().access(() -> onProgressOfBulkUpload(eventPayload.getBulkUploadProgress()));
             break;
-        case COMPLETED:
+        case TAGS_AND_DS_ASSIGNMENT_STARTED:
+            UI.getCurrent().access(this::onStartAssignmentOfBulkUpload);
+            break;
+        case TAGS_AND_DS_ASSIGNMENT_FAILED:
+            UI.getCurrent().access(() -> onFailAssignmentOfBulkUpload(eventPayload.getFailureReason()));
+            break;
+        case BULK_UPLOAD_COMPLETED:
             UI.getCurrent().access(() -> onCompleteOfBulkUpload(eventPayload.getSuccessBulkUploadCount(),
                     eventPayload.getFailBulkUploadCount()));
-            break;
-        case FAILED:
-            UI.getCurrent().access(() -> onFailOfBulkUpload(eventPayload.getFailureReason()));
             break;
         }
     }
@@ -239,19 +248,31 @@ public class TargetGridHeader extends AbstractGridHeader {
         targetBulkUploadUiState.setInProgress(true);
     }
 
+    private void onFailOfBulkUpload(final String failureReason) {
+        bulkUploadHeaderSupport.hideProgressIndicator();
+        targetBulkUpdateWindowLayout.onUploadFailure(failureReason);
+        targetBulkUploadUiState.setInProgress(false);
+    }
+
+    private void onStartProvisioningOfBulkUpload() {
+        targetBulkUpdateWindowLayout.onStartOfProvisioning();
+    }
+
     private void onProgressOfBulkUpload(final float progress) {
         targetBulkUpdateWindowLayout.setProgressBarValue(progress);
+    }
+
+    private void onStartAssignmentOfBulkUpload() {
+        targetBulkUpdateWindowLayout.onStartOfAssignment();
+    }
+
+    private void onFailAssignmentOfBulkUpload(final String failureReason) {
+        targetBulkUpdateWindowLayout.onAssignmentFailure(failureReason);
     }
 
     private void onCompleteOfBulkUpload(final int successCount, final int failCount) {
         bulkUploadHeaderSupport.hideProgressIndicator();
         targetBulkUpdateWindowLayout.onUploadCompletion(successCount, failCount);
-        targetBulkUploadUiState.setInProgress(false);
-    }
-
-    private void onFailOfBulkUpload(final String failureReason) {
-        bulkUploadHeaderSupport.hideProgressIndicator();
-        targetBulkUpdateWindowLayout.onUploadFailure(failureReason);
         targetBulkUploadUiState.setInProgress(false);
     }
 

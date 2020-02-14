@@ -41,21 +41,33 @@ public class BulkUploadEventPayload {
         this.failureReason = failureReason;
     }
 
-    public static BulkUploadEventPayload buildStarted() {
-        return new BulkUploadEventPayload(BulkUploadState.STARTED);
+    public static BulkUploadEventPayload buildUploadStarted() {
+        return new BulkUploadEventPayload(BulkUploadState.UPLOAD_STARTED);
     }
 
-    public static BulkUploadEventPayload buildProgressUpdated(final float progress) {
-        return new BulkUploadEventPayload(BulkUploadState.PROGRESS_UPDATED, progress);
+    public static BulkUploadEventPayload buildUploadFailed(final String failureReason) {
+        return new BulkUploadEventPayload(BulkUploadState.UPLOAD_FAILED, failureReason);
     }
 
-    public static BulkUploadEventPayload buildCompleted(final int successBulkUploadCount,
+    public static BulkUploadEventPayload buildTargetProvisioningStarted() {
+        return new BulkUploadEventPayload(BulkUploadState.TARGET_PROVISIONING_STARTED);
+    }
+
+    public static BulkUploadEventPayload buildTargetProvisioningProgressUpdated(final float progress) {
+        return new BulkUploadEventPayload(BulkUploadState.TARGET_PROVISIONING_PROGRESS_UPDATED, progress);
+    }
+
+    public static BulkUploadEventPayload buildTagsAndDsAssignmentStarted() {
+        return new BulkUploadEventPayload(BulkUploadState.TAGS_AND_DS_ASSIGNMENT_STARTED);
+    }
+
+    public static BulkUploadEventPayload buildTagsAndDsAssignmentFailed(final String failureReason) {
+        return new BulkUploadEventPayload(BulkUploadState.TAGS_AND_DS_ASSIGNMENT_FAILED, failureReason);
+    }
+
+    public static BulkUploadEventPayload buildBulkUploadCompleted(final int successBulkUploadCount,
             final int failBulkUploadCount) {
-        return new BulkUploadEventPayload(BulkUploadState.COMPLETED, 1, successBulkUploadCount, failBulkUploadCount);
-    }
-
-    public static BulkUploadEventPayload buildFailed(final String failureReason) {
-        return new BulkUploadEventPayload(BulkUploadState.FAILED, failureReason);
+        return new BulkUploadEventPayload(BulkUploadState.BULK_UPLOAD_COMPLETED, 1, successBulkUploadCount, failBulkUploadCount);
     }
 
     public BulkUploadState getBulkUploadState() {
@@ -79,6 +91,6 @@ public class BulkUploadEventPayload {
     }
 
     public enum BulkUploadState {
-        STARTED, PROGRESS_UPDATED, COMPLETED, FAILED;
+        UPLOAD_STARTED, UPLOAD_FAILED, TARGET_PROVISIONING_STARTED, TARGET_PROVISIONING_PROGRESS_UPDATED, TAGS_AND_DS_ASSIGNMENT_STARTED, TAGS_AND_DS_ASSIGNMENT_FAILED, BULK_UPLOAD_COMPLETED;
     }
 }

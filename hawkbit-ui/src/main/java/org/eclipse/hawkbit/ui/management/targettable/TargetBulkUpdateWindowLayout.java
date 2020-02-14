@@ -35,6 +35,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -112,21 +113,20 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         reset();
     }
 
-    private static ProgressBar createProgressBar() {
+    private ProgressBar createProgressBar() {
         final ProgressBar progressBarIndicator = new ProgressBar(0F);
-        progressBarIndicator.addStyleName("bulk-upload-label");
+        progressBarIndicator.setCaption(i18n.getMessage("artifact.upload.progress.caption"));
         progressBarIndicator.setSizeFull();
+        progressBarIndicator.setVisible(false);
 
         return progressBarIndicator;
     }
 
     private static Label getStatusCountLabel() {
-        final Label countLabel = new Label();
-
-        countLabel.addStyleName("bulk-upload-label");
-        countLabel.setVisible(false);
-        countLabel.setCaptionAsHtml(true);
+        final Label countLabel = new Label("", ContentMode.HTML);
         countLabel.setId(UIComponentIdProvider.BULK_UPLOAD_COUNT);
+        countLabel.setVisible(false);
+
         return countLabel;
     }
 
@@ -246,12 +246,23 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         targetBulkUploadUiState.setTagIdsWithNameToAssign(getTagIdsWithNameToAssign());
         targetBulkUploadUiState.setDescription(binder.getBean().getDescription());
 
+        targetsCountLabel.setVisible(true);
+        targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.upload.started"));
+
         disableInputs();
+    }
+
+    public void onStartOfProvisioning() {
+        targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.provisioning.started"));
     }
 
     public void setProgressBarValue(final float value) {
         progressBar.setValue(value);
         progressBar.setVisible(true);
+    }
+
+    public void onStartOfAssignment() {
+        targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.assignment.started"));
     }
 
     /**
@@ -284,19 +295,21 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
      */
     public void onUploadCompletion(final int successCount, final int failCount) {
         final String targetCountLabel = getFormattedCountLabelValue(successCount, failCount);
-        targetsCountLabel.setVisible(true);
-        targetsCountLabel.setCaption(targetCountLabel);
+        targetsCountLabel.setValue(targetCountLabel);
 
         enableInputs();
     }
 
     public void onUploadFailure(final String failureReason) {
-        targetsCountLabel.setVisible(true);
-        targetsCountLabel.setCaption(
+        targetsCountLabel.setValue(
                 new StringBuilder().append("<font color=RED>").append(failureReason).append("</font>").toString());
 
         uinotification.displayValidationError(failureReason);
         enableInputs();
+    }
+
+    public void onAssignmentFailure(final String failureReason) {
+        uinotification.displayValidationError(failureReason);
     }
 
     /**

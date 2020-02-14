@@ -131,7 +131,8 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
     }
 
     private void publishUploadFailed(final String failureReason) {
-        eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildFailed(failureReason));
+        eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+                BulkUploadEventPayload.buildUploadFailed(failureReason));
     }
 
     @Override
@@ -163,6 +164,8 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
             }
 
             UI.setCurrent(vaadinUi);
+            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+                    BulkUploadEventPayload.buildTargetProvisioningStarted());
 
             try (InputStream tempStream = new FileInputStream(tempFile)) {
                 readFileStream(tempStream);
@@ -184,7 +187,6 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
             final BigDecimal totalNumberOfLines = new BigDecimal(getTotalNumberOfLines());
             try (final LineNumberReader reader = new LineNumberReader(
                     new InputStreamReader(tempStream, Charset.defaultCharset()))) {
-                LOG.trace("Bulk file upload started");
                 while ((line = reader.readLine()) != null) {
                     readLine(line, reader.getLineNumber(), totalNumberOfLines);
                 }
@@ -195,12 +197,11 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 deleteFile();
             }
 
-            // TODO: shoud we publish Target provisioning completed event here?
-
+            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+                    BulkUploadEventPayload.buildTagsAndDsAssignmentStarted());
             doAssignments();
 
-            // TODO: shoud we publish assignment completed event here instead?
-            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildCompleted(
+            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildBulkUploadCompleted(
                     provisionedControllerIds.size(), totalNumberOfLines.intValue() - provisionedControllerIds.size()));
         }
 
@@ -246,7 +247,7 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 currentProgress = linesProcessedPercentage;
 
                 eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
-                        BulkUploadEventPayload.buildProgressUpdated(currentProgress));
+                        BulkUploadEventPayload.buildTargetProvisioningProgressUpdated(currentProgress));
             }
         }
 
@@ -334,8 +335,8 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 errorMessage.append(tagAssignmentFailedMsg);
             }
             if (errorMessage.length() > 0) {
-                // TODO: should we publish assignment failed here?
-                publishUploadFailed(errorMessage.toString());
+                eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+                        BulkUploadEventPayload.buildTagsAndDsAssignmentFailed(errorMessage.toString()));
             }
         }
 
@@ -360,7 +361,7 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
             publishUploadFailed(i18n.getMessage("bulkupload.wrong.file.format"));
             event.getUpload().interruptUpload();
         } else {
-            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildStarted());
+            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildUploadStarted());
         }
     }
 
