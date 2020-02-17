@@ -35,6 +35,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 
 public class TargetGridLayoutEventListener {
@@ -210,9 +211,9 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.BULK_UPLOAD_CHANGED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI)
+        @EventBusListenerMethod(scope = EventScope.SESSION)
         private void onBulkUploadEvent(final BulkUploadEventPayload eventPayload) {
-            targetGridLayout.onBulkUploadChanged(eventPayload);
+            VaadinSession.getCurrent().access(() -> targetGridLayout.onBulkUploadChanged(eventPayload));
         }
     }
 

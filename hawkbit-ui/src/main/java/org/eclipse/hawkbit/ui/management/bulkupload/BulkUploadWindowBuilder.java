@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.bulkupload;
 
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -17,6 +18,8 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
+import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -24,19 +27,21 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.ui.Window;
 
 public class BulkUploadWindowBuilder {
-    final VaadinMessageSource i18n;
-    final UIEventBus eventBus;
-    final SpPermissionChecker checker;
-    final UINotification uinotification;
-    final UiProperties uiproperties;
-    final Executor uiExecutor;
-    final TargetManagement targetManagement;
-    final DeploymentManagement deploymentManagement;
-    final TargetTagManagement tagManagement;
-    final DistributionSetManagement distributionSetManagement;
-    final EntityFactory entityFactory;
+    private final VaadinMessageSource i18n;
+    private final UIEventBus eventBus;
+    private final SpPermissionChecker checker;
+    private final UINotification uinotification;
+    private final UiProperties uiproperties;
+    private final Executor uiExecutor;
+    private final TargetManagement targetManagement;
+    private final DeploymentManagement deploymentManagement;
+    private final TargetTagManagement tagManagement;
+    private final DistributionSetManagement distributionSetManagement;
+    private final EntityFactory entityFactory;
 
-    final TargetBulkUploadUiState targetBulkUploadUiState;
+    private final TargetBulkUploadUiState targetBulkUploadUiState;
+
+    private TargetBulkUpdateWindowLayout targetBulkUpdateWindowLayout;
 
     public BulkUploadWindowBuilder(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker checker, final UINotification uinotification, final UiProperties uiproperties,
@@ -59,6 +64,37 @@ public class BulkUploadWindowBuilder {
     }
 
     public Window getWindowForTargetBulkUpload() {
-        return null;
+        if (!targetBulkUploadUiState.isInProgress() || targetBulkUpdateWindowLayout == null) {
+            targetBulkUpdateWindowLayout = new TargetBulkUpdateWindowLayout(i18n, eventBus, checker, uinotification,
+                    targetManagement, deploymentManagement, tagManagement, distributionSetManagement, entityFactory,
+                    uiproperties, uiExecutor, targetBulkUploadUiState);
+        }
+
+        final Window bulkUploadWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption("")
+                .content(targetBulkUpdateWindowLayout).buildWindow();
+        bulkUploadWindow.addStyleName("bulk-upload-window");
+
+        targetBulkUpdateWindowLayout.setCloseCallback(() -> closePopup(bulkUploadWindow));
+
+        return bulkUploadWindow;
+    }
+
+    private void closePopup(final Window bulkUploadWindow) {
+        if (!targetBulkUploadUiState.isInProgress() && targetBulkUpdateWindowLayout != null) {
+            targetBulkUpdateWindowLayout.clearUiState();
+            targetBulkUpdateWindowLayout = null;
+        }
+        bulkUploadWindow.close();
+    }
+
+    public void restoreState() {
+        targetBulkUpdateWindowLayout = new TargetBulkUpdateWindowLayout(i18n, eventBus, checker, uinotification,
+                targetManagement, deploymentManagement, tagManagement, distributionSetManagement, entityFactory,
+                uiproperties, uiExecutor, targetBulkUploadUiState);
+        targetBulkUpdateWindowLayout.restoreComponentsValue();
+    }
+
+    public Optional<TargetBulkUpdateWindowLayout> getLayout() {
+        return Optional.ofNullable(targetBulkUpdateWindowLayout);
     }
 }

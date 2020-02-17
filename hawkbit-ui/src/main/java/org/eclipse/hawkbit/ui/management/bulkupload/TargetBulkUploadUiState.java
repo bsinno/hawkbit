@@ -42,8 +42,8 @@ public class TargetBulkUploadUiState implements Serializable {
     }
 
     public void setTagIdsWithNameToAssign(final Map<Long, String> tagIdsWithNameToAssign) {
-        tagIdsWithNameToAssign.clear();
-        tagIdsWithNameToAssign.putAll(tagIdsWithNameToAssign);
+        this.tagIdsWithNameToAssign.clear();
+        this.tagIdsWithNameToAssign.putAll(tagIdsWithNameToAssign);
     }
 
     public String getDescription() {
