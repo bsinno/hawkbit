@@ -103,7 +103,7 @@ public class TargetGridHeader extends AbstractGridHeader {
 
         // DistributionSetFilterDropArea is only available in TargetTableHeader
         this.distributionSetFilterDropAreaSupport = new DistributionSetFilterDropAreaSupport(i18n, eventBus,
-                notification, distributionSetManagement, targetTagFilterLayoutUiState, targetGridLayoutUiState);
+                notification);
         final Component distributionSetFilterDropArea = distributionSetFilterDropAreaSupport.getHeaderComponent();
         addComponent(distributionSetFilterDropArea);
         setComponentAlignment(distributionSetFilterDropArea, Alignment.TOP_CENTER);
@@ -130,10 +130,6 @@ public class TargetGridHeader extends AbstractGridHeader {
     public void onSimpleFilterReset() {
         searchHeaderSupport.resetSearch();
         searchHeaderSupport.disableSearch();
-
-        if (targetGridLayoutUiState.getFilterDsIdNameVersion() != null) {
-            distributionSetFilterDropAreaSupport.restoreState();
-        }
     }
 
     private String getSearchTextFromUiState() {

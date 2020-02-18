@@ -21,6 +21,7 @@ public final class EventTopics {
     public static final String STATUS_FILTER_CHANGED = "statusFilterChanged";
     public static final String OVERDUE_FILTER_CHANGED = "overdueFilterChanged";
     public static final String CUSTOM_FILTER_CHANGED = "customFilterChanged";
+    public static final String FILTER_BY_DS_CHANGED = "filterByDsChanged";
 
     public static final String PINNING_CHANGED = "pinningChanged";
 
