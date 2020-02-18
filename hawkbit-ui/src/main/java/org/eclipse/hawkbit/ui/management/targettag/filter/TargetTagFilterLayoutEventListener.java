@@ -103,7 +103,7 @@ public class TargetTagFilterLayoutEventListener {
                 return;
             }
 
-            targetTagFilterLayout.refreshFilterButtons();
+            targetTagFilterLayout.refreshTargetFilterQueryButtons();
         }
     }
 

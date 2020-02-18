@@ -8,17 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.model.DistributionSetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
@@ -38,15 +31,8 @@ import com.vaadin.ui.VerticalLayout;
 public class DistributionTagLayout extends AbstractFilterLayout {
     private static final long serialVersionUID = 1L;
 
-    private final VaadinMessageSource i18n;
-
-    private final transient DistributionSetTagManagement dsTagManagement;
-    private final transient TagToProxyTagMapper<DistributionSetTag> dsTagMapper;
-
     private final DistributionTagFilterHeader distributionTagFilterHeader;
     private final DistributionTagButtons distributionTagButtons;
-
-    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
 
     private final transient DistributionTagLayoutEventListener eventListener;
 
@@ -55,8 +41,6 @@ public class DistributionTagLayout extends AbstractFilterLayout {
      * 
      * @param eventBus
      *            UIEventBus
-     * @param managementUIState
-     *            ManagementUIState
      * @param i18n
      *            VaadinMessageSource
      * @param permChecker
@@ -73,11 +57,6 @@ public class DistributionTagLayout extends AbstractFilterLayout {
             final EntityFactory entityFactory, final UINotification uiNotification,
             final DistributionSetManagement distributionSetManagement,
             final DistributionTagLayoutUiState distributionTagLayoutUiState) {
-        this.i18n = i18n;
-        this.dsTagManagement = distributionSetTagManagement;
-        this.dsTagMapper = new TagToProxyTagMapper<>();
-        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
-
         final DsTagWindowBuilder dsTagWindowBuilder = new DsTagWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, distributionSetTagManagement);
 
@@ -108,21 +87,6 @@ public class DistributionTagLayout extends AbstractFilterLayout {
         return filterButtonsLayout;
     }
 
-    public void restoreState() {
-        // TODO
-        // final Set<Long> lastClickedTagIds =
-        // distributionTagLayoutUiState.getClickedDsTagIds();
-        //
-        // if (!CollectionUtils.isEmpty(lastClickedTagIds)) {
-        // mapIdsToProxyEntities(lastClickedTagIds).forEach(distributionTagButtons::selectFilter);
-        // }
-    }
-
-    // TODO: extract to parent abstract #mapIdsToProxyEntities?
-    private List<ProxyTag> mapIdsToProxyEntities(final Collection<Long> entityIds) {
-        return dsTagManagement.get(entityIds).stream().map(dsTagMapper::map).collect(Collectors.toList());
-    }
-
     public void showFilterButtonsEditIcon() {
         distributionTagButtons.showEditColumn();
     }
@@ -137,6 +101,11 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
     public void refreshFilterButtons() {
         distributionTagButtons.refreshContainer();
+    }
+
+    public void restoreState() {
+        distributionTagFilterHeader.restoreState();
+        distributionTagButtons.restoreState();
     }
 
     public void unsubscribeListener() {

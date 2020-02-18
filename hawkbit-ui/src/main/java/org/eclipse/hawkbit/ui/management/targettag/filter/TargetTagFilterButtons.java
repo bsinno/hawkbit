@@ -206,6 +206,10 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         }
     }
 
+    public Button getNoTagButton() {
+        return noTagButton;
+    }
+
     public void restoreState() {
         final Map<Long, String> tagsToRestore = targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName();
 
@@ -217,9 +221,5 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         if (targetTagFilterLayoutUiState.isNoTagClicked()) {
             noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
-    }
-
-    public Button getNoTagButton() {
-        return noTagButton;
     }
 }

@@ -55,7 +55,6 @@ import com.vaadin.ui.Window;
  * View.
  */
 public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void> {
-
     private static final long serialVersionUID = 1L;
 
     private final DistributionTagLayoutUiState distributionTagLayoutUiState;
@@ -68,6 +67,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
     private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyTag, Void, Void> dsTagDataProvider;
+    private final transient TagToProxyTagMapper<DistributionSetTag> dsTagMapper;
 
     private final transient DragAndDropSupport<ProxyTag> dragAndDropSupport;
 
@@ -87,8 +87,9 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
 
         this.distributionTagButtonClickBehaviour = new DistributionTagButtonClick(this::publishFilterChangedEvent,
                 this::publishNoTagChangedEvent);
-        this.dsTagDataProvider = new DistributionSetTagDataProvider(distributionSetTagManagement,
-                new TagToProxyTagMapper<DistributionSetTag>()).withConfigurableFilter();
+        this.dsTagMapper = new TagToProxyTagMapper<>();
+        this.dsTagDataProvider = new DistributionSetTagDataProvider(distributionSetTagManagement, dsTagMapper)
+                .withConfigurableFilter();
 
         final DistributionSetsToTagAssignmentSupport distributionSetsToTagAssignment = new DistributionSetsToTagAssignmentSupport(
                 uiNotification, i18n, distributionSetManagement, eventBus, permChecker, distributionTagLayoutUiState);
@@ -199,5 +200,18 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
 
     public Button getNoTagButton() {
         return noTagButton;
+    }
+
+    public void restoreState() {
+        final Map<Long, String> tagsToRestore = distributionTagLayoutUiState.getClickedTargetTagIdsWithName();
+
+        if (!CollectionUtils.isEmpty(tagsToRestore)) {
+            distributionTagButtonClickBehaviour.setPreviouslyClickedFilterIdsWithName(tagsToRestore);
+            // TODO: should we reset data communicator here for styling update
+        }
+
+        if (distributionTagLayoutUiState.isNoTagClicked()) {
+            noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+        }
     }
 }

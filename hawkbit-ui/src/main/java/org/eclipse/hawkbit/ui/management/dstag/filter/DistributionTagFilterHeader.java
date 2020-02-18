@@ -38,11 +38,11 @@ public class DistributionTagFilterHeader extends AbstractFilterHeader {
         this.dsTagWindowBuilder = dsTagWindowBuilder;
 
         buildHeader();
-        restoreState();
     }
 
     @Override
     protected String getHeaderCaptionMsgKey() {
+        // TODO: constant
         return "header.filter.tag";
     }
 
@@ -58,6 +58,7 @@ public class DistributionTagFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected String getAddEntityWindowCaptionMsgKey() {
+        // TODO: use constant
         return "caption.tag";
     }
 
