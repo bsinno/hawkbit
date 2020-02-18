@@ -19,14 +19,12 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyBulkUploadWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -35,6 +33,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.Binder;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.Registration;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -48,7 +47,6 @@ import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -72,7 +70,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private final Label windowCaption;
     private final Button closeButton;
-    private Window bulkUploadWindow;
+    private Registration closeRegistration;
 
     private final Binder<ProxyBulkUploadWindow> binder;
 
@@ -110,14 +108,13 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         this.closeButton = getCloseButton();
 
         buildLayout();
-        reset();
+        initInputs();
     }
 
     private ProgressBar createProgressBar() {
         final ProgressBar progressBarIndicator = new ProgressBar(0F);
         progressBarIndicator.setCaption(i18n.getMessage("artifact.upload.progress.caption"));
         progressBarIndicator.setSizeFull();
-        progressBarIndicator.setVisible(false);
 
         return progressBarIndicator;
     }
@@ -125,7 +122,6 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     private static Label getStatusCountLabel() {
         final Label countLabel = new Label("", ContentMode.HTML);
         countLabel.setId(UIComponentIdProvider.BULK_UPLOAD_COUNT);
-        countLabel.setVisible(false);
 
         return countLabel;
     }
@@ -160,28 +156,21 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         final Button closeBtn = SPUIComponentProvider.getButton(UIComponentIdProvider.BULK_UPLOAD_CLOSE_BUTTON_ID, "",
                 "", "", true, VaadinIcons.CLOSE, SPUIButtonStyleNoBorder.class);
         closeBtn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-        closeBtn.addClickListener(event -> closePopup());
+
         return closeBtn;
     }
 
-    private void closePopup() {
-        if (!targetBulkUploadUiState.isInProgress()) {
-            clearPreviousSessionData();
-            reset();
+    public void setCloseCallback(final Runnable closeCallback) {
+        if (closeRegistration != null) {
+            closeRegistration.remove();
         }
-        bulkUploadWindow.close();
-    }
-
-    private void clearPreviousSessionData() {
-        targetBulkUploadUiState.setDsId(null);
-        targetBulkUploadUiState.getTagIdsWithNameToAssign().clear();
-        targetBulkUploadUiState.setDescription(null);
+        closeRegistration = closeButton.addClickListener(event -> closeCallback.run());
     }
 
     /**
-     * Reset the values in popup.
+     * Init the values in popup.
      */
-    private void reset() {
+    private void initInputs() {
         binder.setBean(new ProxyBulkUploadWindow());
 
         // init with dummy master entity in order to init tag panel
@@ -253,30 +242,29 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
     }
 
     public void onStartOfProvisioning() {
+        targetsCountLabel.setVisible(true);
         targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.provisioning.started"));
     }
 
     public void setProgressBarValue(final float value) {
-        progressBar.setValue(value);
         progressBar.setVisible(true);
+        progressBar.setValue(value);
     }
 
     public void onStartOfAssignment() {
+        targetsCountLabel.setVisible(true);
         targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.assignment.started"));
     }
 
     /**
-     * Restore the target bulk upload layout field values.
+     * Actions once bulk upload is completed.
      */
-    public void restoreComponentsValue() {
-        final ProxyBulkUploadWindow bulkUploadInputsToRestore = new ProxyBulkUploadWindow();
-        bulkUploadInputsToRestore.setDistributionSetId(targetBulkUploadUiState.getDsId());
-        bulkUploadInputsToRestore.setDescription(targetBulkUploadUiState.getDescription());
-        bulkUploadInputsToRestore.setTagIdsWithNameToAssign(targetBulkUploadUiState.getTagIdsWithNameToAssign());
+    public void onUploadCompletion(final int successCount, final int failCount) {
+        final String targetCountLabel = getFormattedCountLabelValue(successCount, failCount);
+        targetsCountLabel.setVisible(true);
+        targetsCountLabel.setValue(targetCountLabel);
 
-        binder.setBean(bulkUploadInputsToRestore);
-        tagsComponent.getTagsById(targetBulkUploadUiState.getTagIdsWithNameToAssign().keySet())
-                .forEach(tagsComponent::assignTag);
+        enableInputs();
     }
 
     private String getFormattedCountLabelValue(final int successfulUploadCount, final int failedUploadCount) {
@@ -290,17 +278,8 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         return countLabelBuilder.toString();
     }
 
-    /**
-     * Actions once bulk upload is completed.
-     */
-    public void onUploadCompletion(final int successCount, final int failCount) {
-        final String targetCountLabel = getFormattedCountLabelValue(successCount, failCount);
-        targetsCountLabel.setValue(targetCountLabel);
-
-        enableInputs();
-    }
-
     public void onUploadFailure(final String failureReason) {
+        targetsCountLabel.setVisible(true);
         targetsCountLabel.setValue(
                 new StringBuilder().append("<font color=RED>").append(failureReason).append("</font>").toString());
 
@@ -310,22 +289,6 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     public void onAssignmentFailure(final String failureReason) {
         uinotification.displayValidationError(failureReason);
-    }
-
-    /**
-     * create and return window
-     * 
-     * @return Window window
-     */
-    public Window getWindow() {
-        if (!targetBulkUploadUiState.isInProgress()) {
-            reset();
-        }
-        bulkUploadWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption("").content(this)
-                .buildWindow();
-        bulkUploadWindow.addStyleName("bulk-upload-window");
-
-        return bulkUploadWindow;
     }
 
     private void disableInputs() {
@@ -341,5 +304,27 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private void enableInputs() {
         changeInputsState(true);
+    }
+
+    public void clearUiState() {
+        targetBulkUploadUiState.setDsId(null);
+        targetBulkUploadUiState.getTagIdsWithNameToAssign().clear();
+        targetBulkUploadUiState.setDescription(null);
+    }
+
+    /**
+     * Restore the target bulk upload layout field values.
+     */
+    public void restoreComponentsValue() {
+        final ProxyBulkUploadWindow bulkUploadInputsToRestore = new ProxyBulkUploadWindow();
+        bulkUploadInputsToRestore.setDistributionSetId(targetBulkUploadUiState.getDsId());
+        bulkUploadInputsToRestore.setDescription(targetBulkUploadUiState.getDescription());
+        bulkUploadInputsToRestore.setTagIdsWithNameToAssign(targetBulkUploadUiState.getTagIdsWithNameToAssign());
+
+        binder.setBean(bulkUploadInputsToRestore);
+        tagsComponent.getTagsById(targetBulkUploadUiState.getTagIdsWithNameToAssign().keySet())
+                .forEach(tagsComponent::assignTag);
+
+        disableInputs();
     }
 }

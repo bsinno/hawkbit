@@ -51,10 +51,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
+import org.vaadin.spring.events.EventScope;
 
 import com.google.common.base.Splitter;
 import com.google.common.io.ByteStreams;
-import com.vaadin.ui.UI;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FailedListener;
 import com.vaadin.ui.Upload.Receiver;
@@ -131,25 +132,25 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
     }
 
     private void publishUploadFailed(final String failureReason) {
-        eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+        eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
                 BulkUploadEventPayload.buildUploadFailed(failureReason));
     }
 
     @Override
     public void uploadSucceeded(final SucceededEvent event) {
-        uiExecutor.execute(new UploadAsync(UI.getCurrent()));
+        uiExecutor.execute(new UploadAsync(VaadinSession.getCurrent()));
     }
 
     private class UploadAsync implements Runnable {
-        private final UI vaadinUi;
+        private final VaadinSession vaadinSession;
 
         private ProxyBulkUploadWindow bulkUploadInputs;
 
         private List<String> provisionedControllerIds;
         private float currentProgress;
 
-        public UploadAsync(final UI vaadinUi) {
-            this.vaadinUi = vaadinUi;
+        public UploadAsync(final VaadinSession vaadinSession) {
+            this.vaadinSession = vaadinSession;
 
             this.bulkUploadInputs = bulkUploadInputsProvider.get();
 
@@ -163,8 +164,8 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 return;
             }
 
-            UI.setCurrent(vaadinUi);
-            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+            VaadinSession.setCurrent(vaadinSession);
+            eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
                     BulkUploadEventPayload.buildTargetProvisioningStarted());
 
             try (InputStream tempStream = new FileInputStream(tempFile)) {
@@ -197,12 +198,13 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 deleteFile();
             }
 
-            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+            eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
                     BulkUploadEventPayload.buildTagsAndDsAssignmentStarted());
             doAssignments();
 
-            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildBulkUploadCompleted(
-                    provisionedControllerIds.size(), totalNumberOfLines.intValue() - provisionedControllerIds.size()));
+            eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
+                    BulkUploadEventPayload.buildBulkUploadCompleted(provisionedControllerIds.size(),
+                            totalNumberOfLines.intValue() - provisionedControllerIds.size()));
         }
 
         private long getTotalNumberOfLines() {
@@ -246,7 +248,7 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
             if (linesProcessedPercentage > currentProgress) {
                 currentProgress = linesProcessedPercentage;
 
-                eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+                eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
                         BulkUploadEventPayload.buildTargetProvisioningProgressUpdated(currentProgress));
             }
         }
@@ -335,7 +337,7 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 errorMessage.append(tagAssignmentFailedMsg);
             }
             if (errorMessage.length() > 0) {
-                eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this,
+                eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
                         BulkUploadEventPayload.buildTagsAndDsAssignmentFailed(errorMessage.toString()));
             }
         }
@@ -361,7 +363,8 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
             publishUploadFailed(i18n.getMessage("bulkupload.wrong.file.format"));
             event.getUpload().interruptUpload();
         } else {
-            eventBus.publish(EventTopics.BULK_UPLOAD_CHANGED, this, BulkUploadEventPayload.buildUploadStarted());
+            eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
+                    BulkUploadEventPayload.buildUploadStarted());
         }
     }
 

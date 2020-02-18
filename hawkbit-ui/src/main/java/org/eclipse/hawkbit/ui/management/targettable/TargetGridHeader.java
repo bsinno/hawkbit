@@ -9,15 +9,9 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.Arrays;
-import java.util.concurrent.Executor;
 
-import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
-import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
@@ -36,7 +30,7 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.DistributionSetFilterDr
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUpdateWindowLayout;
+import org.eclipse.hawkbit.ui.management.bulkupload.BulkUploadWindowBuilder;
 import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUploadUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -60,7 +54,7 @@ public class TargetGridHeader extends AbstractGridHeader {
     private final TargetBulkUploadUiState targetBulkUploadUiState;
 
     private final transient TargetWindowBuilder targetWindowBuilder;
-    private final TargetBulkUpdateWindowLayout targetBulkUpdateWindowLayout;
+    private final transient BulkUploadWindowBuilder bulkUploadWindowBuilder;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
@@ -70,11 +64,8 @@ public class TargetGridHeader extends AbstractGridHeader {
     private final transient DistributionSetFilterDropAreaSupport distributionSetFilterDropAreaSupport;
 
     TargetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final UINotification notification, final TargetManagement targetManagement,
-            final DeploymentManagement deploymentManagement, final UiProperties uiproperties,
-            final EntityFactory entityFactory, final TargetTagManagement tagManagement,
-            final DistributionSetManagement distributionSetManagement, final Executor uiExecutor,
-            final TargetWindowBuilder targetWindowBuilder,
+            final UINotification notification, final DistributionSetManagement distributionSetManagement,
+            final TargetWindowBuilder targetWindowBuilder, final BulkUploadWindowBuilder bulkUploadWindowBuilder,
             final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
             final TargetGridLayoutUiState targetGridLayoutUiState,
             final TargetBulkUploadUiState targetBulkUploadUiState) {
@@ -85,9 +76,7 @@ public class TargetGridHeader extends AbstractGridHeader {
         this.targetBulkUploadUiState = targetBulkUploadUiState;
 
         this.targetWindowBuilder = targetWindowBuilder;
-        this.targetBulkUpdateWindowLayout = new TargetBulkUpdateWindowLayout(i18n, eventBus, permChecker, notification,
-                targetManagement, deploymentManagement, tagManagement, distributionSetManagement, entityFactory,
-                uiproperties, uiExecutor, targetBulkUploadUiState);
+        this.bulkUploadWindowBuilder = bulkUploadWindowBuilder;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.TARGET_TEXT_FIELD,
                 UIComponentIdProvider.TARGET_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState, this::searchBy);
@@ -131,6 +120,10 @@ public class TargetGridHeader extends AbstractGridHeader {
 
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
             onSimpleFilterReset();
+        }
+
+        if (isBulkUploadInProgress()) {
+            bulkUploadWindowBuilder.restoreState();
         }
     }
 
@@ -204,7 +197,7 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     private void showBulkUploadWindow() {
-        final Window bulkUploadTargetWindow = targetBulkUpdateWindowLayout.getWindow();
+        final Window bulkUploadTargetWindow = bulkUploadWindowBuilder.getWindowForTargetBulkUpload();
         UI.getCurrent().addWindow(bulkUploadTargetWindow);
         bulkUploadTargetWindow.setVisible(true);
     }
@@ -214,64 +207,44 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     public void onBulkUploadChanged(final BulkUploadEventPayload eventPayload) {
-        switch (eventPayload.getBulkUploadState()) {
-        case UPLOAD_STARTED:
-            UI.getCurrent().access(this::onStartOfBulkUpload);
-            break;
-        case UPLOAD_FAILED:
-            UI.getCurrent().access(() -> onFailOfBulkUpload(eventPayload.getFailureReason()));
-            break;
-        case TARGET_PROVISIONING_STARTED:
-            UI.getCurrent().access(this::onStartProvisioningOfBulkUpload);
-            break;
-        case TARGET_PROVISIONING_PROGRESS_UPDATED:
-            UI.getCurrent().access(() -> onProgressOfBulkUpload(eventPayload.getBulkUploadProgress()));
-            break;
-        case TAGS_AND_DS_ASSIGNMENT_STARTED:
-            UI.getCurrent().access(this::onStartAssignmentOfBulkUpload);
-            break;
-        case TAGS_AND_DS_ASSIGNMENT_FAILED:
-            UI.getCurrent().access(() -> onFailAssignmentOfBulkUpload(eventPayload.getFailureReason()));
-            break;
-        case BULK_UPLOAD_COMPLETED:
-            UI.getCurrent().access(() -> onCompleteOfBulkUpload(eventPayload.getSuccessBulkUploadCount(),
-                    eventPayload.getFailBulkUploadCount()));
-            break;
+        bulkUploadWindowBuilder.getLayout().ifPresent(layout -> {
+            switch (eventPayload.getBulkUploadState()) {
+            case UPLOAD_STARTED:
+                adaptHeaderAndUiState(true);
+                layout.onStartOfUpload();
+                break;
+            case UPLOAD_FAILED:
+                adaptHeaderAndUiState(false);
+                layout.onUploadFailure(eventPayload.getFailureReason());
+                break;
+            case TARGET_PROVISIONING_STARTED:
+                layout.onStartOfProvisioning();
+                break;
+            case TARGET_PROVISIONING_PROGRESS_UPDATED:
+                layout.setProgressBarValue(eventPayload.getBulkUploadProgress());
+                break;
+            case TAGS_AND_DS_ASSIGNMENT_STARTED:
+                layout.onStartOfAssignment();
+                break;
+            case TAGS_AND_DS_ASSIGNMENT_FAILED:
+                layout.onAssignmentFailure(eventPayload.getFailureReason());
+                break;
+            case BULK_UPLOAD_COMPLETED:
+                adaptHeaderAndUiState(false);
+                layout.onUploadCompletion(eventPayload.getSuccessBulkUploadCount(),
+                        eventPayload.getFailBulkUploadCount());
+                break;
+            }
+        });
+    }
+
+    private void adaptHeaderAndUiState(final boolean isInProgress) {
+        if (isInProgress) {
+            bulkUploadHeaderSupport.showProgressIndicator();
+        } else {
+            bulkUploadHeaderSupport.hideProgressIndicator();
         }
-    }
-
-    private void onStartOfBulkUpload() {
-        bulkUploadHeaderSupport.showProgressIndicator();
-        targetBulkUpdateWindowLayout.onStartOfUpload();
-        targetBulkUploadUiState.setInProgress(true);
-    }
-
-    private void onFailOfBulkUpload(final String failureReason) {
-        bulkUploadHeaderSupport.hideProgressIndicator();
-        targetBulkUpdateWindowLayout.onUploadFailure(failureReason);
-        targetBulkUploadUiState.setInProgress(false);
-    }
-
-    private void onStartProvisioningOfBulkUpload() {
-        targetBulkUpdateWindowLayout.onStartOfProvisioning();
-    }
-
-    private void onProgressOfBulkUpload(final float progress) {
-        targetBulkUpdateWindowLayout.setProgressBarValue(progress);
-    }
-
-    private void onStartAssignmentOfBulkUpload() {
-        targetBulkUpdateWindowLayout.onStartOfAssignment();
-    }
-
-    private void onFailAssignmentOfBulkUpload(final String failureReason) {
-        targetBulkUpdateWindowLayout.onAssignmentFailure(failureReason);
-    }
-
-    private void onCompleteOfBulkUpload(final int successCount, final int failCount) {
-        bulkUploadHeaderSupport.hideProgressIndicator();
-        targetBulkUpdateWindowLayout.onUploadCompletion(successCount, failCount);
-        targetBulkUploadUiState.setInProgress(false);
+        targetBulkUploadUiState.setInProgress(isInProgress);
     }
 
     public void showTargetTagIcon() {

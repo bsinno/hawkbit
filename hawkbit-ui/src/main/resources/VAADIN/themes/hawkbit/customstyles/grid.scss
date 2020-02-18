@@ -66,6 +66,15 @@
         @include valo-gradient($assigned-row-color);
     }
 
+    .multi-selection-grid .v-grid-cell {
+        user-select: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -o-user-select: none;
+        -ms-user-select: none;
+    }
+
     .drag-drop-counter {
         padding: 0.2em 0.5em;
         background-color: red;

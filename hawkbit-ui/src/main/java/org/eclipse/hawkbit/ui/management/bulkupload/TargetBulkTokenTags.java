@@ -23,6 +23,7 @@ import org.eclipse.hawkbit.ui.common.tagdetails.AbstractTagToken;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
@@ -77,6 +78,10 @@ public class TargetBulkTokenTags extends AbstractTagToken<ProxyTarget> {
 
     @Override
     protected List<ProxyTag> getTagsById(final Collection<Long> entityIds) {
+        if (CollectionUtils.isEmpty(entityIds)) {
+            return Collections.emptyList();
+        }
+
         return tagManagement.get(entityIds).stream().map(tagMapper::map).collect(Collectors.toList());
     }
 }

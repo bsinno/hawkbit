@@ -30,6 +30,7 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
+import org.eclipse.hawkbit.ui.management.bulkupload.BulkUploadWindowBuilder;
 import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUploadUiState;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
@@ -75,9 +76,12 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         final TargetMetaDataWindowBuilder targetMetaDataWindowBuilder = new TargetMetaDataWindowBuilder(i18n,
                 entityFactory, eventBus, uiNotification, permissionChecker, targetManagement);
 
+        final BulkUploadWindowBuilder bulkUploadWindowBuilder = new BulkUploadWindowBuilder(i18n, eventBus,
+                permissionChecker, uiNotification, uiProperties, uiExecutor, targetManagement, deploymentManagement,
+                targetTagManagement, distributionSetManagement, entityFactory, targetBulkUploadUiState);
+
         this.targetGridHeader = new TargetGridHeader(i18n, permissionChecker, eventBus, uiNotification,
-                targetManagement, deploymentManagement, uiProperties, entityFactory, targetTagManagement,
-                distributionSetManagement, uiExecutor, targetWindowBuilder, targetTagFilterLayoutUiState,
+                distributionSetManagement, targetWindowBuilder, bulkUploadWindowBuilder, targetTagFilterLayoutUiState,
                 targetGridLayoutUiState, targetBulkUploadUiState);
         this.targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement, permissionChecker,
                 deploymentManagement, configManagement, systemSecurityContext, uiProperties, targetGridLayoutUiState,

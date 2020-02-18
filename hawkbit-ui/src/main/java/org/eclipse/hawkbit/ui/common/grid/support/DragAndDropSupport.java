@@ -125,7 +125,7 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
 
     private void addGridDropStylingListener() {
         final EntityDraggingListener draggingListener = new EntityDraggingListener();
-        eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING);
+        grid.addAttachListener(event -> eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING));
         grid.addDetachListener(event -> eventBus.unsubscribe(draggingListener));
     }
 
@@ -148,17 +148,18 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private class EntityDraggingListener {
+        private static final String DROP_HIND_STYLE = "show-drop-hint";
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onEntityDraggingEvent(final EntityDraggingEventPayload eventPayload) {
-            final String sourceGridId = eventPayload.getSourceGridId();
-            final String style = "show-drop-hint";
+            if (!sourceTargetAssignmentStrategies.containsKey(eventPayload.getSourceGridId())) {
+                return;
+            }
 
-            if (sourceTargetAssignmentStrategies.containsKey(sourceGridId)
-                    && eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
-                grid.addStyleName(style);
+            if (eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
+                grid.addStyleName(DROP_HIND_STYLE);
             } else {
-                grid.removeStyleName(style);
+                grid.removeStyleName(DROP_HIND_STYLE);
             }
         }
     }
