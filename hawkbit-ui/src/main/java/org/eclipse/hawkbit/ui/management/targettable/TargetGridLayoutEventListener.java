@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
@@ -232,12 +233,18 @@ public class TargetGridLayoutEventListener {
                 return;
             }
 
+            final EntityModifiedEventType eventType = eventPayload.getEntityModifiedEventType();
+            final Collection<Long> entityIds = eventPayload.getEntityIds();
+
             targetGridLayout.refreshGrid();
-            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+
+            if (eventType == EntityModifiedEventType.ENTITY_ADDED && entityIds.size() == 1) {
+                UI.getCurrent().access(() -> targetGridLayout.selectEntityById(entityIds.iterator().next()));
+            } else if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the
                 // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
                 // right or improve
-                UI.getCurrent().access(() -> targetGridLayout.onTargetUpdated(eventPayload.getEntityIds()));
+                UI.getCurrent().access(() -> targetGridLayout.onTargetUpdated(entityIds));
             }
         }
 

@@ -118,10 +118,19 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         final Long lastSelectedEntityId = targetGridLayoutUiState.getSelectedTargetId();
 
         if (lastSelectedEntityId != null) {
-            mapIdToProxyEntity(lastSelectedEntityId).ifPresent(targetGrid::select);
+            selectEntityById(lastSelectedEntityId);
         } else {
             targetGrid.getSelectionSupport().selectFirstRow();
         }
+    }
+
+    // TODO: extract to parent abstract #selectEntityById?
+    public void selectEntityById(final Long entityId) {
+        if (!targetGrid.getSelectedItems().isEmpty()) {
+            targetGrid.deselectAll();
+        }
+
+        mapIdToProxyEntity(entityId).ifPresent(targetGrid::select);
     }
 
     // TODO: extract to parent abstract #mapIdToProxyEntity?

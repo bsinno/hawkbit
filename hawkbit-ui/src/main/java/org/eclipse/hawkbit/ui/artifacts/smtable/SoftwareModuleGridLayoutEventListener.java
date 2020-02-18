@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
@@ -119,12 +120,18 @@ public class SoftwareModuleGridLayoutEventListener {
                 return;
             }
 
+            final EntityModifiedEventType eventType = eventPayload.getEntityModifiedEventType();
+            final Collection<Long> entityIds = eventPayload.getEntityIds();
+
             softwareModuleGridLayout.refreshGrid();
-            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+
+            if (eventType == EntityModifiedEventType.ENTITY_ADDED && entityIds.size() == 1) {
+                UI.getCurrent().access(() -> softwareModuleGridLayout.selectEntityById(entityIds.iterator().next()));
+            } else if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the
                 // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
                 // right or improve
-                UI.getCurrent().access(() -> softwareModuleGridLayout.onSmUpdated(eventPayload.getEntityIds()));
+                UI.getCurrent().access(() -> softwareModuleGridLayout.onSmUpdated(entityIds));
             }
         }
     }

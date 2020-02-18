@@ -23,7 +23,9 @@ import org.eclipse.hawkbit.ui.components.NotificationUnreadButton;
 import org.eclipse.hawkbit.ui.push.HawkbitEventProvider.EntityModifiedEventPayloadIdentifier;
 import org.eclipse.hawkbit.ui.push.UIEventProvider;
 import org.springframework.util.CollectionUtils;
+import org.vaadin.spring.events.Event;
 import org.vaadin.spring.events.EventBus.UIEventBus;
+import org.vaadin.spring.events.EventBusListenerMethodFilter;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
@@ -62,12 +64,20 @@ public class RemoteEventsListener {
             eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
         }
 
-        @EventBusListenerMethod(scope = EventScope.UI)
+        @EventBusListenerMethod(scope = EventScope.UI, filter = IgnoreRemoteEventsFilter.class)
         private void onEntityModifiedEvent(final EntityModifiedEventPayload eventPayload) {
             // parentId is ignored here because entityIds should be unique
             uiOriginatedEventsCache.asMap().merge(EntityModifiedEventPayloadIdentifier.of(eventPayload),
                     eventPayload.getEntityIds(), (oldEntityIds, newEntityIds) -> Stream
                             .concat(oldEntityIds.stream(), newEntityIds.stream()).collect(Collectors.toList()));
+        }
+    }
+
+    public static class IgnoreRemoteEventsFilter implements EventBusListenerMethodFilter {
+
+        @Override
+        public boolean filter(final Event<?> event) {
+            return !event.getSource().equals(UI.getCurrent());
         }
     }
 

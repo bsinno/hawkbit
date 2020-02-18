@@ -89,10 +89,19 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         final Long lastSelectedEntityId = swModuleGridLayoutUiState.getSelectedSmId();
 
         if (lastSelectedEntityId != null) {
-            mapIdToProxyEntity(lastSelectedEntityId).ifPresent(swModuleGrid::select);
+            selectEntityById(lastSelectedEntityId);
         } else {
             swModuleGrid.getSelectionSupport().selectFirstRow();
         }
+    }
+
+    // TODO: extract to parent abstract #selectEntityById?
+    public void selectEntityById(final Long entityId) {
+        if (!swModuleGrid.getSelectedItems().isEmpty()) {
+            swModuleGrid.deselectAll();
+        }
+
+        mapIdToProxyEntity(entityId).ifPresent(swModuleGrid::select);
     }
 
     // TODO: extract to parent abstract #mapIdToProxyEntity?

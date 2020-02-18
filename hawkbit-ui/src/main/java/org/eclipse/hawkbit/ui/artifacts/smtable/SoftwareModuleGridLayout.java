@@ -87,10 +87,19 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         final Long lastSelectedEntityId = smGridLayoutUiState.getSelectedSmId();
 
         if (lastSelectedEntityId != null) {
-            mapIdToProxyEntity(lastSelectedEntityId).ifPresent(softwareModuleGrid::select);
+            selectEntityById(lastSelectedEntityId);
         } else {
             softwareModuleGrid.getSelectionSupport().selectFirstRow();
         }
+    }
+
+    // TODO: extract to parent abstract #selectEntityById?
+    public void selectEntityById(final Long entityId) {
+        if (!softwareModuleGrid.getSelectedItems().isEmpty()) {
+            softwareModuleGrid.deselectAll();
+        }
+
+        mapIdToProxyEntity(entityId).ifPresent(softwareModuleGrid::select);
     }
 
     // TODO: extract to parent abstract #mapIdToProxyEntity?

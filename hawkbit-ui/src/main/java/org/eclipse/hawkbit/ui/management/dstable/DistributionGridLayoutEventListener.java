@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.dstable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
@@ -156,12 +157,18 @@ public class DistributionGridLayoutEventListener {
                 return;
             }
 
+            final EntityModifiedEventType eventType = eventPayload.getEntityModifiedEventType();
+            final Collection<Long> entityIds = eventPayload.getEntityIds();
+
             distributionGridLayout.refreshGrid();
-            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+
+            if (eventType == EntityModifiedEventType.ENTITY_ADDED && entityIds.size() == 1) {
+                UI.getCurrent().access(() -> distributionGridLayout.selectEntityById(entityIds.iterator().next()));
+            } else if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the
                 // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
                 // right or improve
-                UI.getCurrent().access(() -> distributionGridLayout.onDsUpdated(eventPayload.getEntityIds()));
+                UI.getCurrent().access(() -> distributionGridLayout.onDsUpdated(entityIds));
             }
         }
 

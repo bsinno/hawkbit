@@ -106,10 +106,19 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         final Long lastSelectedEntityId = distributionGridLayoutUiState.getSelectedDsId();
 
         if (lastSelectedEntityId != null) {
-            mapIdToProxyEntity(lastSelectedEntityId).ifPresent(distributionGrid::select);
+            selectEntityById(lastSelectedEntityId);
         } else {
             distributionGrid.getSelectionSupport().selectFirstRow();
         }
+    }
+
+    // TODO: extract to parent abstract #selectEntityById?
+    public void selectEntityById(final Long entityId) {
+        if (!distributionGrid.getSelectedItems().isEmpty()) {
+            distributionGrid.deselectAll();
+        }
+
+        mapIdToProxyEntity(entityId).ifPresent(distributionGrid::select);
     }
 
     // TODO: extract to parent abstract #mapIdToProxyEntity?
