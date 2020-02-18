@@ -480,11 +480,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
             targetFilter.setOverdueState(targetTagFilterLayoutUiState.isOverdueFilterClicked());
 
-            final Long dsIdFilter = targetGridLayoutUiState.getFilterDsIdNameVersion() != null
-                    ? targetGridLayoutUiState.getFilterDsIdNameVersion().getId()
-                    : null;
-            targetFilter.setDistributionId(dsIdFilter);
-
             targetFilter.setNoTagClicked(targetTagFilterLayoutUiState.isNoTagClicked());
 
             final Collection<String> tagFilterNames = targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName()

@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.Custo
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.FilterByDsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
@@ -61,6 +62,7 @@ public class TargetGridLayoutEventListener {
         eventListeners.add(new CustomFilterChangedListener());
         eventListeners.add(new PinnedDsChangedListener());
         eventListeners.add(new BulkUploadChangedListener());
+        eventListeners.add(new FilterByDsListener());
         eventListeners.add(new EntityModifiedListener());
     }
 
@@ -213,6 +215,18 @@ public class TargetGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onBulkUploadEvent(final BulkUploadEventPayload eventPayload) {
             targetGridLayout.onBulkUploadChanged(eventPayload);
+        }
+    }
+
+    private class FilterByDsListener {
+
+        public FilterByDsListener() {
+            eventBus.subscribe(this, EventTopics.FILTER_BY_DS_CHANGED);
+        }
+
+        @EventBusListenerMethod(scope = EventScope.UI)
+        private void onDsFilterChanged(final FilterByDsEventPayload eventPayload) {
+            targetGridLayout.filterGridByDs(eventPayload.getDsId());
         }
     }
 
