@@ -211,6 +211,9 @@ public class TargetGridLayoutEventListener {
             eventBus.subscribe(this, EventTopics.BULK_UPLOAD_CHANGED);
         }
 
+        // session scope is used here because the bulk upload handler is running
+        // as the background job, started by the ui Executor and survives the UI
+        // restart
         @EventBusListenerMethod(scope = EventScope.SESSION)
         private void onBulkUploadEvent(final BulkUploadEventPayload eventPayload) {
             VaadinSession.getCurrent().access(() -> targetGridLayout.onBulkUploadChanged(eventPayload));

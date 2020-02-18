@@ -115,6 +115,15 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         setVisible(false);
     }
 
+    // columns are being re-rendered on each tab change, so we need to reset the
+    // state here
+    @Override
+    public void beforeClientResponse(final boolean initial) {
+        super.beforeClientResponse(initial);
+
+        typeIdIsRendered.clear();
+    }
+
     private void init() {
         setSizeFull();
         setHeightMode(HeightMode.UNDEFINED);
@@ -125,6 +134,8 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         setSelectionMode(SelectionMode.NONE);
 
         addColumns();
+        setColumnReorderingAllowed(false);
+        disableColumnSorting();
     }
 
     private void addColumns() {
@@ -232,6 +243,12 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
             eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                     EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, dsId));
             uiNotification.displaySuccess(i18n.getMessage("message.sw.unassigned", smNameAndVersion));
+        }
+    }
+
+    private void disableColumnSorting() {
+        for (final Column<ProxySoftwareModuleDetails, ?> c : getColumns()) {
+            c.setSortable(false);
         }
     }
 
