@@ -22,7 +22,19 @@
   .filter-drop-hint-layout.show-drop-hint {
     border: 1px dashed $hawkbit-primary-color !important;
   }
-  .filter-drop-hint-layout.v-horizontallayout-drag-center{
-    background-color: lighten($hawkbit-primary-color, 50%);;
+  
+  .filter-drop-hint-layout.show-drop-hint.v-horizontallayout-drag-center{
+    background-color: desaturate(lighten($hawkbit-primary-color, 50%), 20%);
   }
+
+  .v-grid-row-drag-center::after,.v-grid-body-drag-top::after {
+    border: none !important;
+  }
+
+  .show-drop-hint .v-grid-row-drag-center .v-grid-cell {
+    background-image: none;
+    background-color: desaturate(lighten($hawkbit-primary-color, 50%), 20%);
+    color: dimgray;
+  }
+
 }
