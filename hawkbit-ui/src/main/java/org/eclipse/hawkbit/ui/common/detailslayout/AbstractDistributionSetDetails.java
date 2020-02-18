@@ -76,7 +76,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
         this.dsMetaDataWindowBuilder = dsMetaDataWindowBuilder;
 
         this.smDetailsGrid = new SoftwareModuleDetailsGrid(i18n, eventBus, uiNotification, permissionChecker,
-                dsManagement, smManagement, dsTypeManagement, true);
+                dsManagement, smManagement, dsTypeManagement, isUnassignSmAllowed());
 
         this.distributionTagToken = new DistributionTagToken(permissionChecker, i18n, uiNotification, eventBus,
                 dsTagManagement, dsManagement);

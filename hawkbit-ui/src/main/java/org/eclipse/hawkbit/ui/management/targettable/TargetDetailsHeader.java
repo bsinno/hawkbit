@@ -34,7 +34,6 @@ public class TargetDetailsHeader extends DetailsHeader<ProxyTarget> {
         this.targetWindowBuilder = targetWindowBuilder;
         this.targetMetaDataWindowBuilder = targetMetaDataWindowBuilder;
 
-        restoreState();
         buildHeader();
     }
 

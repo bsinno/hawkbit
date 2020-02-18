@@ -18,7 +18,6 @@ import java.util.Date;
 
 import org.eclipse.hawkbit.ControllerPollProperties;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.tenancy.configuration.DurationHelper;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
@@ -41,42 +40,20 @@ public class PollingConfigurationView extends CustomComponent {
 
     private static final ZoneId ZONEID_UTC = ZoneId.of("+0");
 
-    private final transient TenantConfigurationManagement tenantConfigurationManagement;
-
     private final DurationConfigField fieldPollTime;
     private final DurationConfigField fieldPollingOverdueTime;
 
-    private transient Duration tenantPollTime;
-    private transient Duration tenantOverdueTime;
-    private final Binder<ProxySystemConfigWindow> binder;
-
     PollingConfigurationView(final VaadinMessageSource i18n, final ControllerPollProperties controllerPollProperties,
-            final TenantConfigurationManagement tenantConfigurationManagement, Binder<ProxySystemConfigWindow> binder) {
-        this.tenantConfigurationManagement = tenantConfigurationManagement;
-        this.binder = binder;
-
-        final Duration minDuration = DurationHelper.formattedStringToDuration(
-                controllerPollProperties.getMinPollingTime());
-        final Duration maxDuration = DurationHelper.formattedStringToDuration(
-                controllerPollProperties.getMaxPollingTime());
-        final Duration globalPollTime = DurationHelper.formattedStringToDuration(
-                tenantConfigurationManagement.getGlobalConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL,
-                        String.class));
-        final Duration globalOverdueTime = DurationHelper.formattedStringToDuration(
-                tenantConfigurationManagement.getGlobalConfigurationValue(
-                        TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class));
-
-        final TenantConfigurationValue<String> pollTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
-                TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class);
-        if (!pollTimeConfValue.isGlobal()) {
-            tenantPollTime = DurationHelper.formattedStringToDuration(pollTimeConfValue.getValue());
-        }
-
-        final TenantConfigurationValue<String> overdueTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
-                TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class);
-        if (!overdueTimeConfValue.isGlobal()) {
-            tenantOverdueTime = DurationHelper.formattedStringToDuration(overdueTimeConfValue.getValue());
-        }
+            final TenantConfigurationManagement tenantConfigurationManagement,
+            final Binder<ProxySystemConfigWindow> binder) {
+        final Duration minDuration = DurationHelper
+                .formattedStringToDuration(controllerPollProperties.getMinPollingTime());
+        final Duration maxDuration = DurationHelper
+                .formattedStringToDuration(controllerPollProperties.getMaxPollingTime());
+        final Duration globalPollTime = DurationHelper.formattedStringToDuration(tenantConfigurationManagement
+                .getGlobalConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class));
+        final Duration globalOverdueTime = DurationHelper.formattedStringToDuration(tenantConfigurationManagement
+                .getGlobalConfigurationValue(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class));
 
         final Panel rootPanel = new Panel();
         rootPanel.setSizeFull();
@@ -92,14 +69,11 @@ public class PollingConfigurationView extends CustomComponent {
 
         fieldPollTime = DurationConfigField.builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_POLLING, i18n)
                 .caption(i18n.getMessage("configuration.polling.time"))
-                .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value"))
-                .range(minDuration, maxDuration)
-                .globalDuration(globalPollTime)
-                .tenantDuration(tenantPollTime)
-                .build();
+                .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value")).range(minDuration, maxDuration)
+                .globalDuration(globalPollTime).build();
 
-        binder.forField(fieldPollTime.getCheckBox())
-                .bind(ProxySystemConfigWindow::isPollingTime, ProxySystemConfigWindow::setPollingTime);
+        binder.forField(fieldPollTime.getCheckBox()).bind(ProxySystemConfigWindow::isPollingTime,
+                ProxySystemConfigWindow::setPollingTime);
 
         binder.forField(fieldPollTime.getDurationField())
                 .withConverter(PollingConfigurationView::localDateTimeToDuration,
@@ -110,13 +84,10 @@ public class PollingConfigurationView extends CustomComponent {
 
         fieldPollingOverdueTime = DurationConfigField.builder(UIComponentIdProvider.SYSTEM_CONFIGURATION_OVERDUE, i18n)
                 .caption(i18n.getMessage("configuration.polling.overduetime"))
-                .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value"))
-                .range(minDuration, maxDuration)
-                .globalDuration(globalOverdueTime)
-                .tenantDuration(tenantOverdueTime)
-                .build();
-        binder.forField(fieldPollingOverdueTime.getCheckBox())
-                .bind(ProxySystemConfigWindow::isPollingOverdue, ProxySystemConfigWindow::setPollingOverdue);
+                .checkBoxTooltip(i18n.getMessage("configuration.polling.custom.value")).range(minDuration, maxDuration)
+                .globalDuration(globalOverdueTime).build();
+        binder.forField(fieldPollingOverdueTime.getCheckBox()).bind(ProxySystemConfigWindow::isPollingOverdue,
+                ProxySystemConfigWindow::setPollingOverdue);
 
         binder.forField(fieldPollingOverdueTime.getDurationField())
                 .withConverter(PollingConfigurationView::localDateTimeToDuration,

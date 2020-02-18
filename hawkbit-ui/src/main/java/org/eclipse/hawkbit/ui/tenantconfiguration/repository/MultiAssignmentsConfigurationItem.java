@@ -30,17 +30,15 @@ public class MultiAssignmentsConfigurationItem extends VerticalLayout {
     private final VerticalLayout container;
     private final VaadinMessageSource i18n;
 
-    private final Binder<ProxySystemConfigWindow> binder;
-
     /**
      * Constructor.
      *
      * @param i18n
      * @param binder
      */
-    public MultiAssignmentsConfigurationItem(final VaadinMessageSource i18n, Binder<ProxySystemConfigWindow> binder) {
+    public MultiAssignmentsConfigurationItem(final VaadinMessageSource i18n,
+            final Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
-        this.binder = binder;
         this.setSpacing(false);
         this.setMargin(false);
         addComponent(new LabelBuilder().name(i18n.getMessage(MSG_KEY_CHECKBOX)).buildLabel());

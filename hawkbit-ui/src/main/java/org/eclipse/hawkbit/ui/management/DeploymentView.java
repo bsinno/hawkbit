@@ -118,7 +118,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
                     distributionSetTagManagement, entityFactory, uiNotification, distributionSetManagement,
                     managementUIState.getDistributionTagLayoutUiState());
             this.distributionGridLayout = new DistributionGridLayout(i18n, eventBus, permChecker, entityFactory,
-                    uiNotification, managementUIState, targetManagement, distributionSetManagement, smManagement,
+                    uiNotification, targetManagement, distributionSetManagement, smManagement,
                     distributionSetTypeManagement, distributionSetTagManagement, systemManagement, deploymentManagement,
                     configManagement, systemSecurityContext, uiProperties,
                     managementUIState.getDistributionGridLayoutUiState(),

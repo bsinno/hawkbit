@@ -49,14 +49,6 @@ public class AuthenticationConfigurationView extends CustomComponent {
 
     private final UiProperties uiProperties;
 
-    private CheckBox gatewaySecTokenCheckBox;
-
-    private CheckBox targetSecTokenCheckBox;
-
-    private CheckBox certificateAuthCheckbox;
-
-    private CheckBox downloadAnonymousCheckBox;
-
     private final Binder<ProxySystemConfigWindow> binder;
 
     AuthenticationConfigurationView(final VaadinMessageSource i18n,
@@ -97,16 +89,17 @@ public class AuthenticationConfigurationView extends CustomComponent {
 
         gridLayout.setSizeFull();
         gridLayout.setColumnExpandRatio(1, 1.0F);
-        certificateAuthCheckbox = new CheckBox();
+
+        final CheckBox certificateAuthCheckbox = new CheckBox();
         certificateAuthCheckbox.setStyleName(DIST_CHECKBOX_STYLE);
-        certificateAuthCheckbox.addValueChangeListener(
-                valueChangeEvent -> certificateAuthenticationConfigurationItem.setDetailVisible(
-                        valueChangeEvent.getValue()));
+        certificateAuthCheckbox.addValueChangeListener(valueChangeEvent -> certificateAuthenticationConfigurationItem
+                .setDetailVisible(valueChangeEvent.getValue()));
         binder.bind(certificateAuthCheckbox, ProxySystemConfigWindow::isCertificateAuth,
                 ProxySystemConfigWindow::setCertificateAuth);
         gridLayout.addComponent(certificateAuthCheckbox, 0, 0);
         gridLayout.addComponent(certificateAuthenticationConfigurationItem, 1, 0);
-        targetSecTokenCheckBox = new CheckBox();
+
+        final CheckBox targetSecTokenCheckBox = new CheckBox();
         targetSecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         binder.bind(targetSecTokenCheckBox, ProxySystemConfigWindow::isTargetSecToken,
                 ProxySystemConfigWindow::setTargetSecToken);
@@ -114,18 +107,18 @@ public class AuthenticationConfigurationView extends CustomComponent {
         gridLayout.addComponent(targetSecTokenCheckBox, 0, 1);
         gridLayout.addComponent(targetSecurityTokenAuthenticationConfigurationItem, 1, 1);
 
-        gatewaySecTokenCheckBox = new CheckBox();
+        final CheckBox gatewaySecTokenCheckBox = new CheckBox();
         gatewaySecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         gatewaySecTokenCheckBox.setId("gatewaysecuritycheckbox");
-        gatewaySecTokenCheckBox.addValueChangeListener(
-                valueChangeEvent -> gatewaySecurityTokenAuthenticationConfigurationItem.setDetailVisible(
-                        valueChangeEvent.getValue()));
+        gatewaySecTokenCheckBox
+                .addValueChangeListener(valueChangeEvent -> gatewaySecurityTokenAuthenticationConfigurationItem
+                        .setDetailVisible(valueChangeEvent.getValue()));
         binder.bind(gatewaySecTokenCheckBox, ProxySystemConfigWindow::isGatewaySecToken,
                 ProxySystemConfigWindow::setGatewaySecToken);
         gridLayout.addComponent(gatewaySecTokenCheckBox, 0, 2);
         gridLayout.addComponent(gatewaySecurityTokenAuthenticationConfigurationItem, 1, 2);
 
-        downloadAnonymousCheckBox = new CheckBox();
+        final CheckBox downloadAnonymousCheckBox = new CheckBox();
         downloadAnonymousCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         downloadAnonymousCheckBox.setId(UIComponentIdProvider.DOWNLOAD_ANONYMOUS_CHECKBOX);
         binder.bind(downloadAnonymousCheckBox, ProxySystemConfigWindow::isDownloadAnonymous,

@@ -38,4 +38,8 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
 
         buildLayout(actionStatusGridHeader, actionStatusGrid);
     }
+
+    public void restoreState() {
+        // TODO
+    }
 }

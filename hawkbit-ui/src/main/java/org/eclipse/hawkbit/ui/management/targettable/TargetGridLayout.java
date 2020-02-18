@@ -75,7 +75,6 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 uiNotification, targetManagement);
         final TargetMetaDataWindowBuilder targetMetaDataWindowBuilder = new TargetMetaDataWindowBuilder(i18n,
                 entityFactory, eventBus, uiNotification, permissionChecker, targetManagement);
-
         final BulkUploadWindowBuilder bulkUploadWindowBuilder = new BulkUploadWindowBuilder(i18n, eventBus,
                 permissionChecker, uiNotification, uiProperties, uiExecutor, targetManagement, deploymentManagement,
                 targetTagManagement, distributionSetManagement, entityFactory, targetBulkUploadUiState);
@@ -227,16 +226,16 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         showDetailsLayout();
     }
 
-    public CountMessageLabel getCountMessageLabel() {
-        return countMessageLabel;
-    }
-
     public void refreshGrid() {
         targetGrid.refreshContainer();
     }
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+    }
+
+    public CountMessageLabel getCountMessageLabel() {
+        return countMessageLabel;
     }
 
     public Layout getLayout() {

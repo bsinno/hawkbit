@@ -92,5 +92,4 @@ public class DistributionSetDetailsHeader extends DetailsHeader<ProxyDistributio
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
     }
-
 }

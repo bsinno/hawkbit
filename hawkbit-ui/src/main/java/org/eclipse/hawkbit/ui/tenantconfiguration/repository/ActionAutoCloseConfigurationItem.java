@@ -18,6 +18,7 @@ import com.vaadin.ui.HorizontalLayout;
  * the authentication configuration view.
  */
 public class ActionAutoCloseConfigurationItem extends HorizontalLayout {
+    private static final long serialVersionUID = 1L;
 
     public ActionAutoCloseConfigurationItem(final VaadinMessageSource i18n) {
         this.setSpacing(false);

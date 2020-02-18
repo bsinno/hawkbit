@@ -8,11 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
-import java.util.Collection;
-
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -76,7 +73,8 @@ public class ActionHistoryLayout extends HorizontalLayout {
     }
 
     public void restoreState() {
-        // TODO
+        actionHistoryGridLayout.restoreState();
+        actionStatusLayout.restoreState();
     }
 
     public void maximize() {
@@ -89,14 +87,6 @@ public class ActionHistoryLayout extends HorizontalLayout {
         actionHistoryGridLayout.minimize();
         actionStatusLayout.setVisible(false);
         actionStatusMsgLayout.setVisible(false);
-    }
-
-    public void onTargetSelected(final ProxyTarget target) {
-        actionHistoryGridLayout.onTargetSelected(target);
-    }
-
-    public void onTargetUpdated(final Collection<Long> updatedTargetIds) {
-        actionHistoryGridLayout.onTargetUpdated(updatedTargetIds);
     }
 
     public void unsubscribeListener() {

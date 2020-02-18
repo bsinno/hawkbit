@@ -40,7 +40,6 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
      * @param deploymentManagement
      * @param eventBus
      * @param notification
-     * @param managementUIState
      * @param permChecker
      */
     public ActionHistoryGridLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,

@@ -35,7 +35,6 @@ public class RolloutConfigurationView extends CustomComponent {
 
     private final VaadinMessageSource i18n;
     private final UiProperties uiProperties;
-    private CheckBox approvalCheckbox;
     private final Binder<ProxySystemConfigWindow> binder;
     private final ApprovalConfigurationItem approvalConfigurationItem;
 
@@ -68,7 +67,7 @@ public class RolloutConfigurationView extends CustomComponent {
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 
-        approvalCheckbox = new CheckBox();
+        final CheckBox approvalCheckbox = new CheckBox();
         approvalCheckbox.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX);
         binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval,
                 ProxySystemConfigWindow::setRolloutApproval);

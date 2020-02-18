@@ -10,8 +10,6 @@ package org.eclipse.hawkbit.ui.tenantconfiguration;
 
 import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY;
 import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.ACTION_CLEANUP_ACTION_STATUS;
-import static org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.ACTION_STATUS_OPTIONS;
-import static org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.EMPTY_STATUS_SET;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -29,6 +27,7 @@ import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.tenancy.configuration.DurationHelper;
@@ -76,9 +75,12 @@ import com.vaadin.ui.VerticalLayout;
 @ViewScope
 @SpringView(name = TenantConfigurationDashboardView.VIEW_NAME, ui = AbstractHawkbitUI.class)
 public class TenantConfigurationDashboardView extends CustomComponent implements View, ConfigurationItemChangeListener {
+    private static final long serialVersionUID = 1L;
 
     public static final String VIEW_NAME = "spSystemConfig";
-    private static final long serialVersionUID = 1L;
+
+    private static final Set<Status> EMPTY_STATUS_SET = EnumSet.noneOf(Status.class);
+
     private final DefaultDistributionSetTypeLayout defaultDistributionSetTypeLayout;
 
     private final RepositoryConfigurationView repositoryConfigurationView;
@@ -100,17 +102,17 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     private Button saveConfigurationBtn;
     private Button undoConfigurationBtn;
-    private final SystemManagement systemManagement;
+    private final transient SystemManagement systemManagement;
     private final ApprovalConfigurationItem approvalConfigurationItem;
     private final ActionAutoCloseConfigurationItem actionAutocloseConfigurationItem;
     private final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem;
     private final ActionAutoCleanupConfigurationItem actionAutocleanupConfigurationItem;
     private final TargetSecurityTokenAuthenticationConfigurationItem targetSecurityTokenAuthenticationConfigurationItem;
-    private final TenantConfigurationManagement tenantConfigurationManagement;
+    private final transient TenantConfigurationManagement tenantConfigurationManagement;
     private final Binder<ProxySystemConfigWindow> binder;
     private final List<ConfigurationGroup> configurationViews = Lists.newArrayListWithExpectedSize(3);
     private final List<CustomComponent> customComponents = Lists.newArrayListWithExpectedSize(3);
-    private final SecurityTokenGenerator securityTokenGenerator;
+    private final transient SecurityTokenGenerator securityTokenGenerator;
     @Autowired(required = false)
     private Collection<ConfigurationGroup> customConfigurationViews;
 
@@ -223,13 +225,13 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         configBean.setActionCleanupStatus(getActionStatusOption());
         configBean.setActionExpiryDays(String.valueOf(getActionExpiry()));
 
-        final TenantConfigurationValue<String> pollingTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
-                TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class);
+        final TenantConfigurationValue<String> pollingTimeConfValue = tenantConfigurationManagement
+                .getConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class);
         configBean.setPollingTime(!pollingTimeConfValue.isGlobal());
         configBean.setPollingTimeDuration(DurationHelper.formattedStringToDuration(pollingTimeConfValue.getValue()));
 
-        final TenantConfigurationValue<String> overdueTimeConfValue = tenantConfigurationManagement.getConfigurationValue(
-                TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class);
+        final TenantConfigurationValue<String> overdueTimeConfValue = tenantConfigurationManagement
+                .getConfigurationValue(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class);
         configBean.setPollingOverdue(!overdueTimeConfValue.isGlobal());
         configBean.setPollingOverdueDuration(DurationHelper.formattedStringToDuration(overdueTimeConfValue.getValue()));
 
@@ -237,8 +239,9 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
     }
 
     private String getCaRootAuthorityValue() {
-        return tenantConfigurationManagement.getConfigurationValue(
-                TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, String.class).getValue();
+        return tenantConfigurationManagement
+                .getConfigurationValue(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, String.class)
+                .getValue();
     }
 
     private long getActionExpiry() {
@@ -247,19 +250,20 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     private ActionStatusOption getActionStatusOption() {
         final Set<Action.Status> actionStatus = getActionStatus();
-        return ACTION_STATUS_OPTIONS.stream()
-                .filter(option -> actionStatus.equals(option.getStatus()))
-                .findFirst()
-                .orElse(ACTION_STATUS_OPTIONS.iterator().next());
+        final Collection<ActionStatusOption> actionStatusOptions = actionAutocleanupConfigurationItem
+                .getActionStatusOptions();
+
+        return actionStatusOptions.stream().filter(option -> actionStatus.equals(option.getStatus())).findFirst()
+                .orElse(actionStatusOptions.iterator().next());
     }
 
-    private EnumSet<Action.Status> getActionStatus() {
+    private Set<Action.Status> getActionStatus() {
         final TenantConfigurationValue<String> statusStr = readConfigValue(ACTION_CLEANUP_ACTION_STATUS, String.class);
         if (statusStr != null) {
-            return Arrays.stream(statusStr.getValue().split("[;,]"))
-                    .map(Action.Status::valueOf)
-                    .collect(Collectors.toCollection(() -> EnumSet.noneOf(Action.Status.class)));
+            return Arrays.stream(statusStr.getValue().split("[;,]")).map(Action.Status::valueOf)
+                    .collect(Collectors.toSet());
         }
+
         return EMPTY_STATUS_SET;
     }
 
@@ -310,11 +314,8 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         }
 
         if (configWindowBean.isActionAutocleanup()) {
-            writeConfigOption(ACTION_CLEANUP_ACTION_STATUS, configWindowBean.getActionCleanupStatus()
-                    .getStatus()
-                    .stream()
-                    .map(Action.Status::name)
-                    .collect(Collectors.joining(",")));
+            writeConfigOption(ACTION_CLEANUP_ACTION_STATUS, configWindowBean.getActionCleanupStatus().getStatus()
+                    .stream().map(Action.Status::name).collect(Collectors.joining(",")));
 
             writeConfigOption(TenantConfigurationKey.ACTION_CLEANUP_ACTION_EXPIRY,
                     TimeUnit.DAYS.toMillis(Long.parseLong(configWindowBean.getActionExpiryDays())));
@@ -324,16 +325,16 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
                     configWindowBean.isActionAutoclose());
         }
 
-        if (configWindowBean.isMultiAssignments() && !readConfigOption(
-                TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED)) {
+        if (configWindowBean.isMultiAssignments()
+                && !readConfigOption(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED)) {
             writeConfigOption(TenantConfigurationKey.MULTI_ASSIGNMENTS_ENABLED, configWindowBean.isMultiAssignments());
             repositoryConfigurationView.disableMultipleAssignmentOption();
         }
         writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_ENABLED,
                 configWindowBean.isCertificateAuth());
         if (configWindowBean.isCertificateAuth()) {
-            final String value =
-                    configWindowBean.getCaRootAuthority() != null ? configWindowBean.getCaRootAuthority() : "";
+            final String value = configWindowBean.getCaRootAuthority() != null ? configWindowBean.getCaRootAuthority()
+                    : "";
             writeConfigOption(TenantConfigurationKey.AUTHENTICATION_MODE_HEADER_AUTHORITY_NAME, value);
         }
 
@@ -354,14 +355,14 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
         populateAndGetSystemConfig();
     }
 
-    private boolean readConfigOption(String configurationKey) {
-        final TenantConfigurationValue<Boolean> enabled = tenantConfigurationManagement.getConfigurationValue(
-                configurationKey, Boolean.class);
+    private boolean readConfigOption(final String configurationKey) {
+        final TenantConfigurationValue<Boolean> enabled = tenantConfigurationManagement
+                .getConfigurationValue(configurationKey, Boolean.class);
 
         return enabled.getValue() && !enabled.isGlobal();
     }
 
-    private <T extends Serializable> void writeConfigOption(String key, T value) {
+    private <T extends Serializable> void writeConfigOption(final String key, final T value) {
         tenantConfigurationManagement.addOrUpdateConfiguration(key, value);
     }
 

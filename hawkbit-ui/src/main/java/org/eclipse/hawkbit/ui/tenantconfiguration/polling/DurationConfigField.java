@@ -12,26 +12,29 @@ import java.time.Duration;
 
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 
 /**
- * The DurationConfigField consists of three vaadin fields. A {@link #Label}
- * {@link #DurationField} and a {@link #CheckBox}. The user can then enter a
+ * The DurationConfigField consists of three vaadin fields. A {@link Label}
+ * {@link DurationField} and a {@link CheckBox}. The user can then enter a
  * duration in the DurationField or he can configure using the global duration
  * by changing the CheckBox.
  */
 public final class DurationConfigField extends HorizontalLayout {
+    private static final long serialVersionUID = 1L;
+
     private final CheckBox checkBox = new CheckBox();
     private final DurationField durationField = new DurationField();
     private transient Duration globalDuration;
 
-    private DurationConfigField(final String id, VaadinMessageSource i18n) {
+    private DurationConfigField(final String id, final VaadinMessageSource i18n) {
         this.setId(id);
 
-        //ToDo: duration-config-field css does not exist. add styling for bottom margin
+        // TODO: duration-config-field css does not exist. add styling for
+        // bottom margin
         this.addStyleName("duration-config-field");
         this.setSpacing(true);
         this.setMargin(false);
@@ -62,22 +65,11 @@ public final class DurationConfigField extends HorizontalLayout {
     /**
      * has to be called before using, see Builder Implementation.
      *
-     * @param tenantDuration
-     *         tenant specific duration value
      * @param globalDuration
-     *         duration value which is stored in the global configuration
+     *            duration value which is stored in the global configuration
      */
-    private void init(final Duration globalDuration, final Duration tenantDuration) {
+    public void setGlobalDuration(final Duration globalDuration) {
         this.globalDuration = globalDuration;
-    }
-
-    private void setCheckBoxTooltip(final String label) {
-        checkBox.setDescription(label);
-    }
-
-    private void setAllowedRange(final Duration minimumDuration, final Duration maximumDuration) {
-        durationField.setMinimumDuration(minimumDuration);
-        durationField.setMaximumDuration(maximumDuration);
     }
 
     public CheckBox getCheckBox() {
@@ -104,9 +96,8 @@ public final class DurationConfigField extends HorizontalLayout {
         private final DurationConfigField field;
 
         private Duration globalDuration;
-        private Duration tenantDuration;
 
-        private DurationConfigFieldBuilder(final String id, VaadinMessageSource i18n) {
+        private DurationConfigFieldBuilder(final String id, final VaadinMessageSource i18n) {
             field = new DurationConfigField(id, i18n);
         }
 
@@ -114,12 +105,13 @@ public final class DurationConfigField extends HorizontalLayout {
          * set the checkbox tooltip.
          *
          * @param label
-         *         the tooltip
+         *            the tooltip
          *
          * @return the builder
          */
         public DurationConfigFieldBuilder checkBoxTooltip(final String label) {
-            field.setCheckBoxTooltip(label);
+            field.getCheckBox().setDescription(label);
+
             return this;
         }
 
@@ -127,7 +119,7 @@ public final class DurationConfigField extends HorizontalLayout {
          * set the global duration.
          *
          * @param globalDuration
-         *         the global duration
+         *            the global duration
          *
          * @return the builder
          */
@@ -140,7 +132,7 @@ public final class DurationConfigField extends HorizontalLayout {
          * set the caption.
          *
          * @param caption
-         *         the caption
+         *            the caption
          *
          * @return the builder
          */
@@ -153,27 +145,16 @@ public final class DurationConfigField extends HorizontalLayout {
          * set the range.
          *
          * @param minDuration
-         *         min duration
+         *            min duration
          * @param maxDuration
-         *         max duration
+         *            max duration
          *
          * @return the builder
          */
         public DurationConfigFieldBuilder range(final Duration minDuration, final Duration maxDuration) {
-            field.setAllowedRange(minDuration, maxDuration);
-            return this;
-        }
+            field.getDurationField().setMinimumDuration(minDuration);
+            field.getDurationField().setMaximumDuration(maxDuration);
 
-        /**
-         * set the tenant duration.
-         *
-         * @param tenantDuration
-         *         the duration
-         *
-         * @return the builder
-         */
-        public DurationConfigFieldBuilder tenantDuration(final Duration tenantDuration) {
-            this.tenantDuration = tenantDuration;
             return this;
         }
 
@@ -187,8 +168,8 @@ public final class DurationConfigField extends HorizontalLayout {
                 throw new IllegalStateException(
                         "Cannot build DurationConfigField without a value for global duration.");
             }
+            field.setGlobalDuration(globalDuration);
 
-            field.init(globalDuration, tenantDuration);
             return field;
         }
     }

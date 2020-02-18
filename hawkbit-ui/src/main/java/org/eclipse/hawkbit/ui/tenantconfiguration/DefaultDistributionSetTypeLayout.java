@@ -54,7 +54,7 @@ public class DefaultDistributionSetTypeLayout extends CustomComponent {
         this.binder = binder;
         final DistributionSetTypeDataProvider dataProvider = new DistributionSetTypeDataProvider(typeManagement,
                 new TypeToProxyTypeMapper<>());
-        SystemConfigWindowDependencies dependencies = new SystemConfigWindowDependencies(systemManagement, i18n,
+        final SystemConfigWindowDependencies dependencies = new SystemConfigWindowDependencies(systemManagement, i18n,
                 permChecker, typeManagement, dataProvider);
         this.builder = new SystemConfigWindowLayoutComponentBuilder(dependencies);
         initDsSetTypeComponent();
@@ -81,8 +81,8 @@ public class DefaultDistributionSetTypeLayout extends CustomComponent {
         final HorizontalLayout hlayout = new HorizontalLayout();
         hlayout.setSpacing(true);
 
-        final Label configurationLabel = new LabelBuilder().name(
-                i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
+        final Label configurationLabel = new LabelBuilder()
+                .name(i18n.getMessage("configuration.defaultdistributionset.select.label")).buildLabel();
         hlayout.addComponent(configurationLabel);
 
         initDsSetComboBox();
@@ -112,12 +112,8 @@ public class DefaultDistributionSetTypeLayout extends CustomComponent {
      *
      * @param event
      */
-    private void selectDistributionSetValue(HasValue.ValueChangeEvent<ProxyType> event) {
-        if (!event.getValue().getId().equals(currentDefaultDisSetType)) {
-            changeIcon.setVisible(true);
-        } else {
-            changeIcon.setVisible(false);
-        }
+    private void selectDistributionSetValue(final HasValue.ValueChangeEvent<ProxyType> event) {
+        changeIcon.setVisible(!event.getValue().getId().equals(currentDefaultDisSetType));
     }
 
 }

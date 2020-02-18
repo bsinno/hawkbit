@@ -31,11 +31,8 @@ public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
     private final VerticalLayout detailLayout;
     private final TextField caRootAuthorityTextField;
 
-    private final Binder<ProxySystemConfigWindow> binder;
-
     public CertificateAuthenticationConfigurationItem(final VaadinMessageSource i18n,
-            Binder<ProxySystemConfigWindow> binder) {
-        this.binder = binder;
+            final Binder<ProxySystemConfigWindow> binder) {
         this.setSpacing(false);
         this.setMargin(false);
         addComponent(new LabelBuilder().name(i18n.getMessage("label.configuration.auth.header")).buildLabel());
@@ -46,8 +43,8 @@ public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
         final HorizontalLayout caRootAuthorityLayout = new HorizontalLayout();
         caRootAuthorityLayout.setSpacing(true);
 
-        final Label caRootAuthorityLabel = new LabelBuilder().name(
-                i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
+        final Label caRootAuthorityLabel = new LabelBuilder()
+                .name(i18n.getMessage("label.configuration.auth.hashField")).buildLabel();
         caRootAuthorityLabel.setDescription(i18n.getMessage("label.configuration.auth.hashField.tooltip"));
         caRootAuthorityLabel.setWidthUndefined();
 

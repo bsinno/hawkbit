@@ -214,11 +214,11 @@ public class TargetGridHeader extends AbstractGridHeader {
         bulkUploadWindowBuilder.getLayout().ifPresent(layout -> {
             switch (eventPayload.getBulkUploadState()) {
             case UPLOAD_STARTED:
-                adaptHeaderAndUiState(true);
+                adaptbulkUploadHeaderAndUiState(true);
                 layout.onStartOfUpload();
                 break;
             case UPLOAD_FAILED:
-                adaptHeaderAndUiState(false);
+                adaptbulkUploadHeaderAndUiState(false);
                 layout.onUploadFailure(eventPayload.getFailureReason());
                 break;
             case TARGET_PROVISIONING_STARTED:
@@ -234,7 +234,7 @@ public class TargetGridHeader extends AbstractGridHeader {
                 layout.onAssignmentFailure(eventPayload.getFailureReason());
                 break;
             case BULK_UPLOAD_COMPLETED:
-                adaptHeaderAndUiState(false);
+                adaptbulkUploadHeaderAndUiState(false);
                 layout.onUploadCompletion(eventPayload.getSuccessBulkUploadCount(),
                         eventPayload.getFailBulkUploadCount());
                 break;
@@ -242,7 +242,7 @@ public class TargetGridHeader extends AbstractGridHeader {
         });
     }
 
-    private void adaptHeaderAndUiState(final boolean isInProgress) {
+    private void adaptbulkUploadHeaderAndUiState(final boolean isInProgress) {
         if (isInProgress) {
             bulkUploadHeaderSupport.showProgressIndicator();
         } else {

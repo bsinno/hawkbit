@@ -31,7 +31,6 @@ import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
-import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -58,9 +57,8 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     public DistributionGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final EntityFactory entityFactory,
-            final UINotification notification, final ManagementUIState managementUIState,
-            final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
-            final SoftwareModuleManagement smManagement,
+            final UINotification notification, final TargetManagement targetManagement,
+            final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement,
             final DistributionSetTagManagement distributionSetTagManagement, final SystemManagement systemManagement,
             final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,

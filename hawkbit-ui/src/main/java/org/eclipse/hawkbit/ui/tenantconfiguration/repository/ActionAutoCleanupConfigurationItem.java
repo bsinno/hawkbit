@@ -21,11 +21,8 @@ import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.Binder.Binding;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.ComboBox;
@@ -43,10 +40,7 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActionAutoCleanupConfigurationItem.class);
-
     private static final int MAX_EXPIRY_IN_DAYS = 1000;
-    public static final EnumSet<Status> EMPTY_STATUS_SET = EnumSet.noneOf(Status.class);
 
     private static final String MSG_KEY_PREFIX = "label.configuration.repository.autocleanup.action.prefix";
     private static final String MSG_KEY_BODY = "label.configuration.repository.autocleanup.action.body";
@@ -54,7 +48,7 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
     private static final String MSG_KEY_INVALID_EXPIRY = "label.configuration.repository.autocleanup.action.expiry.invalid";
     private static final String MSG_KEY_NOTICE = "label.configuration.repository.autocleanup.action.notice";
 
-    public static final Collection<ActionStatusOption> ACTION_STATUS_OPTIONS = Arrays.asList(
+    private static final Collection<ActionStatusOption> ACTION_STATUS_OPTIONS = Arrays.asList(
             new ActionStatusOption(Status.CANCELED), new ActionStatusOption(Status.ERROR),
             new ActionStatusOption(Status.CANCELED, Status.ERROR));
 
@@ -62,8 +56,6 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
     private final ComboBox<ActionStatusOption> actionStatusCombobox;
     private final TextField actionExpiryInput;
 
-    private final Binder<ProxySystemConfigWindow> binder;
-    private final Binding<ProxySystemConfigWindow, String> actionExpiryInputBinding;
     private final VaadinMessageSource i18n;
 
     /**
@@ -72,8 +64,8 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
      * @param binder
      * @param i18n
      */
-    public ActionAutoCleanupConfigurationItem(Binder<ProxySystemConfigWindow> binder, final VaadinMessageSource i18n) {
-        this.binder = binder;
+    public ActionAutoCleanupConfigurationItem(final Binder<ProxySystemConfigWindow> binder,
+            final VaadinMessageSource i18n) {
         this.i18n = i18n;
         this.setSpacing(false);
         this.setMargin(false);
@@ -83,7 +75,7 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         container.setSpacing(false);
         container.setMargin(false);
         final HorizontalLayout row1 = newHorizontalLayout();
-        actionStatusCombobox = new ComboBox();
+        actionStatusCombobox = new ComboBox<>();
         actionStatusCombobox.setDescription("label.combobox.action.status.options");
         actionStatusCombobox.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_TYPES);
         actionStatusCombobox.addStyleName(ValoTheme.COMBOBOX_TINY);
@@ -96,8 +88,7 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         actionExpiryInput = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
         actionExpiryInput.setId(UIComponentIdProvider.SYSTEM_CONFIGURATION_ACTION_CLEANUP_ACTION_EXPIRY);
         actionExpiryInput.setWidth(55, Unit.PIXELS);
-        actionExpiryInputBinding = binder.forField(actionExpiryInput)
-                .asRequired(i18n.getMessage(MSG_KEY_INVALID_EXPIRY))
+        binder.forField(actionExpiryInput).asRequired(i18n.getMessage(MSG_KEY_INVALID_EXPIRY))
                 .withValidator((value, context) -> {
                     try {
                         return new IntegerRangeValidator(i18n.getMessage(MSG_KEY_INVALID_EXPIRY), 1, MAX_EXPIRY_IN_DAYS)
@@ -105,8 +96,7 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
                     } catch (final NumberFormatException ex) {
                         return ValidationResult.error(i18n.getMessage(MSG_KEY_INVALID_EXPIRY));
                     }
-                })
-                .bind(ProxySystemConfigWindow::getActionExpiryDays, ProxySystemConfigWindow::setActionExpiryDays);
+                }).bind(ProxySystemConfigWindow::getActionExpiryDays, ProxySystemConfigWindow::setActionExpiryDays);
 
         row1.addComponent(newLabel(MSG_KEY_PREFIX));
         row1.addComponent(actionStatusCombobox);
@@ -143,6 +133,10 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         }
     }
 
+    public Collection<ActionStatusOption> getActionStatusOptions() {
+        return ACTION_STATUS_OPTIONS;
+    }
+
     public static class ActionStatusOption {
         private static final CharSequence SEPARATOR = " + ";
         private final Set<Status> statusSet;
@@ -166,7 +160,5 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         private String assembleName() {
             return statusSet.stream().map(Status::name).collect(Collectors.joining(SEPARATOR));
         }
-
     }
-
 }
