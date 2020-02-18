@@ -168,8 +168,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     }
 
     public void updateMasterEntityFilter(final Long masterEntityId) {
-        if ((masterEntityId == null && getMasterEntityFilter() != null)
-                || (masterEntityId != null && softwareModuleManagement.countByAssignedTo(masterEntityId) > 0)) {
+        if ((masterEntityId == null && getMasterEntityFilter() != null) || masterEntityId != null) {
             smFilter.setLastSelectedDistributionId(masterEntityId);
             getFilterDataProvider().setFilter(smFilter);
         }

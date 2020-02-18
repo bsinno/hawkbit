@@ -189,7 +189,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyTarget.class, targetToBeDeletedIds));
 
-        pinSupport.unPinItemIfDeleted(targetToBeDeletedIds);
+        pinSupport.unPinItemIfInIds(targetToBeDeletedIds);
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyTarget pinnedItem) {

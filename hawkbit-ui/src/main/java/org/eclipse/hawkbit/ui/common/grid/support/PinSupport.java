@@ -103,9 +103,8 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
         return !CollectionUtils.isEmpty(assignedIds) || !CollectionUtils.isEmpty(installedIds);
     }
 
-    public void unPinItemIfDeleted(final Collection<Long> deletedItemIds) {
-        if (pinnedItem != null && !CollectionUtils.isEmpty(deletedItemIds)
-                && deletedItemIds.contains(pinnedItem.getId())) {
+    public void unPinItemIfInIds(final Collection<Long> itemIds) {
+        if (pinnedItem != null && !CollectionUtils.isEmpty(itemIds) && itemIds.contains(pinnedItem.getId())) {
             pinningChangedCallback.accept(PinBehaviourType.UNPINNED, pinnedItem);
             pinnedItem = null;
         }

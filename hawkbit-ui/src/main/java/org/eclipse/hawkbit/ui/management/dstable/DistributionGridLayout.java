@@ -128,13 +128,35 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityChanged?
     public void onDsChanged(final ProxyDistributionSet ds) {
-        distributionSetDetailsHeader.masterEntityChanged(ds);
-        distributionDetails.masterEntityChanged(ds);
+        if (isIncomplete(ds)) {
+            resetIncompleteDs(ds);
+        } else {
+            distributionSetDetailsHeader.masterEntityChanged(ds);
+            distributionDetails.masterEntityChanged(ds);
+        }
+    }
+
+    private boolean isIncomplete(final ProxyDistributionSet ds) {
+        return ds != null && !ds.getIsComplete();
+    }
+
+    private void resetIncompleteDs(final ProxyDistributionSet ds) {
+        final Long dsId = ds.getId();
+
+        if (dsId.equals(distributionGridLayoutUiState.getSelectedDsId())) {
+            distributionGrid.deselect(ds);
+        }
+
+        if (dsId.equals(distributionGridLayoutUiState.getPinnedDsId())) {
+            distributionGrid.unpinnItemById(ds.getId());
+        }
     }
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onDsUpdated(final Collection<Long> entityIds) {
-        entityIds.stream().filter(entityId -> entityId.equals(distributionGridLayoutUiState.getSelectedDsId()))
+        entityIds.stream()
+                .filter(entityId -> entityId.equals(distributionGridLayoutUiState.getSelectedDsId())
+                        || entityId.equals(distributionGridLayoutUiState.getPinnedDsId()))
                 .findAny()
                 .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onDsChanged));
     }

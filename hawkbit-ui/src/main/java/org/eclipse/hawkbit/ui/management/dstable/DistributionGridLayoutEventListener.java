@@ -162,9 +162,7 @@ public class DistributionGridLayoutEventListener {
 
             distributionGridLayout.refreshGrid();
 
-            if (eventType == EntityModifiedEventType.ENTITY_ADDED && entityIds.size() == 1) {
-                UI.getCurrent().access(() -> distributionGridLayout.selectEntityById(entityIds.iterator().next()));
-            } else if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
+            if (eventType == EntityModifiedEventType.ENTITY_UPDATED) {
                 // TODO: we need to access the UI here because of getting the
                 // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
                 // right or improve

@@ -176,7 +176,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class, dsToBeDeletedIds));
 
-        pinSupport.unPinItemIfDeleted(dsToBeDeletedIds);
+        pinSupport.unPinItemIfInIds(dsToBeDeletedIds);
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyDistributionSet pinnedItem) {
@@ -368,6 +368,10 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         }
 
         getFilterDataProvider().setFilter(dsFilter);
+    }
+
+    public void unpinnItemById(final Long id) {
+        pinSupport.unPinItemIfInIds(Collections.singletonList(id));
     }
 
     /**
