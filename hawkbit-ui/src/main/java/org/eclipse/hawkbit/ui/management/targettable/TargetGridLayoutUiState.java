@@ -22,6 +22,7 @@ public class TargetGridLayoutUiState implements Serializable {
     private Long pinnedTargetId;
     // TODO: check if we could only keep pinned targetId or controllerId
     private String pinnedControllerId;
+    private DistributionSetIdName filterDsIdNameVersion;
 
     // TODO: check if it is right, make sure to update it in TargetGrid
     private TargetManagementFilterParams targetManagementFilterParams;
@@ -70,7 +71,15 @@ public class TargetGridLayoutUiState implements Serializable {
         return pinnedTargetId;
     }
 
-    public void setPinnedTargetId(Long pinnedTargetId) {
+    public void setPinnedTargetId(final Long pinnedTargetId) {
         this.pinnedTargetId = pinnedTargetId;
+    }
+
+    public DistributionSetIdName getFilterDsIdNameVersion() {
+        return filterDsIdNameVersion;
+    }
+
+    public void setFilterDsIdNameVersion(final DistributionSetIdName filterDsIdNameVersion) {
+        this.filterDsIdNameVersion = filterDsIdNameVersion;
     }
 }

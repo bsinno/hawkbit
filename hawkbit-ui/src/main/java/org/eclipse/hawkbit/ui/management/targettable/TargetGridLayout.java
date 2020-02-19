@@ -80,8 +80,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 targetTagManagement, distributionSetManagement, entityFactory, targetBulkUploadUiState);
 
         this.targetGridHeader = new TargetGridHeader(i18n, permissionChecker, eventBus, uiNotification,
-                distributionSetManagement, targetWindowBuilder, bulkUploadWindowBuilder, targetTagFilterLayoutUiState,
-                targetGridLayoutUiState, targetBulkUploadUiState);
+                targetWindowBuilder, bulkUploadWindowBuilder, targetTagFilterLayoutUiState, targetGridLayoutUiState,
+                targetBulkUploadUiState);
         this.targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement, permissionChecker,
                 deploymentManagement, configManagement, systemSecurityContext, uiProperties, targetGridLayoutUiState,
                 distributionGridLayoutUiState, targetTagFilterLayoutUiState);

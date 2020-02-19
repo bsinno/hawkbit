@@ -487,6 +487,11 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             if (!CollectionUtils.isEmpty(tagFilterNames)) {
                 targetFilter.setTargetTags(tagFilterNames.toArray(new String[tagFilterNames.size()]));
             }
+
+            final Long dsIdFilter = targetGridLayoutUiState.getFilterDsIdNameVersion() != null
+                    ? targetGridLayoutUiState.getFilterDsIdNameVersion().getId()
+                    : null;
+            targetFilter.setDistributionId(dsIdFilter);
         }
 
         getFilterDataProvider().setFilter(targetFilter);

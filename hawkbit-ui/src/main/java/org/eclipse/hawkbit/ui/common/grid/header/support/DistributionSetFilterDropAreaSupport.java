@@ -9,26 +9,24 @@
 package org.eclipse.hawkbit.ui.common.grid.header.support;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.event.EntityDraggingEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityDraggingEventPayload.DraggingEventType;
+import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterByDsEventPayload;
+import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport.EntityDraggingListener;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
-import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUITargetDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Sizeable.Unit;
@@ -51,6 +49,8 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
     private final UIEventBus eventBus;
     private final UINotification notification;
 
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
+
     private final HorizontalLayout currentDsFilterInfo;
     private final HorizontalLayout dropAreaLayout;
 
@@ -58,36 +58,24 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
      * Constructor
      * 
      * @param i18n
-     *  i18n
+     *            i18n
      * @param eventBus
-     *  for sending filter event and get informed about started dragging
+     *            for sending filter event and get informed about started
+     *            dragging
      * @param notification
-     *  to display notification
+     *            to display notification
      */
     public DistributionSetFilterDropAreaSupport(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final UINotification notification) {
+            final UINotification notification, final TargetGridLayoutUiState targetGridLayoutUiState) {
         this.i18n = i18n;
         this.eventBus = eventBus;
         this.notification = notification;
+        this.targetGridLayoutUiState = targetGridLayoutUiState;
 
         this.currentDsFilterInfo = buildCurrentDsFilterInfo();
         this.dropAreaLayout = buildDsDropArea();
 
-        dropAreaLayout.addAttachListener(event -> eventBus.subscribe(this, EventTopics.ENTITY_DRAGGING));
-        dropAreaLayout.addDetachListener(event -> eventBus.unsubscribe(this));
-    }
-
-    @EventBusListenerMethod(scope = EventScope.UI)
-    private void onEntityDraggingEvent(final EntityDraggingEventPayload eventPayload) {
-        final String sourceGridId = eventPayload.getSourceGridId();
-        final String style = "show-drop-hint";
-
-        if (UIComponentIdProvider.DIST_TABLE_ID.equals(sourceGridId)
-                && eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
-            dropAreaLayout.addStyleName(style);
-        } else {
-            dropAreaLayout.removeStyleName(style);
-        }
+        addDropStylingListener();
     }
 
     private static HorizontalLayout buildCurrentDsFilterInfo() {
@@ -110,11 +98,13 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         dropExtension.addDropListener(event -> {
             final List<ProxyDistributionSet> dSets = getDroppedDistributionSets(event);
             if (dSets.size() == 1) {
-                ProxyDistributionSet droppedDs = dSets.get(0);
-                eventBus.publish(EventTopics.FILTER_BY_DS_CHANGED, this, new FilterByDsEventPayload(droppedDs.getId()));
+                final ProxyDistributionSet droppedDs = dSets.get(0);
                 addDsFilterDropAreaTextField(droppedDs.getNameVersion());
+
+                eventBus.publish(EventTopics.FILTER_BY_DS_CHANGED, this, new FilterByDsEventPayload(droppedDs.getId()));
+                updateUiState(droppedDs);
             } else {
-                notification.displayValidationError(i18n.getMessage("message.action.did.not.work"));
+                notification.displayValidationError(i18n.getMessage("message.onlyone.distribution.dropallowed"));
             }
         });
 
@@ -141,19 +131,14 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         return list;
     }
 
-    private void addDsFilterDropAreaTextField(final String nv) {
+    private void addDsFilterDropAreaTextField(final String dsNameAndVersion) {
         final Button filterLabelClose = SPUIComponentProvider.getButton("drop.filter.close", "", "", "", true,
                 VaadinIcons.CLOSE_CIRCLE, SPUIButtonStyleNoBorder.class);
-        filterLabelClose.addClickListener(clickEvent -> restoreState());
+        filterLabelClose.addClickListener(event -> removeFilter());
 
         final Label filteredDistLabel = new Label();
         filteredDistLabel.setStyleName(ValoTheme.LABEL_COLORED + " " + ValoTheme.LABEL_SMALL);
-        String name = nv;
-        if (name.length() > SPUITargetDefinitions.DISTRIBUTION_NAME_MAX_LENGTH_ALLOWED) {
-            name = new StringBuilder(name.substring(0, SPUITargetDefinitions.DISTRIBUTION_NAME_LENGTH_ON_FILTER))
-                    .append("...").toString();
-        }
-        filteredDistLabel.setValue(name);
+        filteredDistLabel.setValue(sanitizeDsNameVersion(dsNameAndVersion));
         filteredDistLabel.setSizeUndefined();
 
         currentDsFilterInfo.removeAllComponents();
@@ -163,6 +148,38 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         currentDsFilterInfo.setExpandRatio(filteredDistLabel, 1.0F);
     }
 
+    private void removeFilter() {
+        reset();
+        eventBus.publish(EventTopics.FILTER_BY_DS_CHANGED, this, new FilterByDsEventPayload(null));
+    }
+
+    public void reset() {
+        currentDsFilterInfo.removeAllComponents();
+        currentDsFilterInfo.setSizeUndefined();
+
+        targetGridLayoutUiState.setFilterDsIdNameVersion(null);
+    }
+
+    private String sanitizeDsNameVersion(final String dsNameAndVersion) {
+        return dsNameAndVersion.length() > SPUITargetDefinitions.DISTRIBUTION_NAME_MAX_LENGTH_ALLOWED
+                ? new StringBuilder(
+                        dsNameAndVersion.substring(0, SPUITargetDefinitions.DISTRIBUTION_NAME_LENGTH_ON_FILTER))
+                                .append("...").toString()
+                : dsNameAndVersion;
+    }
+
+    private void updateUiState(final ProxyDistributionSet ds) {
+        targetGridLayoutUiState
+                .setFilterDsIdNameVersion(new DistributionSetIdName(ds.getId(), ds.getName(), ds.getVersion()));
+    }
+
+    private void addDropStylingListener() {
+        final EntityDraggingListener draggingListener = new EntityDraggingListener(
+                Collections.singletonList(UIComponentIdProvider.DIST_TABLE_ID), dropAreaLayout);
+        dropAreaLayout.addAttachListener(event -> eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING));
+        dropAreaLayout.addDetachListener(event -> eventBus.unsubscribe(draggingListener));
+    }
+
     @Override
     public Component getHeaderComponent() {
         return dropAreaLayout;
@@ -170,8 +187,11 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
 
     @Override
     public void restoreState() {
-        currentDsFilterInfo.removeAllComponents();
-        currentDsFilterInfo.setSizeUndefined();
-        eventBus.publish(EventTopics.FILTER_BY_DS_CHANGED, this, new FilterByDsEventPayload(null));
+        if (targetGridLayoutUiState.getFilterDsIdNameVersion() != null) {
+            final String dsNameVersion = HawkbitCommonUtil.getFormattedNameVersion(
+                    targetGridLayoutUiState.getFilterDsIdNameVersion().getName(),
+                    targetGridLayoutUiState.getFilterDsIdNameVersion().getVersion());
+            addDsFilterDropAreaTextField(dsNameVersion);
+        }
     }
 }

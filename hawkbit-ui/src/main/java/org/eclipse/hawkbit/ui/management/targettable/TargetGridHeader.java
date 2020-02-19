@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.Arrays;
 
-import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
@@ -64,8 +63,8 @@ public class TargetGridHeader extends AbstractGridHeader {
     private final transient DistributionSetFilterDropAreaSupport distributionSetFilterDropAreaSupport;
 
     TargetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final UINotification notification, final DistributionSetManagement distributionSetManagement,
-            final TargetWindowBuilder targetWindowBuilder, final BulkUploadWindowBuilder bulkUploadWindowBuilder,
+            final UINotification notification, final TargetWindowBuilder targetWindowBuilder,
+            final BulkUploadWindowBuilder bulkUploadWindowBuilder,
             final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
             final TargetGridLayoutUiState targetGridLayoutUiState,
             final TargetBulkUploadUiState targetBulkUploadUiState) {
@@ -103,7 +102,7 @@ public class TargetGridHeader extends AbstractGridHeader {
 
         // DistributionSetFilterDropArea is only available in TargetTableHeader
         this.distributionSetFilterDropAreaSupport = new DistributionSetFilterDropAreaSupport(i18n, eventBus,
-                notification);
+                notification, targetGridLayoutUiState);
         final Component distributionSetFilterDropArea = distributionSetFilterDropAreaSupport.getHeaderComponent();
         addComponent(distributionSetFilterDropArea);
         setComponentAlignment(distributionSetFilterDropArea, Alignment.TOP_CENTER);
@@ -125,11 +124,17 @@ public class TargetGridHeader extends AbstractGridHeader {
         if (isBulkUploadInProgress()) {
             bulkUploadWindowBuilder.restoreState();
         }
+
+        if (targetGridLayoutUiState.getFilterDsIdNameVersion() != null) {
+            distributionSetFilterDropAreaSupport.restoreState();
+        }
     }
 
     public void onSimpleFilterReset() {
         searchHeaderSupport.resetSearch();
         searchHeaderSupport.disableSearch();
+
+        distributionSetFilterDropAreaSupport.reset();
     }
 
     private String getSearchTextFromUiState() {
