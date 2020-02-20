@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder.BindType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -51,7 +50,7 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
      */
     public TextField createNameField(final Binder<ProxyTargetFilterQuery> binder) {
         final TextField filterName = FormComponentBuilder.createNameInput(binder, i18n,
-                UIComponentIdProvider.CUSTOM_FILTER_ADD_NAME, BindType.REQUIRED);
+                UIComponentIdProvider.CUSTOM_FILTER_ADD_NAME).getComponent();
         filterName.setWidth(380, Unit.PIXELS);
         return filterName;
     }

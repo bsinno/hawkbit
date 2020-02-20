@@ -12,14 +12,17 @@ import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Link;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -33,6 +36,10 @@ public class AssignmentWindowLayout extends VerticalLayout {
 
     private final ActionTypeOptionGroupAssignmentLayout actionTypeLayout;
     private final CheckBox maintenanceWindowToggle;
+    private final BoundComponent<TextField> maintenanceSchedule;
+    private final BoundComponent<TextField> maintenanceDuration;
+    private final ComboBox<String> maintenanceTimeZoneCombo;
+    
     private final MaintenanceWindowLayout maintenanceWindowLayout;
     private final Link maintenanceHelpLink;
 
@@ -42,10 +49,16 @@ public class AssignmentWindowLayout extends VerticalLayout {
 
         this.actionTypeLayout = componentBuilder.createActionTypeOptionGroupLayout(proxyAssignmentBinder);
         this.maintenanceWindowToggle = componentBuilder.createEnableMaintenanceWindowToggle(proxyAssignmentBinder);
+        
+        this.maintenanceSchedule = componentBuilder.createMaintenanceSchedule(proxyAssignmentBinder);
+        this.maintenanceDuration = componentBuilder.createMaintenanceDuration(proxyAssignmentBinder);
+        this.maintenanceTimeZoneCombo = componentBuilder.createMaintenanceTimeZoneCombo(proxyAssignmentBinder);
+        this.maintenanceSchedule.setRequired(false);
+        this.maintenanceDuration.setRequired(false);
         this.maintenanceWindowLayout = new MaintenanceWindowLayout(i18n,
-                componentBuilder.createMaintenanceSchedule(proxyAssignmentBinder),
-                componentBuilder.createMaintenanceDuration(proxyAssignmentBinder),
-                componentBuilder.createMaintenanceTimeZoneCombo(proxyAssignmentBinder),
+                maintenanceSchedule.getComponent(),
+                maintenanceDuration.getComponent(),
+                maintenanceTimeZoneCombo,
                 componentBuilder.createMaintenanceScheduleTranslator());
         this.maintenanceHelpLink = componentBuilder.createMaintenanceHelpLink(uiProperties);
 
@@ -74,15 +87,14 @@ public class AssignmentWindowLayout extends VerticalLayout {
     }
 
     private void addValueChangeListeners() {
+        
         maintenanceWindowToggle.addValueChangeListener(event -> {
-            final boolean isMaintenanceWindowEnabled = proxyAssignmentBinder.getBean().isMaintenanceWindowEnabled();
-
+            final boolean isMaintenanceWindowEnabled = event.getValue();
+            maintenanceSchedule.setRequired(isMaintenanceWindowEnabled);
+            maintenanceDuration.setRequired(isMaintenanceWindowEnabled);
+            clearMaintenanceFields();
             maintenanceWindowLayout.setVisible(isMaintenanceWindowEnabled);
             maintenanceWindowLayout.setEnabled(isMaintenanceWindowEnabled);
-            // TODO: check if needed - alternatively adapt
-            // addValidationListener()
-            // saveButtonToggle.accept(!isMaintenanceWindowEnabled);
-            clearMaintenanceFields();
         });
 
         actionTypeLayout.getActionTypeOptionGroup().addValueChangeListener(event -> {
@@ -98,17 +110,9 @@ public class AssignmentWindowLayout extends VerticalLayout {
     }
 
     private void clearMaintenanceFields() {
-        final ProxyAssignmentWindow currentAssignmentBean = proxyAssignmentBinder.getBean();
-        if (currentAssignmentBean == null) {
-            return;
-        }
-
-        // TODO: check if we should set "" instead of null
-        currentAssignmentBean.setMaintenanceSchedule(null);
-        currentAssignmentBean.setMaintenanceDuration(null);
-        currentAssignmentBean.setMaintenanceTimeZone(SPDateTimeUtil.getClientTimeZoneOffsetId());
-
-        proxyAssignmentBinder.setBean(currentAssignmentBean);
+        maintenanceSchedule.getComponent().setValue("");
+        maintenanceDuration.getComponent().setValue("");
+        maintenanceTimeZoneCombo.setValue(SPDateTimeUtil.getClientTimeZoneOffsetId());
     }
 
     public Binder<ProxyAssignmentWindow> getProxyAssignmentBinder() {

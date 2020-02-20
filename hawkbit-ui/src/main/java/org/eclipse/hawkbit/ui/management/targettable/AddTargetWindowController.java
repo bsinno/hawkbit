@@ -58,6 +58,12 @@ public class AddTargetWindowController extends AbstractEntityWindowController<Pr
     }
 
     @Override
+    protected void adaptLayout() {
+        layout.setControllerIdEnabled(true);
+        layout.setNameRequired(false);
+    }
+
+    @Override
     protected void persistEntity(final ProxyTarget entity) {
         final Target newTarget = targetManagement.create(entityFactory.target().create()
                 .controllerId(entity.getControllerId()).name(entity.getName()).description(entity.getDescription()));

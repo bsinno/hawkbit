@@ -23,7 +23,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.Binder.BindingBuilder;
+import com.vaadin.data.Binder.Binding;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
@@ -39,13 +39,6 @@ public final class FormComponentBuilder {
     }
 
     /**
-     * Specifies the type of a binding
-     */
-    public enum BindType {
-        OPTIONAL, REQUIRED
-    }
-
-    /**
      * Create an input field for a name
      * 
      * @param <T>
@@ -56,22 +49,17 @@ public final class FormComponentBuilder {
      *            message source
      * @param fieldId
      *            id of the field
-     * @param bindType
-     *            is the field required
-     * @return the TextField
+     * @return the TextField with its Binding
      */
-    public static <T extends Named> TextField createNameInput(final Binder<T> binder, VaadinMessageSource i18n,
-            String fieldId, BindType bindType) {
+    public static <T extends Named> BoundComponent<TextField> createNameInput(final Binder<T> binder,
+            VaadinMessageSource i18n, String fieldId) {
         final TextField nameInput = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE).id(fieldId)
                 .caption(i18n.getMessage(TEXTFIELD_NAME)).prompt(i18n.getMessage(TEXTFIELD_NAME)).buildTextComponent();
         nameInput.setSizeUndefined();
 
-        BindingBuilder<T, String> bindingBuilder = binder.forField(nameInput);
-        if (bindType == BindType.REQUIRED) {
-            bindingBuilder.asRequired(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED);
-        }
-        bindingBuilder.bind(T::getName, T::setName);
-        return nameInput;
+        Binding<T, String> binding = binder.forField(nameInput)
+                .asRequired(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED).bind(T::getName, T::setName);
+        return new BoundComponent<>(nameInput, binding);
     }
 
     /**

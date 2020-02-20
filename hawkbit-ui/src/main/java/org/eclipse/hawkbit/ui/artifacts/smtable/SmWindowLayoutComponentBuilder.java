@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.artifacts.smtable;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
-import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder.BindType;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
@@ -70,7 +69,8 @@ public class SmWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextField createNameField(final Binder<ProxySoftwareModule> binder) {
-        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.SOFT_MODULE_NAME, BindType.REQUIRED);
+        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.SOFT_MODULE_NAME)
+                .getComponent();
     }
 
     /**
@@ -104,6 +104,7 @@ public class SmWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextArea createDescription(final Binder<ProxySoftwareModule> binder) {
-        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION);
+        return FormComponentBuilder.createDescriptionInput(binder, i18n,
+                UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION);
     }
 }

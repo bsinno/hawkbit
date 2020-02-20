@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.distributions.dstable;
 
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder.BindType;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
@@ -66,7 +65,7 @@ public class DsWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextField createNameField(final Binder<ProxyDistributionSet> binder) {
-        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.DIST_ADD_NAME, BindType.REQUIRED);
+        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.DIST_ADD_NAME).getComponent();
     }
 
     /**

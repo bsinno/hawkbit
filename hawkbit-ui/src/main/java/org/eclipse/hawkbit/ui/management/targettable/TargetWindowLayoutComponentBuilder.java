@@ -9,8 +9,8 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import org.eclipse.hawkbit.repository.model.Target;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder.BindType;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -53,19 +53,8 @@ public class TargetWindowLayoutComponentBuilder {
      *            binder the input will be bound to
      * @return input component
      */
-    public TextField createRequiredNameField(final Binder<ProxyTarget> binder) {
-        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_DESC, BindType.REQUIRED);
-    }
-
-    /**
-     * create an optional name field
-     * 
-     * @param binder
-     *            binder the input will be bound to
-     * @return input component
-     */
-    public TextField createOptionalNameField(final Binder<ProxyTarget> binder) {
-        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_DESC, BindType.REQUIRED);
+    public BoundComponent<TextField> createNameField(final Binder<ProxyTarget> binder) {
+        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_DESC);
     }
     
     /**

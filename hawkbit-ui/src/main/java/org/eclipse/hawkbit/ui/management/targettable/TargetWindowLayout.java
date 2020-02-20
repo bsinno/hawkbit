@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -24,9 +25,8 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
     private final TargetWindowLayoutComponentBuilder targetComponentBuilder;
 
     private final TextField targetControllerId;
-    private final TextField targetName;
+    private final BoundComponent<TextField> targetName;
     private final TextArea targetDescription;
-    private final WindowType windowType;
 
     /**
      * Constructor for AbstractTagWindowLayout
@@ -34,17 +34,12 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
      * @param i18n
      *            I18N
      */
-    public TargetWindowLayout(final VaadinMessageSource i18n, WindowType windowType) {
+    public TargetWindowLayout(final VaadinMessageSource i18n) {
         super();
-        this.windowType = windowType;
         this.targetComponentBuilder = new TargetWindowLayoutComponentBuilder(i18n);
 
         this.targetControllerId = targetComponentBuilder.createControllerIdField(binder);
-        if (windowType == WindowType.UPDATE) {
-            this.targetName = targetComponentBuilder.createRequiredNameField(binder);
-        } else {
-            this.targetName = targetComponentBuilder.createOptionalNameField(binder);
-        }
+        this.targetName = targetComponentBuilder.createNameField(binder);
         this.targetDescription = targetComponentBuilder.createDescriptionField(binder);
     }
 
@@ -58,14 +53,16 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
 
         targetWindowLayout.addComponent(targetControllerId);
         targetControllerId.focus();
-        if (windowType == WindowType.UPDATE) {
-            targetControllerId.setEnabled(false);
-        }
-
-        targetWindowLayout.addComponent(targetName);
-
+        targetWindowLayout.addComponent(targetName.getComponent());
         targetWindowLayout.addComponent(targetDescription);
-
         return targetWindowLayout;
+    }
+    
+    public void setControllerIdEnabled(boolean isIdEnabled) {
+        targetControllerId.setEnabled(isIdEnabled);
+    }
+    
+    public void setNameRequired(boolean isNameRequired) {
+        targetName.setRequired(isNameRequired);
     }
 }

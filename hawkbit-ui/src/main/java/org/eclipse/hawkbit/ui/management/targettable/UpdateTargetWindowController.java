@@ -70,6 +70,12 @@ public class UpdateTargetWindowController extends AbstractEntityWindowController
     }
 
     @Override
+    protected void adaptLayout() {
+        layout.setControllerIdEnabled(false);
+        layout.setNameRequired(true);
+    }
+
+    @Override
     protected void persistEntity(final ProxyTarget entity) {
         final TargetUpdate targetUpdate = entityFactory.target().update(entity.getControllerId()).name(entity.getName())
                 .description(entity.getDescription());

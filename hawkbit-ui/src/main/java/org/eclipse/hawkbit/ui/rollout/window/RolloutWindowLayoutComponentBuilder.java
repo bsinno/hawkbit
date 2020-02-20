@@ -19,7 +19,6 @@ import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder.BindType;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
@@ -110,7 +109,7 @@ public final class RolloutWindowLayoutComponentBuilder {
      */
     public TextField createRolloutNameField(final Binder<ProxyRolloutWindow> binder) {
         return FormComponentBuilder.createNameInput(binder, dependencies.getI18n(),
-                UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID, BindType.REQUIRED);
+                UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID).getComponent();
     }
 
     public ComboBox<ProxyDistributionSet> createDistributionSetCombo(final Binder<ProxyRolloutWindow> binder) {

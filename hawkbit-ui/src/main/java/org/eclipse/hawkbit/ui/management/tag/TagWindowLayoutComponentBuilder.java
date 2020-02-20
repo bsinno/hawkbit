@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.management.tag;
 
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder.BindType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyFilterButton;
 import org.eclipse.hawkbit.ui.components.ColorPickerComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -37,7 +36,7 @@ public class TagWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextField createNameField(final Binder<? extends ProxyFilterButton> binder) {
-        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.TAG_POPUP_NAME, BindType.REQUIRED);
+        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.TAG_POPUP_NAME).getComponent();
     }
 
     /**
