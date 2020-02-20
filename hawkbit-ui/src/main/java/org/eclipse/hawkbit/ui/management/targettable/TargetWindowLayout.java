@@ -26,6 +26,7 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
     private final TextField targetControllerId;
     private final TextField targetName;
     private final TextArea targetDescription;
+    private final WindowType windowType;
 
     /**
      * Constructor for AbstractTagWindowLayout
@@ -33,13 +34,17 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
      * @param i18n
      *            I18N
      */
-    public TargetWindowLayout(final VaadinMessageSource i18n) {
+    public TargetWindowLayout(final VaadinMessageSource i18n, WindowType windowType) {
         super();
-
+        this.windowType = windowType;
         this.targetComponentBuilder = new TargetWindowLayoutComponentBuilder(i18n);
 
         this.targetControllerId = targetComponentBuilder.createControllerIdField(binder);
-        this.targetName = targetComponentBuilder.createNameField(binder);
+        if (windowType == WindowType.UPDATE) {
+            this.targetName = targetComponentBuilder.createRequiredNameField(binder);
+        } else {
+            this.targetName = targetComponentBuilder.createOptionalNameField(binder);
+        }
         this.targetDescription = targetComponentBuilder.createDescriptionField(binder);
     }
 
@@ -53,24 +58,14 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
 
         targetWindowLayout.addComponent(targetControllerId);
         targetControllerId.focus();
+        if (windowType == WindowType.UPDATE) {
+            targetControllerId.setEnabled(false);
+        }
 
         targetWindowLayout.addComponent(targetName);
 
         targetWindowLayout.addComponent(targetDescription);
 
         return targetWindowLayout;
-    }
-
-    public void disableControllerId() {
-        targetControllerId.setEnabled(false);
-    }
-
-    public void setNameAsRequired() {
-        // as of now vaadin does not allow modifying existing bindings, so we
-        // need to rebind name field again with required validator
-        targetComponentBuilder.getTargetNameBinding().unbind();
-        // TODO: use i18n for all the required fields messages
-        binder.forField(targetName).asRequired("You must provide target name").bind(ProxyTarget::getName,
-                ProxyTarget::setName);
     }
 }

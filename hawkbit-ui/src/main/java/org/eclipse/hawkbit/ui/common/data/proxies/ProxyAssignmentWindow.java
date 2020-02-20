@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 /**
  * Proxy entity representing assignment popup window bean.
  */
-public class ProxyAssignmentWindow implements Serializable {
+public class ProxyAssignmentWindow implements Serializable, ActionCreator {
 
     private static final long serialVersionUID = 1L;
 

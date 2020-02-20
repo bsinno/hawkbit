@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.management.targettable;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowBuilder;
+import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout.WindowType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -44,12 +45,12 @@ public class TargetWindowBuilder extends AbstractEntityWindowBuilder<ProxyTarget
 
     public Window getWindowForAddTarget() {
         return getWindowForNewEntity(new AddTargetWindowController(i18n, entityFactory, eventBus, uiNotification,
-                targetManagement, new TargetWindowLayout(i18n)));
+                targetManagement, new TargetWindowLayout(i18n, WindowType.CREATE)));
 
     }
 
     public Window getWindowForUpdateTarget(final ProxyTarget proxyTarget) {
         return getWindowForEntity(proxyTarget, new UpdateTargetWindowController(i18n, entityFactory, eventBus,
-                uiNotification, targetManagement, new TargetWindowLayout(i18n)));
+                uiNotification, targetManagement, new TargetWindowLayout(i18n, WindowType.UPDATE)));
     }
 }

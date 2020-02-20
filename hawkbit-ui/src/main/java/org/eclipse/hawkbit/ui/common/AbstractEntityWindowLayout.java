@@ -15,6 +15,15 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.ComponentContainer;
 
 public abstract class AbstractEntityWindowLayout<T> {
+    
+    /**
+     * What a window can be used for
+     */
+    public enum WindowType{
+        CREATE,
+        UPDATE
+    }
+    
     protected final Binder<T> binder;
 
     protected Consumer<Boolean> validationCallback;

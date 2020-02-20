@@ -8,19 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.management.miscs;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.TimeZone;
-
 import org.eclipse.hawkbit.repository.MaintenanceScheduleHelper;
 import org.eclipse.hawkbit.repository.exception.InvalidMaintenanceScheduleException;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -47,33 +43,19 @@ public class AssignmentWindowLayoutComponentBuilder {
         this.i18n = i18n;
     }
 
-    // TODO: remove duplication with RolloutWindowLayoutComponentBuilder
+    /**
+     * create bound {@link ActionTypeOptionGroupAssignmentLayout}
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public ActionTypeOptionGroupAssignmentLayout createActionTypeOptionGroupLayout(
             final Binder<ProxyAssignmentWindow> binder) {
-        final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout = new ActionTypeOptionGroupAssignmentLayout(
-                i18n, UIComponentIdProvider.DEPLOYMENT_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID);
-        // TODO: check if it is needed
-        actionTypeOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ASSIGNMENT_ACTION_TYPE_LAYOUT);
-
-        binder.forField(actionTypeOptionGroupLayout.getActionTypeOptionGroup())
-                .bind(ProxyAssignmentWindow::getActionType, ProxyAssignmentWindow::setActionType);
-
-        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
-        binder.forField(actionTypeOptionGroupLayout.getForcedTimeDateField()).withConverter(localDateTime -> {
-            if (localDateTime == null) {
-                return null;
-            }
-
-            return localDateTime.atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant().toEpochMilli();
-        }, forcedTime -> {
-            if (forcedTime == null) {
-                return null;
-            }
-
-            return LocalDateTime.ofInstant(Instant.ofEpochMilli(forcedTime), SPDateTimeUtil.getTimeZoneId(tz));
-        }).bind(ProxyAssignmentWindow::getForcedTime, ProxyAssignmentWindow::setForcedTime);
-
-        return actionTypeOptionGroupLayout;
+        ActionTypeOptionGroupAssignmentLayout layout = FormComponentBuilder.createActionTypeOptionGroupLayout(binder, i18n,
+                        UIComponentIdProvider.DEPLOYMENT_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID);
+        layout.addStyleName("margin-small");
+        return layout;
     }
 
     public CheckBox createEnableMaintenanceWindowToggle(final Binder<ProxyAssignmentWindow> binder) {

@@ -9,8 +9,7 @@
 package org.eclipse.hawkbit.ui.management.bulkupload;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
-import org.eclipse.hawkbit.repository.model.NamedEntity;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyBulkUploadWindow;
@@ -77,15 +76,14 @@ public final class BulkUploadWindowLayoutComponentBuilder {
         return distributionSet;
     }
 
+    /**
+     * create description field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextArea createDescriptionField(final Binder<ProxyBulkUploadWindow> binder) {
-        final TextArea targetDescription = new TextAreaBuilder(NamedEntity.DESCRIPTION_MAX_SIZE)
-                .id(UIComponentIdProvider.TARGET_ADD_DESC).caption(i18n.getMessage(TEXTFIELD_DESCRIPTION))
-                .prompt(i18n.getMessage(TEXTFIELD_DESCRIPTION)).style("text-area-style").buildTextComponent();
-        targetDescription.setSizeFull();
-
-        binder.forField(targetDescription).bind(ProxyBulkUploadWindow::getDescription,
-                ProxyBulkUploadWindow::setDescription);
-
-        return targetDescription;
+        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_DESC);
     }
 }

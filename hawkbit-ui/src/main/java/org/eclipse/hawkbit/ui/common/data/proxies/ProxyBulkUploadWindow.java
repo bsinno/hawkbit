@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Proxy entity representing rollout popup window bean.
  */
-public class ProxyBulkUploadWindow implements Serializable {
+public class ProxyBulkUploadWindow implements Serializable, Describable {
     private static final long serialVersionUID = 1L;
 
     private Long distributionSetId;
