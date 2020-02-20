@@ -217,7 +217,6 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         final FormLayout inputsLayout = new FormLayout();
         inputsLayout.setMargin(false);
         inputsLayout.setSpacing(true);
-        inputsLayout.setWidth("300px");
 
         inputsLayout.addComponents(dsCombo, tagsLayout, descTextArea, progressBar, targetsCountLabel, uploaderLayout);
 

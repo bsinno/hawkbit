@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
@@ -17,6 +19,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.Binder.Binding;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
@@ -61,22 +64,26 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
         return actionTypeOptionGroupLayout;
     }
 
-    public ComboBox<ProxyDistributionSet> createDistributionSetCombo(final Binder<ProxyTargetFilterQuery> binder,
+    /**
+     * create optional Distribution Set ComboBox
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @param dataProvider
+     *            provides Distribution Set data
+     * @return bound ComboBox
+     */
+    public BoundComponent<ComboBox<ProxyDistributionSet>> createDistributionSetCombo(final Binder<ProxyTargetFilterQuery> binder,
             final DistributionSetStatelessDataProvider dataProvider) {
-        final ComboBox<ProxyDistributionSet> autoAssignDs = new ComboBox<>(
-                i18n.getMessage(UIMessageIdProvider.HEADER_DISTRIBUTION_SET));
+        final ComboBox<ProxyDistributionSet> comboBox = FormComponentBuilder.createDistributionSetComboBox(dataProvider,
+                i18n, UIComponentIdProvider.DIST_SET_SELECT_COMBO_ID);
+        comboBox.setSizeFull();
 
-        autoAssignDs.setId(UIComponentIdProvider.DIST_SET_SELECT_COMBO_ID);
-        autoAssignDs.setPlaceholder(i18n.getMessage(PROMPT_DISTRIBUTION_SET));
-        autoAssignDs.setSizeFull();
+        Binding<ProxyTargetFilterQuery, ProxyDistributionSet> binding = binder.forField(comboBox)
+                .asRequired(UIMessageIdProvider.MESSAGE_ERROR_DISTRIBUTIONSET_REQUIRED)
+                .bind(ProxyTargetFilterQuery::getAutoAssignDistributionSet,
+                        ProxyTargetFilterQuery::setAutoAssignDistributionSet);
 
-        autoAssignDs.setItemCaptionGenerator(ProxyDistributionSet::getNameVersion);
-        autoAssignDs.setDataProvider(dataProvider);
-
-        binder.forField(autoAssignDs).asRequired("You must provide the distribution set").bind(
-                ProxyTargetFilterQuery::getAutoAssignDistributionSet,
-                ProxyTargetFilterQuery::setAutoAssignDistributionSet);
-
-        return autoAssignDs;
+        return new BoundComponent<>(comboBox, binding);
     }
 }

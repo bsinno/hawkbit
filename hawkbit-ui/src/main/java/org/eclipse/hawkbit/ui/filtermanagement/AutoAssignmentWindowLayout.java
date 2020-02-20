@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
@@ -32,7 +33,7 @@ public class AutoAssignmentWindowLayout extends AbstractEntityWindowLayout<Proxy
     private final Label descriptionLabel;
     private final CheckBox enableCheckBox;
     private final ActionTypeOptionGroupAutoAssignmentLayout actionTypeOptionGroupLayout;
-    private final ComboBox<ProxyDistributionSet> autoAssignDsComboBox;
+    private final BoundComponent<ComboBox<ProxyDistributionSet>> autoAssignDsComboBox;
 
     /**
      * Constructor for AbstractTagWindowLayout
@@ -63,7 +64,7 @@ public class AutoAssignmentWindowLayout extends AbstractEntityWindowLayout<Proxy
         autoAssignmentLayout.addComponent(descriptionLabel);
         autoAssignmentLayout.addComponent(enableCheckBox);
         autoAssignmentLayout.addComponent(actionTypeOptionGroupLayout);
-        autoAssignmentLayout.addComponent(autoAssignDsComboBox);
+        autoAssignmentLayout.addComponent(autoAssignDsComboBox.getComponent());
 
         return autoAssignmentLayout;
     }
@@ -74,6 +75,7 @@ public class AutoAssignmentWindowLayout extends AbstractEntityWindowLayout<Proxy
 
     public void switchAutoAssignmentInputsVisibility(final boolean autoAssignmentEnabled) {
         actionTypeOptionGroupLayout.setVisible(autoAssignmentEnabled);
-        autoAssignDsComboBox.setVisible(autoAssignmentEnabled);
+        autoAssignDsComboBox.getComponent().setVisible(autoAssignmentEnabled);
+        autoAssignDsComboBox.setRequired(autoAssignmentEnabled);
     }
 }

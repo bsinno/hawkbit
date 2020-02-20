@@ -13,9 +13,12 @@ import java.util.TimeZone;
 
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.repository.model.NamedVersionedEntity;
+import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ActionCreator;
 import org.eclipse.hawkbit.ui.common.data.proxies.Describable;
+import org.eclipse.hawkbit.ui.common.data.proxies.DsIdProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.Named;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.Versioned;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -24,8 +27,10 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.Binder.Binding;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Builder class for from components
@@ -34,6 +39,8 @@ public final class FormComponentBuilder {
     public static final String TEXTFIELD_NAME = "textfield.name";
     public static final String TEXTFIELD_VERSION = "textfield.version";
     public static final String TEXTFIELD_DESCRIPTION = "textfield.description";
+
+    public static final String PROMPT_DISTRIBUTION_SET = "prompt.distribution.set";
 
     private FormComponentBuilder() {
     }
@@ -121,7 +128,7 @@ public final class FormComponentBuilder {
      * @param i18n
      *            message source
      * @param componentId
-     *            id of the field layout
+     *            id of the input layout
      * @return a bound layout
      */
     public static <T extends ActionCreator> ActionTypeOptionGroupAssignmentLayout createActionTypeOptionGroupLayout(
@@ -149,6 +156,70 @@ public final class FormComponentBuilder {
 
         return actionTypeOptionGroupLayout;
     }
-    // TODO DS combo box?
+
+    /**
+     * create an unbound input for distribution sets
+     * 
+     * @param dataProvider
+     *            provides distribution sets
+     * @param i18n
+     *            i18n
+     * @param componentId
+     *            id of the input layout
+     * @return ComboBox of distribution sets
+     */
+    public static ComboBox<ProxyDistributionSet> createDistributionSetComboBox(
+            final DistributionSetStatelessDataProvider dataProvider, VaadinMessageSource i18n, String componentId) {
+        final ComboBox<ProxyDistributionSet> comboBox = new ComboBox<>();
+        comboBox.setCaption(i18n.getMessage(UIMessageIdProvider.HEADER_DISTRIBUTION_SET));
+        comboBox.setId(componentId);
+        comboBox.setPlaceholder(i18n.getMessage(PROMPT_DISTRIBUTION_SET));
+        comboBox.addStyleName(ValoTheme.COMBOBOX_SMALL);
+        comboBox.setEmptySelectionAllowed(false);
+
+        comboBox.setItemCaptionGenerator(ProxyDistributionSet::getNameVersion);
+        comboBox.setDataProvider(dataProvider);
+        return comboBox;
+    }
+
+    /**
+     * create a bound input for distribution sets
+     * @param <T>
+     *  type of the binder
+     * @param binder
+     *  that is bound to the input
+     * @param dataProvider
+     *            provides distribution sets
+     * @param i18n
+     *            i18n
+     * @param componentId
+     *            id of the input layout
+     * @return bound ComboBox of distribution sets
+     */
+    public static <T extends DsIdProvider> BoundComponent<ComboBox<ProxyDistributionSet>> createDistributionSetComboBox(
+            final Binder<T> binder, final DistributionSetStatelessDataProvider dataProvider, VaadinMessageSource i18n,
+            String componentId) {
+        final ComboBox<ProxyDistributionSet> comboBox = createDistributionSetComboBox(dataProvider, i18n,
+                componentId);
+        Binding<T, Long> binding = binder.forField(comboBox).asRequired(UIMessageIdProvider.MESSAGE_ERROR_DISTRIBUTIONSET_REQUIRED)
+                .withConverter(ds -> {
+                    if (ds == null) {
+                        return null;
+                    }
+
+                    return ds.getId();
+                }, dsId -> {
+                    if (dsId == null) {
+                        return null;
+                    }
+
+                    final ProxyDistributionSet ds = new ProxyDistributionSet();
+                    ds.setId(dsId);
+
+                    return ds;
+                }).bind(DsIdProvider::getDistributionSetId, DsIdProvider::setDistributionSetId);
+        
+        return new BoundComponent<>(comboBox, binding);
+    }
 
 }

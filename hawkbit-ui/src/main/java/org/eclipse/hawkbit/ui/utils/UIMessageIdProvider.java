@@ -112,6 +112,8 @@ public final class UIMessageIdProvider {
     public static final String MESSAGE_ERROR_NAMEREQUIRED = "message.error.nameRequired";
     
     public static final String MESSAGE_ERROR_VERSIONREQUIRED = "message.error.versionRequired";
+    
+    public static final String MESSAGE_ERROR_DISTRIBUTIONSET_REQUIRED = "message.error.distributionSetRequired";
 
     public static final String MESSAGE_FILTER_QUERY_ERROR_NOTVALIDE = "message.filter.query.error.notValide";
 

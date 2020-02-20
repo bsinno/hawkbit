@@ -108,40 +108,24 @@ public final class RolloutWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextField createRolloutNameField(final Binder<ProxyRolloutWindow> binder) {
-        return FormComponentBuilder.createNameInput(binder, dependencies.getI18n(),
+        TextField textField = FormComponentBuilder.createNameInput(binder, dependencies.getI18n(),
                 UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID).getComponent();
+        textField.setCaption(null);
+        return textField;
     }
 
+    /**
+     * create required Distribution Set ComboBox
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return ComboBox
+     */
     public ComboBox<ProxyDistributionSet> createDistributionSetCombo(final Binder<ProxyRolloutWindow> binder) {
-        final ComboBox<ProxyDistributionSet> distributionSet = new ComboBox<>();
-
-        distributionSet.setId(UIComponentIdProvider.ROLLOUT_DS_ID);
-        distributionSet.setPlaceholder(dependencies.getI18n().getMessage(PROMPT_DISTRIBUTION_SET));
-        distributionSet.addStyleName(ValoTheme.COMBOBOX_SMALL);
-
-        distributionSet.setItemCaptionGenerator(ProxyDistributionSet::getNameVersion);
-
-        distributionSet.setDataProvider(distributionSetDataProvider);
-
-        // TODO: use i18n for all the required fields messages
-        binder.forField(distributionSet).asRequired("You must provide the distribution set").withConverter(ds -> {
-            if (ds == null) {
-                return null;
-            }
-
-            return ds.getId();
-        }, dsId -> {
-            if (dsId == null) {
-                return null;
-            }
-
-            final ProxyDistributionSet ds = new ProxyDistributionSet();
-            ds.setId(dsId);
-
-            return ds;
-        }).bind(ProxyRolloutWindow::getDistributionSetId, ProxyRolloutWindow::setDistributionSetId);
-
-        return distributionSet;
+        final ComboBox<ProxyDistributionSet> comboBox = FormComponentBuilder.createDistributionSetComboBox(binder,
+                distributionSetDataProvider, dependencies.getI18n(), UIComponentIdProvider.ROLLOUT_DS_ID).getComponent();
+        comboBox.setCaption(null);
+        return comboBox;
     }
 
     public ComboBox<ProxyTargetFilterQuery> createTargetFilterQueryCombo(final Binder<ProxyRolloutWindow> binder) {
