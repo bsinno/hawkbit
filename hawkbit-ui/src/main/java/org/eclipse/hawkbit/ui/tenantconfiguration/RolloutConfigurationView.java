@@ -38,10 +38,10 @@ public class RolloutConfigurationView extends CustomComponent {
     private final Binder<ProxySystemConfigWindow> binder;
     private final ApprovalConfigurationItem approvalConfigurationItem;
 
-    RolloutConfigurationView(final VaadinMessageSource i18n, final ApprovalConfigurationItem approvalConfigurationItem,
-            final UiProperties uiProperties, final Binder<ProxySystemConfigWindow> binder) {
+    RolloutConfigurationView(final VaadinMessageSource i18n, final UiProperties uiProperties,
+            final Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
-        this.approvalConfigurationItem = approvalConfigurationItem;
+        this.approvalConfigurationItem = new ApprovalConfigurationItem(i18n);
         this.uiProperties = uiProperties;
         this.binder = binder;
         this.init();

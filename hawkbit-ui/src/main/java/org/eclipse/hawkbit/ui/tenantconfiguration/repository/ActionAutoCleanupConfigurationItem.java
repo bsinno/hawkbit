@@ -133,7 +133,7 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         }
     }
 
-    public Collection<ActionStatusOption> getActionStatusOptions() {
+    public static Collection<ActionStatusOption> getActionStatusOptions() {
         return ACTION_STATUS_OPTIONS;
     }
 

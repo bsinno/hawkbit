@@ -8,20 +8,19 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.authentication;
 
-import org.eclipse.hawkbit.repository.model.TenantConfiguration;
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.ReadOnlyHasValue;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -34,12 +33,11 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Vertica
     private static final long serialVersionUID = 1L;
 
     private final transient SecurityTokenGenerator securityTokenGenerator;
-    private final TextField gatewayTokenField;
     private final VerticalLayout detailLayout;
     private final Binder<ProxySystemConfigWindow> binder;
 
     public GatewaySecurityTokenAuthenticationConfigurationItem(final VaadinMessageSource i18n,
-            final SecurityTokenGenerator securityTokenGenerator, Binder<ProxySystemConfigWindow> binder) {
+            final SecurityTokenGenerator securityTokenGenerator, final Binder<ProxySystemConfigWindow> binder) {
         this.securityTokenGenerator = securityTokenGenerator;
         this.binder = binder;
         this.setSpacing(false);
@@ -57,15 +55,14 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Vertica
         gatewaytokenBtn.setIcon(VaadinIcons.REFRESH);
         gatewaytokenBtn.addClickListener(event -> refreshGatewayToken());
 
-        gatewayTokenField = new TextFieldBuilder(TenantConfiguration.VALUE_MAX_SIZE).buildTextComponent();
-        gatewayTokenField.setWidth(300, Unit.PIXELS);
-        gatewayTokenField.setId("gatewaysecuritytokenkey");
-        gatewayTokenField.setReadOnly(true);
-        binder.bind(gatewayTokenField, ProxySystemConfigWindow::getGatewaySecurityToken,
-                ProxySystemConfigWindow::setGatewaySecurityToken);
+        final Label gatewayTokenLabel = new LabelBuilder().id("gatewaysecuritytokenkey").name("").buildLabel();
+        gatewayTokenLabel.addStyleName("gateway-token-label");
+        final ReadOnlyHasValue<String> gatewayTokenFieldBindable = new ReadOnlyHasValue<>(gatewayTokenLabel::setValue);
+        binder.bind(gatewayTokenFieldBindable, ProxySystemConfigWindow::getGatewaySecurityToken, null);
+
         final HorizontalLayout keyGenerationLayout = new HorizontalLayout();
         keyGenerationLayout.setSpacing(true);
-        keyGenerationLayout.addComponent(gatewayTokenField);
+        keyGenerationLayout.addComponent(gatewayTokenLabel);
         keyGenerationLayout.addComponent(gatewaytokenBtn);
         detailLayout.addComponent(keyGenerationLayout);
         if (binder.getBean().isGatewaySecToken()) {

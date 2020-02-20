@@ -11,9 +11,7 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
@@ -23,14 +21,14 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-public class ActionHistoryGridLayoutEventListener {
-    private final ActionHistoryGridLayout actionHistoryGridLayout;
+public class ActionStatusMsgGridLayoutEventListener {
+    private final ActionStatusMsgGridLayout actionStatusMsgGridLayout;
     private final UIEventBus eventBus;
     private final List<Object> eventListeners;
 
-    ActionHistoryGridLayoutEventListener(final ActionHistoryGridLayout actionHistoryGridLayout,
+    ActionStatusMsgGridLayoutEventListener(final ActionStatusMsgGridLayout actionStatusMsgGridLayout,
             final UIEventBus eventBus) {
-        this.actionHistoryGridLayout = actionHistoryGridLayout;
+        this.actionStatusMsgGridLayout = actionStatusMsgGridLayout;
         this.eventBus = eventBus;
 
         this.eventListeners = new ArrayList<>();
@@ -39,7 +37,6 @@ public class ActionHistoryGridLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new SelectionChangedListener());
-        eventListeners.add(new EntityModifiedListener());
     }
 
     private class SelectionChangedListener {
@@ -49,33 +46,16 @@ public class ActionHistoryGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final SelectionChangedEventPayload<ProxyTarget> eventPayload) {
-            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_LIST) {
+        private void onActionStatusEvent(final SelectionChangedEventPayload<ProxyActionStatus> eventPayload) {
+            if (eventPayload.getView() != View.DEPLOYMENT
+                    || eventPayload.getLayout() != Layout.ACTION_HISTORY_STATUS_LIST) {
                 return;
             }
 
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                actionHistoryGridLayout.onTargetChanged(eventPayload.getEntity());
+                actionStatusMsgGridLayout.onActionStatusChanged(eventPayload.getEntity());
             } else {
-                actionHistoryGridLayout.onTargetChanged(null);
-            }
-        }
-    }
-
-    private class EntityModifiedListener {
-
-        public EntityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyTarget.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
-                actionHistoryGridLayout.onTargetUpdated(eventPayload.getEntityIds());
+                actionStatusMsgGridLayout.onActionStatusChanged(null);
             }
         }
     }

@@ -39,15 +39,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.tenantconfiguration.ConfigurationItem.ConfigurationItemChangeListener;
-import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.AnonymousDownloadAuthenticationConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.CertificateAuthenticationConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.GatewaySecurityTokenAuthenticationConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.TargetSecurityTokenAuthenticationConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.ActionStatusOption;
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCloseConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.repository.MultiAssignmentsConfigurationItem;
-import org.eclipse.hawkbit.ui.tenantconfiguration.rollout.ApprovalConfigurationItem;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -81,40 +74,29 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     private static final Set<Status> EMPTY_STATUS_SET = EnumSet.noneOf(Status.class);
 
+    private final VaadinMessageSource i18n;
+    private final UiProperties uiProperties;
+    private final UINotification uINotification;
+
+    private final transient SystemManagement systemManagement;
+    private final transient TenantConfigurationManagement tenantConfigurationManagement;
+    private final transient SecurityTokenGenerator securityTokenGenerator;
+
     private final DefaultDistributionSetTypeLayout defaultDistributionSetTypeLayout;
-
     private final RepositoryConfigurationView repositoryConfigurationView;
-
     private final AuthenticationConfigurationView authenticationConfigurationView;
-
     private final PollingConfigurationView pollingConfigurationView;
-
     private final RolloutConfigurationView rolloutConfigurationView;
 
-    private final VaadinMessageSource i18n;
-
-    private final UiProperties uiProperties;
-
-    private final UINotification uINotification;
-    private final CertificateAuthenticationConfigurationItem certificateAuthenticationConfigurationItem;
-    private final GatewaySecurityTokenAuthenticationConfigurationItem gatewaySecurityTokenAuthenticationConfigurationItem;
-    private final AnonymousDownloadAuthenticationConfigurationItem anonymousDownloadAuthenticationConfigurationItem;
+    @Autowired(required = false)
+    private Collection<ConfigurationGroup> customConfigurationViews;
+    private final List<ConfigurationGroup> configurationViews = Lists.newArrayList();
+    private final List<CustomComponent> customComponents = Lists.newArrayListWithExpectedSize(5);
 
     private Button saveConfigurationBtn;
     private Button undoConfigurationBtn;
-    private final transient SystemManagement systemManagement;
-    private final ApprovalConfigurationItem approvalConfigurationItem;
-    private final ActionAutoCloseConfigurationItem actionAutocloseConfigurationItem;
-    private final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem;
-    private final ActionAutoCleanupConfigurationItem actionAutocleanupConfigurationItem;
-    private final TargetSecurityTokenAuthenticationConfigurationItem targetSecurityTokenAuthenticationConfigurationItem;
-    private final transient TenantConfigurationManagement tenantConfigurationManagement;
+
     private final Binder<ProxySystemConfigWindow> binder;
-    private final List<ConfigurationGroup> configurationViews = Lists.newArrayListWithExpectedSize(3);
-    private final List<CustomComponent> customComponents = Lists.newArrayListWithExpectedSize(3);
-    private final transient SecurityTokenGenerator securityTokenGenerator;
-    @Autowired(required = false)
-    private Collection<ConfigurationGroup> customConfigurationViews;
 
     @Autowired
     TenantConfigurationDashboardView(final VaadinMessageSource i18n, final UiProperties uiProperties,
@@ -123,42 +105,25 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
             final TenantConfigurationManagement tenantConfigurationManagement,
             final SecurityTokenGenerator securityTokenGenerator,
             final ControllerPollProperties controllerPollProperties, final SpPermissionChecker permChecker) {
-        this.systemManagement = systemManagement;
-        this.tenantConfigurationManagement = tenantConfigurationManagement;
-        this.securityTokenGenerator = securityTokenGenerator;
-        this.binder = new Binder<>();
-        binder.setBean(populateAndGetSystemConfig());
-        this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
-                i18n);
-        this.actionAutocloseConfigurationItem = new ActionAutoCloseConfigurationItem(i18n);
-        this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(i18n, binder);
-        this.actionAutocleanupConfigurationItem = new ActionAutoCleanupConfigurationItem(binder, i18n);
-        this.approvalConfigurationItem = new ApprovalConfigurationItem(i18n);
-        this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(i18n, binder);
-
-        this.gatewaySecurityTokenAuthenticationConfigurationItem = new GatewaySecurityTokenAuthenticationConfigurationItem(
-                i18n, securityTokenGenerator, binder);
-        this.anonymousDownloadAuthenticationConfigurationItem = new AnonymousDownloadAuthenticationConfigurationItem(
-                i18n);
-
-        this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n,
-                permChecker, binder, distributionSetTypeManagement);
-
-        this.authenticationConfigurationView = new AuthenticationConfigurationView(i18n,
-                targetSecurityTokenAuthenticationConfigurationItem, certificateAuthenticationConfigurationItem,
-                gatewaySecurityTokenAuthenticationConfigurationItem, anonymousDownloadAuthenticationConfigurationItem,
-                uiProperties, binder);
-        this.pollingConfigurationView = new PollingConfigurationView(i18n, controllerPollProperties,
-                tenantConfigurationManagement, binder);
-        this.repositoryConfigurationView = new RepositoryConfigurationView(i18n, uiProperties,
-                actionAutocloseConfigurationItem, actionAutocleanupConfigurationItem, multiAssignmentsConfigurationItem,
-                binder);
-        this.rolloutConfigurationView = new RolloutConfigurationView(i18n, approvalConfigurationItem, uiProperties,
-                binder);
-
         this.i18n = i18n;
         this.uiProperties = uiProperties;
         this.uINotification = uINotification;
+        this.systemManagement = systemManagement;
+        this.tenantConfigurationManagement = tenantConfigurationManagement;
+        this.securityTokenGenerator = securityTokenGenerator;
+
+        this.binder = new Binder<>();
+        binder.setBean(populateAndGetSystemConfig());
+
+        this.defaultDistributionSetTypeLayout = new DefaultDistributionSetTypeLayout(systemManagement, i18n,
+                permChecker, distributionSetTypeManagement, binder);
+
+        this.authenticationConfigurationView = new AuthenticationConfigurationView(i18n, uiProperties,
+                securityTokenGenerator, binder);
+        this.pollingConfigurationView = new PollingConfigurationView(i18n, controllerPollProperties,
+                tenantConfigurationManagement, binder);
+        this.repositoryConfigurationView = new RepositoryConfigurationView(i18n, uiProperties, binder);
+        this.rolloutConfigurationView = new RolloutConfigurationView(i18n, uiProperties, binder);
     }
 
     /**
@@ -250,7 +215,7 @@ public class TenantConfigurationDashboardView extends CustomComponent implements
 
     private ActionStatusOption getActionStatusOption() {
         final Set<Action.Status> actionStatus = getActionStatus();
-        final Collection<ActionStatusOption> actionStatusOptions = actionAutocleanupConfigurationItem
+        final Collection<ActionStatusOption> actionStatusOptions = ActionAutoCleanupConfigurationItem
                 .getActionStatusOptions();
 
         return actionStatusOptions.stream().filter(option -> actionStatus.equals(option.getStatus())).findFirst()

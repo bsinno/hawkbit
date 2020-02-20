@@ -123,6 +123,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
     public void onDsSelected(final ProxyDistributionSet selectedDs) {
         swModuleGrid.updateMasterEntityFilter(selectedDs != null ? selectedDs.getId() : null);
+        swModuleGrid.deselectAll();
     }
 
     public void onDsUpdated(final Collection<Long> entityIds) {

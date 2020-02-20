@@ -18,7 +18,6 @@ import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatu
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
@@ -44,8 +43,6 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     private static final String STATUS_ID = "status";
     private static final String CREATED_AT_ID = "createdAt";
 
-    private final ActionStatusGridLayoutUiState actionStatusGridLayoutUiState;
-
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
     private final ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> actionStatusDataProvider;
@@ -58,36 +55,20 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
      * @param deploymentManagement
      */
     protected ActionStatusGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final DeploymentManagement deploymentManagement,
-            final ActionStatusGridLayoutUiState actionStatusGridLayoutUiState) {
+            final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus, null);
-
-        this.actionStatusGridLayoutUiState = actionStatusGridLayoutUiState;
 
         this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
                 new ActionStatusToProxyActionStatusMapper()).withConfigurableFilter();
 
         setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, Layout.ACTION_HISTORY_STATUS_LIST,
-                View.DEPLOYMENT, this::updateLastSelectedActionStatusUiState));
+                View.DEPLOYMENT, (eventType, entity) -> {
+                }));
         getSelectionSupport().enableSingleSelection();
 
         initStatusIconMap();
 
         init();
-    }
-
-    private void updateLastSelectedActionStatusUiState(final SelectionChangedEventType type,
-            final ProxyActionStatus selectedActionStatus) {
-        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
-            actionStatusGridLayoutUiState.setSelectedActionStatusId(null);
-        } else {
-            actionStatusGridLayoutUiState.setSelectedActionStatusId(selectedActionStatus.getId());
-        }
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> getFilterDataProvider() {
-        return actionStatusDataProvider;
     }
 
     private void initStatusIconMap() {
@@ -124,6 +105,11 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     }
 
     @Override
+    public ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> getFilterDataProvider() {
+        return actionStatusDataProvider;
+    }
+
+    @Override
     public void addColumns() {
         addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
                 .setMinimumWidth(53d).setMaximumWidth(53d).setHidable(false).setHidden(false)
@@ -144,5 +130,9 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
                 .append(actionStatus.getId()).toString();
 
         return buildLabelIcon(statusFontIcon, statusId);
+    }
+
+    public void updateMasterEntityFilter(final Long masterEntityId) {
+        getFilterDataProvider().setFilter(masterEntityId);
     }
 }

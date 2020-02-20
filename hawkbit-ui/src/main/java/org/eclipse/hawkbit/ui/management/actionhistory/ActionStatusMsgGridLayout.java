@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -27,16 +28,17 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
      *
      * @param i18n
      * @param eventBus
-     * @param managementUIState
      * @param deploymentManagement
      */
     public ActionStatusMsgGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final DeploymentManagement deploymentManagement,
-            final ActionStatusMsgGridLayoutUiState actionStatusMsgGridLayoutUiState) {
+            final DeploymentManagement deploymentManagement) {
         this.actionStatusMsgHeader = new ActionStatusMsgGridHeader(i18n);
-        this.actionStatusMsgGrid = new ActionStatusMsgGrid(i18n, eventBus, deploymentManagement,
-                actionStatusMsgGridLayoutUiState);
+        this.actionStatusMsgGrid = new ActionStatusMsgGrid(i18n, eventBus, deploymentManagement);
 
         buildLayout(actionStatusMsgHeader, actionStatusMsgGrid);
+    }
+
+    public void onActionStatusChanged(final ProxyActionStatus actionStatus) {
+        actionStatusMsgGrid.updateMasterEntityFilter(actionStatus != null ? actionStatus.getId() : null);
     }
 }

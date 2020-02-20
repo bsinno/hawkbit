@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
+import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -40,28 +41,24 @@ public class AuthenticationConfigurationView extends CustomComponent {
     private final VaadinMessageSource i18n;
 
     private final CertificateAuthenticationConfigurationItem certificateAuthenticationConfigurationItem;
-
     private final TargetSecurityTokenAuthenticationConfigurationItem targetSecurityTokenAuthenticationConfigurationItem;
-
     private final GatewaySecurityTokenAuthenticationConfigurationItem gatewaySecurityTokenAuthenticationConfigurationItem;
-
     private final AnonymousDownloadAuthenticationConfigurationItem anonymousDownloadAuthenticationConfigurationItem;
 
     private final UiProperties uiProperties;
 
     private final Binder<ProxySystemConfigWindow> binder;
 
-    AuthenticationConfigurationView(final VaadinMessageSource i18n,
-            final TargetSecurityTokenAuthenticationConfigurationItem targetSecurityTokenAuthenticationConfigurationItem,
-            final CertificateAuthenticationConfigurationItem certificateAuthenticationConfigurationItem,
-            final GatewaySecurityTokenAuthenticationConfigurationItem gatewaySecurityTokenAuthenticationConfigurationItem,
-            final AnonymousDownloadAuthenticationConfigurationItem anonymousDownloadAuthenticationConfigurationItem,
-            final UiProperties uiProperties, final Binder<ProxySystemConfigWindow> binder) {
+    AuthenticationConfigurationView(final VaadinMessageSource i18n, final UiProperties uiProperties,
+            final SecurityTokenGenerator securityTokenGenerator, final Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
-        this.targetSecurityTokenAuthenticationConfigurationItem = targetSecurityTokenAuthenticationConfigurationItem;
-        this.certificateAuthenticationConfigurationItem = certificateAuthenticationConfigurationItem;
-        this.gatewaySecurityTokenAuthenticationConfigurationItem = gatewaySecurityTokenAuthenticationConfigurationItem;
-        this.anonymousDownloadAuthenticationConfigurationItem = anonymousDownloadAuthenticationConfigurationItem;
+        this.targetSecurityTokenAuthenticationConfigurationItem = new TargetSecurityTokenAuthenticationConfigurationItem(
+                i18n);
+        this.certificateAuthenticationConfigurationItem = new CertificateAuthenticationConfigurationItem(i18n, binder);
+        this.gatewaySecurityTokenAuthenticationConfigurationItem = new GatewaySecurityTokenAuthenticationConfigurationItem(
+                i18n, securityTokenGenerator, binder);
+        this.anonymousDownloadAuthenticationConfigurationItem = new AnonymousDownloadAuthenticationConfigurationItem(
+                i18n);
         this.uiProperties = uiProperties;
         this.binder = binder;
 

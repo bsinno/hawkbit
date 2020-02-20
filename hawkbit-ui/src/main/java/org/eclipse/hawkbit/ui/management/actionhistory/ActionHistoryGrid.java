@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.exception.CancelActionNotAllowedException;
+import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -23,8 +24,10 @@ import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
@@ -72,15 +75,14 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private static final String FORCE_BUTTON_ID = "force-action";
     private static final String FORCE_QUIT_BUTTON_ID = "force-quit-action";
 
-    private final transient DeploymentManagement deploymentManagement;
     private final UINotification notification;
-    private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
+    private final transient DeploymentManagement deploymentManagement;
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
     private final Map<IsActiveDecoration, ProxyFontIcon> activeStatusIconMap = new EnumMap<>(IsActiveDecoration.class);
     private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    private ProxyTarget selectedMasterTarget;
+    private Long masterEntityId;
 
     private final ConfigurableFilterDataProvider<ProxyAction, Void, String> actionDataProvider;
 
@@ -89,15 +91,16 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
             final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
-        this.deploymentManagement = deploymentManagement;
         this.notification = notification;
-        this.actionHistoryGridLayoutUiState = actionHistoryGridLayoutUiState;
+        this.deploymentManagement = deploymentManagement;
+
         this.actionDataProvider = new ActionDataProvider(deploymentManagement, new ActionToProxyActionMapper())
                 .withConfigurableFilter();
 
         setResizeSupport(new ActionHistoryResizeSupport());
         setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, Layout.ACTION_HISTORY_LIST,
-                View.DEPLOYMENT, this::updateLastSelectedActionUiState));
+                View.DEPLOYMENT, (eventType, entity) -> {
+                }));
         if (actionHistoryGridLayoutUiState.isMaximized()) {
             getSelectionSupport().enableSingleSelection();
         } else {
@@ -109,20 +112,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         initActionTypeIconMap();
 
         init();
-    }
-
-    private void updateLastSelectedActionUiState(final SelectionChangedEventType type,
-            final ProxyAction selectedAction) {
-        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
-            actionHistoryGridLayoutUiState.setSelectedActionId(null);
-        } else {
-            actionHistoryGridLayoutUiState.setSelectedActionId(selectedAction.getId());
-        }
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyAction, Void, String> getFilterDataProvider() {
-        return actionDataProvider;
     }
 
     private void initStatusIconMap() {
@@ -183,42 +172,22 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     @Override
-    protected void init() {
-        super.init();
-        restorePreviousState();
+    public String getGridId() {
+        return UIComponentIdProvider.ACTION_HISTORY_GRID_ID;
     }
 
-    /**
-     * Restores the maximized state if the action history was left in
-     * maximized-state and is now re-entered.
-     */
-    private void restorePreviousState() {
-        if (actionHistoryGridLayoutUiState.isMaximized()) {
-            createMaximizedContent();
-        }
+    @Override
+    public ConfigurableFilterDataProvider<ProxyAction, Void, String> getFilterDataProvider() {
+        return actionDataProvider;
     }
-
-    // TODO: adapt
-    // @EventBusListenerMethod(scope = EventScope.UI)
-    // void onCancelTargetAssignmentEvents(final
-    // CancelTargetAssignmentEventContainer eventContainer) {
-    // final List<Long> actionIds = eventContainer.getEvents().stream().filter(
-    // event -> event.getEntity() != null &&
-    // event.getEntity().getId().equals(selectedMasterTarget.getId()))
-    // .map(CancelTargetAssignmentEvent::getActionId).collect(Collectors.toList());
-    //
-    // if (!actionIds.isEmpty()) {
-    // // TODO: Consider updating only corresponding actions with
-    // // dataProvider.refreshItem() based on
-    // // action ids instead of full refresh (evaluate
-    // // getDataCommunicator().getKeyMapper())
-    // refreshContainer();
-    // }
-    // }
 
     public void updateMasterEntityFilter(final ProxyTarget masterEntity) {
-        this.selectedMasterTarget = masterEntity;
+        masterEntityId = masterEntity != null ? masterEntity.getId() : null;
         getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getControllerId() : null);
+    }
+
+    public Long getMasterEntityId() {
+        return masterEntityId;
     }
 
     /**
@@ -226,8 +195,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
      */
     public void createMaximizedContent() {
         getSelectionSupport().enableSingleSelection();
-        // TODO: check if it is needed
-        // getDetailsSupport().populateSelection();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
     }
@@ -239,11 +206,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         getSelectionSupport().disableSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
-    }
-
-    @Override
-    public String getGridId() {
-        return UIComponentIdProvider.ACTION_HISTORY_GRID_ID;
     }
 
     @Override
@@ -356,25 +318,24 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         addComponentColumn(action -> buildActionButton(clickEvent -> confirmAndCancelAction(action.getId()),
                 VaadinIcons.CLOSE_SMALL, "message.cancel.action", SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_CANCEL_ID + "." + action.getId(),
-                !action.isActive() || action.isCancelingOrCanceled() || !permissionChecker.hasUpdateTargetPermission()))
+                action.isActive() && !action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission()))
                         .setId(CANCEL_BUTTON_ID).setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX)
                         .setHidable(false).setHidden(false);
 
         addComponentColumn(action -> buildActionButton(clickEvent -> confirmAndForceAction(action.getId()),
                 VaadinIcons.BOLT, "message.force.action", SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_ID + "." + action.getId(),
-                !action.isActive() || action.isForce() || action.isCancelingOrCanceled()
-                        || !permissionChecker.hasUpdateTargetPermission())).setId(FORCE_BUTTON_ID)
+                action.isActive() && !action.isForce() && !action.isCancelingOrCanceled()
+                        && permissionChecker.hasUpdateTargetPermission())).setId(FORCE_BUTTON_ID)
                                 .setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX).setHidable(false)
                                 .setHidden(false);
 
         addComponentColumn(action -> buildActionButton(clickEvent -> confirmAndForceQuitAction(action.getId()),
                 VaadinIcons.CLOSE_SMALL, "message.forcequit.action", SPUIStyleDefinitions.STATUS_ICON_RED,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_QUIT_ID + "." + action.getId(),
-                !action.isActive() || !action.isCancelingOrCanceled()
-                        || !permissionChecker.hasUpdateTargetPermission())).setId(FORCE_QUIT_BUTTON_ID)
-                                .setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX).setHidable(false)
-                                .setHidden(false);
+                action.isActive() && action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission()))
+                        .setId(FORCE_QUIT_BUTTON_ID).setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX)
+                        .setHidable(false).setHidden(false);
 
         getDefaultHeaderRow().join(CANCEL_BUTTON_ID, FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
@@ -399,13 +360,51 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     /**
+     * Show confirmation window and if ok then only, cancel the action.
+     *
+     * @param actionId
+     *            as Id if the action needs to be cancelled.
+     */
+    private void confirmAndCancelAction(final Long actionId) {
+        final ConfirmationDialog confirmDialog = new ConfirmationDialog(
+                i18n.getMessage("caption.cancel.action.confirmbox"), i18n.getMessage("message.cancel.action.confirm"),
+                i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
+                ok -> {
+                    if (!ok) {
+                        return;
+                    }
+                    cancelActiveAction(actionId);
+                }, UIComponentIdProvider.CONFIRMATION_POPUP_ID);
+        UI.getCurrent().addWindow(confirmDialog.getWindow());
+        confirmDialog.getWindow().bringToFront();
+    }
+
+    private void cancelActiveAction(final Long actionId) {
+        try {
+            deploymentManagement.cancelAction(actionId);
+
+            notification.displaySuccess(i18n.getMessage("message.cancel.action.success"));
+            publishMasterEntityModifiedEvent();
+        } catch (final CancelActionNotAllowedException e) {
+            LOG.trace("Cancel action not allowed exception: {}", e.getMessage());
+            notification.displayValidationError(i18n.getMessage("message.cancel.action.failed"));
+        }
+    }
+
+    private void publishMasterEntityModifiedEvent() {
+        if (masterEntityId != null) {
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, masterEntityId));
+        }
+    }
+
+    /**
      * Show confirmation window and if ok then only, force the action.
      *
      * @param actionId
      *            as Id if the action needs to be forced.
      */
     private void confirmAndForceAction(final Long actionId) {
-        /* Display the confirmation */
         final ConfirmationDialog confirmDialog = new ConfirmationDialog(
                 i18n.getMessage("caption.force.action.confirmbox"), i18n.getMessage("message.force.action.confirm"),
                 i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
@@ -413,43 +412,23 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                     if (!ok) {
                         return;
                     }
-                    deploymentManagement.forceTargetAction(actionId);
-                    updateTargetDetails();
-                    notification.displaySuccess(i18n.getMessage("message.force.action.success"));
+                    forceActiveAction(actionId);
                 }, UIComponentIdProvider.CONFIRMATION_POPUP_ID);
         UI.getCurrent().addWindow(confirmDialog.getWindow());
 
         confirmDialog.getWindow().bringToFront();
     }
 
-    private void updateTargetDetails() {
-        // show the updated target action history details
-        refreshContainer();
-        // update the target table and its pinning details
-        updateTargetAndDsTable();
-    }
+    private void forceActiveAction(final Long actionId) {
+        try {
+            deploymentManagement.forceTargetAction(actionId);
 
-    private void updateTargetAndDsTable() {
-        // TODO: adapt
-        // eventBus.publish(this, new
-        // TargetTableEvent(BaseEntityEventType.UPDATED_ENTITY,
-        // selectedMasterTarget));
-        updateDistributionTableStyle();
-    }
-
-    /**
-     * Update the colors of Assigned and installed distribution set in Target
-     * Pinning.
-     */
-    private void updateDistributionTableStyle() {
-        // TODO
-        // managementUIState.getDistributionTableFilters().getPinnedTarget().ifPresent(pinnedTarget
-        // -> {
-        // if (pinnedTarget.getTargetId().equals(selectedMasterTarget.getId()))
-        // {
-        // eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
-        // }
-        // });
+            notification.displaySuccess(i18n.getMessage("message.force.action.success"));
+            publishMasterEntityModifiedEvent();
+        } catch (final EntityNotFoundException e) {
+            LOG.trace("Action was not found during force command: {}", e.getMessage());
+            notification.displayValidationError(i18n.getMessage("message.force.action.failed"));
+        }
     }
 
     /**
@@ -459,7 +438,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
      *            as Id if the action needs to be forced.
      */
     private void confirmAndForceQuitAction(final Long actionId) {
-        /* Display the confirmation */
         final ConfirmationDialog confirmDialog = new ConfirmationDialog(
                 i18n.getMessage("caption.forcequit.action.confirmbox"),
                 i18n.getMessage("message.forcequit.action.confirm"), i18n.getMessage(UIMessageIdProvider.BUTTON_OK),
@@ -467,79 +445,24 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                     if (!ok) {
                         return;
                     }
-                    final boolean cancelResult = forceQuitActiveAction(actionId);
-                    if (cancelResult) {
-                        updateTargetDetails();
-                        notification.displaySuccess(i18n.getMessage("message.forcequit.action.success"));
-                    } else {
-                        notification.displayValidationError(i18n.getMessage("message.forcequit.action.failed"));
-                    }
+                    forceQuitActiveAction(actionId);
                 }, VaadinIcons.WARNING, UIComponentIdProvider.CONFIRMATION_POPUP_ID, null);
         UI.getCurrent().addWindow(confirmDialog.getWindow());
 
         confirmDialog.getWindow().bringToFront();
+
     }
 
-    /**
-     * Show confirmation window and if ok then only, cancel the action.
-     *
-     * @param actionId
-     *            as Id if the action needs to be cancelled.
-     */
-    private void confirmAndCancelAction(final Long actionId) {
-        if (actionId == null) {
-            return;
+    private void forceQuitActiveAction(final Long actionId) {
+        try {
+            deploymentManagement.forceQuitAction(actionId);
+
+            notification.displaySuccess(i18n.getMessage("message.forcequit.action.success"));
+            publishMasterEntityModifiedEvent();
+        } catch (final CancelActionNotAllowedException e) {
+            LOG.trace("Force Cancel action not allowed exception: {}", e.getMessage());
+            notification.displayValidationError(i18n.getMessage("message.forcequit.action.failed"));
         }
-
-        final ConfirmationDialog confirmDialog = new ConfirmationDialog(
-                i18n.getMessage("caption.cancel.action.confirmbox"), i18n.getMessage("message.cancel.action.confirm"),
-                i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
-                ok -> {
-                    if (!ok) {
-                        return;
-                    }
-                    final boolean cancelResult = cancelActiveAction(actionId);
-                    if (cancelResult) {
-                        updateTargetDetails();
-                        notification.displaySuccess(i18n.getMessage("message.cancel.action.success"));
-                    } else {
-                        notification.displayValidationError(i18n.getMessage("message.cancel.action.failed"));
-                    }
-                }, UIComponentIdProvider.CONFIRMATION_POPUP_ID);
-        UI.getCurrent().addWindow(confirmDialog.getWindow());
-        confirmDialog.getWindow().bringToFront();
-    }
-
-    // service call to cancel the active action
-    private boolean cancelActiveAction(final Long actionId) {
-        if (actionId != null) {
-            try {
-                deploymentManagement.cancelAction(actionId);
-                return true;
-            } catch (final CancelActionNotAllowedException e) {
-                LOG.info("Cancel action not allowed exception :{}", e);
-                return false;
-            }
-        }
-        return false;
-    }
-
-    // service call to cancel the active action
-    private boolean forceQuitActiveAction(final Long actionId) {
-        if (actionId != null) {
-            try {
-                deploymentManagement.forceQuitAction(actionId);
-                return true;
-            } catch (final CancelActionNotAllowedException e) {
-                LOG.info("Force Cancel action not allowed exception :{}", e);
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public ProxyTarget getSelectedMasterTarget() {
-        return selectedMasterTarget;
     }
 
     /**

@@ -9,11 +9,12 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
+import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -26,10 +27,11 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
+    private final transient TargetManagement targetManagement;
+    private final transient TargetToProxyTargetMapper targetMapper;
+
     private final ActionHistoryGridHeader actionHistoryHeader;
     private final ActionHistoryGrid actionHistoryGrid;
-
-    private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
 
     private final transient ActionHistoryGridLayoutEventListener eventListener;
 
@@ -43,9 +45,11 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
      * @param permChecker
      */
     public ActionHistoryGridLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
-            final UIEventBus eventBus, final UINotification notification, final SpPermissionChecker permChecker,
+            final TargetManagement targetManagement, final UIEventBus eventBus, final UINotification notification,
+            final SpPermissionChecker permChecker,
             final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
-        this.actionHistoryGridLayoutUiState = actionHistoryGridLayoutUiState;
+        this.targetManagement = targetManagement;
+        this.targetMapper = new TargetToProxyTargetMapper(i18n);
 
         this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, eventBus, actionHistoryGridLayoutUiState);
         this.actionHistoryGrid = new ActionHistoryGrid(i18n, deploymentManagement, eventBus, notification, permChecker,
@@ -57,46 +61,33 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     }
 
     public void restoreState() {
-        // TODO
+        actionHistoryHeader.restoreState();
     }
 
-    public void onTargetSelected(final ProxyTarget target) {
+    public void onTargetChanged(final ProxyTarget target) {
         actionHistoryHeader.updateActionHistoryHeader(target != null ? target.getName() : "");
         actionHistoryGrid.updateMasterEntityFilter(target);
     }
 
     public void onTargetUpdated(final Collection<Long> updatedTargetIds) {
-        if (actionHistoryGrid.getSelectedMasterTarget() != null
-                && updatedTargetIds.contains(actionHistoryGrid.getSelectedMasterTarget().getId())) {
-            // TODO
+        final Long masterEntityId = actionHistoryGrid.getMasterEntityId();
+
+        if (masterEntityId != null && updatedTargetIds.contains(masterEntityId)) {
+            mapTargetIdToProxyEntity(masterEntityId).ifPresent(this::onTargetChanged);
         }
     }
 
-    public void onActionChanged(final ProxyAction entity) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public Object onActionUpdated(final Collection<Long> entityIds) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public void onActionStatusChanged(final ProxyActionStatus entity) {
-        // TODO Auto-generated method stub
-
+    // TODO: should we really make a database call here?
+    private Optional<ProxyTarget> mapTargetIdToProxyEntity(final Long entityId) {
+        return targetManagement.get(entityId).map(targetMapper::map);
     }
 
     public void maximize() {
         actionHistoryGrid.createMaximizedContent();
-        // TODO
-        // hideDetailsLayout();
     }
 
     public void minimize() {
         actionHistoryGrid.createMinimizedContent();
-        // TODO
-        // showDetailsLayout();
     }
 
     public void refreshGrid() {

@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -36,18 +37,15 @@ public class ActionHistoryLayout extends HorizontalLayout {
      * @param permChecker
      */
     public ActionHistoryLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
-            final UIEventBus eventBus, final UINotification notification, final SpPermissionChecker permChecker,
-            final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState,
-            final ActionStatusGridLayoutUiState actionStatusGridLayoutUiState,
-            final ActionStatusMsgGridLayoutUiState actionStatusMsgGridLayoutUiState) {
+            final TargetManagement targetManagement, final UIEventBus eventBus, final UINotification notification,
+            final SpPermissionChecker permChecker,
+            final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
 
-        this.actionHistoryGridLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, eventBus, notification,
-                permChecker, actionHistoryGridLayoutUiState);
+        this.actionHistoryGridLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, targetManagement,
+                eventBus, notification, permChecker, actionHistoryGridLayoutUiState);
 
-        this.actionStatusLayout = new ActionStatusGridLayout(i18n, eventBus, deploymentManagement,
-                actionStatusGridLayoutUiState);
-        this.actionStatusMsgLayout = new ActionStatusMsgGridLayout(i18n, eventBus, deploymentManagement,
-                actionStatusMsgGridLayoutUiState);
+        this.actionStatusLayout = new ActionStatusGridLayout(i18n, eventBus, deploymentManagement);
+        this.actionStatusMsgLayout = new ActionStatusMsgGridLayout(i18n, eventBus, deploymentManagement);
 
         init();
         buildLayout();
@@ -74,7 +72,6 @@ public class ActionHistoryLayout extends HorizontalLayout {
 
     public void restoreState() {
         actionHistoryGridLayout.restoreState();
-        actionStatusLayout.restoreState();
     }
 
     public void maximize() {

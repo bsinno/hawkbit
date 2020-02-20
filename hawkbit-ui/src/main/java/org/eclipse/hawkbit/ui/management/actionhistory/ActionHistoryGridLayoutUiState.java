@@ -14,7 +14,6 @@ public class ActionHistoryGridLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean maximized;
-    private Long selectedActionId;
 
     public boolean isMaximized() {
         return maximized;
@@ -22,13 +21,5 @@ public class ActionHistoryGridLayoutUiState implements Serializable {
 
     public void setMaximized(final boolean maximized) {
         this.maximized = maximized;
-    }
-
-    public Long getSelectedActionId() {
-        return selectedActionId;
-    }
-
-    public void setSelectedActionId(final Long selectedActionId) {
-        this.selectedActionId = selectedActionId;
     }
 }

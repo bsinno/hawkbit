@@ -275,6 +275,7 @@ public class DelayedEventBusPushStrategy
      */
     @Override
     public void onApplicationEvent(final ApplicationEvent applicationEvent) {
+        System.out.println(applicationEvent);
         if (!(applicationEvent instanceof EntityIdEvent)) {
             return;
         }

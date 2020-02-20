@@ -47,15 +47,15 @@ public class DefaultDistributionSetTypeLayout extends CustomComponent {
     private Label changeIcon;
 
     DefaultDistributionSetTypeLayout(final SystemManagement systemManagement, final VaadinMessageSource i18n,
-            final SpPermissionChecker permChecker, final Binder<ProxySystemConfigWindow> binder,
-            final DistributionSetTypeManagement typeManagement) {
+            final SpPermissionChecker permChecker, final DistributionSetTypeManagement dsTypeManagement,
+            final Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
         this.permissionChecker = permChecker;
         this.binder = binder;
-        final DistributionSetTypeDataProvider dataProvider = new DistributionSetTypeDataProvider(typeManagement,
+        final DistributionSetTypeDataProvider dataProvider = new DistributionSetTypeDataProvider(dsTypeManagement,
                 new TypeToProxyTypeMapper<>());
         final SystemConfigWindowDependencies dependencies = new SystemConfigWindowDependencies(systemManagement, i18n,
-                permChecker, typeManagement, dataProvider);
+                permChecker, dsTypeManagement, dataProvider);
         this.builder = new SystemConfigWindowLayoutComponentBuilder(dependencies);
         initDsSetTypeComponent();
     }

@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.data.provider.Query;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.themes.ValoTheme;
@@ -43,8 +42,7 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
      * @param eventBus
      */
     protected ActionStatusMsgGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final DeploymentManagement deploymentManagement,
-            final ActionStatusMsgGridLayoutUiState actionStatusMsgGridLayoutUiState) {
+            final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus, null);
 
         this.actionStatusMsgDataProvider = new ActionStatusMsgDataProvider(deploymentManagement,
@@ -65,11 +63,6 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
         init();
     }
 
-    @Override
-    public ConfigurableFilterDataProvider<ProxyMessage, Void, Long> getFilterDataProvider() {
-        return actionStatusMsgDataProvider;
-    }
-
     private Component generateDetails(final ProxyMessage msg) {
         final TextArea textArea = new TextArea();
 
@@ -87,12 +80,8 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
     }
 
     @Override
-    public void refreshContainer() {
-        // TODO: what about sortOrders/filters, are they respected here, should
-        // we also set the limit? Evaluate
-        // grid.getDataCommunicator.fetchItemsWithRange(0,grid.getDataCommunicator.getDataProviderSize());
-        getDataProvider().fetch(new Query<>()).forEach(msg -> setDetailsVisible(msg, false));
-        super.refreshContainer();
+    public ConfigurableFilterDataProvider<ProxyMessage, Void, Long> getFilterDataProvider() {
+        return actionStatusMsgDataProvider;
     }
 
     @Override
@@ -120,5 +109,9 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
                 .setHidable(false).setHidden(false);
 
         setFrozenColumnCount(2);
+    }
+
+    public void updateMasterEntityFilter(final Long masterEntityId) {
+        getFilterDataProvider().setFilter(masterEntityId);
     }
 }

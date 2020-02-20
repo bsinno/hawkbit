@@ -53,7 +53,6 @@ public class ActionHistoryGridHeader extends AbstractGridHeader {
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
         addHeaderSupports(Arrays.asList(resizeHeaderSupport));
 
-        restoreState();
         buildHeader();
     }
 

@@ -46,22 +46,17 @@ public class RepositoryConfigurationView extends CustomComponent {
 
     private final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem;
 
-    private CheckBox actionAutoCloseCheckBox;
-    private CheckBox actionAutoCleanupCheckBox;
     private CheckBox multiAssignmentsCheckBox;
 
     private final Binder<ProxySystemConfigWindow> binder;
 
     RepositoryConfigurationView(final VaadinMessageSource i18n, final UiProperties uiProperties,
-            final ActionAutoCloseConfigurationItem actionAutocloseConfigurationItem,
-            final ActionAutoCleanupConfigurationItem actionAutocleanupConfigurationItem,
-            final MultiAssignmentsConfigurationItem multiAssignmentsConfigurationItem,
             final Binder<ProxySystemConfigWindow> binder) {
         this.i18n = i18n;
         this.uiProperties = uiProperties;
-        this.actionAutocloseConfigurationItem = actionAutocloseConfigurationItem;
-        this.actionAutocleanupConfigurationItem = actionAutocleanupConfigurationItem;
-        this.multiAssignmentsConfigurationItem = multiAssignmentsConfigurationItem;
+        this.actionAutocloseConfigurationItem = new ActionAutoCloseConfigurationItem(i18n);
+        this.actionAutocleanupConfigurationItem = new ActionAutoCleanupConfigurationItem(binder, i18n);
+        this.multiAssignmentsConfigurationItem = new MultiAssignmentsConfigurationItem(i18n, binder);
         this.binder = binder;
 
         init();
@@ -89,7 +84,7 @@ public class RepositoryConfigurationView extends CustomComponent {
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 
-        actionAutoCloseCheckBox = new CheckBox();
+        final CheckBox actionAutoCloseCheckBox = new CheckBox();
         actionAutoCloseCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         actionAutoCloseCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLOSE_CHECKBOX);
         actionAutoCloseCheckBox.setEnabled(!binder.getBean().isMultiAssignments());
@@ -114,7 +109,7 @@ public class RepositoryConfigurationView extends CustomComponent {
         gridLayout.addComponent(multiAssignmentsCheckBox, 0, 1);
         gridLayout.addComponent(multiAssignmentsConfigurationItem, 1, 1);
 
-        actionAutoCleanupCheckBox = new CheckBox();
+        final CheckBox actionAutoCleanupCheckBox = new CheckBox();
         actionAutoCleanupCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         actionAutoCleanupCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX);
         actionAutoCleanupCheckBox.addValueChangeListener(
