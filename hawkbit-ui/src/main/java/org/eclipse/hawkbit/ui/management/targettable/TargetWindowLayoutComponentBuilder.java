@@ -8,16 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.repository.model.Target;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.Binder.Binding;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -26,12 +25,8 @@ import com.vaadin.ui.TextField;
 public class TargetWindowLayoutComponentBuilder {
 
     public static final String TEXTFIELD_CONTROLLER_ID = "prompt.target.id";
-    public static final String TEXTFIELD_NAME = "textfield.name";
-    public static final String TEXTFIELD_DESCRIPTION = "textfield.description";
 
     private final VaadinMessageSource i18n;
-
-    private Binding<ProxyTarget, String> targetNameBinding;
 
     public TargetWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
@@ -51,29 +46,26 @@ public class TargetWindowLayoutComponentBuilder {
         return targetControllerId;
     }
 
-    public TextField createNameField(final Binder<ProxyTarget> binder) {
-        final TextField targetgName = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE)
-                .id(UIComponentIdProvider.TARGET_ADD_NAME).caption(i18n.getMessage(TEXTFIELD_NAME))
-                .prompt(i18n.getMessage(TEXTFIELD_NAME)).buildTextComponent();
-        targetgName.setSizeUndefined();
-
-        targetNameBinding = binder.forField(targetgName).bind(ProxyTarget::getName, ProxyTarget::setName);
-
-        return targetgName;
+    /**
+     * create a required name field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
+    public BoundComponent<TextField> createNameField(final Binder<ProxyTarget> binder) {
+        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_DESC);
     }
-
+    
+    /**
+     * create description field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextArea createDescriptionField(final Binder<ProxyTarget> binder) {
-        final TextArea targetDescription = new TextAreaBuilder(NamedEntity.DESCRIPTION_MAX_SIZE)
-                .id(UIComponentIdProvider.TARGET_ADD_DESC).caption(i18n.getMessage(TEXTFIELD_DESCRIPTION))
-                .prompt(i18n.getMessage(TEXTFIELD_DESCRIPTION)).style("text-area-style").buildTextComponent();
-        targetDescription.setSizeUndefined();
-
-        binder.forField(targetDescription).bind(ProxyTarget::getDescription, ProxyTarget::setDescription);
-
-        return targetDescription;
+        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_DESC);
     }
 
-    public Binding<ProxyTarget, String> getTargetNameBinding() {
-        return targetNameBinding;
-    }
 }

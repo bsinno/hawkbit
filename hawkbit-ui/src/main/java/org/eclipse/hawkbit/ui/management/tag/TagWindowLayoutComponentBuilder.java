@@ -8,9 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.tag;
 
-import org.eclipse.hawkbit.repository.model.NamedEntity;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyFilterButton;
 import org.eclipse.hawkbit.ui.components.ColorPickerComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -24,37 +22,32 @@ import com.vaadin.ui.components.colorpicker.ColorUtil;
 //TODO: remove duplication with other builders
 public class TagWindowLayoutComponentBuilder {
 
-    public static final String TEXTFIELD_NAME = "textfield.name";
-    public static final String TEXTFIELD_DESCRIPTION = "textfield.description";
-
     private final VaadinMessageSource i18n;
 
     public TagWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
     }
 
+    /**
+     * create name field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextField createNameField(final Binder<? extends ProxyFilterButton> binder) {
-        final TextField tagName = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE)
-                .id(UIComponentIdProvider.TAG_POPUP_NAME).caption(i18n.getMessage(TEXTFIELD_NAME))
-                .prompt(i18n.getMessage(TEXTFIELD_NAME)).buildTextComponent();
-        tagName.setSizeUndefined();
-
-        // TODO: use i18n for all the required fields messages
-        binder.forField(tagName).asRequired("You must provide tag name").bind(ProxyFilterButton::getName,
-                ProxyFilterButton::setName);
-
-        return tagName;
+        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.TAG_POPUP_NAME).getComponent();
     }
 
+    /**
+     * create description field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextArea createDescription(final Binder<? extends ProxyFilterButton> binder) {
-        final TextArea tagDescription = new TextAreaBuilder(NamedEntity.DESCRIPTION_MAX_SIZE)
-                .id(UIComponentIdProvider.TAG_POPUP_DESCRIPTION).caption(i18n.getMessage(TEXTFIELD_DESCRIPTION))
-                .prompt(i18n.getMessage(TEXTFIELD_DESCRIPTION)).style("text-area-style").buildTextComponent();
-        tagDescription.setSizeUndefined();
-
-        binder.forField(tagDescription).bind(ProxyFilterButton::getDescription, ProxyFilterButton::setDescription);
-
-        return tagDescription;
+        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.TAG_POPUP_DESCRIPTION);
     }
 
     public ColorPickerComponent createColorPickerComponent(final Binder<? extends ProxyFilterButton> binder) {

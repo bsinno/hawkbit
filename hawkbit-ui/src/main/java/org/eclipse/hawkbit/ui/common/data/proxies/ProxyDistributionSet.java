@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 /**
  * Proxy for {@link DistributionSet}.
  */
-public class ProxyDistributionSet extends ProxyNamedEntity {
+public class ProxyDistributionSet extends ProxyNamedEntity implements Versioned {
     private static final long serialVersionUID = 1L;
 
     private Boolean isComplete;

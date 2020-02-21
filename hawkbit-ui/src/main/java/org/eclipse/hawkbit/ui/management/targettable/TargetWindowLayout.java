@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -24,7 +25,7 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
     private final TargetWindowLayoutComponentBuilder targetComponentBuilder;
 
     private final TextField targetControllerId;
-    private final TextField targetName;
+    private final BoundComponent<TextField> targetName;
     private final TextArea targetDescription;
 
     /**
@@ -35,7 +36,6 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
      */
     public TargetWindowLayout(final VaadinMessageSource i18n) {
         super();
-
         this.targetComponentBuilder = new TargetWindowLayoutComponentBuilder(i18n);
 
         this.targetControllerId = targetComponentBuilder.createControllerIdField(binder);
@@ -53,24 +53,16 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
 
         targetWindowLayout.addComponent(targetControllerId);
         targetControllerId.focus();
-
-        targetWindowLayout.addComponent(targetName);
-
+        targetWindowLayout.addComponent(targetName.getComponent());
         targetWindowLayout.addComponent(targetDescription);
-
         return targetWindowLayout;
     }
-
-    public void disableControllerId() {
-        targetControllerId.setEnabled(false);
+    
+    public void setControllerIdEnabled(boolean isIdEnabled) {
+        targetControllerId.setEnabled(isIdEnabled);
     }
-
-    public void setNameAsRequired() {
-        // as of now vaadin does not allow modifying existing bindings, so we
-        // need to rebind name field again with required validator
-        targetComponentBuilder.getTargetNameBinding().unbind();
-        // TODO: use i18n for all the required fields messages
-        binder.forField(targetName).asRequired("You must provide target name").bind(ProxyTarget::getName,
-                ProxyTarget::setName);
+    
+    public void setNameRequired(boolean isNameRequired) {
+        targetName.setRequired(isNameRequired);
     }
 }

@@ -15,6 +15,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.ComponentContainer;
 
 public abstract class AbstractEntityWindowLayout<T> {
+    
     protected final Binder<T> binder;
 
     protected Consumer<Boolean> validationCallback;

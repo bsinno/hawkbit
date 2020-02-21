@@ -8,10 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
-import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -42,15 +41,17 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
         this.rsqlValidationOracle = rsqlValidationOracle;
     }
 
+    /**
+     * create name field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextField createNameField(final Binder<ProxyTargetFilterQuery> binder) {
-        final TextField filterName = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE)
-                .id(UIComponentIdProvider.CUSTOM_FILTER_ADD_NAME).caption(i18n.getMessage(TEXTFIELD_FILTER_NAME))
-                .prompt(i18n.getMessage(TEXTFIELD_FILTER_NAME)).buildTextComponent();
+        final TextField filterName = FormComponentBuilder.createNameInput(binder, i18n,
+                UIComponentIdProvider.CUSTOM_FILTER_ADD_NAME).getComponent();
         filterName.setWidth(380, Unit.PIXELS);
-
-        binder.forField(filterName).asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED))
-                .bind(ProxyTargetFilterQuery::getName, ProxyTargetFilterQuery::setName);
-
         return filterName;
     }
 

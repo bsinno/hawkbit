@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.repository.model.NamedEntity;
 /**
  * Proxy entity representing the {@link NamedEntity}, fetched from backend.
  */
-public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity {
+public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity implements Named, Describable {
 
     private static final long serialVersionUID = 1L;
 

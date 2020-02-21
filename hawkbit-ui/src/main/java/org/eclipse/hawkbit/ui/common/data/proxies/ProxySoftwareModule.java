@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.repository.model.SoftwareModule;
  * Proxy for {@link SoftwareModule} to display details in Software modules
  * table.
  */
-public class ProxySoftwareModule extends ProxyNamedEntity {
+public class ProxySoftwareModule extends ProxyNamedEntity implements Versioned {
     private static final long serialVersionUID = 1L;
 
     private String version;

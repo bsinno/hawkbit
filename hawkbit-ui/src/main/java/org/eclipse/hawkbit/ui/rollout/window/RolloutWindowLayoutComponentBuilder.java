@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
@@ -99,49 +100,32 @@ public final class RolloutWindowLayoutComponentBuilder {
                 dependencies.getTargetFilterQueryManagement(), new TargetFilterQueryToProxyTargetFilterMapper());
     }
 
+    /**
+     * create name field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextField createRolloutNameField(final Binder<ProxyRolloutWindow> binder) {
-        final TextField rolloutName = new TextFieldBuilder(Rollout.NAME_MAX_SIZE)
-                .prompt(dependencies.getI18n().getMessage(TEXTFIELD_NAME))
-                .id(UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID).buildTextComponent();
-        rolloutName.setSizeUndefined();
-
-        // TODO: use i18n for all the required fields messages
-        binder.forField(rolloutName).asRequired("You must provide rollout name").bind(ProxyRolloutWindow::getName,
-                ProxyRolloutWindow::setName);
-
-        return rolloutName;
+        TextField textField = FormComponentBuilder.createNameInput(binder, dependencies.getI18n(),
+                UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID).getComponent();
+        textField.setCaption(null);
+        return textField;
     }
 
+    /**
+     * create required Distribution Set ComboBox
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return ComboBox
+     */
     public ComboBox<ProxyDistributionSet> createDistributionSetCombo(final Binder<ProxyRolloutWindow> binder) {
-        final ComboBox<ProxyDistributionSet> distributionSet = new ComboBox<>();
-
-        distributionSet.setId(UIComponentIdProvider.ROLLOUT_DS_ID);
-        distributionSet.setPlaceholder(dependencies.getI18n().getMessage(PROMPT_DISTRIBUTION_SET));
-        distributionSet.addStyleName(ValoTheme.COMBOBOX_SMALL);
-
-        distributionSet.setItemCaptionGenerator(ProxyDistributionSet::getNameVersion);
-
-        distributionSet.setDataProvider(distributionSetDataProvider);
-
-        // TODO: use i18n for all the required fields messages
-        binder.forField(distributionSet).asRequired("You must provide the distribution set").withConverter(ds -> {
-            if (ds == null) {
-                return null;
-            }
-
-            return ds.getId();
-        }, dsId -> {
-            if (dsId == null) {
-                return null;
-            }
-
-            final ProxyDistributionSet ds = new ProxyDistributionSet();
-            ds.setId(dsId);
-
-            return ds;
-        }).bind(ProxyRolloutWindow::getDistributionSetId, ProxyRolloutWindow::setDistributionSetId);
-
-        return distributionSet;
+        final ComboBox<ProxyDistributionSet> comboBox = FormComponentBuilder.createDistributionSetComboBox(binder,
+                distributionSetDataProvider, dependencies.getI18n(), UIComponentIdProvider.ROLLOUT_DS_ID).getComponent();
+        comboBox.setCaption(null);
+        return comboBox;
     }
 
     public ComboBox<ProxyTargetFilterQuery> createTargetFilterQueryCombo(final Binder<ProxyRolloutWindow> binder) {
@@ -193,42 +177,29 @@ public final class RolloutWindowLayoutComponentBuilder {
         return targetFilterQuery;
     }
 
+    /**
+     * create description field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextArea createDescription(final Binder<ProxyRolloutWindow> binder) {
-        final TextArea description = new TextAreaBuilder(Rollout.DESCRIPTION_MAX_SIZE).style("text-area-style")
-                .id(UIComponentIdProvider.ROLLOUT_DESCRIPTION_ID).buildTextComponent();
-        description.setSizeUndefined();
-
-        binder.forField(description).bind(ProxyRolloutWindow::getDescription, ProxyRolloutWindow::setDescription);
-
-        return description;
+        return FormComponentBuilder.createDescriptionInput(binder, dependencies.getI18n(),
+                UIComponentIdProvider.ROLLOUT_DESCRIPTION_ID);
     }
 
+    /**
+     * create bound {@link ActionTypeOptionGroupAssignmentLayout}
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public ActionTypeOptionGroupAssignmentLayout createActionTypeOptionGroupLayout(
             final Binder<ProxyRolloutWindow> binder) {
-        final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout = new ActionTypeOptionGroupAssignmentLayout(
-                dependencies.getI18n(), UIComponentIdProvider.ROLLOUT_ACTION_TYPE_OPTIONS_ID);
-        // TODO: check if it is needed
-        actionTypeOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ROLLOUT_ACTION_TYPE_LAYOUT);
-
-        binder.forField(actionTypeOptionGroupLayout.getActionTypeOptionGroup()).bind(ProxyRolloutWindow::getActionType,
-                ProxyRolloutWindow::setActionType);
-
-        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
-        binder.forField(actionTypeOptionGroupLayout.getForcedTimeDateField()).withConverter(localDateTime -> {
-            if (localDateTime == null) {
-                return null;
-            }
-
-            return localDateTime.atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant().toEpochMilli();
-        }, forcedTime -> {
-            if (forcedTime == null) {
-                return null;
-            }
-
-            return LocalDateTime.ofInstant(Instant.ofEpochMilli(forcedTime), SPDateTimeUtil.getTimeZoneId(tz));
-        }).bind(ProxyRolloutWindow::getForcedTime, ProxyRolloutWindow::setForcedTime);
-
-        return actionTypeOptionGroupLayout;
+        return FormComponentBuilder.createActionTypeOptionGroupLayout(binder, dependencies.getI18n(),
+                UIComponentIdProvider.ROLLOUT_ACTION_TYPE_OPTIONS_ID);
     }
 
     public AutoStartOptionGroupLayout createAutoStartOptionGroupLayout(final Binder<ProxyRolloutWindow> binder) {

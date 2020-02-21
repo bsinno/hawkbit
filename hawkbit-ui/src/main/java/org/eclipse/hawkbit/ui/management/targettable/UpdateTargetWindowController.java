@@ -71,8 +71,8 @@ public class UpdateTargetWindowController extends AbstractEntityWindowController
 
     @Override
     protected void adaptLayout() {
-        layout.disableControllerId();
-        layout.setNameAsRequired();
+        layout.setControllerIdEnabled(false);
+        layout.setNameRequired(true);
     }
 
     @Override

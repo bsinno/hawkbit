@@ -8,10 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.distributions.dstable;
 
-import org.eclipse.hawkbit.repository.model.NamedEntity;
-import org.eclipse.hawkbit.repository.model.NamedVersionedEntity;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
@@ -60,40 +57,37 @@ public class DsWindowLayoutComponentBuilder {
         return dsTypeSelect;
     }
 
+    /**
+     * create name field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextField createNameField(final Binder<ProxyDistributionSet> binder) {
-        final TextField dsName = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE).id(UIComponentIdProvider.DIST_ADD_NAME)
-                .caption(i18n.getMessage(TEXTFIELD_NAME)).prompt(i18n.getMessage(TEXTFIELD_NAME)).buildTextComponent();
-        dsName.setSizeUndefined();
-
-        // TODO: use i18n
-        binder.forField(dsName).asRequired("You must provide distribution set name").bind(ProxyDistributionSet::getName,
-                ProxyDistributionSet::setName);
-
-        return dsName;
+        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.DIST_ADD_NAME).getComponent();
     }
 
+    /**
+     * create version field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextField createVersionField(final Binder<ProxyDistributionSet> binder) {
-        final TextField dsVersion = new TextFieldBuilder(NamedVersionedEntity.VERSION_MAX_SIZE)
-                .id(UIComponentIdProvider.DIST_ADD_VERSION).caption(i18n.getMessage(TEXTFIELD_VERSION))
-                .prompt(i18n.getMessage(TEXTFIELD_VERSION)).buildTextComponent();
-        dsVersion.setSizeUndefined();
-
-        // TODO: use i18n
-        binder.forField(dsVersion).asRequired("You must provide distribution set version")
-                .bind(ProxyDistributionSet::getVersion, ProxyDistributionSet::setVersion);
-
-        return dsVersion;
+        return FormComponentBuilder.createVersionInput(binder, i18n, UIComponentIdProvider.DIST_ADD_VERSION);
     }
 
+    /**
+     * create description field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextArea createDescription(final Binder<ProxyDistributionSet> binder) {
-        final TextArea dsDescription = new TextAreaBuilder(NamedEntity.DESCRIPTION_MAX_SIZE)
-                .id(UIComponentIdProvider.DIST_ADD_DESC).caption(i18n.getMessage(TEXTFIELD_DESCRIPTION))
-                .prompt(i18n.getMessage(TEXTFIELD_DESCRIPTION)).style("text-area-style").buildTextComponent();
-        dsDescription.setSizeUndefined();
-
-        binder.forField(dsDescription).bind(ProxyDistributionSet::getDescription, ProxyDistributionSet::setDescription);
-
-        return dsDescription;
+        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.DIST_ADD_DESC);
     }
 
     public CheckBox createMigrationStepField(final Binder<ProxyDistributionSet> binder) {

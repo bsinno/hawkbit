@@ -8,24 +8,22 @@
  */
 package org.eclipse.hawkbit.ui.management.miscs;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.TimeZone;
-
 import org.eclipse.hawkbit.repository.MaintenanceScheduleHelper;
 import org.eclipse.hawkbit.repository.exception.InvalidMaintenanceScheduleException;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.Binder.Binding;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ExternalResource;
@@ -47,33 +45,19 @@ public class AssignmentWindowLayoutComponentBuilder {
         this.i18n = i18n;
     }
 
-    // TODO: remove duplication with RolloutWindowLayoutComponentBuilder
+    /**
+     * create bound {@link ActionTypeOptionGroupAssignmentLayout}
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public ActionTypeOptionGroupAssignmentLayout createActionTypeOptionGroupLayout(
             final Binder<ProxyAssignmentWindow> binder) {
-        final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout = new ActionTypeOptionGroupAssignmentLayout(
+        ActionTypeOptionGroupAssignmentLayout layout = FormComponentBuilder.createActionTypeOptionGroupLayout(binder,
                 i18n, UIComponentIdProvider.DEPLOYMENT_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID);
-        // TODO: check if it is needed
-        actionTypeOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ASSIGNMENT_ACTION_TYPE_LAYOUT);
-
-        binder.forField(actionTypeOptionGroupLayout.getActionTypeOptionGroup())
-                .bind(ProxyAssignmentWindow::getActionType, ProxyAssignmentWindow::setActionType);
-
-        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
-        binder.forField(actionTypeOptionGroupLayout.getForcedTimeDateField()).withConverter(localDateTime -> {
-            if (localDateTime == null) {
-                return null;
-            }
-
-            return localDateTime.atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant().toEpochMilli();
-        }, forcedTime -> {
-            if (forcedTime == null) {
-                return null;
-            }
-
-            return LocalDateTime.ofInstant(Instant.ofEpochMilli(forcedTime), SPDateTimeUtil.getTimeZoneId(tz));
-        }).bind(ProxyAssignmentWindow::getForcedTime, ProxyAssignmentWindow::setForcedTime);
-
-        return actionTypeOptionGroupLayout;
+        layout.addStyleName("margin-small");
+        return layout;
     }
 
     public CheckBox createEnableMaintenanceWindowToggle(final Binder<ProxyAssignmentWindow> binder) {
@@ -90,14 +74,14 @@ public class AssignmentWindowLayoutComponentBuilder {
         return maintenanceWindowToggle;
     }
 
-    public TextField createMaintenanceSchedule(final Binder<ProxyAssignmentWindow> binder) {
+    public BoundComponent<TextField> createMaintenanceSchedule(final Binder<ProxyAssignmentWindow> binder) {
         final TextField maintenanceSchedule = createTextField("0 0 3 ? * 6",
                 UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_ID, Action.MAINTENANCE_WINDOW_SCHEDULE_LENGTH);
         maintenanceSchedule.setCaption(i18n.getMessage("caption.maintenancewindow.schedule"));
 
         // TODO: use i18n for all the required fields messages
-        binder.forField(maintenanceSchedule).asRequired("You must provide the valid cron expression")
-                .withValidator((cronSchedule, context) -> {
+        Binding<ProxyAssignmentWindow, String> binding = binder.forField(maintenanceSchedule)
+                .asRequired("You must provide the valid cron expression").withValidator((cronSchedule, context) -> {
                     try {
                         MaintenanceScheduleHelper.validateCronSchedule(cronSchedule);
                         return ValidationResult.ok();
@@ -107,7 +91,7 @@ public class AssignmentWindowLayoutComponentBuilder {
                     }
                 }).bind(ProxyAssignmentWindow::getMaintenanceSchedule, ProxyAssignmentWindow::setMaintenanceSchedule);
 
-        return maintenanceSchedule;
+        return new BoundComponent<>(maintenanceSchedule, binding);
     }
 
     // TODO: remove duplication with RolloutWindowLayoutComponentBuilder
@@ -115,13 +99,13 @@ public class AssignmentWindowLayoutComponentBuilder {
         return new TextFieldBuilder(maxLength).prompt(prompt).id(id).buildTextComponent();
     }
 
-    public TextField createMaintenanceDuration(final Binder<ProxyAssignmentWindow> binder) {
+    public BoundComponent<TextField> createMaintenanceDuration(final Binder<ProxyAssignmentWindow> binder) {
         final TextField maintenanceDuration = createTextField("hh:mm:ss",
                 UIComponentIdProvider.MAINTENANCE_WINDOW_DURATION_ID, Action.MAINTENANCE_WINDOW_DURATION_LENGTH);
         maintenanceDuration.setCaption(i18n.getMessage("caption.maintenancewindow.duration"));
 
-        binder.forField(maintenanceDuration).asRequired("You must provide the valid duration")
-                .withValidator((duration, context) -> {
+        Binding<ProxyAssignmentWindow, String> binding = binder.forField(maintenanceDuration)
+                .asRequired("You must provide the valid duration").withValidator((duration, context) -> {
                     try {
                         MaintenanceScheduleHelper.validateDuration(duration);
                         return ValidationResult.ok();
@@ -132,7 +116,7 @@ public class AssignmentWindowLayoutComponentBuilder {
                     }
                 }).bind(ProxyAssignmentWindow::getMaintenanceDuration, ProxyAssignmentWindow::setMaintenanceDuration);
 
-        return maintenanceDuration;
+        return new BoundComponent<>(maintenanceDuration, binding);
     }
 
     public ComboBox<String> createMaintenanceTimeZoneCombo(final Binder<ProxyAssignmentWindow> binder) {

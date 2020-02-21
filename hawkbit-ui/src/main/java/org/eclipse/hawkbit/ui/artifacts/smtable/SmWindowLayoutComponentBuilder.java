@@ -8,10 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
-import org.eclipse.hawkbit.repository.model.NamedEntity;
-import org.eclipse.hawkbit.repository.model.NamedVersionedEntity;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
-import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
@@ -63,30 +61,27 @@ public class SmWindowLayoutComponentBuilder {
         return smTypeSelect;
     }
 
+    /**
+     * create name field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextField createNameField(final Binder<ProxySoftwareModule> binder) {
-        final TextField smName = new TextFieldBuilder(NamedEntity.NAME_MAX_SIZE)
-                .id(UIComponentIdProvider.SOFT_MODULE_NAME).caption(i18n.getMessage(TEXTFIELD_NAME))
-                .prompt(i18n.getMessage(TEXTFIELD_NAME)).buildTextComponent();
-        smName.setSizeUndefined();
-
-        // TODO: use i18n
-        binder.forField(smName).asRequired("You must provide software module name").bind(ProxySoftwareModule::getName,
-                ProxySoftwareModule::setName);
-
-        return smName;
+        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.SOFT_MODULE_NAME)
+                .getComponent();
     }
 
+    /**
+     * create version field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextField createVersionField(final Binder<ProxySoftwareModule> binder) {
-        final TextField smVersion = new TextFieldBuilder(NamedVersionedEntity.VERSION_MAX_SIZE)
-                .id(UIComponentIdProvider.SOFT_MODULE_VERSION).caption(i18n.getMessage(TEXTFIELD_VERSION))
-                .prompt(i18n.getMessage(TEXTFIELD_VERSION)).buildTextComponent();
-        smVersion.setSizeUndefined();
-
-        // TODO: use i18n
-        binder.forField(smVersion).asRequired("You must provide software module version")
-                .bind(ProxySoftwareModule::getVersion, ProxySoftwareModule::setVersion);
-
-        return smVersion;
+        return FormComponentBuilder.createVersionInput(binder, i18n, UIComponentIdProvider.SOFT_MODULE_VERSION);
     }
 
     public TextField createVendorField(final Binder<ProxySoftwareModule> binder) {
@@ -101,14 +96,15 @@ public class SmWindowLayoutComponentBuilder {
         return smVendor;
     }
 
+    /**
+     * create description field
+     * 
+     * @param binder
+     *            binder the input will be bound to
+     * @return input component
+     */
     public TextArea createDescription(final Binder<ProxySoftwareModule> binder) {
-        final TextArea smDescription = new TextAreaBuilder(NamedEntity.DESCRIPTION_MAX_SIZE)
-                .id(UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION).caption(i18n.getMessage(TEXTFIELD_DESCRIPTION))
-                .prompt(i18n.getMessage(TEXTFIELD_DESCRIPTION)).style("text-area-style").buildTextComponent();
-        smDescription.setSizeUndefined();
-
-        binder.forField(smDescription).bind(ProxySoftwareModule::getDescription, ProxySoftwareModule::setDescription);
-
-        return smDescription;
+        return FormComponentBuilder.createDescriptionInput(binder, i18n,
+                UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION);
     }
 }

@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder
 /**
  * Proxy entity representing rollout popup window bean.
  */
-public class ProxyRolloutWindow implements Serializable {
+public class ProxyRolloutWindow implements Serializable, Named, Describable, ActionCreator, DsIdProvider {
 
     private static final long serialVersionUID = 1L;
 
