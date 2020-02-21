@@ -1267,6 +1267,11 @@ public final class UIComponentIdProvider {
     public static final String DISTRIBUTIONSET_DETAILS_TABSHEET_ID = "distributionset.details.tabsheet";
 
     /**
+     * Ds details modules table id.
+     */
+    public static final String DS_DETAILS_MODULES_ID = "ds.details.modules";
+
+    /**
      * Software module table details tab id in Distributions .
      */
     public static final String DIST_SW_MODULE_DETAILS_TABSHEET_ID = "dist.sw.module.details.tabsheet";

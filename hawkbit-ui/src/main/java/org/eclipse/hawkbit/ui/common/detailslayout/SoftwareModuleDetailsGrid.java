@@ -32,6 +32,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
+import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
@@ -125,11 +126,11 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
     }
 
     private void init() {
+        setId(UIComponentIdProvider.DS_DETAILS_MODULES_ID);
         setSizeFull();
         setHeightMode(HeightMode.UNDEFINED);
 
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        // addStyleName(SPUIStyleDefinitions.SW_MODULE_TABLE);
 
         setSelectionMode(SelectionMode.NONE);
 
