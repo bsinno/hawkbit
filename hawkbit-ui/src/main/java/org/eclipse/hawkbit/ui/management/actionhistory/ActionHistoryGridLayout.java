@@ -12,10 +12,11 @@ import java.util.Collection;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
-import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
+import org.eclipse.hawkbit.ui.common.data.mappers.ActionToProxyActionMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -27,8 +28,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final transient TargetManagement targetManagement;
-    private final transient TargetToProxyTargetMapper targetMapper;
+    private final transient DeploymentManagement deploymentManagement;
+    private final transient ActionToProxyActionMapper actionMapper;
 
     private final ActionHistoryGridHeader actionHistoryHeader;
     private final ActionHistoryGrid actionHistoryGrid;
@@ -45,11 +46,10 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
      * @param permChecker
      */
     public ActionHistoryGridLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
-            final TargetManagement targetManagement, final UIEventBus eventBus, final UINotification notification,
-            final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final UINotification notification, final SpPermissionChecker permChecker,
             final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
-        this.targetManagement = targetManagement;
-        this.targetMapper = new TargetToProxyTargetMapper(i18n);
+        this.deploymentManagement = deploymentManagement;
+        this.actionMapper = new ActionToProxyActionMapper();
 
         this.actionHistoryHeader = new ActionHistoryGridHeader(i18n, eventBus, actionHistoryGridLayoutUiState);
         this.actionHistoryGrid = new ActionHistoryGrid(i18n, deploymentManagement, eventBus, notification, permChecker,
@@ -69,29 +69,35 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
         actionHistoryGrid.updateMasterEntityFilter(target);
     }
 
-    public void onTargetUpdated(final Collection<Long> updatedTargetIds) {
+    public void onActionUpdated(final Long targetId, final Collection<Long> entityIds) {
         final Long masterEntityId = actionHistoryGrid.getMasterEntityId();
 
-        if (masterEntityId != null && updatedTargetIds.contains(masterEntityId)) {
-            mapTargetIdToProxyEntity(masterEntityId).ifPresent(this::onTargetChanged);
+        if (masterEntityId != null && masterEntityId.equals(targetId)) {
+            actionHistoryGrid.refreshContainer();
+
+            if (actionHistoryGrid.getSelectedItems().size() == 1) {
+                final Long selectedEntityId = actionHistoryGrid.getSelectedItems().iterator().next().getId();
+
+                entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId)).findAny()
+                        .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(
+                                updatedEntity -> actionHistoryGrid.getSelectionSupport().sendSelectionChangedEvent(
+                                        SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
+            }
         }
     }
 
-    // TODO: should we really make a database call here?
-    private Optional<ProxyTarget> mapTargetIdToProxyEntity(final Long entityId) {
-        return targetManagement.get(entityId).map(targetMapper::map);
+    // TODO: extract to parent abstract #mapIdToProxyEntity?
+    private Optional<ProxyAction> mapIdToProxyEntity(final Long entityId) {
+        return deploymentManagement.findAction(entityId).map(actionMapper::map);
     }
 
     public void maximize() {
         actionHistoryGrid.createMaximizedContent();
+        actionHistoryGrid.getSelectionSupport().selectFirstRow();
     }
 
     public void minimize() {
         actionHistoryGrid.createMinimizedContent();
-    }
-
-    public void refreshGrid() {
-        actionHistoryGrid.refreshContainer();
     }
 
     public void unsubscribeListener() {

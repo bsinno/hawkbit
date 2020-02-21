@@ -135,4 +135,18 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     public void updateMasterEntityFilter(final Long masterEntityId) {
         getFilterDataProvider().setFilter(masterEntityId);
     }
+
+    /**
+     * Creates the grid content for maximized-state.
+     */
+    public void createMaximizedContent() {
+        getSelectionSupport().enableSingleSelection();
+    }
+
+    /**
+     * Creates the grid content for normal (minimized) state.
+     */
+    public void createMinimizedContent() {
+        getSelectionSupport().disableSelection();
+    }
 }

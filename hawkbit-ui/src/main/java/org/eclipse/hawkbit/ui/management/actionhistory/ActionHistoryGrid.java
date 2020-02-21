@@ -384,17 +384,18 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
             deploymentManagement.cancelAction(actionId);
 
             notification.displaySuccess(i18n.getMessage("message.cancel.action.success"));
-            publishMasterEntityModifiedEvent();
+            publishEntityModifiedEvent(actionId);
         } catch (final CancelActionNotAllowedException e) {
             LOG.trace("Cancel action not allowed exception: {}", e.getMessage());
             notification.displayValidationError(i18n.getMessage("message.cancel.action.failed"));
         }
     }
 
-    private void publishMasterEntityModifiedEvent() {
+    private void publishEntityModifiedEvent(final Long actionId) {
         if (masterEntityId != null) {
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, masterEntityId));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class,
+                            masterEntityId, ProxyAction.class, actionId));
         }
     }
 
@@ -424,7 +425,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
             deploymentManagement.forceTargetAction(actionId);
 
             notification.displaySuccess(i18n.getMessage("message.force.action.success"));
-            publishMasterEntityModifiedEvent();
+            publishEntityModifiedEvent(actionId);
         } catch (final EntityNotFoundException e) {
             LOG.trace("Action was not found during force command: {}", e.getMessage());
             notification.displayValidationError(i18n.getMessage("message.force.action.failed"));
@@ -450,7 +451,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         UI.getCurrent().addWindow(confirmDialog.getWindow());
 
         confirmDialog.getWindow().bringToFront();
-
     }
 
     private void forceQuitActiveAction(final Long actionId) {
@@ -458,7 +458,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
             deploymentManagement.forceQuitAction(actionId);
 
             notification.displaySuccess(i18n.getMessage("message.forcequit.action.success"));
-            publishMasterEntityModifiedEvent();
+            publishEntityModifiedEvent(actionId);
         } catch (final CancelActionNotAllowedException e) {
             LOG.trace("Force Cancel action not allowed exception: {}", e.getMessage());
             notification.displayValidationError(i18n.getMessage("message.forcequit.action.failed"));

@@ -32,6 +32,7 @@ import org.eclipse.hawkbit.repository.event.remote.entity.RolloutUpdatedEvent;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.push.HawkbitEventProvider.EntityModifiedEventPayloadIdentifier;
+import org.eclipse.hawkbit.ui.push.event.ActionChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.ParentIdAwareEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
@@ -275,7 +276,6 @@ public class DelayedEventBusPushStrategy
      */
     @Override
     public void onApplicationEvent(final ApplicationEvent applicationEvent) {
-        System.out.println(applicationEvent);
         if (!(applicationEvent instanceof EntityIdEvent)) {
             return;
         }
@@ -283,6 +283,7 @@ public class DelayedEventBusPushStrategy
         final EntityIdEvent event = (EntityIdEvent) applicationEvent;
 
         collectRolloutEvent(event);
+        collectActionUpdatedEvent(event);
         // filter out non-relevant UI
         if (!isEventProvided(event)) {
             LOG.trace("Event is not supported in the UI!!! Dropped event is {}", event);
@@ -331,6 +332,14 @@ public class DelayedEventBusPushStrategy
 
         if (rolloutGroupId != null) {
             offerEventIfNotContains(new RolloutGroupChangedEvent(event.getTenant(), rolloutId, rolloutGroupId));
+        }
+    }
+
+    private void collectActionUpdatedEvent(final EntityIdEvent event) {
+        if (event instanceof ActionUpdatedEvent) {
+            final Long actionId = ((ActionUpdatedEvent) event).getEntityId();
+            final Long targetId = ((ActionUpdatedEvent) event).getTargetId();
+            offerEventIfNotContains(new ActionChangedEvent(event.getTenant(), targetId, actionId));
         }
     }
 }

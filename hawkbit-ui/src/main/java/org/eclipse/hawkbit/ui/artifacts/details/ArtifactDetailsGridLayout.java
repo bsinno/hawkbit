@@ -84,7 +84,7 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         }
     }
 
-    public void onSmSelected(final ProxySoftwareModule selectedSm) {
+    public void onSmChanged(final ProxySoftwareModule selectedSm) {
         artifactDetailsHeader.updateArtifactDetailsHeader(selectedSm != null ? selectedSm.getNameAndVersion() : "");
         artifactDetailsGrid.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
 

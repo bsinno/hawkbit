@@ -28,6 +28,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
@@ -103,7 +104,7 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     private void restoreGridSelection() {
         final Long lastSelectedEntityId = distributionGridLayoutUiState.getSelectedDsId();
 
-        if (lastSelectedEntityId != null) {
+        if (lastSelectedEntityId != null && distributionGrid.hasSelectionSupport()) {
             selectEntityById(lastSelectedEntityId);
         } else {
             distributionGrid.getSelectionSupport().selectFirstRow();
@@ -152,11 +153,18 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onDsUpdated(final Collection<Long> entityIds) {
-        entityIds.stream()
-                .filter(entityId -> entityId.equals(distributionGridLayoutUiState.getSelectedDsId())
-                        || entityId.equals(distributionGridLayoutUiState.getPinnedDsId()))
-                .findAny()
-                .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onDsChanged));
+        final Long selectedEntityId = distributionGrid.getSelectedItems().size() == 1
+                ? distributionGrid.getSelectedItems().iterator().next().getId()
+                : null;
+        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
+
+        if (selectedEntityId != null || pinnedDsId != null) {
+            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId) || entityId.equals(pinnedDsId))
+                    .findAny()
+                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(
+                            updatedEntity -> distributionGrid.getSelectionSupport().sendSelectionChangedEvent(
+                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
+        }
     }
 
     public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {

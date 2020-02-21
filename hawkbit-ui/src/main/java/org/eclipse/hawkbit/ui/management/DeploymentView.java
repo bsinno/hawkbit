@@ -102,8 +102,8 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
                     managementUIState.getDistributionGridLayoutUiState());
             this.targetCountLayout = targetGridLayout.getCountMessageLabel().createFooterMessageComponent();
 
-            this.actionHistoryLayout = new ActionHistoryLayout(i18n, deploymentManagement, targetManagement, eventBus,
-                    uiNotification, permChecker, managementUIState.getActionHistoryGridLayoutUiState());
+            this.actionHistoryLayout = new ActionHistoryLayout(i18n, deploymentManagement, eventBus, uiNotification,
+                    permChecker, managementUIState.getActionHistoryGridLayoutUiState());
         } else {
             this.targetTagFilterLayout = null;
             this.targetGridLayout = null;

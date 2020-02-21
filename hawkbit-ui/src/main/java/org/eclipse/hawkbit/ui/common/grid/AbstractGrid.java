@@ -98,7 +98,7 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     protected void init() {
         setSizeFull();
         setId(getGridId());
-        if (!hasSelectionSupport()) {
+        if (selectionSupport == null) {
             selectionSupport = new SelectionSupport<>(this);
             selectionSupport.disableSelection();
         }
@@ -192,10 +192,10 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     }
 
     /**
-     * Checks whether selection-support is enabled.
+     * Checks whether single or multi selection-support is enabled.
      *
-     * @return <code>true</code> if selection-support is enabled, otherwise
-     *         <code>false</code>
+     * @return <code>true</code> if single or multi selection-support is
+     *         enabled, otherwise <code>false</code>
      */
     public boolean hasSelectionSupport() {
         return selectionSupport != null && !selectionSupport.isNoSelectionModel();

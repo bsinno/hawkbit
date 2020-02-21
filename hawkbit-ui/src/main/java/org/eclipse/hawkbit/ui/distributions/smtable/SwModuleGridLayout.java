@@ -24,6 +24,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -88,7 +89,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private void restoreGridSelection() {
         final Long lastSelectedEntityId = swModuleGridLayoutUiState.getSelectedSmId();
 
-        if (lastSelectedEntityId != null) {
+        if (lastSelectedEntityId != null && swModuleGrid.hasSelectionSupport()) {
             selectEntityById(lastSelectedEntityId);
         } else {
             swModuleGrid.getSelectionSupport().selectFirstRow();
@@ -117,21 +118,19 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onSmUpdated(final Collection<Long> entityIds) {
-        entityIds.stream().filter(entityId -> entityId.equals(swModuleGridLayoutUiState.getSelectedSmId())).findAny()
-                .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onSmChanged));
+        if (swModuleGrid.getSelectedItems().size() == 1) {
+            final Long selectedEntityId = swModuleGrid.getSelectedItems().iterator().next().getId();
+
+            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId)).findAny()
+                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId)
+                            .ifPresent(updatedEntity -> swModuleGrid.getSelectionSupport().sendSelectionChangedEvent(
+                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
+        }
     }
 
-    public void onDsSelected(final ProxyDistributionSet selectedDs) {
+    public void onDsChanged(final ProxyDistributionSet selectedDs) {
         swModuleGrid.updateMasterEntityFilter(selectedDs != null ? selectedDs.getId() : null);
         swModuleGrid.deselectAll();
-    }
-
-    public void onDsUpdated(final Collection<Long> entityIds) {
-        final Long lastSelectedDsId = swModuleGrid.getMasterEntityFilter();
-
-        if (lastSelectedDsId != null && entityIds.contains(lastSelectedDsId)) {
-            swModuleGrid.refreshContainer();
-        }
     }
 
     public void showSmTypeHeaderIcon() {

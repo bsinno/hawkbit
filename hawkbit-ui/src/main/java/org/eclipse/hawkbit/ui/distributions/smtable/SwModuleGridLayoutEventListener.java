@@ -77,9 +77,9 @@ public class SwModuleGridLayoutEventListener {
             }
 
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                swModuleGridLayout.onDsSelected(eventPayload.getEntity());
+                swModuleGridLayout.onDsChanged(eventPayload.getEntity());
             } else {
-                swModuleGridLayout.onDsSelected(null);
+                swModuleGridLayout.onDsChanged(null);
             }
         }
     }
@@ -145,17 +145,6 @@ public class SwModuleGridLayoutEventListener {
                 // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
                 // right or improve
                 UI.getCurrent().access(() -> swModuleGridLayout.onSmUpdated(entityIds));
-            }
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyDistributionSet.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
-                swModuleGridLayout.onDsUpdated(eventPayload.getEntityIds());
             }
         }
     }

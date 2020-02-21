@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
-import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -37,12 +36,11 @@ public class ActionHistoryLayout extends HorizontalLayout {
      * @param permChecker
      */
     public ActionHistoryLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
-            final TargetManagement targetManagement, final UIEventBus eventBus, final UINotification notification,
-            final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final UINotification notification, final SpPermissionChecker permChecker,
             final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
 
-        this.actionHistoryGridLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, targetManagement,
-                eventBus, notification, permChecker, actionHistoryGridLayoutUiState);
+        this.actionHistoryGridLayout = new ActionHistoryGridLayout(i18n, deploymentManagement, eventBus, notification,
+                permChecker, actionHistoryGridLayoutUiState);
 
         this.actionStatusLayout = new ActionStatusGridLayout(i18n, eventBus, deploymentManagement);
         this.actionStatusMsgLayout = new ActionStatusMsgGridLayout(i18n, eventBus, deploymentManagement);
@@ -76,17 +74,25 @@ public class ActionHistoryLayout extends HorizontalLayout {
 
     public void maximize() {
         actionHistoryGridLayout.maximize();
+        actionStatusLayout.maximize();
+        actionStatusMsgLayout.maximize();
+
         actionStatusLayout.setVisible(true);
         actionStatusMsgLayout.setVisible(true);
     }
 
     public void minimize() {
         actionHistoryGridLayout.minimize();
+        actionStatusLayout.minimize();
+        actionStatusMsgLayout.minimize();
+
         actionStatusLayout.setVisible(false);
         actionStatusMsgLayout.setVisible(false);
     }
 
     public void unsubscribeListener() {
         actionHistoryGridLayout.unsubscribeListener();
+        actionStatusLayout.unsubscribeListener();
+        actionStatusMsgLayout.unsubscribeListener();
     }
 }

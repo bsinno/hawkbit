@@ -13,8 +13,6 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
@@ -41,7 +39,6 @@ public class ArtifactDetailsGridLayoutEventListener {
     private void registerEventListeners() {
         eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new FileUploadChangedListener());
-        eventListeners.add(new EntityModifiedListener());
     }
 
     private class SelectionChangedListener {
@@ -57,9 +54,9 @@ public class ArtifactDetailsGridLayoutEventListener {
             }
 
             if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                artifactDetailsGridLayout.onSmSelected(eventPayload.getEntity());
+                artifactDetailsGridLayout.onSmChanged(eventPayload.getEntity());
             } else {
-                artifactDetailsGridLayout.onSmSelected(null);
+                artifactDetailsGridLayout.onSmChanged(null);
             }
         }
     }
@@ -73,26 +70,6 @@ public class ArtifactDetailsGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onArtifactEvent(final FileUploadProgress fileUploadProgress) {
             artifactDetailsGridLayout.onUploadChanged(fileUploadProgress);
-        }
-    }
-
-    private class EntityModifiedListener {
-
-        public EntityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSmUpdatedEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxySoftwareModule.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            // we do not know if Software Module was updated due to Artifacts
-            // change or fields change, so we always refresh the Artifacts grid
-            if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
-                artifactDetailsGridLayout.refreshGrid();
-            }
         }
     }
 

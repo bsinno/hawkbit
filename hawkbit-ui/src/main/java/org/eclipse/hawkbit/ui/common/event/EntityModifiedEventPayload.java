@@ -46,6 +46,12 @@ public class EntityModifiedEventPayload {
 
     public EntityModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType,
             final Class<? extends ProxyIdentifiableEntity> parentType, final Long parentId,
+            final Class<? extends ProxyIdentifiableEntity> entityType, final Long entityId) {
+        this(entityModifiedEventType, parentType, parentId, entityType, Collections.singletonList(entityId));
+    }
+
+    public EntityModifiedEventPayload(final EntityModifiedEventType entityModifiedEventType,
+            final Class<? extends ProxyIdentifiableEntity> parentType, final Long parentId,
             final Class<? extends ProxyIdentifiableEntity> entityType, final Collection<Long> entityIds) {
         this.entityModifiedEventType = entityModifiedEventType;
         this.parentType = parentType;

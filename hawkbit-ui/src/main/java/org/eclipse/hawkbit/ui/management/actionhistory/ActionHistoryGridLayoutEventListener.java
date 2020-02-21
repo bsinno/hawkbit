@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
@@ -69,13 +70,14 @@ public class ActionHistoryGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyTarget.class.equals(eventPayload.getEntityType())) {
+        private void onActionEvent(final EntityModifiedEventPayload eventPayload) {
+            if (!ProxyTarget.class.equals(eventPayload.getParentType())
+                    || !ProxyAction.class.equals(eventPayload.getEntityType())) {
                 return;
             }
 
             if (eventPayload.getEntityModifiedEventType() == EntityModifiedEventType.ENTITY_UPDATED) {
-                actionHistoryGridLayout.onTargetUpdated(eventPayload.getEntityIds());
+                actionHistoryGridLayout.onActionUpdated(eventPayload.getParentId(), eventPayload.getEntityIds());
             }
         }
     }

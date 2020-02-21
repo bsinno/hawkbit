@@ -23,6 +23,8 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
     private final ActionStatusMsgGridHeader actionStatusMsgHeader;
     private final ActionStatusMsgGrid actionStatusMsgGrid;
 
+    private final transient ActionStatusMsgGridLayoutEventListener eventListener;
+
     /**
      * Constructor.
      *
@@ -35,10 +37,25 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
         this.actionStatusMsgHeader = new ActionStatusMsgGridHeader(i18n);
         this.actionStatusMsgGrid = new ActionStatusMsgGrid(i18n, eventBus, deploymentManagement);
 
+        this.eventListener = new ActionStatusMsgGridLayoutEventListener(this, eventBus);
+
         buildLayout(actionStatusMsgHeader, actionStatusMsgGrid);
     }
 
     public void onActionStatusChanged(final ProxyActionStatus actionStatus) {
         actionStatusMsgGrid.updateMasterEntityFilter(actionStatus != null ? actionStatus.getId() : null);
+    }
+
+    public void maximize() {
+        actionStatusMsgGrid.createMaximizedContent();
+        actionStatusMsgGrid.getSelectionSupport().selectFirstRow();
+    }
+
+    public void minimize() {
+        actionStatusMsgGrid.createMinimizedContent();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
     }
 }

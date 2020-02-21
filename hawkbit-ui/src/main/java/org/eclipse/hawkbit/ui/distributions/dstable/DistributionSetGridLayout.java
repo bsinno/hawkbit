@@ -29,6 +29,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -103,7 +104,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     private void restoreGridSelection() {
         final Long lastSelectedEntityId = distributionSetGridLayoutUiState.getSelectedDsId();
 
-        if (lastSelectedEntityId != null) {
+        if (lastSelectedEntityId != null && distributionSetGrid.hasSelectionSupport()) {
             selectEntityById(lastSelectedEntityId);
         } else {
             distributionSetGrid.getSelectionSupport().selectFirstRow();
@@ -132,9 +133,14 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onDsUpdated(final Collection<Long> entityIds) {
-        entityIds.stream().filter(entityId -> entityId.equals(distributionSetGridLayoutUiState.getSelectedDsId()))
-                .findAny()
-                .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onDsChanged));
+        if (distributionSetGrid.getSelectedItems().size() == 1) {
+            final Long selectedEntityId = distributionSetGrid.getSelectedItems().iterator().next().getId();
+
+            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId)).findAny()
+                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(
+                            updatedEntity -> distributionSetGrid.getSelectionSupport().sendSelectionChangedEvent(
+                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
+        }
     }
 
     public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {

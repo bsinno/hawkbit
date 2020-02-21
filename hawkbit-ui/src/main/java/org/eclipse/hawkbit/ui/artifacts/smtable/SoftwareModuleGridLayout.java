@@ -22,6 +22,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -86,7 +87,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     private void restoreGridSelection() {
         final Long lastSelectedEntityId = smGridLayoutUiState.getSelectedSmId();
 
-        if (lastSelectedEntityId != null) {
+        if (lastSelectedEntityId != null && softwareModuleGrid.hasSelectionSupport()) {
             selectEntityById(lastSelectedEntityId);
         } else {
             softwareModuleGrid.getSelectionSupport().selectFirstRow();
@@ -115,8 +116,14 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onSmUpdated(final Collection<Long> entityIds) {
-        entityIds.stream().filter(entityId -> entityId.equals(smGridLayoutUiState.getSelectedSmId())).findAny()
-                .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onSmChanged));
+        if (softwareModuleGrid.getSelectedItems().size() == 1) {
+            final Long selectedEntityId = softwareModuleGrid.getSelectedItems().iterator().next().getId();
+
+            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId)).findAny()
+                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(
+                            updatedEntity -> softwareModuleGrid.getSelectionSupport().sendSelectionChangedEvent(
+                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
+        }
     }
 
     public void showSmTypeHeaderIcon() {

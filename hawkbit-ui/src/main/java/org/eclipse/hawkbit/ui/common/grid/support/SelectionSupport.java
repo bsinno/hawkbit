@@ -65,11 +65,11 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
                     : SelectionChangedEventType.ENTITY_DESELECTED;
             final T itemToSend = event.getSelectedItem().orElse(event.getOldValue());
 
-            sendEvent(selectionType, itemToSend);
+            sendSelectionChangedEvent(selectionType, itemToSend);
         });
     }
 
-    private void sendEvent(final SelectionChangedEventType selectionType, final T itemToSend) {
+    public void sendSelectionChangedEvent(final SelectionChangedEventType selectionType, final T itemToSend) {
         if (eventBus == null) {
             return;
         }
@@ -89,9 +89,11 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         grid.asMultiSelect().setSelectAllCheckBoxVisibility(SelectAllCheckBoxVisibility.VISIBLE);
         grid.asMultiSelect().addMultiSelectionListener(event -> {
             if (event.getAllSelectedItems().size() == 1) {
-                sendEvent(SelectionChangedEventType.ENTITY_SELECTED, event.getAllSelectedItems().iterator().next());
+                sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED,
+                        event.getAllSelectedItems().iterator().next());
             } else if (event.getOldSelection().size() == 1) {
-                sendEvent(SelectionChangedEventType.ENTITY_DESELECTED, event.getOldSelection().iterator().next());
+                sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_DESELECTED,
+                        event.getOldSelection().iterator().next());
             }
         });
     }

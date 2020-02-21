@@ -38,6 +38,7 @@ import org.eclipse.hawkbit.repository.event.remote.entity.TargetFilterQueryUpdat
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetUpdatedEvent;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
@@ -49,6 +50,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.push.event.ActionChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
 
@@ -140,9 +142,8 @@ public class HawkbitEventProvider implements UIEventProvider {
         EVENTS.put(RolloutGroupChangedEvent.class, new EntityModifiedEventPayloadIdentifier(ProxyRollout.class,
                 ProxyRolloutGroup.class, EntityModifiedEventType.ENTITY_UPDATED));
 
-        // TODO: check if needed
-        // EVENTS.put(CancelTargetAssignmentEvent.class,
-        // CancelTargetAssignmentEventContainer.class);
+        EVENTS.put(ActionChangedEvent.class, new EntityModifiedEventPayloadIdentifier(ProxyTarget.class,
+                ProxyAction.class, EntityModifiedEventType.ENTITY_UPDATED));
 
         EVENTS.put(TargetFilterQueryCreatedEvent.class, new EntityModifiedEventPayloadIdentifier(
                 ProxyTargetFilterQuery.class, EntityModifiedEventType.ENTITY_ADDED));

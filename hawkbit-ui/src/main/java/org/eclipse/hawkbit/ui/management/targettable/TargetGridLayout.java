@@ -28,6 +28,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
 import org.eclipse.hawkbit.ui.management.bulkupload.BulkUploadWindowBuilder;
@@ -116,7 +117,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     private void restoreGridSelection() {
         final Long lastSelectedEntityId = targetGridLayoutUiState.getSelectedTargetId();
 
-        if (lastSelectedEntityId != null) {
+        if (lastSelectedEntityId != null && targetGrid.hasSelectionSupport()) {
             selectEntityById(lastSelectedEntityId);
         } else {
             targetGrid.getSelectionSupport().selectFirstRow();
@@ -145,8 +146,14 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onTargetUpdated(final Collection<Long> entityIds) {
-        entityIds.stream().filter(entityId -> entityId.equals(targetGridLayoutUiState.getSelectedTargetId())).findAny()
-                .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(this::onTargetChanged));
+        if (targetGrid.getSelectedItems().size() == 1) {
+            final Long selectedEntityId = targetGrid.getSelectedItems().iterator().next().getId();
+
+            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId)).findAny()
+                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId)
+                            .ifPresent(updatedEntity -> targetGrid.getSelectionSupport().sendSelectionChangedEvent(
+                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
+        }
     }
 
     public void onTargetTagsModified(final Collection<Long> entityIds,
