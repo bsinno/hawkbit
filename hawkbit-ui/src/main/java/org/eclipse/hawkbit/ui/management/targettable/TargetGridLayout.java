@@ -115,9 +115,13 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     }
 
     private void restoreGridSelection() {
+        if (!targetGrid.hasSelectionSupport()) {
+            return;
+        }
+
         final Long lastSelectedEntityId = targetGridLayoutUiState.getSelectedTargetId();
 
-        if (lastSelectedEntityId != null && targetGrid.hasSelectionSupport()) {
+        if (lastSelectedEntityId != null) {
             selectEntityById(lastSelectedEntityId);
         } else {
             targetGrid.getSelectionSupport().selectFirstRow();
@@ -126,6 +130,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent abstract #selectEntityById?
     public void selectEntityById(final Long entityId) {
+        if (!targetGrid.hasSelectionSupport()) {
+            return;
+        }
+
         if (!targetGrid.getSelectedItems().isEmpty()) {
             targetGrid.deselectAll();
         }
@@ -146,6 +154,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onTargetUpdated(final Collection<Long> entityIds) {
+        if (!targetGrid.hasSelectionSupport()) {
+            return;
+        }
+
         if (targetGrid.getSelectedItems().size() == 1) {
             final Long selectedEntityId = targetGrid.getSelectedItems().iterator().next().getId();
 

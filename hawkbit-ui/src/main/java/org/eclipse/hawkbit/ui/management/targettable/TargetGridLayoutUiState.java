@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.management.targettable;
 import java.io.Serializable;
 
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
-import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdNameVersion;
 
 public class TargetGridLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -22,7 +22,7 @@ public class TargetGridLayoutUiState implements Serializable {
     private Long pinnedTargetId;
     // TODO: check if we could only keep pinned targetId or controllerId
     private String pinnedControllerId;
-    private DistributionSetIdName filterDsIdNameVersion;
+    private ProxyIdNameVersion filterDsIdNameVersion;
 
     // TODO: check if it is right, make sure to update it in TargetGrid
     private TargetManagementFilterParams targetManagementFilterParams;
@@ -75,11 +75,11 @@ public class TargetGridLayoutUiState implements Serializable {
         this.pinnedTargetId = pinnedTargetId;
     }
 
-    public DistributionSetIdName getFilterDsIdNameVersion() {
+    public ProxyIdNameVersion getFilterDsIdNameVersion() {
         return filterDsIdNameVersion;
     }
 
-    public void setFilterDsIdNameVersion(final DistributionSetIdName filterDsIdNameVersion) {
+    public void setFilterDsIdNameVersion(final ProxyIdNameVersion filterDsIdNameVersion) {
         this.filterDsIdNameVersion = filterDsIdNameVersion;
     }
 }

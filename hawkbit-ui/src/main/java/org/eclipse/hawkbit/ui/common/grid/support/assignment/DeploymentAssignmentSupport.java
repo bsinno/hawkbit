@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
@@ -36,7 +37,7 @@ public abstract class DeploymentAssignmentSupport<S extends ProxyNamedEntity, T 
     }
 
     protected ConfirmationDialog openConfirmationWindowForAssignments(final List<String> sourceItemNames,
-            final String targetItemName, final Component content, final boolean canWindowSave,
+            final String targetItemName, final Component content, final BooleanSupplier canWindowSave,
             final Runnable assignmentExecutor) {
         final String confirmationMessage = getConfirmationMessageForAssignments(sourceItemNames, targetItemName);
         final ConfirmationDialog confirmAssignDialog = createConfirmationWindow(confirmationMessage, content,
@@ -62,13 +63,13 @@ public abstract class DeploymentAssignmentSupport<S extends ProxyNamedEntity, T 
     }
 
     private ConfirmationDialog createConfirmationWindow(final String confirmationMessage, final Component content,
-            final boolean canWindowSave, final Runnable assignmentExecutor) {
+            final BooleanSupplier canWindowSave, final Runnable assignmentExecutor) {
         final String caption = i18n.getMessage(UIMessageIdProvider.CAPTION_ENTITY_ASSIGN_ACTION_CONFIRMBOX);
         final String okLabelCaption = i18n.getMessage(UIMessageIdProvider.BUTTON_OK);
         final String cancelLabelCaption = i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL);
 
         return new ConfirmationDialog(caption, confirmationMessage, okLabelCaption, cancelLabelCaption, ok -> {
-            if (ok && canWindowSave) {
+            if (ok && canWindowSave.getAsBoolean()) {
                 assignmentExecutor.run();
             }
         }, content, confirmationWindowId());

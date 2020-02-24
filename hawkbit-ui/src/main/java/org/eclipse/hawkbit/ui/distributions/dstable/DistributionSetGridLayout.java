@@ -102,9 +102,13 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     }
 
     private void restoreGridSelection() {
+        if (!distributionSetGrid.hasSelectionSupport()) {
+            return;
+        }
+
         final Long lastSelectedEntityId = distributionSetGridLayoutUiState.getSelectedDsId();
 
-        if (lastSelectedEntityId != null && distributionSetGrid.hasSelectionSupport()) {
+        if (lastSelectedEntityId != null) {
             selectEntityById(lastSelectedEntityId);
         } else {
             distributionSetGrid.getSelectionSupport().selectFirstRow();
@@ -113,6 +117,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent abstract #selectEntityById?
     public void selectEntityById(final Long entityId) {
+        if (!distributionSetGrid.hasSelectionSupport()) {
+            return;
+        }
+
         if (!distributionSetGrid.getSelectedItems().isEmpty()) {
             distributionSetGrid.deselectAll();
         }
@@ -133,6 +141,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onDsUpdated(final Collection<Long> entityIds) {
+        if (!distributionSetGrid.hasSelectionSupport()) {
+            return;
+        }
+
         if (distributionSetGrid.getSelectedItems().size() == 1) {
             final Long selectedEntityId = distributionSetGrid.getSelectedItems().iterator().next().getId();
 

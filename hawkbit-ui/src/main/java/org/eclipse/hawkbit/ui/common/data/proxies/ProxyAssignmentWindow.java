@@ -11,11 +11,12 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 import java.io.Serializable;
 
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
+import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
 
 /**
  * Proxy entity representing assignment popup window bean.
  */
-public class ProxyAssignmentWindow implements Serializable, ActionCreator {
+public class ProxyAssignmentWindow implements Serializable, ActionTypeAware {
 
     private static final long serialVersionUID = 1L;
 

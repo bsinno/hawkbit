@@ -5,14 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.common.data.proxies;
+package org.eclipse.hawkbit.ui.common.data.aware;
 
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 
 /**
  * Element is used for action creation
  */
-public interface ActionCreator {
+public interface ActionTypeAware {
     void setActionType(ActionType actionType);
     ActionType getActionType();
 

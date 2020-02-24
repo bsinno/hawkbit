@@ -9,12 +9,13 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
+import org.eclipse.hawkbit.ui.common.data.aware.VersionAware;
 
 /**
  * Proxy for {@link SoftwareModule} to display details in Software modules
  * table.
  */
-public class ProxySoftwareModule extends ProxyNamedEntity implements Versioned {
+public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAware {
     private static final long serialVersionUID = 1L;
 
     private String version;

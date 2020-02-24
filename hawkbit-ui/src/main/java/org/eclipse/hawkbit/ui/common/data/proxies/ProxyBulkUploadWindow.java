@@ -11,10 +11,13 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
+import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
+
 /**
  * Proxy entity representing rollout popup window bean.
  */
-public class ProxyBulkUploadWindow implements Serializable, Describable, DsIdProvider {
+public class ProxyBulkUploadWindow implements Serializable, DescriptionAware, DsIdAware {
     private static final long serialVersionUID = 1L;
 
     private Long distributionSetId;

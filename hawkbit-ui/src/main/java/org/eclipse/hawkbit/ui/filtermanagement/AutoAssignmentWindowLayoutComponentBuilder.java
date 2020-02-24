@@ -19,7 +19,6 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.Binder.Binding;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
@@ -73,17 +72,13 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
      *            provides Distribution Set data
      * @return bound ComboBox
      */
-    public BoundComponent<ComboBox<ProxyDistributionSet>> createDistributionSetCombo(final Binder<ProxyTargetFilterQuery> binder,
-            final DistributionSetStatelessDataProvider dataProvider) {
-        final ComboBox<ProxyDistributionSet> comboBox = FormComponentBuilder.createDistributionSetComboBox(dataProvider,
-                i18n, UIComponentIdProvider.DIST_SET_SELECT_COMBO_ID);
-        comboBox.setSizeFull();
+    public BoundComponent<ComboBox<ProxyDistributionSet>> createDistributionSetCombo(
+            final Binder<ProxyTargetFilterQuery> binder, final DistributionSetStatelessDataProvider dataProvider) {
+        final BoundComponent<ComboBox<ProxyDistributionSet>> boundComboBox = FormComponentBuilder
+                .createDistributionSetComboBox(binder, dataProvider, i18n,
+                        UIComponentIdProvider.DIST_SET_SELECT_COMBO_ID);
+        boundComboBox.getComponent().setSizeFull();
 
-        Binding<ProxyTargetFilterQuery, ProxyDistributionSet> binding = binder.forField(comboBox)
-                .asRequired(UIMessageIdProvider.MESSAGE_ERROR_DISTRIBUTIONSET_REQUIRED)
-                .bind(ProxyTargetFilterQuery::getAutoAssignDistributionSet,
-                        ProxyTargetFilterQuery::setAutoAssignDistributionSet);
-
-        return new BoundComponent<>(comboBox, binding);
+        return boundComboBox;
     }
 }

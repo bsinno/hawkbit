@@ -73,7 +73,8 @@ public class DistributionSetsToTargetAssignmentSupport
         final List<String> dsNames = sourceItemsToAssign.stream().map(ProxyDistributionSet::getNameVersion)
                 .collect(Collectors.toList());
         final ConfirmationDialog confirmAssignDialog = openConfirmationWindowForAssignments(dsNames,
-                targetItem.getName(), assignmentController.getLayout(), assignmentController.isMaintenanceWindowValid(),
+                targetItem.getName(), assignmentController.getLayout(),
+                () -> assignmentController.isMaintenanceWindowValid() && assignmentController.isForceTimeValid(),
                 () -> assignmentController.assignTargetsToDistributions(Collections.singletonList(targetItem),
                         sourceItemsToAssign));
 

@@ -87,9 +87,13 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     private void restoreGridSelection() {
+        if (!swModuleGrid.hasSelectionSupport()) {
+            return;
+        }
+
         final Long lastSelectedEntityId = swModuleGridLayoutUiState.getSelectedSmId();
 
-        if (lastSelectedEntityId != null && swModuleGrid.hasSelectionSupport()) {
+        if (lastSelectedEntityId != null) {
             selectEntityById(lastSelectedEntityId);
         } else {
             swModuleGrid.getSelectionSupport().selectFirstRow();
@@ -98,6 +102,10 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent abstract #selectEntityById?
     public void selectEntityById(final Long entityId) {
+        if (!swModuleGrid.hasSelectionSupport()) {
+            return;
+        }
+
         if (!swModuleGrid.getSelectedItems().isEmpty()) {
             swModuleGrid.deselectAll();
         }
@@ -118,6 +126,10 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onSmUpdated(final Collection<Long> entityIds) {
+        if (!swModuleGrid.hasSelectionSupport()) {
+            return;
+        }
+
         if (swModuleGrid.getSelectedItems().size() == 1) {
             final Long selectedEntityId = swModuleGrid.getSelectedItems().iterator().next().getId();
 

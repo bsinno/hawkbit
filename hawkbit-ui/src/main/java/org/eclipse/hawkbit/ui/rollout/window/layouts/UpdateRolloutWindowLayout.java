@@ -11,13 +11,15 @@ package org.eclipse.hawkbit.ui.rollout.window.layouts;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
@@ -29,8 +31,8 @@ import com.vaadin.ui.TextField;
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private final ComboBox<ProxyDistributionSet> distributionSet;
-    private final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout;
-    private final AutoStartOptionGroupLayout autoStartOptionGroupLayout;
+    private final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeOptionGroupLayout;
+    private final BoundComponent<AutoStartOptionGroupLayout> autoStartOptionGroupLayout;
     private final GroupsPieChart groupsPieChart;
     private final GroupsLegendLayout groupsLegendLayout;
 
@@ -42,6 +44,8 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         this.autoStartOptionGroupLayout = rolloutComponentBuilder.createAutoStartOptionGroupLayout(binder);
         this.groupsPieChart = rolloutComponentBuilder.createGroupsPieChart();
         this.groupsLegendLayout = rolloutComponentBuilder.createGroupsLegendLayout();
+
+        addValueChangeListeners();
     }
 
     @Override
@@ -73,19 +77,17 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         rootLayout.addComponent(
                 rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_ACTION_TYPE), 0,
                 4);
-        rootLayout.addComponent(actionTypeOptionGroupLayout, 1, 4, 3, 4);
+        rootLayout.addComponent(actionTypeOptionGroupLayout.getComponent(), 1, 4, 3, 4);
 
         rootLayout.addComponent(
                 rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_START_TYPE), 0, 5);
-        rootLayout.addComponent(autoStartOptionGroupLayout, 1, 5, 3, 5);
+        rootLayout.addComponent(autoStartOptionGroupLayout.getComponent(), 1, 5, 3, 5);
     }
 
     public void disableRequiredFieldsOnEdit() {
         distributionSet.setEnabled(false);
-        actionTypeOptionGroupLayout.getActionTypeOptionGroup().setEnabled(false);
-        actionTypeOptionGroupLayout.addStyleName(SPUIStyleDefinitions.DISABLE_ACTION_TYPE_LAYOUT);
-        autoStartOptionGroupLayout.getAutoStartOptionGroup().setEnabled(false);
-        autoStartOptionGroupLayout.addStyleName(SPUIStyleDefinitions.DISABLE_ACTION_TYPE_LAYOUT);
+        actionTypeOptionGroupLayout.getComponent().getActionTypeOptionGroup().setEnabled(false);
+        autoStartOptionGroupLayout.getComponent().getAutoStartOptionGroup().setEnabled(false);
     }
 
     public void updateGroupsChart(final List<RolloutGroup> savedGroups, final long totalTargetsCount) {
@@ -98,5 +100,12 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
     public void populateTotalTargetsLegend() {
         groupsLegendLayout.populateTotalTargets(getEntity().getTotalTargets());
+    }
+
+    private void addValueChangeListeners() {
+        actionTypeOptionGroupLayout.getComponent().getActionTypeOptionGroup().addValueChangeListener(
+                event -> actionTypeOptionGroupLayout.setRequired(event.getValue() == ActionType.TIMEFORCED));
+        autoStartOptionGroupLayout.getComponent().getAutoStartOptionGroup().addValueChangeListener(
+                event -> autoStartOptionGroupLayout.setRequired(event.getValue() == AutoStartOption.SCHEDULED));
     }
 }

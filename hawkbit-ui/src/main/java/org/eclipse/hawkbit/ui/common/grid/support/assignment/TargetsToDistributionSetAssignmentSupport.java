@@ -55,8 +55,9 @@ public class TargetsToDistributionSetAssignmentSupport
                 .collect(Collectors.toList());
         final ConfirmationDialog confirmAssignDialog = openConfirmationWindowForAssignments(targetNames,
                 targetItem.getNameVersion(), assignmentController.getLayout(),
-                assignmentController.isMaintenanceWindowValid(), () -> assignmentController
-                        .assignTargetsToDistributions(sourceItemsToAssign, Collections.singletonList(targetItem)));
+                () -> assignmentController.isMaintenanceWindowValid() && assignmentController.isForceTimeValid(),
+                () -> assignmentController.assignTargetsToDistributions(sourceItemsToAssign,
+                        Collections.singletonList(targetItem)));
 
         assignmentController.getLayout().addValidationListener(confirmAssignDialog::setOkButtonEnabled);
     }

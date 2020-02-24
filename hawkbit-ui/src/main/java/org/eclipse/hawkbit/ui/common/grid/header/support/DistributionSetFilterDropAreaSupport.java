@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.entity.DistributionSetIdName;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterByDsEventPayload;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport.EntityDraggingListener;
@@ -169,8 +168,7 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
     }
 
     private void updateUiState(final ProxyDistributionSet ds) {
-        targetGridLayoutUiState
-                .setFilterDsIdNameVersion(new DistributionSetIdName(ds.getId(), ds.getName(), ds.getVersion()));
+        targetGridLayoutUiState.setFilterDsIdNameVersion(ds.getIdNameVersion());
     }
 
     private void addDropStylingListener() {

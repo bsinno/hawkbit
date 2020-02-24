@@ -5,12 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.common.data.proxies;
+package org.eclipse.hawkbit.ui.common.data.aware;
 
 /**
  * Element is versioned
  */
-public interface Describable {
-    void setDescription(String name);
-    String getDescription();
+public interface VersionAware {
+    void setVersion(String name);
+    String getVersion();
 }

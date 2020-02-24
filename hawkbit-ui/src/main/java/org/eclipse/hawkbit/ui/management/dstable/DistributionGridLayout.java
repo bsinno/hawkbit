@@ -102,9 +102,13 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     }
 
     private void restoreGridSelection() {
+        if (!distributionGrid.hasSelectionSupport()) {
+            return;
+        }
+
         final Long lastSelectedEntityId = distributionGridLayoutUiState.getSelectedDsId();
 
-        if (lastSelectedEntityId != null && distributionGrid.hasSelectionSupport()) {
+        if (lastSelectedEntityId != null) {
             selectEntityById(lastSelectedEntityId);
         } else {
             distributionGrid.getSelectionSupport().selectFirstRow();
@@ -113,6 +117,10 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent abstract #selectEntityById?
     public void selectEntityById(final Long entityId) {
+        if (!distributionGrid.hasSelectionSupport()) {
+            return;
+        }
+
         if (!distributionGrid.getSelectedItems().isEmpty()) {
             distributionGrid.deselectAll();
         }
@@ -153,9 +161,10 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onDsUpdated(final Collection<Long> entityIds) {
-        final Long selectedEntityId = distributionGrid.getSelectedItems().size() == 1
-                ? distributionGrid.getSelectedItems().iterator().next().getId()
-                : null;
+        final Long selectedEntityId = distributionGrid.hasSelectionSupport()
+                && distributionGrid.getSelectedItems().size() == 1
+                        ? distributionGrid.getSelectedItems().iterator().next().getId()
+                        : null;
         final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
 
         if (selectedEntityId != null || pinnedDsId != null) {

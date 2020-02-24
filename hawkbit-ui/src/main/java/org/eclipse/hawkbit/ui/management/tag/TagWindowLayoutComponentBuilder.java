@@ -47,7 +47,8 @@ public class TagWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextArea createDescription(final Binder<? extends ProxyFilterButton> binder) {
-        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.TAG_POPUP_DESCRIPTION);
+        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.TAG_POPUP_DESCRIPTION)
+                .getComponent();
     }
 
     public ColorPickerComponent createColorPickerComponent(final Binder<? extends ProxyFilterButton> binder) {

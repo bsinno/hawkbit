@@ -54,13 +54,15 @@ public final class BulkUploadWindowLayoutComponentBuilder {
      * @return ComboBox
      */
     public ComboBox<ProxyDistributionSet> createDistributionSetCombo(final Binder<ProxyBulkUploadWindow> binder) {
-        BoundComponent<ComboBox<ProxyDistributionSet>> boundComboBox = FormComponentBuilder
+        final BoundComponent<ComboBox<ProxyDistributionSet>> boundComboBox = FormComponentBuilder
                 .createDistributionSetComboBox(binder, distributionSetDataProvider, i18n,
                         UIComponentIdProvider.DIST_SET_SELECT_COMBO_ID);
-        ComboBox<ProxyDistributionSet> comboBox = boundComboBox.getComponent();
         boundComboBox.setRequired(false);
+
+        final ComboBox<ProxyDistributionSet> comboBox = boundComboBox.getComponent();
         comboBox.setEmptySelectionAllowed(true);
         comboBox.setSizeFull();
+
         return comboBox;
     }
 
@@ -72,6 +74,10 @@ public final class BulkUploadWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextArea createDescriptionField(final Binder<ProxyBulkUploadWindow> binder) {
-        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_DESC);
+        final TextArea description = FormComponentBuilder
+                .createDescriptionInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_DESC).getComponent();
+        description.setWidthFull();
+
+        return description;
     }
 }

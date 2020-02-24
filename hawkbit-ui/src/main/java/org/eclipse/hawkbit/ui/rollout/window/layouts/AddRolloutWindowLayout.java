@@ -15,13 +15,17 @@ import java.util.Map.Entry;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
+import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder.ERROR_THRESHOLD_OPTIONS;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
@@ -44,6 +48,8 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private final VaadinMessageSource i18n;
     private final TargetManagement targetManagement;
 
+    private final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeLayout;
+    private final BoundComponent<AutoStartOptionGroupLayout> autoStartOptionGroupLayout;
     private final ComboBox<ProxyTargetFilterQuery> targetFilterQueryCombo;
     private final TextField noOfGroups;
     private final Binding<ProxyRolloutWindow, Integer> noOfGroupsFieldBinding;
@@ -61,6 +67,8 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         this.i18n = dependencies.getI18n();
         this.targetManagement = dependencies.getTargetManagement();
 
+        this.actionTypeLayout = rolloutComponentBuilder.createActionTypeOptionGroupLayout(binder);
+        this.autoStartOptionGroupLayout = rolloutComponentBuilder.createAutoStartOptionGroupLayout(binder);
         this.targetFilterQueryCombo = rolloutComponentBuilder.createTargetFilterQueryCombo(binder);
         final Entry<TextField, Binding<ProxyRolloutWindow, Integer>> noOfGroupsWithBinding = rolloutComponentBuilder
                 .createNoOfGroupsField(binder);
@@ -108,11 +116,11 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         rootLayout.addComponent(
                 rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_ACTION_TYPE), 0,
                 4);
-        rootLayout.addComponent(rolloutComponentBuilder.createActionTypeOptionGroupLayout(binder), 1, 4, 3, 4);
+        rootLayout.addComponent(actionTypeLayout.getComponent(), 1, 4, 3, 4);
 
         rootLayout.addComponent(
                 rolloutComponentBuilder.getLabel(RolloutWindowLayoutComponentBuilder.CAPTION_ROLLOUT_START_TYPE), 0, 5);
-        rootLayout.addComponent(rolloutComponentBuilder.createAutoStartOptionGroupLayout(binder), 1, 5, 3, 5);
+        rootLayout.addComponent(autoStartOptionGroupLayout.getComponent(), 1, 5, 3, 5);
 
         rootLayout.addComponent(groupsDefinitionTabs, 0, 6, 3, 6);
     }
@@ -155,7 +163,16 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     private void addValueChangeListeners() {
-        errorThresholdOptionGroup.addValueChangeListener(event -> errorThreshold.clear());
+        actionTypeLayout.getComponent().getActionTypeOptionGroup().addValueChangeListener(
+                event -> actionTypeLayout.setRequired(event.getValue() == ActionType.TIMEFORCED));
+        autoStartOptionGroupLayout.getComponent().getAutoStartOptionGroup().addValueChangeListener(
+                event -> autoStartOptionGroupLayout.setRequired(event.getValue() == AutoStartOption.SCHEDULED));
+
+        errorThresholdOptionGroup.addValueChangeListener(event -> {
+            errorThreshold.clear();
+            errorThreshold.setMaxLength(ERROR_THRESHOLD_OPTIONS.PERCENT == event.getValue() ? 3 : 7);
+        });
+
         targetFilterQueryCombo.addValueChangeListener(this::onTargetFilterChange);
         groupsDefinitionTabs.addSelectedTabChangeListener(event -> validateGroups());
         noOfGroups.addValueChangeListener(event -> updateTargetsPerGroup(event.getValue()));

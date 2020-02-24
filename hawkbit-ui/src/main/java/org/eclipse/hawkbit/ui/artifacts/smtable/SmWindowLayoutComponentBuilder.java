@@ -81,7 +81,8 @@ public class SmWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextField createVersionField(final Binder<ProxySoftwareModule> binder) {
-        return FormComponentBuilder.createVersionInput(binder, i18n, UIComponentIdProvider.SOFT_MODULE_VERSION);
+        return FormComponentBuilder.createVersionInput(binder, i18n, UIComponentIdProvider.SOFT_MODULE_VERSION)
+                .getComponent();
     }
 
     public TextField createVendorField(final Binder<ProxySoftwareModule> binder) {
@@ -104,7 +105,7 @@ public class SmWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextArea createDescription(final Binder<ProxySoftwareModule> binder) {
-        return FormComponentBuilder.createDescriptionInput(binder, i18n,
-                UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION);
+        return FormComponentBuilder
+                .createDescriptionInput(binder, i18n, UIComponentIdProvider.ADD_SW_MODULE_DESCRIPTION).getComponent();
     }
 }

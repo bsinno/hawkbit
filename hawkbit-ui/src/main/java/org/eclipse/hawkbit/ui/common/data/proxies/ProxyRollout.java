@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Rollout;
-import org.eclipse.hawkbit.repository.model.Rollout.ApprovalDecision;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus.Status;
 
@@ -56,8 +55,6 @@ public class ProxyRollout extends ProxyNamedEntity {
     private String triggerThresholdPercentage;
 
     private String errorThresholdPercentage;
-
-    private ApprovalDecision approvalDecision;
 
     public ActionType getActionType() {
         return actionType;
@@ -188,14 +185,6 @@ public class ProxyRollout extends ProxyNamedEntity {
 
     public void setErrorThresholdPercentage(final String errorThresholdPercentage) {
         this.errorThresholdPercentage = errorThresholdPercentage;
-    }
-
-    public ApprovalDecision getApprovalDecision() {
-        return approvalDecision;
-    }
-
-    public void setApprovalDecision(final ApprovalDecision approvalDecision) {
-        this.approvalDecision = approvalDecision;
     }
 
     public Map<Status, Long> getStatusTotalCountMap() {

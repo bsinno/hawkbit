@@ -34,12 +34,12 @@ public class AssignmentWindowLayout extends VerticalLayout {
     private final Binder<ProxyAssignmentWindow> proxyAssignmentBinder;
     private final AssignmentWindowLayoutComponentBuilder componentBuilder;
 
-    private final ActionTypeOptionGroupAssignmentLayout actionTypeLayout;
+    private final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeLayout;
     private final CheckBox maintenanceWindowToggle;
     private final BoundComponent<TextField> maintenanceSchedule;
     private final BoundComponent<TextField> maintenanceDuration;
     private final ComboBox<String> maintenanceTimeZoneCombo;
-    
+
     private final MaintenanceWindowLayout maintenanceWindowLayout;
     private final Link maintenanceHelpLink;
 
@@ -49,16 +49,14 @@ public class AssignmentWindowLayout extends VerticalLayout {
 
         this.actionTypeLayout = componentBuilder.createActionTypeOptionGroupLayout(proxyAssignmentBinder);
         this.maintenanceWindowToggle = componentBuilder.createEnableMaintenanceWindowToggle(proxyAssignmentBinder);
-        
+
         this.maintenanceSchedule = componentBuilder.createMaintenanceSchedule(proxyAssignmentBinder);
         this.maintenanceDuration = componentBuilder.createMaintenanceDuration(proxyAssignmentBinder);
         this.maintenanceTimeZoneCombo = componentBuilder.createMaintenanceTimeZoneCombo(proxyAssignmentBinder);
         this.maintenanceSchedule.setRequired(false);
         this.maintenanceDuration.setRequired(false);
-        this.maintenanceWindowLayout = new MaintenanceWindowLayout(i18n,
-                maintenanceSchedule.getComponent(),
-                maintenanceDuration.getComponent(),
-                maintenanceTimeZoneCombo,
+        this.maintenanceWindowLayout = new MaintenanceWindowLayout(i18n, maintenanceSchedule.getComponent(),
+                maintenanceDuration.getComponent(), maintenanceTimeZoneCombo,
                 componentBuilder.createMaintenanceScheduleTranslator());
         this.maintenanceHelpLink = componentBuilder.createMaintenanceHelpLink(uiProperties);
 
@@ -74,7 +72,7 @@ public class AssignmentWindowLayout extends VerticalLayout {
     }
 
     private void buildLayout() {
-        addComponent(actionTypeLayout);
+        addComponent(actionTypeLayout.getComponent());
 
         final HorizontalLayout maintenanceWindowToggleLayout = new HorizontalLayout();
         maintenanceWindowToggleLayout.addComponent(maintenanceWindowToggle);
@@ -87,7 +85,7 @@ public class AssignmentWindowLayout extends VerticalLayout {
     }
 
     private void addValueChangeListeners() {
-        
+
         maintenanceWindowToggle.addValueChangeListener(event -> {
             final boolean isMaintenanceWindowEnabled = event.getValue();
             maintenanceSchedule.setRequired(isMaintenanceWindowEnabled);
@@ -97,7 +95,9 @@ public class AssignmentWindowLayout extends VerticalLayout {
             maintenanceWindowLayout.setEnabled(isMaintenanceWindowEnabled);
         });
 
-        actionTypeLayout.getActionTypeOptionGroup().addValueChangeListener(event -> {
+        actionTypeLayout.getComponent().getActionTypeOptionGroup().addValueChangeListener(event -> {
+            actionTypeLayout.setRequired(event.getValue() == ActionType.TIMEFORCED);
+
             if (event.getValue() == ActionType.DOWNLOAD_ONLY) {
                 maintenanceWindowToggle.setValue(false);
                 maintenanceWindowToggle.setEnabled(false);

@@ -160,7 +160,7 @@ public class SwModulesToDistributionSetAssignmentSupport
             final ProxyDistributionSet targetItem) {
         final List<String> softwareModuleNames = sourceItemsToAssign.stream()
                 .map(ProxySoftwareModule::getNameAndVersion).collect(Collectors.toList());
-        openConfirmationWindowForAssignments(softwareModuleNames, targetItem.getNameVersion(), null, true,
+        openConfirmationWindowForAssignments(softwareModuleNames, targetItem.getNameVersion(), null, () -> true,
                 () -> assignSwModulesToDistribution(sourceItemsToAssign, targetItem));
     }
 

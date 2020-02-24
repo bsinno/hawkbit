@@ -5,12 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.common.data.proxies;
+package org.eclipse.hawkbit.ui.common.data.aware;
 
 /**
  * Element provides a distribution set id
  */
-public interface DsIdProvider {
+public interface DsIdAware {
     void setDistributionSetId(Long id);
     Long getDistributionSetId();
 }

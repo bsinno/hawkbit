@@ -13,13 +13,16 @@ import java.io.Serializable;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Rollout.ApprovalDecision;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
+import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
+import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
+import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
+import org.eclipse.hawkbit.ui.common.data.aware.NameAware;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder.ERROR_THRESHOLD_OPTIONS;
 
 /**
  * Proxy entity representing rollout popup window bean.
  */
-public class ProxyRolloutWindow implements Serializable, Named, Describable, ActionCreator, DsIdProvider {
-
+public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionAware, ActionTypeAware, DsIdAware {
     private static final long serialVersionUID = 1L;
 
     private Long id;
@@ -56,12 +59,16 @@ public class ProxyRolloutWindow implements Serializable, Named, Describable, Act
         numberOfGroups = rollout.getNumberOfGroups();
         status = rollout.getStatus();
         approvalRemark = rollout.getApprovalRemark();
+        // TODO
+        // approvalDecision = rollout.getApprovalDecision();
     }
 
+    @Override
     public ActionType getActionType() {
         return actionType;
     }
 
+    @Override
     public void setActionType(final ActionType actionType) {
         this.actionType = actionType;
     }
@@ -89,26 +96,32 @@ public class ProxyRolloutWindow implements Serializable, Named, Describable, Act
         this.id = id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(final String name) {
         this.name = name;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public void setDescription(final String description) {
         this.description = description;
     }
 
+    @Override
     public Long getForcedTime() {
         return forcedTime;
     }
 
+    @Override
     public void setForcedTime(final Long forcedTime) {
         this.forcedTime = forcedTime;
     }
@@ -153,10 +166,12 @@ public class ProxyRolloutWindow implements Serializable, Named, Describable, Act
         this.startAt = startAt;
     }
 
+    @Override
     public Long getDistributionSetId() {
         return distributionSetId;
     }
 
+    @Override
     public void setDistributionSetId(final Long distributionSetId) {
         this.distributionSetId = distributionSetId;
     }
@@ -200,5 +215,4 @@ public class ProxyRolloutWindow implements Serializable, Named, Describable, Act
     public void setErrorThresholdOption(final ERROR_THRESHOLD_OPTIONS errorThresholdOption) {
         this.errorThresholdOption = errorThresholdOption;
     }
-
 }

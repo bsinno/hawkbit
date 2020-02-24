@@ -9,11 +9,13 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import org.eclipse.hawkbit.repository.model.NamedEntity;
+import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
+import org.eclipse.hawkbit.ui.common.data.aware.NameAware;
 
 /**
  * Proxy entity representing the {@link NamedEntity}, fetched from backend.
  */
-public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity implements Named, Describable {
+public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity implements NameAware, DescriptionAware {
 
     private static final long serialVersionUID = 1L;
 
@@ -26,6 +28,13 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity implement
 
     private Long createdAt;
     private Long lastModifiedAt;
+
+    public ProxyNamedEntity() {
+    }
+
+    public ProxyNamedEntity(final Long id) {
+        super(id);
+    }
 
     public String getCreatedDate() {
         return createdDate;
@@ -43,18 +52,22 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity implement
         this.modifiedDate = modifiedDate;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(final String name) {
         this.name = name;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public void setDescription(final String description) {
         this.description = description;
     }

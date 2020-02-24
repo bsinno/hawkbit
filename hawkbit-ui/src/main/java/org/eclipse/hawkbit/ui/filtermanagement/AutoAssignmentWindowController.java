@@ -67,14 +67,14 @@ public class AutoAssignmentWindowController
         autoAssignmentFilter.setId(proxyEntity.getId());
         autoAssignmentFilter.setQuery(proxyEntity.getQuery());
 
-        if (proxyEntity.getAutoAssignDistributionSet() != null) {
+        if (proxyEntity.getAutoAssignDsIdNameVersion() != null) {
             autoAssignmentFilter.setAutoAssignmentEnabled(true);
             autoAssignmentFilter.setAutoAssignActionType(proxyEntity.getAutoAssignActionType());
-            autoAssignmentFilter.setAutoAssignDistributionSet(proxyEntity.getAutoAssignDistributionSet());
+            autoAssignmentFilter.setAutoAssignDsIdNameVersion(proxyEntity.getAutoAssignDsIdNameVersion());
         } else {
             autoAssignmentFilter.setAutoAssignmentEnabled(false);
             autoAssignmentFilter.setAutoAssignActionType(ActionType.FORCED);
-            autoAssignmentFilter.setAutoAssignDistributionSet(null);
+            autoAssignmentFilter.setAutoAssignDsIdNameVersion(null);
         }
 
         return autoAssignmentFilter;
@@ -87,8 +87,8 @@ public class AutoAssignmentWindowController
 
     @Override
     protected void persistEntity(final ProxyTargetFilterQuery entity) {
-        if (entity.isAutoAssignmentEnabled()) {
-            final Long autoAssignDsId = entity.getAutoAssignDistributionSet().getId();
+        if (entity.isAutoAssignmentEnabled() && entity.getAutoAssignDsIdNameVersion() != null) {
+            final Long autoAssignDsId = entity.getAutoAssignDsIdNameVersion().getId();
             final Long targetsForAutoAssignmentCount = targetManagement.countByRsqlAndNonDS(autoAssignDsId,
                     entity.getQuery());
 
@@ -135,7 +135,7 @@ public class AutoAssignmentWindowController
     @Override
     protected boolean isEntityValid(final ProxyTargetFilterQuery entity) {
         if (entity.isAutoAssignmentEnabled()
-                && (entity.getAutoAssignActionType() == null || entity.getAutoAssignDistributionSet() == null)) {
+                && (entity.getAutoAssignActionType() == null || entity.getAutoAssignDsIdNameVersion() == null)) {
             uiNotification.displayValidationError(
                     i18n.getMessage(UIMessageIdProvider.MESSAGE_AUTOASSIGN_CREATE_ERROR_MISSINGELEMENTS));
             return false;

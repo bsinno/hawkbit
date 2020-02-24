@@ -85,9 +85,13 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     private void restoreGridSelection() {
+        if (!softwareModuleGrid.hasSelectionSupport()) {
+            return;
+        }
+
         final Long lastSelectedEntityId = smGridLayoutUiState.getSelectedSmId();
 
-        if (lastSelectedEntityId != null && softwareModuleGrid.hasSelectionSupport()) {
+        if (lastSelectedEntityId != null) {
             selectEntityById(lastSelectedEntityId);
         } else {
             softwareModuleGrid.getSelectionSupport().selectFirstRow();
@@ -96,6 +100,10 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent abstract #selectEntityById?
     public void selectEntityById(final Long entityId) {
+        if (!softwareModuleGrid.hasSelectionSupport()) {
+            return;
+        }
+
         if (!softwareModuleGrid.getSelectedItems().isEmpty()) {
             softwareModuleGrid.deselectAll();
         }
@@ -116,6 +124,10 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     // TODO: extract to parent #onMasterEntityUpdated?
     public void onSmUpdated(final Collection<Long> entityIds) {
+        if (!softwareModuleGrid.hasSelectionSupport()) {
+            return;
+        }
+
         if (softwareModuleGrid.getSelectedItems().size() == 1) {
             final Long selectedEntityId = softwareModuleGrid.getSelectedItems().iterator().next().getId();
 

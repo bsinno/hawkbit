@@ -104,7 +104,7 @@ public class DeploymentAssignmentWindowController {
 
         final ActionType actionType = proxyAssignmentWindow.getActionType();
 
-        final long forcedTimeStamp = actionType == ActionType.TIMEFORCED ? proxyAssignmentWindow.getForcedTime()
+        final Long forcedTimeStamp = actionType == ActionType.TIMEFORCED ? proxyAssignmentWindow.getForcedTime()
                 : RepositoryModelConstants.NO_FORCE_TIME;
 
         final String maintenanceSchedule = proxyAssignmentWindow.getMaintenanceSchedule();
@@ -191,6 +191,23 @@ public class DeploymentAssignmentWindowController {
                 return false;
             }
         }
+        return true;
+    }
+
+    /**
+     * Check if the time-forced date is valid
+     * 
+     * @return boolean if time-forced date is valid or not
+     */
+    public boolean isForceTimeValid() {
+        if (proxyAssignmentWindow.getActionType() == ActionType.TIMEFORCED
+                && proxyAssignmentWindow.getForcedTime() == null) {
+            // TODO: use i18n
+            notification.displayValidationError("Force time is not specified for the time-forced assignment");
+
+            return false;
+        }
+
         return true;
     }
 }

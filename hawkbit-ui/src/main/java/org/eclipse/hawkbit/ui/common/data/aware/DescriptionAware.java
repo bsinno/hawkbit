@@ -5,12 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.common.data.proxies;
+package org.eclipse.hawkbit.ui.common.data.aware;
 
 /**
- * Element is named
+ * Element is describable
  */
-public interface Named {
-    void setName(String name);
-    String getName();
+public interface DescriptionAware {
+    void setDescription(String name);
+
+    String getDescription();
 }

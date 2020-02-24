@@ -9,19 +9,20 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
+import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 
 /**
  * Proxy for {@link TargetFilterQuery}.
  */
-public class ProxyTargetFilterQuery extends ProxyNamedEntity {
+public class ProxyTargetFilterQuery extends ProxyNamedEntity implements DsIdAware {
     private static final long serialVersionUID = 1L;
 
     private String query;
 
     private boolean isAutoAssignmentEnabled;
 
-    private ProxyDistributionSet autoAssignDistributionSet;
+    private ProxyIdNameVersion autoAssignDsIdNameVersion;
 
     private ActionType autoAssignActionType;
 
@@ -31,14 +32,6 @@ public class ProxyTargetFilterQuery extends ProxyNamedEntity {
 
     public void setQuery(final String query) {
         this.query = query;
-    }
-
-    public ProxyDistributionSet getAutoAssignDistributionSet() {
-        return autoAssignDistributionSet;
-    }
-
-    public void setAutoAssignDistributionSet(final ProxyDistributionSet autoAssignDistributionSet) {
-        this.autoAssignDistributionSet = autoAssignDistributionSet;
     }
 
     public ActionType getAutoAssignActionType() {
@@ -55,5 +48,25 @@ public class ProxyTargetFilterQuery extends ProxyNamedEntity {
 
     public void setAutoAssignmentEnabled(final boolean isAutoAssignmentEnabled) {
         this.isAutoAssignmentEnabled = isAutoAssignmentEnabled;
+    }
+
+    public ProxyIdNameVersion getAutoAssignDsIdNameVersion() {
+        return autoAssignDsIdNameVersion;
+    }
+
+    public void setAutoAssignDsIdNameVersion(final ProxyIdNameVersion autoAssignDsIdNameVersion) {
+        this.autoAssignDsIdNameVersion = autoAssignDsIdNameVersion;
+    }
+
+    @Override
+    public void setDistributionSetId(final Long id) {
+        if (autoAssignDsIdNameVersion != null) {
+            autoAssignDsIdNameVersion.setId(id);
+        }
+    }
+
+    @Override
+    public Long getDistributionSetId() {
+        return autoAssignDsIdNameVersion != null ? autoAssignDsIdNameVersion.getId() : null;
     }
 }

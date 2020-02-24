@@ -20,7 +20,7 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdNameVersion;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
@@ -34,6 +34,7 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -245,10 +246,11 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     // TODO: remove duplication
     private Button buildAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
-        final ProxyDistributionSet autoAssignDistributionSet = targetFilter.getAutoAssignDistributionSet();
+        final ProxyIdNameVersion autoAssignDsIdNameVersion = targetFilter.getAutoAssignDsIdNameVersion();
 
-        final String autoAssignmenLinkCaption = autoAssignDistributionSet != null
-                ? autoAssignDistributionSet.getNameVersion()
+        final String autoAssignmenLinkCaption = autoAssignDsIdNameVersion != null
+                ? HawkbitCommonUtil.getFormattedNameVersion(autoAssignDsIdNameVersion.getName(),
+                        autoAssignDsIdNameVersion.getVersion())
                 : i18n.getMessage(UIMessageIdProvider.BUTTON_NO_AUTO_ASSIGNMENT);
 
         final String autoAssignmenLinkDescription = i18n

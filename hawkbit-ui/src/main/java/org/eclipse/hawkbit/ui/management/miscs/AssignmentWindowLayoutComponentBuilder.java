@@ -52,12 +52,15 @@ public class AssignmentWindowLayoutComponentBuilder {
      *            binder the input will be bound to
      * @return input component
      */
-    public ActionTypeOptionGroupAssignmentLayout createActionTypeOptionGroupLayout(
+    public BoundComponent<ActionTypeOptionGroupAssignmentLayout> createActionTypeOptionGroupLayout(
             final Binder<ProxyAssignmentWindow> binder) {
-        ActionTypeOptionGroupAssignmentLayout layout = FormComponentBuilder.createActionTypeOptionGroupLayout(binder,
-                i18n, UIComponentIdProvider.DEPLOYMENT_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID);
-        layout.addStyleName("margin-small");
-        return layout;
+        final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeGroupBounded = FormComponentBuilder
+                .createActionTypeOptionGroupLayout(binder, i18n,
+                        UIComponentIdProvider.DEPLOYMENT_ASSIGNMENT_ACTION_TYPE_OPTIONS_ID);
+        actionTypeGroupBounded.setRequired(false);
+        actionTypeGroupBounded.getComponent().addStyleName("margin-small");
+
+        return actionTypeGroupBounded;
     }
 
     public CheckBox createEnableMaintenanceWindowToggle(final Binder<ProxyAssignmentWindow> binder) {
@@ -75,12 +78,13 @@ public class AssignmentWindowLayoutComponentBuilder {
     }
 
     public BoundComponent<TextField> createMaintenanceSchedule(final Binder<ProxyAssignmentWindow> binder) {
-        final TextField maintenanceSchedule = createTextField("0 0 3 ? * 6",
-                UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_ID, Action.MAINTENANCE_WINDOW_SCHEDULE_LENGTH);
-        maintenanceSchedule.setCaption(i18n.getMessage("caption.maintenancewindow.schedule"));
+        final TextField maintenanceSchedule = new TextFieldBuilder(Action.MAINTENANCE_WINDOW_SCHEDULE_LENGTH)
+                .id(UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_ID)
+                .caption(i18n.getMessage("caption.maintenancewindow.schedule")).prompt("0 0 3 ? * 6")
+                .buildTextComponent();
 
         // TODO: use i18n for all the required fields messages
-        Binding<ProxyAssignmentWindow, String> binding = binder.forField(maintenanceSchedule)
+        final Binding<ProxyAssignmentWindow, String> binding = binder.forField(maintenanceSchedule)
                 .asRequired("You must provide the valid cron expression").withValidator((cronSchedule, context) -> {
                     try {
                         MaintenanceScheduleHelper.validateCronSchedule(cronSchedule);
@@ -94,17 +98,13 @@ public class AssignmentWindowLayoutComponentBuilder {
         return new BoundComponent<>(maintenanceSchedule, binding);
     }
 
-    // TODO: remove duplication with RolloutWindowLayoutComponentBuilder
-    private TextField createTextField(final String prompt, final String id, final int maxLength) {
-        return new TextFieldBuilder(maxLength).prompt(prompt).id(id).buildTextComponent();
-    }
-
     public BoundComponent<TextField> createMaintenanceDuration(final Binder<ProxyAssignmentWindow> binder) {
-        final TextField maintenanceDuration = createTextField("hh:mm:ss",
-                UIComponentIdProvider.MAINTENANCE_WINDOW_DURATION_ID, Action.MAINTENANCE_WINDOW_DURATION_LENGTH);
-        maintenanceDuration.setCaption(i18n.getMessage("caption.maintenancewindow.duration"));
+        final TextField maintenanceDuration = new TextFieldBuilder(Action.MAINTENANCE_WINDOW_DURATION_LENGTH)
+                .id(UIComponentIdProvider.MAINTENANCE_WINDOW_DURATION_ID)
+                .caption(i18n.getMessage("caption.maintenancewindow.duration")).prompt("hh:mm:ss").buildTextComponent();
 
-        Binding<ProxyAssignmentWindow, String> binding = binder.forField(maintenanceDuration)
+        // TODO: use i18n for all the required fields messages
+        final Binding<ProxyAssignmentWindow, String> binding = binder.forField(maintenanceDuration)
                 .asRequired("You must provide the valid duration").withValidator((duration, context) -> {
                     try {
                         MaintenanceScheduleHelper.validateDuration(duration);

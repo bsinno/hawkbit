@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
@@ -108,8 +109,9 @@ public final class RolloutWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextField createRolloutNameField(final Binder<ProxyRolloutWindow> binder) {
-        TextField textField = FormComponentBuilder.createNameInput(binder, dependencies.getI18n(),
-                UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID).getComponent();
+        final TextField textField = FormComponentBuilder
+                .createNameInput(binder, dependencies.getI18n(), UIComponentIdProvider.ROLLOUT_NAME_FIELD_ID)
+                .getComponent();
         textField.setCaption(null);
         return textField;
     }
@@ -123,7 +125,8 @@ public final class RolloutWindowLayoutComponentBuilder {
      */
     public ComboBox<ProxyDistributionSet> createDistributionSetCombo(final Binder<ProxyRolloutWindow> binder) {
         final ComboBox<ProxyDistributionSet> comboBox = FormComponentBuilder.createDistributionSetComboBox(binder,
-                distributionSetDataProvider, dependencies.getI18n(), UIComponentIdProvider.ROLLOUT_DS_ID).getComponent();
+                distributionSetDataProvider, dependencies.getI18n(), UIComponentIdProvider.ROLLOUT_DS_ID)
+                .getComponent();
         comboBox.setCaption(null);
         return comboBox;
     }
@@ -185,8 +188,9 @@ public final class RolloutWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextArea createDescription(final Binder<ProxyRolloutWindow> binder) {
-        return FormComponentBuilder.createDescriptionInput(binder, dependencies.getI18n(),
-                UIComponentIdProvider.ROLLOUT_DESCRIPTION_ID);
+        return FormComponentBuilder
+                .createDescriptionInput(binder, dependencies.getI18n(), UIComponentIdProvider.ROLLOUT_DESCRIPTION_ID)
+                .getComponent();
     }
 
     /**
@@ -196,13 +200,18 @@ public final class RolloutWindowLayoutComponentBuilder {
      *            binder the input will be bound to
      * @return input component
      */
-    public ActionTypeOptionGroupAssignmentLayout createActionTypeOptionGroupLayout(
+    public BoundComponent<ActionTypeOptionGroupAssignmentLayout> createActionTypeOptionGroupLayout(
             final Binder<ProxyRolloutWindow> binder) {
-        return FormComponentBuilder.createActionTypeOptionGroupLayout(binder, dependencies.getI18n(),
-                UIComponentIdProvider.ROLLOUT_ACTION_TYPE_OPTIONS_ID);
+        final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeGroupBounded = FormComponentBuilder
+                .createActionTypeOptionGroupLayout(binder, dependencies.getI18n(),
+                        UIComponentIdProvider.ROLLOUT_ACTION_TYPE_OPTIONS_ID);
+        actionTypeGroupBounded.setRequired(false);
+
+        return actionTypeGroupBounded;
     }
 
-    public AutoStartOptionGroupLayout createAutoStartOptionGroupLayout(final Binder<ProxyRolloutWindow> binder) {
+    public BoundComponent<AutoStartOptionGroupLayout> createAutoStartOptionGroupLayout(
+            final Binder<ProxyRolloutWindow> binder) {
         final AutoStartOptionGroupLayout autoStartOptionGroupLayout = new AutoStartOptionGroupLayout(
                 dependencies.getI18n());
         autoStartOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ROLLOUT_ACTION_TYPE_LAYOUT);
@@ -230,7 +239,8 @@ public final class RolloutWindowLayoutComponentBuilder {
                     }
                 }).bind(ProxyRolloutWindow::getStartAt, ProxyRolloutWindow::setStartAt);
 
-        binder.forField(autoStartOptionGroupLayout.getStartAtDateField())
+        final Binding<ProxyRolloutWindow, Long> binding = binder
+                .forField(autoStartOptionGroupLayout.getStartAtDateField())
                 .withNullRepresentation(
                         LocalDateTime.now().plusMinutes(30).atZone(SPDateTimeUtil.getTimeZoneId(tz)).toLocalDateTime())
                 .withConverter(localDateTime -> {
@@ -247,11 +257,7 @@ public final class RolloutWindowLayoutComponentBuilder {
                     return LocalDateTime.ofInstant(Instant.ofEpochMilli(startAtTime), SPDateTimeUtil.getTimeZoneId(tz));
                 }).bind(ProxyRolloutWindow::getStartAt, ProxyRolloutWindow::setStartAt);
 
-        return autoStartOptionGroupLayout;
-    }
-
-    private TextField createTextField(final String prompt, final String id, final int maxLength) {
-        return new TextFieldBuilder(maxLength).prompt(prompt).id(id).buildTextComponent();
+        return new BoundComponent<>(autoStartOptionGroupLayout, binding);
     }
 
     private int getGroupSize(final Long totalTargets, final Integer numberOfGroups) {
@@ -314,10 +320,9 @@ public final class RolloutWindowLayoutComponentBuilder {
 
     public Entry<TextField, Binding<ProxyRolloutWindow, Integer>> createNoOfGroupsField(
             final Binder<ProxyRolloutWindow> binder) {
-        final TextField noOfGroups = createTextField(dependencies.getI18n().getMessage("prompt.number.of.groups"),
-                UIComponentIdProvider.ROLLOUT_NO_OF_GROUPS_ID, 32);
+        final TextField noOfGroups = new TextFieldBuilder(3).id(UIComponentIdProvider.ROLLOUT_NO_OF_GROUPS_ID)
+                .prompt(dependencies.getI18n().getMessage("prompt.number.of.groups")).buildTextComponent();
         noOfGroups.setSizeUndefined();
-        noOfGroups.setMaxLength(3);
 
         final Binding<ProxyRolloutWindow, Integer> noOfGroupsFieldBinding = binder.forField(noOfGroups)
                 .asRequired("You must specify at least one group").withNullRepresentation("")
@@ -350,8 +355,8 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     private TextField createTriggerThreshold(final Binder<ProxyRolloutWindow> binder) {
-        final TextField triggerThreshold = createTextField(dependencies.getI18n().getMessage("prompt.tigger.threshold"),
-                UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID, 32);
+        final TextField triggerThreshold = new TextFieldBuilder(3).id(UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID)
+                .prompt(dependencies.getI18n().getMessage("prompt.tigger.threshold")).buildTextComponent();
         triggerThreshold.setSizeUndefined();
 
         binder.forField(triggerThreshold).asRequired().bind(ProxyRolloutWindow::getTriggerThresholdPercentage,
@@ -369,14 +374,15 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     public TextField createErrorThreshold(final Binder<ProxyRolloutWindow> binder) {
-        final TextField errorThreshold = createTextField(dependencies.getI18n().getMessage("prompt.error.threshold"),
-                UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID, 32);
+        final TextField errorThreshold = new TextFieldBuilder(3).id(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID)
+                .prompt(dependencies.getI18n().getMessage("prompt.error.threshold")).buildTextComponent();
         errorThreshold.setSizeUndefined();
-        errorThreshold.setMaxLength(7);
 
         binder.forField(errorThreshold).asRequired().withValidator((errorThresholdText, context) -> {
-            if (ERROR_THRESHOLD_OPTIONS.COUNT != binder.getBean().getErrorThresholdOption()) {
-                return ValidationResult.ok();
+            if (ERROR_THRESHOLD_OPTIONS.PERCENT == binder.getBean().getErrorThresholdOption()) {
+                return new IntegerRangeValidator(
+                        dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
+                                .apply(Integer.valueOf(errorThresholdText), context);
             }
 
             final ProxyRolloutWindow bean = binder.getBean();
@@ -395,32 +401,27 @@ public final class RolloutWindowLayoutComponentBuilder {
                         dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, groupSize), 0,
                         groupSize).apply(Integer.valueOf(errorThresholdText), context);
             }
-        }).withValidator((errorThresholdText,
-                context) -> new IntegerRangeValidator(
-                        dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
-                                .apply(Integer.valueOf(errorThresholdText), context))
-                .withConverter(errorThresholdPresentation -> {
-                    if (errorThresholdPresentation == null) {
-                        return null;
-                    }
+        }).withConverter(errorThresholdPresentation -> {
+            if (errorThresholdPresentation == null) {
+                return null;
+            }
 
-                    final ProxyRolloutWindow bean = binder.getBean();
+            final ProxyRolloutWindow bean = binder.getBean();
 
-                    if (ERROR_THRESHOLD_OPTIONS.COUNT == bean.getErrorThresholdOption()) {
-                        final int errorThresholdCount = Integer.parseInt(errorThresholdPresentation);
-                        final int groupSize = getGroupSize(bean.getTotalTargets(), bean.getNumberOfGroups());
-                        return String.valueOf((int) Math.ceil(((float) errorThresholdCount / (float) groupSize) * 100));
-                    }
+            if (ERROR_THRESHOLD_OPTIONS.COUNT == bean.getErrorThresholdOption()) {
+                final int errorThresholdCount = Integer.parseInt(errorThresholdPresentation);
+                final int groupSize = getGroupSize(bean.getTotalTargets(), bean.getNumberOfGroups());
+                return String.valueOf((int) Math.ceil(((float) errorThresholdCount / (float) groupSize) * 100));
+            }
 
-                    return errorThresholdPresentation;
-                }, errorThresholdModel -> {
-                    if (errorThresholdModel == null) {
-                        return null;
-                    }
+            return errorThresholdPresentation;
+        }, errorThresholdModel -> {
+            if (errorThresholdModel == null) {
+                return null;
+            }
 
-                    return errorThresholdModel;
-                })
-                .bind(ProxyRolloutWindow::getErrorThresholdPercentage, ProxyRolloutWindow::setErrorThresholdPercentage);
+            return errorThresholdModel;
+        }).bind(ProxyRolloutWindow::getErrorThresholdPercentage, ProxyRolloutWindow::setErrorThresholdPercentage);
 
         return errorThreshold;
     }
@@ -480,16 +481,16 @@ public final class RolloutWindowLayoutComponentBuilder {
         binder.forField(approveButtonsGroup).bind(ProxyRolloutWindow::getApprovalDecision,
                 ProxyRolloutWindow::setApprovalDecision);
 
-        final TextField approvalRemarkField = createTextField(
-                dependencies.getI18n().getMessage("label.approval.remark"),
-                UIComponentIdProvider.ROLLOUT_APPROVAL_REMARK_FIELD_ID, Rollout.APPROVAL_REMARK_MAX_SIZE);
-        approvalRemarkField.setWidth(100.0F, Unit.PERCENTAGE);
+        final TextField approvalRemarkField = new TextFieldBuilder(Rollout.APPROVAL_REMARK_MAX_SIZE)
+                .id(UIComponentIdProvider.ROLLOUT_APPROVAL_REMARK_FIELD_ID)
+                .prompt(dependencies.getI18n().getMessage("label.approval.remark")).buildTextComponent();
+        approvalRemarkField.setWidthFull();
 
         binder.forField(approvalRemarkField).bind(ProxyRolloutWindow::getApprovalRemark,
                 ProxyRolloutWindow::setApprovalRemark);
 
         final HorizontalLayout approvalButtonsLayout = new HorizontalLayout(approveButtonsGroup, approvalRemarkField);
-        approvalButtonsLayout.setWidth(100.0F, Unit.PERCENTAGE);
+        approvalButtonsLayout.setWidthFull();
         approvalButtonsLayout.setExpandRatio(approvalRemarkField, 1.0F);
 
         return approvalButtonsLayout;

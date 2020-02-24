@@ -76,7 +76,8 @@ public class DsWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextField createVersionField(final Binder<ProxyDistributionSet> binder) {
-        return FormComponentBuilder.createVersionInput(binder, i18n, UIComponentIdProvider.DIST_ADD_VERSION);
+        return FormComponentBuilder.createVersionInput(binder, i18n, UIComponentIdProvider.DIST_ADD_VERSION)
+                .getComponent();
     }
 
     /**
@@ -87,7 +88,8 @@ public class DsWindowLayoutComponentBuilder {
      * @return input component
      */
     public TextArea createDescription(final Binder<ProxyDistributionSet> binder) {
-        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.DIST_ADD_DESC);
+        return FormComponentBuilder.createDescriptionInput(binder, i18n, UIComponentIdProvider.DIST_ADD_DESC)
+                .getComponent();
     }
 
     public CheckBox createMigrationStepField(final Binder<ProxyDistributionSet> binder) {
