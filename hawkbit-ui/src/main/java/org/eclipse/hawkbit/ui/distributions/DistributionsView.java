@@ -50,7 +50,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 @UIScope
 @SpringView(name = DistributionsView.VIEW_NAME, ui = AbstractHawkbitUI.class)
-@JavaScript("theme://js/dynamicStylesheet.js")
+@JavaScript("vaadin://js/dynamicStylesheet.js")
 public class DistributionsView extends VerticalLayout implements View, BrowserWindowResizeListener {
     private static final long serialVersionUID = 1L;
 
