@@ -88,6 +88,8 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         crudMenuItem.setCommand(null);
 
         isEditModeActivated = false;
+
+        crudMenuBar.removeStyleName("edit-mode");
     }
 
     public void activateEditMode() {
@@ -96,6 +98,8 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         crudMenuItem.setCommand(closeCommand);
 
         isEditModeActivated = true;
+
+        crudMenuBar.addStyleName("edit-mode");
     }
 
     @Override
