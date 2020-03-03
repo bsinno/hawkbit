@@ -52,12 +52,12 @@ public abstract class DetailsHeader<T extends ProxyNamedEntity> extends Abstract
             this.editDetailsHeaderSupport = new EditDetailsHeaderSupport(i18n, getEditIconId(), this::onEdit);
             this.metaDataDetailsHeaderSupport = new MetaDataDetailsHeaderSupport(i18n, getMetaDataIconId(),
                     this::showMetaData);
+
+            addHeaderSupports(Arrays.asList(editDetailsHeaderSupport, metaDataDetailsHeaderSupport));
         } else {
             this.editDetailsHeaderSupport = null;
             this.metaDataDetailsHeaderSupport = null;
         }
-
-        addHeaderSupports(Arrays.asList(editDetailsHeaderSupport, metaDataDetailsHeaderSupport));
     }
 
     @Override
@@ -108,16 +108,40 @@ public abstract class DetailsHeader<T extends ProxyNamedEntity> extends Abstract
     // TODO: Check if it could be done by binder
     public void masterEntityChanged(final T entity) {
         if (entity == null) {
-            editDetailsHeaderSupport.disableEditIcon();
-            metaDataDetailsHeaderSupport.disableMetaDataIcon();
+            disableEdit();
+            disableMetaData();
             headerCaptionEntity.setValue(null);
         } else {
-            editDetailsHeaderSupport.enableEditIcon();
-            metaDataDetailsHeaderSupport.enableMetaDataIcon();
+            enableEdit();
+            enableMetaData();
             headerCaptionEntity.setValue(getEntityName(entity));
         }
 
         selectedEntity = entity;
+    }
+
+    private void disableEdit() {
+        if (editDetailsHeaderSupport != null) {
+            editDetailsHeaderSupport.disableEditIcon();
+        }
+    }
+
+    private void disableMetaData() {
+        if (metaDataDetailsHeaderSupport != null) {
+            metaDataDetailsHeaderSupport.disableMetaDataIcon();
+        }
+    }
+
+    private void enableEdit() {
+        if (editDetailsHeaderSupport != null) {
+            editDetailsHeaderSupport.enableEditIcon();
+        }
+    }
+
+    private void enableMetaData() {
+        if (metaDataDetailsHeaderSupport != null) {
+            metaDataDetailsHeaderSupport.enableMetaDataIcon();
+        }
     }
 
     // can be overriden for entities with version

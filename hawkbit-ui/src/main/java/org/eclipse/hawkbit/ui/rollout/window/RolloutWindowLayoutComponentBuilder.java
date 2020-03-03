@@ -239,8 +239,10 @@ public final class RolloutWindowLayoutComponentBuilder {
                     }
                 }).bind(ProxyRolloutWindow::getStartAt, ProxyRolloutWindow::setStartAt);
 
+        // TODO: use i18n
         final Binding<ProxyRolloutWindow, Long> binding = binder
                 .forField(autoStartOptionGroupLayout.getStartAtDateField())
+                .asRequired("Scheduled time can not be empty")
                 .withNullRepresentation(
                         LocalDateTime.now().plusMinutes(30).atZone(SPDateTimeUtil.getTimeZoneId(tz)).toLocalDateTime())
                 .withConverter(localDateTime -> {
