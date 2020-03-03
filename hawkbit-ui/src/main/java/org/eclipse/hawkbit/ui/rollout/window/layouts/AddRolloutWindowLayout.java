@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
@@ -46,7 +45,6 @@ import com.vaadin.ui.TextField;
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private final VaadinMessageSource i18n;
-    private final TargetManagement targetManagement;
 
     private final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeLayout;
     private final BoundComponent<AutoStartOptionGroupLayout> autoStartOptionGroupLayout;
@@ -65,7 +63,6 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         super(dependencies);
 
         this.i18n = dependencies.getI18n();
-        this.targetManagement = dependencies.getTargetManagement();
 
         this.actionTypeLayout = rolloutComponentBuilder.createActionTypeOptionGroupLayout(binder);
         this.autoStartOptionGroupLayout = rolloutComponentBuilder.createAutoStartOptionGroupLayout(binder);
@@ -188,12 +185,10 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
         final String filterQueryString = event.getValue() != null ? event.getValue().getQuery() : null;
         if (StringUtils.isEmpty(filterQueryString)) {
-            getEntity().setTotalTargets(0L);
             getEntity().setTargetFilterQuery(null);
             groupsLegendLayout.populateTotalTargets(null);
             defineGroupsLayout.setTargetFilter(null);
         } else {
-            getEntity().setTotalTargets(targetManagement.countByRsql(filterQueryString));
             getEntity().setTargetFilterQuery(filterQueryString);
             groupsLegendLayout.populateTotalTargets(getEntity().getTotalTargets());
             defineGroupsLayout.setTargetFilter(filterQueryString);

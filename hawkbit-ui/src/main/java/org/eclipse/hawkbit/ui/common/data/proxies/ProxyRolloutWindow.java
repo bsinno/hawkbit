@@ -59,8 +59,8 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
         numberOfGroups = rollout.getNumberOfGroups();
         status = rollout.getStatus();
         approvalRemark = rollout.getApprovalRemark();
-        // TODO
-        // approvalDecision = rollout.getApprovalDecision();
+        approvalDecision = RolloutStatus.APPROVAL_DENIED == rollout.getStatus() ? ApprovalDecision.DENIED
+                : ApprovalDecision.APPROVED;
     }
 
     @Override

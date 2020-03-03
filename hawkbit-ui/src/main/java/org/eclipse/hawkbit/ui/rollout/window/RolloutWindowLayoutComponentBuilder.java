@@ -142,27 +142,36 @@ public final class RolloutWindowLayoutComponentBuilder {
         targetFilterQueryCombo.setDataProvider(targetFilterQueryDataProvider);
 
         // TODO: use i18n for all the required fields messages
-        binder.forField(targetFilterQueryCombo).asRequired("You must provide the target filter")
-                .withValidator((filterQuery,
-                        context) -> new LongRangeValidator(
-                                dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FILTER_TARGET_EXISTS), 1L, null)
-                                        .apply(binder.getBean().getTotalTargets(), context))
-                .withConverter(filter -> {
-                    if (filter == null) {
-                        return null;
-                    }
+        binder.forField(targetFilterQueryCombo).asRequired((filterQuery, context) -> {
+            if (filterQuery == null || StringUtils.isEmpty(filterQuery.getQuery())) {
+                binder.getBean().setTotalTargets(0L);
 
-                    return filter.getId();
-                }, filterId -> {
-                    if (filterId == null) {
-                        return null;
-                    }
+                return ValidationResult.error("You must provide the target filter");
+            }
 
-                    final ProxyTargetFilterQuery filter = new ProxyTargetFilterQuery();
-                    filter.setId(filterId);
+            return ValidationResult.ok();
+        }).withValidator((filterQuery, context) -> {
+            final long targetsCountByFilter = dependencies.getTargetManagement().countByRsql(filterQuery.getQuery());
+            binder.getBean().setTotalTargets(targetsCountByFilter);
 
-                    return filter;
-                }).bind(ProxyRolloutWindow::getTargetFilterId, ProxyRolloutWindow::setTargetFilterId);
+            return new LongRangeValidator(dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FILTER_TARGET_EXISTS), 1L,
+                    null).apply(targetsCountByFilter, context);
+        }).withConverter(filter -> {
+            if (filter == null) {
+                return null;
+            }
+
+            return filter.getId();
+        }, filterId -> {
+            if (filterId == null) {
+                return null;
+            }
+
+            final ProxyTargetFilterQuery filter = new ProxyTargetFilterQuery();
+            filter.setId(filterId);
+
+            return filter;
+        }).bind(ProxyRolloutWindow::getTargetFilterId, ProxyRolloutWindow::setTargetFilterId);
 
         return targetFilterQueryCombo;
     }

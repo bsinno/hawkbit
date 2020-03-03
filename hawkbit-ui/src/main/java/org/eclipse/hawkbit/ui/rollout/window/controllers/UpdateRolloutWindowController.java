@@ -112,7 +112,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
             return;
         }
 
-        if (updatedRollout.getStatus().equals(Rollout.RolloutStatus.WAITING_FOR_APPROVAL)) {
+        if (Rollout.RolloutStatus.WAITING_FOR_APPROVAL == updatedRollout.getStatus()) {
             rolloutManagement.approveOrDeny(updatedRollout.getId(), entity.getApprovalDecision(),
                     entity.getApprovalRemark());
         }
@@ -133,6 +133,12 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         if (!nameBeforeEdit.equals(trimmedName) && rolloutManagement.getByName(trimmedName).isPresent()) {
             // TODO: is the notification right here?
             uiNotification.displayValidationError(i18n.getMessage("message.rollout.duplicate.check", trimmedName));
+            return false;
+        }
+
+        if (Rollout.RolloutStatus.WAITING_FOR_APPROVAL == entity.getStatus() && entity.getApprovalDecision() == null) {
+            // TODO: use i18n
+            uiNotification.displayValidationError("You should approve or reject the Rollout");
             return false;
         }
 

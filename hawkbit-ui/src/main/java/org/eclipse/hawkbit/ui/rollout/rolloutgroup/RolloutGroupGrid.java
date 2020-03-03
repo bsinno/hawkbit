@@ -37,6 +37,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.google.common.base.Predicates;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.renderers.HtmlRenderer;
@@ -112,7 +113,12 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         addColumn(rolloutGroup -> DistributionBarHelper
                 .getDistributionBarAsHTMLString(rolloutGroup.getTotalTargetCountStatus().getStatusTotalCountMap()),
                 new HtmlRenderer()).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS_COUNT_STATUS)
-                        .setCaption(i18n.getMessage("header.detail.status")).setMinimumWidth(280).setHidable(true);
+                        .setCaption(i18n.getMessage("header.detail.status"))
+                        .setDescriptionGenerator(
+                                rolloutGroup -> DistributionBarHelper.getTooltip(
+                                        rolloutGroup.getTotalTargetCountStatus().getStatusTotalCountMap(), i18n),
+                                ContentMode.HTML)
+                        .setMinimumWidth(280).setHidable(true);
 
         addColumn(ProxyRolloutGroup::getFinishedPercentage)
                 .setId(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE)

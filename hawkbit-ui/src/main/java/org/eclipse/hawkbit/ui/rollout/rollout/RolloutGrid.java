@@ -50,6 +50,7 @@ import com.cronutils.utils.StringUtils;
 import com.google.common.base.Predicates;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
@@ -263,7 +264,11 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
         addColumn(rollout -> DistributionBarHelper.getDistributionBarAsHTMLString(rollout.getStatusTotalCountMap()),
                 new HtmlRenderer()).setId(TOTAL_TARGETS_COUNT_STATUS_ID)
-                        .setCaption(i18n.getMessage("header.detail.status")).setHidable(true).setExpandRatio(60);
+                        .setCaption(i18n.getMessage("header.detail.status"))
+                        .setDescriptionGenerator(
+                                rollout -> DistributionBarHelper.getTooltip(rollout.getStatusTotalCountMap(), i18n),
+                                ContentMode.HTML)
+                        .setHidable(true).setExpandRatio(60);
 
         addColumn(ProxyRollout::getNumberOfGroups).setId(NUMBER_OF_GROUPS_ID)
                 .setCaption(i18n.getMessage("header.numberofgroups")).setHidable(true).setExpandRatio(2);
@@ -362,7 +367,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         final Button actionButton = new Button();
 
         actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon);
+        actionButton.setIcon(icon, i18n.getMessage(descriptionProperty));
         actionButton.setDescription(i18n.getMessage(descriptionProperty));
         actionButton.setEnabled(enable);
         actionButton.setId(buttonId);
