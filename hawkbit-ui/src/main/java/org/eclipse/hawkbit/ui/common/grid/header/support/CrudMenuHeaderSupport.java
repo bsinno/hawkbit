@@ -14,41 +14,41 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class CrudMenuHeaderSupport implements HeaderSupport {
+    private static final String MODE_EDIT = "mode-edit";
+    private static final String MODE_DELETE = "mode-delete";
+
     private final VaadinMessageSource i18n;
 
     private final String crudMenuBarId;
     private final boolean hasCreatePermission;
     private final boolean hasUpdatePermission;
     private final boolean hasDeletePermission;
-    private final Command addCommand;
-    private final Command updateCommand;
-    private final Command deleteCommand;
-    private final Command closeCommand;
+    private final Runnable addCallback;
+    private final Runnable editCallback;
+    private final Runnable deleteCallback;
+    private final Runnable closeCallback;
 
     private final MenuBar crudMenuBar;
     private final MenuItem crudMenuItem;
 
-    private boolean isEditModeActivated;
-
     public CrudMenuHeaderSupport(final VaadinMessageSource i18n, final String crudMenuBarId,
             final boolean hasCreatePermission, final boolean hasUpdatePermission, final boolean hasDeletePermission,
-            final Command addCommand, final Command updateCommand, final Command deleteCommand,
-            final Command closeCommand) {
+            final Runnable addCallback, final Runnable editCallback, final Runnable deleteCallback,
+            final Runnable closeCallback) {
         this.i18n = i18n;
 
         this.crudMenuBarId = crudMenuBarId;
         this.hasCreatePermission = hasCreatePermission;
         this.hasUpdatePermission = hasUpdatePermission;
         this.hasDeletePermission = hasDeletePermission;
-        this.addCommand = addCommand;
-        this.updateCommand = updateCommand;
-        this.deleteCommand = deleteCommand;
-        this.closeCommand = closeCommand;
+        this.addCallback = addCallback;
+        this.editCallback = editCallback;
+        this.deleteCallback = deleteCallback;
+        this.closeCallback = closeCallback;
 
         this.crudMenuBar = createCrudMenuBar();
         this.crudMenuItem = crudMenuBar.addItem("");
@@ -70,45 +70,46 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
     private void addCrudMenuItemCommands() {
         if (hasCreatePermission) {
             crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_CREATE), VaadinIcons.PLUS,
-                    addCommand);
+                    menuItem -> addCallback.run());
         }
         if (hasUpdatePermission) {
             crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_EDIT), VaadinIcons.EDIT,
-                    updateCommand);
+                    menuItem -> {
+                        activateEditMode(MODE_EDIT);
+                        editCallback.run();
+                    });
         }
         if (hasDeletePermission) {
             crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_DELETE), VaadinIcons.TRASH,
-                    deleteCommand);
+                    menuItem -> {
+                        activateEditMode(MODE_DELETE);
+                        deleteCallback.run();
+                    });
         }
     }
 
-    public void activateSelectMode() {
+    private void activateSelectMode() {
         crudMenuItem.setIcon(VaadinIcons.COG);
         crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE));
         crudMenuItem.setCommand(null);
 
-        isEditModeActivated = false;
-
-        crudMenuBar.removeStyleName("edit-mode");
+        crudMenuBar.removeStyleNames(MODE_EDIT, MODE_DELETE);
     }
 
-    public void activateEditMode() {
+    private void activateEditMode(final String mode) {
         crudMenuItem.setIcon(VaadinIcons.CLOSE_CIRCLE);
         crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE_CLOSE));
-        crudMenuItem.setCommand(closeCommand);
+        crudMenuItem.setCommand(menuItem -> {
+            activateSelectMode();
+            closeCallback.run();
+        });
 
-        isEditModeActivated = true;
-
-        crudMenuBar.addStyleName("edit-mode");
+        crudMenuBar.addStyleName(mode);
     }
 
     @Override
     public Component getHeaderComponent() {
         return crudMenuBar;
-    }
-
-    public boolean isEditModeActivated() {
-        return isEditModeActivated;
     }
 
     public void enableCrudMenu() {

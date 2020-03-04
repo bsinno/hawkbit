@@ -20,10 +20,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
 public class ResizeHeaderSupport implements HeaderSupport {
-    private final VaadinMessageSource i18n;
+    private static final String MODE_MAXIMIZED = "mode-maximized";
 
-    private static final String MAXIMIZE_ID_SUFFIX = "maximize";
-    private static final String MINIMIZE_ID_SUFFIX = "minimize";
+    private final VaadinMessageSource i18n;
 
     private final String maxMinIconId;
     private final Runnable maximizeCallback;
@@ -45,12 +44,13 @@ public class ResizeHeaderSupport implements HeaderSupport {
         this.isMaximizedStateSupplier = isMaximizedStateSupplier;
 
         this.maxMinIcon = createMaxMinIcon();
+
         this.isMaximized = false;
     }
 
     private Button createMaxMinIcon() {
-        final Button maxMinbutton = SPUIComponentProvider.getButton(String.join(".", maxMinIconId, MAXIMIZE_ID_SUFFIX),
-                "", i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, false, VaadinIcons.EXPAND,
+        final Button maxMinbutton = SPUIComponentProvider.getButton(maxMinIconId, "",
+                i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE), null, false, VaadinIcons.EXPAND,
                 SPUIButtonStyleNoBorder.class);
 
         maxMinbutton.addClickListener(event -> maxMinButtonClicked());
@@ -68,28 +68,25 @@ public class ResizeHeaderSupport implements HeaderSupport {
             showMinIcon();
             maximizeCallback.run();
         }
+        isMaximized = !isMaximized;
     }
 
     /**
      * Styles min-max-button icon with minimize decoration
      */
     private void showMinIcon() {
-        maxMinIcon.setId(String.join(".", maxMinIconId, MINIMIZE_ID_SUFFIX));
         maxMinIcon.setIcon(VaadinIcons.COMPRESS);
         maxMinIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MINIMIZE));
-
-        isMaximized = true;
+        maxMinIcon.addStyleName(MODE_MAXIMIZED);
     }
 
     /**
      * Styles min-max-button icon with maximize decoration
      */
     private void showMaxIcon() {
-        maxMinIcon.setId(String.join(".", maxMinIconId, MAXIMIZE_ID_SUFFIX));
         maxMinIcon.setIcon(VaadinIcons.EXPAND);
         maxMinIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_MAXIMIZE));
-
-        isMaximized = false;
+        maxMinIcon.removeStyleName(MODE_MAXIMIZED);
     }
 
     @Override
@@ -101,6 +98,7 @@ public class ResizeHeaderSupport implements HeaderSupport {
     public void restoreState() {
         if (isMaximizedStateSupplier.getAsBoolean()) {
             showMinIcon();
+            isMaximized = true;
         }
     }
 }

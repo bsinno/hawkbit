@@ -25,7 +25,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Component;
-import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -44,8 +43,8 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
 
         this.crudMenuHeaderSupport = new CrudMenuHeaderSupport(i18n, getCrudMenuBarId(),
                 permChecker.hasCreateRepositoryPermission(), permChecker.hasUpdateRepositoryPermission(),
-                permChecker.hasDeleteRepositoryPermission(), getAddButtonCommand(), getUpdateButtonCommand(),
-                getDeleteButtonCommand(), getCloseButtonCommand());
+                permChecker.hasDeleteRepositoryPermission(), this::addNewItem, this::publishShowEditMode,
+                this::publishShowDeleteMode, this::publishHideAllMode);
         this.closeHeaderSupport = new CloseHeaderSupport(i18n, getCloseIconId(), this::hideFilterLayout);
         addHeaderSupports(Arrays.asList(crudMenuHeaderSupport, closeHeaderSupport));
     }
@@ -59,43 +58,31 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
 
     protected abstract String getCrudMenuBarId();
 
-    private Command getAddButtonCommand() {
-        return menuItem -> {
-            final Window addWindow = getWindowForAdd();
+    private void addNewItem() {
+        final Window addWindow = getWindowForAdd();
 
-            addWindow.setCaption(
-                    i18n.getMessage("caption.create.new", i18n.getMessage(getAddEntityWindowCaptionMsgKey())));
-            UI.getCurrent().addWindow(addWindow);
-            addWindow.setVisible(Boolean.TRUE);
-        };
+        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage(getAddEntityWindowCaptionMsgKey())));
+        UI.getCurrent().addWindow(addWindow);
+        addWindow.setVisible(Boolean.TRUE);
     }
 
     protected abstract Window getWindowForAdd();
 
     protected abstract String getAddEntityWindowCaptionMsgKey();
 
-    private Command getUpdateButtonCommand() {
-        return command -> {
-            eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
-                    new ActionsVisibilityEventPayload(ActionsVisibilityType.SHOW_EDIT, getLayout(), getView()));
-            crudMenuHeaderSupport.activateEditMode();
-        };
+    private void publishShowEditMode() {
+        eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
+                new ActionsVisibilityEventPayload(ActionsVisibilityType.SHOW_EDIT, getLayout(), getView()));
     }
 
-    private Command getDeleteButtonCommand() {
-        return command -> {
-            eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
-                    new ActionsVisibilityEventPayload(ActionsVisibilityType.SHOW_DELETE, getLayout(), getView()));
-            crudMenuHeaderSupport.activateEditMode();
-        };
+    private void publishShowDeleteMode() {
+        eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
+                new ActionsVisibilityEventPayload(ActionsVisibilityType.SHOW_DELETE, getLayout(), getView()));
     }
 
-    private Command getCloseButtonCommand() {
-        return command -> {
-            eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
-                    new ActionsVisibilityEventPayload(ActionsVisibilityType.HIDE_ALL, getLayout(), getView()));
-            crudMenuHeaderSupport.activateSelectMode();
-        };
+    private void publishHideAllMode() {
+        eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
+                new ActionsVisibilityEventPayload(ActionsVisibilityType.HIDE_ALL, getLayout(), getView()));
     }
 
     protected abstract String getCloseIconId();

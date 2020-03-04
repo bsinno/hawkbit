@@ -26,6 +26,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
 public class SearchHeaderSupport implements HeaderSupport {
+    private static final String MODE_SEARCH_INPUT = "mode-search-input";
+
     private final VaadinMessageSource i18n;
 
     private final String searchFieldId;
@@ -35,6 +37,8 @@ public class SearchHeaderSupport implements HeaderSupport {
 
     private final TextField searchField;
     private final Button searchResetIcon;
+
+    private boolean isSearchInputActive;
 
     public SearchHeaderSupport(final VaadinMessageSource i18n, final String searchFieldId,
             final String searchResetIconId, final Supplier<String> searchStateSupplier,
@@ -48,6 +52,8 @@ public class SearchHeaderSupport implements HeaderSupport {
 
         this.searchField = createSearchField();
         this.searchResetIcon = createSearchResetIcon();
+
+        this.isSearchInputActive = false;
     }
 
     private TextField createSearchField() {
@@ -66,43 +72,34 @@ public class SearchHeaderSupport implements HeaderSupport {
                 SPUIButtonStyleNoBorder.class);
 
         searchResetButton.addClickListener(event -> onSearchResetClick());
-        // TODO: consider finding another way instead of setting data
-        searchResetButton.setData(Boolean.FALSE);
 
         return searchResetButton;
     }
 
     private void onSearchResetClick() {
-        final Boolean isSearchActivated = isSearchActivated();
-
-        if (isSearchActivated == null || Boolean.FALSE.equals(isSearchActivated)) {
-            // Clicked on search icon
-            openSearchTextField();
-        } else {
+        if (isSearchInputActive) {
             // Clicked on reset search icon
             closeSearchTextField();
+        } else {
+            // Clicked on search icon
+            openSearchTextField();
         }
-    }
-
-    public Boolean isSearchActivated() {
-        return (Boolean) searchResetIcon.getData();
+        isSearchInputActive = !isSearchInputActive;
     }
 
     private void openSearchTextField() {
-        searchResetIcon.addStyleName(SPUIDefinitions.FILTER_RESET_ICON);
         searchResetIcon.setIcon(VaadinIcons.CLOSE);
-        searchResetIcon.setData(Boolean.TRUE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_RESET));
+        searchResetIcon.addStyleNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
 
         searchField.setVisible(true);
         searchField.focus();
     }
 
     private void closeSearchTextField() {
-        searchResetIcon.removeStyleName(SPUIDefinitions.FILTER_RESET_ICON);
         searchResetIcon.setIcon(VaadinIcons.SEARCH);
-        searchResetIcon.setData(Boolean.FALSE);
         searchResetIcon.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH));
+        searchResetIcon.removeStyleNames(SPUIDefinitions.FILTER_RESET_ICON, MODE_SEARCH_INPUT);
 
         searchField.setValue("");
         searchField.setVisible(false);
@@ -119,11 +116,8 @@ public class SearchHeaderSupport implements HeaderSupport {
         if (!StringUtils.isEmpty(onLoadSearchBoxValue)) {
             openSearchTextField();
             searchField.setValue(onLoadSearchBoxValue);
+            isSearchInputActive = true;
         }
-    }
-
-    public TextField getSearchField() {
-        return searchField;
     }
 
     public void disableSearch() {
@@ -135,8 +129,9 @@ public class SearchHeaderSupport implements HeaderSupport {
     }
 
     public void resetSearch() {
-        if (isSearchActivated()) {
+        if (isSearchInputActive) {
             closeSearchTextField();
+            isSearchInputActive = false;
         }
     }
 
