@@ -79,9 +79,8 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
         this.targetTagToken = new TargetTagToken(permissionChecker, i18n, uiNotification, eventBus, tagManagement,
                 targetManagement);
 
-        this.targetMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus,
-                UIComponentIdProvider.TARGET_METADATA_DETAIL_LINK, this::showMetadataDetails,
-                new TargetMetaDataDataProvider(targetManagement));
+        this.targetMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.TARGET_TYPE_PREFIX,
+                this::showMetadataDetails, new TargetMetaDataDataProvider(targetManagement));
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.tab.description"), entityDescription),

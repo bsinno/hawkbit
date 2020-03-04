@@ -42,7 +42,7 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
 
         this.smMetaDataWindowBuilder = smMetaDataWindowBuilder;
 
-        this.smMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.SW_METADATA_DETAIL_LINK,
+        this.smMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.SW_TYPE_PREFIX,
                 this::showMetadataDetails, new SmMetaDataDataProvider(softwareManagement));
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),

@@ -70,7 +70,7 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> {
 
     @Override
     public String getGridId() {
-        return UIComponentIdProvider.METDATA_TABLE_ID;
+        return UIComponentIdProvider.METDATA_WINDOW_TABLE_ID;
     }
 
     @Override

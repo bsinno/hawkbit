@@ -31,16 +31,16 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> {
 
     private static final String METADATA_KEY_ID = "Key";
 
-    private final String detailLinkIdPrefix;
+    private final String typePrefix;
     private final transient Consumer<ProxyMetaData> showMetadataDetailsCallback;
     private final ConfigurableFilterDataProvider<ProxyMetaData, Void, F> metaDataDataProvider;
 
-    public MetadataDetailsGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final String detailLinkIdPrefix, final Consumer<ProxyMetaData> showMetadataDetailsCallback,
+    public MetadataDetailsGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final String typePrefix,
+            final Consumer<ProxyMetaData> showMetadataDetailsCallback,
             final AbstractMetaDataDataProvider<?, F> metaDataDataProvider) {
         super(i18n, eventBus);
 
-        this.detailLinkIdPrefix = detailLinkIdPrefix;
+        this.typePrefix = typePrefix;
         this.showMetadataDetailsCallback = showMetadataDetailsCallback;
         this.metaDataDataProvider = metaDataDataProvider.withConfigurableFilter();
 
@@ -70,7 +70,7 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> {
 
     @Override
     public String getGridId() {
-        return UIComponentIdProvider.METDATA_TABLE_ID;
+        return typePrefix + "." + UIComponentIdProvider.METDATA_DETAILS_TABLE_ID;
     }
 
     @Override
@@ -82,7 +82,8 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> {
     // TODO: remove duplication with RolloutListGrid
     private Button buildKeyLink(final ProxyMetaData metaData) {
         final String metaDataKey = metaData.getKey();
-        final String keyLinkId = new StringBuilder(detailLinkIdPrefix).append('.').append(metaDataKey).toString();
+        final String keyLinkId = new StringBuilder(typePrefix).append('.')
+                .append(UIComponentIdProvider.METADATA_DETAIL_LINK).append('.').append(metaDataKey).toString();
         final Button metaDataKeyLink = new Button();
 
         metaDataKeyLink.setId(keyLinkId);

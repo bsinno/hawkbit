@@ -105,7 +105,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
     // TODO: remove duplication with TargetTagFilterButtons
     private Button buildNoTagButton() {
         final Button noTag = SPUIComponentProvider.getButton(
-                SPUIDefinitions.DISTRIBUTION_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
+                UIComponentIdProvider.DISTRIBUTION_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
                 i18n.getMessage(UIMessageIdProvider.LABEL_NO_TAG),
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
                 SPUITagButtonStyle.class);
@@ -195,7 +195,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
 
     @Override
     protected String getFilterButtonIdPrefix() {
-        return SPUIDefinitions.DISTRIBUTION_TAG_ID_PREFIXS;
+        return UIComponentIdProvider.DISTRIBUTION_TAG_ID_PREFIXS;
     }
 
     public Button getNoTagButton() {

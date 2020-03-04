@@ -9,6 +9,8 @@
 package org.eclipse.hawkbit.ui.distributions.disttype;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -39,10 +41,12 @@ public class SmTypeSourceGrid extends Grid<ProxyType> {
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_SMALL);
+        // used to deactivate cell text selection by user
+        addStyleName(AbstractGrid.MULTI_SELECT_STYLE);
         // addStyleName("dist_type_twin-table");
 
         setId(SPUIDefinitions.TWIN_TABLE_SOURCE_ID);
-        setSelectionMode(SelectionMode.MULTI);
+        setSelectionModel(new RangeSelectionModel<>());
 
         addColumns();
     }

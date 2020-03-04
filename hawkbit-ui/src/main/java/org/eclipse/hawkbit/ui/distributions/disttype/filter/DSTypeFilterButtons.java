@@ -30,7 +30,6 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehav
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -171,7 +170,7 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     @Override
     protected String getFilterButtonIdPrefix() {
-        return SPUIDefinitions.DISTRIBUTION_SET_TYPE_ID_PREFIXS;
+        return UIComponentIdProvider.DISTRIBUTION_SET_TYPE_ID_PREFIXS;
     }
 
     public void restoreState() {

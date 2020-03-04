@@ -154,7 +154,6 @@ public final class SPUIDefinitions {
      * DiscriptionSet type desc.
      */
     public static final String DIST_SET_TYPE_DESC = "dist-set-type-desc";
-
     /**
      * DistributionSet type key.
      */
@@ -168,7 +167,6 @@ public final class SPUIDefinitions {
      * Software type key.
      */
     public static final String TYPE_KEY = "type-key";
-
     /**
      * Minimum width required to show tags for both target and distribution
      * table without horizontal scroll. In case browser width is less than this
@@ -176,30 +174,10 @@ public final class SPUIDefinitions {
      * bars get displayed. Used for Responsive UI.
      */
     public static final int REQ_MIN_BROWSER_WIDTH = 1200;
-
-    /**
-     * Target tag button id prefix.
-     */
-    public static final String TARGET_TAG_ID_PREFIXS = "target.tag.";
-    /**
-     * Distribution tag button id prefix.
-     */
-    public static final String DISTRIBUTION_TAG_ID_PREFIXS = "dist.tag.";
-
     /**
      * Space.
      */
     public static final String SPACE = "&nbsp;";
-
-    /**
-     * Distribution tag button id prefix.
-     */
-    public static final String SOFTWARE_MODULE_TAG_ID_PREFIXS = "swmodule.type.";
-
-    /**
-     * DistributionSet Type tag button id prefix.
-     */
-    public static final String DISTRIBUTION_SET_TYPE_ID_PREFIXS = "dist.set.type.";
     /**
      * Target last query date format .
      */

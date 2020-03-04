@@ -101,7 +101,7 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
 
     private Button buildNoTagButton() {
         final Button noTag = SPUIComponentProvider.getButton(
-                SPUIDefinitions.TARGET_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
+                UIComponentIdProvider.TARGET_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
                 i18n.getMessage(UIMessageIdProvider.LABEL_NO_TAG),
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
                 SPUITagButtonStyle.class);
@@ -190,7 +190,7 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
 
     @Override
     protected String getFilterButtonIdPrefix() {
-        return SPUIDefinitions.TARGET_TAG_ID_PREFIXS;
+        return UIComponentIdProvider.TARGET_TAG_ID_PREFIXS;
     }
 
     public void clearTargetTagFilters() {

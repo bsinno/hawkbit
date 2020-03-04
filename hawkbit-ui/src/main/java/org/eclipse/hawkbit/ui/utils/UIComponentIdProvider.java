@@ -1227,9 +1227,13 @@ public final class UIComponentIdProvider {
      */
     public static final String METADTA_ADD_ICON_ID = "metadata.add.icon.id";
     /**
-     * Metadata table id.
+     * Metadata details table id.
      */
-    public static final String METDATA_TABLE_ID = "metadata.table.id";
+    public static final String METDATA_DETAILS_TABLE_ID = "metadata.details.table.id";
+    /**
+     * Metadata window table id.
+     */
+    public static final String METDATA_WINDOW_TABLE_ID = "metadata.window.table.id";
 
     /**
      * Distribution set table - Manage metadata id.
@@ -1237,9 +1241,9 @@ public final class UIComponentIdProvider {
     public static final String DS_TABLE_MANAGE_METADATA_ID = "dstable.manage.metadata.id";
 
     /**
-     * DistributionSet - Metadata detail link.
+     * DistributionSet type prefix.
      */
-    public static final String DS_METADATA_DETAIL_LINK = "distributionset.metadata.detail.link";
+    public static final String DS_TYPE_PREFIX = "distributionset";
 
     /**
      * Metadata popup id.
@@ -1277,14 +1281,19 @@ public final class UIComponentIdProvider {
     public static final String DIST_SW_MODULE_DETAILS_TABSHEET_ID = "dist.sw.module.details.tabsheet";
 
     /**
-     * Software Module - Metadata detail link.
+     * Software Module type prefix.
      */
-    public static final String SW_METADATA_DETAIL_LINK = "softwaremodule.metadata.detail.link";
+    public static final String SW_TYPE_PREFIX = "softwaremodule";
 
     /**
-     * Target - Metadata detail link.
+     * Target type prefix.
      */
-    public static final String TARGET_METADATA_DETAIL_LINK = "target.metadata.detail.link";
+    public static final String TARGET_TYPE_PREFIX = "target";
+
+    /**
+     * Metadata detail link.
+     */
+    public static final String METADATA_DETAIL_LINK = "metadata.detail.link";
 
     /**
      * Table multiselect for selecting DistType
@@ -1433,6 +1442,24 @@ public final class UIComponentIdProvider {
     public static final String SM_TYPE_COLOR_STYLE = "sm-type-colors";
 
     public static final String SM_TYPE_COLOR_CLASS = "sm-type-color";
+
+    /**
+     * Target tag button id prefix.
+     */
+    public static final String TARGET_TAG_ID_PREFIXS = "target.tag.";
+    /**
+     * Distribution tag button id prefix.
+     */
+    public static final String DISTRIBUTION_TAG_ID_PREFIXS = "dist.tag.";
+    /**
+     * Distribution tag button id prefix.
+     */
+    public static final String SOFTWARE_MODULE_TAG_ID_PREFIXS = "swmodule.type.";
+
+    /**
+     * DistributionSet Type tag button id prefix.
+     */
+    public static final String DISTRIBUTION_SET_TYPE_ID_PREFIXS = "dist.set.type.";
 
     /**
      * /* Private Constructor.

@@ -81,7 +81,7 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
         this.distributionTagToken = new DistributionTagToken(permissionChecker, i18n, uiNotification, eventBus,
                 dsTagManagement, dsManagement);
 
-        this.dsMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.DS_METADATA_DETAIL_LINK,
+        this.dsMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.DS_TYPE_PREFIX,
                 this::showMetadataDetails, new DsMetaDataDataProvider(dsManagement));
 
         addDetailsComponents(Arrays.asList(new SimpleEntry<>(i18n.getMessage("caption.tab.details"), entityDetails),

@@ -40,7 +40,7 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     private static final long serialVersionUID = 1L;
 
     protected static final String CENTER_ALIGN = "v-align-center";
-    private static final String MULTI_SELECT_STYLE = "multi-selection-grid";
+    public static final String MULTI_SELECT_STYLE = "multi-selection-grid";
 
     protected final VaadinMessageSource i18n;
     protected final transient UIEventBus eventBus;

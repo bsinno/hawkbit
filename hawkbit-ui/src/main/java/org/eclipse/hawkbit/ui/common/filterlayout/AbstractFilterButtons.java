@@ -92,10 +92,11 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     private Button buildFilterButton(final T clickedFilter) {
         final Button filterButton = SPUIComponentProvider.getButton(
                 getFilterButtonIdPrefix() + "." + clickedFilter.getId(), clickedFilter.getName(),
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
-                SPUITagButtonStyle.class);
-        final String colour = clickedFilter.getColour() != null ? clickedFilter.getColour() : DEFAULT_GREEN;
+                clickedFilter.getName(), null, false, null, SPUITagButtonStyle.class);
+        filterButton.addStyleName(SPUIStyleDefinitions.FILTER_BUTTON_WRAPPER);
+        filterButton.addStyleName("text-cut");
 
+        final String colour = clickedFilter.getColour() != null ? clickedFilter.getColour() : DEFAULT_GREEN;
         filterButton.setCaption(
                 new ProxyFontIcon(VaadinIcons.CIRCLE, "", "", colour).getHtml() + " " + clickedFilter.getName());
         filterButton.setCaptionAsHtml(true);

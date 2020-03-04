@@ -307,6 +307,11 @@
   .text-cut {
     white-space: nowrap;
     text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -icab-text-overflow: ellipsis;
+    -khtml-text-overflow: ellipsis;
+    -moz-text-overflow: ellipsis;
+    -webkit-text-overflow: ellipsis;
     overflow: hidden;
   }
 

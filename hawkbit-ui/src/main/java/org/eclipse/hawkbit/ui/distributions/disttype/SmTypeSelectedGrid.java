@@ -9,6 +9,8 @@
 package org.eclipse.hawkbit.ui.distributions.disttype;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -31,7 +33,7 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
     private static final String SM_TYPE_SELECTED_MANDATORY = "smTypeSelectedMandatory";
 
     private final VaadinMessageSource i18n;
-    private final Runnable mandatoryPropertyChangedCallback;
+    private final transient Runnable mandatoryPropertyChangedCallback;
 
     public SmTypeSelectedGrid(final VaadinMessageSource i18n, final Runnable mandatoryPropertyChangedCallback) {
         this.i18n = i18n;
@@ -47,10 +49,12 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_SMALL);
+        // used to deactivate cell text selection by user
+        addStyleName(AbstractGrid.MULTI_SELECT_STYLE);
         // addStyleName("dist_type_twin-table");
 
         setId(SPUIDefinitions.TWIN_TABLE_SELECTED_ID);
-        setSelectionMode(SelectionMode.MULTI);
+        setSelectionModel(new RangeSelectionModel<>());
 
         addColumns();
     }
