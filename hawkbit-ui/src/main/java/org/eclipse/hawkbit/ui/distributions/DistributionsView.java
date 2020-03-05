@@ -146,7 +146,8 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     }
 
     private void restoreState() {
-        if (manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
+        if (manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()
+                || manageDistUIState.getSwModuleGridLayoutUiState().isMaximized()) {
             hideDsTypeLayout();
         } else {
             showDsTypeLayout();
@@ -163,7 +164,8 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         }
         swModuleGridLayout.restoreState();
 
-        if (manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
+        if (manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()
+                || manageDistUIState.getDistributionSetGridLayoutUiState().isMaximized()) {
             hideSmTypeLayout();
         } else {
             showSmTypeLayout();
@@ -183,7 +185,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
 
     void maximizeDsGridLayout() {
         swModuleGridLayout.setVisible(false);
-        distSMTypeFilterLayout.setVisible(false);
+        hideSmTypeLayout();
 
         mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
         mainLayout.setExpandRatio(distributionSetGridLayout, 1.0F);
@@ -194,7 +196,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     }
 
     void maximizeSmGridLayout() {
-        dsTypeFilterLayout.setVisible(false);
+        hideDsTypeLayout();
         distributionSetGridLayout.setVisible(false);
 
         mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
@@ -243,7 +245,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     void minimizeDsGridLayout() {
         swModuleGridLayout.setVisible(true);
         if (!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
-            distSMTypeFilterLayout.setVisible(true);
+            showSmTypeLayout();
         }
 
         mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
@@ -255,10 +257,10 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     }
 
     void minimizeSmGridLayout() {
-        if (!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
-            dsTypeFilterLayout.setVisible(true);
-        }
         distributionSetGridLayout.setVisible(true);
+        if (!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
+            showDsTypeLayout();
+        }
 
         mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
         mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);

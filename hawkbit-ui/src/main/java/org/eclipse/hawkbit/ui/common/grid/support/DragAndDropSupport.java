@@ -24,12 +24,15 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.cronutils.utils.StringUtils;
+import com.vaadin.server.AbstractExtension;
 import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.components.grid.GridDragSource;
@@ -43,11 +46,20 @@ import com.vaadin.ui.components.grid.GridDropTarget;
  *            The item-type used by the source grid
  */
 public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DragAndDropSupport.class);
+
+    private static final String DRAG_SOURCE = "drag-source";
+    private static final String DROP_TARGET = "drop-target";
+
     private final AbstractGrid<T, ?> grid;
     private final VaadinMessageSource i18n;
     private final UINotification notification;
     private final Map<String, AssignmentSupport<?, T>> sourceTargetAssignmentStrategies;
     private final UIEventBus eventBus;
+
+    private GridDragSource<T> dragSource;
+    private GridDropTarget<T> dropTarget;
+    private EntityDraggingListener draggingListener;
 
     public DragAndDropSupport(final AbstractGrid<T, ?> grid, final VaadinMessageSource i18n,
             final UINotification notification,
@@ -57,6 +69,27 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         this.notification = notification;
         this.sourceTargetAssignmentStrategies = sourceTargetAssignmentStrategies;
         this.eventBus = eventBus;
+
+        this.dragSource = null;
+        this.dropTarget = null;
+        this.draggingListener = null;
+
+        // TODO: check if needed or implement unsubscribe on pre destroy of grid
+        // (does not work on grid maximize/minimize)
+        // addDraggingListenerSubscription();
+    }
+
+    private void addDraggingListenerSubscription() {
+        grid.addAttachListener(event -> {
+            if (draggingListener != null) {
+                eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING);
+            }
+        });
+        grid.addDetachListener(event -> {
+            if (draggingListener != null) {
+                eventBus.unsubscribe(draggingListener);
+            }
+        });
     }
 
     public void addDragAndDrop() {
@@ -65,7 +98,11 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     public void addDragSource() {
-        final GridDragSource<T> dragSource = new RangeSelectionGridDragSource<>(grid);
+        if (!isGridValidForDragOrDrop(dragSource, DRAG_SOURCE)) {
+            return;
+        }
+
+        dragSource = new RangeSelectionGridDragSource<>(grid);
 
         final String gridId = grid.getGridId();
         dragSource.setDataTransferData("source_id", gridId);
@@ -81,6 +118,24 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
             eventBus.publish(EventTopics.ENTITY_DRAGGING, this,
                     new EntityDraggingEventPayload(gridId, DraggingEventType.STOPPED));
         });
+    }
+
+    private boolean isGridValidForDragOrDrop(final AbstractExtension dragOrDropExtension,
+            final String dragOrDropDescription) {
+        if (!grid.hasSelectionSupport()) {
+            LOGGER.warn("Can not add {} for non-selectable grid '{}', specify single- or multi-selection model",
+                    dragOrDropDescription, grid.getGridId());
+            return false;
+        }
+
+        if (dragOrDropExtension != null) {
+            LOGGER.warn(
+                    "Can not add {} to the grid '{}', because it already exists. Consider removing previous before adding a new one",
+                    dragOrDropDescription, grid.getGridId());
+            return false;
+        }
+
+        return true;
     }
 
     private List<T> getItemsToDrag(final GridDragStartEvent<T> event) {
@@ -99,7 +154,11 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     public void addDropTarget() {
-        final GridDropTarget<T> dropTarget = new GridDropTarget<>(grid, DropMode.ON_TOP);
+        if (!isGridValidForDragOrDrop(dropTarget, DROP_TARGET)) {
+            return;
+        }
+
+        dropTarget = new GridDropTarget<>(grid, DropMode.ON_TOP);
 
         addGridDropStylingListener();
 
@@ -126,10 +185,10 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private void addGridDropStylingListener() {
-        final EntityDraggingListener draggingListener = new EntityDraggingListener(
-                sourceTargetAssignmentStrategies.keySet(), grid);
-        grid.addAttachListener(event -> eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING));
-        grid.addDetachListener(event -> eventBus.unsubscribe(draggingListener));
+        draggingListener = new EntityDraggingListener(sourceTargetAssignmentStrategies.keySet(), grid);
+        // TODO: is it alright to subscribe here, what if already subscribed?
+        // Can we use addDraggingListenerSubscription method?
+        eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING);
     }
 
     private boolean isDropValid(final String sourceId, final T dropTargetItem,
@@ -148,6 +207,30 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         }
 
         return true;
+    }
+
+    public void removeDragAndDrop() {
+        removeDragSource();
+        removeDropTarget();
+    }
+
+    public void removeDragSource() {
+        if (dragSource != null) {
+            dragSource.remove();
+            dragSource = null;
+        }
+    }
+
+    public void removeDropTarget() {
+        if (dropTarget != null) {
+            dropTarget.remove();
+            dropTarget = null;
+        }
+
+        if (draggingListener != null) {
+            eventBus.unsubscribe(draggingListener);
+            draggingListener = null;
+        }
     }
 
     public static class EntityDraggingListener {

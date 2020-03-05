@@ -51,7 +51,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     }
 
     protected void addHeaderSupports(final Collection<HeaderSupport> headerSupports) {
-        this.headerSupports.addAll(headerSupports);
+        headerSupports.stream().filter(Objects::nonNull).forEach(this.headerSupports::add);
     }
 
     protected void init() {

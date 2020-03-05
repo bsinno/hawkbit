@@ -52,12 +52,12 @@ public abstract class DetailsHeader<T extends ProxyNamedEntity> extends Abstract
             this.editDetailsHeaderSupport = new EditDetailsHeaderSupport(i18n, getEditIconId(), this::onEdit);
             this.metaDataDetailsHeaderSupport = new MetaDataDetailsHeaderSupport(i18n, getMetaDataIconId(),
                     this::showMetaData);
-
-            addHeaderSupports(Arrays.asList(editDetailsHeaderSupport, metaDataDetailsHeaderSupport));
         } else {
             this.editDetailsHeaderSupport = null;
             this.metaDataDetailsHeaderSupport = null;
         }
+
+        addHeaderSupports(Arrays.asList(editDetailsHeaderSupport, metaDataDetailsHeaderSupport));
     }
 
     @Override

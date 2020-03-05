@@ -119,7 +119,9 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies,
                 eventBus);
-        this.dragAndDropSupport.addDropTarget();
+        if (!distributionSetGridLayoutUiState.isMaximized()) {
+            this.dragAndDropSupport.addDropTarget();
+        }
 
         initIsCompleteStyleGenerator();
         init();
@@ -185,6 +187,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
      */
     public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
+        dragAndDropSupport.removeDropTarget();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
     }
@@ -194,6 +197,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
      */
     public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
+        dragAndDropSupport.addDropTarget();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
     }

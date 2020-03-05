@@ -260,7 +260,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
             distributionGridLayout.setVisible(false);
         }
         if (distributionTagLayout != null) {
-            distributionTagLayout.setVisible(false);
+            hideDsTagLayout();
         }
         actionHistoryLayout.setVisible(false);
 
@@ -274,14 +274,14 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
     }
 
     void maximizeActionHistoryGridLayout() {
-        targetTagFilterLayout.setVisible(false);
+        hideTargetTagLayout();
         targetGridLayout.setVisible(false);
         targetCountLayout.setVisible(false);
         if (distributionGridLayout != null) {
             distributionGridLayout.setVisible(false);
         }
         if (distributionTagLayout != null) {
-            distributionTagLayout.setVisible(false);
+            hideDsTagLayout();
         }
 
         mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
@@ -305,7 +305,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
 
     void maximizeDsGridLayout() {
         if (targetTagFilterLayout != null) {
-            targetTagFilterLayout.setVisible(false);
+            hideTargetTagLayout();
         }
         if (targetGridLayout != null) {
             targetGridLayout.setVisible(false);
@@ -358,7 +358,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
             distributionGridLayout.setVisible(true);
         }
         if (distributionTagLayout != null && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
-            distributionTagLayout.setVisible(true);
+            showDsTagLayout();
         }
         actionHistoryLayout.setVisible(true);
 
@@ -374,7 +374,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
 
     void minimizeDsGridLayout() {
         if (targetTagFilterLayout != null && !managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
-            targetTagFilterLayout.setVisible(true);
+            showTargetTagLayout();
         }
         if (targetGridLayout != null) {
             targetGridLayout.setVisible(true);
@@ -396,7 +396,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
 
     void minimizeActionHistoryGridLayout() {
         if (!managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
-            targetTagFilterLayout.setVisible(true);
+            showTargetTagLayout();
         }
         targetGridLayout.setVisible(true);
         targetCountLayout.setVisible(true);
@@ -404,7 +404,7 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
             distributionGridLayout.setVisible(true);
         }
         if (distributionTagLayout != null && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
-            distributionTagLayout.setVisible(true);
+            showDsTagLayout();
         }
 
         // TODO: adapt expand ratios according to permissions

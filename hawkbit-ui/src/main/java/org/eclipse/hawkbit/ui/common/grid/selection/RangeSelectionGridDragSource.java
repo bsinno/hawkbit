@@ -8,9 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.selection;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.selection.client.RangeSelectionState;
 
-import com.vaadin.ui.Grid;
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.components.grid.GridDragSource;
 
 /**
@@ -20,8 +22,10 @@ import com.vaadin.ui.components.grid.GridDragSource;
  * @param <T>
  *            item type
  */
-public class RangeSelectionGridDragSource<T> extends GridDragSource<T> {
+public class RangeSelectionGridDragSource<T extends ProxyIdentifiableEntity> extends GridDragSource<T> {
     private static final long serialVersionUID = 1L;
+
+    private final Registration selectionCountListenerRegistration;
 
     /**
      * Constructor
@@ -29,10 +33,15 @@ public class RangeSelectionGridDragSource<T> extends GridDragSource<T> {
      * @param target
      *            Grid to be extended.
      */
-    public RangeSelectionGridDragSource(final Grid<T> target) {
+    public RangeSelectionGridDragSource(final AbstractGrid<T, ?> target) {
         super(target);
-        target.getSelectionModel()
-                .addSelectionListener(event -> getState().setSelectionCount(event.getAllSelectedItems().size()));
+
+        if (target.hasSelectionSupport()) {
+            selectionCountListenerRegistration = target.getSelectionModel()
+                    .addSelectionListener(event -> getState().setSelectionCount(event.getAllSelectedItems().size()));
+        } else {
+            selectionCountListenerRegistration = null;
+        }
     }
 
     @Override
@@ -40,4 +49,17 @@ public class RangeSelectionGridDragSource<T> extends GridDragSource<T> {
         return (RangeSelectionState) super.getState();
     }
 
+    @Override
+    protected RangeSelectionState getState(final boolean markAsDirty) {
+        return (RangeSelectionState) super.getState(markAsDirty);
+    }
+
+    @Override
+    public void remove() {
+        if (selectionCountListenerRegistration != null) {
+            selectionCountListenerRegistration.remove();
+        }
+
+        super.remove();
+    }
 }

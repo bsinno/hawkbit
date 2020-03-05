@@ -79,6 +79,8 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     }
 
     public void restoreState() {
+        artifactDetailsHeader.restoreState();
+
         if (uploadDropAreaLayout != null) {
             uploadDropAreaLayout.restoreState();
         }

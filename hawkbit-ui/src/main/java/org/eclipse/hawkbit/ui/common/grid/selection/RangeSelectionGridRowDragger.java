@@ -8,7 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.selection;
 
-import com.vaadin.ui.Grid;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+
 import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.GridRowDragger;
 
@@ -20,7 +22,7 @@ import com.vaadin.ui.components.grid.GridRowDragger;
  * @param <T>
  *            item type
  */
-public class RangeSelectionGridRowDragger<T> extends GridRowDragger<T> {
+public class RangeSelectionGridRowDragger<T extends ProxyIdentifiableEntity> extends GridRowDragger<T> {
     private static final long serialVersionUID = 1L;
 
     private final RangeSelectionGridDragSource<T> rangeSelectionGridDragSource;
@@ -31,7 +33,7 @@ public class RangeSelectionGridRowDragger<T> extends GridRowDragger<T> {
      * @param source
      *            Grid to be extended.
      */
-    public RangeSelectionGridRowDragger(final Grid<T> source) {
+    public RangeSelectionGridRowDragger(final AbstractGrid<T, ?> source) {
         super(source);
         super.getGridDragSource().remove();
         rangeSelectionGridDragSource = new RangeSelectionGridDragSource<>(source);

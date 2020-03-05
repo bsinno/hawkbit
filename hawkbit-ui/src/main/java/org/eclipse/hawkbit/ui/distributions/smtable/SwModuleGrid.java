@@ -105,7 +105,9 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
                 UIComponentIdProvider.SM_DELETE_CONFIRMATION_DIALOG);
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap(), eventBus);
-        this.dragAndDropSupport.addDragSource();
+        if (!swModuleGridLayoutUiState.isMaximized()) {
+            this.dragAndDropSupport.addDragSource();
+        }
 
         initMasterDsStyleGenerator();
         init();
@@ -183,6 +185,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
      */
     public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
+        dragAndDropSupport.removeDragSource();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
     }
@@ -192,6 +195,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
      */
     public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
+        dragAndDropSupport.addDragSource();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
     }

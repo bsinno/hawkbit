@@ -158,7 +158,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies,
                 eventBus);
-        this.dragAndDropSupport.addDragAndDrop();
+        if (!targetGridLayoutUiState.isMaximized()) {
+            this.dragAndDropSupport.addDragAndDrop();
+        }
 
         initDsPinningStyleGenerator();
         initTargetStatusIconMap();
@@ -343,6 +345,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      */
     public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
+        dragAndDropSupport.removeDragAndDrop();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
     }
@@ -352,6 +355,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      */
     public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
+        dragAndDropSupport.addDragAndDrop();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
     }
