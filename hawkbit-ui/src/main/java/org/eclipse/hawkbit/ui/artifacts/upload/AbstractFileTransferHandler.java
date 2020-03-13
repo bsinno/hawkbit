@@ -103,7 +103,7 @@ public abstract class AbstractFileTransferHandler implements Serializable {
 
     protected void startTransferToRepositoryThread(final InputStream inputStream, final FileUploadId fileUploadId,
             final String mimeType) {
-        SpringContextHelper.getBean("asyncExecutor", ExecutorService.class)
+        SpringContextHelper.getBean("uiExecutor", ExecutorService.class)
                 .execute(new TransferArtifactToRepositoryRunnable(inputStream, fileUploadId, mimeType, UI.getCurrent(),
                         uploadLock));
     }

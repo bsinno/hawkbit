@@ -65,7 +65,8 @@ public final class FormComponentBuilder {
         nameInput.setSizeUndefined();
 
         final Binding<T, String> binding = binder.forField(nameInput)
-                .asRequired(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED).bind(T::getName, T::setName);
+                .asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED))
+                .bind(T::getName, T::setName);
 
         return new BoundComponent<>(nameInput, binding);
     }
@@ -91,7 +92,8 @@ public final class FormComponentBuilder {
         versionInput.setSizeUndefined();
 
         final Binding<T, String> binding = binder.forField(versionInput)
-                .asRequired(UIMessageIdProvider.MESSAGE_ERROR_VERSIONREQUIRED).bind(T::getVersion, T::setVersion);
+                .asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_VERSIONREQUIRED))
+                .bind(T::getVersion, T::setVersion);
 
         return new BoundComponent<>(versionInput, binding);
     }
@@ -183,7 +185,8 @@ public final class FormComponentBuilder {
         final ComboBox<ProxyDistributionSet> comboBox = createDistributionSetComboBox(dataProvider, i18n, componentId);
 
         final Binding<T, Long> binding = binder.forField(comboBox)
-                .asRequired(UIMessageIdProvider.MESSAGE_ERROR_DISTRIBUTIONSET_REQUIRED).withConverter(ds -> {
+                .asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_DISTRIBUTIONSET_REQUIRED))
+                .withConverter(ds -> {
                     if (ds == null) {
                         return null;
                     }

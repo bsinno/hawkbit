@@ -9,8 +9,8 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
-import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
 
 /**
  * Proxy for {@link TargetFilterQuery}.
@@ -62,6 +62,8 @@ public class ProxyTargetFilterQuery extends ProxyNamedEntity implements DsIdAwar
     public void setDistributionSetId(final Long id) {
         if (autoAssignDsIdNameVersion != null) {
             autoAssignDsIdNameVersion.setId(id);
+        } else {
+            autoAssignDsIdNameVersion = new ProxyIdNameVersion(id, null, null);
         }
     }
 

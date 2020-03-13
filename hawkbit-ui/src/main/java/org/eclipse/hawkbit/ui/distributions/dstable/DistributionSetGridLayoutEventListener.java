@@ -129,9 +129,6 @@ public class DistributionSetGridLayoutEventListener {
             if (eventType == EntityModifiedEventType.ENTITY_ADDED && entityIds.size() == 1) {
                 UI.getCurrent().access(() -> distributionSetGridLayout.selectEntityById(entityIds.iterator().next()));
             } else if (eventType == EntityModifiedEventType.ENTITY_UPDATED) {
-                // TODO: we need to access the UI here because of getting the
-                // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
-                // right or improve
                 UI.getCurrent().access(() -> distributionSetGridLayout.onDsUpdated(entityIds));
             }
         }
