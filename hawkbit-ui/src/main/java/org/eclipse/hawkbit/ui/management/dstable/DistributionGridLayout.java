@@ -8,8 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.management.dstable;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -23,13 +24,15 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
@@ -44,17 +47,15 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DistributionGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final transient DistributionSetManagement distributionSetManagement;
-    private final transient DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper;
-
     private final DistributionGridHeader distributionGridHeader;
     private final DistributionGrid distributionGrid;
     private final DistributionSetDetailsHeader distributionSetDetailsHeader;
     private final DistributionDetails distributionDetails;
 
-    private final DistributionGridLayoutUiState distributionGridLayoutUiState;
-
     private final transient DistributionGridLayoutEventListener eventListener;
+
+    private final transient MasterEntityChangedListener<ProxyDistributionSet> masterEntitySupport;
+    private final transient EntityModifiedListener<ProxyDistributionSet> entityModifiedSupport;
 
     public DistributionGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final EntityFactory entityFactory,
@@ -67,9 +68,6 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
             final DistributionGridLayoutUiState distributionGridLayoutUiState,
             final DistributionTagLayoutUiState distributionTagLayoutUiState,
             final TargetGridLayoutUiState targetGridLayoutUiState) {
-        this.distributionSetManagement = distributionSetManagement;
-        this.dsToProxyDistributionMapper = new DistributionSetToProxyDistributionMapper();
-        this.distributionGridLayoutUiState = distributionGridLayoutUiState;
 
         final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, notification,
                 systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
@@ -91,89 +89,21 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new DistributionGridLayoutEventListener(this, eventBus);
 
+        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
+                getLayout());
+        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, distributionGrid::refreshContainer,
+                distributionGrid.getSelectionSupport(), ProxyDistributionSet.class);
+
         buildLayout(distributionGridHeader, distributionGrid, distributionSetDetailsHeader, distributionDetails);
     }
 
     public void restoreState() {
         distributionGridHeader.restoreState();
         distributionGrid.restoreState();
-
-        restoreGridSelection();
     }
 
-    private void restoreGridSelection() {
-        if (!distributionGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        final Long lastSelectedEntityId = distributionGridLayoutUiState.getSelectedDsId();
-
-        if (lastSelectedEntityId != null) {
-            selectEntityById(lastSelectedEntityId);
-        } else {
-            distributionGrid.getSelectionSupport().selectFirstRow();
-        }
-    }
-
-    // TODO: extract to parent abstract #selectEntityById?
-    public void selectEntityById(final Long entityId) {
-        if (!distributionGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        if (!distributionGrid.getSelectedItems().isEmpty()) {
-            distributionGrid.deselectAll();
-        }
-
-        mapIdToProxyEntity(entityId).ifPresent(distributionGrid::select);
-    }
-
-    // TODO: extract to parent abstract #mapIdToProxyEntity?
-    private Optional<ProxyDistributionSet> mapIdToProxyEntity(final Long entityId) {
-        return distributionSetManagement.get(entityId).map(dsToProxyDistributionMapper::map);
-    }
-
-    // TODO: extract to parent #onMasterEntityChanged?
-    public void onDsChanged(final ProxyDistributionSet ds) {
-        if (isIncomplete(ds)) {
-            resetIncompleteDs(ds);
-        } else {
-            distributionSetDetailsHeader.masterEntityChanged(ds);
-            distributionDetails.masterEntityChanged(ds);
-        }
-    }
-
-    private boolean isIncomplete(final ProxyDistributionSet ds) {
-        return ds != null && !ds.getIsComplete();
-    }
-
-    private void resetIncompleteDs(final ProxyDistributionSet ds) {
-        final Long dsId = ds.getId();
-
-        if (dsId.equals(distributionGridLayoutUiState.getSelectedDsId())) {
-            distributionGrid.deselect(ds);
-        }
-
-        if (dsId.equals(distributionGridLayoutUiState.getPinnedDsId())) {
-            distributionGrid.unpinnItemById(ds.getId());
-        }
-    }
-
-    // TODO: extract to parent #onMasterEntityUpdated?
-    public void onDsUpdated(final Collection<Long> entityIds) {
-        final Long selectedEntityId = distributionGrid.hasSelectionSupport()
-                && distributionGrid.getSelectedItems().size() == 1
-                        ? distributionGrid.getSelectedItems().iterator().next().getId()
-                        : null;
-        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
-
-        if (selectedEntityId != null || pinnedDsId != null) {
-            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId) || entityId.equals(pinnedDsId))
-                    .findAny()
-                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(
-                            updatedEntity -> distributionGrid.getSelectionSupport().sendSelectionChangedEvent(
-                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
-        }
+    private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterEntityAwareComponents() {
+        return Arrays.asList(distributionSetDetailsHeader, distributionDetails);
     }
 
     public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
@@ -224,9 +154,16 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        masterEntitySupport.unsubscribe();
+        entityModifiedSupport.unsubscribe();
     }
 
     public Layout getLayout() {
         return Layout.DS_LIST;
+    }
+
+    public View getView() {
+        return View.DEPLOYMENT;
     }
 }

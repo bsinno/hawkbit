@@ -13,7 +13,7 @@ import java.util.Collection;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
-import org.eclipse.hawkbit.ui.common.grid.AbstractFooterSupport;
+import org.eclipse.hawkbit.ui.common.layout.AbstractFooterSupport;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;

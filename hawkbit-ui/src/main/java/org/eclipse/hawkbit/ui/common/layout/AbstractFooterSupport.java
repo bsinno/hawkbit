@@ -1,4 +1,4 @@
-package org.eclipse.hawkbit.ui.common.grid;
+package org.eclipse.hawkbit.ui.common.layout;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.HorizontalLayout;

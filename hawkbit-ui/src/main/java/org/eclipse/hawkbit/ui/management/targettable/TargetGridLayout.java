@@ -8,9 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -23,13 +23,15 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
 import org.eclipse.hawkbit.ui.management.bulkupload.BulkUploadWindowBuilder;
 import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUploadUiState;
@@ -45,18 +47,16 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class TargetGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final transient TargetManagement targetManagement;
-    private final transient TargetToProxyTargetMapper targetMapper;
-
     private final TargetGridHeader targetGridHeader;
     private final TargetGrid targetGrid;
     private final TargetDetailsHeader targetDetailsHeader;
     private final TargetDetails targetDetails;
     private final transient CountMessageLabel countMessageLabel;
 
-    private final TargetGridLayoutUiState targetGridLayoutUiState;
-
     private final transient TargetGridLayoutEventListener eventListener;
+
+    private final transient MasterEntityChangedListener<ProxyTarget> masterEntitySupport;
+    private final transient EntityModifiedListener<ProxyTarget> entityModifiedSupport;
 
     public TargetGridLayout(final UIEventBus eventBus, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
@@ -68,10 +68,6 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
             final TargetGridLayoutUiState targetGridLayoutUiState,
             final TargetBulkUploadUiState targetBulkUploadUiState,
             final DistributionGridLayoutUiState distributionGridLayoutUiState) {
-        this.targetManagement = targetManagement;
-        this.targetMapper = new TargetToProxyTargetMapper(i18n);
-        this.targetGridLayoutUiState = targetGridLayoutUiState;
-
         final TargetWindowBuilder targetWindowBuilder = new TargetWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, targetManagement);
         final TargetMetaDataWindowBuilder targetMetaDataWindowBuilder = new TargetMetaDataWindowBuilder(i18n,
@@ -98,6 +94,11 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetGridLayoutEventListener(this, eventBus);
 
+        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
+                getLayout());
+        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, targetGrid::refreshContainer,
+                targetGrid.getSelectionSupport(), ProxyTarget.class);
+
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }
 
@@ -107,65 +108,13 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 .displayTargetCountStatus(targetGrid.getDataSize(), targetGrid.getTargetFilter()));
     }
 
+    private List<MasterEntityAwareComponent<ProxyTarget>> getMasterEntityAwareComponents() {
+        return Arrays.asList(targetDetailsHeader, targetDetails);
+    }
+
     public void restoreState() {
         targetGridHeader.restoreState();
         targetGrid.restoreState();
-
-        restoreGridSelection();
-    }
-
-    private void restoreGridSelection() {
-        if (!targetGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        final Long lastSelectedEntityId = targetGridLayoutUiState.getSelectedTargetId();
-
-        if (lastSelectedEntityId != null) {
-            selectEntityById(lastSelectedEntityId);
-        } else {
-            targetGrid.getSelectionSupport().selectFirstRow();
-        }
-    }
-
-    // TODO: extract to parent abstract #selectEntityById?
-    public void selectEntityById(final Long entityId) {
-        if (!targetGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        if (!targetGrid.getSelectedItems().isEmpty()) {
-            targetGrid.deselectAll();
-        }
-
-        mapIdToProxyEntity(entityId).ifPresent(targetGrid::select);
-    }
-
-    // TODO: extract to parent abstract #mapIdToProxyEntity?
-    private Optional<ProxyTarget> mapIdToProxyEntity(final Long entityId) {
-        return targetManagement.get(entityId).map(targetMapper::map);
-    }
-
-    // TODO: extract to parent #onMasterEntityChanged?
-    public void onTargetChanged(final ProxyTarget target) {
-        targetDetailsHeader.masterEntityChanged(target);
-        targetDetails.masterEntityChanged(target);
-    }
-
-    // TODO: extract to parent #onMasterEntityUpdated?
-    public void onTargetUpdated(final Collection<Long> entityIds) {
-        if (!targetGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        if (targetGrid.getSelectedItems().size() == 1) {
-            final Long selectedEntityId = targetGrid.getSelectedItems().iterator().next().getId();
-
-            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId)).findAny()
-                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId)
-                            .ifPresent(updatedEntity -> targetGrid.getSelectionSupport().sendSelectionChangedEvent(
-                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
-        }
     }
 
     public void onTargetTagsModified(final Collection<Long> entityIds,
@@ -251,6 +200,9 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        masterEntitySupport.unsubscribe();
+        entityModifiedSupport.unsubscribe();
     }
 
     public CountMessageLabel getCountMessageLabel() {
@@ -259,5 +211,9 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     public Layout getLayout() {
         return Layout.TARGET_LIST;
+    }
+
+    public View getView() {
+        return View.DEPLOYMENT;
     }
 }

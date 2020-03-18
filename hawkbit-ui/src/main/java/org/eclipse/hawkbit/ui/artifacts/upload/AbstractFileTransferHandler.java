@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.lang3.StringUtils;
@@ -103,9 +103,8 @@ public abstract class AbstractFileTransferHandler implements Serializable {
 
     protected void startTransferToRepositoryThread(final InputStream inputStream, final FileUploadId fileUploadId,
             final String mimeType) {
-        SpringContextHelper.getBean("uiExecutor", ExecutorService.class)
-                .execute(new TransferArtifactToRepositoryRunnable(inputStream, fileUploadId, mimeType, UI.getCurrent(),
-                        uploadLock));
+        SpringContextHelper.getBean("uiExecutor", Executor.class).execute(new TransferArtifactToRepositoryRunnable(
+                inputStream, fileUploadId, mimeType, UI.getCurrent(), uploadLock));
     }
 
     private void interruptUploadAndSetReason(final String failureReason) {

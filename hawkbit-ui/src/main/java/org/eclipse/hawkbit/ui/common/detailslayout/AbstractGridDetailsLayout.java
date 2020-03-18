@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -34,7 +35,8 @@ import com.vaadin.ui.themes.ValoTheme;
  *
  * @param <T>
  */
-public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> extends TabSheet {
+public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> extends TabSheet
+        implements MasterEntityAwareComponent<T> {
     private static final long serialVersionUID = 1L;
 
     protected final VaadinMessageSource i18n;
@@ -153,6 +155,7 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         return tabWrapperDetailsLayout;
     }
 
+    @Override
     public void masterEntityChanged(final T entity) {
         binder.setBean(entity);
     }

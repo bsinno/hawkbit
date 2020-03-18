@@ -12,8 +12,11 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -30,6 +33,8 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     private final SMTypeFilterButtons sMTypeFilterButtons;
 
     private final transient SMTypeFilterLayoutEventListener eventListener;
+
+    private final transient EntityModifiedListener<ProxyType> layoutEntityModifiedSupport;
 
     /**
      * Constructor
@@ -62,6 +67,9 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
                 softwareModuleTypeManagement, i18n, permChecker, uiNotification, smTypeWindowBuilder);
 
         this.eventListener = new SMTypeFilterLayoutEventListener(this, eventBus);
+
+        this.layoutEntityModifiedSupport = new EntityModifiedListener<>(eventBus, sMTypeFilterButtons::refreshContainer,
+                null, ProxyType.class, ProxySoftwareModule.class, null);
 
         buildLayout();
     }
@@ -102,5 +110,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        layoutEntityModifiedSupport.unsubscribe();
     }
 }

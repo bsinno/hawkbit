@@ -32,6 +32,7 @@ import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -54,7 +55,8 @@ import com.vaadin.ui.UI;
 /**
  * This grid presents the action history for a selected target.
  */
-public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
+public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
+        implements MasterEntityAwareComponent<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionHistoryGrid.class);
@@ -77,12 +79,13 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     private final UINotification notification;
     private final transient DeploymentManagement deploymentManagement;
+    private final transient ActionToProxyActionMapper actionToProxyActionMapper;
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
     private final Map<IsActiveDecoration, ProxyFontIcon> activeStatusIconMap = new EnumMap<>(IsActiveDecoration.class);
     private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    private Long masterEntityId;
+    private Long masterId;
 
     private final ConfigurableFilterDataProvider<ProxyAction, Void, String> actionDataProvider;
 
@@ -93,14 +96,15 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
         this.notification = notification;
         this.deploymentManagement = deploymentManagement;
+        this.actionToProxyActionMapper = new ActionToProxyActionMapper();
 
-        this.actionDataProvider = new ActionDataProvider(deploymentManagement, new ActionToProxyActionMapper())
+        this.actionDataProvider = new ActionDataProvider(deploymentManagement, actionToProxyActionMapper)
                 .withConfigurableFilter();
 
         setResizeSupport(new ActionHistoryResizeSupport());
+        // TODO: currently we do not restore action history selection
         setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, Layout.ACTION_HISTORY_LIST,
-                View.DEPLOYMENT, (eventType, entity) -> {
-                }));
+                View.DEPLOYMENT, this::mapIdToProxyEntity, null, null));
         if (actionHistoryGridLayoutUiState.isMaximized()) {
             getSelectionSupport().enableSingleSelection();
         } else {
@@ -112,6 +116,10 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         initActionTypeIconMap();
 
         init();
+    }
+
+    private Optional<ProxyAction> mapIdToProxyEntity(final long entityId) {
+        return deploymentManagement.findAction(entityId).map(actionToProxyActionMapper::map);
     }
 
     private void initStatusIconMap() {
@@ -181,13 +189,18 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         return actionDataProvider;
     }
 
-    public void updateMasterEntityFilter(final ProxyTarget masterEntity) {
-        masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-        getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getControllerId() : null);
+    @Override
+    public void masterEntityChanged(final ProxyTarget masterEntity) {
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+
+        if ((masterEntityId == null && getMasterEntityId() != null) || masterEntityId != null) {
+            masterId = masterEntityId;
+            getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getControllerId() : null);
+        }
     }
 
     public Long getMasterEntityId() {
-        return masterEntityId;
+        return masterId;
     }
 
     /**
@@ -392,10 +405,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private void publishEntityModifiedEvent(final Long actionId) {
-        if (masterEntityId != null) {
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class,
-                            masterEntityId, ProxyAction.class, actionId));
+        if (masterId != null) {
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, masterId, ProxyAction.class, actionId));
         }
     }
 

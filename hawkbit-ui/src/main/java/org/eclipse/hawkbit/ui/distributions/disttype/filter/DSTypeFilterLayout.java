@@ -14,8 +14,11 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -33,6 +36,8 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     private final DSTypeFilterButtons dSTypeFilterButtons;
 
     private final transient DSTypeFilterLayoutEventListener eventListener;
+
+    private final transient EntityModifiedListener<ProxyType> layoutEntityModifiedSupport;
 
     /**
      * Constructor
@@ -67,6 +72,9 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
                 uiNotification, systemManagement, dSTypeFilterLayoutUiState, dsTypeWindowBuilder);
 
         this.eventListener = new DSTypeFilterLayoutEventListener(this, eventBus);
+
+        this.layoutEntityModifiedSupport = new EntityModifiedListener<>(eventBus, dSTypeFilterButtons::refreshContainer,
+                null, ProxyType.class, ProxyDistributionSet.class, null);
 
         buildLayout();
     }
@@ -103,6 +111,8 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        layoutEntityModifiedSupport.unsubscribe();
     }
 
     public Layout getLayout() {

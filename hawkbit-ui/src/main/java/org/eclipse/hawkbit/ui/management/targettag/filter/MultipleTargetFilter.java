@@ -12,8 +12,14 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -42,6 +48,11 @@ public class MultipleTargetFilter extends Accordion {
     private final FilterByStatusLayout filterByStatusFooter;
     private final TargetFilterQueryButtons customFilterTab;
 
+    private final transient MultipleTargetFilterLayoutEventListener eventListener;
+
+    private final transient EntityModifiedListener<ProxyTag> entityTagModifiedSupport;
+    private final transient EntityModifiedListener<ProxyTargetFilterQuery> entityFilterQueryModifiedSupport;
+
     MultipleTargetFilter(final SpPermissionChecker permChecker, final VaadinMessageSource i18n,
             final UIEventBus eventBus, final UINotification notification,
             final TargetFilterQueryManagement targetFilterQueryManagement,
@@ -58,6 +69,13 @@ public class MultipleTargetFilter extends Accordion {
         this.simpleFilterTab = buildSimpleFilterTab();
         this.customFilterTab = new TargetFilterQueryButtons(i18n, eventBus, targetFilterQueryManagement,
                 targetTagFilterLayoutUiState);
+
+        this.eventListener = new MultipleTargetFilterLayoutEventListener(this, eventBus);
+
+        this.entityTagModifiedSupport = new EntityModifiedListener<>(eventBus, filterByButtons::refreshContainer, null,
+                ProxyTag.class, ProxyTarget.class, null);
+        this.entityFilterQueryModifiedSupport = new EntityModifiedListener<>(eventBus, customFilterTab::refreshContainer,
+                null, ProxyTargetFilterQuery.class);
 
         init();
         addTabs();
@@ -99,14 +117,14 @@ public class MultipleTargetFilter extends Accordion {
 
     private void addTabs() {
         addTab(simpleFilterTab).setId(UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB);
-        addTab(getCustomFilterTab()).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
+        addTab(customFilterTab).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
     }
 
     public void selectedTabChanged() {
         final String selectedTabId = getTab(getSelectedTab()).getId();
 
         if (UIComponentIdProvider.SIMPLE_FILTER_ACCORDION_TAB.equals(selectedTabId)) {
-            getCustomFilterTab().clearAppliedTargetFilterQuery();
+            customFilterTab.clearAppliedTargetFilterQuery();
 
             targetTagFilterLayoutUiState.setCustomFilterTabSelected(false);
 
@@ -123,9 +141,9 @@ public class MultipleTargetFilter extends Accordion {
 
     public void restoreState() {
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
-            getCustomFilterTab().restoreState();
+            customFilterTab.restoreState();
 
-            setSelectedTab(getCustomFilterTab());
+            setSelectedTab(customFilterTab);
         } else {
             filterByButtons.restoreState();
             filterByStatusFooter.restoreState();
@@ -134,11 +152,30 @@ public class MultipleTargetFilter extends Accordion {
         }
     }
 
-    public TargetTagFilterButtons getTargetTagFilterButtons() {
-        return filterByButtons;
+    public void showFilterButtonsEditIcon() {
+        filterByButtons.showEditColumn();
     }
 
-    public TargetFilterQueryButtons getCustomFilterTab() {
-        return customFilterTab;
+    public void showFilterButtonsDeleteIcon() {
+        filterByButtons.showDeleteColumn();
+    }
+
+    public void hideFilterButtonsActionIcons() {
+        filterByButtons.hideActionColumns();
+    }
+
+    public void unsubscribeListener() {
+        eventListener.unsubscribeListeners();
+
+        entityTagModifiedSupport.unsubscribe();
+        entityFilterQueryModifiedSupport.unsubscribe();
+    }
+
+    public Layout getLayout() {
+        return Layout.TARGET_TAG_FILTER;
+    }
+
+    public View getView() {
+        return View.DEPLOYMENT;
     }
 }

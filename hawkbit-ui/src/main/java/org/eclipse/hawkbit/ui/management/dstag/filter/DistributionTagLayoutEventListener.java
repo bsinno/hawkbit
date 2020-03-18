@@ -11,13 +11,9 @@ package org.eclipse.hawkbit.ui.management.dstag.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload.ActionsVisibilityType;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -38,7 +34,6 @@ public class DistributionTagLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new FilterButtonsActionsChangedListener());
-        eventListeners.add(new EntityModifiedListener());
     }
 
     private class FilterButtonsActionsChangedListener {
@@ -63,23 +58,6 @@ public class DistributionTagLayoutEventListener {
             } else if (actionsVisibilityType == ActionsVisibilityType.SHOW_DELETE) {
                 distributionTagLayout.showFilterButtonsDeleteIcon();
             }
-        }
-    }
-
-    private class EntityModifiedListener {
-
-        public EntityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsTagEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyDistributionSet.class.equals(eventPayload.getParentType())
-                    || !ProxyTag.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            distributionTagLayout.refreshFilterButtons();
         }
     }
 

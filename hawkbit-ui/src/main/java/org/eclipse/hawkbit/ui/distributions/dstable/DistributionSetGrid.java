@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.dstable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -29,7 +30,6 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -72,6 +72,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
     private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
     private final transient DistributionSetManagement dsManagement;
+    private final transient DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper;
 
     private final ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsDistributionsFilterParams> dsDataProvider;
     private final DsDistributionsFilterParams dsFilter;
@@ -85,13 +86,13 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
             final SoftwareModuleManagement smManagement, final DistributionSetTypeManagement dsTypeManagement,
             final SoftwareModuleTypeManagement smTypeManagement,
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
-            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState,
-            final DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper) {
+            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
         this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
         this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
         this.dsManagement = dsManagement;
+        this.dsToProxyDistributionMapper = new DistributionSetToProxyDistributionMapper();
 
         this.dsDataProvider = new DistributionSetDistributionsStateDataProvider(dsManagement, dsTypeManagement,
                 dsToProxyDistributionMapper).withConfigurableFilter();
@@ -100,7 +101,8 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         setResizeSupport(new DistributionSetResizeSupport());
 
         setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, Layout.DS_LIST,
-                View.DISTRIBUTIONS, this::updateLastSelectedDsUiState));
+                View.DISTRIBUTIONS, this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState,
+                this::setSelectedEntityIdToUiState));
         if (distributionSetGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -134,13 +136,16 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         addStyleName("grid-row-border");
     }
 
-    private void updateLastSelectedDsUiState(final SelectionChangedEventType type,
-            final ProxyDistributionSet selectedDs) {
-        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
-            distributionSetGridLayoutUiState.setSelectedDsId(null);
-        } else {
-            distributionSetGridLayoutUiState.setSelectedDsId(selectedDs.getId());
-        }
+    private Optional<ProxyDistributionSet> mapIdToProxyEntity(final long entityId) {
+        return dsManagement.get(entityId).map(dsToProxyDistributionMapper::map);
+    }
+
+    private Optional<Long> getSelectedEntityIdFromUiState() {
+        return Optional.ofNullable(distributionSetGridLayoutUiState.getSelectedDsId());
+    }
+
+    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
+        distributionSetGridLayoutUiState.setSelectedDsId(entityId.orElse(null));
     }
 
     private void deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
@@ -263,6 +268,8 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         dsFilter.setDsTypeId(dSTypeFilterLayoutUiState.getClickedDsTypeId());
 
         getFilterDataProvider().setFilter(dsFilter);
+
+        getSelectionSupport().restoreSelection();
     }
 
     /**

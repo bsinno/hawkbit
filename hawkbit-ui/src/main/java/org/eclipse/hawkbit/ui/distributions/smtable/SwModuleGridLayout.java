@@ -8,8 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.distributions.smtable;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
@@ -19,13 +20,15 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
-import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -37,18 +40,17 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final transient SoftwareModuleManagement softwareModuleManagement;
-    private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
-
     private final SwModuleGridHeader swModuleGridHeader;
     private final SwModuleGrid swModuleGrid;
     // TODO: change to SwModuleDetailsHeader
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SwModuleDetails swModuleDetails;
 
-    private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
-
     private final transient SwModuleGridLayoutEventListener eventListener;
+
+    private final transient MasterEntityChangedListener<ProxyDistributionSet> masterDsEntitySupport;
+    private final transient MasterEntityChangedListener<ProxySoftwareModule> masterEntitySupport;
+    private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedSupport;
 
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
@@ -56,10 +58,6 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
             final SpPermissionChecker permChecker, final ArtifactManagement artifactManagement,
             final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
             final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
-        this.softwareModuleManagement = softwareModuleManagement;
-        this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
-        this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
-
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 softwareModuleManagement, softwareModuleTypeManagement);
         final SmMetaDataWindowBuilder smMetaDataWindowBuilder = new SmMetaDataWindowBuilder(i18n, entityFactory,
@@ -68,7 +66,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         this.swModuleGridHeader = new SwModuleGridHeader(i18n, permChecker, eventBus, smWindowBuilder,
                 distSMTypeFilterLayoutUiState, swModuleGridLayoutUiState);
         this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, softwareModuleManagement,
-                distSMTypeFilterLayoutUiState, swModuleGridLayoutUiState, softwareModuleToProxyMapper);
+                distSMTypeFilterLayoutUiState, swModuleGridLayoutUiState);
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder, artifactManagement);
@@ -76,73 +74,23 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new SwModuleGridLayoutEventListener(this, eventBus);
 
+        this.masterDsEntitySupport = new MasterEntityChangedListener<>(eventBus, Collections.singletonList(swModuleGrid),
+                getView(), Layout.DS_LIST);
+        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
+                getLayout());
+        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, swModuleGrid::refreshContainer,
+                swModuleGrid.getSelectionSupport(), ProxySoftwareModule.class);
+
         buildLayout(swModuleGridHeader, swModuleGrid, softwareModuleDetailsHeader, swModuleDetails);
+    }
+
+    private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterEntityAwareComponents() {
+        return Arrays.asList(softwareModuleDetailsHeader, swModuleDetails);
     }
 
     public void restoreState() {
         swModuleGridHeader.restoreState();
         swModuleGrid.restoreState();
-
-        restoreGridSelection();
-    }
-
-    private void restoreGridSelection() {
-        if (!swModuleGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        final Long lastSelectedEntityId = swModuleGridLayoutUiState.getSelectedSmId();
-
-        if (lastSelectedEntityId != null) {
-            selectEntityById(lastSelectedEntityId);
-        } else {
-            swModuleGrid.getSelectionSupport().selectFirstRow();
-        }
-    }
-
-    // TODO: extract to parent abstract #selectEntityById?
-    public void selectEntityById(final Long entityId) {
-        if (!swModuleGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        if (!swModuleGrid.getSelectedItems().isEmpty()) {
-            swModuleGrid.deselectAll();
-        }
-
-        mapIdToProxyEntity(entityId).ifPresent(swModuleGrid::select);
-    }
-
-    // TODO: extract to parent abstract #mapIdToProxyEntity?
-    private Optional<ProxySoftwareModule> mapIdToProxyEntity(final Long entityId) {
-        return softwareModuleManagement.get(entityId).map(softwareModuleToProxyMapper::map);
-    }
-
-    // TODO: extract to parent #onMasterEntityChanged?
-    public void onSmChanged(final ProxySoftwareModule sm) {
-        softwareModuleDetailsHeader.masterEntityChanged(sm);
-        swModuleDetails.masterEntityChanged(sm);
-    }
-
-    // TODO: extract to parent #onMasterEntityUpdated?
-    public void onSmUpdated(final Collection<Long> entityIds) {
-        if (!swModuleGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        if (swModuleGrid.getSelectedItems().size() == 1) {
-            final Long selectedEntityId = swModuleGrid.getSelectedItems().iterator().next().getId();
-
-            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId)).findAny()
-                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId)
-                            .ifPresent(updatedEntity -> swModuleGrid.getSelectionSupport().sendSelectionChangedEvent(
-                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
-        }
-    }
-
-    public void onDsChanged(final ProxyDistributionSet selectedDs) {
-        swModuleGrid.updateMasterEntityFilter(selectedDs != null ? selectedDs.getId() : null);
-        swModuleGrid.deselectAll();
     }
 
     public void showSmTypeHeaderIcon() {
@@ -173,15 +121,19 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         showDetailsLayout();
     }
 
-    public void refreshGrid() {
-        swModuleGrid.refreshContainer();
-    }
-
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        masterDsEntitySupport.unsubscribe();
+        masterEntitySupport.unsubscribe();
+        entityModifiedSupport.unsubscribe();
     }
 
     public Layout getLayout() {
         return Layout.SM_LIST;
+    }
+
+    public View getView() {
+        return View.DISTRIBUTIONS;
     }
 }

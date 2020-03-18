@@ -62,8 +62,7 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
                 new ActionStatusToProxyActionStatusMapper()).withConfigurableFilter();
 
         setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, Layout.ACTION_HISTORY_STATUS_LIST,
-                View.DEPLOYMENT, (eventType, entity) -> {
-                }));
+                View.DEPLOYMENT, null, null, null));
         getSelectionSupport().enableSingleSelection();
 
         initStatusIconMap();

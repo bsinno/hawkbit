@@ -13,6 +13,7 @@ import java.util.Arrays;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -26,7 +27,8 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * Header for entity details with edit and metadata support.
  */
-public abstract class DetailsHeader<T extends ProxyNamedEntity> extends AbstractGridHeader {
+public abstract class DetailsHeader<T extends ProxyNamedEntity> extends AbstractGridHeader
+        implements MasterEntityAwareComponent<T> {
     private static final long serialVersionUID = 1L;
 
     protected final UINotification uiNotification;
@@ -106,6 +108,7 @@ public abstract class DetailsHeader<T extends ProxyNamedEntity> extends Abstract
     }
 
     // TODO: Check if it could be done by binder
+    @Override
     public void masterEntityChanged(final T entity) {
         if (entity == null) {
             disableEdit();

@@ -8,7 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support;
 
-import java.util.function.BiConsumer;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.LongFunction;
+import java.util.function.Supplier;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -36,20 +41,28 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     private final UIEventBus eventBus;
     private final Layout layout;
     private final View view;
-    private final BiConsumer<SelectionChangedEventType, T> updateLastSelectedUiStateCallback;
 
-    // for grids without selection support
+    private final LongFunction<Optional<T>> mapIdToProxyEntityFunction;
+    private final Supplier<Optional<Long>> selectedEntityIdUiStateProvider;
+    private final Consumer<Optional<Long>> setSelectedEntityIdUiStateCallback;
+
+    // For grids without selection support
     public SelectionSupport(final Grid<T> grid) {
-        this(grid, null, null, null, null);
+        this(grid, null, null, null, null, null, null);
     }
 
     public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final Layout layout, final View view,
-            final BiConsumer<SelectionChangedEventType, T> updateLastSelectedUiStateCallback) {
+            final LongFunction<Optional<T>> mapIdToProxyEntityFunction,
+            final Supplier<Optional<Long>> selectedEntityIdUiStateProvider,
+            final Consumer<Optional<Long>> setSelectedEntityIdUiStateCallback) {
         this.grid = grid;
         this.eventBus = eventBus;
         this.layout = layout;
         this.view = view;
-        this.updateLastSelectedUiStateCallback = updateLastSelectedUiStateCallback;
+
+        this.mapIdToProxyEntityFunction = mapIdToProxyEntityFunction;
+        this.selectedEntityIdUiStateProvider = selectedEntityIdUiStateProvider;
+        this.setSelectedEntityIdUiStateCallback = setSelectedEntityIdUiStateCallback;
     }
 
     public final void disableSelection() {
@@ -80,7 +93,28 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
 
         eventBus.publish(EventTopics.SELECTION_CHANGED, grid,
                 new SelectionChangedEventPayload<>(selectionType, itemToSend, layout, view));
-        updateLastSelectedUiStateCallback.accept(selectionType, itemToSend);
+
+        updateUiState(selectionType, itemToSend);
+    }
+
+    private void updateUiState(final SelectionChangedEventType selectionType, final T itemToSend) {
+        if (setSelectedEntityIdUiStateCallback == null) {
+            return;
+        }
+
+        final Optional<Long> selectedItemId = SelectionChangedEventType.ENTITY_SELECTED == selectionType
+                ? Optional.of(itemToSend).map(ProxyIdentifiableEntity::getId)
+                : Optional.empty();
+        setSelectedEntityIdUiStateCallback.accept(selectedItemId);
+    }
+
+    public void sendSelectionChangedEvent(final SelectionChangedEventType selectionType, final Long itemIdToSend) {
+        if (mapIdToProxyEntityFunction == null) {
+            return;
+        }
+
+        mapIdToProxyEntityFunction.apply(itemIdToSend)
+                .ifPresent(itemToSend -> sendSelectionChangedEvent(selectionType, itemToSend));
     }
 
     public final void enableMultiSelection() {
@@ -110,15 +144,26 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         return grid.getSelectionModel() instanceof MultiSelectionModel;
     }
 
-    /**
-     * Clears the selection.
-     */
-    public void clearSelection() {
+    public Set<T> getSelectedItems() {
         if (isNoSelectionModel()) {
-            return;
+            return Collections.emptySet();
         }
 
-        grid.deselectAll();
+        return grid.getSelectedItems();
+    }
+
+    public Optional<T> getSelectedEntity() {
+        final Set<T> selectedItems = getSelectedItems();
+
+        if (selectedItems.size() == 1) {
+            return Optional.of(selectedItems.iterator().next());
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<Long> getSelectedEntityId() {
+        return getSelectedEntity().map(ProxyIdentifiableEntity::getId);
     }
 
     /**
@@ -145,11 +190,60 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         return false;
     }
 
+    public void select(final T itemToSelect) {
+        if (isNoSelectionModel()) {
+            return;
+        }
+
+        grid.select(itemToSelect);
+    }
+
+    public void selectEntityById(final Long entityId) {
+        if (isNoSelectionModel()) {
+            return;
+        }
+
+        if (mapIdToProxyEntityFunction == null || entityId == null) {
+            return;
+        }
+
+        if (!getSelectedItems().isEmpty()) {
+            deselectAll();
+        }
+
+        mapIdToProxyEntityFunction.apply(entityId).ifPresent(this::select);
+    }
+
     public void selectAll() {
         if (!isMultiSelectionModel()) {
             return;
         }
 
         grid.asMultiSelect().selectAll();
+    }
+
+    /**
+     * Clears the selection.
+     */
+    public void deselectAll() {
+        if (isNoSelectionModel()) {
+            return;
+        }
+
+        grid.deselectAll();
+    }
+
+    public void restoreSelection() {
+        if (selectedEntityIdUiStateProvider == null) {
+            return;
+        }
+
+        final Long lastSelectedEntityId = selectedEntityIdUiStateProvider.get().orElse(null);
+
+        if (lastSelectedEntityId != null) {
+            selectEntityById(lastSelectedEntityId);
+        } else {
+            selectFirstRow();
+        }
     }
 }

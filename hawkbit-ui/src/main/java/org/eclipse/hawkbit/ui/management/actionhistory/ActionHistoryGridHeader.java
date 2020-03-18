@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.util.Arrays;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
@@ -17,6 +18,7 @@ import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -32,7 +34,7 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * Header for ActionHistory with maximize-support.
  */
-public class ActionHistoryGridHeader extends AbstractGridHeader {
+public class ActionHistoryGridHeader extends AbstractGridHeader implements MasterEntityAwareComponent<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
     private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
@@ -89,16 +91,11 @@ public class ActionHistoryGridHeader extends AbstractGridHeader {
         return actionHistoryGridLayoutUiState.isMaximized();
     }
 
-    /**
-     * Updates header with target name.
-     *
-     * @param targetName
-     *            name of the target
-     */
-    public void updateActionHistoryHeader(final String targetName) {
-        if (StringUtils.hasText(targetName)) {
+    @Override
+    public void masterEntityChanged(final ProxyTarget masterEntity) {
+        if (masterEntity != null && StringUtils.hasText(masterEntity.getName())) {
             headerCaption.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_HISTORY_FOR) + " "
-                    + HawkbitCommonUtil.getBoldHTMLText(targetName));
+                    + HawkbitCommonUtil.getBoldHTMLText(masterEntity.getName()));
         } else {
             headerCaption.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_HISTORY));
         }

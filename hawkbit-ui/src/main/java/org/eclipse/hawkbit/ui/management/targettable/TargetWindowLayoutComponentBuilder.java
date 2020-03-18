@@ -54,7 +54,7 @@ public class TargetWindowLayoutComponentBuilder {
      * @return input component
      */
     public BoundComponent<TextField> createNameField(final Binder<ProxyTarget> binder) {
-        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_DESC);
+        return FormComponentBuilder.createNameInput(binder, i18n, UIComponentIdProvider.TARGET_ADD_NAME);
     }
 
     /**

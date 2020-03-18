@@ -8,8 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.distributions.dstable;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
@@ -24,13 +25,15 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -42,17 +45,15 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final transient DistributionSetManagement distributionSetManagement;
-    private final transient DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper;
-
     private final DistributionSetGridHeader distributionSetGridHeader;
     private final DistributionSetGrid distributionSetGrid;
     private final DistributionSetDetailsHeader distributionSetDetailsHeader;
     private final DistributionSetDetails distributionSetDetails;
 
-    private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
-
     private final transient DistributionSetGridLayoutEventListener eventListener;
+
+    private final transient MasterEntityChangedListener<ProxyDistributionSet> masterEntitySupport;
+    private final transient EntityModifiedListener<ProxyDistributionSet> layoutEntityModifiedSupport;
 
     public DistributionSetGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification uiNotification,
@@ -65,10 +66,6 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
             final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
-        this.distributionSetManagement = distributionSetManagement;
-        this.dsToProxyDistributionMapper = new DistributionSetToProxyDistributionMapper();
-        this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
-
         final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
                 distributionSetTypeManagement);
@@ -79,8 +76,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 dsWindowBuilder, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
         this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
                 targetManagement, distributionSetManagement, smManagement, distributionSetTypeManagement,
-                smTypeManagement, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState,
-                dsToProxyDistributionMapper);
+                smTypeManagement, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
 
         this.distributionSetDetailsHeader = new DistributionSetDetailsHeader(i18n, permissionChecker, eventBus,
                 uiNotification, dsWindowBuilder, dsMetaDataWindowBuilder);
@@ -90,69 +86,22 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new DistributionSetGridLayoutEventListener(this, eventBus);
 
+        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
+                getLayout());
+        this.layoutEntityModifiedSupport = new EntityModifiedListener<>(eventBus, distributionSetGrid::refreshContainer,
+                distributionSetGrid.getSelectionSupport(), ProxyDistributionSet.class);
+
         buildLayout(distributionSetGridHeader, distributionSetGrid, distributionSetDetailsHeader,
                 distributionSetDetails);
+    }
+
+    private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterEntityAwareComponents() {
+        return Arrays.asList(distributionSetDetailsHeader, distributionSetDetails);
     }
 
     public void restoreState() {
         distributionSetGridHeader.restoreState();
         distributionSetGrid.restoreState();
-
-        restoreGridSelection();
-    }
-
-    private void restoreGridSelection() {
-        if (!distributionSetGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        final Long lastSelectedEntityId = distributionSetGridLayoutUiState.getSelectedDsId();
-
-        if (lastSelectedEntityId != null) {
-            selectEntityById(lastSelectedEntityId);
-        } else {
-            distributionSetGrid.getSelectionSupport().selectFirstRow();
-        }
-    }
-
-    // TODO: extract to parent abstract #selectEntityById?
-    public void selectEntityById(final Long entityId) {
-        if (!distributionSetGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        if (!distributionSetGrid.getSelectedItems().isEmpty()) {
-            distributionSetGrid.deselectAll();
-        }
-
-        mapIdToProxyEntity(entityId).ifPresent(distributionSetGrid::select);
-    }
-
-    // TODO: extract to parent abstract #mapIdToProxyEntity?
-    private Optional<ProxyDistributionSet> mapIdToProxyEntity(final Long entityId) {
-        return distributionSetManagement.get(entityId).map(dsToProxyDistributionMapper::map);
-    }
-
-    // TODO: extract to parent #onMasterEntityChanged?
-    public void onDsChanged(final ProxyDistributionSet ds) {
-        distributionSetDetailsHeader.masterEntityChanged(ds);
-        distributionSetDetails.masterEntityChanged(ds);
-    }
-
-    // TODO: extract to parent #onMasterEntityUpdated?
-    public void onDsUpdated(final Collection<Long> entityIds) {
-        if (!distributionSetGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        if (distributionSetGrid.getSelectedItems().size() == 1) {
-            final Long selectedEntityId = distributionSetGrid.getSelectedItems().iterator().next().getId();
-
-            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId)).findAny()
-                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(
-                            updatedEntity -> distributionSetGrid.getSelectionSupport().sendSelectionChangedEvent(
-                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
-        }
     }
 
     public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
@@ -187,15 +136,18 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
         showDetailsLayout();
     }
 
-    public void refreshGrid() {
-        distributionSetGrid.refreshContainer();
-    }
-
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        masterEntitySupport.unsubscribe();
+        layoutEntityModifiedSupport.unsubscribe();
     }
 
     public Layout getLayout() {
         return Layout.DS_LIST;
+    }
+
+    public View getView() {
+        return View.DISTRIBUTIONS;
     }
 }

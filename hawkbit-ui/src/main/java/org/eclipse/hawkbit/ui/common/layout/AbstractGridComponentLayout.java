@@ -6,10 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.common.grid;
+package org.eclipse.hawkbit.ui.common.layout;
 
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractGridDetailsLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.DetailsHeader;
+import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 
@@ -31,11 +32,11 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
     /**
      * Constructor.
      */
-    public AbstractGridComponentLayout() {
+    protected AbstractGridComponentLayout() {
         init();
     }
 
-    private void init() {
+    protected void init() {
         setSizeFull();
         setSpacing(true);
         setMargin(false);

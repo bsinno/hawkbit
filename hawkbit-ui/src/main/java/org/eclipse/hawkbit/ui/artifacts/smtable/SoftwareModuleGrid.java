@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
@@ -25,7 +26,6 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -65,7 +65,9 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
     private final UINotification notification;
+
     private final transient SoftwareModuleManagement softwareModuleManagement;
+    private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
 
     private final ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> swModuleDataProvider;
     private final SwFilterParams smFilter;
@@ -76,8 +78,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final ArtifactUploadState artifactUploadState, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleGridLayoutUiState smGridLayoutUiState,
-            final SoftwareModuleManagement softwareModuleManagement,
-            final SoftwareModuleToProxyMapper softwareModuleToProxyMapper) {
+            final SoftwareModuleManagement softwareModuleManagement) {
         super(i18n, eventBus, permissionChecker);
 
         this.artifactUploadState = artifactUploadState;
@@ -85,6 +86,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         this.smGridLayoutUiState = smGridLayoutUiState;
         this.notification = notification;
         this.softwareModuleManagement = softwareModuleManagement;
+        this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
 
         this.swModuleDataProvider = new SoftwareModuleArtifactsStateDataProvider(softwareModuleManagement,
                 softwareModuleToProxyMapper).withConfigurableFilter();
@@ -93,7 +95,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         setResizeSupport(new SwModuleResizeSupport());
 
         setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, Layout.SM_LIST, View.UPLOAD,
-                this::updateLastSelectedSmUiState));
+                this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         if (smGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -114,13 +116,16 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         addStyleName("grid-row-border");
     }
 
-    private void updateLastSelectedSmUiState(final SelectionChangedEventType type,
-            final ProxySoftwareModule selectedSm) {
-        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
-            smGridLayoutUiState.setSelectedSmId(null);
-        } else {
-            smGridLayoutUiState.setSelectedSmId(selectedSm.getId());
-        }
+    private Optional<ProxySoftwareModule> mapIdToProxyEntity(final long entityId) {
+        return softwareModuleManagement.get(entityId).map(softwareModuleToProxyMapper::map);
+    }
+
+    private Optional<Long> getSelectedEntityIdFromUiState() {
+        return Optional.ofNullable(smGridLayoutUiState.getSelectedSmId());
+    }
+
+    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
+        smGridLayoutUiState.setSelectedSmId(entityId.orElse(null));
     }
 
     private void deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
@@ -248,6 +253,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         smFilter.setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedSmTypeId());
 
         getFilterDataProvider().setFilter(smFilter);
+
+        getSelectionSupport().restoreSelection();
     }
 
     /**

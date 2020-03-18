@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -31,7 +32,6 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -114,7 +114,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         setResizeSupport(new DistributionResizeSupport());
 
         setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, Layout.DS_LIST, View.DEPLOYMENT,
-                this::updateLastSelectedDsUiState));
+                this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         if (distributionGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -161,13 +161,16 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         addStyleName("grid-row-border");
     }
 
-    private void updateLastSelectedDsUiState(final SelectionChangedEventType type,
-            final ProxyDistributionSet selectedDs) {
-        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
-            distributionGridLayoutUiState.setSelectedDsId(null);
-        } else {
-            distributionGridLayoutUiState.setSelectedDsId(selectedDs.getId());
-        }
+    private Optional<ProxyDistributionSet> mapIdToProxyEntity(final long entityId) {
+        return distributionSetManagement.get(entityId).map(distributionSetToProxyDistributionMapper::map);
+    }
+
+    private Optional<Long> getSelectedEntityIdFromUiState() {
+        return Optional.ofNullable(distributionGridLayoutUiState.getSelectedDsId());
+    }
+
+    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
+        distributionGridLayoutUiState.setSelectedDsId(entityId.orElse(null));
     }
 
     private void deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
@@ -372,6 +375,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         }
 
         getFilterDataProvider().setFilter(dsFilter);
+
+        getSelectionSupport().restoreSelection();
     }
 
     public void unpinnItemById(final Long id) {

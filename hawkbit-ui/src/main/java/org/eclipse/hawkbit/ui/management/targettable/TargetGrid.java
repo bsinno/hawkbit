@@ -37,7 +37,6 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -129,7 +128,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         setResizeSupport(new TargetResizeSupport());
 
         setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, Layout.TARGET_LIST, View.DEPLOYMENT,
-                this::updateLastSelectedTargetUiState));
+                this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         if (targetGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -174,13 +173,16 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         addStyleName("grid-row-border");
     }
 
-    private void updateLastSelectedTargetUiState(final SelectionChangedEventType type,
-            final ProxyTarget selectedTarget) {
-        if (type == SelectionChangedEventType.ENTITY_DESELECTED) {
-            targetGridLayoutUiState.setSelectedTargetId(null);
-        } else {
-            targetGridLayoutUiState.setSelectedTargetId(selectedTarget.getId());
-        }
+    private Optional<ProxyTarget> mapIdToProxyEntity(final long entityId) {
+        return targetManagement.get(entityId).map(targetToProxyTargetMapper::map);
+    }
+
+    private Optional<Long> getSelectedEntityIdFromUiState() {
+        return Optional.ofNullable(targetGridLayoutUiState.getSelectedTargetId());
+    }
+
+    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
+        targetGridLayoutUiState.setSelectedTargetId(entityId.orElse(null));
     }
 
     private void deleteTargets(final Collection<ProxyTarget> targetsToBeDeleted) {
@@ -499,6 +501,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         }
 
         getFilterDataProvider().setFilter(targetFilter);
+
+        getSelectionSupport().restoreSelection();
     }
 
     public TargetManagementFilterParams getTargetFilter() {

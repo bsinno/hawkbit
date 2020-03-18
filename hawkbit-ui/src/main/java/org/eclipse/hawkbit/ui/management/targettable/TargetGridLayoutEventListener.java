@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
@@ -20,7 +19,6 @@ import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterByDsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.Layout;
@@ -28,8 +26,6 @@ import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
@@ -38,7 +34,6 @@ import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.server.VaadinSession;
-import com.vaadin.ui.UI;
 
 public class TargetGridLayoutEventListener {
     private final TargetGridLayout targetGridLayout;
@@ -54,7 +49,6 @@ public class TargetGridLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new SearchFilterChangedListener());
         eventListeners.add(new FilterModeChangedListener());
         eventListeners.add(new TagFilterChangedListener());
@@ -66,26 +60,6 @@ public class TargetGridLayoutEventListener {
         eventListeners.add(new BulkUploadChangedListener());
         eventListeners.add(new FilterByDsListener());
         eventListeners.add(new EntityModifiedListener());
-    }
-
-    private class SelectionChangedListener {
-
-        public SelectionChangedListener() {
-            eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final SelectionChangedEventPayload<ProxyTarget> eventPayload) {
-            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_LIST) {
-                return;
-            }
-
-            if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                targetGridLayout.onTargetChanged(eventPayload.getEntity());
-            } else {
-                targetGridLayout.onTargetChanged(null);
-            }
-        }
     }
 
     private class SearchFilterChangedListener {
@@ -239,27 +213,6 @@ public class TargetGridLayoutEventListener {
 
         public EntityModifiedListener() {
             eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyTarget.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            final EntityModifiedEventType eventType = eventPayload.getEntityModifiedEventType();
-            final Collection<Long> entityIds = eventPayload.getEntityIds();
-
-            targetGridLayout.refreshGrid();
-
-            if (eventType == EntityModifiedEventType.ENTITY_ADDED && entityIds.size() == 1) {
-                UI.getCurrent().access(() -> targetGridLayout.selectEntityById(entityIds.iterator().next()));
-            } else if (eventType == EntityModifiedEventType.ENTITY_UPDATED) {
-                // TODO: we need to access the UI here because of getting the
-                // Timezone from getWebBrowser in SpDateTimeUtil, check if it is
-                // right or improve
-                UI.getCurrent().access(() -> targetGridLayout.onTargetUpdated(entityIds));
-            }
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)

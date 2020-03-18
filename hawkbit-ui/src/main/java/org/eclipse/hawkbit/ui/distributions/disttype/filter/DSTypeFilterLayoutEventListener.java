@@ -11,13 +11,9 @@ package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload.ActionsVisibilityType;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -38,7 +34,6 @@ public class DSTypeFilterLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new FilterButtonsActionsChangedListener());
-        eventListeners.add(new EntityModifiedListener());
     }
 
     private class FilterButtonsActionsChangedListener {
@@ -63,23 +58,6 @@ public class DSTypeFilterLayoutEventListener {
             } else if (actionsVisibilityType == ActionsVisibilityType.SHOW_DELETE) {
                 dSTypeFilterLayout.showFilterButtonsDeleteIcon();
             }
-        }
-    }
-
-    private class EntityModifiedListener {
-
-        public EntityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsTypeEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyDistributionSet.class.equals(eventPayload.getParentType())
-                    || !ProxyType.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            dSTypeFilterLayout.refreshFilterButtons();
         }
     }
 

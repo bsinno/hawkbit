@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
+package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,18 +14,18 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload.ActionsVisibilityType;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-public class SMTypeFilterLayoutEventListener {
-    private final SMTypeFilterLayout smTypeFilterLayout;
+public class MultipleTargetFilterLayoutEventListener {
+    private final MultipleTargetFilter multipleTargetFilter;
     private final UIEventBus eventBus;
     private final List<Object> eventListeners;
 
-    SMTypeFilterLayoutEventListener(final SMTypeFilterLayout smTypeFilterLayout, final UIEventBus eventBus) {
-        this.smTypeFilterLayout = smTypeFilterLayout;
+    MultipleTargetFilterLayoutEventListener(final MultipleTargetFilter multipleTargetFilter,
+            final UIEventBus eventBus) {
+        this.multipleTargetFilter = multipleTargetFilter;
         this.eventBus = eventBus;
 
         this.eventListeners = new ArrayList<>();
@@ -44,18 +44,19 @@ public class SMTypeFilterLayoutEventListener {
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onActionsVisibilityEvent(final ActionsVisibilityEventPayload eventPayload) {
-            if (eventPayload.getView() != View.UPLOAD || eventPayload.getLayout() != smTypeFilterLayout.getLayout()) {
+            if (eventPayload.getView() != multipleTargetFilter.getView()
+                    || eventPayload.getLayout() != multipleTargetFilter.getLayout()) {
                 return;
             }
 
             final ActionsVisibilityType actionsVisibilityType = eventPayload.getActionsVisibilityType();
 
             if (actionsVisibilityType == ActionsVisibilityType.HIDE_ALL) {
-                smTypeFilterLayout.hideFilterButtonsActionIcons();
+                multipleTargetFilter.hideFilterButtonsActionIcons();
             } else if (actionsVisibilityType == ActionsVisibilityType.SHOW_EDIT) {
-                smTypeFilterLayout.showFilterButtonsEditIcon();
+                multipleTargetFilter.showFilterButtonsEditIcon();
             } else if (actionsVisibilityType == ActionsVisibilityType.SHOW_DELETE) {
-                smTypeFilterLayout.showFilterButtonsDeleteIcon();
+                multipleTargetFilter.showFilterButtonsDeleteIcon();
             }
         }
     }

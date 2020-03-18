@@ -13,7 +13,6 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
@@ -83,26 +82,6 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
         return multipleTargetFilter;
     }
 
-    public void showFilterButtonsEditIcon() {
-        multipleTargetFilter.getTargetTagFilterButtons().showEditColumn();
-    }
-
-    public void showFilterButtonsDeleteIcon() {
-        multipleTargetFilter.getTargetTagFilterButtons().showDeleteColumn();
-    }
-
-    public void hideFilterButtonsActionIcons() {
-        multipleTargetFilter.getTargetTagFilterButtons().hideActionColumns();
-    }
-
-    public void refreshFilterButtons() {
-        multipleTargetFilter.getTargetTagFilterButtons().refreshContainer();
-    }
-
-    public void refreshTargetFilterQueryButtons() {
-        multipleTargetFilter.getCustomFilterTab().refreshContainer();
-    }
-
     void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
         if (isCustomFilterTabSelected) {
             targetTagFilterHeader.disableCrudMenu();
@@ -118,9 +97,7 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
-    }
 
-    public Layout getLayout() {
-        return Layout.TARGET_TAG_FILTER;
+        multipleTargetFilter.unsubscribeListener();
     }
 }

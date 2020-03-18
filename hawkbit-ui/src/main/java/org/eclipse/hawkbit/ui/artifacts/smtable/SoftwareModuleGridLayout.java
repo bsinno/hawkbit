@@ -8,8 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
@@ -18,12 +18,14 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
-import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -34,17 +36,15 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final transient SoftwareModuleManagement softwareModuleManagement;
-    private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
-
     private final SoftwareModuleGridHeader softwareModuleGridHeader;
     private final SoftwareModuleGrid softwareModuleGrid;
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SoftwareModuleDetails softwareModuleDetails;
 
-    private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
-
     private final transient SoftwareModuleGridLayoutEventListener eventListener;
+
+    private final transient MasterEntityChangedListener<ProxySoftwareModule> masterEntitySupport;
+    private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedSupport;
 
     public SoftwareModuleGridLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UINotification uiNotification, final UIEventBus eventBus,
@@ -52,9 +52,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
             final ArtifactUploadState artifactUploadState, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleGridLayoutUiState smGridLayoutUiState) {
-        this.softwareModuleManagement = softwareModuleManagement;
-        this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
-        this.smGridLayoutUiState = smGridLayoutUiState;
+        super();
 
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 softwareModuleManagement, softwareModuleTypeManagement);
@@ -64,8 +62,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         this.softwareModuleGridHeader = new SoftwareModuleGridHeader(i18n, permChecker, eventBus,
                 smTypeFilterLayoutUiState, smGridLayoutUiState, smWindowBuilder);
         this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
-                artifactUploadState, smTypeFilterLayoutUiState, smGridLayoutUiState, softwareModuleManagement,
-                softwareModuleToProxyMapper);
+                artifactUploadState, smTypeFilterLayoutUiState, smGridLayoutUiState, softwareModuleManagement);
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder);
@@ -74,68 +71,21 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new SoftwareModuleGridLayoutEventListener(this, eventBus);
 
+        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
+                getLayout());
+        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, softwareModuleGrid::refreshContainer,
+                softwareModuleGrid.getSelectionSupport(), ProxySoftwareModule.class);
+
         buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetailsHeader, softwareModuleDetails);
+    }
+
+    private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterEntityAwareComponents() {
+        return Arrays.asList(softwareModuleDetailsHeader, softwareModuleDetails);
     }
 
     public void restoreState() {
         softwareModuleGridHeader.restoreState();
         softwareModuleGrid.restoreState();
-
-        restoreGridSelection();
-    }
-
-    private void restoreGridSelection() {
-        if (!softwareModuleGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        final Long lastSelectedEntityId = smGridLayoutUiState.getSelectedSmId();
-
-        if (lastSelectedEntityId != null) {
-            selectEntityById(lastSelectedEntityId);
-        } else {
-            softwareModuleGrid.getSelectionSupport().selectFirstRow();
-        }
-    }
-
-    // TODO: extract to parent abstract #selectEntityById?
-    public void selectEntityById(final Long entityId) {
-        if (!softwareModuleGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        if (!softwareModuleGrid.getSelectedItems().isEmpty()) {
-            softwareModuleGrid.deselectAll();
-        }
-
-        mapIdToProxyEntity(entityId).ifPresent(softwareModuleGrid::select);
-    }
-
-    // TODO: extract to parent abstract #mapIdToProxyEntity?
-    private Optional<ProxySoftwareModule> mapIdToProxyEntity(final Long entityId) {
-        return softwareModuleManagement.get(entityId).map(softwareModuleToProxyMapper::map);
-    }
-
-    // TODO: extract to parent #onMasterEntityChanged?
-    public void onSmChanged(final ProxySoftwareModule sm) {
-        softwareModuleDetailsHeader.masterEntityChanged(sm);
-        softwareModuleDetails.masterEntityChanged(sm);
-    }
-
-    // TODO: extract to parent #onMasterEntityUpdated?
-    public void onSmUpdated(final Collection<Long> entityIds) {
-        if (!softwareModuleGrid.hasSelectionSupport()) {
-            return;
-        }
-
-        if (softwareModuleGrid.getSelectedItems().size() == 1) {
-            final Long selectedEntityId = softwareModuleGrid.getSelectedItems().iterator().next().getId();
-
-            entityIds.stream().filter(entityId -> entityId.equals(selectedEntityId)).findAny()
-                    .ifPresent(updatedEntityId -> mapIdToProxyEntity(updatedEntityId).ifPresent(
-                            updatedEntity -> softwareModuleGrid.getSelectionSupport().sendSelectionChangedEvent(
-                                    SelectionChangedEventType.ENTITY_SELECTED, updatedEntity)));
-        }
     }
 
     public void showSmTypeHeaderIcon() {
@@ -166,15 +116,18 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         showDetailsLayout();
     }
 
-    public void refreshGrid() {
-        softwareModuleGrid.refreshContainer();
-    }
-
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        masterEntitySupport.unsubscribe();
+        entityModifiedSupport.unsubscribe();
     }
 
     public Layout getLayout() {
         return Layout.SM_LIST;
+    }
+
+    public View getView() {
+        return View.UPLOAD;
     }
 }

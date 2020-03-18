@@ -12,8 +12,12 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -35,6 +39,8 @@ public class DistributionTagLayout extends AbstractFilterLayout {
     private final DistributionTagButtons distributionTagButtons;
 
     private final transient DistributionTagLayoutEventListener eventListener;
+
+    private final transient EntityModifiedListener<ProxyTag> entityModifiedSupport;
 
     /**
      * Constructor
@@ -68,6 +74,9 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
         this.eventListener = new DistributionTagLayoutEventListener(this, eventBus);
 
+        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, distributionTagButtons::refreshContainer,
+                null, ProxyTag.class, ProxyDistributionSet.class, null);
+
         buildLayout();
     }
 
@@ -99,10 +108,6 @@ public class DistributionTagLayout extends AbstractFilterLayout {
         distributionTagButtons.hideActionColumns();
     }
 
-    public void refreshFilterButtons() {
-        distributionTagButtons.refreshContainer();
-    }
-
     public void restoreState() {
         distributionTagFilterHeader.restoreState();
         distributionTagButtons.restoreState();
@@ -110,9 +115,15 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        entityModifiedSupport.unsubscribe();
     }
 
     public Layout getLayout() {
         return Layout.DS_TAG_FILTER;
+    }
+
+    public View getView() {
+        return View.DEPLOYMENT;
     }
 }
