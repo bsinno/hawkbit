@@ -193,7 +193,7 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
                 }
             } catch (final IOException | RuntimeException e) {
                 LOG.warn("Error reading file '{}': ", tempFile.getName(), e);
-                publishUploadFailed();
+                publishUploadFailed(i18n.getMessage("message.upload.failed.with.reason", e.getLocalizedMessage()));
             } finally {
                 deleteFile();
             }
