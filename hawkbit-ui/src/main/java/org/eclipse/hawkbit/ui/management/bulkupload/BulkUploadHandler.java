@@ -56,6 +56,7 @@ import org.vaadin.spring.events.EventScope;
 import com.google.common.base.Splitter;
 import com.google.common.io.ByteStreams;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload.FailedEvent;
 import com.vaadin.ui.Upload.FailedListener;
 import com.vaadin.ui.Upload.Receiver;
@@ -138,19 +139,21 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
 
     @Override
     public void uploadSucceeded(final SucceededEvent event) {
-        uiExecutor.execute(new UploadAsync(VaadinSession.getCurrent()));
+        uiExecutor.execute(new UploadAsync(VaadinSession.getCurrent(), UI.getCurrent()));
     }
 
     private class UploadAsync implements Runnable {
         private final VaadinSession vaadinSession;
+        private final UI vaadinUI;
 
         private ProxyBulkUploadWindow bulkUploadInputs;
 
         private List<String> provisionedControllerIds;
         private float currentProgress;
 
-        public UploadAsync(final VaadinSession vaadinSession) {
+        public UploadAsync(final VaadinSession vaadinSession, final UI vaadinUI) {
             this.vaadinSession = vaadinSession;
+            this.vaadinUI = vaadinUI;
 
             this.bulkUploadInputs = bulkUploadInputsProvider.get();
 
@@ -165,6 +168,7 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
             }
 
             VaadinSession.setCurrent(vaadinSession);
+            UI.setCurrent(vaadinUI);
             eventBus.publish(EventScope.SESSION, EventTopics.BULK_UPLOAD_CHANGED, this,
                     BulkUploadEventPayload.buildTargetProvisioningStarted());
 
