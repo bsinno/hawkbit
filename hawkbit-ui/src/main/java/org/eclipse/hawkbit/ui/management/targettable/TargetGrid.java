@@ -173,7 +173,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         addStyleName("grid-row-border");
     }
 
-    private Optional<ProxyTarget> mapIdToProxyEntity(final long entityId) {
+    public Optional<ProxyTarget> mapIdToProxyEntity(final long entityId) {
         return targetManagement.get(entityId).map(targetToProxyTargetMapper::map);
     }
 
@@ -192,8 +192,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyTarget.class, targetToBeDeletedIds));
-
-        pinSupport.unPinItemIfInIds(targetToBeDeletedIds);
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyTarget pinnedItem) {
@@ -507,6 +505,10 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     public TargetManagementFilterParams getTargetFilter() {
         return targetFilter;
+    }
+
+    public PinSupport<ProxyTarget, Long> getPinSupport() {
+        return pinSupport;
     }
 
     /**

@@ -31,6 +31,9 @@ import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedPinAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
 import org.eclipse.hawkbit.ui.management.bulkupload.BulkUploadWindowBuilder;
@@ -94,10 +97,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetGridLayoutEventListener(this, eventBus);
 
-        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
-                getLayout());
+        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                getView(), getLayout());
         this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, targetGrid::refreshContainer,
-                targetGrid.getSelectionSupport(), ProxyTarget.class);
+                getEntityModifiedAwareSupports(), ProxyTarget.class);
 
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }
@@ -110,6 +113,11 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     private List<MasterEntityAwareComponent<ProxyTarget>> getMasterEntityAwareComponents() {
         return Arrays.asList(targetDetailsHeader, targetDetails);
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Arrays.asList(EntityModifiedSelectionAwareSupport.of(targetGrid.getSelectionSupport(),
+                targetGrid::mapIdToProxyEntity), EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport()));
     }
 
     public void restoreState() {

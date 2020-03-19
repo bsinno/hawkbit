@@ -118,7 +118,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
         init();
     }
 
-    private Optional<ProxyAction> mapIdToProxyEntity(final long entityId) {
+    public Optional<ProxyAction> mapIdToProxyEntity(final long entityId) {
         return deploymentManagement.findAction(entityId).map(actionToProxyActionMapper::map);
     }
 

@@ -32,6 +32,9 @@ import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedPinAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
@@ -89,10 +92,11 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new DistributionGridLayoutEventListener(this, eventBus);
 
-        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
-                getLayout());
+        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                getView(), getLayout());
+
         this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, distributionGrid::refreshContainer,
-                distributionGrid.getSelectionSupport(), ProxyDistributionSet.class);
+                getEntityModifiedAwareSupports(), ProxyDistributionSet.class);
 
         buildLayout(distributionGridHeader, distributionGrid, distributionSetDetailsHeader, distributionDetails);
     }
@@ -104,6 +108,18 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterEntityAwareComponents() {
         return Arrays.asList(distributionSetDetailsHeader, distributionDetails);
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Arrays.asList(
+                EntityModifiedSelectionAwareSupport.of(distributionGrid.getSelectionSupport(),
+                        distributionGrid::mapIdToProxyEntity, this::isIncomplete),
+                EntityModifiedPinAwareSupport.of(distributionGrid.getPinSupport(), distributionGrid::mapIdToProxyEntity,
+                        this::isIncomplete));
+    }
+
+    private boolean isIncomplete(final ProxyDistributionSet ds) {
+        return ds != null && !ds.getIsComplete();
     }
 
     public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {

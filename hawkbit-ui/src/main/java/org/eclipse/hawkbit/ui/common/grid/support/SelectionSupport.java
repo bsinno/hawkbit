@@ -108,15 +108,6 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         setSelectedEntityIdUiStateCallback.accept(selectedItemId);
     }
 
-    public void sendSelectionChangedEvent(final SelectionChangedEventType selectionType, final Long itemIdToSend) {
-        if (mapIdToProxyEntityFunction == null) {
-            return;
-        }
-
-        mapIdToProxyEntityFunction.apply(itemIdToSend)
-                .ifPresent(itemToSend -> sendSelectionChangedEvent(selectionType, itemToSend));
-    }
-
     public final void enableMultiSelection() {
         grid.setSelectionMode(SelectionMode.MULTI);
 
@@ -220,6 +211,14 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         }
 
         grid.asMultiSelect().selectAll();
+    }
+
+    public void deselect(final T itemToDeselect) {
+        if (isNoSelectionModel()) {
+            return;
+        }
+
+        grid.deselect(itemToDeselect);
     }
 
     /**

@@ -125,7 +125,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         addStyleName("grid-row-border");
     }
 
-    private Optional<ProxySoftwareModule> mapIdToProxyEntity(final long entityId) {
+    public Optional<ProxySoftwareModule> mapIdToProxyEntity(final long entityId) {
         return softwareModuleManagement.get(entityId).map(softwareModuleToProxyMapper::map);
     }
 

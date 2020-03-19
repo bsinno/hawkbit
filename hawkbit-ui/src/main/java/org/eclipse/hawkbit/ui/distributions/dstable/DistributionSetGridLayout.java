@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.distributions.dstable;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -33,6 +34,8 @@ import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -86,10 +89,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new DistributionSetGridLayoutEventListener(this, eventBus);
 
-        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
-                getLayout());
+        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                getView(), getLayout());
         this.layoutEntityModifiedSupport = new EntityModifiedListener<>(eventBus, distributionSetGrid::refreshContainer,
-                distributionSetGrid.getSelectionSupport(), ProxyDistributionSet.class);
+                getEntityModifiedAwareSupports(), ProxyDistributionSet.class);
 
         buildLayout(distributionSetGridHeader, distributionSetGrid, distributionSetDetailsHeader,
                 distributionSetDetails);
@@ -97,6 +100,11 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterEntityAwareComponents() {
         return Arrays.asList(distributionSetDetailsHeader, distributionSetDetails);
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Collections.singletonList(EntityModifiedSelectionAwareSupport
+                .of(distributionSetGrid.getSelectionSupport(), distributionSetGrid::mapIdToProxyEntity));
     }
 
     public void restoreState() {

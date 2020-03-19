@@ -72,10 +72,10 @@ public class MultipleTargetFilter extends Accordion {
 
         this.eventListener = new MultipleTargetFilterLayoutEventListener(this, eventBus);
 
-        this.entityTagModifiedSupport = new EntityModifiedListener<>(eventBus, filterByButtons::refreshContainer, null,
-                ProxyTag.class, ProxyTarget.class, null);
-        this.entityFilterQueryModifiedSupport = new EntityModifiedListener<>(eventBus, customFilterTab::refreshContainer,
-                null, ProxyTargetFilterQuery.class);
+        this.entityTagModifiedSupport = new EntityModifiedListener<>(eventBus, filterByButtons::refreshContainer,
+                ProxyTag.class, ProxyTarget.class);
+        this.entityFilterQueryModifiedSupport = new EntityModifiedListener<>(eventBus,
+                customFilterTab::refreshContainer, ProxyTargetFilterQuery.class);
 
         init();
         addTabs();

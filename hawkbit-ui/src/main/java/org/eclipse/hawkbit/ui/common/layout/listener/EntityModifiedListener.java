@@ -8,15 +8,17 @@
 package org.eclipse.hawkbit.ui.common.layout.listener;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -26,23 +28,39 @@ import com.vaadin.ui.UI;
 public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implements EventListener {
     private final UIEventBus eventBus;
     private final Runnable refreshGridCallback;
-    private final SelectionSupport<T> selectionSupport;
+    private final List<EntityModifiedAwareSupport> entityModifiedAwareSupports;
     private final Class<T> entityType;
     private final Class<? extends ProxyIdentifiableEntity> parentEntityType;
     private final Supplier<Optional<Long>> parentEntityIdProvider;
 
     public EntityModifiedListener(final UIEventBus eventBus, final Runnable refreshGridCallback,
-            final SelectionSupport<T> selectionSupport, final Class<T> entityType) {
-        this(eventBus, refreshGridCallback, selectionSupport, entityType, null, null);
+            final Class<T> entityType) {
+        this(eventBus, refreshGridCallback, Collections.emptyList(), entityType);
     }
 
     public EntityModifiedListener(final UIEventBus eventBus, final Runnable refreshGridCallback,
-            final SelectionSupport<T> selectionSupport, final Class<T> entityType,
+            final Class<T> entityType, final Class<? extends ProxyIdentifiableEntity> parentEntityType) {
+        this(eventBus, refreshGridCallback, Collections.emptyList(), entityType, parentEntityType, null);
+    }
+
+    public EntityModifiedListener(final UIEventBus eventBus, final Runnable refreshGridCallback,
+            final List<EntityModifiedAwareSupport> entityModifiedAwareSupports, final Class<T> entityType) {
+        this(eventBus, refreshGridCallback, entityModifiedAwareSupports, entityType, null, null);
+    }
+
+    public EntityModifiedListener(final UIEventBus eventBus, final Runnable refreshGridCallback,
+            final List<EntityModifiedAwareSupport> entityModifiedAwareSupports, final Class<T> entityType,
+            final Class<? extends ProxyIdentifiableEntity> parentEntityType) {
+        this(eventBus, refreshGridCallback, entityModifiedAwareSupports, entityType, parentEntityType, null);
+    }
+
+    public EntityModifiedListener(final UIEventBus eventBus, final Runnable refreshGridCallback,
+            final List<EntityModifiedAwareSupport> entityModifiedAwareSupports, final Class<T> entityType,
             final Class<? extends ProxyIdentifiableEntity> parentEntityType,
             final Supplier<Optional<Long>> parentEntityIdProvider) {
         this.eventBus = eventBus;
         this.refreshGridCallback = refreshGridCallback;
-        this.selectionSupport = selectionSupport;
+        this.entityModifiedAwareSupports = entityModifiedAwareSupports;
         this.entityType = entityType;
         this.parentEntityType = parentEntityType;
         this.parentEntityIdProvider = parentEntityIdProvider;
@@ -62,15 +80,19 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
 
         refreshGridCallback.run();
 
+        if (CollectionUtils.isEmpty(entityModifiedAwareSupports)) {
+            return;
+        }
+
         switch (eventType) {
         case ENTITY_ADDED:
-            UI.getCurrent().access(() -> onEntityAdded(entityIds));
+            handleEntitiesModified(support -> support.onEntitiesAdded(entityIds));
             break;
         case ENTITY_UPDATED:
-            UI.getCurrent().access(() -> onEntityUpdated(entityIds));
+            handleEntitiesModified(support -> support.onEntitiesUpdated(entityIds));
             break;
         case ENTITY_REMOVED:
-            UI.getCurrent().access(() -> onEntityRemoved(entityIds));
+            handleEntitiesModified(support -> support.onEntitiesDeleted(entityIds));
             break;
         }
     }
@@ -95,53 +117,26 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
                 || parentEntityIdProvider.get().map(id -> id.equals(parentId)).orElse(false);
     }
 
-    private void onEntityAdded(final Collection<Long> entityIds) {
-        if (selectionSupport == null || selectionSupport.isNoSelectionModel()) {
-            return;
-        }
-
-        if (entityIds.size() == 1) {
-            // we always select newly added item
-            selectionSupport.selectEntityById(entityIds.iterator().next());
-        }
-    }
-
-    private void onEntityUpdated(final Collection<Long> entityIds) {
-        if (selectionSupport == null || selectionSupport.isNoSelectionModel()) {
-            return;
-        }
-
-        selectionSupport.getSelectedEntityId().ifPresent(selectedEntityId -> {
-            if (!entityIds.contains(selectedEntityId)) {
-                return;
-            }
-
-            // we load the up-to-date version of selected entity from
-            // database and reselect it, so that master-aware components
-            // could update itself
-            selectionSupport.sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED, selectedEntityId);
-        });
-    }
-
-    private void onEntityRemoved(final Collection<Long> entityIds) {
-        if (selectionSupport == null || selectionSupport.isNoSelectionModel()) {
-            return;
-        }
-
-        selectionSupport.getSelectedEntityId().ifPresent(selectedEntityId -> {
-            if (!entityIds.contains(selectedEntityId)) {
-                return;
-            }
-
-            // we need to update the master-aware components, that the
-            // master entity was deselected after deletion
-            selectionSupport.sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_DESELECTED,
-                    selectionSupport.getSelectedEntity().orElse(null));
-        });
+    private void handleEntitiesModified(final Consumer<EntityModifiedAwareSupport> handler) {
+        UI.getCurrent().access(() -> entityModifiedAwareSupports.forEach(handler::accept));
     }
 
     @Override
     public void unsubscribe() {
         eventBus.unsubscribe(this);
+    }
+
+    public interface EntityModifiedAwareSupport {
+        default void onEntitiesAdded(final Collection<Long> entityIds) {
+            // do nothing by default
+        }
+
+        default void onEntitiesUpdated(final Collection<Long> entityIds) {
+            // do nothing by default
+        }
+
+        default void onEntitiesDeleted(final Collection<Long> entityIds) {
+            // do nothing by default
+        }
     }
 }

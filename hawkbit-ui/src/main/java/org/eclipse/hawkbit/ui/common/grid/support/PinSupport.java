@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.grid.support;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -77,6 +78,14 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
 
     private boolean isPinned(final Long itemId) {
         return pinnedItem != null && pinnedItem.getId().equals(itemId);
+    }
+
+    public Optional<T> getPinnedItem() {
+        return Optional.ofNullable(pinnedItem);
+    }
+
+    public Optional<Long> getPinnedItemId() {
+        return getPinnedItem().map(ProxyIdentifiableEntity::getId);
     }
 
     public String getPinningStyle(final T item) {

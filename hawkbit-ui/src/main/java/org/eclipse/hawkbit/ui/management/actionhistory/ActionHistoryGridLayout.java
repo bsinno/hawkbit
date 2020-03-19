@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,8 @@ import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -54,16 +57,21 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
         this.actionHistoryGrid = new ActionHistoryGrid(i18n, deploymentManagement, eventBus, notification, permChecker,
                 actionHistoryGridLayoutUiState);
 
-        this.layoutMasterAwareSupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
-                Layout.TARGET_LIST);
+        this.layoutMasterAwareSupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                getView(), Layout.TARGET_LIST);
         this.layoutEntityModifiedSupport = new EntityModifiedListener<>(eventBus, actionHistoryGrid::refreshContainer,
-                actionHistoryGrid.getSelectionSupport(), ProxyAction.class, ProxyTarget.class, this::getMasterEntityId);
+                getEntityModifiedAwareSupports(), ProxyAction.class, ProxyTarget.class, this::getMasterEntityId);
 
         buildLayout(actionHistoryHeader, actionHistoryGrid);
     }
 
     private List<MasterEntityAwareComponent<ProxyTarget>> getMasterEntityAwareComponents() {
         return Arrays.asList(actionHistoryHeader, actionHistoryGrid);
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Collections.singletonList(EntityModifiedSelectionAwareSupport.of(actionHistoryGrid.getSelectionSupport(),
+                actionHistoryGrid::mapIdToProxyEntity));
     }
 
     private Optional<Long> getMasterEntityId() {

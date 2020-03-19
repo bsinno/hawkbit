@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
@@ -25,6 +26,8 @@ import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -71,16 +74,21 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new SoftwareModuleGridLayoutEventListener(this, eventBus);
 
-        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(), getView(),
-                getLayout());
+        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                getView(), getLayout());
         this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, softwareModuleGrid::refreshContainer,
-                softwareModuleGrid.getSelectionSupport(), ProxySoftwareModule.class);
+                getEntityModifiedAwareSupports(), ProxySoftwareModule.class);
 
         buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetailsHeader, softwareModuleDetails);
     }
 
     private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterEntityAwareComponents() {
         return Arrays.asList(softwareModuleDetailsHeader, softwareModuleDetails);
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Collections.singletonList(EntityModifiedSelectionAwareSupport
+                .of(softwareModuleGrid.getSelectionSupport(), softwareModuleGrid::mapIdToProxyEntity));
     }
 
     public void restoreState() {
