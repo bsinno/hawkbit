@@ -8,10 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
-import java.time.LocalDateTime;
-
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
@@ -53,10 +52,9 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
 
         proxyRolloutWindow.setTotalTargets(targetManagement.countByRsql(proxyRolloutWindow.getTargetFilterQuery()));
 
-        if (proxyRolloutWindow.getForcedTime() == null) {
-            proxyRolloutWindow.setForcedTime(LocalDateTime.now().plusWeeks(2)
-                    .atZone(SPDateTimeUtil.getTimeZoneId(SPDateTimeUtil.getBrowserTimeZone())).toInstant()
-                    .toEpochMilli());
+        if (proxyRolloutWindow.getForcedTime() == null
+                || RepositoryModelConstants.NO_FORCE_TIME.equals(proxyRolloutWindow.getForcedTime())) {
+            proxyRolloutWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
         }
 
         final RolloutGroupConditions defaultRolloutGroupConditions = RolloutWindowLayoutComponentBuilder

@@ -28,6 +28,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.UpdateRolloutWindowLayout;
+import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
@@ -73,6 +74,11 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
     @Override
     protected ProxyRolloutWindow buildEntityFromProxy(final ProxyRollout proxyEntity) {
         final ProxyRolloutWindow proxyRolloutWindow = new ProxyRolloutWindow(proxyEntity);
+
+        if (proxyRolloutWindow.getForcedTime() == null
+                || RepositoryModelConstants.NO_FORCE_TIME.equals(proxyRolloutWindow.getForcedTime())) {
+            proxyRolloutWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
+        }
 
         nameBeforeEdit = proxyRolloutWindow.getName();
 

@@ -221,7 +221,15 @@ public final class SPDateTimeUtil {
      * Get time zone of the browser client to be used as default.
      */
     public static String getClientTimeZoneOffsetId() {
-        return ZonedDateTime.now(getTimeZoneId(getBrowserTimeZone())).getOffset().getId().replaceAll("Z", "+00:00");
+        return getCurentZonedDateTime().getOffset().getId().replaceAll("Z", "+00:00");
+    }
+
+    private static ZonedDateTime getCurentZonedDateTime() {
+        return ZonedDateTime.now(getTimeZoneId(getBrowserTimeZone()));
+    }
+
+    public static Long twoWeeksFromNowEpochMilli() {
+        return getCurentZonedDateTime().plusWeeks(2).toInstant().toEpochMilli();
     }
 
     /**

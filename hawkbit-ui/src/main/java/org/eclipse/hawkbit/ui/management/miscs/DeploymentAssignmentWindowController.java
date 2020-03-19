@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.management.miscs;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -84,8 +83,7 @@ public class DeploymentAssignmentWindowController {
 
         // TODO: remove duplication with AddRolloutWindowController
         proxyAssignmentWindow.setActionType(ActionType.FORCED);
-        proxyAssignmentWindow.setForcedTime(LocalDateTime.now().plusWeeks(2)
-                .atZone(SPDateTimeUtil.getTimeZoneId(SPDateTimeUtil.getBrowserTimeZone())).toInstant().toEpochMilli());
+        proxyAssignmentWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
         proxyAssignmentWindow.setMaintenanceTimeZone(SPDateTimeUtil.getClientTimeZoneOffsetId());
 
         assignmentWindowLayout.getProxyAssignmentBinder().setBean(proxyAssignmentWindow);

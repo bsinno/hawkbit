@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
@@ -77,8 +76,7 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
         final ProxyRolloutWindow proxyRolloutWindow = new ProxyRolloutWindow();
 
         proxyRolloutWindow.setActionType(ActionType.FORCED);
-        proxyRolloutWindow.setForcedTime(LocalDateTime.now().plusWeeks(2)
-                .atZone(SPDateTimeUtil.getTimeZoneId(SPDateTimeUtil.getBrowserTimeZone())).toInstant().toEpochMilli());
+        proxyRolloutWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
         final RolloutGroupConditions defaultRolloutGroupConditions = RolloutWindowLayoutComponentBuilder
                 .getDefaultRolloutGroupConditions();
         proxyRolloutWindow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
