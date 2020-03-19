@@ -50,8 +50,8 @@ public class MultipleTargetFilter extends Accordion {
 
     private final transient MultipleTargetFilterLayoutEventListener eventListener;
 
-    private final transient EntityModifiedListener<ProxyTag> entityTagModifiedSupport;
-    private final transient EntityModifiedListener<ProxyTargetFilterQuery> entityFilterQueryModifiedSupport;
+    private final transient EntityModifiedListener<ProxyTag> entityTagModifiedListener;
+    private final transient EntityModifiedListener<ProxyTargetFilterQuery> entityFilterQueryModifiedListener;
 
     MultipleTargetFilter(final SpPermissionChecker permChecker, final VaadinMessageSource i18n,
             final UIEventBus eventBus, final UINotification notification,
@@ -72,9 +72,9 @@ public class MultipleTargetFilter extends Accordion {
 
         this.eventListener = new MultipleTargetFilterLayoutEventListener(this, eventBus);
 
-        this.entityTagModifiedSupport = new EntityModifiedListener<>(eventBus, filterByButtons::refreshContainer,
+        this.entityTagModifiedListener = new EntityModifiedListener<>(eventBus, filterByButtons::refreshContainer,
                 ProxyTag.class, ProxyTarget.class);
-        this.entityFilterQueryModifiedSupport = new EntityModifiedListener<>(eventBus,
+        this.entityFilterQueryModifiedListener = new EntityModifiedListener<>(eventBus,
                 customFilterTab::refreshContainer, ProxyTargetFilterQuery.class);
 
         init();
@@ -167,8 +167,8 @@ public class MultipleTargetFilter extends Accordion {
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
-        entityTagModifiedSupport.unsubscribe();
-        entityFilterQueryModifiedSupport.unsubscribe();
+        entityTagModifiedListener.unsubscribe();
+        entityFilterQueryModifiedListener.unsubscribe();
     }
 
     public Layout getLayout() {

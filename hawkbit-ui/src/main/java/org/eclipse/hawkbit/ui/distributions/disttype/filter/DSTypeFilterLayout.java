@@ -37,7 +37,7 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
 
     private final transient DSTypeFilterLayoutEventListener eventListener;
 
-    private final transient EntityModifiedListener<ProxyType> layoutEntityModifiedSupport;
+    private final transient EntityModifiedListener<ProxyType> entityModifiedListener;
 
     /**
      * Constructor
@@ -73,7 +73,7 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
 
         this.eventListener = new DSTypeFilterLayoutEventListener(this, eventBus);
 
-        this.layoutEntityModifiedSupport = new EntityModifiedListener<>(eventBus, dSTypeFilterButtons::refreshContainer,
+        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, dSTypeFilterButtons::refreshContainer,
                 ProxyType.class, ProxyDistributionSet.class);
 
         buildLayout();
@@ -112,7 +112,7 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
-        layoutEntityModifiedSupport.unsubscribe();
+        entityModifiedListener.unsubscribe();
     }
 
     public Layout getLayout() {

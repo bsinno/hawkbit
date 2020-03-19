@@ -94,6 +94,7 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification,
                 Collections.singletonMap(UIComponentIdProvider.TARGET_TABLE_ID, targetsToTagAssignment), eventBus);
+        this.dragAndDropSupport.ignoreSelection(true);
         this.dragAndDropSupport.addDragAndDrop();
 
         init();

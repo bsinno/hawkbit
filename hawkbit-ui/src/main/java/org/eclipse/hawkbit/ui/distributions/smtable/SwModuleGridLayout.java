@@ -50,9 +50,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
     private final transient SwModuleGridLayoutEventListener eventListener;
 
-    private final transient MasterEntityChangedListener<ProxyDistributionSet> masterDsEntitySupport;
-    private final transient MasterEntityChangedListener<ProxySoftwareModule> masterEntitySupport;
-    private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedSupport;
+    private final transient MasterEntityChangedListener<ProxyDistributionSet> masterDsEntityChangedListener;
+    private final transient MasterEntityChangedListener<ProxySoftwareModule> masterSmEntityChangedListener;
+    private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedListener;
 
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
@@ -76,11 +76,11 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new SwModuleGridLayoutEventListener(this, eventBus);
 
-        this.masterDsEntitySupport = new MasterEntityChangedListener<>(eventBus,
+        this.masterDsEntityChangedListener = new MasterEntityChangedListener<>(eventBus,
                 Collections.singletonList(swModuleGrid), getView(), Layout.DS_LIST);
-        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
-                getView(), getLayout());
-        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, swModuleGrid::refreshContainer,
+        this.masterSmEntityChangedListener = new MasterEntityChangedListener<>(eventBus,
+                getMasterEntityAwareComponents(), getView(), getLayout());
+        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, swModuleGrid::refreshContainer,
                 getEntityModifiedAwareSupports(), ProxySoftwareModule.class);
 
         buildLayout(swModuleGridHeader, swModuleGrid, softwareModuleDetailsHeader, swModuleDetails);
@@ -131,9 +131,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
-        masterDsEntitySupport.unsubscribe();
-        masterEntitySupport.unsubscribe();
-        entityModifiedSupport.unsubscribe();
+        masterDsEntityChangedListener.unsubscribe();
+        masterSmEntityChangedListener.unsubscribe();
+        entityModifiedListener.unsubscribe();
     }
 
     public Layout getLayout() {

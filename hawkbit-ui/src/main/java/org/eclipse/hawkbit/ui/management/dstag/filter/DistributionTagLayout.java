@@ -40,7 +40,7 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
     private final transient DistributionTagLayoutEventListener eventListener;
 
-    private final transient EntityModifiedListener<ProxyTag> entityModifiedSupport;
+    private final transient EntityModifiedListener<ProxyTag> entityModifiedListener;
 
     /**
      * Constructor
@@ -74,7 +74,7 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
         this.eventListener = new DistributionTagLayoutEventListener(this, eventBus);
 
-        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, distributionTagButtons::refreshContainer,
+        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, distributionTagButtons::refreshContainer,
                 ProxyTag.class, ProxyDistributionSet.class);
 
         buildLayout();
@@ -116,7 +116,7 @@ public class DistributionTagLayout extends AbstractFilterLayout {
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
-        entityModifiedSupport.unsubscribe();
+        entityModifiedListener.unsubscribe();
     }
 
     public Layout getLayout() {

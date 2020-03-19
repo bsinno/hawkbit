@@ -58,8 +58,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     private final transient TargetGridLayoutEventListener eventListener;
 
-    private final transient MasterEntityChangedListener<ProxyTarget> masterEntitySupport;
-    private final transient EntityModifiedListener<ProxyTarget> entityModifiedSupport;
+    private final transient MasterEntityChangedListener<ProxyTarget> masterEntityChangedListener;
+    private final transient EntityModifiedListener<ProxyTarget> entityModifiedListener;
 
     public TargetGridLayout(final UIEventBus eventBus, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
@@ -97,9 +97,9 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetGridLayoutEventListener(this, eventBus);
 
-        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+        this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
-        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, targetGrid::refreshContainer,
+        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, targetGrid::refreshContainer,
                 getEntityModifiedAwareSupports(), ProxyTarget.class);
 
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
@@ -209,8 +209,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
-        masterEntitySupport.unsubscribe();
-        entityModifiedSupport.unsubscribe();
+        masterEntityChangedListener.unsubscribe();
+        entityModifiedListener.unsubscribe();
     }
 
     public CountMessageLabel getCountMessageLabel() {

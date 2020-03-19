@@ -34,7 +34,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
 
     private final transient SMTypeFilterLayoutEventListener eventListener;
 
-    private final transient EntityModifiedListener<ProxyType> layoutEntityModifiedSupport;
+    private final transient EntityModifiedListener<ProxyType> entityModifiedListener;
 
     /**
      * Constructor
@@ -68,7 +68,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
 
         this.eventListener = new SMTypeFilterLayoutEventListener(this, eventBus);
 
-        this.layoutEntityModifiedSupport = new EntityModifiedListener<>(eventBus, sMTypeFilterButtons::refreshContainer,
+        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, sMTypeFilterButtons::refreshContainer,
                 ProxyType.class, ProxySoftwareModule.class);
 
         buildLayout();
@@ -111,6 +111,6 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
-        layoutEntityModifiedSupport.unsubscribe();
+        entityModifiedListener.unsubscribe();
     }
 }

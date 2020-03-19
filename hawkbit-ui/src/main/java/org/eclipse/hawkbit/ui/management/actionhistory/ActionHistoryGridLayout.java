@@ -38,8 +38,8 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     private final ActionHistoryGridHeader actionHistoryHeader;
     private final ActionHistoryGrid actionHistoryGrid;
 
-    private final transient EntityModifiedListener<ProxyAction> layoutEntityModifiedSupport;
-    private final transient MasterEntityChangedListener<ProxyTarget> layoutMasterAwareSupport;
+    private final transient MasterEntityChangedListener<ProxyTarget> masterEntityChangedListener;
+    private final transient EntityModifiedListener<ProxyAction> entityModifiedListener;
 
     /**
      * Constructor.
@@ -57,9 +57,9 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
         this.actionHistoryGrid = new ActionHistoryGrid(i18n, deploymentManagement, eventBus, notification, permChecker,
                 actionHistoryGridLayoutUiState);
 
-        this.layoutMasterAwareSupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+        this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), Layout.TARGET_LIST);
-        this.layoutEntityModifiedSupport = new EntityModifiedListener<>(eventBus, actionHistoryGrid::refreshContainer,
+        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, actionHistoryGrid::refreshContainer,
                 getEntityModifiedAwareSupports(), ProxyAction.class, ProxyTarget.class, this::getMasterEntityId);
 
         buildLayout(actionHistoryHeader, actionHistoryGrid);
@@ -92,8 +92,8 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     }
 
     public void unsubscribeListener() {
-        layoutMasterAwareSupport.unsubscribe();
-        layoutEntityModifiedSupport.unsubscribe();
+        entityModifiedListener.unsubscribe();
+        masterEntityChangedListener.unsubscribe();
     }
 
     public Layout getLayout() {

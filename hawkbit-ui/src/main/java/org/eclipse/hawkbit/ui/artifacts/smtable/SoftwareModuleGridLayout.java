@@ -46,8 +46,8 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     private final transient SoftwareModuleGridLayoutEventListener eventListener;
 
-    private final transient MasterEntityChangedListener<ProxySoftwareModule> masterEntitySupport;
-    private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedSupport;
+    private final transient MasterEntityChangedListener<ProxySoftwareModule> masterEntityChangedListener;
+    private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedListener;
 
     public SoftwareModuleGridLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UINotification uiNotification, final UIEventBus eventBus,
@@ -74,9 +74,9 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new SoftwareModuleGridLayoutEventListener(this, eventBus);
 
-        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+        this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
-        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, softwareModuleGrid::refreshContainer,
+        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, softwareModuleGrid::refreshContainer,
                 getEntityModifiedAwareSupports(), ProxySoftwareModule.class);
 
         buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetailsHeader, softwareModuleDetails);
@@ -127,8 +127,8 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
-        masterEntitySupport.unsubscribe();
-        entityModifiedSupport.unsubscribe();
+        masterEntityChangedListener.unsubscribe();
+        entityModifiedListener.unsubscribe();
     }
 
     public Layout getLayout() {

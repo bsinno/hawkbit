@@ -57,8 +57,8 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     private final transient DistributionGridLayoutEventListener eventListener;
 
-    private final transient MasterEntityChangedListener<ProxyDistributionSet> masterEntitySupport;
-    private final transient EntityModifiedListener<ProxyDistributionSet> entityModifiedSupport;
+    private final transient MasterEntityChangedListener<ProxyDistributionSet> masterEntityChangedListener;
+    private final transient EntityModifiedListener<ProxyDistributionSet> entityModifiedListener;
 
     public DistributionGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final EntityFactory entityFactory,
@@ -92,10 +92,10 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new DistributionGridLayoutEventListener(this, eventBus);
 
-        this.masterEntitySupport = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+        this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
 
-        this.entityModifiedSupport = new EntityModifiedListener<>(eventBus, distributionGrid::refreshContainer,
+        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, distributionGrid::refreshContainer,
                 getEntityModifiedAwareSupports(), ProxyDistributionSet.class);
 
         buildLayout(distributionGridHeader, distributionGrid, distributionSetDetailsHeader, distributionDetails);
@@ -171,8 +171,8 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
-        masterEntitySupport.unsubscribe();
-        entityModifiedSupport.unsubscribe();
+        masterEntityChangedListener.unsubscribe();
+        entityModifiedListener.unsubscribe();
     }
 
     public Layout getLayout() {

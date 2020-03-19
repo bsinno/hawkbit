@@ -61,6 +61,8 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     private GridDropTarget<T> dropTarget;
     private EntityDraggingListener draggingListener;
 
+    private boolean ignoreSelection;
+
     public DragAndDropSupport(final AbstractGrid<T, ?> grid, final VaadinMessageSource i18n,
             final UINotification notification,
             final Map<String, AssignmentSupport<?, T>> sourceTargetAssignmentStrategies, final UIEventBus eventBus) {
@@ -74,9 +76,17 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         this.dropTarget = null;
         this.draggingListener = null;
 
+        this.ignoreSelection = false;
+
         // TODO: check if needed or implement unsubscribe on pre destroy of grid
         // (does not work on grid maximize/minimize)
         // addDraggingListenerSubscription();
+    }
+
+    // TODO: workaround for target/ds tags that currently do not support
+    // selection
+    public void ignoreSelection(final boolean ignoreSelection) {
+        this.ignoreSelection = ignoreSelection;
     }
 
     private void addDraggingListenerSubscription() {
@@ -122,7 +132,7 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
 
     private boolean isGridValidForDragOrDrop(final AbstractExtension dragOrDropExtension,
             final String dragOrDropDescription) {
-        if (!grid.hasSelectionSupport()) {
+        if (!ignoreSelection && !grid.hasSelectionSupport()) {
             LOGGER.warn("Can not add {} for non-selectable grid '{}', specify single- or multi-selection model",
                     dragOrDropDescription, grid.getGridId());
             return false;
@@ -234,7 +244,7 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     public static class EntityDraggingListener {
-        private static final String DROP_HIND_STYLE = "show-drop-hint";
+        private static final String DROP_HINT_STYLE = "show-drop-hint";
         private final Collection<String> draggingSourceIds;
         private final Component dropComponent;
 
@@ -251,9 +261,9 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
             }
 
             if (eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
-                dropComponent.addStyleName(DROP_HIND_STYLE);
+                dropComponent.addStyleName(DROP_HINT_STYLE);
             } else {
-                dropComponent.removeStyleName(DROP_HIND_STYLE);
+                dropComponent.removeStyleName(DROP_HINT_STYLE);
             }
         }
     }
