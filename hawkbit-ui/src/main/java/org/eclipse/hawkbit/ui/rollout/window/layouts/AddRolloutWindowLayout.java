@@ -166,7 +166,9 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
                 event -> autoStartOptionGroupLayout.setRequired(event.getValue() == AutoStartOption.SCHEDULED));
 
         errorThresholdOptionGroup.addValueChangeListener(event -> {
-            errorThreshold.clear();
+            if (event.isUserOriginated()) {
+                errorThreshold.clear();
+            }
             errorThreshold.setMaxLength(ERROR_THRESHOLD_OPTIONS.PERCENT == event.getValue() ? 3 : 7);
         });
 

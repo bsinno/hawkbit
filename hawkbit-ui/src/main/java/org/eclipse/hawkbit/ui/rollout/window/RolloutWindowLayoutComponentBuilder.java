@@ -271,14 +271,6 @@ public final class RolloutWindowLayoutComponentBuilder {
         return new BoundComponent<>(autoStartOptionGroupLayout, binding);
     }
 
-    private int getGroupSize(final Long totalTargets, final Integer numberOfGroups) {
-        if (totalTargets == null || numberOfGroups == null) {
-            return 0;
-        }
-
-        return (int) Math.ceil((double) totalTargets / (double) numberOfGroups);
-    }
-
     public TabSheet createGroupDefinitionTabs(final Component simpleGroupDefinitionTab,
             final Component advancedGroupDefinitionTab) {
         final TabSheet groupsDefinitionTabs = new TabSheet();
@@ -357,6 +349,14 @@ public final class RolloutWindowLayoutComponentBuilder {
         return new AbstractMap.SimpleImmutableEntry<>(noOfGroups, noOfGroupsFieldBinding);
     }
 
+    private int getGroupSize(final Long totalTargets, final Integer numberOfGroups) {
+        if (totalTargets == null || numberOfGroups == null) {
+            return 0;
+        }
+
+        return (int) Math.ceil((double) totalTargets / (double) numberOfGroups);
+    }
+
     public Label createCountLabel() {
         final Label groupSizeLabel = new LabelBuilder().visible(false).name("").buildLabel();
         groupSizeLabel.addStyleName(ValoTheme.LABEL_TINY + " " + "rollout-target-count-message");
@@ -389,50 +389,52 @@ public final class RolloutWindowLayoutComponentBuilder {
                 .prompt(dependencies.getI18n().getMessage("prompt.error.threshold")).buildTextComponent();
         errorThreshold.setSizeUndefined();
 
-        binder.forField(errorThreshold).asRequired().withValidator((errorThresholdText, context) -> {
-            if (ERROR_THRESHOLD_OPTIONS.PERCENT == binder.getBean().getErrorThresholdOption()) {
-                return new IntegerRangeValidator(
-                        dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
-                                .apply(Integer.valueOf(errorThresholdText), context);
-            }
+        // TODO: use i18n
+        binder.forField(errorThreshold).asRequired("Error threshold can not be empty")
+                .withValidator((errorThresholdText, context) -> {
+                    final ProxyRolloutWindow bean = binder.getBean();
 
-            final ProxyRolloutWindow bean = binder.getBean();
+                    if (ERROR_THRESHOLD_OPTIONS.PERCENT == bean.getErrorThresholdOption()) {
+                        return new IntegerRangeValidator(
+                                dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
+                                        .apply(Integer.valueOf(errorThresholdText), context);
+                    }
 
-            if (bean.getNumberOfGroups() == null
-                    || (bean.getTargetFilterId() == null && StringUtils.isEmpty(bean.getTargetFilterQuery()))) {
-                final String msg = dependencies.getI18n()
-                        .getMessage("message.rollout.noofgroups.or.targetfilter.missing");
-                dependencies.getUiNotification().displayValidationError(msg);
+                    if (bean.getNumberOfGroups() == null
+                            || (bean.getTargetFilterId() == null && StringUtils.isEmpty(bean.getTargetFilterQuery()))) {
+                        final String msg = dependencies.getI18n()
+                                .getMessage("message.rollout.noofgroups.or.targetfilter.missing");
 
-                return ValidationResult.error(msg);
-            } else {
-                final int groupSize = getGroupSize(bean.getTotalTargets(), bean.getNumberOfGroups());
+                        return ValidationResult.error(msg);
+                    } else {
+                        final int groupSize = getGroupSize(bean.getTotalTargets(), bean.getNumberOfGroups());
 
-                return new IntegerRangeValidator(
-                        dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, groupSize), 0,
-                        groupSize).apply(Integer.valueOf(errorThresholdText), context);
-            }
-        }).withConverter(errorThresholdPresentation -> {
-            if (errorThresholdPresentation == null) {
-                return null;
-            }
+                        return new IntegerRangeValidator(
+                                dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, groupSize), 0,
+                                groupSize).apply(Integer.valueOf(errorThresholdText), context);
+                    }
+                }).withConverter(errorThresholdPresentation -> {
+                    if (errorThresholdPresentation == null) {
+                        return null;
+                    }
 
-            final ProxyRolloutWindow bean = binder.getBean();
+                    final ProxyRolloutWindow bean = binder.getBean();
 
-            if (ERROR_THRESHOLD_OPTIONS.COUNT == bean.getErrorThresholdOption()) {
-                final int errorThresholdCount = Integer.parseInt(errorThresholdPresentation);
-                final int groupSize = getGroupSize(bean.getTotalTargets(), bean.getNumberOfGroups());
-                return String.valueOf((int) Math.ceil(((float) errorThresholdCount / (float) groupSize) * 100));
-            }
+                    if (ERROR_THRESHOLD_OPTIONS.COUNT == bean.getErrorThresholdOption()) {
+                        final int errorThresholdCount = Integer.parseInt(errorThresholdPresentation);
+                        final int groupSize = getGroupSize(bean.getTotalTargets(), bean.getNumberOfGroups());
+                        return String.valueOf((int) Math.ceil(((float) errorThresholdCount / (float) groupSize) * 100));
+                    }
 
-            return errorThresholdPresentation;
-        }, errorThresholdModel -> {
-            if (errorThresholdModel == null) {
-                return null;
-            }
+                    return errorThresholdPresentation;
+                }, errorThresholdModel -> {
+                    if (errorThresholdModel == null) {
+                        return null;
+                    }
 
-            return errorThresholdModel;
-        }).bind(ProxyRolloutWindow::getErrorThresholdPercentage, ProxyRolloutWindow::setErrorThresholdPercentage);
+                    return errorThresholdModel;
+                })
+                .bind(ProxyRolloutWindow::getErrorThresholdPercentage, ProxyRolloutWindow::setErrorThresholdPercentage);
 
         return errorThreshold;
     }
