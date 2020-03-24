@@ -144,6 +144,9 @@ public class RolloutView extends VerticalLayout implements View {
         default:
             break;
         }
+
+        // TODO: should we move it to switch?
+        rolloutsLayout.restoreState();
         rolloutGroupsLayout.restoreState();
         rolloutGroupTargetsLayout.restoreState();
     }

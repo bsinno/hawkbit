@@ -8,11 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.AbstractMap;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
@@ -38,7 +35,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout;
-import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.DefineGroupsLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.GroupsLegendLayout;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -235,47 +231,24 @@ public final class RolloutWindowLayoutComponentBuilder {
                 dependencies.getI18n());
         autoStartOptionGroupLayout.addStyleName(SPUIStyleDefinitions.ROLLOUT_ACTION_TYPE_LAYOUT);
 
-        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
         binder.forField(autoStartOptionGroupLayout.getAutoStartOptionGroup())
-                .withNullRepresentation(AutoStartOption.MANUAL).withConverter(autoStartOption -> {
-                    if (AutoStartOptionGroupLayout.AutoStartOption.AUTO_START == autoStartOption) {
-                        return System.currentTimeMillis();
-                    }
-
-                    if (AutoStartOptionGroupLayout.AutoStartOption.SCHEDULED == autoStartOption) {
-                        return autoStartOptionGroupLayout.getStartAtDateField().getValue()
-                                .atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant().toEpochMilli();
-                    }
-
-                    return null;
-                }, startAtTime -> {
-                    if (startAtTime == null) {
-                        return AutoStartOptionGroupLayout.AutoStartOption.MANUAL;
-                    } else if (startAtTime < System.currentTimeMillis()) {
-                        return AutoStartOptionGroupLayout.AutoStartOption.AUTO_START;
-                    } else {
-                        return AutoStartOptionGroupLayout.AutoStartOption.SCHEDULED;
-                    }
-                }).bind(ProxyRolloutWindow::getStartAt, ProxyRolloutWindow::setStartAt);
+                .bind(ProxyRolloutWindow::getAutoStartOption, ProxyRolloutWindow::setAutoStartOption);
 
         // TODO: use i18n
         final Binding<ProxyRolloutWindow, Long> binding = binder
                 .forField(autoStartOptionGroupLayout.getStartAtDateField())
-                .asRequired("Scheduled time can not be empty")
-                .withNullRepresentation(
-                        LocalDateTime.now().plusMinutes(30).atZone(SPDateTimeUtil.getTimeZoneId(tz)).toLocalDateTime())
-                .withConverter(localDateTime -> {
+                .asRequired("Scheduled time can not be empty").withConverter(localDateTime -> {
                     if (localDateTime == null) {
                         return null;
                     }
 
-                    return localDateTime.atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant().toEpochMilli();
+                    return SPDateTimeUtil.localDateTimeToEpochMilli(localDateTime);
                 }, startAtTime -> {
                     if (startAtTime == null) {
                         return null;
                     }
 
-                    return LocalDateTime.ofInstant(Instant.ofEpochMilli(startAtTime), SPDateTimeUtil.getTimeZoneId(tz));
+                    return SPDateTimeUtil.epochMilliToLocalDateTime(startAtTime);
                 }).bind(ProxyRolloutWindow::getStartAt, ProxyRolloutWindow::setStartAt);
 
         return new BoundComponent<>(autoStartOptionGroupLayout, binding);

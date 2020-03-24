@@ -18,6 +18,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AddRolloutWindowLayout;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,12 +59,28 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
             proxyRolloutWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
         }
 
+        proxyRolloutWindow.setAutoStartOption(getStartAtOption(proxyRolloutWindow.getStartAt()));
+        if (AutoStartOption.SCHEDULED != proxyRolloutWindow.getAutoStartOption()) {
+            proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
+        }
+
         final RolloutGroupConditions defaultRolloutGroupConditions = RolloutWindowLayoutComponentBuilder
                 .getDefaultRolloutGroupConditions();
         proxyRolloutWindow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
         proxyRolloutWindow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
 
         return proxyRolloutWindow;
+    }
+
+    // TODO: remove duplication with UpdateRolloutWindowController
+    private AutoStartOption getStartAtOption(final Long startAtTime) {
+        if (startAtTime == null) {
+            return AutoStartOptionGroupLayout.AutoStartOption.MANUAL;
+        } else if (startAtTime < System.currentTimeMillis()) {
+            return AutoStartOptionGroupLayout.AutoStartOption.AUTO_START;
+        } else {
+            return AutoStartOptionGroupLayout.AutoStartOption.SCHEDULED;
+        }
     }
 
     @Override

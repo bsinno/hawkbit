@@ -7,10 +7,6 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.TimeZone;
-
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.repository.model.NamedVersionedEntity;
 import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
@@ -66,7 +62,7 @@ public final class FormComponentBuilder {
 
         final Binding<T, String> binding = binder.forField(nameInput)
                 .asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED))
-                .bind(T::getName, T::setName);
+                .bind(NameAware::getName, NameAware::setName);
 
         return new BoundComponent<>(nameInput, binding);
     }
@@ -93,7 +89,7 @@ public final class FormComponentBuilder {
 
         final Binding<T, String> binding = binder.forField(versionInput)
                 .asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_VERSIONREQUIRED))
-                .bind(T::getVersion, T::setVersion);
+                .bind(VersionAware::getVersion, VersionAware::setVersion);
 
         return new BoundComponent<>(versionInput, binding);
     }
@@ -118,7 +114,8 @@ public final class FormComponentBuilder {
                 .style("text-area-style").buildTextComponent();
         descriptionInput.setSizeUndefined();
 
-        final Binding<T, String> binding = binder.forField(descriptionInput).bind(T::getDescription, T::setDescription);
+        final Binding<T, String> binding = binder.forField(descriptionInput).bind(DescriptionAware::getDescription,
+                DescriptionAware::setDescription);
 
         return new BoundComponent<>(descriptionInput, binding);
     }
@@ -141,10 +138,9 @@ public final class FormComponentBuilder {
         final ActionTypeOptionGroupAssignmentLayout actionTypeOptionGroupLayout = new ActionTypeOptionGroupAssignmentLayout(
                 i18n, componentId);
 
-        binder.forField(actionTypeOptionGroupLayout.getActionTypeOptionGroup()).bind(T::getActionType,
-                T::setActionType);
+        binder.forField(actionTypeOptionGroupLayout.getActionTypeOptionGroup()).bind(ActionTypeAware::getActionType,
+                ActionTypeAware::setActionType);
 
-        final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
         // TODO: use i18n
         final Binding<T, Long> binding = binder.forField(actionTypeOptionGroupLayout.getForcedTimeDateField())
                 .asRequired("Forced time can not be empty").withConverter(localDateTime -> {
@@ -152,14 +148,14 @@ public final class FormComponentBuilder {
                         return null;
                     }
 
-                    return localDateTime.atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant().toEpochMilli();
+                    return SPDateTimeUtil.localDateTimeToEpochMilli(localDateTime);
                 }, forcedTime -> {
                     if (forcedTime == null) {
                         return null;
                     }
 
-                    return LocalDateTime.ofInstant(Instant.ofEpochMilli(forcedTime), SPDateTimeUtil.getTimeZoneId(tz));
-                }).bind(T::getForcedTime, T::setForcedTime);
+                    return SPDateTimeUtil.epochMilliToLocalDateTime(forcedTime);
+                }).bind(ActionTypeAware::getForcedTime, ActionTypeAware::setForcedTime);
 
         return new BoundComponent<>(actionTypeOptionGroupLayout, binding);
     }

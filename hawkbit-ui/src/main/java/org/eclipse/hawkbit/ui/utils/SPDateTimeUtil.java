@@ -9,6 +9,8 @@
 package org.eclipse.hawkbit.ui.utils;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -225,11 +227,27 @@ public final class SPDateTimeUtil {
     }
 
     private static ZonedDateTime getCurentZonedDateTime() {
-        return ZonedDateTime.now(getTimeZoneId(getBrowserTimeZone()));
+        return ZonedDateTime.now(getBrowserTimeZoneId());
+    }
+
+    private static ZoneId getBrowserTimeZoneId() {
+        return getTimeZoneId(getBrowserTimeZone());
     }
 
     public static Long twoWeeksFromNowEpochMilli() {
         return getCurentZonedDateTime().plusWeeks(2).toInstant().toEpochMilli();
+    }
+
+    public static Long halfAnHourFromNowEpochMilli() {
+        return getCurentZonedDateTime().plusMinutes(30).toInstant().toEpochMilli();
+    }
+
+    public static Long localDateTimeToEpochMilli(final LocalDateTime localDateTime) {
+        return localDateTime.atZone(getBrowserTimeZoneId()).toInstant().toEpochMilli();
+    }
+
+    public static LocalDateTime epochMilliToLocalDateTime(final Long epochMilli) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), getBrowserTimeZoneId());
     }
 
     /**

@@ -8,8 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
@@ -19,7 +18,6 @@ import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.HeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutLayoutUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
@@ -40,26 +38,28 @@ public class RolloutGridHeader extends AbstractGridHeader {
     private final RolloutLayoutUIState rolloutUIState;
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
 
+    private final transient SearchHeaderSupport searchHeaderSupport;
+    private final transient AddHeaderSupport addHeaderSupport;
+
     RolloutGridHeader(final SpPermissionChecker permissionChecker, final RolloutLayoutUIState rolloutUIState,
             final UIEventBus eventBus, final VaadinMessageSource i18n, final RolloutWindowBuilder windowBuilder) {
         super(i18n, permissionChecker, eventBus);
 
         this.rolloutUIState = rolloutUIState;
-
         this.rolloutWindowBuilder = windowBuilder;
 
-        final List<HeaderSupport> headerSupports = new ArrayList<>();
-
-        headerSupports.add(new SearchHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_LIST_SEARCH_BOX_ID,
+        this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_LIST_SEARCH_BOX_ID,
                 UIComponentIdProvider.ROLLOUT_LIST_SEARCH_RESET_ICON_ID, this::getSearchTextFromUiState,
-                this::searchBy));
+                this::searchBy);
         if (permChecker.hasRolloutCreatePermission()) {
-            headerSupports.add(new AddHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_ADD_ICON_ID,
-                    this::addNewRollout, () -> false));
+            this.addHeaderSupport = new AddHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_ADD_ICON_ID,
+                    this::addNewRollout, () -> false);
+        } else {
+            this.addHeaderSupport = null;
         }
-        addHeaderSupports(headerSupports);
 
-        restoreState();
+        addHeaderSupports(Arrays.asList(searchHeaderSupport, addHeaderSupport));
+
         buildHeader();
     }
 
@@ -73,9 +73,10 @@ public class RolloutGridHeader extends AbstractGridHeader {
     }
 
     private void searchBy(final String newSearchText) {
-        rolloutUIState.setSearchText(newSearchText);
         eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this,
                 new SearchFilterEventPayload(newSearchText, Layout.ROLLOUT_LIST, View.ROLLOUT));
+
+        rolloutUIState.setSearchText(newSearchText);
     }
 
     private void addNewRollout() {

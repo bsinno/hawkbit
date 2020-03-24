@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
 import org.eclipse.hawkbit.ui.common.data.aware.NameAware;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 
 /**
  * Proxy entity representing rollout popup window bean.
@@ -28,6 +29,7 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
     private String name;
     private String description;
     private ActionType actionType;
+    private AutoStartOption autoStartOption;
     private Long startAt;
     private Long forcedTime;
     private Long totalTargets;
@@ -59,6 +61,7 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
         approvalRemark = rollout.getApprovalRemark();
         approvalDecision = RolloutStatus.APPROVAL_DENIED == rollout.getStatus() ? ApprovalDecision.DENIED
                 : ApprovalDecision.APPROVED;
+        autoStartOption = AutoStartOption.MANUAL;
     }
 
     @Override
@@ -204,5 +207,13 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
 
     public void setApprovalDecision(final ApprovalDecision approvalDecision) {
         this.approvalDecision = approvalDecision;
+    }
+
+    public AutoStartOption getAutoStartOption() {
+        return autoStartOption;
+    }
+
+    public void setAutoStartOption(final AutoStartOption autoStartOption) {
+        this.autoStartOption = autoStartOption;
     }
 }

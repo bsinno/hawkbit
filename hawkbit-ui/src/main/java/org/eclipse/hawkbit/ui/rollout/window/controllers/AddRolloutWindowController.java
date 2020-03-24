@@ -33,6 +33,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AddRolloutWindowLayout;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -77,6 +78,9 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
 
         proxyRolloutWindow.setActionType(ActionType.FORCED);
         proxyRolloutWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
+        proxyRolloutWindow.setAutoStartOption(AutoStartOption.MANUAL);
+        proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
+
         final RolloutGroupConditions defaultRolloutGroupConditions = RolloutWindowLayoutComponentBuilder
                 .getDefaultRolloutGroupConditions();
         proxyRolloutWindow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
@@ -104,7 +108,7 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
                 .targetFilterQuery(entity.getTargetFilterQuery()).actionType(entity.getActionType())
                 .forcedTime(entity.getActionType() == ActionType.TIMEFORCED ? entity.getForcedTime()
                         : RepositoryModelConstants.NO_FORCE_TIME)
-                .startAt(entity.getStartAt());
+                .startAt(getStartAtTime(entity));
 
         Rollout rolloutToCreate;
         if (layout.isNumberOfGroups()) {
@@ -119,6 +123,18 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", rolloutToCreate.getName()));
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_ADDED, ProxyRollout.class, rolloutToCreate.getId()));
+    }
+
+    private Long getStartAtTime(final ProxyRolloutWindow entity) {
+        switch (entity.getAutoStartOption()) {
+        case AUTO_START:
+            return System.currentTimeMillis();
+        case SCHEDULED:
+            return entity.getStartAt();
+        case MANUAL:
+        default:
+            return null;
+        }
     }
 
     @Override

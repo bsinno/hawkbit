@@ -64,6 +64,11 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
         buildLayout(rolloutListHeader, rolloutListGrid);
     }
 
+    public void restoreState() {
+        rolloutListHeader.restoreState();
+        rolloutListGrid.restoreState();
+    }
+
     /**
      * Only display rollouts with matching name
      * 
@@ -71,7 +76,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
      *            rollouts containing this string in the name are displayed
      */
     public void filterGridByName(final String namePart) {
-        rolloutListGrid.setFilter(namePart);
+        rolloutListGrid.updateSearchFilter(namePart);
     }
 
     /**

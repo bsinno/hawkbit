@@ -89,25 +89,27 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private final Map<RolloutStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutStatus.class);
     private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
+    private final RolloutLayoutUIState rolloutLayoutUIState;
+
     private final transient RolloutManagement rolloutManagement;
     private final transient RolloutGroupManagement rolloutGroupManagement;
     private final transient TenantConfigurationManagement tenantConfigManagement;
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
     private final UINotification uiNotification;
     private final ConfigurableFilterDataProvider<ProxyRollout, Void, String> rolloutDataProvider;
-    private final RolloutLayoutUIState uiState;
 
     RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final RolloutManagement rolloutManagement,
             final RolloutGroupManagement rolloutGroupManagement, final UINotification uiNotification,
-            final RolloutLayoutUIState uiState, final SpPermissionChecker permissionChecker,
+            final RolloutLayoutUIState rolloutLayoutUIState, final SpPermissionChecker permissionChecker,
             final TenantConfigurationManagement tenantConfigManagement,
             final RolloutWindowBuilder rolloutWindowBuilder) {
         super(i18n, eventBus, permissionChecker);
+
+        this.rolloutLayoutUIState = rolloutLayoutUIState;
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.tenantConfigManagement = tenantConfigManagement;
         this.uiNotification = uiNotification;
-        this.uiState = uiState;
         this.rolloutWindowBuilder = rolloutWindowBuilder;
         this.rolloutDataProvider = new RolloutDataProvider(rolloutManagement, new RolloutToProxyRolloutMapper())
                 .withConfigurableFilter();
@@ -154,11 +156,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         return rolloutDataProvider;
     }
 
-    public void setFilter(final String filter) {
-        uiState.setSearchText(filter);
-        filter(filter);
-    }
-
     public void updateGridItems(final Collection<Long> ids) {
         ids.stream().filter(Predicates.notNull()).map(rolloutManagement::getWithDetailedStatus)
                 .forEach(rollout -> rollout.ifPresent(this::updateGridItem));
@@ -175,11 +172,9 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         getDataProvider().refreshItem(proxyRollout);
     }
 
-    private void filter(String filter) {
-        if (filter == null) {
-            filter = "";
-        }
-        getFilterDataProvider().setFilter(String.format("%%%s%%", filter));
+    public void updateSearchFilter(final String searchFilter) {
+        getFilterDataProvider()
+                .setFilter(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
     }
 
     private void initStatusIconMap() {
@@ -475,8 +470,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                     rolloutManagement.delete(rolloutId);
 
                     uiNotification.displaySuccess(i18n.getMessage("message.rollout.deleted", rolloutName));
+                    // Rollout is not deleted straight away, but updated to
+                    // deleting state
                     eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                            EntityModifiedEventType.ENTITY_REMOVED, ProxyRollout.class, rolloutId));
+                            EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, rolloutId));
                 }, UIComponentIdProvider.ROLLOUT_DELETE_CONFIRMATION_DIALOG);
         UI.getCurrent().addWindow(confirmationDialog.getWindow());
         confirmationDialog.getWindow().bringToFront();
@@ -498,4 +495,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         return i18n.getMessage("message.delete.rollout", rollout.getName(), rolloutDetailsMessage);
     }
 
+    public void restoreState() {
+        updateSearchFilter(rolloutLayoutUIState.getSearchText().orElse(null));
+    }
 }

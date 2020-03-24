@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.rollout.event.RolloutEvent;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.UpdateRolloutWindowLayout;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -80,9 +81,24 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
             proxyRolloutWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
         }
 
+        proxyRolloutWindow.setAutoStartOption(getStartAtOption(proxyRolloutWindow.getStartAt()));
+        if (AutoStartOption.SCHEDULED != proxyRolloutWindow.getAutoStartOption()) {
+            proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
+        }
+
         nameBeforeEdit = proxyRolloutWindow.getName();
 
         return proxyRolloutWindow;
+    }
+
+    private AutoStartOption getStartAtOption(final Long startAtTime) {
+        if (startAtTime == null) {
+            return AutoStartOption.MANUAL;
+        } else if (startAtTime < System.currentTimeMillis()) {
+            return AutoStartOption.AUTO_START;
+        } else {
+            return AutoStartOption.SCHEDULED;
+        }
     }
 
     @Override
@@ -105,7 +121,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
                 .actionType(entity.getActionType())
                 .forcedTime(entity.getActionType() == ActionType.TIMEFORCED ? entity.getForcedTime()
                         : RepositoryModelConstants.NO_FORCE_TIME)
-                .startAt(entity.getStartAt());
+                .startAt(getStartAtTime(entity));
 
         Rollout updatedRollout;
         try {
@@ -126,6 +142,19 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedRollout.getName()));
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, updatedRollout.getId()));
+    }
+
+    // TODO: remove duplication with AddRolloutWindowController
+    private Long getStartAtTime(final ProxyRolloutWindow entity) {
+        switch (entity.getAutoStartOption()) {
+        case AUTO_START:
+            return System.currentTimeMillis();
+        case SCHEDULED:
+            return entity.getStartAt();
+        case MANUAL:
+        default:
+            return null;
+        }
     }
 
     @Override
