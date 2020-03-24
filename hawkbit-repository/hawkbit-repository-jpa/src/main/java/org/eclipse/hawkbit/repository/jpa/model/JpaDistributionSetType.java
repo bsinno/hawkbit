@@ -198,6 +198,11 @@ public class JpaDistributionSetType extends AbstractJpaNamedEntity implements Di
 
         return this;
     }
+    
+    public JpaDistributionSetType removeAllTypes() {
+        elements.clear();
+        return this;
+    }
 
     @Override
     public String getKey() {

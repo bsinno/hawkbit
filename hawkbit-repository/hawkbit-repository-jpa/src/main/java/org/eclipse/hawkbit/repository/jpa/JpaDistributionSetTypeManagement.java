@@ -94,16 +94,24 @@ public class JpaDistributionSetTypeManagement implements DistributionSetTypeMana
 
         update.getDescription().ifPresent(type::setDescription);
         update.getColour().ifPresent(type::setColour);
+        
 
-        if (hasModules(update)) {
+        if (hasModuleChanges(update)) {
             checkDistributionSetTypeSoftwareModuleTypesIsAllowedToModify(update.getId());
+            
+            Collection<Long> currentMandatory = type.getMandatoryModuleTypes().stream().map(SoftwareModuleType::getId).collect(Collectors.toList());
+            Collection<Long> currentOptional = type.getOptionalModuleTypes().stream().map(SoftwareModuleType::getId).collect(Collectors.toList());
+            Collection<Long> expectedMandatory = update.getMandatory().orElse(currentMandatory);
+            Collection<Long> expectedOptional = update.getOptional().orElse(currentOptional);
 
-            update.getMandatory().ifPresent(
-                    mand -> softwareModuleTypeRepository.findAllById(mand).forEach(type::addMandatoryModuleType));
-            update.getOptional().ifPresent(
-                    opt -> softwareModuleTypeRepository.findAllById(opt).forEach(type::addOptionalModuleType));
+            type.removeAllTypes();
+            if (!CollectionUtils.isEmpty(expectedMandatory)) {
+                softwareModuleTypeRepository.findAllById(expectedMandatory).forEach(type::addMandatoryModuleType);
+            }
+            if (!CollectionUtils.isEmpty(expectedOptional)) {
+                softwareModuleTypeRepository.findAllById(expectedOptional).forEach(type::addOptionalModuleType);
+            }
         }
-
         return distributionSetTypeRepository.save(type);
     }
 
@@ -258,7 +266,7 @@ public class JpaDistributionSetTypeManagement implements DistributionSetTypeMana
                 .orElseThrow(() -> new EntityNotFoundException(DistributionSetType.class, setId));
     }
 
-    private static boolean hasModules(final GenericDistributionSetTypeUpdate update) {
+    private static boolean hasModuleChanges(final GenericDistributionSetTypeUpdate update) {
         return update.getOptional().isPresent() || update.getMandatory().isPresent();
     }
 
