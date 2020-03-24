@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
 import org.eclipse.hawkbit.ui.common.data.aware.NameAware;
-import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder.ERROR_THRESHOLD_OPTIONS;
 
 /**
  * Proxy entity representing rollout popup window bean.
@@ -41,7 +40,6 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
     private RolloutStatus status;
     private String approvalRemark;
     private ApprovalDecision approvalDecision;
-    private ERROR_THRESHOLD_OPTIONS errorThresholdOption;
 
     public ProxyRolloutWindow() {
     }
@@ -206,13 +204,5 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
 
     public void setApprovalDecision(final ApprovalDecision approvalDecision) {
         this.approvalDecision = approvalDecision;
-    }
-
-    public ERROR_THRESHOLD_OPTIONS getErrorThresholdOption() {
-        return errorThresholdOption;
-    }
-
-    public void setErrorThresholdOption(final ERROR_THRESHOLD_OPTIONS errorThresholdOption) {
-        this.errorThresholdOption = errorThresholdOption;
     }
 }

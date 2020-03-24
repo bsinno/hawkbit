@@ -70,6 +70,7 @@ public class RolloutGridLayoutEventListener {
             }
 
             final EntityModifiedEventType modificationType = eventPayload.getEntityModifiedEventType();
+            // TODO: bug: first comes Removed and then Updated
             if (modificationType == EntityModifiedEventType.ENTITY_ADDED
                     || modificationType == EntityModifiedEventType.ENTITY_REMOVED) {
                 rolloutGridLayout.refreshGrid();

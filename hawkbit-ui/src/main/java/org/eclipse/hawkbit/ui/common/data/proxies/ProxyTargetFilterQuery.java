@@ -26,6 +26,13 @@ public class ProxyTargetFilterQuery extends ProxyNamedEntity implements DsIdAwar
 
     private ActionType autoAssignActionType;
 
+    public ProxyTargetFilterQuery() {
+    }
+
+    public ProxyTargetFilterQuery(final Long id) {
+        super(id);
+    }
+
     public String getQuery() {
         return query;
     }

@@ -13,7 +13,12 @@ import java.time.LocalDateTime;
 import java.util.AbstractMap;
 import java.util.Map.Entry;
 import java.util.TimeZone;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
@@ -41,7 +46,6 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.cronutils.utils.StringUtils;
 import com.vaadin.data.Binder;
 import com.vaadin.data.Binder.Binding;
 import com.vaadin.data.ValidationResult;
@@ -131,7 +135,8 @@ public final class RolloutWindowLayoutComponentBuilder {
         return comboBox;
     }
 
-    public ComboBox<ProxyTargetFilterQuery> createTargetFilterQueryCombo(final Binder<ProxyRolloutWindow> binder) {
+    public ComboBox<ProxyTargetFilterQuery> createTargetFilterQueryCombo(final Binder<ProxyRolloutWindow> binder,
+            final ToLongFunction<String> totalTargetsByQueryCallback) {
         final ComboBox<ProxyTargetFilterQuery> targetFilterQueryCombo = new ComboBox<>();
 
         targetFilterQueryCombo.setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID);
@@ -143,16 +148,21 @@ public final class RolloutWindowLayoutComponentBuilder {
 
         // TODO: use i18n for all the required fields messages
         binder.forField(targetFilterQueryCombo).asRequired((filterQuery, context) -> {
-            if (filterQuery == null || StringUtils.isEmpty(filterQuery.getQuery())) {
-                binder.getBean().setTotalTargets(0L);
+            if (filterQuery == null) {
+                totalTargetsByQueryCallback.applyAsLong(null);
 
                 return ValidationResult.error("You must provide the target filter");
             }
 
             return ValidationResult.ok();
         }).withValidator((filterQuery, context) -> {
-            final long targetsCountByFilter = dependencies.getTargetManagement().countByRsql(filterQuery.getQuery());
-            binder.getBean().setTotalTargets(targetsCountByFilter);
+            // TODO: workaround for the value set with setBean (see copy
+            // layout)
+            if (StringUtils.isEmpty(filterQuery.getQuery())) {
+                return ValidationResult.ok();
+            }
+
+            final long targetsCountByFilter = totalTargetsByQueryCallback.applyAsLong(filterQuery.getQuery());
 
             return new LongRangeValidator(dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FILTER_TARGET_EXISTS), 1L,
                     null).apply(targetsCountByFilter, context);
@@ -322,7 +332,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     public Entry<TextField, Binding<ProxyRolloutWindow, Integer>> createNoOfGroupsField(
-            final Binder<ProxyRolloutWindow> binder) {
+            final Binder<ProxyRolloutWindow> binder, final ToIntFunction<Integer> groupSizeByGroupNumberProvider) {
         final TextField noOfGroups = new TextFieldBuilder(3).id(UIComponentIdProvider.ROLLOUT_NO_OF_GROUPS_ID)
                 .prompt(dependencies.getI18n().getMessage("prompt.number.of.groups")).buildTextComponent();
         noOfGroups.setSizeUndefined();
@@ -337,7 +347,7 @@ public final class RolloutWindowLayoutComponentBuilder {
                             maxGroups).apply(number, context);
                 }).withValidator((number, context) -> {
                     final int maxGroupSize = dependencies.getQuotaManagement().getMaxTargetsPerRolloutGroup();
-                    if (getGroupSize(binder.getBean().getTotalTargets(), number) > maxGroupSize) {
+                    if (groupSizeByGroupNumberProvider.applyAsInt(number) > maxGroupSize) {
                         final String msg = dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED,
                                 maxGroupSize);
                         return ValidationResult.error(msg);
@@ -347,14 +357,6 @@ public final class RolloutWindowLayoutComponentBuilder {
                 }).bind(ProxyRolloutWindow::getNumberOfGroups, ProxyRolloutWindow::setNumberOfGroups);
 
         return new AbstractMap.SimpleImmutableEntry<>(noOfGroups, noOfGroupsFieldBinding);
-    }
-
-    private int getGroupSize(final Long totalTargets, final Integer numberOfGroups) {
-        if (totalTargets == null || numberOfGroups == null) {
-            return 0;
-        }
-
-        return (int) Math.ceil((double) totalTargets / (double) numberOfGroups);
     }
 
     public Label createCountLabel() {
@@ -384,7 +386,8 @@ public final class RolloutWindowLayoutComponentBuilder {
         return percentSymbol;
     }
 
-    public TextField createErrorThreshold(final Binder<ProxyRolloutWindow> binder) {
+    public TextField createErrorThreshold(final Binder<ProxyRolloutWindow> binder,
+            final Supplier<ERROR_THRESHOLD_OPTIONS> errorThresholdOptionProvider, final IntSupplier groupSizeProvider) {
         final TextField errorThreshold = new TextFieldBuilder(3).id(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID)
                 .prompt(dependencies.getI18n().getMessage("prompt.error.threshold")).buildTextComponent();
         errorThreshold.setSizeUndefined();
@@ -392,23 +395,20 @@ public final class RolloutWindowLayoutComponentBuilder {
         // TODO: use i18n
         binder.forField(errorThreshold).asRequired("Error threshold can not be empty")
                 .withValidator((errorThresholdText, context) -> {
-                    final ProxyRolloutWindow bean = binder.getBean();
-
-                    if (ERROR_THRESHOLD_OPTIONS.PERCENT == bean.getErrorThresholdOption()) {
+                    if (ERROR_THRESHOLD_OPTIONS.PERCENT == errorThresholdOptionProvider.get()) {
                         return new IntegerRangeValidator(
                                 dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
                                         .apply(Integer.valueOf(errorThresholdText), context);
                     }
 
-                    if (bean.getNumberOfGroups() == null
-                            || (bean.getTargetFilterId() == null && StringUtils.isEmpty(bean.getTargetFilterQuery()))) {
+                    final int groupSize = groupSizeProvider.getAsInt();
+
+                    if (groupSize == 0) {
                         final String msg = dependencies.getI18n()
                                 .getMessage("message.rollout.noofgroups.or.targetfilter.missing");
 
                         return ValidationResult.error(msg);
                     } else {
-                        final int groupSize = getGroupSize(bean.getTotalTargets(), bean.getNumberOfGroups());
-
                         return new IntegerRangeValidator(
                                 dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, groupSize), 0,
                                 groupSize).apply(Integer.valueOf(errorThresholdText), context);
@@ -418,11 +418,10 @@ public final class RolloutWindowLayoutComponentBuilder {
                         return null;
                     }
 
-                    final ProxyRolloutWindow bean = binder.getBean();
-
-                    if (ERROR_THRESHOLD_OPTIONS.COUNT == bean.getErrorThresholdOption()) {
+                    if (ERROR_THRESHOLD_OPTIONS.COUNT == errorThresholdOptionProvider.get()) {
                         final int errorThresholdCount = Integer.parseInt(errorThresholdPresentation);
-                        final int groupSize = getGroupSize(bean.getTotalTargets(), bean.getNumberOfGroups());
+                        final int groupSize = groupSizeProvider.getAsInt();
+
                         return String.valueOf((int) Math.ceil(((float) errorThresholdCount / (float) groupSize) * 100));
                     }
 
@@ -439,10 +438,10 @@ public final class RolloutWindowLayoutComponentBuilder {
         return errorThreshold;
     }
 
-    public RadioButtonGroup<ERROR_THRESHOLD_OPTIONS> createErrorThresholdOptionGroup(
-            final Binder<ProxyRolloutWindow> binder) {
+    public RadioButtonGroup<ERROR_THRESHOLD_OPTIONS> createErrorThresholdOptionGroup() {
         final RadioButtonGroup<ERROR_THRESHOLD_OPTIONS> errorThresholdOptionGroup = new RadioButtonGroup<>();
         errorThresholdOptionGroup.setItems(ERROR_THRESHOLD_OPTIONS.values());
+        errorThresholdOptionGroup.setValue(ERROR_THRESHOLD_OPTIONS.PERCENT);
         errorThresholdOptionGroup.setId(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_OPTION_ID);
         errorThresholdOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
         errorThresholdOptionGroup.addStyleName(SPUIStyleDefinitions.ROLLOUT_OPTION_GROUP);
@@ -450,9 +449,6 @@ public final class RolloutWindowLayoutComponentBuilder {
 
         errorThresholdOptionGroup
                 .setItemCaptionGenerator(errorThresholdOption -> errorThresholdOption.getValue(dependencies.getI18n()));
-
-        binder.forField(errorThresholdOptionGroup).bind(ProxyRolloutWindow::getErrorThresholdOption,
-                ProxyRolloutWindow::setErrorThresholdOption);
 
         return errorThresholdOptionGroup;
     }

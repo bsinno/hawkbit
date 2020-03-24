@@ -66,14 +66,16 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
         this.actionTypeLayout = rolloutComponentBuilder.createActionTypeOptionGroupLayout(binder);
         this.autoStartOptionGroupLayout = rolloutComponentBuilder.createAutoStartOptionGroupLayout(binder);
-        this.targetFilterQueryCombo = rolloutComponentBuilder.createTargetFilterQueryCombo(binder);
+        this.targetFilterQueryCombo = rolloutComponentBuilder.createTargetFilterQueryCombo(binder,
+                this::updateTotalTargetsByQuery);
         final Entry<TextField, Binding<ProxyRolloutWindow, Integer>> noOfGroupsWithBinding = rolloutComponentBuilder
-                .createNoOfGroupsField(binder);
+                .createNoOfGroupsField(binder, this::getGroupSizeByGroupNumber);
         this.noOfGroups = noOfGroupsWithBinding.getKey();
         this.noOfGroupsFieldBinding = noOfGroupsWithBinding.getValue();
         this.groupSizeLabel = rolloutComponentBuilder.createCountLabel();
-        this.errorThreshold = rolloutComponentBuilder.createErrorThreshold(binder);
-        this.errorThresholdOptionGroup = rolloutComponentBuilder.createErrorThresholdOptionGroup(binder);
+        this.errorThresholdOptionGroup = rolloutComponentBuilder.createErrorThresholdOptionGroup();
+        this.errorThreshold = rolloutComponentBuilder.createErrorThreshold(binder, errorThresholdOptionGroup::getValue,
+                this::getGroupSize);
         this.defineGroupsLayout = rolloutComponentBuilder.createAdvancedGroupDefinitionTab();
         this.groupsDefinitionTabs = rolloutComponentBuilder
                 .createGroupDefinitionTabs(rolloutComponentBuilder.createSimpleGroupDefinitionTab(noOfGroups,
@@ -82,6 +84,14 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         this.groupsLegendLayout = rolloutComponentBuilder.createGroupsLegendLayout();
 
         addValueChangeListeners();
+    }
+
+    private int getGroupSize() {
+        if (StringUtils.isEmpty(noOfGroups.getValue())) {
+            return 0;
+        }
+
+        return getGroupSizeByGroupNumber(Integer.parseInt(noOfGroups.getValue()));
     }
 
     @Override
@@ -187,11 +197,9 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
         final String filterQueryString = event.getValue() != null ? event.getValue().getQuery() : null;
         if (StringUtils.isEmpty(filterQueryString)) {
-            getEntity().setTargetFilterQuery(null);
             groupsLegendLayout.populateTotalTargets(null);
             defineGroupsLayout.setTargetFilter(null);
         } else {
-            getEntity().setTargetFilterQuery(filterQueryString);
             groupsLegendLayout.populateTotalTargets(getEntity().getTotalTargets());
             defineGroupsLayout.setTargetFilter(filterQueryString);
         }
@@ -201,8 +209,8 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private void updateTargetsPerGroup(final String numberOfGroups) {
         if (!Strings.isNullOrEmpty(numberOfGroups) && isNoOfGroupsValid() && getEntity().getTotalTargets() != null
                 && getEntity().getTotalTargets() > 0L && isNumberOfGroups()) {
-            groupSizeLabel
-                    .setValue(getTargetPerGroupMessage(String.valueOf(getGroupSize(Integer.parseInt(numberOfGroups)))));
+            groupSizeLabel.setValue(getTargetPerGroupMessage(
+                    String.valueOf(getGroupSizeByGroupNumber(Integer.parseInt(numberOfGroups)))));
             groupSizeLabel.setVisible(true);
             updateGroupsChart(Integer.parseInt(numberOfGroups));
         } else {
@@ -219,10 +227,6 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
     private String getTargetPerGroupMessage(final String value) {
         return new StringBuilder(i18n.getMessage("label.target.per.group")).append(value).toString();
-    }
-
-    private int getGroupSize(final Integer numberOfGroups) {
-        return (int) Math.ceil((double) getEntity().getTotalTargets() / (double) numberOfGroups);
     }
 
     private void validateGroups() {
