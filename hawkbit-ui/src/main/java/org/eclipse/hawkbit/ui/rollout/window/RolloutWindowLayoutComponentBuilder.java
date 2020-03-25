@@ -345,8 +345,14 @@ public final class RolloutWindowLayoutComponentBuilder {
                 .prompt(dependencies.getI18n().getMessage("prompt.tigger.threshold")).buildTextComponent();
         triggerThreshold.setSizeUndefined();
 
-        binder.forField(triggerThreshold).asRequired().bind(ProxyRolloutWindow::getTriggerThresholdPercentage,
-                ProxyRolloutWindow::setTriggerThresholdPercentage);
+        // TODO: use i18n
+        binder.forField(triggerThreshold).asRequired("Trigger threshold can not be empty")
+                .withValidator((triggerThresholdText,
+                        context) -> new IntegerRangeValidator(
+                                dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
+                                        .apply(Integer.valueOf(triggerThresholdText), context))
+                .bind(ProxyRolloutWindow::getTriggerThresholdPercentage,
+                        ProxyRolloutWindow::setTriggerThresholdPercentage);
 
         return triggerThreshold;
     }
