@@ -203,7 +203,7 @@ public class JpaDistributionSetType extends AbstractJpaNamedEntity implements Di
         if (elements == null) {
             return this;
         }
-        elements.stream().filter(DistributionSetTypeElement::isMandatory).forEach(elements::remove);
+        elements = elements.stream().filter(element -> !element.isMandatory()).collect(Collectors.toSet());
         return this;
     }
     
@@ -211,7 +211,7 @@ public class JpaDistributionSetType extends AbstractJpaNamedEntity implements Di
         if (elements == null) {
             return this;
         }
-        elements.stream().filter(element -> !element.isMandatory()).forEach(elements::remove);
+        elements = elements.stream().filter(DistributionSetTypeElement::isMandatory).collect(Collectors.toSet());
         return this;
     }
 
