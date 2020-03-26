@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.disttype;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
+import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.ComponentContainer;
@@ -23,9 +24,9 @@ public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
     private final TextField typeKey;
     private final DsTypeSmSelectLayout dsTypeSmSelectLayout;
 
-    public DsTypeWindowLayout(final VaadinMessageSource i18n,
+    public DsTypeWindowLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
-        super(i18n);
+        super(i18n, uiNotification);
 
         this.dsTypeComponentBuilder = new DsTypeWindowLayoutComponentBuilder(i18n, softwareModuleTypeManagement);
 

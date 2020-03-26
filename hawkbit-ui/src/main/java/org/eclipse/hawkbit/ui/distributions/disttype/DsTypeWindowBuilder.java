@@ -52,12 +52,13 @@ public class DsTypeWindowBuilder extends AbstractEntityWindowBuilder<ProxyType> 
 
     public Window getWindowForAddDsType() {
         return getWindowForNewEntity(new AddDsTypeWindowController(i18n, entityFactory, eventBus, uiNotification,
-                dsTypeManagement, new DsTypeWindowLayout(i18n, smTypeManagement)));
+                dsTypeManagement, new DsTypeWindowLayout(i18n, uiNotification, smTypeManagement)));
 
     }
 
     public Window getWindowForUpdateDsType(final ProxyType proxyType) {
-        return getWindowForEntity(proxyType, new UpdateDsTypeWindowController(i18n, entityFactory, eventBus,
-                uiNotification, dsTypeManagement, dsManagement, new DsTypeWindowLayout(i18n, smTypeManagement)));
+        return getWindowForEntity(proxyType,
+                new UpdateDsTypeWindowController(i18n, entityFactory, eventBus, uiNotification, dsTypeManagement,
+                        dsManagement, new DsTypeWindowLayout(i18n, uiNotification, smTypeManagement)));
     }
 }

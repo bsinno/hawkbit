@@ -12,9 +12,11 @@ import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyFilterButton;
 import org.eclipse.hawkbit.ui.components.ColorPickerComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
+import com.vaadin.shared.ui.colorpicker.Color;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.components.colorpicker.ColorUtil;
@@ -23,9 +25,11 @@ import com.vaadin.ui.components.colorpicker.ColorUtil;
 public class TagWindowLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
+    private final UINotification uiNotification;
 
-    public TagWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
+    public TagWindowLayoutComponentBuilder(final VaadinMessageSource i18n, final UINotification uiNotification) {
         this.i18n = i18n;
+        this.uiNotification = uiNotification;
     }
 
     /**
@@ -59,9 +63,37 @@ public class TagWindowLayoutComponentBuilder {
         // rgb string
         binder.forField(colorPickerComponent)
                 .withConverter(color -> "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")",
-                        ColorUtil::stringToColor)
+                        colorString -> {
+                            try {
+                                return ColorUtil.stringToColor(colorString);
+                            } catch (final NumberFormatException e) {
+                                try {
+                                    return BasicColor.valueOf(colorString.trim().toUpperCase()).getColor();
+                                } catch (final IllegalArgumentException ex) {
+                                    // TODO: use i18n
+                                    uiNotification.displayValidationError(
+                                            "There is no mapping for the provided colour: " + colorString);
+                                    return ColorUtil.stringToColor("#2c9720");
+                                }
+                            }
+                        })
                 .bind(ProxyFilterButton::getColour, ProxyFilterButton::setColour);
 
         return colorPickerComponent;
+    }
+
+    private enum BasicColor {
+        BLACK(Color.BLACK), BLUE(Color.BLUE), CYAN(Color.CYAN), GREEN(Color.GREEN), MAGENTA(Color.MAGENTA), RED(
+                Color.RED), WHITE(Color.WHITE), YELLOW(Color.YELLOW);
+
+        private final Color color;
+
+        private BasicColor(final Color color) {
+            this.color = color;
+        }
+
+        public Color getColor() {
+            return color;
+        }
     }
 }

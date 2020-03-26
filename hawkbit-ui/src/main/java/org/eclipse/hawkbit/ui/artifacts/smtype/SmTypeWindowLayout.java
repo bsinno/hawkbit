@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.artifacts.smtype;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
+import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.FormLayout;
@@ -23,8 +24,8 @@ public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
     private final TextField typeKey;
     private final RadioButtonGroup<SmTypeAssign> smTypeAssignOptionGroup;
 
-    public SmTypeWindowLayout(final VaadinMessageSource i18n) {
-        super(i18n);
+    public SmTypeWindowLayout(final VaadinMessageSource i18n, final UINotification uiNotification) {
+        super(i18n, uiNotification);
 
         this.smTypeComponentBuilder = new SmTypeWindowLayoutComponentBuilder(i18n);
 

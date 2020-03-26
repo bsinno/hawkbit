@@ -45,12 +45,12 @@ public class SmTypeWindowBuilder extends AbstractEntityWindowBuilder<ProxyType> 
 
     public Window getWindowForAddSmType() {
         return getWindowForNewEntity(new AddSmTypeWindowController(i18n, entityFactory, eventBus, uiNotification,
-                smTypeManagement, new SmTypeWindowLayout(i18n)));
+                smTypeManagement, new SmTypeWindowLayout(i18n, uiNotification)));
 
     }
 
     public Window getWindowForUpdateSmType(final ProxyType proxyType) {
         return getWindowForEntity(proxyType, new UpdateSmTypeWindowController(i18n, entityFactory, eventBus,
-                uiNotification, smTypeManagement, new SmTypeWindowLayout(i18n)));
+                uiNotification, smTypeManagement, new SmTypeWindowLayout(i18n, uiNotification)));
     }
 }

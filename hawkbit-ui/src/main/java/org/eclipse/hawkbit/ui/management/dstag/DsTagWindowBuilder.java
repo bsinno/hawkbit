@@ -46,12 +46,12 @@ public class DsTagWindowBuilder extends AbstractEntityWindowBuilder<ProxyTag> {
 
     public Window getWindowForAddDsTag() {
         return getWindowForNewEntity(new AddDsTagWindowController(i18n, entityFactory, eventBus, uiNotification,
-                dsTagManagement, new TagWindowLayout<ProxyTag>(i18n)));
+                dsTagManagement, new TagWindowLayout<ProxyTag>(i18n, uiNotification)));
 
     }
 
     public Window getWindowForUpdateDsTag(final ProxyTag proxyTag) {
         return getWindowForEntity(proxyTag, new UpdateDsTagWindowController(i18n, entityFactory, eventBus,
-                uiNotification, dsTagManagement, new TagWindowLayout<ProxyTag>(i18n)));
+                uiNotification, dsTagManagement, new TagWindowLayout<ProxyTag>(i18n, uiNotification)));
     }
 }
