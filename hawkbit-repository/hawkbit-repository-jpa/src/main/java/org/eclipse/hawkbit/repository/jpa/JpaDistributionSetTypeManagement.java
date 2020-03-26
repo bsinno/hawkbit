@@ -98,19 +98,19 @@ public class JpaDistributionSetTypeManagement implements DistributionSetTypeMana
 
         if (hasModuleChanges(update)) {
             checkDistributionSetTypeSoftwareModuleTypesIsAllowedToModify(update.getId());
-            
-            Collection<Long> currentMandatory = type.getMandatoryModuleTypes().stream().map(SoftwareModuleType::getId).collect(Collectors.toList());
-            Collection<Long> currentOptional = type.getOptionalModuleTypes().stream().map(SoftwareModuleType::getId).collect(Collectors.toList());
-            Collection<Long> expectedMandatory = update.getMandatory().orElse(currentMandatory);
-            Collection<Long> expectedOptional = update.getOptional().orElse(currentOptional);
 
-            type.removeAllTypes();
-            if (!CollectionUtils.isEmpty(expectedMandatory)) {
-                softwareModuleTypeRepository.findAllById(expectedMandatory).forEach(type::addMandatoryModuleType);
-            }
-            if (!CollectionUtils.isEmpty(expectedOptional)) {
-                softwareModuleTypeRepository.findAllById(expectedOptional).forEach(type::addOptionalModuleType);
-            }
+            update.getMandatory().ifPresent(mand -> {
+                type.removeAllMandatotyTypes();
+                if (!CollectionUtils.isEmpty(mand)) {
+                    softwareModuleTypeRepository.findAllById(mand).forEach(type::addMandatoryModuleType);
+                }
+            });
+            update.getOptional().ifPresent(opt -> {
+                type.removeAllOptionalTypes();
+                if (!CollectionUtils.isEmpty(opt)) {
+                    softwareModuleTypeRepository.findAllById(opt).forEach(type::addOptionalModuleType);
+                }
+            });
         }
         return distributionSetTypeRepository.save(type);
     }
