@@ -114,7 +114,7 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
     private static final List<RolloutStatus> DELETE_COPY_BUTTON_ENABLED = Arrays.asList(RolloutStatus.CREATING,
             RolloutStatus.ERROR_CREATING, RolloutStatus.ERROR_STARTING, RolloutStatus.PAUSED, RolloutStatus.READY,
             RolloutStatus.RUNNING, RolloutStatus.STARTING, RolloutStatus.STOPPED, RolloutStatus.FINISHED,
-            RolloutStatus.WAITING_FOR_APPROVAL, RolloutStatus.APPROVAL_DENIED);
+            RolloutStatus.FINISHED_WITH_ERROR, RolloutStatus.WAITING_FOR_APPROVAL, RolloutStatus.APPROVAL_DENIED);
 
     private static final List<RolloutStatus> UPDATE_BUTTON_ENABLED = Arrays.asList(RolloutStatus.CREATING,
             RolloutStatus.ERROR_CREATING, RolloutStatus.ERROR_STARTING, RolloutStatus.PAUSED, RolloutStatus.READY,
@@ -135,7 +135,7 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
             SPUILabelDefinitions.VAR_MODIFIED_BY, SPUILabelDefinitions.VAR_APPROVAL_DECIDED_BY,
             SPUILabelDefinitions.VAR_APPROVAL_REMARK, SPUILabelDefinitions.VAR_DESC);
 
-    private static final String[] centerAlignedColumns = new String[] { PROP_TYPE };
+    private static final String[] centerAlignedColumns = new String[]{PROP_TYPE};
 
     static {
         statusIconMap.put(RolloutStatus.FINISHED,
@@ -153,6 +153,8 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
                 new StatusFontIcon(FontAwesome.STOP, SPUIStyleDefinitions.STATUS_ICON_RED));
         statusIconMap.put(RolloutStatus.CREATING, new StatusFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_GREY));
         statusIconMap.put(RolloutStatus.STARTING, new StatusFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_BLUE));
+        statusIconMap.put(RolloutStatus.FINISHED_WITH_ERROR,
+                new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
         statusIconMap.put(RolloutStatus.ERROR_CREATING,
                 new StatusFontIcon(FontAwesome.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED));
         statusIconMap.put(RolloutStatus.ERROR_STARTING,
@@ -192,14 +194,14 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
     @EventBusListenerMethod(scope = EventScope.UI)
     void onEvent(final RolloutEvent event) {
         switch (event) {
-        case FILTER_BY_TEXT:
-        case CREATE_ROLLOUT:
-        case UPDATE_ROLLOUT:
-        case SHOW_ROLLOUTS:
-            refreshContainer();
-            break;
-        default:
-            break;
+            case FILTER_BY_TEXT :
+            case CREATE_ROLLOUT :
+            case UPDATE_ROLLOUT :
+            case SHOW_ROLLOUTS :
+                refreshContainer();
+                break;
+            default :
+                break;
         }
     }
 
@@ -877,8 +879,8 @@ public class RolloutListGrid extends AbstractGrid<LazyQueryContainer> {
         setColumns(modifiableColumnsList.toArray());
     }
 
-    private boolean isRolloutApprovalEnabled(){
-       return systemSecurityContext.runAsSystem(() -> tenantConfigManagement
+    private boolean isRolloutApprovalEnabled() {
+        return systemSecurityContext.runAsSystem(() -> tenantConfigManagement
                 .getConfigurationValue(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED, Boolean.class).getValue());
     }
 

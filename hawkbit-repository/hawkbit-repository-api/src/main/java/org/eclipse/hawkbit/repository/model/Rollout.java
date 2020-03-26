@@ -160,6 +160,11 @@ public interface Rollout extends NamedEntity {
         FINISHED,
 
         /**
+         * Rollout is finished with error.
+         */
+        FINISHED_WITH_ERROR,
+
+        /**
          * Rollout is under deletion.
          */
         DELETING,

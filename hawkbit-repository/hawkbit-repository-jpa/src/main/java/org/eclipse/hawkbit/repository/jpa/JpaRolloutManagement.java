@@ -216,7 +216,7 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public Rollout create(final RolloutCreate rollout, final int amountGroup, final RolloutGroupConditions conditions) {
         RolloutHelper.verifyRolloutGroupParameter(amountGroup, quotaManagement);
         final JpaRollout savedRollout = createRollout((JpaRollout) rollout.build());
@@ -226,7 +226,7 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public Rollout create(final RolloutCreate rollout, final List<RolloutGroupCreate> groups,
             final RolloutGroupConditions conditions) {
         RolloutHelper.verifyRolloutGroupParameter(groups.size(), quotaManagement);
@@ -464,7 +464,7 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public Rollout approveOrDeny(final long rolloutId, final Rollout.ApprovalDecision decision) {
         return this.approveOrDeny(rolloutId, decision, null);
     }
@@ -472,20 +472,20 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public Rollout approveOrDeny(final long rolloutId, final Rollout.ApprovalDecision decision, final String remark) {
         LOGGER.debug("approveOrDeny rollout called for rollout {} with decision {}", rolloutId, decision);
         final JpaRollout rollout = getRolloutAndThrowExceptionIfNotFound(rolloutId);
         RolloutHelper.verifyRolloutInStatus(rollout, RolloutStatus.WAITING_FOR_APPROVAL);
         switch (decision) {
-        case APPROVED:
-            rollout.setStatus(RolloutStatus.READY);
-            break;
-        case DENIED:
-            rollout.setStatus(RolloutStatus.APPROVAL_DENIED);
-            break;
-        default:
-            throw new IllegalArgumentException("Unknown approval decision: " + decision);
+            case APPROVED :
+                rollout.setStatus(RolloutStatus.READY);
+                break;
+            case DENIED :
+                rollout.setStatus(RolloutStatus.APPROVAL_DENIED);
+                break;
+            default :
+                throw new IllegalArgumentException("Unknown approval decision: " + decision);
         }
         rollout.setApprovalDecidedBy(rolloutApprovalStrategy.getApprovalUser(rollout));
         if (remark != null) {
@@ -497,7 +497,7 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public Rollout start(final long rolloutId) {
         LOGGER.debug("startRollout called for rollout {}", rolloutId);
 
@@ -635,7 +635,7 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public void pauseRollout(final long rolloutId) {
         final JpaRollout rollout = getRolloutAndThrowExceptionIfNotFound(rolloutId);
         if (RolloutStatus.RUNNING != rollout.getStatus()) {
@@ -654,7 +654,7 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public void resumeRollout(final long rolloutId) {
         final JpaRollout rollout = getRolloutAndThrowExceptionIfNotFound(rolloutId);
         if (RolloutStatus.PAUSED != rollout.getStatus()) {
@@ -683,8 +683,13 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
         }
 
         if (isRolloutComplete(rollout)) {
-            LOGGER.info("Rollout {} is finished, setting FINISHED status", rollout);
-            rollout.setStatus(RolloutStatus.FINISHED);
+            if (doesRolloutContainsErrors(rollout)) {
+                rollout.setStatus(RolloutStatus.FINISHED_WITH_ERROR);
+                LOGGER.info("Rollout {} is finished wir errors, setting FINISHED_WITH_ERROR status", rollout);
+            } else {
+                rollout.setStatus(RolloutStatus.FINISHED);
+                LOGGER.info("Rollout {} is finished, setting FINISHED status", rollout);
+            }
             rolloutRepository.save(rollout);
         }
     }
@@ -755,6 +760,14 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
         final Long groupsActiveLeft = rolloutGroupRepository.countByRolloutIdAndStatusOrStatus(rollout.getId(),
                 RolloutGroupStatus.RUNNING, RolloutGroupStatus.SCHEDULED);
         return groupsActiveLeft == 0;
+    }
+
+    private boolean doesRolloutContainsErrors(final JpaRollout rollout) {
+        // ensure that changes in the same transaction count
+        entityManager.flush();
+        final Long groupsActiveLeft = rolloutGroupRepository.countByRolloutIdAndStatus(rollout.getId(),
+                RolloutGroupStatus.ERROR);
+        return groupsActiveLeft != 0;
     }
 
     private boolean isRolloutGroupComplete(final JpaRollout rollout, final JpaRolloutGroup rolloutGroup) {
@@ -842,24 +855,24 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
                 .orElseThrow(() -> new EntityNotFoundException(Rollout.class, rolloutId));
 
         switch (rollout.getStatus()) {
-        case CREATING:
-            handleCreateRollout(rollout);
-            break;
-        case DELETING:
-            handleDeleteRollout(rollout);
-            break;
-        case READY:
-            handleReadyRollout(rollout);
-            break;
-        case STARTING:
-            handleStartingRollout(rollout);
-            break;
-        case RUNNING:
-            handleRunningRollout(rollout);
-            break;
-        default:
-            LOGGER.error("Rollout in status {} not supposed to be handled!", rollout.getStatus());
-            break;
+            case CREATING :
+                handleCreateRollout(rollout);
+                break;
+            case DELETING :
+                handleDeleteRollout(rollout);
+                break;
+            case READY :
+                handleReadyRollout(rollout);
+                break;
+            case STARTING :
+                handleStartingRollout(rollout);
+                break;
+            case RUNNING :
+                handleRunningRollout(rollout);
+                break;
+            default :
+                LOGGER.error("Rollout in status {} not supposed to be handled!", rollout.getStatus());
+                break;
         }
 
         return 0;
@@ -885,7 +898,7 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public void delete(final long rolloutId) {
         final JpaRollout jpaRollout = rolloutRepository.findById(rolloutId)
                 .orElseThrow(() -> new EntityNotFoundException(Rollout.class, rolloutId));
@@ -1008,7 +1021,7 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public Rollout update(final RolloutUpdate u) {
         final GenericRolloutUpdate update = (GenericRolloutUpdate) u;
         final JpaRollout rollout = getRolloutAndThrowExceptionIfNotFound(update.getId());

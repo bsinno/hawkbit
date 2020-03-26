@@ -54,11 +54,24 @@ public interface RolloutGroupRepository
 
     /**
      * Counts all {@link RolloutGroup} referring a specific rollout in specific
+     * {@link RolloutGroupStatus}s.
+     *
+     * @param rolloutId
+     *            the ID of the rollout the rolloutgroup belong to
+     * @param rolloutGroupStatus
+     *            the status of the rollout groups
+     * @return the count of rollout groups belonging to a rollout in specific
+     *         status
+     */
+    Long countByRolloutIdAndStatus(long rolloutId, RolloutGroupStatus rolloutGroupStatus);
+
+    /**
+     * Counts all {@link RolloutGroup} referring a specific rollout in specific
      * {@link RolloutGroupStatus}s. An in-clause statement does not work with
      * the spring-data, so this is specific usecase regarding to the
      * rollout-management to find out rolloutgroups which are in specific
      * states.
-     * 
+     *
      * @param rolloutId
      *            the ID of the rollout the rolloutgroup belong to
      * @param rolloutGroupStatus1
@@ -70,8 +83,8 @@ public interface RolloutGroupRepository
      */
     @Query("SELECT COUNT(r.id) FROM JpaRolloutGroup r WHERE r.rollout.id = :rolloutId and (r.status = :status1 or r.status = :status2)")
     Long countByRolloutIdAndStatusOrStatus(@Param("rolloutId") long rolloutId,
-            @Param("status1") RolloutGroupStatus rolloutGroupStatus1,
-            @Param("status2") RolloutGroupStatus rolloutGroupStatus2);
+                                           @Param("status1") RolloutGroupStatus rolloutGroupStatus1,
+                                           @Param("status2") RolloutGroupStatus rolloutGroupStatus2);
 
     /**
      * 
