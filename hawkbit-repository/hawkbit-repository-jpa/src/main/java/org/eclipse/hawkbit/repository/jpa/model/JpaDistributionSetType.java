@@ -198,22 +198,6 @@ public class JpaDistributionSetType extends AbstractJpaNamedEntity implements Di
 
         return this;
     }
-    
-    public JpaDistributionSetType removeAllMandatotyTypes() {
-        if (elements == null) {
-            return this;
-        }
-        elements = elements.stream().filter(element -> !element.isMandatory()).collect(Collectors.toSet());
-        return this;
-    }
-    
-    public JpaDistributionSetType removeAllOptionalTypes() {
-        if (elements == null) {
-            return this;
-        }
-        elements = elements.stream().filter(DistributionSetTypeElement::isMandatory).collect(Collectors.toSet());
-        return this;
-    }
 
     @Override
     public String getKey() {
