@@ -54,8 +54,8 @@ import org.eclipse.persistence.sessions.changesets.ObjectChangeSet;
  *
  */
 @Entity
-@Table(name = "sp_rollout", uniqueConstraints = @UniqueConstraint(columnNames = { "name",
-        "tenant" }, name = "uk_rollout"))
+@Table(name = "sp_rollout", uniqueConstraints = @UniqueConstraint(columnNames = {"name",
+        "tenant"}, name = "uk_rollout"))
 // exception squid:S2160 - BaseEntity equals/hashcode is handling correctly for
 // sub entities
 @SuppressWarnings("squid:S2160")
@@ -93,7 +93,8 @@ public class JpaRollout extends AbstractJpaNamedEntity implements Rollout, Event
             @ConversionValue(objectValue = "DELETING", dataValue = "9"),
             @ConversionValue(objectValue = "DELETED", dataValue = "10"),
             @ConversionValue(objectValue = "WAITING_FOR_APPROVAL", dataValue = "11"),
-            @ConversionValue(objectValue = "APPROVAL_DENIED", dataValue = "12") })
+            @ConversionValue(objectValue = "APPROVAL_DENIED", dataValue = "12"),
+            @ConversionValue(objectValue = "FINISHED_WITH_ERROR", dataValue = "13")})
     @Convert("rolloutstatus")
     @NotNull
     private RolloutStatus status = RolloutStatus.CREATING;
@@ -106,7 +107,7 @@ public class JpaRollout extends AbstractJpaNamedEntity implements Rollout, Event
             @ConversionValue(objectValue = "FORCED", dataValue = "0"),
             @ConversionValue(objectValue = "SOFT", dataValue = "1"),
             @ConversionValue(objectValue = "TIMEFORCED", dataValue = "2"),
-            @ConversionValue(objectValue = "DOWNLOAD_ONLY", dataValue = "3") })
+            @ConversionValue(objectValue = "DOWNLOAD_ONLY", dataValue = "3")})
     @Convert("actionType")
     @NotNull
     private ActionType actionType = ActionType.FORCED;
