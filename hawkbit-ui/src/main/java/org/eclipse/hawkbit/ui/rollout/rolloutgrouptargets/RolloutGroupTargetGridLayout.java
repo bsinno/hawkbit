@@ -67,6 +67,10 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
                 uiState.getParentRolloutName());
     }
 
+    public void refreshGridItems() {
+        rolloutGroupTargetsListGrid.getDataProvider().refreshAll();
+    }
+
     public Layout getLayout() {
         return Layout.ROLLOUT_GROUP_TARGET_LIST;
     }
