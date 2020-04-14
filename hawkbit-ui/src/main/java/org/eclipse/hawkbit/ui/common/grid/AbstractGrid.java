@@ -14,17 +14,12 @@ import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.RefreshableContainer;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.components.grid.GridSelectionModel;
-import com.vaadin.ui.components.grid.Header.Row;
-import com.vaadin.ui.components.grid.HeaderRow;
 
 /**
  * Abstract grid that offers various capabilities (aka support) to offer
@@ -215,34 +210,4 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      * @return id of the grid
      */
     public abstract String getGridId();
-
-    // TODO: check if it is needed
-    /**
-     * Resets the default row of the header. This means the current default row
-     * is removed and replaced with a newly created one.
-     *
-     * @return the new and clean header row.
-     */
-    protected HeaderRow resetHeaderDefaultRow() {
-        getHeader().removeRow(getHeader().getDefaultRow());
-        final Row newHeaderRow = getHeader().addRowAt(0);
-        getHeader().setDefaultRow(newHeaderRow);
-        return newHeaderRow;
-    }
-
-    // TODO move to GridComponentBuilder
-    protected Label buildLabelIcon(final ProxyFontIcon fontIcon, final String id) {
-        if (fontIcon == null) {
-            return new Label("");
-        }
-
-        final Label labelIcon = new Label(fontIcon.getHtml(), ContentMode.HTML);
-        labelIcon.setId(id);
-        labelIcon.setDescription(fontIcon.getDescription());
-        labelIcon.addStyleName("small");
-        labelIcon.addStyleName("font-icon");
-        labelIcon.addStyleName(fontIcon.getStyle());
-
-        return labelIcon;
-    }
 }

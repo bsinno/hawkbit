@@ -35,6 +35,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutLayoutUIState;
@@ -305,7 +306,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID).append(".")
                 .append(rollout.getId()).toString();
 
-        return buildLabelIcon(statusFontIcon, statusId);
+        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
     }
 
     private Label buildTypeIcon(final ProxyRollout rollout) {
@@ -316,7 +317,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         final String actionTypeId = new StringBuilder(UIComponentIdProvider.ROLLOUT_ACTION_TYPE_LABEL_ID).append(".")
                 .append(rollout.getId()).toString();
 
-        return buildLabelIcon(actionTypeFontIcon, actionTypeId);
+        return SPUIComponentProvider.getLabelIcon(actionTypeFontIcon, actionTypeId);
     }
 
     private void addActionColumns() {

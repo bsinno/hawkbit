@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.components;
 
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonDecorator;
+import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,9 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 
 /**
@@ -126,5 +129,20 @@ public final class SPUIComponentProvider {
         link.setDescription(i18n.getMessage("tooltip.documentation.link"));
         return link;
 
+    }
+
+    public static Label getLabelIcon(final ProxyFontIcon fontIcon, final String id) {
+        if (fontIcon == null) {
+            return new Label("");
+        }
+
+        final Label labelIcon = new Label(fontIcon.getHtml(), ContentMode.HTML);
+        labelIcon.setId(id);
+        labelIcon.setDescription(fontIcon.getDescription());
+        labelIcon.addStyleName("small");
+        labelIcon.addStyleName("font-icon");
+        labelIcon.addStyleName(fontIcon.getStyle());
+
+        return labelIcon;
     }
 }

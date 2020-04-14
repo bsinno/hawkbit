@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -139,7 +140,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
         final String targetStatusId = new StringBuilder(TARGET_STATUS_ID).append(".").append(target.getId()).toString();
 
-        return buildLabelIcon(targetStatusFontIcon, targetStatusId);
+        return SPUIComponentProvider.getLabelIcon(targetStatusFontIcon, targetStatusId);
     }
 
     public void restoreState() {

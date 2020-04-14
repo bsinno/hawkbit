@@ -24,6 +24,7 @@ import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupLayoutUIState;
@@ -161,7 +162,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID).append(".")
                 .append(rolloutGroup.getId()).toString();
 
-        return buildLabelIcon(statusFontIcon, statusId);
+        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
     }
 
     private Button buildRolloutGroupLink(final ProxyRolloutGroup rolloutGroup) {

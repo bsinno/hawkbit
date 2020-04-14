@@ -22,6 +22,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetWithActionStatusToProxyT
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupTargetsDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupTargetLayoutUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -147,7 +148,7 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
         final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_STATUS_LABEL_ID)
                 .append(".").append(target.getId()).toString();
 
-        return buildLabelIcon(statusFontIcon, statusId);
+        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
     }
 
     private ProxyFontIcon getFontIconFromStatusMap(final Status status, final Optional<RolloutGroup> group) {

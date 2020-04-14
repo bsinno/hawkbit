@@ -33,6 +33,7 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -273,7 +274,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
         final String statusId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_STATUS_LABEL_ID)
                 .append(".").append(action.getId()).toString();
 
-        return buildLabelIcon(statusFontIcon, statusId);
+        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
     }
 
     private Label buildActiveStatusIcon(final ProxyAction action) {
@@ -285,7 +286,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
         final String activeStatusId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_ACTIVESTATE_LABEL_ID)
                 .append(".").append(action.getId()).toString();
 
-        return buildLabelIcon(activeStatusFontIcon, activeStatusId);
+        return SPUIComponentProvider.getLabelIcon(activeStatusFontIcon, activeStatusId);
     }
 
     private Label buildTypeIcon(final ProxyAction action) {
@@ -296,7 +297,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
         final String actionTypeId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID)
                 .append(".").append(action.getId()).toString();
 
-        return buildLabelIcon(actionTypeFontIcon, actionTypeId);
+        return SPUIComponentProvider.getLabelIcon(actionTypeFontIcon, actionTypeId);
     }
 
     private Label buildTimeforcedIcon(final ProxyAction action) {
@@ -324,7 +325,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
         final String actionTypeId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_TIMEFORCED_LABEL_ID)
                 .append(".").append(action.getId()).toString();
 
-        return buildLabelIcon(timeforcedFontIcon, actionTypeId);
+        return SPUIComponentProvider.getLabelIcon(timeforcedFontIcon, actionTypeId);
     }
 
     private void addActionColumns() {

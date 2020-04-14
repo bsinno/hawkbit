@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -128,7 +129,7 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
         final String statusId = new StringBuilder(UIComponentIdProvider.ACTION_STATUS_GRID_STATUS_LABEL_ID).append(".")
                 .append(actionStatus.getId()).toString();
 
-        return buildLabelIcon(statusFontIcon, statusId);
+        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
     }
 
     public void updateMasterEntityFilter(final Long masterEntityId) {

@@ -32,6 +32,7 @@ import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -241,7 +242,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         final String actionTypeId = new StringBuilder(UIComponentIdProvider.TARGET_FILTER_TABLE_TYPE_LABEL_ID)
                 .append(".").append(targetFilter.getId()).toString();
 
-        return buildLabelIcon(actionTypeFontIcon, actionTypeId);
+        return SPUIComponentProvider.getLabelIcon(actionTypeFontIcon, actionTypeId);
     }
 
     // TODO: remove duplication

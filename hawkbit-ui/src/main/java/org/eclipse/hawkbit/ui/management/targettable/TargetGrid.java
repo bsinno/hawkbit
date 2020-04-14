@@ -48,6 +48,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
@@ -402,7 +403,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         final String targetStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID).append(".")
                 .append(target.getId()).toString();
 
-        return buildLabelIcon(targetStatusFontIcon, targetStatusId);
+        return SPUIComponentProvider.getLabelIcon(targetStatusFontIcon, targetStatusId);
     }
 
     private Label buildTargetPollingStatusIcon(final ProxyTarget target) {
@@ -417,7 +418,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         final String pollStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_POLLING_STATUS_LABEL_ID)
                 .append(".").append(target.getId()).toString();
 
-        return buildLabelIcon(pollStatusFontIcon, pollStatusId);
+        return SPUIComponentProvider.getLabelIcon(pollStatusFontIcon, pollStatusId);
     }
 
     private void addActionColumns() {
