@@ -9,8 +9,11 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterCountMessageLabel;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupTargetLayoutUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -28,6 +31,7 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     private final transient TargetFilterCountMessageLabel rolloutGroupTargetCountMessageLabel;
 
     private final transient RolloutGroupTargetGridLayoutEventListener eventListener;
+    private final transient EntityModifiedListener<ProxyRolloutGroup> entityModifiedListener;
 
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final RolloutGroupManagement rolloutGroupManagement, final RolloutGroupTargetLayoutUIState uiState) {
@@ -39,6 +43,10 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
         initGridDataUpdatedListener();
 
         this.eventListener = new RolloutGroupTargetGridLayoutEventListener(this, eventBus);
+
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
+                rolloutGroupTargetsListGrid::refreshContainer, ProxyRolloutGroup.class)
+                        .parentEntityType(ProxyRollout.class).build();
 
         buildLayout(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid, rolloutGroupTargetCountMessageLabel);
     }
@@ -68,7 +76,7 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     }
 
     public void refreshGridItems() {
-        rolloutGroupTargetsListGrid.getDataProvider().refreshAll();
+        rolloutGroupTargetsListGrid.refreshContainer();
     }
 
     public Layout getLayout() {
@@ -80,5 +88,7 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
      */
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        entityModifiedListener.unsubscribe();
     }
 }

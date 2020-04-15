@@ -74,8 +74,9 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
         this.eventListener = new DistributionTagLayoutEventListener(this, eventBus);
 
-        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, distributionTagButtons::refreshContainer,
-                ProxyTag.class, ProxyDistributionSet.class);
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
+                distributionTagButtons::refreshContainer, ProxyTag.class).parentEntityType(ProxyDistributionSet.class)
+                        .build();
 
         buildLayout();
     }

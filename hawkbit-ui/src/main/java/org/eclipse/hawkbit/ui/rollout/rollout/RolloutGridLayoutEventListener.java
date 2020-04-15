@@ -3,9 +3,6 @@ package org.eclipse.hawkbit.ui.rollout.rollout;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
@@ -40,7 +37,6 @@ public class RolloutGridLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new SearchFilterListener());
-        eventListeners.add(new EnityModifiedListener());
     }
 
     private class SearchFilterListener {
@@ -55,27 +51,6 @@ public class RolloutGridLayoutEventListener {
             }
 
             rolloutGridLayout.filterGridByName(payload.getFilter());
-        }
-    }
-
-    private class EnityModifiedListener {
-        public EnityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onRolloutModified(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyRollout.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            final EntityModifiedEventType modificationType = eventPayload.getEntityModifiedEventType();
-            if (modificationType == EntityModifiedEventType.ENTITY_ADDED
-                    || modificationType == EntityModifiedEventType.ENTITY_REMOVED) {
-                rolloutGridLayout.refreshGrid();
-            } else if (modificationType == EntityModifiedEventType.ENTITY_UPDATED) {
-                rolloutGridLayout.refreshGridItems(eventPayload.getEntityIds());
-            }
         }
     }
 

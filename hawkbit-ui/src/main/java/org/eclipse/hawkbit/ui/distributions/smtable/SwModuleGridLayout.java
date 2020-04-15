@@ -80,8 +80,8 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 Collections.singletonList(swModuleGrid), getView(), Layout.DS_LIST);
         this.masterSmEntityChangedListener = new MasterEntityChangedListener<>(eventBus,
                 getMasterEntityAwareComponents(), getView(), getLayout());
-        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, swModuleGrid::refreshContainer,
-                getEntityModifiedAwareSupports(), ProxySoftwareModule.class);
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, swModuleGrid::refreshContainer,
+                ProxySoftwareModule.class).entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(swModuleGridHeader, swModuleGrid, softwareModuleDetailsHeader, swModuleDetails);
     }

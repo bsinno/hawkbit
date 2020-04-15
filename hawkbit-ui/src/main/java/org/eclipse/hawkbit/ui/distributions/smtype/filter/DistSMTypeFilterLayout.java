@@ -88,8 +88,9 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
 
         this.eventListener = new DistSMTypeFilterLayoutEventListener(this, eventBus);
 
-        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, distSMTypeFilterButtons::refreshContainer,
-                ProxyType.class, ProxySoftwareModule.class);
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
+                distSMTypeFilterButtons::refreshContainer, ProxyType.class).parentEntityType(ProxySoftwareModule.class)
+                        .build();
 
         updateSmTypeStyles();
         buildLayout();

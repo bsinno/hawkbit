@@ -68,8 +68,9 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
 
         this.eventListener = new SMTypeFilterLayoutEventListener(this, eventBus);
 
-        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, sMTypeFilterButtons::refreshContainer,
-                ProxyType.class, ProxySoftwareModule.class);
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
+                sMTypeFilterButtons::refreshContainer, ProxyType.class).parentEntityType(ProxySoftwareModule.class)
+                        .build();
 
         buildLayout();
     }

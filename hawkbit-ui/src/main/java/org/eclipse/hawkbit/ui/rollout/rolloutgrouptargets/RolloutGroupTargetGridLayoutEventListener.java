@@ -11,12 +11,8 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
 import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
@@ -41,7 +37,6 @@ public class RolloutGroupTargetGridLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new ShowRolloutGroupTargetsLayoutListener());
-        eventListeners.add(new EnityModifiedListener());
     }
 
     private class ShowRolloutGroupTargetsLayoutListener {
@@ -60,28 +55,6 @@ public class RolloutGroupTargetGridLayoutEventListener {
 
             eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
                     VisibilityType.SHOW, rolloutGroupTargetGridLayout.getLayout(), View.ROLLOUT));
-        }
-    }
-
-    private class EnityModifiedListener {
-        public EnityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onRolloutGroupModified(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyRollout.class.equals(eventPayload.getParentType())
-                    || !ProxyRolloutGroup.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            final EntityModifiedEventType modificationType = eventPayload.getEntityModifiedEventType();
-            if (modificationType == EntityModifiedEventType.ENTITY_UPDATED) {
-                final Long currentGroupId = rolloutGroupTargetGridLayout.getCurrentRolloutGroupId();
-                if (currentGroupId != null && eventPayload.getEntityIds().contains(currentGroupId)) {
-                    rolloutGroupTargetGridLayout.refreshGridItems();
-                }
-            }
         }
     }
 

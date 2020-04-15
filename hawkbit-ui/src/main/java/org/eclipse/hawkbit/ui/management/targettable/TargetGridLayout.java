@@ -99,8 +99,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
-        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, targetGrid::refreshContainer,
-                getEntityModifiedAwareSupports(), ProxyTarget.class);
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, targetGrid::refreshContainer,
+                ProxyTarget.class).entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }

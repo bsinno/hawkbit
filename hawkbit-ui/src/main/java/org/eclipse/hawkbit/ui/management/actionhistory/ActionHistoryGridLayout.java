@@ -59,8 +59,10 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
 
         this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), Layout.TARGET_LIST);
-        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, actionHistoryGrid::refreshContainer,
-                getEntityModifiedAwareSupports(), ProxyAction.class, ProxyTarget.class, this::getMasterEntityId);
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
+                actionHistoryGrid::refreshContainer, ProxyAction.class)
+                        .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
+                        .parentEntityType(ProxyTarget.class).parentEntityIdProvider(this::getMasterEntityId).build();
 
         buildLayout(actionHistoryHeader, actionHistoryGrid);
     }

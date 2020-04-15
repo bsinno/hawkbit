@@ -20,8 +20,10 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutLayoutUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
@@ -39,6 +41,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
     private final RolloutGrid rolloutListGrid;
 
     private final transient RolloutGridLayoutEventListener eventListener;
+    private final transient EntityModifiedListener<ProxyRollout> entityModifiedListener;
 
     public RolloutGridLayout(final SpPermissionChecker permissionChecker, final RolloutLayoutUIState uiState,
             final UIEventBus eventBus, final RolloutManagement rolloutManagement,
@@ -60,6 +63,9 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
                 uiNotification, uiState, permissionChecker, tenantConfigManagement, rolloutWindowBuilder);
 
         this.eventListener = new RolloutGridLayoutEventListener(this, eventBus);
+
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, rolloutListGrid::refreshContainer,
+                ProxyRollout.class).refreshGridItemsCallback(rolloutListGrid::updateGridItems).build();
 
         buildLayout(rolloutListHeader, rolloutListGrid);
     }
@@ -99,5 +105,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
      */
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        entityModifiedListener.unsubscribe();
     }
 }

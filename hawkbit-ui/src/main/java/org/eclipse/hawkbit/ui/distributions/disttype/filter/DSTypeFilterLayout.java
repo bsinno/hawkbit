@@ -73,8 +73,9 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
 
         this.eventListener = new DSTypeFilterLayoutEventListener(this, eventBus);
 
-        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, dSTypeFilterButtons::refreshContainer,
-                ProxyType.class, ProxyDistributionSet.class);
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
+                dSTypeFilterButtons::refreshContainer, ProxyType.class).parentEntityType(ProxyDistributionSet.class)
+                        .build();
 
         buildLayout();
     }

@@ -9,11 +9,18 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupLayoutUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -30,6 +37,7 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
     private final RolloutGroupLayoutUIState uiState;
 
     private final transient RolloutGroupGridLayoutEventListener eventListener;
+    private final transient EntityModifiedListener<ProxyRolloutGroup> entityModifiedListener;
 
     /**
      * Constructor for RolloutGroupsListView
@@ -55,7 +63,22 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new RolloutGroupGridLayoutEventListener(this, eventBus);
 
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
+                rolloutGroupListGrid::refreshContainer, ProxyRolloutGroup.class)
+                        .refreshGridItemsCallback(rolloutGroupListGrid::updateGridItems)
+                        .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
+                        .parentEntityType(ProxyRollout.class).parentEntityIdProvider(this::getMasterEntityId).build();
+
         buildLayout(rolloutGroupsListHeader, rolloutGroupListGrid);
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        // TODO: adapt
+        return Collections.emptyList();
+    }
+
+    private Optional<Long> getMasterEntityId() {
+        return Optional.ofNullable(uiState.getSelectedRolloutId());
     }
 
     public void showGroupsForRollout(final Long parentEntityId, final String parentEntityName) {
@@ -69,10 +92,6 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
         showGroupsForRollout(uiState.getSelectedRolloutId(), uiState.getSelectedRolloutName());
     }
 
-    public Long getCurrentParentRolloutId() {
-        return uiState.getSelectedRolloutId();
-    }
-
     public void refreshGridItems(final Collection<Long> ids) {
         rolloutGroupListGrid.updateGridItems(ids);
     }
@@ -83,5 +102,7 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        entityModifiedListener.unsubscribe();
     }
 }

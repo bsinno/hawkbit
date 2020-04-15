@@ -76,8 +76,9 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
         this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
-        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, softwareModuleGrid::refreshContainer,
-                getEntityModifiedAwareSupports(), ProxySoftwareModule.class);
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
+                softwareModuleGrid::refreshContainer, ProxySoftwareModule.class)
+                        .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetailsHeader, softwareModuleDetails);
     }

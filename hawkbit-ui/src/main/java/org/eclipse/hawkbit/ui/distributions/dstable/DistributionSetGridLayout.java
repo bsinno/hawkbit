@@ -91,8 +91,9 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
         this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
-        this.entityModifiedListener = new EntityModifiedListener<>(eventBus, distributionSetGrid::refreshContainer,
-                getEntityModifiedAwareSupports(), ProxyDistributionSet.class);
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
+                distributionSetGrid::refreshContainer, ProxyDistributionSet.class)
+                        .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(distributionSetGridHeader, distributionSetGrid, distributionSetDetailsHeader,
                 distributionSetDetails);
