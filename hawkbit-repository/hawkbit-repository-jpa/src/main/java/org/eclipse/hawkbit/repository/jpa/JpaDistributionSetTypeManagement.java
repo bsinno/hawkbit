@@ -11,9 +11,12 @@ package org.eclipse.hawkbit.repository.jpa;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DistributionSetTypeFields;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
@@ -21,9 +24,9 @@ import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.builder.DistributionSetTypeCreate;
 import org.eclipse.hawkbit.repository.builder.DistributionSetTypeUpdate;
 import org.eclipse.hawkbit.repository.builder.GenericDistributionSetTypeUpdate;
+import org.eclipse.hawkbit.repository.exception.AssignmentQuotaExceededException;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
-import org.eclipse.hawkbit.repository.exception.AssignmentQuotaExceededException;
 import org.eclipse.hawkbit.repository.jpa.builder.JpaDistributionSetTypeCreate;
 import org.eclipse.hawkbit.repository.jpa.configuration.Constants;
 import org.eclipse.hawkbit.repository.jpa.model.JpaDistributionSetType;
@@ -95,13 +98,37 @@ public class JpaDistributionSetTypeManagement implements DistributionSetTypeMana
         update.getDescription().ifPresent(type::setDescription);
         update.getColour().ifPresent(type::setColour);
 
-        if (hasModules(update)) {
+        if (hasModuleChanges(update)) {
             checkDistributionSetTypeSoftwareModuleTypesIsAllowedToModify(update.getId());
 
-            update.getMandatory().ifPresent(
-                    mand -> softwareModuleTypeRepository.findAllById(mand).forEach(type::addMandatoryModuleType));
-            update.getOptional().ifPresent(
-                    opt -> softwareModuleTypeRepository.findAllById(opt).forEach(type::addOptionalModuleType));
+            final Collection<Long> currentMandatory = type.getMandatoryModuleTypes().stream()
+                    .map(SoftwareModuleType::getId).collect(Collectors.toList());
+            final Collection<Long> currentOptional = type.getOptionalModuleTypes().stream()
+                    .map(SoftwareModuleType::getId).collect(Collectors.toList());
+
+            final Set<Long> modulesToKeep = new HashSet<>();
+            update.getMandatory().ifPresent(modulesToKeep::addAll);
+            update.getOptional().ifPresent(modulesToKeep::addAll);
+            if (!update.getMandatory().isPresent()) {
+                modulesToKeep.addAll(currentMandatory);
+            }
+            if (!update.getOptional().isPresent()) {
+                modulesToKeep.addAll(currentOptional);
+            }
+
+            Stream.concat(currentMandatory.stream(), currentOptional.stream()).filter(id -> !modulesToKeep.contains(id))
+                    .forEach(type::removeModuleType);
+
+            update.getMandatory().ifPresent(mand -> {
+                if (!CollectionUtils.isEmpty(mand)) {
+                    softwareModuleTypeRepository.findAllById(mand).forEach(type::addMandatoryModuleType);
+                }
+            });
+            update.getOptional().ifPresent(opt -> {
+                if (!CollectionUtils.isEmpty(opt)) {
+                    softwareModuleTypeRepository.findAllById(opt).forEach(type::addOptionalModuleType);
+                }
+            });
         }
 
         return distributionSetTypeRepository.save(type);
@@ -258,7 +285,7 @@ public class JpaDistributionSetTypeManagement implements DistributionSetTypeMana
                 .orElseThrow(() -> new EntityNotFoundException(DistributionSetType.class, setId));
     }
 
-    private static boolean hasModules(final GenericDistributionSetTypeUpdate update) {
+    private static boolean hasModuleChanges(final GenericDistributionSetTypeUpdate update) {
         return update.getOptional().isPresent() || update.getMandatory().isPresent();
     }
 
