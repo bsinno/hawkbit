@@ -32,13 +32,17 @@ import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutLayoutUIState;
+import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -90,7 +94,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private final Map<RolloutStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutStatus.class);
     private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    private final RolloutLayoutUIState rolloutLayoutUIState;
+    private final RolloutManagementUIState rolloutManagementUIState;
 
     private final transient RolloutManagement rolloutManagement;
     private final transient RolloutGroupManagement rolloutGroupManagement;
@@ -101,12 +105,12 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
     RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final RolloutManagement rolloutManagement,
             final RolloutGroupManagement rolloutGroupManagement, final UINotification uiNotification,
-            final RolloutLayoutUIState rolloutLayoutUIState, final SpPermissionChecker permissionChecker,
+            final RolloutManagementUIState rolloutManagementUIState, final SpPermissionChecker permissionChecker,
             final TenantConfigurationManagement tenantConfigManagement,
             final RolloutWindowBuilder rolloutWindowBuilder) {
         super(i18n, eventBus, permissionChecker);
 
-        this.rolloutLayoutUIState = rolloutLayoutUIState;
+        this.rolloutManagementUIState = rolloutManagementUIState;
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.tenantConfigManagement = tenantConfigManagement;
@@ -378,7 +382,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private Button buildRolloutLink(final ProxyRollout rollout) {
         final Button rolloutLink = new Button();
 
-        rolloutLink.addClickListener(clickEvent -> onClickOfRolloutName(rollout.getId(), rollout.getName()));
+        rolloutLink.addClickListener(clickEvent -> onClickOfRolloutName(rollout));
         rolloutLink.setId(new StringBuilder("rollout.link.").append(rollout.getId()).toString());
         // TODO reuse link style code from elsewhere
         rolloutLink.addStyleName("borderless");
@@ -399,9 +403,14 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         return rolloutLink;
     }
 
-    private void onClickOfRolloutName(final Long rolloutId, final String rolloutName) {
-        eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this,
-                new ShowEntityDetailsEventPayload(ProxyRollout.class, rolloutId, rolloutName, View.ROLLOUT));
+    private void onClickOfRolloutName(final ProxyRollout rollout) {
+        eventBus.publish(EventTopics.SELECTION_CHANGED, this, new SelectionChangedEventPayload<>(
+                SelectionChangedEventType.ENTITY_SELECTED, rollout, Layout.ROLLOUT_LIST, View.ROLLOUT));
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
+
+        rolloutManagementUIState.setSelectedRolloutId(rollout.getId());
+        rolloutManagementUIState.setSelectedRolloutName(rollout.getName());
     }
 
     private void pauseRollout(final Long rolloutId, final String rolloutName, final RolloutStatus rolloutStatus) {
@@ -497,6 +506,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     public void restoreState() {
-        updateSearchFilter(rolloutLayoutUIState.getSearchText().orElse(null));
+        updateSearchFilter(rolloutManagementUIState.getSearchText().orElse(null));
     }
 }

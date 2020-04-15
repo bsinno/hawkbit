@@ -19,15 +19,22 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.ShowEntityDetailsEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
+import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupLayoutUIState;
+import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -46,12 +53,13 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 /**
  * Rollout group list grid component.
  */
-public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
+public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
+        implements MasterEntityAwareComponent<ProxyRollout> {
     private static final long serialVersionUID = 1L;
 
     private static final String ROLLOUT_GROUP_LINK_ID = "rolloutGroup";
 
-    private final RolloutGroupLayoutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutManagementUIState;
     private final transient RolloutGroupManagement rolloutGroupManagement;
 
     private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
@@ -60,10 +68,10 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
     public RolloutGroupGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final RolloutGroupManagement rolloutGroupManagement,
-            final RolloutGroupLayoutUIState rolloutUIState) {
+            final RolloutManagementUIState rolloutManagementUIState) {
         super(i18n, eventBus, permissionChecker);
 
-        this.rolloutUIState = rolloutUIState;
+        this.rolloutManagementUIState = rolloutManagementUIState;
         this.rolloutGroupManagement = rolloutGroupManagement;
 
         this.rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement,
@@ -169,8 +177,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         final Button rolloutGroupLink = new Button();
 
         if (permissionChecker.hasRolloutTargetsReadPermission()) {
-            rolloutGroupLink.addClickListener(
-                    clickEvent -> onClickOfRolloutGroupName(rolloutGroup.getId(), rolloutGroup.getName()));
+            rolloutGroupLink.addClickListener(clickEvent -> onClickOfRolloutGroupName(rolloutGroup));
         }
 
         rolloutGroupLink.setId(new StringBuilder("rolloutgroup.link.").append(rolloutGroup.getId()).toString());
@@ -199,14 +206,19 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         return rolloutGroupLink;
     }
 
-    private void onClickOfRolloutGroupName(final Long rolloutGroupId, final String rolloutGroupName) {
-        eventBus.publish(CommandTopics.SHOW_ENTITY_DETAILS_LAYOUT, this,
-                new ShowEntityDetailsEventPayload(ProxyRolloutGroup.class, rolloutGroupId, rolloutGroupName,
-                        rolloutUIState.getSelectedRolloutName(), View.ROLLOUT));
+    private void onClickOfRolloutGroupName(final ProxyRolloutGroup rolloutGroup) {
+        eventBus.publish(EventTopics.SELECTION_CHANGED, this, new SelectionChangedEventPayload<>(
+                SelectionChangedEventType.ENTITY_SELECTED, rolloutGroup, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_GROUP_TARGET_LIST, View.ROLLOUT));
+
+        rolloutManagementUIState.setSelectedRolloutGroupId(rolloutGroup.getId());
+        rolloutManagementUIState.setSelectedRolloutGroupName(rolloutGroup.getName());
     }
 
-    public void updateMasterEntityFilter(final Long masterEntityId) {
-        getFilterDataProvider().setFilter(masterEntityId);
+    @Override
+    public void masterEntityChanged(final ProxyRollout masterEntity) {
+        getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getId() : null);
     }
 
     public void updateGridItems(final Collection<Long> ids) {

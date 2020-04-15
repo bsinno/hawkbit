@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutLayoutUIState;
+import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -35,17 +35,18 @@ import com.vaadin.ui.Window;
 public class RolloutGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final RolloutLayoutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutManagementUIState;
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient AddHeaderSupport addHeaderSupport;
 
-    RolloutGridHeader(final SpPermissionChecker permissionChecker, final RolloutLayoutUIState rolloutUIState,
-            final UIEventBus eventBus, final VaadinMessageSource i18n, final RolloutWindowBuilder windowBuilder) {
+    RolloutGridHeader(final SpPermissionChecker permissionChecker,
+            final RolloutManagementUIState rolloutManagementUIState, final UIEventBus eventBus,
+            final VaadinMessageSource i18n, final RolloutWindowBuilder windowBuilder) {
         super(i18n, permissionChecker, eventBus);
 
-        this.rolloutUIState = rolloutUIState;
+        this.rolloutManagementUIState = rolloutManagementUIState;
         this.rolloutWindowBuilder = windowBuilder;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.ROLLOUT_LIST_SEARCH_BOX_ID,
@@ -69,14 +70,14 @@ public class RolloutGridHeader extends AbstractGridHeader {
     }
 
     private String getSearchTextFromUiState() {
-        return rolloutUIState.getSearchText().orElse(null);
+        return rolloutManagementUIState.getSearchText().orElse(null);
     }
 
     private void searchBy(final String newSearchText) {
         eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this,
                 new SearchFilterEventPayload(newSearchText, Layout.ROLLOUT_LIST, View.ROLLOUT));
 
-        rolloutUIState.setSearchText(newSearchText);
+        rolloutManagementUIState.setSearchText(newSearchText);
     }
 
     private void addNewRollout() {

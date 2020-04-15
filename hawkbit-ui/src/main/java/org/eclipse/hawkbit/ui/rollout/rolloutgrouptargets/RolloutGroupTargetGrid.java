@@ -20,11 +20,13 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetWithActionStatusToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupTargetsDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupTargetLayoutUIState;
+import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -40,10 +42,11 @@ import com.vaadin.ui.Label;
 /**
  * Grid component with targets of rollout group.
  */
-public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
+public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
+        implements MasterEntityAwareComponent<ProxyRolloutGroup> {
     private static final long serialVersionUID = 1L;
 
-    private final RolloutGroupTargetLayoutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutManagementUIState;
 
     private final transient RolloutGroupManagement rolloutGroupManagement;
 
@@ -62,9 +65,10 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
      *            RolloutUIState
      */
     public RolloutGroupTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final RolloutGroupManagement rolloutGroupManagement, final RolloutGroupTargetLayoutUIState rolloutUIState) {
+            final RolloutGroupManagement rolloutGroupManagement,
+            final RolloutManagementUIState rolloutManagementUIState) {
         super(i18n, eventBus, null);
-        this.rolloutUIState = rolloutUIState;
+        this.rolloutManagementUIState = rolloutManagementUIState;
         this.rolloutGroupManagement = rolloutGroupManagement;
 
         this.rolloutGroupTargetsDataProvider = new RolloutGroupTargetsDataProvider(rolloutGroupManagement,
@@ -139,7 +143,8 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
     }
 
     private Label buildStatusIcon(final ProxyTarget target) {
-        final Optional<RolloutGroup> group = rolloutGroupManagement.get(rolloutUIState.getSelectedRolloutGroupId());
+        final Optional<RolloutGroup> group = rolloutGroupManagement
+                .get(rolloutManagementUIState.getSelectedRolloutGroupId());
 
         final ProxyFontIcon statusFontIcon = target.getStatus() == null || statusIconMap.get(target.getStatus()) == null
                 ? buildDefaultStatusIcon(group)
@@ -183,5 +188,10 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
 
     public void updateMasterEntityFilter(final Long masterEntityId) {
         getFilterDataProvider().setFilter(masterEntityId);
+    }
+
+    @Override
+    public void masterEntityChanged(final ProxyRolloutGroup masterEntity) {
+        getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getId() : null);
     }
 }

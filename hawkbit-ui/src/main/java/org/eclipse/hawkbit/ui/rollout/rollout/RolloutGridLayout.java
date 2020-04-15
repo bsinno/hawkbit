@@ -24,7 +24,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutLayoutUIState;
+import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -43,11 +43,11 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
     private final transient RolloutGridLayoutEventListener eventListener;
     private final transient EntityModifiedListener<ProxyRollout> entityModifiedListener;
 
-    public RolloutGridLayout(final SpPermissionChecker permissionChecker, final RolloutLayoutUIState uiState,
-            final UIEventBus eventBus, final RolloutManagement rolloutManagement,
-            final TargetManagement targetManagement, final UINotification uiNotification,
-            final UiProperties uiProperties, final EntityFactory entityFactory, final VaadinMessageSource i18n,
-            final TargetFilterQueryManagement targetFilterQueryManagement,
+    public RolloutGridLayout(final SpPermissionChecker permissionChecker,
+            final RolloutManagementUIState rolloutManagementUIState, final UIEventBus eventBus,
+            final RolloutManagement rolloutManagement, final TargetManagement targetManagement,
+            final UINotification uiNotification, final UiProperties uiProperties, final EntityFactory entityFactory,
+            final VaadinMessageSource i18n, final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
             final TenantConfigurationManagement tenantConfigManagement,
             final DistributionSetManagement distributionSetManagement) {
@@ -57,10 +57,11 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
 
         final RolloutWindowBuilder rolloutWindowBuilder = new RolloutWindowBuilder(rolloutWindowDependecies);
 
-        this.rolloutListHeader = new RolloutGridHeader(permissionChecker, uiState, eventBus, i18n,
+        this.rolloutListHeader = new RolloutGridHeader(permissionChecker, rolloutManagementUIState, eventBus, i18n,
                 rolloutWindowBuilder);
         this.rolloutListGrid = new RolloutGrid(i18n, eventBus, rolloutManagement, rolloutGroupManagement,
-                uiNotification, uiState, permissionChecker, tenantConfigManagement, rolloutWindowBuilder);
+                uiNotification, rolloutManagementUIState, permissionChecker, tenantConfigManagement,
+                rolloutWindowBuilder);
 
         this.eventListener = new RolloutGridLayoutEventListener(this, eventBus);
 

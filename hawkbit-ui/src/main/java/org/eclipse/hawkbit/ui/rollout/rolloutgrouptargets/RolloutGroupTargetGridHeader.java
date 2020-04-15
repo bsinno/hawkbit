@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
@@ -18,9 +19,10 @@ import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.Visibili
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupTargetLayoutUIState;
+import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -36,10 +38,11 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 // TODO: consider extending RolloutGroupsListHeader in order to remove
 // duplication
-public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
+public class RolloutGroupTargetGridHeader extends AbstractGridHeader
+        implements MasterEntityAwareComponent<ProxyRolloutGroup> {
     private static final long serialVersionUID = 1L;
 
-    private final RolloutGroupTargetLayoutUIState rolloutUIState;
+    private final RolloutManagementUIState rolloutManagementUIState;
 
     private final Button rolloutNameLink;
     private final Label headerCaptionDetails;
@@ -47,10 +50,10 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
     private final transient CloseHeaderSupport closeHeaderSupport;
 
     public RolloutGroupTargetGridHeader(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final RolloutGroupTargetLayoutUIState rolloutUiState) {
+            final RolloutManagementUIState rolloutManagementUIState) {
         super(i18n, null, eventBus);
 
-        this.rolloutUIState = rolloutUiState;
+        this.rolloutManagementUIState = rolloutManagementUIState;
 
         this.rolloutNameLink = createRolloutNameLink();
         this.headerCaptionDetails = createHeaderCaptionDetails();
@@ -59,7 +62,6 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
                 UIComponentIdProvider.ROLLOUT_TARGET_VIEW_CLOSE_BUTTON_ID, this::closeRolloutGroupTargets);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
-        restoreState();
         buildHeader();
     }
 
@@ -76,9 +78,8 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
     }
 
     private void closeRolloutGroupTargets() {
-        rolloutUIState.setParentRolloutName("");
-        rolloutUIState.setSelectedRolloutGroupId(null);
-        rolloutUIState.setSelectedRolloutGroupName("");
+        rolloutManagementUIState.setSelectedRolloutGroupId(null);
+        rolloutManagementUIState.setSelectedRolloutGroupName("");
 
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
                 new LayoutVisibilityEventPayload(VisibilityType.HIDE, Layout.ROLLOUT_GROUP_TARGET_LIST, View.ROLLOUT));
@@ -123,15 +124,14 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader {
 
     @Override
     protected void restoreCaption() {
-        rolloutNameLink.setCaption(rolloutUIState.getParentRolloutName());
-        headerCaptionDetails.setValue(rolloutUIState.getSelectedRolloutGroupName());
+        rolloutNameLink.setCaption(rolloutManagementUIState.getSelectedRolloutName());
+        headerCaptionDetails.setValue(rolloutManagementUIState.getSelectedRolloutGroupName());
     }
 
-    public void setRolloutName(final String rolloutName) {
-        rolloutNameLink.setCaption(rolloutName);
-    }
-
-    public void setRolloutGroupName(final String groupName) {
-        headerCaptionDetails.setValue(groupName);
+    @Override
+    public void masterEntityChanged(final ProxyRolloutGroup masterEntity) {
+        // TODO: try not to use the uiState here
+        rolloutNameLink.setCaption(rolloutManagementUIState.getSelectedRolloutName());
+        headerCaptionDetails.setValue(masterEntity != null ? masterEntity.getName() : "");
     }
 }

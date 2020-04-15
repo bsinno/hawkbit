@@ -8,14 +8,20 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterCountMessageLabel;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupTargetLayoutUIState;
+import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -27,22 +33,26 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
 
     private final RolloutGroupTargetGridHeader rolloutGroupTargetsListHeader;
     private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
-    private final RolloutGroupTargetLayoutUIState uiState;
+    private final RolloutManagementUIState rolloutManagementUIState;
     private final transient TargetFilterCountMessageLabel rolloutGroupTargetCountMessageLabel;
 
-    private final transient RolloutGroupTargetGridLayoutEventListener eventListener;
+    private final transient MasterEntityChangedListener<ProxyRolloutGroup> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyRolloutGroup> entityModifiedListener;
 
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final RolloutGroupManagement rolloutGroupManagement, final RolloutGroupTargetLayoutUIState uiState) {
-        this.rolloutGroupTargetsListHeader = new RolloutGroupTargetGridHeader(eventBus, i18n, uiState);
-        this.rolloutGroupTargetsListGrid = new RolloutGroupTargetGrid(i18n, eventBus, rolloutGroupManagement, uiState);
+            final RolloutGroupManagement rolloutGroupManagement,
+            final RolloutManagementUIState rolloutManagementUIState) {
+        this.rolloutManagementUIState = rolloutManagementUIState;
+
+        this.rolloutGroupTargetsListHeader = new RolloutGroupTargetGridHeader(eventBus, i18n, rolloutManagementUIState);
+        this.rolloutGroupTargetsListGrid = new RolloutGroupTargetGrid(i18n, eventBus, rolloutGroupManagement,
+                rolloutManagementUIState);
         this.rolloutGroupTargetCountMessageLabel = new TargetFilterCountMessageLabel(i18n);
-        this.uiState = uiState;
 
         initGridDataUpdatedListener();
 
-        this.eventListener = new RolloutGroupTargetGridLayoutEventListener(this, eventBus);
+        this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                getView(), Layout.ROLLOUT_GROUP_LIST);
 
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
                 rolloutGroupTargetsListGrid::refreshContainer, ProxyRolloutGroup.class)
@@ -57,38 +67,33 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
                         .updateTotalFilteredTargetsCount(rolloutGroupTargetsListGrid.getDataSize()));
     }
 
-    public void showTargetsForGroup(final Long groupId, final String groupName, final String rolloutName) {
-        uiState.setSelectedRolloutGroupId(groupId);
-        uiState.setParentRolloutName(rolloutName);
-        uiState.setSelectedRolloutGroupName(groupName);
-        rolloutGroupTargetsListHeader.setRolloutName(rolloutName);
-        rolloutGroupTargetsListHeader.setRolloutGroupName(groupName);
-        rolloutGroupTargetsListGrid.updateMasterEntityFilter(groupId);
+    private List<MasterEntityAwareComponent<ProxyRolloutGroup>> getMasterEntityAwareComponents() {
+        return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid);
     }
 
     public Long getCurrentRolloutGroupId() {
-        return uiState.getSelectedRolloutGroupId();
+        return rolloutManagementUIState.getSelectedRolloutGroupId();
     }
 
     public void restoreState() {
-        showTargetsForGroup(uiState.getSelectedRolloutGroupId(), uiState.getSelectedRolloutGroupName(),
-                uiState.getParentRolloutName());
-    }
-
-    public void refreshGridItems() {
-        rolloutGroupTargetsListGrid.refreshContainer();
+        rolloutGroupTargetsListHeader.restoreState();
+        // TODO:
+        // rolloutGroupTargetsListGrid.restoreState();
     }
 
     public Layout getLayout() {
         return Layout.ROLLOUT_GROUP_TARGET_LIST;
     }
 
+    public View getView() {
+        return View.ROLLOUT;
+    }
+
     /**
      * unsubscribe all listener
      */
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
+        masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
     }
 }

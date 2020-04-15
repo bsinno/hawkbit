@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
@@ -18,9 +19,10 @@ import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.Visibili
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
-import org.eclipse.hawkbit.ui.rollout.state.RolloutGroupLayoutUIState;
+import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -34,10 +36,10 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * Header Layout of Rollout Group list view.
  */
-public class RolloutGroupGridHeader extends AbstractGridHeader {
+public class RolloutGroupGridHeader extends AbstractGridHeader implements MasterEntityAwareComponent<ProxyRollout> {
     private static final long serialVersionUID = 1L;
 
-    private final RolloutGroupLayoutUIState uiState;
+    private final RolloutManagementUIState rolloutManagementUIState;
     private final Label headerCaptionDetails;
 
     /**
@@ -50,23 +52,23 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
      * @param i18n
      *            I18N
      */
-    public RolloutGroupGridHeader(final UIEventBus eventBus, final RolloutGroupLayoutUIState uiState,
+    public RolloutGroupGridHeader(final UIEventBus eventBus, final RolloutManagementUIState rolloutManagementUIState,
             final VaadinMessageSource i18n) {
         super(i18n, null, eventBus);
 
         this.headerCaptionDetails = createHeaderCaptionDetails();
-        this.uiState = uiState;
+        this.rolloutManagementUIState = rolloutManagementUIState;
 
         final CloseHeaderSupport closeHeaderSupport = new CloseHeaderSupport(i18n,
                 UIComponentIdProvider.ROLLOUT_GROUP_CLOSE, this::closeRolloutGroups);
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
-        restoreState();
         buildHeader();
     }
 
-    public void setRolloutName(final String rolloutName) {
-        headerCaptionDetails.setValue(rolloutName);
+    @Override
+    public void masterEntityChanged(final ProxyRollout masterEntity) {
+        headerCaptionDetails.setValue(masterEntity != null ? masterEntity.getName() : "");
     }
 
     private static Label createHeaderCaptionDetails() {
@@ -97,8 +99,8 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
     }
 
     public void closeRolloutGroups() {
-        uiState.setSelectedRolloutId(null);
-        uiState.setSelectedRolloutName("");
+        rolloutManagementUIState.setSelectedRolloutId(null);
+        rolloutManagementUIState.setSelectedRolloutName("");
 
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
                 new LayoutVisibilityEventPayload(VisibilityType.HIDE, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
@@ -106,6 +108,6 @@ public class RolloutGroupGridHeader extends AbstractGridHeader {
 
     @Override
     protected void restoreCaption() {
-        headerCaptionDetails.setValue(uiState.getSelectedRolloutName());
+        headerCaptionDetails.setValue(rolloutManagementUIState.getSelectedRolloutName());
     }
 }

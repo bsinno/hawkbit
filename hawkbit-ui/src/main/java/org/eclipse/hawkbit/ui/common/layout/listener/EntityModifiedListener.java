@@ -18,7 +18,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -145,9 +144,7 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
 
         public Builder<T> entityModifiedAwareSupports(
                 final List<EntityModifiedAwareSupport> entityModifiedAwareSupports) {
-            this.entityModifiedAwareSupports = CollectionUtils.isEmpty(entityModifiedAwareSupports)
-                    ? Collections.emptyList()
-                    : entityModifiedAwareSupports;
+            this.entityModifiedAwareSupports = entityModifiedAwareSupports;
             return this;
         }
 
@@ -162,6 +159,10 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
         }
 
         public EntityModifiedListener<T> build() {
+            if (entityModifiedAwareSupports == null) {
+                entityModifiedAwareSupports = Collections.emptyList();
+            }
+
             return new EntityModifiedListener<>(eventBus, refreshGridCallback, refreshGridItemsCallback,
                     entityModifiedAwareSupports, entityType, parentEntityType, parentEntityIdProvider);
         }
