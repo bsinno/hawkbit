@@ -11,10 +11,11 @@ package org.eclipse.hawkbit.repository.jpa;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -101,37 +102,45 @@ public class JpaDistributionSetTypeManagement implements DistributionSetTypeMana
         if (hasModuleChanges(update)) {
             checkDistributionSetTypeSoftwareModuleTypesIsAllowedToModify(update.getId());
 
-            final Collection<Long> currentMandatory = type.getMandatoryModuleTypes().stream()
-                    .map(SoftwareModuleType::getId).collect(Collectors.toList());
-            final Collection<Long> currentOptional = type.getOptionalModuleTypes().stream()
-                    .map(SoftwareModuleType::getId).collect(Collectors.toList());
+            final Collection<Long> currentMandatorySmTypeIds = type.getMandatoryModuleTypes().stream()
+                    .map(SoftwareModuleType::getId).collect(Collectors.toSet());
+            final Collection<Long> currentOptionalSmTypeIds = type.getOptionalModuleTypes().stream()
+                    .map(SoftwareModuleType::getId).collect(Collectors.toSet());
+            final Collection<Long> currentSmTypeIds = Stream
+                    .concat(currentMandatorySmTypeIds.stream(), currentOptionalSmTypeIds.stream())
+                    .collect(Collectors.toSet());
 
-            final Set<Long> modulesToKeep = new HashSet<>();
-            update.getMandatory().ifPresent(modulesToKeep::addAll);
-            update.getOptional().ifPresent(modulesToKeep::addAll);
-            if (!update.getMandatory().isPresent()) {
-                modulesToKeep.addAll(currentMandatory);
-            }
-            if (!update.getOptional().isPresent()) {
-                modulesToKeep.addAll(currentOptional);
-            }
+            final Collection<Long> updatedMandatorySmTypeIds = update.getMandatory().orElse(currentMandatorySmTypeIds);
+            final Collection<Long> updatedOptionalSmTypeIds = update.getOptional().orElse(currentOptionalSmTypeIds);
+            final Collection<Long> updatedSmTypeIds = Stream
+                    .concat(updatedMandatorySmTypeIds.stream(), updatedOptionalSmTypeIds.stream())
+                    .collect(Collectors.toSet());
 
-            Stream.concat(currentMandatory.stream(), currentOptional.stream()).filter(id -> !modulesToKeep.contains(id))
-                    .forEach(type::removeModuleType);
+            addModuleTypes(currentMandatorySmTypeIds, updatedMandatorySmTypeIds, type::addMandatoryModuleType);
+            addModuleTypes(currentOptionalSmTypeIds, updatedOptionalSmTypeIds, type::addOptionalModuleType);
 
-            update.getMandatory().ifPresent(mand -> {
-                if (!CollectionUtils.isEmpty(mand)) {
-                    softwareModuleTypeRepository.findAllById(mand).forEach(type::addMandatoryModuleType);
-                }
-            });
-            update.getOptional().ifPresent(opt -> {
-                if (!CollectionUtils.isEmpty(opt)) {
-                    softwareModuleTypeRepository.findAllById(opt).forEach(type::addOptionalModuleType);
-                }
-            });
+            removeModuleTypes(currentSmTypeIds, updatedSmTypeIds, type::removeModuleType);
         }
 
         return distributionSetTypeRepository.save(type);
+    }
+
+    private void addModuleTypes(final Collection<Long> currentSmTypeIds, final Collection<Long> updatedSmTypeIds,
+            final Function<SoftwareModuleType, JpaDistributionSetType> addModuleTypeCallback) {
+        final Set<Long> smTypeIdsToAdd = updatedSmTypeIds.stream().filter(id -> !currentSmTypeIds.contains(id))
+                .collect(Collectors.toSet());
+        if (!CollectionUtils.isEmpty(smTypeIdsToAdd)) {
+            softwareModuleTypeRepository.findAllById(smTypeIdsToAdd).forEach(addModuleTypeCallback::apply);
+        }
+    }
+
+    private void removeModuleTypes(final Collection<Long> currentSmTypeIds, final Collection<Long> updatedSmTypeIds,
+            final LongFunction<JpaDistributionSetType> removeModuleTypeCallback) {
+        final Set<Long> smTypeIdsToRemove = currentSmTypeIds.stream().filter(id -> !updatedSmTypeIds.contains(id))
+                .collect(Collectors.toSet());
+        if (!CollectionUtils.isEmpty(smTypeIdsToRemove)) {
+            smTypeIdsToRemove.forEach(removeModuleTypeCallback::apply);
+        }
     }
 
     @Override
