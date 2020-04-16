@@ -8,6 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
@@ -17,7 +20,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -74,11 +79,16 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
         this.eventListener = new DistributionTagLayoutEventListener(this, eventBus);
 
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
-                distributionTagButtons::refreshContainer, ProxyTag.class).parentEntityType(ProxyDistributionSet.class)
-                        .build();
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
+                .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
+                .parentEntityType(ProxyDistributionSet.class).build();
 
         buildLayout();
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Collections
+                .singletonList(EntityModifiedGridRefreshAwareSupport.of(distributionTagButtons::refreshContainer));
     }
 
     @Override

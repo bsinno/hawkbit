@@ -20,14 +20,14 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-public class MasterEntityChangedListener<M extends ProxyIdentifiableEntity> implements EventListener {
+public class SelectionChangedListener<T extends ProxyIdentifiableEntity> implements EventListener {
     private final UIEventBus eventBus;
-    private final List<MasterEntityAwareComponent<M>> masterEntityAwareComponents;
+    private final List<MasterEntityAwareComponent<T>> masterEntityAwareComponents;
     private final View masterEntityView;
     private final Layout masterEntityLayout;
 
-    public MasterEntityChangedListener(final UIEventBus eventBus,
-            final List<MasterEntityAwareComponent<M>> masterEntityAwareComponents, final View masterEntityView,
+    public SelectionChangedListener(final UIEventBus eventBus,
+            final List<MasterEntityAwareComponent<T>> masterEntityAwareComponents, final View masterEntityView,
             final Layout masterEntityLayout) {
         this.eventBus = eventBus;
         this.masterEntityAwareComponents = masterEntityAwareComponents;
@@ -38,20 +38,20 @@ public class MasterEntityChangedListener<M extends ProxyIdentifiableEntity> impl
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
-    private void onMasterEntityChangedEvent(final SelectionChangedEventPayload<M> eventPayload) {
+    private void onSelectionChangedEvent(final SelectionChangedEventPayload<T> eventPayload) {
         if (eventPayload.getView() != masterEntityView || eventPayload.getLayout() != masterEntityLayout) {
             return;
         }
 
         if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-            onMasterEntityChanged(eventPayload.getEntity());
+            onSelectionChanged(eventPayload.getEntity());
         } else {
-            onMasterEntityChanged(null);
+            onSelectionChanged(null);
         }
     }
 
-    private void onMasterEntityChanged(final M masterEntity) {
-        masterEntityAwareComponents.forEach(component -> component.masterEntityChanged(masterEntity));
+    private void onSelectionChanged(final T entity) {
+        masterEntityAwareComponents.forEach(component -> component.masterEntityChanged(entity));
     }
 
     @Override

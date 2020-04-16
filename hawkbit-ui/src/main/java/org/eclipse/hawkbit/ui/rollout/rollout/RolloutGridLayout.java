@@ -8,7 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
@@ -23,7 +25,10 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
@@ -65,10 +70,18 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new RolloutGridLayoutEventListener(this, eventBus);
 
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, rolloutListGrid::refreshContainer,
-                ProxyRollout.class).refreshGridItemsCallback(rolloutListGrid::updateGridItems).build();
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyRollout.class)
+                .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(rolloutListHeader, rolloutListGrid);
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Arrays.asList(
+                EntityModifiedGridRefreshAwareSupport.of(rolloutListGrid::refreshContainer,
+                        rolloutListGrid::updateGridItems),
+                EntityModifiedSelectionAwareSupport.of(rolloutListGrid.getSelectionSupport(),
+                        rolloutListGrid::mapIdToProxyEntity));
     }
 
     public void restoreState() {

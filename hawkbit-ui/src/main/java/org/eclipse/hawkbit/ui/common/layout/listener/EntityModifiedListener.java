@@ -8,7 +8,6 @@
 package org.eclipse.hawkbit.ui.common.layout.listener;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -17,6 +16,7 @@ import java.util.function.Supplier;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.springframework.util.CollectionUtils;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -26,21 +26,16 @@ import com.vaadin.ui.UI;
 
 public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implements EventListener {
     private final UIEventBus eventBus;
-    private final Runnable refreshGridCallback;
-    private final Consumer<Collection<Long>> refreshGridItemsCallback;
     private final List<EntityModifiedAwareSupport> entityModifiedAwareSupports;
     private final Class<T> entityType;
     private final Class<? extends ProxyIdentifiableEntity> parentEntityType;
     private final Supplier<Optional<Long>> parentEntityIdProvider;
 
-    public EntityModifiedListener(final UIEventBus eventBus, final Runnable refreshGridCallback,
-            final Consumer<Collection<Long>> refreshGridItemsCallback,
+    public EntityModifiedListener(final UIEventBus eventBus,
             final List<EntityModifiedAwareSupport> entityModifiedAwareSupports, final Class<T> entityType,
             final Class<? extends ProxyIdentifiableEntity> parentEntityType,
             final Supplier<Optional<Long>> parentEntityIdProvider) {
         this.eventBus = eventBus;
-        this.refreshGridCallback = refreshGridCallback;
-        this.refreshGridItemsCallback = refreshGridItemsCallback;
         this.entityModifiedAwareSupports = entityModifiedAwareSupports;
         this.entityType = entityType;
         this.parentEntityType = parentEntityType;
@@ -56,24 +51,21 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
             return;
         }
 
+        if (CollectionUtils.isEmpty(entityModifiedAwareSupports)) {
+            return;
+        }
+
         final EntityModifiedEventType eventType = eventPayload.getEntityModifiedEventType();
         final Collection<Long> entityIds = eventPayload.getEntityIds();
 
         switch (eventType) {
         case ENTITY_ADDED:
-            refreshGridCallback.run();
             handleEntitiesModified(support -> support.onEntitiesAdded(entityIds));
             break;
         case ENTITY_UPDATED:
-            if (refreshGridItemsCallback == null) {
-                refreshGridCallback.run();
-            } else {
-                refreshGridItemsCallback.accept(entityIds);
-            }
             handleEntitiesModified(support -> support.onEntitiesUpdated(entityIds));
             break;
         case ENTITY_REMOVED:
-            refreshGridCallback.run();
             handleEntitiesModified(support -> support.onEntitiesDeleted(entityIds));
             break;
         }
@@ -124,22 +116,14 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
 
     public static class Builder<T extends ProxyIdentifiableEntity> {
         private final UIEventBus eventBus;
-        private final Runnable refreshGridCallback;
-        private Consumer<Collection<Long>> refreshGridItemsCallback;
         private List<EntityModifiedAwareSupport> entityModifiedAwareSupports;
         private final Class<T> entityType;
         private Class<? extends ProxyIdentifiableEntity> parentEntityType;
         private Supplier<Optional<Long>> parentEntityIdProvider;
 
-        public Builder(final UIEventBus eventBus, final Runnable refreshGridCallback, final Class<T> entityType) {
+        public Builder(final UIEventBus eventBus, final Class<T> entityType) {
             this.eventBus = eventBus;
-            this.refreshGridCallback = refreshGridCallback;
             this.entityType = entityType;
-        }
-
-        public Builder<T> refreshGridItemsCallback(final Consumer<Collection<Long>> refreshGridItemsCallback) {
-            this.refreshGridItemsCallback = refreshGridItemsCallback;
-            return this;
         }
 
         public Builder<T> entityModifiedAwareSupports(
@@ -159,12 +143,8 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
         }
 
         public EntityModifiedListener<T> build() {
-            if (entityModifiedAwareSupports == null) {
-                entityModifiedAwareSupports = Collections.emptyList();
-            }
-
-            return new EntityModifiedListener<>(eventBus, refreshGridCallback, refreshGridItemsCallback,
-                    entityModifiedAwareSupports, entityType, parentEntityType, parentEntityIdProvider);
+            return new EntityModifiedListener<>(eventBus, entityModifiedAwareSupports, entityType, parentEntityType,
+                    parentEntityIdProvider);
         }
     }
 }

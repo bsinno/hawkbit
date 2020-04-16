@@ -35,10 +35,10 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
@@ -97,10 +97,12 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private final RolloutManagementUIState rolloutManagementUIState;
 
     private final transient RolloutManagement rolloutManagement;
+    private final transient RolloutToProxyRolloutMapper rolloutMapper;
     private final transient RolloutGroupManagement rolloutGroupManagement;
     private final transient TenantConfigurationManagement tenantConfigManagement;
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
     private final UINotification uiNotification;
+
     private final ConfigurableFilterDataProvider<ProxyRollout, Void, String> rolloutDataProvider;
 
     RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final RolloutManagement rolloutManagement,
@@ -116,13 +118,30 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         this.tenantConfigManagement = tenantConfigManagement;
         this.uiNotification = uiNotification;
         this.rolloutWindowBuilder = rolloutWindowBuilder;
-        this.rolloutDataProvider = new RolloutDataProvider(rolloutManagement, new RolloutToProxyRolloutMapper())
-                .withConfigurableFilter();
+
+        this.rolloutMapper = new RolloutToProxyRolloutMapper();
+        this.rolloutDataProvider = new RolloutDataProvider(rolloutManagement, rolloutMapper).withConfigurableFilter();
+
+        setSelectionSupport(new SelectionSupport<>(this, eventBus, Layout.ROLLOUT_LIST, View.ROLLOUT,
+                this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
+        getSelectionSupport().disableSelection();
 
         initStatusIconMap();
         initActionTypeIconMap();
 
         init();
+    }
+
+    public Optional<ProxyRollout> mapIdToProxyEntity(final long entityId) {
+        return rolloutManagement.get(entityId).map(rolloutMapper::map);
+    }
+
+    private Optional<Long> getSelectedEntityIdFromUiState() {
+        return Optional.ofNullable(rolloutManagementUIState.getSelectedRolloutId());
+    }
+
+    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
+        rolloutManagementUIState.setSelectedRolloutId(entityId.orElse(null));
     }
 
     private static boolean isDeletionAllowed(final RolloutStatus status) {
@@ -404,13 +423,9 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private void onClickOfRolloutName(final ProxyRollout rollout) {
-        eventBus.publish(EventTopics.SELECTION_CHANGED, this, new SelectionChangedEventPayload<>(
-                SelectionChangedEventType.ENTITY_SELECTED, rollout, Layout.ROLLOUT_LIST, View.ROLLOUT));
+        getSelectionSupport().sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED, rollout);
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
                 new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
-
-        rolloutManagementUIState.setSelectedRolloutId(rollout.getId());
-        rolloutManagementUIState.setSelectedRolloutName(rollout.getName());
     }
 
     private void pauseRollout(final Long rolloutId, final String rolloutName, final RolloutStatus rolloutStatus) {

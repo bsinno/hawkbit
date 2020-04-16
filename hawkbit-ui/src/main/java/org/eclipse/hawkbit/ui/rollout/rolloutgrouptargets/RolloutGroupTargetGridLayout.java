@@ -10,17 +10,14 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
-import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
-import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterCountMessageLabel;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -36,8 +33,7 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
     private final transient TargetFilterCountMessageLabel rolloutGroupTargetCountMessageLabel;
 
-    private final transient MasterEntityChangedListener<ProxyRolloutGroup> masterEntityChangedListener;
-    private final transient EntityModifiedListener<ProxyRolloutGroup> entityModifiedListener;
+    private final transient SelectionChangedListener<ProxyRolloutGroup> masterEntityChangedListener;
 
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final RolloutGroupManagement rolloutGroupManagement,
@@ -49,12 +45,8 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
 
         initGridDataUpdatedListener();
 
-        this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), Layout.ROLLOUT_GROUP_LIST);
-
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
-                rolloutGroupTargetsListGrid::refreshContainer, ProxyRolloutGroup.class)
-                        .parentEntityType(ProxyRollout.class).build();
 
         buildLayout(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid, rolloutGroupTargetCountMessageLabel);
     }
@@ -67,10 +59,6 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
 
     private List<MasterEntityAwareComponent<ProxyRolloutGroup>> getMasterEntityAwareComponents() {
         return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid);
-    }
-
-    private Optional<Long> getMasterEntityId() {
-        return Optional.ofNullable(rolloutGroupTargetsListGrid.getMasterEntityId());
     }
 
     public void restoreState() {
@@ -92,6 +80,5 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
      */
     public void unsubscribeListener() {
         masterEntityChangedListener.unsubscribe();
-        entityModifiedListener.unsubscribe();
     }
 }

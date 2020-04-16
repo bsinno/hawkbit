@@ -68,7 +68,10 @@ public class RolloutGroupGridHeader extends AbstractGridHeader implements Master
 
     @Override
     public void masterEntityChanged(final ProxyRollout masterEntity) {
-        headerCaptionDetails.setValue(masterEntity != null ? masterEntity.getName() : "");
+        final String rolloutName = masterEntity != null ? masterEntity.getName() : "";
+
+        headerCaptionDetails.setValue(rolloutName);
+        rolloutManagementUIState.setSelectedRolloutName(rolloutName);
     }
 
     private static Label createHeaderCaptionDetails() {

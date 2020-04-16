@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +26,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -88,12 +91,17 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
 
         this.eventListener = new DistSMTypeFilterLayoutEventListener(this, eventBus);
 
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
-                distSMTypeFilterButtons::refreshContainer, ProxyType.class).parentEntityType(ProxySoftwareModule.class)
-                        .build();
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyType.class)
+                .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
+                .parentEntityType(ProxySoftwareModule.class).build();
 
         updateSmTypeStyles();
         buildLayout();
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Collections
+                .singletonList(EntityModifiedGridRefreshAwareSupport.of(distSMTypeFilterButtons::refreshContainer));
     }
 
     private void updateSmTypeStyles() {

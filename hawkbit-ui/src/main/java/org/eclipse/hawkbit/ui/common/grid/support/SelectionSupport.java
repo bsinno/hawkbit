@@ -31,7 +31,7 @@ import com.vaadin.ui.components.grid.NoSelectionModel;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
 
 /**
- * Support for single selection on the grid.
+ * Support for selection on the grid.
  * 
  * @param <T>
  *            The item-type used by the grid
@@ -154,6 +154,10 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     }
 
     public Optional<Long> getSelectedEntityId() {
+        if (isNoSelectionModel() && selectedEntityIdUiStateProvider != null) {
+            return selectedEntityIdUiStateProvider.get();
+        }
+
         return getSelectedEntity().map(ProxyIdentifiableEntity::getId);
     }
 

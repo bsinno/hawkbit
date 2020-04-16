@@ -91,8 +91,8 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
                 SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.FINISHED)));
         statusIconMap.put(Status.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_EMPTY,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.SCHEDULED)));
-        statusIconMap.put(Status.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST,
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RUNNING)));
+        statusIconMap.put(Status.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW,
+                getStatusDescription(Status.RUNNING)));
         statusIconMap.put(Status.RETRIEVED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE_O,
                 SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RETRIEVED)));
         statusIconMap.put(Status.WARNING, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
@@ -193,8 +193,10 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
         final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
 
         if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
-            masterId = masterEntityId;
             getFilterDataProvider().setFilter(masterEntityId);
+
+            masterId = masterEntityId;
+            rolloutManagementUIState.setSelectedRolloutGroupId(masterEntityId);
         }
     }
 

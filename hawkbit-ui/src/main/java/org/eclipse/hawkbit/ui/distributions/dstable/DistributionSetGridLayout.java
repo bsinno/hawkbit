@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.distributions.dstable;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -33,10 +32,11 @@ import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
-import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -55,7 +55,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     private final transient DistributionSetGridLayoutEventListener eventListener;
 
-    private final transient MasterEntityChangedListener<ProxyDistributionSet> masterEntityChangedListener;
+    private final transient SelectionChangedListener<ProxyDistributionSet> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyDistributionSet> entityModifiedListener;
 
     public DistributionSetGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -89,11 +89,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new DistributionSetGridLayoutEventListener(this, eventBus);
 
-        this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
-                distributionSetGrid::refreshContainer, ProxyDistributionSet.class)
-                        .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)
+                .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(distributionSetGridHeader, distributionSetGrid, distributionSetDetailsHeader,
                 distributionSetDetails);
@@ -104,8 +103,9 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedSelectionAwareSupport
-                .of(distributionSetGrid.getSelectionSupport(), distributionSetGrid::mapIdToProxyEntity));
+        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(distributionSetGrid::refreshContainer),
+                EntityModifiedSelectionAwareSupport.of(distributionSetGrid.getSelectionSupport(),
+                        distributionSetGrid::mapIdToProxyEntity));
     }
 
     public void restoreState() {

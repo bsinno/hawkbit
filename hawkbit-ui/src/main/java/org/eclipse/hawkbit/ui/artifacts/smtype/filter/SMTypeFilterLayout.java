@@ -8,6 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -16,7 +19,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -68,11 +73,16 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
 
         this.eventListener = new SMTypeFilterLayoutEventListener(this, eventBus);
 
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
-                sMTypeFilterButtons::refreshContainer, ProxyType.class).parentEntityType(ProxySoftwareModule.class)
-                        .build();
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyType.class)
+                .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
+                .parentEntityType(ProxySoftwareModule.class).build();
 
         buildLayout();
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Collections
+                .singletonList(EntityModifiedGridRefreshAwareSupport.of(sMTypeFilterButtons::refreshContainer));
     }
 
     @Override

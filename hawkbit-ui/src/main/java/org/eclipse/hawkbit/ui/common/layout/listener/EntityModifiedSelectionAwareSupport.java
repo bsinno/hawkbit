@@ -21,13 +21,13 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
         implements EntityModifiedAwareSupport {
     private final SelectionSupport<T> selectionSupport;
     private final LongFunction<Optional<T>> getFromBackendCallback;
-    private final Predicate<T> shouldDeselectCallback;
+    private final Predicate<T> isInvalidEntityCallback;
 
     public EntityModifiedSelectionAwareSupport(final SelectionSupport<T> selectionSupport,
-            final LongFunction<Optional<T>> getFromBackendCallback, final Predicate<T> shouldDeselectCallback) {
+            final LongFunction<Optional<T>> getFromBackendCallback, final Predicate<T> isInvalidEntityCallback) {
         this.selectionSupport = selectionSupport;
         this.getFromBackendCallback = getFromBackendCallback;
-        this.shouldDeselectCallback = shouldDeselectCallback;
+        this.isInvalidEntityCallback = isInvalidEntityCallback;
     }
 
     public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
@@ -37,9 +37,9 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
 
     public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
             final SelectionSupport<E> selectionSupport, final LongFunction<Optional<E>> getFromBackendCallback,
-            final Predicate<E> shouldDeselectCallback) {
+            final Predicate<E> isInvalidEntityCallback) {
         return new EntityModifiedSelectionAwareSupport<>(selectionSupport, getFromBackendCallback,
-                shouldDeselectCallback);
+                isInvalidEntityCallback);
     }
 
     @Override
@@ -56,44 +56,38 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
 
     @Override
     public void onEntitiesUpdated(final Collection<Long> entityIds) {
-        if (selectionSupport == null || selectionSupport.isNoSelectionModel() || getFromBackendCallback == null) {
+        if (getFromBackendCallback == null) {
             return;
         }
 
-        selectionSupport.getSelectedEntityId().ifPresent(selectedEntityId -> {
-            if (!entityIds.contains(selectedEntityId)) {
-                return;
-            }
+        getModifiedEntityId(entityIds).ifPresent(selectedEntityId ->
+        // we load the up-to-date version of selected entity from
+        // database and reselect it, so that master-aware components
+        // could update itself
+        getFromBackendCallback.apply(selectedEntityId).ifPresent(updatedItem -> selectionSupport
+                .sendSelectionChangedEvent(getSelectionEventType(updatedItem), updatedItem)));
+    }
 
-            // we load the up-to-date version of selected entity from
-            // database and reselect it, so that master-aware components
-            // could update itself
-            getFromBackendCallback.apply(selectedEntityId).ifPresent(updatedItem -> selectionSupport
-                    .sendSelectionChangedEvent(getSelectionEventType(updatedItem), updatedItem));
-        });
+    private Optional<Long> getModifiedEntityId(final Collection<Long> modifiedEntityIds) {
+        if (selectionSupport == null) {
+            return Optional.empty();
+        }
+
+        return selectionSupport.getSelectedEntityId().filter(modifiedEntityIds::contains);
     }
 
     private SelectionChangedEventType getSelectionEventType(final T updatedItem) {
-        return shouldDeselectCallback != null && shouldDeselectCallback.test(updatedItem)
+        return isInvalidEntityCallback != null && isInvalidEntityCallback.test(updatedItem)
                 ? SelectionChangedEventType.ENTITY_DESELECTED
                 : SelectionChangedEventType.ENTITY_SELECTED;
     }
 
     @Override
     public void onEntitiesDeleted(final Collection<Long> entityIds) {
-        if (selectionSupport == null || selectionSupport.isNoSelectionModel()) {
-            return;
-        }
-
-        selectionSupport.getSelectedEntityId().ifPresent(selectedEntityId -> {
-            if (!entityIds.contains(selectedEntityId)) {
-                return;
-            }
-
-            // we need to update the master-aware components, that the
-            // master entity was deselected after deletion
-            selectionSupport.sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_DESELECTED,
-                    selectionSupport.getSelectedEntity().orElse(null));
-        });
+        getModifiedEntityId(entityIds).ifPresent(selectedEntityId ->
+        // we need to update the master-aware components, that the
+        // master entity was deselected after deletion
+        selectionSupport.sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_DESELECTED,
+                selectionSupport.getSelectedEntity().orElse(null)));
     }
 }

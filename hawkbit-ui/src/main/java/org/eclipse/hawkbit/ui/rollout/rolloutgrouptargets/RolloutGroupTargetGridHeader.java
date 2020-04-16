@@ -132,6 +132,9 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader
     public void masterEntityChanged(final ProxyRolloutGroup masterEntity) {
         // TODO: try not to use the uiState here
         rolloutNameLink.setCaption(rolloutManagementUIState.getSelectedRolloutName());
-        headerCaptionDetails.setValue(masterEntity != null ? masterEntity.getName() : "");
+
+        final String rolloutGroupName = masterEntity != null ? masterEntity.getName() : "";
+        headerCaptionDetails.setValue(rolloutGroupName);
+        rolloutManagementUIState.setSelectedRolloutGroupName(rolloutGroupName);
     }
 }

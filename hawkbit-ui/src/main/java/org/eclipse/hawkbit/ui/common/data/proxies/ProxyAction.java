@@ -240,7 +240,7 @@ public class ProxyAction extends ProxyIdentifiableEntity {
             this.msgName = msgName;
         }
 
-        public String getName() {
+        public String getMsgName() {
             return msgName;
         }
     }

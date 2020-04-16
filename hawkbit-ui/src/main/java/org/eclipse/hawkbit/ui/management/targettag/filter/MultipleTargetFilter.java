@@ -8,6 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
@@ -19,7 +22,9 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -72,14 +77,23 @@ public class MultipleTargetFilter extends Accordion {
 
         this.eventListener = new MultipleTargetFilterLayoutEventListener(this, eventBus);
 
-        this.entityTagModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
-                filterByButtons::refreshContainer, ProxyTag.class).parentEntityType(ProxyTarget.class).build();
+        this.entityTagModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
+                .entityModifiedAwareSupports(getTagModifiedAwareSupports()).parentEntityType(ProxyTarget.class).build();
         this.entityFilterQueryModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
-                customFilterTab::refreshContainer, ProxyTargetFilterQuery.class).build();
+                ProxyTargetFilterQuery.class).entityModifiedAwareSupports(getFilterQueryModifiedAwareSupports())
+                        .build();
 
         init();
         addTabs();
         addSelectedTabChangeListener(event -> selectedTabChanged());
+    }
+
+    private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(filterByButtons::refreshContainer));
+    }
+
+    private List<EntityModifiedAwareSupport> getFilterQueryModifiedAwareSupports() {
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(customFilterTab::refreshContainer));
     }
 
     private VerticalLayout buildSimpleFilterTab() {

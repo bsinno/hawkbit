@@ -164,8 +164,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
     }
 
     private String getActiveStatusDescription(final IsActiveDecoration activeActionStatus) {
-        return i18n.getMessage(
-                UIMessageIdProvider.TOOLTIP_ACTIVE_ACTION_STATUS_PREFIX + activeActionStatus.toString().toLowerCase());
+        return i18n
+                .getMessage(UIMessageIdProvider.TOOLTIP_ACTIVE_ACTION_STATUS_PREFIX + activeActionStatus.getMsgName());
     }
 
     private void initActionTypeIconMap() {

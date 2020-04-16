@@ -8,6 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
@@ -18,7 +21,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -73,11 +78,16 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
 
         this.eventListener = new DSTypeFilterLayoutEventListener(this, eventBus);
 
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
-                dSTypeFilterButtons::refreshContainer, ProxyType.class).parentEntityType(ProxyDistributionSet.class)
-                        .build();
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyType.class)
+                .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
+                .parentEntityType(ProxyDistributionSet.class).build();
 
         buildLayout();
+    }
+
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Collections
+                .singletonList(EntityModifiedGridRefreshAwareSupport.of(dSTypeFilterButtons::refreshContainer));
     }
 
     @Override

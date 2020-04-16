@@ -30,11 +30,12 @@ import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedPinAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
-import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
 import org.eclipse.hawkbit.ui.management.bulkupload.BulkUploadWindowBuilder;
 import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUploadUiState;
@@ -58,7 +59,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     private final transient TargetGridLayoutEventListener eventListener;
 
-    private final transient MasterEntityChangedListener<ProxyTarget> masterEntityChangedListener;
+    private final transient SelectionChangedListener<ProxyTarget> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyTarget> entityModifiedListener;
 
     public TargetGridLayout(final UIEventBus eventBus, final TargetManagement targetManagement,
@@ -97,10 +98,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetGridLayoutEventListener(this, eventBus);
 
-        this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, targetGrid::refreshContainer,
-                ProxyTarget.class).entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTarget.class)
+                .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }
@@ -116,8 +117,11 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Arrays.asList(EntityModifiedSelectionAwareSupport.of(targetGrid.getSelectionSupport(),
-                targetGrid::mapIdToProxyEntity), EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport()));
+        return Arrays
+                .asList(EntityModifiedGridRefreshAwareSupport.of(targetGrid::refreshContainer),
+                        EntityModifiedSelectionAwareSupport.of(targetGrid.getSelectionSupport(),
+                                targetGrid::mapIdToProxyEntity),
+                        EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport()));
     }
 
     public void restoreState() {

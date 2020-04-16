@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
@@ -25,10 +24,11 @@ import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
-import org.eclipse.hawkbit.ui.common.layout.listener.MasterEntityChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -46,7 +46,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     private final transient SoftwareModuleGridLayoutEventListener eventListener;
 
-    private final transient MasterEntityChangedListener<ProxySoftwareModule> masterEntityChangedListener;
+    private final transient SelectionChangedListener<ProxySoftwareModule> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedListener;
 
     public SoftwareModuleGridLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
@@ -74,11 +74,10 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new SoftwareModuleGridLayoutEventListener(this, eventBus);
 
-        this.masterEntityChangedListener = new MasterEntityChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
-                softwareModuleGrid::refreshContainer, ProxySoftwareModule.class)
-                        .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxySoftwareModule.class)
+                .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetailsHeader, softwareModuleDetails);
     }
@@ -88,8 +87,9 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedSelectionAwareSupport
-                .of(softwareModuleGrid.getSelectionSupport(), softwareModuleGrid::mapIdToProxyEntity));
+        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(softwareModuleGrid::refreshContainer),
+                EntityModifiedSelectionAwareSupport.of(softwareModuleGrid.getSelectionSupport(),
+                        softwareModuleGrid::mapIdToProxyEntity));
     }
 
     public void restoreState() {

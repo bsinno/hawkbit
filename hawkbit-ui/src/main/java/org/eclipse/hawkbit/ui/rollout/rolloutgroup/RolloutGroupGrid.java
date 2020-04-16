@@ -22,14 +22,13 @@ import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
@@ -61,6 +60,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
 
     private final RolloutManagementUIState rolloutManagementUIState;
     private final transient RolloutGroupManagement rolloutGroupManagement;
+    private final transient RolloutGroupToProxyRolloutGroupMapper rolloutGroupMapper;
 
     private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
 
@@ -75,13 +75,30 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
 
         this.rolloutManagementUIState = rolloutManagementUIState;
         this.rolloutGroupManagement = rolloutGroupManagement;
+        this.rolloutGroupMapper = new RolloutGroupToProxyRolloutGroupMapper();
 
-        this.rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement,
-                new RolloutGroupToProxyRolloutGroupMapper()).withConfigurableFilter();
+        this.rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement, rolloutGroupMapper)
+                .withConfigurableFilter();
+
+        setSelectionSupport(new SelectionSupport<>(this, eventBus, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT,
+                this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
+        getSelectionSupport().disableSelection();
 
         initStatusIconMap();
 
         init();
+    }
+
+    public Optional<ProxyRolloutGroup> mapIdToProxyEntity(final long entityId) {
+        return rolloutGroupManagement.get(entityId).map(rolloutGroupMapper::map);
+    }
+
+    private Optional<Long> getSelectedEntityIdFromUiState() {
+        return Optional.ofNullable(rolloutManagementUIState.getSelectedRolloutGroupId());
+    }
+
+    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
+        rolloutManagementUIState.setSelectedRolloutGroupId(entityId.orElse(null));
     }
 
     @Override
@@ -209,13 +226,9 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
     }
 
     private void onClickOfRolloutGroupName(final ProxyRolloutGroup rolloutGroup) {
-        eventBus.publish(EventTopics.SELECTION_CHANGED, this, new SelectionChangedEventPayload<>(
-                SelectionChangedEventType.ENTITY_SELECTED, rolloutGroup, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
+        getSelectionSupport().sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED, rolloutGroup);
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
                 new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_GROUP_TARGET_LIST, View.ROLLOUT));
-
-        rolloutManagementUIState.setSelectedRolloutGroupId(rolloutGroup.getId());
-        rolloutManagementUIState.setSelectedRolloutGroupName(rolloutGroup.getName());
     }
 
     @Override
@@ -223,8 +236,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
         final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
 
         if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
-            masterId = masterEntityId;
             getFilterDataProvider().setFilter(masterEntityId);
+            masterId = masterEntityId;
         }
     }
 
