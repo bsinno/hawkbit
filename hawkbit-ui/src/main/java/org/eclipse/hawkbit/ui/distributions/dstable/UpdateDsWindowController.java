@@ -103,6 +103,14 @@ public class UpdateDsWindowController
             return false;
         }
 
+        final String trimmedName = StringUtils.trimWhitespace(entity.getName());
+        final String trimmedVersion = StringUtils.trimWhitespace(entity.getVersion());
+        if (dsManagement.getByNameAndVersion(trimmedName, trimmedVersion).isPresent()) {
+            uiNotification
+                    .displayValidationError(i18n.getMessage("message.duplicate.dist", trimmedName, trimmedVersion));
+            return false;
+        }
+
         return true;
     }
 }

@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
+import java.time.ZonedDateTime;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -194,7 +195,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
     public void masterEntityChanged(final ProxyTarget masterEntity) {
         final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
 
-        if ((masterEntityId == null && getMasterEntityId() != null) || masterEntityId != null) {
+        if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
             masterId = masterEntityId;
             getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getControllerId() : null);
         }
@@ -234,16 +235,19 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
 
         addColumn(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt(),
                 SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT)).setId(LAST_MODIFIED_AT_ID)
-                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date")).setMinimumWidth(100d)
-                        .setMaximumWidth(130d).setHidable(true).setHidden(false);
+                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
+                        .setDescriptionGenerator(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt()))
+                        .setMinimumWidth(100d).setMaximumWidth(130d).setHidable(true).setHidden(false);
 
         addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
                 .setMinimumWidth(53d).setMaximumWidth(55d).setHidable(true).setHidden(false)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
 
         addColumn(ProxyAction::getMaintenanceWindow).setId(MAINTENANCE_WINDOW_ID)
-                .setCaption(i18n.getMessage("header.maintenancewindow")).setMinimumWidth(150d).setMaximumWidth(200d)
-                .setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.maintenancewindow"))
+                .setDescriptionGenerator(action -> action.getMaintenanceWindowStartTime()
+                        .map(this::getFormattedNextMaintenanceWindow).orElse(null))
+                .setMinimumWidth(150d).setMaximumWidth(200d).setHidable(true).setHidden(true);
 
         addComponentColumn(this::buildTypeIcon).setId(TYPE_ID).setMinimumWidth(FIXED_PIX_MIN)
                 .setMaximumWidth(FIXED_PIX_MAX).setHidable(false).setHidden(false)
@@ -261,7 +265,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
                 .setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(100d).setHidable(true).setHidden(true)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
 
-        addColumn(ProxyAction::getDsNameVersion).setId(ROLLOUT_NAME_ID)
+        addColumn(ProxyAction::getRolloutName).setId(ROLLOUT_NAME_ID)
                 .setCaption(i18n.getMessage("caption.rollout.name")).setMinimumWidth(FIXED_PIX_MIN)
                 .setMaximumWidth(500d).setHidable(true).setHidden(true);
     }
@@ -287,6 +291,12 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
                 .append(".").append(action.getId()).toString();
 
         return SPUIComponentProvider.getLabelIcon(activeStatusFontIcon, activeStatusId);
+    }
+
+    private String getFormattedNextMaintenanceWindow(final ZonedDateTime nextAt) {
+        final long nextAtMilli = nextAt.toInstant().toEpochMilli();
+        return i18n.getMessage(UIMessageIdProvider.TOOLTIP_NEXT_MAINTENANCE_WINDOW,
+                SPDateTimeUtil.getFormattedDate(nextAtMilli, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT));
     }
 
     private Label buildTypeIcon(final ProxyAction action) {

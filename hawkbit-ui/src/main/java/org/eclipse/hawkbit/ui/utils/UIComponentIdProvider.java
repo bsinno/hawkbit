@@ -866,6 +866,16 @@ public final class UIComponentIdProvider {
     public static final String CONFIGURE_SOFTWARE_MODULE_TYPE = "softwaremodule.type.configure";
 
     /**
+     * Bulk target upload popup id.
+     */
+    public static final String BULK_UPLOAD_POPUP_ID = "bulkupload.popup.id";
+
+    /**
+     * Bulk target upload popup main layout id.
+     */
+    public static final String BULK_UPLOAD_MAIN_LAYOUT = "bulkupload.main.layout";
+
+    /**
      * Bulk target upload - distribution set combo.
      */
     public static final String BULK_UPLOAD_DS_COMBO = "bulkupload.ds.combo";

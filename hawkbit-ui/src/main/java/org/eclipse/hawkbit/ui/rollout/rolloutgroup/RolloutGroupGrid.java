@@ -64,6 +64,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
 
     private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
 
+    private Long masterId;
+
     private final ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Long> rolloutGroupDataProvider;
 
     public RolloutGroupGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -218,7 +220,16 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
 
     @Override
     public void masterEntityChanged(final ProxyRollout masterEntity) {
-        getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getId() : null);
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+
+        if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
+            masterId = masterEntityId;
+            getFilterDataProvider().setFilter(masterEntityId);
+        }
+    }
+
+    public Long getMasterEntityId() {
+        return masterId;
     }
 
     public void updateGridItems(final Collection<Long> ids) {

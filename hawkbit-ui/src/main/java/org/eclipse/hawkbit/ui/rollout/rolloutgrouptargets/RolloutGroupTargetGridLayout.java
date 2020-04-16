@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
@@ -33,7 +34,6 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
 
     private final RolloutGroupTargetGridHeader rolloutGroupTargetsListHeader;
     private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
-    private final RolloutManagementUIState rolloutManagementUIState;
     private final transient TargetFilterCountMessageLabel rolloutGroupTargetCountMessageLabel;
 
     private final transient MasterEntityChangedListener<ProxyRolloutGroup> masterEntityChangedListener;
@@ -42,8 +42,6 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final RolloutGroupManagement rolloutGroupManagement,
             final RolloutManagementUIState rolloutManagementUIState) {
-        this.rolloutManagementUIState = rolloutManagementUIState;
-
         this.rolloutGroupTargetsListHeader = new RolloutGroupTargetGridHeader(eventBus, i18n, rolloutManagementUIState);
         this.rolloutGroupTargetsListGrid = new RolloutGroupTargetGrid(i18n, eventBus, rolloutGroupManagement,
                 rolloutManagementUIState);
@@ -71,8 +69,8 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
         return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid);
     }
 
-    public Long getCurrentRolloutGroupId() {
-        return rolloutManagementUIState.getSelectedRolloutGroupId();
+    private Optional<Long> getMasterEntityId() {
+        return Optional.ofNullable(rolloutGroupTargetsListGrid.getMasterEntityId());
     }
 
     public void restoreState() {

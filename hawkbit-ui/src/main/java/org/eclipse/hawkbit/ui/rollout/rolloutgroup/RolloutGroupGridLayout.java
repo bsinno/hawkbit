@@ -37,7 +37,6 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
 
     private final RolloutGroupGridHeader rolloutGroupsListHeader;
     private final RolloutGroupGrid rolloutGroupListGrid;
-    private final RolloutManagementUIState rolloutManagementUIState;
 
     private final transient MasterEntityChangedListener<ProxyRollout> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyRolloutGroup> entityModifiedListener;
@@ -59,8 +58,6 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
     public RolloutGroupGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final RolloutGroupManagement rolloutGroupManagement,
             final RolloutManagementUIState rolloutManagementUIState, final SpPermissionChecker permissionChecker) {
-        this.rolloutManagementUIState = rolloutManagementUIState;
-
         this.rolloutGroupsListHeader = new RolloutGroupGridHeader(eventBus, rolloutManagementUIState, i18n);
         this.rolloutGroupListGrid = new RolloutGroupGrid(i18n, eventBus, permissionChecker, rolloutGroupManagement,
                 rolloutManagementUIState);
@@ -87,7 +84,7 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
     }
 
     private Optional<Long> getMasterEntityId() {
-        return Optional.ofNullable(rolloutManagementUIState.getSelectedRolloutId());
+        return Optional.ofNullable(rolloutGroupListGrid.getMasterEntityId());
     }
 
     public void restoreState() {

@@ -52,6 +52,8 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
+    private Long masterId;
+
     private final ConfigurableFilterDataProvider<ProxyTarget, Void, Long> rolloutGroupTargetsDataProvider;
 
     /**
@@ -186,12 +188,17 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
         }
     }
 
-    public void updateMasterEntityFilter(final Long masterEntityId) {
-        getFilterDataProvider().setFilter(masterEntityId);
-    }
-
     @Override
     public void masterEntityChanged(final ProxyRolloutGroup masterEntity) {
-        getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getId() : null);
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+
+        if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
+            masterId = masterEntityId;
+            getFilterDataProvider().setFilter(masterEntityId);
+        }
+    }
+
+    public Long getMasterEntityId() {
+        return masterId;
     }
 }

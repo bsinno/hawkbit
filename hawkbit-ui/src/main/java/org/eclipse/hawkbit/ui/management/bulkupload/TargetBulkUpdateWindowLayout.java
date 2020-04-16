@@ -224,6 +224,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         final VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setMargin(false);
         mainLayout.setSpacing(true);
+        mainLayout.setId(UIComponentIdProvider.BULK_UPLOAD_MAIN_LAYOUT);
 
         mainLayout.addComponents(captionLayout, inputsLayout);
 

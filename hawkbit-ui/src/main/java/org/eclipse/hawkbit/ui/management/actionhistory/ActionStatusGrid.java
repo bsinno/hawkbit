@@ -117,8 +117,10 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
 
         addColumn(actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt(),
                 SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT)).setId(CREATED_AT_ID)
-                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date")).setMinimumWidth(100d)
-                        .setMaximumWidth(400d).setHidable(false).setHidden(false);
+                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
+                        .setDescriptionGenerator(
+                                actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt()))
+                        .setMinimumWidth(100d).setMaximumWidth(400d).setHidable(false).setHidden(false);
     }
 
     private Label buildStatusIcon(final ProxyActionStatus actionStatus) {

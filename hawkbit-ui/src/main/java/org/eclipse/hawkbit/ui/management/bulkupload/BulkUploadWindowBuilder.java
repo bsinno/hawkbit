@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -70,8 +71,9 @@ public class BulkUploadWindowBuilder {
                     uiproperties, uiExecutor, targetBulkUploadUiState);
         }
 
-        final Window bulkUploadWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW).caption("")
-                .content(targetBulkUpdateWindowLayout).buildWindow();
+        final Window bulkUploadWindow = new WindowBuilder(SPUIDefinitions.CREATE_UPDATE_WINDOW)
+                .id(UIComponentIdProvider.BULK_UPLOAD_POPUP_ID).caption("").content(targetBulkUpdateWindowLayout)
+                .buildWindow();
         bulkUploadWindow.addStyleName("bulk-upload-window");
 
         targetBulkUpdateWindowLayout.setCloseCallback(() -> closePopup(bulkUploadWindow));
