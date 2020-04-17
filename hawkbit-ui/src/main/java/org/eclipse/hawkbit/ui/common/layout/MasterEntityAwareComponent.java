@@ -7,6 +7,7 @@
  */
 package org.eclipse.hawkbit.ui.common.layout;
 
+@FunctionalInterface
 public interface MasterEntityAwareComponent<T> {
     void masterEntityChanged(final T masterEntity);
 }

@@ -16,8 +16,8 @@ import java.util.function.Supplier;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.springframework.util.CollectionUtils;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -26,20 +26,20 @@ import com.vaadin.ui.UI;
 
 public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implements EventListener {
     private final UIEventBus eventBus;
-    private final List<EntityModifiedAwareSupport> entityModifiedAwareSupports;
     private final Class<T> entityType;
     private final Class<? extends ProxyIdentifiableEntity> parentEntityType;
     private final Supplier<Optional<Long>> parentEntityIdProvider;
+    private final List<EntityModifiedAwareSupport> entityModifiedAwareSupports;
 
-    public EntityModifiedListener(final UIEventBus eventBus,
-            final List<EntityModifiedAwareSupport> entityModifiedAwareSupports, final Class<T> entityType,
+    public EntityModifiedListener(final UIEventBus eventBus, final Class<T> entityType,
             final Class<? extends ProxyIdentifiableEntity> parentEntityType,
-            final Supplier<Optional<Long>> parentEntityIdProvider) {
+            final Supplier<Optional<Long>> parentEntityIdProvider,
+            final List<EntityModifiedAwareSupport> entityModifiedAwareSupports) {
         this.eventBus = eventBus;
-        this.entityModifiedAwareSupports = entityModifiedAwareSupports;
         this.entityType = entityType;
         this.parentEntityType = parentEntityType;
         this.parentEntityIdProvider = parentEntityIdProvider;
+        this.entityModifiedAwareSupports = entityModifiedAwareSupports;
 
         eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
     }
@@ -116,20 +116,14 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
 
     public static class Builder<T extends ProxyIdentifiableEntity> {
         private final UIEventBus eventBus;
-        private List<EntityModifiedAwareSupport> entityModifiedAwareSupports;
         private final Class<T> entityType;
         private Class<? extends ProxyIdentifiableEntity> parentEntityType;
         private Supplier<Optional<Long>> parentEntityIdProvider;
+        private List<EntityModifiedAwareSupport> entityModifiedAwareSupports;
 
         public Builder(final UIEventBus eventBus, final Class<T> entityType) {
             this.eventBus = eventBus;
             this.entityType = entityType;
-        }
-
-        public Builder<T> entityModifiedAwareSupports(
-                final List<EntityModifiedAwareSupport> entityModifiedAwareSupports) {
-            this.entityModifiedAwareSupports = entityModifiedAwareSupports;
-            return this;
         }
 
         public Builder<T> parentEntityType(final Class<? extends ProxyIdentifiableEntity> parentEntityType) {
@@ -142,9 +136,15 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
             return this;
         }
 
+        public Builder<T> entityModifiedAwareSupports(
+                final List<EntityModifiedAwareSupport> entityModifiedAwareSupports) {
+            this.entityModifiedAwareSupports = entityModifiedAwareSupports;
+            return this;
+        }
+
         public EntityModifiedListener<T> build() {
-            return new EntityModifiedListener<>(eventBus, entityModifiedAwareSupports, entityType, parentEntityType,
-                    parentEntityIdProvider);
+            return new EntityModifiedListener<>(eventBus, entityType, parentEntityType, parentEntityIdProvider,
+                    entityModifiedAwareSupports);
         }
     }
 }

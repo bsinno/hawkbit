@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
@@ -78,9 +79,6 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader
     }
 
     private void closeRolloutGroupTargets() {
-        rolloutManagementUIState.setSelectedRolloutGroupId(null);
-        rolloutManagementUIState.setSelectedRolloutGroupName("");
-
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
                 new LayoutVisibilityEventPayload(VisibilityType.HIDE, Layout.ROLLOUT_GROUP_TARGET_LIST, View.ROLLOUT));
     }
@@ -117,24 +115,22 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader
     }
 
     private void showRolloutListView() {
-        // TODO: do something with state
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
                 new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_LIST, View.ROLLOUT));
+    }
+
+    public void rolloutChanged(final ProxyRollout rollout) {
+        rolloutNameLink.setCaption(rollout != null ? rollout.getName() : "");
+    }
+
+    @Override
+    public void masterEntityChanged(final ProxyRolloutGroup masterEntity) {
+        headerCaptionDetails.setValue(masterEntity != null ? masterEntity.getName() : "");
     }
 
     @Override
     protected void restoreCaption() {
         rolloutNameLink.setCaption(rolloutManagementUIState.getSelectedRolloutName());
         headerCaptionDetails.setValue(rolloutManagementUIState.getSelectedRolloutGroupName());
-    }
-
-    @Override
-    public void masterEntityChanged(final ProxyRolloutGroup masterEntity) {
-        // TODO: try not to use the uiState here
-        rolloutNameLink.setCaption(rolloutManagementUIState.getSelectedRolloutName());
-
-        final String rolloutGroupName = masterEntity != null ? masterEntity.getName() : "";
-        headerCaptionDetails.setValue(rolloutGroupName);
-        rolloutManagementUIState.setSelectedRolloutGroupName(rolloutGroupName);
     }
 }

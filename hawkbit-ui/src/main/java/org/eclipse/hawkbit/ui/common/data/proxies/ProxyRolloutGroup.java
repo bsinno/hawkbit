@@ -43,7 +43,7 @@ public class ProxyRolloutGroup extends ProxyNamedEntity {
 
     private RolloutGroupStatus status;
 
-    private TotalTargetCountStatus totalTargetCountStatus;
+    private transient TotalTargetCountStatus totalTargetCountStatus;
 
     private RolloutGroupSuccessCondition successCondition;
     private String successConditionExp;
@@ -53,6 +53,13 @@ public class ProxyRolloutGroup extends ProxyNamedEntity {
     private String errorConditionExp;
     private RolloutGroupErrorAction errorAction;
     private String errorActionExp;
+
+    public ProxyRolloutGroup() {
+    }
+
+    public ProxyRolloutGroup(final Long id) {
+        super(id);
+    }
 
     public String getFinishedPercentage() {
         return finishedPercentage;

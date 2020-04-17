@@ -70,13 +70,10 @@ public class RolloutViewEventListener {
             if ((changedLayout == Layout.ROLLOUT_LIST && visibilityType == VisibilityType.SHOW)
                     || (changedLayout == Layout.ROLLOUT_GROUP_LIST && visibilityType == VisibilityType.HIDE)) {
                 rolloutView.showRolloutListView();
-            } else if ((eventPayload.getLayout() == Layout.ROLLOUT_GROUP_LIST
-                    && eventPayload.getVisibilityType() == VisibilityType.SHOW)
-                    || (eventPayload.getLayout() == Layout.ROLLOUT_GROUP_TARGET_LIST
-                            && eventPayload.getVisibilityType() == VisibilityType.HIDE)) {
+            } else if ((changedLayout == Layout.ROLLOUT_GROUP_LIST && visibilityType == VisibilityType.SHOW)
+                    || (changedLayout == Layout.ROLLOUT_GROUP_TARGET_LIST && visibilityType == VisibilityType.HIDE)) {
                 rolloutView.showRolloutGroupListView();
-            } else if (eventPayload.getLayout() == Layout.ROLLOUT_GROUP_TARGET_LIST
-                    && eventPayload.getVisibilityType() == VisibilityType.SHOW) {
+            } else if (changedLayout == Layout.ROLLOUT_GROUP_TARGET_LIST && visibilityType == VisibilityType.SHOW) {
                 rolloutView.showRolloutGroupTargetsListView();
             }
         }

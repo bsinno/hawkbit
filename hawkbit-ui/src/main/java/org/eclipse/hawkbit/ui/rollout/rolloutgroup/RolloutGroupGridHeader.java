@@ -47,7 +47,7 @@ public class RolloutGroupGridHeader extends AbstractGridHeader implements Master
      * 
      * @param eventBus
      *            UIEventBus
-     * @param uiState
+     * @param rolloutManagementUIState
      *            UIState
      * @param i18n
      *            I18N
@@ -64,14 +64,6 @@ public class RolloutGroupGridHeader extends AbstractGridHeader implements Master
         addHeaderSupports(Arrays.asList(closeHeaderSupport));
 
         buildHeader();
-    }
-
-    @Override
-    public void masterEntityChanged(final ProxyRollout masterEntity) {
-        final String rolloutName = masterEntity != null ? masterEntity.getName() : "";
-
-        headerCaptionDetails.setValue(rolloutName);
-        rolloutManagementUIState.setSelectedRolloutName(rolloutName);
     }
 
     private static Label createHeaderCaptionDetails() {
@@ -102,11 +94,13 @@ public class RolloutGroupGridHeader extends AbstractGridHeader implements Master
     }
 
     public void closeRolloutGroups() {
-        rolloutManagementUIState.setSelectedRolloutId(null);
-        rolloutManagementUIState.setSelectedRolloutName("");
-
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
                 new LayoutVisibilityEventPayload(VisibilityType.HIDE, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
+    }
+
+    @Override
+    public void masterEntityChanged(final ProxyRollout masterEntity) {
+        headerCaptionDetails.setValue(masterEntity != null ? masterEntity.getName() : "");
     }
 
     @Override

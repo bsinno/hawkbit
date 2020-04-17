@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.rollout.rollout;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -24,11 +23,13 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
@@ -45,7 +46,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
     private final RolloutGridHeader rolloutListHeader;
     private final RolloutGrid rolloutListGrid;
 
-    private final transient RolloutGridLayoutEventListener eventListener;
+    private final transient SearchFilterListener searchFilterListener;
     private final transient EntityModifiedListener<ProxyRollout> entityModifiedListener;
 
     public RolloutGridLayout(final SpPermissionChecker permissionChecker,
@@ -68,8 +69,8 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
                 uiNotification, rolloutManagementUIState, permissionChecker, tenantConfigManagement,
                 rolloutWindowBuilder);
 
-        this.eventListener = new RolloutGridLayoutEventListener(this, eventBus);
-
+        this.searchFilterListener = new SearchFilterListener(eventBus, rolloutListGrid::updateSearchFilter,
+                View.ROLLOUT, Layout.ROLLOUT_LIST);
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyRollout.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
@@ -81,7 +82,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
                 EntityModifiedGridRefreshAwareSupport.of(rolloutListGrid::refreshContainer,
                         rolloutListGrid::updateGridItems),
                 EntityModifiedSelectionAwareSupport.of(rolloutListGrid.getSelectionSupport(),
-                        rolloutListGrid::mapIdToProxyEntity));
+                        rolloutListGrid::mapIdToProxyEntity, rolloutListGrid::onSelectedRolloutDeleted));
     }
 
     public void restoreState() {
@@ -90,36 +91,10 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
     }
 
     /**
-     * Only display rollouts with matching name
-     * 
-     * @param namePart
-     *            rollouts containing this string in the name are displayed
-     */
-    public void filterGridByName(final String namePart) {
-        rolloutListGrid.updateSearchFilter(namePart);
-    }
-
-    /**
-     * refresh the grid showing all rollouts
-     */
-    public void refreshGrid() {
-        rolloutListGrid.refreshContainer();
-    }
-
-    public void refreshGridItems(final Collection<Long> ids) {
-        rolloutListGrid.updateGridItems(ids);
-    }
-
-    public Layout getLayout() {
-        return Layout.ROLLOUT_LIST;
-    }
-
-    /**
      * unsubscribe all listener
      */
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
+        searchFilterListener.unsubscribe();
         entityModifiedListener.unsubscribe();
     }
 }

@@ -63,7 +63,7 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
      *            I18N
      * @param eventBus
      *            UIEventBus
-     * @param rolloutUIState
+     * @param rolloutManagementUIState
      *            RolloutUIState
      */
     public RolloutGroupTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -194,13 +194,18 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
 
         if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
             getFilterDataProvider().setFilter(masterEntityId);
-
             masterId = masterEntityId;
-            rolloutManagementUIState.setSelectedRolloutGroupId(masterEntityId);
         }
     }
 
     public Long getMasterEntityId() {
         return masterId;
+    }
+
+    public void restoreState() {
+        final Long masterEntityId = rolloutManagementUIState.getSelectedRolloutGroupId();
+        if (masterEntityId != null) {
+            masterEntityChanged(new ProxyRolloutGroup(masterEntityId));
+        }
     }
 }

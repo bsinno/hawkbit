@@ -9,9 +9,11 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
@@ -33,7 +35,8 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     private final RolloutGroupTargetGrid rolloutGroupTargetsListGrid;
     private final transient TargetFilterCountMessageLabel rolloutGroupTargetCountMessageLabel;
 
-    private final transient SelectionChangedListener<ProxyRolloutGroup> masterEntityChangedListener;
+    private final transient SelectionChangedListener<ProxyRollout> rolloutChangedListener;
+    private final transient SelectionChangedListener<ProxyRolloutGroup> rolloutGroupChangedListener;
 
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final RolloutGroupManagement rolloutGroupManagement,
@@ -43,12 +46,19 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
                 rolloutManagementUIState);
         this.rolloutGroupTargetCountMessageLabel = new TargetFilterCountMessageLabel(i18n);
 
+        this.rolloutChangedListener = new SelectionChangedListener<>(eventBus,
+                Collections.singletonList(rolloutGroupTargetsListHeader::rolloutChanged), View.ROLLOUT,
+                Layout.ROLLOUT_LIST);
+        this.rolloutGroupChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                View.ROLLOUT, Layout.ROLLOUT_GROUP_LIST);
+
         initGridDataUpdatedListener();
 
-        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
-                getView(), Layout.ROLLOUT_GROUP_LIST);
-
         buildLayout(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid, rolloutGroupTargetCountMessageLabel);
+    }
+
+    private List<MasterEntityAwareComponent<ProxyRolloutGroup>> getMasterEntityAwareComponents() {
+        return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid);
     }
 
     private void initGridDataUpdatedListener() {
@@ -57,28 +67,16 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
                         .updateTotalFilteredTargetsCount(rolloutGroupTargetsListGrid.getDataSize()));
     }
 
-    private List<MasterEntityAwareComponent<ProxyRolloutGroup>> getMasterEntityAwareComponents() {
-        return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid);
-    }
-
     public void restoreState() {
         rolloutGroupTargetsListHeader.restoreState();
-        // TODO:
-        // rolloutGroupTargetsListGrid.restoreState();
-    }
-
-    public Layout getLayout() {
-        return Layout.ROLLOUT_GROUP_TARGET_LIST;
-    }
-
-    public View getView() {
-        return View.ROLLOUT;
+        rolloutGroupTargetsListGrid.restoreState();
     }
 
     /**
      * unsubscribe all listener
      */
     public void unsubscribeListener() {
-        masterEntityChangedListener.unsubscribe();
+        rolloutChangedListener.unsubscribe();
+        rolloutGroupChangedListener.unsubscribe();
     }
 }

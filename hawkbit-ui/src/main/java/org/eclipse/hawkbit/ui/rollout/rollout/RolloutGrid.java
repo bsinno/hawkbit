@@ -424,6 +424,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
     private void onClickOfRolloutName(final ProxyRollout rollout) {
         getSelectionSupport().sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED, rollout);
+        rolloutManagementUIState.setSelectedRolloutName(rollout.getName());
+
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
                 new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
     }
@@ -518,6 +520,21 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         }
 
         return i18n.getMessage("message.delete.rollout", rollout.getName(), rolloutDetailsMessage);
+    }
+
+    public void onSelectedRolloutDeleted(final long deletedSelectedRolloutId) {
+        uiNotification.displayWarning(
+                i18n.getMessage("rollout.not.exists", rolloutManagementUIState.getSelectedRolloutName()));
+
+        showRolloutListLayout();
+    }
+
+    private void showRolloutListLayout() {
+        if (rolloutManagementUIState.getCurrentLayout().map(currentLayout -> currentLayout != Layout.ROLLOUT_LIST)
+                .orElse(true)) {
+            eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                    new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_LIST, View.ROLLOUT));
+        }
     }
 
     public void restoreState() {

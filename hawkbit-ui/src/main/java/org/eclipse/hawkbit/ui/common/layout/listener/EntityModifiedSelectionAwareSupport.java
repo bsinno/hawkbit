@@ -9,6 +9,7 @@ package org.eclipse.hawkbit.ui.common.layout.listener;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.LongConsumer;
 import java.util.function.LongFunction;
 import java.util.function.Predicate;
 
@@ -21,25 +22,40 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
         implements EntityModifiedAwareSupport {
     private final SelectionSupport<T> selectionSupport;
     private final LongFunction<Optional<T>> getFromBackendCallback;
-    private final Predicate<T> isInvalidEntityCallback;
+    private final Predicate<T> shouldDeselectCallback;
+    private final LongConsumer selectedEntityDeletedCallback;
 
     public EntityModifiedSelectionAwareSupport(final SelectionSupport<T> selectionSupport,
-            final LongFunction<Optional<T>> getFromBackendCallback, final Predicate<T> isInvalidEntityCallback) {
+            final LongFunction<Optional<T>> getFromBackendCallback, final Predicate<T> shouldDeselectCallback,
+            final LongConsumer selectedEntityDeletedCallback) {
         this.selectionSupport = selectionSupport;
         this.getFromBackendCallback = getFromBackendCallback;
-        this.isInvalidEntityCallback = isInvalidEntityCallback;
+        this.shouldDeselectCallback = shouldDeselectCallback;
+        this.selectedEntityDeletedCallback = selectedEntityDeletedCallback;
     }
 
     public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
             final SelectionSupport<E> selectionSupport, final LongFunction<Optional<E>> getFromBackendCallback) {
-        return of(selectionSupport, getFromBackendCallback, null);
+        return of(selectionSupport, getFromBackendCallback, null, null);
     }
 
     public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
             final SelectionSupport<E> selectionSupport, final LongFunction<Optional<E>> getFromBackendCallback,
-            final Predicate<E> isInvalidEntityCallback) {
+            final LongConsumer selectedEntityDeletedCallback) {
+        return of(selectionSupport, getFromBackendCallback, null, selectedEntityDeletedCallback);
+    }
+
+    public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
+            final SelectionSupport<E> selectionSupport, final LongFunction<Optional<E>> getFromBackendCallback,
+            final Predicate<E> shouldDeselectCallback) {
+        return of(selectionSupport, getFromBackendCallback, shouldDeselectCallback, null);
+    }
+
+    public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
+            final SelectionSupport<E> selectionSupport, final LongFunction<Optional<E>> getFromBackendCallback,
+            final Predicate<E> shouldDeselectCallback, final LongConsumer selectedEntityDeletedCallback) {
         return new EntityModifiedSelectionAwareSupport<>(selectionSupport, getFromBackendCallback,
-                isInvalidEntityCallback);
+                shouldDeselectCallback, selectedEntityDeletedCallback);
     }
 
     @Override
@@ -77,17 +93,21 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
     }
 
     private SelectionChangedEventType getSelectionEventType(final T updatedItem) {
-        return isInvalidEntityCallback != null && isInvalidEntityCallback.test(updatedItem)
+        return shouldDeselectCallback != null && shouldDeselectCallback.test(updatedItem)
                 ? SelectionChangedEventType.ENTITY_DESELECTED
                 : SelectionChangedEventType.ENTITY_SELECTED;
     }
 
     @Override
     public void onEntitiesDeleted(final Collection<Long> entityIds) {
-        getModifiedEntityId(entityIds).ifPresent(selectedEntityId ->
-        // we need to update the master-aware components, that the
-        // master entity was deselected after deletion
-        selectionSupport.sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_DESELECTED,
-                selectionSupport.getSelectedEntity().orElse(null)));
+        getModifiedEntityId(entityIds).ifPresent(selectedEntityId -> {
+            if (selectedEntityDeletedCallback != null) {
+                selectedEntityDeletedCallback.accept(selectedEntityId);
+            }
+            // we need to update the master-aware components, that the
+            // master entity was deselected after deletion
+            selectionSupport.sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_DESELECTED,
+                    selectionSupport.getSelectedEntity().orElse(null));
+        });
     }
 }

@@ -56,6 +56,13 @@ public class ProxyRollout extends ProxyNamedEntity {
 
     private String errorThresholdPercentage;
 
+    public ProxyRollout() {
+    }
+
+    public ProxyRollout(final Long id) {
+        super(id);
+    }
+
     public ActionType getActionType() {
         return actionType;
     }

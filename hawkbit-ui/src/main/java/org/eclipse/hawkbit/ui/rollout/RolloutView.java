@@ -109,6 +109,7 @@ public class RolloutView extends VerticalLayout implements View {
 
     void showRolloutGroupTargetsListView() {
         rolloutManagementUIState.setCurrentLayout(Layout.ROLLOUT_GROUP_TARGET_LIST);
+
         rolloutsLayout.setVisible(false);
         rolloutGroupsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(true);
@@ -116,6 +117,9 @@ public class RolloutView extends VerticalLayout implements View {
 
     void showRolloutGroupListView() {
         rolloutManagementUIState.setCurrentLayout(Layout.ROLLOUT_GROUP_LIST);
+        rolloutManagementUIState.setSelectedRolloutGroupId(null);
+        rolloutManagementUIState.setSelectedRolloutGroupName("");
+
         rolloutsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(false);
         rolloutGroupsLayout.setVisible(true);
@@ -123,6 +127,11 @@ public class RolloutView extends VerticalLayout implements View {
 
     void showRolloutListView() {
         rolloutManagementUIState.setCurrentLayout(Layout.ROLLOUT_LIST);
+        rolloutManagementUIState.setSelectedRolloutId(null);
+        rolloutManagementUIState.setSelectedRolloutName("");
+        rolloutManagementUIState.setSelectedRolloutGroupId(null);
+        rolloutManagementUIState.setSelectedRolloutGroupName("");
+
         rolloutGroupsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(false);
         rolloutsLayout.setVisible(true);
@@ -144,7 +153,6 @@ public class RolloutView extends VerticalLayout implements View {
             break;
         }
 
-        // TODO: should we move it to switch?
         rolloutsLayout.restoreState();
         rolloutGroupsLayout.restoreState();
         rolloutGroupTargetsLayout.restoreState();
