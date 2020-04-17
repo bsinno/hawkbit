@@ -17,7 +17,9 @@ import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.filtermanagement.event.TargetFilterDetailsLayoutEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -35,6 +37,8 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
     private final transient TargetFilterCountMessageLabel targetFilterCountMessageLabel;
 
     private final transient TargetFilterDetailsLayoutEventListener eventListener;
+
+    private final transient SearchFilterListener searchFilterListener;
 
     /**
      * TargetFilterDetailsLayout constructor
@@ -71,6 +75,8 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
         initGridDataUpdatedListener();
 
         this.eventListener = new TargetFilterDetailsLayoutEventListener(this, eventBus);
+
+        this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridByQuery, getView(), getLayout());
 
         buildLayout(targetFilterDetailsGridHeader, targetFilterTargetGrid, targetFilterCountMessageLabel);
     }
@@ -118,14 +124,20 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
         targetFilterTargetGrid.restoreState();
     }
 
-    public Layout getLayout() {
-        return Layout.TARGET_FILTER_QUERY_FORM;
-    }
-
     /**
      * unsubscribe all listener
      */
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        searchFilterListener.unsubscribe();
+    }
+
+    public Layout getLayout() {
+        return Layout.TARGET_FILTER_QUERY_FORM;
+    }
+
+    public View getView() {
+        return View.TARGET_FILTER;
     }
 }

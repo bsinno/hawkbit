@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
@@ -40,26 +39,8 @@ public class DistributionSetGridLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new SearchFilterChangedListener());
         eventListeners.add(new TypeFilterChangedListener());
         eventListeners.add(new EntityModifiedListener());
-    }
-
-    private class SearchFilterChangedListener {
-
-        public SearchFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DISTRIBUTIONS
-                    || eventPayload.getLayout() != distributionSetGridLayout.getLayout()) {
-                return;
-            }
-
-            distributionSetGridLayout.filterGridBySearch(eventPayload.getFilter());
-        }
     }
 
     private class TypeFilterChangedListener {

@@ -14,8 +14,6 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
-import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterGridLayout;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -36,24 +34,7 @@ public class TargetFilterGridLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new SearchFilterChangedListener());
         eventListeners.add(new TargetFilterModifiedListener());
-    }
-
-    private class SearchFilterChangedListener {
-        public SearchFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
-            if (eventPayload.getView() != View.TARGET_FILTER
-                    || eventPayload.getLayout() != targetFilterGridLayout.getLayout()) {
-                return;
-            }
-
-            targetFilterGridLayout.filterGridByName(eventPayload.getFilter());
-        }
     }
 
     private class TargetFilterModifiedListener {

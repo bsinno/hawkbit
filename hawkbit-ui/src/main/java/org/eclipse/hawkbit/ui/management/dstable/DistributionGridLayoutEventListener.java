@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -42,28 +41,10 @@ public class DistributionGridLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new SearchFilterChangedListener());
         eventListeners.add(new TagFilterChangedListener());
         eventListeners.add(new NoTagFilterChangedListener());
         eventListeners.add(new PinnedTargetChangedListener());
         eventListeners.add(new EntityModifiedListener());
-    }
-
-    private class SearchFilterChangedListener {
-
-        public SearchFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DEPLOYMENT
-                    || eventPayload.getLayout() != distributionGridLayout.getLayout()) {
-                return;
-            }
-
-            distributionGridLayout.filterGridBySearch(eventPayload.getFilter());
-        }
     }
 
     private class TagFilterChangedListener {

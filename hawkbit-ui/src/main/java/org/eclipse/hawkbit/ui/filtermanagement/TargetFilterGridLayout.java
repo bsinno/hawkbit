@@ -14,7 +14,9 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.filtermanagement.event.TargetFilterGridLayoutEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -31,6 +33,8 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
     private final TargetFilterGrid targetFilterGrid;
 
     private final transient TargetFilterGridLayoutEventListener eventListener;
+
+    private final transient SearchFilterListener searchFilterListener;
 
     /**
      * TargetFilterGridLayout constructor
@@ -71,6 +75,8 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetFilterGridLayoutEventListener(this, eventBus);
 
+        this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridByName, getView(), getLayout());
+
         buildLayout(targetFilterGridHeader, targetFilterGrid);
     }
 
@@ -99,14 +105,20 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
         targetFilterGrid.restoreState();
     }
 
-    public Layout getLayout() {
-        return Layout.TARGET_FILTER_QUERY_LIST;
-    }
-
     /**
      * unsubscribe all listener
      */
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        searchFilterListener.unsubscribe();
+    }
+
+    public Layout getLayout() {
+        return Layout.TARGET_FILTER_QUERY_LIST;
+    }
+
+    public View getView() {
+        return View.TARGET_FILTER;
     }
 }

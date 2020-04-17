@@ -14,7 +14,6 @@ import java.util.List;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
@@ -37,25 +36,7 @@ public class SoftwareModuleGridLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new SearchFilterChangedListener());
         eventListeners.add(new TypeFilterChangedListener());
-    }
-
-    private class SearchFilterChangedListener {
-
-        public SearchFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
-            if (eventPayload.getView() != View.UPLOAD
-                    || eventPayload.getLayout() != softwareModuleGridLayout.getLayout()) {
-                return;
-            }
-
-            softwareModuleGridLayout.filterGridBySearch(eventPayload.getFilter());
-        }
     }
 
     private class TypeFilterChangedListener {

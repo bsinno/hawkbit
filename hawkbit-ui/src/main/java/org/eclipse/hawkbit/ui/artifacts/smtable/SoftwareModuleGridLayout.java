@@ -28,6 +28,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAw
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -46,6 +47,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
     private final transient SoftwareModuleGridLayoutEventListener eventListener;
 
+    private final transient SearchFilterListener searchFilterListener;
     private final transient SelectionChangedListener<ProxySoftwareModule> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedListener;
 
@@ -74,6 +76,8 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new SoftwareModuleGridLayoutEventListener(this, eventBus);
 
+        this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridBySearch, getView(),
+                getLayout());
         this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxySoftwareModule.class)
@@ -90,11 +94,6 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(softwareModuleGrid::refreshContainer),
                 EntityModifiedSelectionAwareSupport.of(softwareModuleGrid.getSelectionSupport(),
                         softwareModuleGrid::mapIdToProxyEntity));
-    }
-
-    public void restoreState() {
-        softwareModuleGridHeader.restoreState();
-        softwareModuleGrid.restoreState();
     }
 
     public void showSmTypeHeaderIcon() {
@@ -125,9 +124,15 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         showDetailsLayout();
     }
 
+    public void restoreState() {
+        softwareModuleGridHeader.restoreState();
+        softwareModuleGrid.restoreState();
+    }
+
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
+        searchFilterListener.unsubscribe();
         masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
     }

@@ -36,6 +36,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedPinAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
@@ -58,6 +59,7 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     private final transient DistributionGridLayoutEventListener eventListener;
 
+    private final transient SearchFilterListener searchFilterListener;
     private final transient SelectionChangedListener<ProxyDistributionSet> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyDistributionSet> entityModifiedListener;
 
@@ -93,18 +95,14 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new DistributionGridLayoutEventListener(this, eventBus);
 
+        this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridBySearch, getView(),
+                getLayout());
         this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
-
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(distributionGridHeader, distributionGrid, distributionSetDetailsHeader, distributionDetails);
-    }
-
-    public void restoreState() {
-        distributionGridHeader.restoreState();
-        distributionGrid.restoreState();
     }
 
     private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterEntityAwareComponents() {
@@ -165,13 +163,15 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         showDetailsLayout();
     }
 
-    public void refreshGrid() {
-        distributionGrid.refreshContainer();
+    public void restoreState() {
+        distributionGridHeader.restoreState();
+        distributionGrid.restoreState();
     }
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
+        searchFilterListener.unsubscribe();
         masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
     }

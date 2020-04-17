@@ -13,10 +13,8 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
 import org.eclipse.hawkbit.ui.common.event.View;
@@ -41,7 +39,6 @@ public class TargetFilterDetailsLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new ShowTargetFilterQueryFormLayoutListener());
-        eventListeners.add(new SearchFilterChangedListener());
     }
 
     private class ShowTargetFilterQueryFormLayoutListener {
@@ -64,22 +61,6 @@ public class TargetFilterDetailsLayoutEventListener {
 
             eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
                     VisibilityType.SHOW, targetFilterDetailsLayout.getLayout(), View.TARGET_FILTER));
-        }
-    }
-
-    private class SearchFilterChangedListener {
-        public SearchFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
-            if (eventPayload.getView() != View.TARGET_FILTER
-                    || eventPayload.getLayout() != targetFilterDetailsLayout.getLayout()) {
-                return;
-            }
-
-            targetFilterDetailsLayout.filterGridByQuery(eventPayload.getFilter());
         }
     }
 

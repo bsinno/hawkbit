@@ -36,6 +36,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAw
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -55,6 +56,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     private final transient DistributionSetGridLayoutEventListener eventListener;
 
+    private final transient SearchFilterListener searchFilterListener;
     private final transient SelectionChangedListener<ProxyDistributionSet> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyDistributionSet> entityModifiedListener;
 
@@ -89,6 +91,8 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new DistributionSetGridLayoutEventListener(this, eventBus);
 
+        this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridBySearch, getView(),
+                getLayout());
         this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)
@@ -106,11 +110,6 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
         return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(distributionSetGrid::refreshContainer),
                 EntityModifiedSelectionAwareSupport.of(distributionSetGrid.getSelectionSupport(),
                         distributionSetGrid::mapIdToProxyEntity));
-    }
-
-    public void restoreState() {
-        distributionSetGridHeader.restoreState();
-        distributionSetGrid.restoreState();
     }
 
     public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
@@ -145,9 +144,15 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
         showDetailsLayout();
     }
 
+    public void restoreState() {
+        distributionSetGridHeader.restoreState();
+        distributionSetGrid.restoreState();
+    }
+
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
+        searchFilterListener.unsubscribe();
         masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
     }

@@ -35,6 +35,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedPinAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
 import org.eclipse.hawkbit.ui.management.bulkupload.BulkUploadWindowBuilder;
@@ -59,6 +60,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     private final transient TargetGridLayoutEventListener eventListener;
 
+    private final transient SearchFilterListener searchFilterListener;
     private final transient SelectionChangedListener<ProxyTarget> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyTarget> entityModifiedListener;
 
@@ -98,6 +100,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetGridLayoutEventListener(this, eventBus);
 
+        this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridBySearch, getView(),
+                getLayout());
         this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 getView(), getLayout());
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTarget.class)
@@ -122,11 +126,6 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                         EntityModifiedSelectionAwareSupport.of(targetGrid.getSelectionSupport(),
                                 targetGrid::mapIdToProxyEntity),
                         EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport()));
-    }
-
-    public void restoreState() {
-        targetGridHeader.restoreState();
-        targetGrid.restoreState();
     }
 
     public void onTargetTagsModified(final Collection<Long> entityIds,
@@ -206,13 +205,15 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         showDetailsLayout();
     }
 
-    public void refreshGrid() {
-        targetGrid.refreshContainer();
+    public void restoreState() {
+        targetGridHeader.restoreState();
+        targetGrid.restoreState();
     }
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
+        searchFilterListener.unsubscribe();
         masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
     }

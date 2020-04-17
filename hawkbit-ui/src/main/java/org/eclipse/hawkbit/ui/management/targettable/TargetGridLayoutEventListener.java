@@ -25,7 +25,6 @@ import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
@@ -49,7 +48,6 @@ public class TargetGridLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new SearchFilterChangedListener());
         eventListeners.add(new FilterModeChangedListener());
         eventListeners.add(new TagFilterChangedListener());
         eventListeners.add(new NoTagFilterChangedListener());
@@ -60,22 +58,6 @@ public class TargetGridLayoutEventListener {
         eventListeners.add(new BulkUploadChangedListener());
         eventListeners.add(new FilterByDsListener());
         eventListeners.add(new EntityModifiedListener());
-    }
-
-    private class SearchFilterChangedListener {
-
-        public SearchFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.SEARCH_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSearchFilterChanged(final SearchFilterEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != targetGridLayout.getLayout()) {
-                return;
-            }
-
-            targetGridLayout.filterGridBySearch(eventPayload.getFilter());
-        }
     }
 
     private class FilterModeChangedListener {
