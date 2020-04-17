@@ -8,9 +8,16 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -23,7 +30,7 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
     private final ActionStatusMsgGridHeader actionStatusMsgHeader;
     private final ActionStatusMsgGrid actionStatusMsgGrid;
 
-    private final transient ActionStatusMsgGridLayoutEventListener eventListener;
+    private final transient SelectionChangedListener<ProxyActionStatus> selectionChangedListener;
 
     /**
      * Constructor.
@@ -37,13 +44,14 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
         this.actionStatusMsgHeader = new ActionStatusMsgGridHeader(i18n);
         this.actionStatusMsgGrid = new ActionStatusMsgGrid(i18n, eventBus, deploymentManagement);
 
-        this.eventListener = new ActionStatusMsgGridLayoutEventListener(this, eventBus);
+        this.selectionChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                View.DEPLOYMENT, Layout.ACTION_HISTORY_STATUS_LIST);
 
         buildLayout(actionStatusMsgHeader, actionStatusMsgGrid);
     }
 
-    public void onActionStatusChanged(final ProxyActionStatus actionStatus) {
-        actionStatusMsgGrid.updateMasterEntityFilter(actionStatus != null ? actionStatus.getId() : null);
+    private List<MasterEntityAwareComponent<ProxyActionStatus>> getMasterEntityAwareComponents() {
+        return Collections.singletonList(actionStatusMsgGrid);
     }
 
     public void maximize() {
@@ -56,6 +64,6 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
     }
 
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
+        selectionChangedListener.unsubscribe();
     }
 }

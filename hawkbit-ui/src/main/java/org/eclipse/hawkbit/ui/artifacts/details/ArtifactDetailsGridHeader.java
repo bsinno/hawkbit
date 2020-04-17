@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.artifacts.details;
 
 import java.util.Arrays;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
@@ -17,6 +18,7 @@ import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -33,7 +35,8 @@ import com.vaadin.ui.themes.ValoTheme;
  * Header for ArtifactDetails with maximize-support.
  */
 // TODO: remove duplication with ActionHistoryGridHeader
-public class ArtifactDetailsGridHeader extends AbstractGridHeader {
+public class ArtifactDetailsGridHeader extends AbstractGridHeader
+        implements MasterEntityAwareComponent<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
     private final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState;
@@ -91,13 +94,10 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader {
         return artifactDetailsGridLayoutUiState.isMaximized();
     }
 
-    /**
-     * Updates header with swModuleNameVersion name.
-     *
-     * @param swModuleNameVersion
-     *            name and version of the software module
-     */
-    public void updateArtifactDetailsHeader(final String swModuleNameVersion) {
+    @Override
+    public void masterEntityChanged(final ProxySoftwareModule masterEntity) {
+        final String swModuleNameVersion = masterEntity != null ? masterEntity.getNameAndVersion() : "";
+
         if (StringUtils.hasText(swModuleNameVersion)) {
             headerCaption.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF) + " "
                     + HawkbitCommonUtil.getBoldHTMLText(swModuleNameVersion));

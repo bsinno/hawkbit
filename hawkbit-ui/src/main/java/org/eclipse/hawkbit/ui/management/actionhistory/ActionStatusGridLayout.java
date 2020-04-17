@@ -8,10 +8,17 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -24,7 +31,7 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
     private final ActionStatusGridHeader actionStatusGridHeader;
     private final ActionStatusGrid actionStatusGrid;
 
-    private final transient ActionStatusGridLayoutEventListener eventListener;
+    private final transient SelectionChangedListener<ProxyAction> selectionChangedListener;
 
     /**
      * Constructor.
@@ -37,20 +44,22 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
         this.actionStatusGridHeader = new ActionStatusGridHeader(i18n);
         this.actionStatusGrid = new ActionStatusGrid(i18n, eventBus, deploymentManagement);
 
-        this.eventListener = new ActionStatusGridLayoutEventListener(this, eventBus);
+        this.selectionChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                View.DEPLOYMENT, Layout.ACTION_HISTORY_LIST);
 
         buildLayout(actionStatusGridHeader, actionStatusGrid);
     }
 
-    public void onActionChanged(final ProxyAction action) {
-        actionStatusGrid.updateMasterEntityFilter(action != null ? action.getId() : null);
+    private List<MasterEntityAwareComponent<ProxyAction>> getMasterEntityAwareComponents() {
+        return Arrays.asList(actionStatusGrid, action -> reselectActionStatus());
+    }
 
-        if (actionStatusGrid.getSelectedItems().size() == 1) {
-            // we do not need to fetch the updated action status from backend
-            // here, because we only need to refresh messages based on id
-            actionStatusGrid.getSelectionSupport().sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED,
-                    actionStatusGrid.getSelectedItems().iterator().next());
-        }
+    private void reselectActionStatus() {
+        actionStatusGrid.getSelectionSupport().getSelectedEntity().ifPresent(selectedActionStatus ->
+        // we do not need to fetch the updated action status from backend
+        // here, because we only need to refresh messages based on id
+        actionStatusGrid.getSelectionSupport().sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED,
+                selectedActionStatus));
     }
 
     public void maximize() {
@@ -63,6 +72,6 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
     }
 
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
+        selectionChangedListener.unsubscribe();
     }
 }

@@ -10,9 +10,11 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusMsgDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -27,13 +29,16 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * This grid presents the messages for a selected action-status.
  */
-public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
+public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long>
+        implements MasterEntityAwareComponent<ProxyActionStatus> {
     private static final long serialVersionUID = 1L;
 
     private static final String MSG_ID = "id";
     private static final String VALUE_ID = "msgValue";
 
     private final ConfigurableFilterDataProvider<ProxyMessage, Void, Long> actionStatusMsgDataProvider;
+
+    private Long masterId;
 
     /**
      * Constructor.
@@ -111,8 +116,18 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
         setFrozenColumnCount(2);
     }
 
-    public void updateMasterEntityFilter(final Long masterEntityId) {
-        getFilterDataProvider().setFilter(masterEntityId);
+    @Override
+    public void masterEntityChanged(final ProxyActionStatus masterEntity) {
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+
+        if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
+            getFilterDataProvider().setFilter(masterEntityId);
+            masterId = masterEntityId;
+        }
+    }
+
+    public Long getMasterEntityId() {
+        return masterId;
     }
 
     /**

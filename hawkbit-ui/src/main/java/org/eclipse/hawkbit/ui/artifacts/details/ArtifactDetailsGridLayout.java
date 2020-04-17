@@ -8,6 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.details;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.servlet.MultipartConfigElement;
 
 import org.eclipse.hawkbit.repository.ArtifactManagement;
@@ -17,7 +20,11 @@ import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -33,6 +40,8 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     private final UploadDropAreaLayout uploadDropAreaLayout;
 
     private final transient ArtifactDetailsGridLayoutEventListener eventListener;
+
+    private final transient SelectionChangedListener<ProxySoftwareModule> selectionChangedListener;
 
     /**
      * Constructor for ArtifactDetailsLayout
@@ -62,6 +71,9 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new ArtifactDetailsGridLayoutEventListener(this, eventBus);
 
+        this.selectionChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                View.UPLOAD, Layout.SM_LIST);
+
         if (permChecker.hasCreateRepositoryPermission()) {
             this.uploadDropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, notification, artifactUploadState,
                     multipartConfigElement, softwareManagement, artifactManagement);
@@ -74,25 +86,8 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         }
     }
 
-    public ArtifactDetailsGrid getArtifactDetailsGrid() {
-        return artifactDetailsGrid;
-    }
-
-    public void restoreState() {
-        artifactDetailsHeader.restoreState();
-
-        if (uploadDropAreaLayout != null) {
-            uploadDropAreaLayout.restoreState();
-        }
-    }
-
-    public void onSmChanged(final ProxySoftwareModule selectedSm) {
-        artifactDetailsHeader.updateArtifactDetailsHeader(selectedSm != null ? selectedSm.getNameAndVersion() : "");
-        artifactDetailsGrid.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
-
-        if (uploadDropAreaLayout != null) {
-            uploadDropAreaLayout.updateMasterEntityFilter(selectedSm != null ? selectedSm.getId() : null);
-        }
+    private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterEntityAwareComponents() {
+        return Arrays.asList(artifactDetailsHeader, artifactDetailsGrid, uploadDropAreaLayout);
     }
 
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
@@ -111,11 +106,17 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         showDetailsLayout();
     }
 
-    public void refreshGrid() {
-        artifactDetailsGrid.refreshContainer();
+    public void restoreState() {
+        artifactDetailsHeader.restoreState();
+
+        if (uploadDropAreaLayout != null) {
+            uploadDropAreaLayout.restoreState();
+        }
     }
 
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
+
+        selectionChangedListener.unsubscribe();
     }
 }

@@ -18,6 +18,8 @@ import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -38,7 +40,7 @@ import com.vaadin.ui.dnd.event.FileDropEvent;
 /**
  * Container for drag and drop area in the upload view.
  */
-public class UploadDropAreaLayout extends CustomComponent {
+public class UploadDropAreaLayout extends CustomComponent implements MasterEntityAwareComponent<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
     private final VaadinMessageSource i18n;
@@ -92,15 +94,6 @@ public class UploadDropAreaLayout extends CustomComponent {
         buildLayout();
     }
 
-    public void restoreState() {
-        uploadButtonLayout.restoreState();
-    }
-
-    public void updateMasterEntityFilter(final Long masterEntityId) {
-        dropAreaLayout.setEnabled(masterEntityId != null);
-        uploadButtonLayout.updateMasterEntityFilter(masterEntityId);
-    }
-
     private void buildLayout() {
         dropAreaLayout = new VerticalLayout();
         dropAreaLayout.setId(UIComponentIdProvider.UPLOAD_ARTIFACT_FILE_DROP_LAYOUT);
@@ -129,12 +122,28 @@ public class UploadDropAreaLayout extends CustomComponent {
         setCompositionRoot(dropAreaLayout);
     }
 
-    public VerticalLayout getDropAreaLayout() {
-        return dropAreaLayout;
+    @Override
+    public void masterEntityChanged(final ProxySoftwareModule masterEntity) {
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+
+        dropAreaLayout.setEnabled(masterEntityId != null);
+        uploadButtonLayout.updateMasterEntityFilter(masterEntityId);
     }
 
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         uploadButtonLayout.onUploadChanged(fileUploadProgress);
+    }
+
+    public void restoreState() {
+        uploadButtonLayout.restoreState();
+    }
+
+    public VerticalLayout getDropAreaLayout() {
+        return dropAreaLayout;
+    }
+
+    public UploadProgressButtonLayout getUploadButtonLayout() {
+        return uploadButtonLayout;
     }
 
     private class UploadFileDropHandler implements FileDropHandler<VerticalLayout> {
@@ -200,9 +209,4 @@ public class UploadDropAreaLayout extends CustomComponent {
             return true;
         }
     }
-
-    public UploadProgressButtonLayout getUploadButtonLayout() {
-        return uploadButtonLayout;
-    }
-
 }

@@ -24,6 +24,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -39,7 +40,8 @@ import com.vaadin.ui.Button.ClickListener;
 /**
  * Artifact Details grid which is shown on the Upload View.
  */
-public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
+public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
+        implements MasterEntityAwareComponent<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
     private static final String ARTIFACT_NAME_ID = "artifactName";
@@ -56,7 +58,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     private final transient ArtifactToProxyArtifactMapper artifactToProxyMapper;
     private final transient DeleteSupport<ProxyArtifact> artifactDeleteSupport;
 
-    private Long masterEntityId;
+    private Long masterId;
 
     public ArtifactDetailsGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -91,7 +93,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         artifactToBeDeletedIds.forEach(artifactManagement::delete);
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class, masterEntityId));
+                EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class, masterId));
     }
 
     @Override
@@ -104,9 +106,18 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         return artifactDataProvider;
     }
 
-    public void updateMasterEntityFilter(final Long masterEntityId) {
-        this.masterEntityId = masterEntityId;
-        getFilterDataProvider().setFilter(masterEntityId);
+    @Override
+    public void masterEntityChanged(final ProxySoftwareModule masterEntity) {
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+
+        if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
+            getFilterDataProvider().setFilter(masterEntityId);
+            masterId = masterEntityId;
+        }
+    }
+
+    public Long getMasterEntityId() {
+        return masterId;
     }
 
     /**

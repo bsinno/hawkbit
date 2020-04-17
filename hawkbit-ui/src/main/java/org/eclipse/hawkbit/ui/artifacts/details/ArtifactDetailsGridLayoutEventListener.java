@@ -12,12 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -37,28 +32,7 @@ public class ArtifactDetailsGridLayoutEventListener {
     }
 
     private void registerEventListeners() {
-        eventListeners.add(new SelectionChangedListener());
         eventListeners.add(new FileUploadChangedListener());
-    }
-
-    private class SelectionChangedListener {
-
-        public SelectionChangedListener() {
-            eventBus.subscribe(this, EventTopics.SELECTION_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onSmEvent(final SelectionChangedEventPayload<ProxySoftwareModule> eventPayload) {
-            if (eventPayload.getView() != View.UPLOAD || eventPayload.getLayout() != Layout.SM_LIST) {
-                return;
-            }
-
-            if (eventPayload.getSelectionChangedEventType() == SelectionChangedEventType.ENTITY_SELECTED) {
-                artifactDetailsGridLayout.onSmChanged(eventPayload.getEntity());
-            } else {
-                artifactDetailsGridLayout.onSmChanged(null);
-            }
-        }
     }
 
     private class FileUploadChangedListener {

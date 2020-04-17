@@ -8,6 +8,7 @@
 package org.eclipse.hawkbit.ui.common.layout.listener;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -16,6 +17,7 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -51,7 +53,12 @@ public class SelectionChangedListener<T extends ProxyIdentifiableEntity> impleme
     }
 
     private void onSelectionChanged(final T entity) {
-        masterEntityAwareComponents.forEach(component -> component.masterEntityChanged(entity));
+        if (CollectionUtils.isEmpty(masterEntityAwareComponents)) {
+            return;
+        }
+
+        masterEntityAwareComponents.stream().filter(Objects::nonNull)
+                .forEach(component -> component.masterEntityChanged(entity));
     }
 
     @Override

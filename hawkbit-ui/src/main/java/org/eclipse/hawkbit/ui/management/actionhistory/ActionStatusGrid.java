@@ -16,11 +16,13 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatusMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -38,7 +40,8 @@ import com.vaadin.ui.Label;
 /**
  * This grid presents the action states for a selected action.
  */
-public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
+public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long>
+        implements MasterEntityAwareComponent<ProxyAction> {
     private static final long serialVersionUID = 1L;
 
     private static final String STATUS_ID = "status";
@@ -47,6 +50,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
     private final ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> actionStatusDataProvider;
+
+    private Long masterId;
 
     /**
      * Constructor.
@@ -134,8 +139,18 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
         return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
     }
 
-    public void updateMasterEntityFilter(final Long masterEntityId) {
-        getFilterDataProvider().setFilter(masterEntityId);
+    @Override
+    public void masterEntityChanged(final ProxyAction masterEntity) {
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+
+        if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
+            getFilterDataProvider().setFilter(masterEntityId);
+            masterId = masterEntityId;
+        }
+    }
+
+    public Long getMasterEntityId() {
+        return masterId;
     }
 
     /**

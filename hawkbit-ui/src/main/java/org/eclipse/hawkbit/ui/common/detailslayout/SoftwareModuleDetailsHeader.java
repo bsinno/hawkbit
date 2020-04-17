@@ -148,7 +148,7 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
                     artifactManagement);
         }
         setInitialArtifactDetailsGridSize(artifactDetailsGrid);
-        artifactDetailsGrid.updateMasterEntityFilter(selectedEntity.getId());
+        artifactDetailsGrid.masterEntityChanged(selectedEntity);
 
         final Window artifactDtlsWindow = new Window();
         artifactDtlsWindow.setCaptionAsHtml(true);
