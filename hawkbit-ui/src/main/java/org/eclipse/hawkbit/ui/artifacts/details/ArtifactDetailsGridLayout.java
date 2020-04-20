@@ -69,11 +69,6 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         this.artifactDetailsGrid = new ArtifactDetailsGrid(eventBus, i18n, permChecker, notification,
                 artifactManagement);
 
-        this.eventListener = new ArtifactDetailsGridLayoutEventListener(this, eventBus);
-
-        this.selectionChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
-                View.UPLOAD, Layout.SM_LIST);
-
         if (permChecker.hasCreateRepositoryPermission()) {
             this.uploadDropAreaLayout = new UploadDropAreaLayout(i18n, eventBus, notification, artifactUploadState,
                     multipartConfigElement, softwareManagement, artifactManagement);
@@ -84,6 +79,11 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
 
             buildLayout(artifactDetailsHeader, artifactDetailsGrid);
         }
+
+        this.eventListener = new ArtifactDetailsGridLayoutEventListener(this, eventBus);
+
+        this.selectionChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
+                View.UPLOAD, Layout.SM_LIST);
     }
 
     private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterEntityAwareComponents() {

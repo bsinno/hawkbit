@@ -46,25 +46,25 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
                 rolloutManagementUIState);
         this.rolloutGroupTargetCountMessageLabel = new TargetFilterCountMessageLabel(i18n);
 
+        initGridDataUpdatedListener();
+
         this.rolloutChangedListener = new SelectionChangedListener<>(eventBus,
                 Collections.singletonList(rolloutGroupTargetsListHeader::rolloutChanged), View.ROLLOUT,
                 Layout.ROLLOUT_LIST);
         this.rolloutGroupChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
                 View.ROLLOUT, Layout.ROLLOUT_GROUP_LIST);
 
-        initGridDataUpdatedListener();
-
         buildLayout(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid, rolloutGroupTargetCountMessageLabel);
-    }
-
-    private List<MasterEntityAwareComponent<ProxyRolloutGroup>> getMasterEntityAwareComponents() {
-        return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid);
     }
 
     private void initGridDataUpdatedListener() {
         rolloutGroupTargetsListGrid.getFilterDataProvider()
                 .addDataProviderListener(event -> rolloutGroupTargetCountMessageLabel
                         .updateTotalFilteredTargetsCount(rolloutGroupTargetsListGrid.getDataSize()));
+    }
+
+    private List<MasterEntityAwareComponent<ProxyRolloutGroup>> getMasterEntityAwareComponents() {
+        return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid);
     }
 
     public void restoreState() {
