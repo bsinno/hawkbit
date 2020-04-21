@@ -13,7 +13,10 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.GenericEventListener;
 import org.eclipse.hawkbit.ui.management.ManagementUIState;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -31,7 +34,7 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
     private final TargetTagFilterHeader targetTagFilterHeader;
     private final MultipleTargetFilter multipleTargetFilter;
 
-    private final transient TargetTagFilterLayoutEventListener eventListener;
+    private final transient GenericEventListener<TargetFilterTabChangedEventPayload> filterTabChangedListener;
 
     /**
      * Constructor
@@ -67,9 +70,18 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
                 targetFilterQueryManagement, targetTagManagement, targetManagement, targetTagFilterLayoutUiState,
                 targetTagWindowBuilder);
 
-        this.eventListener = new TargetTagFilterLayoutEventListener(this, eventBus);
+        this.filterTabChangedListener = new GenericEventListener<>(eventBus, EventTopics.TARGET_FILTER_TAB_CHANGED,
+                this::onTargetFilterTabChanged);
 
         buildLayout();
+    }
+
+    private void onTargetFilterTabChanged(final TargetFilterTabChangedEventPayload eventPayload) {
+        if (TargetFilterTabChangedEventPayload.CUSTOM == eventPayload) {
+            targetTagFilterHeader.disableCrudMenu();
+        } else {
+            targetTagFilterHeader.enableCrudMenu();
+        }
     }
 
     @Override
@@ -82,22 +94,13 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
         return multipleTargetFilter;
     }
 
-    void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
-        if (isCustomFilterTabSelected) {
-            targetTagFilterHeader.disableCrudMenu();
-        } else {
-            targetTagFilterHeader.enableCrudMenu();
-        }
-    }
-
     public void restoreState() {
         targetTagFilterHeader.restoreState();
         multipleTargetFilter.restoreState();
     }
 
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
+        filterTabChangedListener.unsubscribe();
         multipleTargetFilter.unsubscribeListener();
     }
 }

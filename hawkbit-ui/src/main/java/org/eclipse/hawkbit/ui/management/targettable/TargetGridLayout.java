@@ -27,14 +27,17 @@ import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.BulkUploadChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.GenericEventListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.PinningChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
@@ -67,11 +70,13 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     private final transient TargetGridLayoutEventListener eventListener;
 
     private final transient SearchFilterListener searchFilterListener;
+    private final transient GenericEventListener<TargetFilterTabChangedEventPayload> filterTabChangedListener;
     private final transient TagFilterListener tagFilterListener;
     private final transient PinningChangedListener<Long> pinningChangedListener;
     private final transient SelectionChangedListener<ProxyTarget> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyTarget> entityModifiedListener;
     private final transient EntityModifiedListener<ProxyTag> tagModifiedListener;
+    private final transient BulkUploadChangedListener bulkUploadListener;
 
     public TargetGridLayout(final UIEventBus eventBus, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
@@ -113,6 +118,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         final LayoutViewAware tagLayoutView = new LayoutViewAware(Layout.TARGET_TAG_FILTER, View.DEPLOYMENT);
 
         this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridBySearch);
+        this.filterTabChangedListener = new GenericEventListener<>(eventBus, EventTopics.TARGET_FILTER_TAB_CHANGED,
+                this::onTargetFilterTabChanged);
         this.tagFilterListener = new TagFilterListener(eventBus, tagLayoutView, this::filterGridByTags,
                 this::filterGridByNoTag);
         this.pinningChangedListener = new PinningChangedListener<>(eventBus, ProxyDistributionSet.class,
@@ -123,6 +130,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
         this.tagModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
                 .entityModifiedAwareSupports(getTagModifiedAwareSupports()).parentEntityType(ProxyTarget.class).build();
+        this.bulkUploadListener = new BulkUploadChangedListener(eventBus, targetGridHeader::onBulkUploadChanged);
 
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }
@@ -157,7 +165,9 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         targetGridHeader.hideTargetTagIcon();
     }
 
-    public void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
+    public void onTargetFilterTabChanged(final TargetFilterTabChangedEventPayload eventPayload) {
+        final boolean isCustomFilterTabSelected = TargetFilterTabChangedEventPayload.CUSTOM == eventPayload;
+
         if (isCustomFilterTabSelected) {
             targetGridHeader.onSimpleFilterReset();
         } else {
@@ -207,10 +217,6 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         targetGrid.deselectAll();
     }
 
-    public void onBulkUploadChanged(final BulkUploadEventPayload eventPayload) {
-        targetGridHeader.onBulkUploadChanged(eventPayload);
-    }
-
     public void maximize() {
         targetGrid.createMaximizedContent();
         hideDetailsLayout();
@@ -230,11 +236,13 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         eventListener.unsubscribeListeners();
 
         searchFilterListener.unsubscribe();
+        filterTabChangedListener.unsubscribe();
         tagFilterListener.unsubscribe();
         pinningChangedListener.unsubscribe();
         masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
         tagModifiedListener.unsubscribe();
+        bulkUploadListener.unsubscribe();
     }
 
     public CountMessageLabel getCountMessageLabel() {

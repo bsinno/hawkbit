@@ -20,11 +20,13 @@ import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.layout.listener.GenericEventListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -40,9 +42,8 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     private final ArtifactDetailsGrid artifactDetailsGrid;
     private final UploadDropAreaLayout uploadDropAreaLayout;
 
-    private final transient ArtifactDetailsGridLayoutEventListener eventListener;
-
     private final transient SelectionChangedListener<ProxySoftwareModule> selectionChangedListener;
+    private final transient GenericEventListener<FileUploadProgress> fileUploadChangedListener;
 
     /**
      * Constructor for ArtifactDetailsLayout
@@ -81,11 +82,11 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
             buildLayout(artifactDetailsHeader, artifactDetailsGrid);
         }
 
-        this.eventListener = new ArtifactDetailsGridLayoutEventListener(this, eventBus);
-
         final LayoutViewAware masterLayoutView = new LayoutViewAware(Layout.SM_LIST, View.UPLOAD);
         this.selectionChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
                 getMasterEntityAwareComponents());
+        this.fileUploadChangedListener = new GenericEventListener<>(eventBus, EventTopics.FILE_UPLOAD_CHANGED,
+                this::onUploadChanged);
     }
 
     private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterEntityAwareComponents() {
@@ -117,8 +118,7 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     }
 
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
         selectionChangedListener.unsubscribe();
+        fileUploadChangedListener.unsubscribe();
     }
 }
