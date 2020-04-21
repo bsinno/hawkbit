@@ -41,7 +41,7 @@ public class TargetTagFilterLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTagChangedEvent(final TargetFilterTabChangedEventPayload eventPayload) {
+        private void onTargetFilterTabChangedEvent(final TargetFilterTabChangedEventPayload eventPayload) {
             targetTagFilterLayout.onTargetFilterTabChanged(TargetFilterTabChangedEventPayload.CUSTOM == eventPayload);
         }
     }

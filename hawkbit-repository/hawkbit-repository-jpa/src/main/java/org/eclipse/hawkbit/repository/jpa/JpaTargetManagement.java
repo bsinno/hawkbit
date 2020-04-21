@@ -477,8 +477,11 @@ public class JpaTargetManagement implements TargetManagement {
     }
 
     private static boolean hasTagsFilterActive(final FilterParams filterParams) {
-        return ((filterParams.getSelectTargetWithNoTag() != null) && filterParams.getSelectTargetWithNoTag())
-                || ((filterParams.getFilterByTagNames() != null) && (filterParams.getFilterByTagNames().length > 0));
+        final boolean isNoTagActive = Boolean.TRUE.equals(filterParams.getSelectTargetWithNoTag());
+        final boolean isAtLeastOneTagActive = filterParams.getFilterByTagNames() != null
+                && filterParams.getFilterByTagNames().length > 0;
+
+        return isNoTagActive || isAtLeastOneTagActive;
     }
 
     private Slice<Target> findByCriteriaAPI(final Pageable pageable, final List<Specification<JpaTarget>> specList) {

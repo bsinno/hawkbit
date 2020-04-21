@@ -63,7 +63,7 @@ public class TargetGridLayoutEventListener {
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetEvent(final TargetFilterTabChangedEventPayload eventPayload) {
+        private void onTargetFilterTabChangedEvent(final TargetFilterTabChangedEventPayload eventPayload) {
             targetGridLayout.onTargetFilterTabChanged(TargetFilterTabChangedEventPayload.CUSTOM == eventPayload);
         }
     }
