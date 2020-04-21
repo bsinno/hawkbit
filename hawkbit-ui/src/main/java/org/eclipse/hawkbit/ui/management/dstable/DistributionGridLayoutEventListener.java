@@ -11,10 +11,7 @@ package org.eclipse.hawkbit.ui.management.dstable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
@@ -44,7 +41,6 @@ public class DistributionGridLayoutEventListener {
         eventListeners.add(new TagFilterChangedListener());
         eventListeners.add(new NoTagFilterChangedListener());
         eventListeners.add(new PinnedTargetChangedListener());
-        eventListeners.add(new EntityModifiedListener());
     }
 
     private class TagFilterChangedListener {
@@ -96,24 +92,6 @@ public class DistributionGridLayoutEventListener {
             } else {
                 distributionGridLayout.filterGridByPinnedTarget(null);
             }
-        }
-    }
-
-    private class EntityModifiedListener {
-
-        public EntityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsTagEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyDistributionSet.class.equals(eventPayload.getParentType())
-                    || !ProxyTag.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            distributionGridLayout.onDsTagsModified(eventPayload.getEntityIds(),
-                    eventPayload.getEntityModifiedEventType());
         }
     }
 

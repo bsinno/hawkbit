@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,7 +25,6 @@ import org.eclipse.hawkbit.ui.common.data.providers.DsMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.tagdetails.DistributionTagToken;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -158,14 +156,10 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
         // active (lazy loading)
         dsMetadataGrid.updateMasterEntityFilter(entity != null ? entity.getId() : null);
         smDetailsGrid.updateMasterEntityFilter(entity);
-        distributionTagToken.updateMasterEntityFilter(entity);
+        distributionTagToken.masterEntityChanged(entity);
     }
 
-    public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
-        if (binder.getBean() == null) {
-            return;
-        }
-
-        distributionTagToken.onTagsModified(entityIds, entityModifiedType);
+    public DistributionTagToken getDistributionTagToken() {
+        return distributionTagToken;
     }
 }

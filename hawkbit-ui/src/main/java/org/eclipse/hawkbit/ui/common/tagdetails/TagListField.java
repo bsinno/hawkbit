@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.tagdetails;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -123,6 +124,22 @@ public class TagListField extends CssLayout {
     }
 
     /**
+     * Updates a tag.
+     * 
+     * @param tagData
+     */
+    void updateTag(final ProxyTag tagData) {
+        findTagById(tagData.getId()).ifPresent(tagToUpdate -> {
+            tagButtons.remove(tagToUpdate);
+            addTag(tagData);
+        });
+    }
+
+    private Optional<ProxyTag> findTagById(final Long id) {
+        return tagButtons.keySet().stream().filter(tagData -> tagData.getId().equals(id)).findAny();
+    }
+
+    /**
      * Removes a tag from the field.
      * 
      * @param tagData
@@ -141,8 +158,7 @@ public class TagListField extends CssLayout {
      * @param tagData
      */
     void removeTag(final Long tagId) {
-        tagButtons.keySet().stream().filter(tagData -> tagData.getId().equals(tagId)).findAny()
-                .ifPresent(this::removeTag);
+        findTagById(tagId).ifPresent(this::removeTag);
     }
 
     /**

@@ -174,7 +174,7 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         binder.setBean(new ProxyBulkUploadWindow());
 
         // init with dummy master entity in order to init tag panel
-        tagsComponent.updateMasterEntityFilter(new ProxyTarget());
+        tagsComponent.masterEntityChanged(new ProxyTarget());
 
         progressBar.setValue(0F);
         progressBar.setVisible(false);

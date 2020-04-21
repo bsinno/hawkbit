@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.management.dstable;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -25,8 +26,8 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
@@ -36,6 +37,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedPinAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedTagTokenAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
@@ -62,6 +64,7 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     private final transient SearchFilterListener searchFilterListener;
     private final transient SelectionChangedListener<ProxyDistributionSet> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyDistributionSet> entityModifiedListener;
+    private final transient EntityModifiedListener<ProxyTag> tagModifiedListener;
 
     public DistributionGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final EntityFactory entityFactory,
@@ -101,6 +104,9 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
                 getView(), getLayout());
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
+        this.tagModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
+                .entityModifiedAwareSupports(getTagModifiedAwareSupports()).parentEntityType(ProxyDistributionSet.class)
+                .build();
 
         buildLayout(distributionGridHeader, distributionGrid, distributionSetDetailsHeader, distributionDetails);
     }
@@ -117,12 +123,13 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
                         this::isIncomplete));
     }
 
-    private boolean isIncomplete(final ProxyDistributionSet ds) {
-        return ds != null && !ds.getIsComplete();
+    private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {
+        return Collections
+                .singletonList(EntityModifiedTagTokenAwareSupport.of(distributionDetails.getDistributionTagToken()));
     }
 
-    public void onDsTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
-        distributionDetails.onDsTagsModified(entityIds, entityModifiedType);
+    private boolean isIncomplete(final ProxyDistributionSet ds) {
+        return ds != null && !ds.getIsComplete();
     }
 
     public void showDsTagHeaderIcon() {
@@ -174,6 +181,7 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         searchFilterListener.unsubscribe();
         masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
+        tagModifiedListener.unsubscribe();
     }
 
     public Layout getLayout() {

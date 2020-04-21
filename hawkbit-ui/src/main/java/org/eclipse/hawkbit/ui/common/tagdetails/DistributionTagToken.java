@@ -55,32 +55,40 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
 
     @Override
     public void assignTag(final ProxyTag tagData) {
-        final List<DistributionSet> assignedDistributionSets = distributionSetManagement
-                .assignTag(Sets.newHashSet(selectedEntity.getId()), tagData.getId());
-        if (checkAssignmentResult(assignedDistributionSets, selectedEntity.getId())) {
-            uinotification.displaySuccess(
-                    i18n.getMessage("message.target.assigned.one", selectedEntity.getName(), tagData.getName()));
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                    EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, selectedEntity.getId()));
+        getMasterEntity().ifPresent(masterEntity -> {
+            final Long masterEntityId = masterEntity.getId();
 
-            // TODO: check if needed
-            tagPanelLayout.setAssignedTag(tagData);
-        }
+            final List<DistributionSet> assignedDistributionSets = distributionSetManagement
+                    .assignTag(Sets.newHashSet(masterEntityId), tagData.getId());
+            if (checkAssignmentResult(assignedDistributionSets, masterEntityId)) {
+                uinotification.displaySuccess(
+                        i18n.getMessage("message.target.assigned.one", masterEntity.getName(), tagData.getName()));
+                eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                        EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, masterEntityId));
+
+                // TODO: check if needed
+                tagPanelLayout.setAssignedTag(tagData);
+            }
+        });
     }
 
     @Override
     public void unassignTag(final ProxyTag tagData) {
-        final DistributionSet unAssignedDistributionSet = distributionSetManagement.unAssignTag(selectedEntity.getId(),
-                tagData.getId());
-        if (checkUnassignmentResult(unAssignedDistributionSet, selectedEntity.getId())) {
-            uinotification.displaySuccess(
-                    i18n.getMessage("message.target.unassigned.one", selectedEntity.getName(), tagData.getName()));
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                    EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, selectedEntity.getId()));
+        getMasterEntity().ifPresent(masterEntity -> {
+            final Long masterEntityId = masterEntity.getId();
 
-            // TODO: check if needed
-            tagPanelLayout.removeAssignedTag(tagData);
-        }
+            final DistributionSet unAssignedDistributionSet = distributionSetManagement.unAssignTag(masterEntityId,
+                    tagData.getId());
+            if (checkUnassignmentResult(unAssignedDistributionSet, masterEntityId)) {
+                uinotification.displaySuccess(
+                        i18n.getMessage("message.target.unassigned.one", masterEntity.getName(), tagData.getName()));
+                eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                        EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, masterEntityId));
+
+                // TODO: check if needed
+                tagPanelLayout.removeAssignedTag(tagData);
+            }
+        });
     }
 
     @Override
@@ -96,13 +104,9 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
 
     @Override
     protected List<ProxyTag> getAssignedTags() {
-        if (selectedEntity != null) {
-            return distributionSetTagManagement
-                    .findByDistributionSet(PageRequest.of(0, MAX_TAG_QUERY), selectedEntity.getId()).getContent()
-                    .stream().map(tagMapper::map).collect(Collectors.toList());
-        }
-
-        return Collections.emptyList();
+        return getMasterEntity().map(masterEntity -> distributionSetTagManagement
+                .findByDistributionSet(PageRequest.of(0, MAX_TAG_QUERY), masterEntity.getId()).getContent().stream()
+                .map(tagMapper::map).collect(Collectors.toList())).orElse(Collections.emptyList());
     }
 
     @Override

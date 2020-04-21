@@ -8,16 +8,22 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
-import org.eclipse.hawkbit.ui.filtermanagement.event.TargetFilterGridLayoutEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -32,9 +38,8 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
     private final TargetFilterGridHeader targetFilterGridHeader;
     private final TargetFilterGrid targetFilterGrid;
 
-    private final transient TargetFilterGridLayoutEventListener eventListener;
-
     private final transient SearchFilterListener searchFilterListener;
+    private final transient EntityModifiedListener<ProxyTargetFilterQuery> entityModifiedListener;
 
     /**
      * TargetFilterGridLayout constructor
@@ -73,9 +78,9 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
                 filterManagementUIState.getGridLayoutUiState(), targetFilterQueryManagement, permissionChecker,
                 autoAssignmentWindowBuilder);
 
-        this.eventListener = new TargetFilterGridLayoutEventListener(this, eventBus);
-
         this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridByName, getView(), getLayout());
+        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTargetFilterQuery.class)
+                .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
         buildLayout(targetFilterGridHeader, targetFilterGrid);
     }
@@ -90,11 +95,8 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
         targetFilterGrid.setFilter(namePart);
     }
 
-    /**
-     * Reload the data shown by the grid. Call this when a resource changed.
-     */
-    public void refreshGrid() {
-        targetFilterGrid.getFilterDataProvider().refreshAll();
+    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(targetFilterGrid::refreshContainer));
     }
 
     /**
@@ -109,9 +111,8 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
      * unsubscribe all listener
      */
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
         searchFilterListener.unsubscribe();
+        entityModifiedListener.unsubscribe();
     }
 
     public Layout getLayout() {

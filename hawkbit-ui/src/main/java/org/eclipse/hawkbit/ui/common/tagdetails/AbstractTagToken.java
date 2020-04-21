@@ -11,12 +11,13 @@ package org.eclipse.hawkbit.ui.common.tagdetails;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.tagdetails.TagPanelLayout.TagAssignmentListener;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -30,7 +31,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * @param <T>
  *            the special entity
  */
-public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements TagAssignmentListener {
+public abstract class AbstractTagToken<T extends ProxyNamedEntity>
+        implements TagAssignmentListener, MasterEntityAwareComponent<T> {
     protected static final int MAX_TAG_QUERY = 1000;
 
     protected TagPanelLayout tagPanelLayout;
@@ -40,7 +42,7 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements Ta
     protected final UINotification uinotification;
     protected final UIEventBus eventBus;
 
-    protected T selectedEntity;
+    private T masterEntity;
 
     protected AbstractTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
             final UINotification uinotification, final UIEventBus eventBus) {
@@ -62,10 +64,15 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements Ta
         tagPanelLayout.setSizeFull();
     }
 
-    public void updateMasterEntityFilter(final T value) {
-        selectedEntity = value;
+    @Override
+    public void masterEntityChanged(final T changedMasterEntity) {
+        if (changedMasterEntity == null && masterEntity == null) {
+            return;
+        }
 
-        if (selectedEntity == null) {
+        masterEntity = changedMasterEntity;
+
+        if (changedMasterEntity == null) {
             tagPanelLayout.initializeTags(Collections.emptyList(), Collections.emptyList());
             tagPanelLayout.setVisible(false);
         } else {
@@ -74,8 +81,16 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements Ta
         }
     }
 
+    public Optional<T> getMasterEntity() {
+        return Optional.ofNullable(masterEntity);
+    }
+
     protected void tagCreated(final ProxyTag tagData) {
         tagPanelLayout.tagCreated(tagData);
+    }
+
+    protected void tagUpdated(final ProxyTag tagData) {
+        tagPanelLayout.tagUpdated(tagData);
     }
 
     protected void tagDeleted(final Long tagId) {
@@ -106,27 +121,17 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity> implements Ta
 
     protected abstract List<ProxyTag> getAssignedTags();
 
-    public void onTagsModified(final Collection<Long> entityIds, final EntityModifiedEventType entityModifiedType) {
-        if (entityModifiedType == EntityModifiedEventType.ENTITY_ADDED) {
-            onTagsCreated(entityIds);
-        } else if (entityModifiedType == EntityModifiedEventType.ENTITY_UPDATED) {
-            onTagsUpdated();
-        } else {
-            onTagsDeleted(entityIds);
-        }
-    }
-
-    private void onTagsCreated(final Collection<Long> entityIds) {
+    public void onTagsAdded(final Collection<Long> entityIds) {
         getTagsById(entityIds).forEach(this::tagCreated);
     }
 
     protected abstract List<ProxyTag> getTagsById(final Collection<Long> entityIds);
 
-    private void onTagsUpdated() {
-        updateMasterEntityFilter(selectedEntity);
+    public void onTagsUpdated(final Collection<Long> entityIds) {
+        getTagsById(entityIds).forEach(this::tagUpdated);
     }
 
-    private void onTagsDeleted(final Collection<Long> entityIds) {
+    public void onTagsDeleted(final Collection<Long> entityIds) {
         entityIds.forEach(this::tagDeleted);
     }
 

@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -23,9 +24,9 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
@@ -35,6 +36,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedPinAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedTagTokenAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.management.CountMessageLabel;
@@ -63,6 +65,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     private final transient SearchFilterListener searchFilterListener;
     private final transient SelectionChangedListener<ProxyTarget> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxyTarget> entityModifiedListener;
+    private final transient EntityModifiedListener<ProxyTag> tagModifiedListener;
 
     public TargetGridLayout(final UIEventBus eventBus, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
@@ -106,6 +109,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                 getView(), getLayout());
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTarget.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
+        this.tagModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
+                .entityModifiedAwareSupports(getTagModifiedAwareSupports()).parentEntityType(ProxyTarget.class).build();
 
         buildLayout(targetGridHeader, targetGrid, targetDetailsHeader, targetDetails);
     }
@@ -128,9 +133,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
                         EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport()));
     }
 
-    public void onTargetTagsModified(final Collection<Long> entityIds,
-            final EntityModifiedEventType entityModifiedType) {
-        targetDetails.onTargetTagsModified(entityIds, entityModifiedType);
+    private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {
+        return Collections.singletonList(EntityModifiedTagTokenAwareSupport.of(targetDetails.getTargetTagToken()));
     }
 
     public void showTargetTagHeaderIcon() {
@@ -216,6 +220,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         searchFilterListener.unsubscribe();
         masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
+        tagModifiedListener.unsubscribe();
     }
 
     public CountMessageLabel getCountMessageLabel() {

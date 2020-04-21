@@ -13,12 +13,9 @@ import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterByDsEventPayload;
 import org.eclipse.hawkbit.ui.common.event.Layout;
@@ -57,7 +54,6 @@ public class TargetGridLayoutEventListener {
         eventListeners.add(new PinnedDsChangedListener());
         eventListeners.add(new BulkUploadChangedListener());
         eventListeners.add(new FilterByDsListener());
-        eventListeners.add(new EntityModifiedListener());
     }
 
     private class FilterModeChangedListener {
@@ -188,24 +184,6 @@ public class TargetGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onDsFilterChanged(final FilterByDsEventPayload eventPayload) {
             targetGridLayout.filterGridByDs(eventPayload.getDsId());
-        }
-    }
-
-    private class EntityModifiedListener {
-
-        public EntityModifiedListener() {
-            eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetTagEvent(final EntityModifiedEventPayload eventPayload) {
-            if (!ProxyTarget.class.equals(eventPayload.getParentType())
-                    || !ProxyTag.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            targetGridLayout.onTargetTagsModified(eventPayload.getEntityIds(),
-                    eventPayload.getEntityModifiedEventType());
         }
     }
 

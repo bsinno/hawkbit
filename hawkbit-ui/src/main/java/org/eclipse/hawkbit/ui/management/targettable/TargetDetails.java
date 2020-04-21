@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +30,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetAttributesDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractGridDetailsLayout;
 import org.eclipse.hawkbit.ui.common.detailslayout.KeyValueDetailsComponent;
 import org.eclipse.hawkbit.ui.common.detailslayout.MetadataDetailsGrid;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.tagdetails.TargetTagToken;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -87,7 +85,7 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
                 new SimpleEntry<>(i18n.getMessage("caption.attributes.tab"), attributesLayout),
                 new SimpleEntry<>(i18n.getMessage("header.target.assigned"), assignedDsDetails),
                 new SimpleEntry<>(i18n.getMessage("header.target.installed"), installedDsDetails),
-                new SimpleEntry<>(i18n.getMessage("caption.tags.tab"), targetTagToken.getTagPanel()),
+                new SimpleEntry<>(i18n.getMessage("caption.tags.tab"), getTargetTagToken().getTagPanel()),
                 new SimpleEntry<>(i18n.getMessage("caption.logs.tab"), logDetails),
                 new SimpleEntry<>(i18n.getMessage("caption.metadata"), targetMetadataGrid)));
 
@@ -206,15 +204,10 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
         // TODO: consider populating the grid only when metadata tab is/becomes
         // active (lazy loading)
         targetMetadataGrid.updateMasterEntityFilter(entity != null ? entity.getControllerId() : null);
-        targetTagToken.updateMasterEntityFilter(entity);
+        getTargetTagToken().masterEntityChanged(entity);
     }
 
-    public void onTargetTagsModified(final Collection<Long> entityIds,
-            final EntityModifiedEventType entityModifiedType) {
-        if (binder.getBean() == null) {
-            return;
-        }
-
-        targetTagToken.onTagsModified(entityIds, entityModifiedType);
+    public TargetTagToken getTargetTagToken() {
+        return targetTagToken;
     }
 }

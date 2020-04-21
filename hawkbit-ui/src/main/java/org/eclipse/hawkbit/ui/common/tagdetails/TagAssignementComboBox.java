@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.tagdetails;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.hawkbit.repository.model.DistributionSet;
@@ -127,14 +128,37 @@ public class TagAssignementComboBox extends HorizontalLayout {
     }
 
     /**
+     * Updates an assignable Tag in the combobox.
+     * 
+     * @param tagData
+     *            the data of the Tag
+     */
+    void updateAssignableTag(final ProxyTag tagData) {
+        if (tagData == null) {
+            return;
+        }
+
+        findAssignableTagById(tagData.getId()).map(allAssignableTags::indexOf)
+                .ifPresent(updatedTagIndex -> updateAssignableTag(updatedTagIndex, tagData));
+    }
+
+    private Optional<ProxyTag> findAssignableTagById(final Long id) {
+        return allAssignableTags.stream().filter(tag -> tag.getId().equals(id)).findAny();
+    }
+
+    private void updateAssignableTag(final int updatedTagIndex, final ProxyTag tagData) {
+        allAssignableTags.set(updatedTagIndex, tagData);
+        assignableTagsComboBox.getDataProvider().refreshAll();
+    }
+
+    /**
      * Removes an assignable tag from the combobox.
      * 
      * @param tagId
      *            the tag Id of the Tag that should be removed.
      */
     void removeAssignableTag(final Long tagId) {
-        allAssignableTags.stream().filter(tag -> tag.getId().equals(tagId)).findAny()
-                .ifPresent(this::removeAssignableTag);
+        findAssignableTagById(tagId).ifPresent(this::removeAssignableTag);
     }
 
     /**

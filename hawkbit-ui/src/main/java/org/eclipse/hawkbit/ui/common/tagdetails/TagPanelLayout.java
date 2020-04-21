@@ -112,6 +112,17 @@ public class TagPanelLayout extends VerticalLayout {
     }
 
     /**
+     * Informs the panel that a tag was updated.
+     * 
+     * @param tagData
+     *            the {@link ProxyTag}
+     */
+    void tagUpdated(final ProxyTag tagData) {
+        assignableTagsComboBox.updateAssignableTag(tagData);
+        assignedTagField.updateTag(tagData);
+    }
+
+    /**
      * Informs the panel that a tag was deleted.
      * 
      * @param tagId

@@ -108,12 +108,13 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
 
     @Override
     public void masterEntityChanged(final ProxySoftwareModule masterEntity) {
-        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-
-        if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
-            getFilterDataProvider().setFilter(masterEntityId);
-            masterId = masterEntityId;
+        if (masterEntity == null && masterId == null) {
+            return;
         }
+
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+        getFilterDataProvider().setFilter(masterEntityId);
+        masterId = masterEntityId;
     }
 
     public Long getMasterEntityId() {

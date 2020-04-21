@@ -169,12 +169,13 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
 
     @Override
     public void masterEntityChanged(final ProxyDistributionSet masterEntity) {
-        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-
-        if ((masterEntityId == null && getMasterEntityId() != null) || masterEntityId != null) {
-            smFilter.setLastSelectedDistributionId(masterEntityId);
-            getFilterDataProvider().setFilter(smFilter);
+        if (masterEntity == null && getMasterEntityId() == null) {
+            return;
         }
+
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+        smFilter.setLastSelectedDistributionId(masterEntityId);
+        getFilterDataProvider().setFilter(smFilter);
 
         getSelectionSupport().deselectAll();
     }

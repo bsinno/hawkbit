@@ -193,12 +193,13 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
 
     @Override
     public void masterEntityChanged(final ProxyTarget masterEntity) {
-        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-
-        if ((masterEntityId == null && masterId != null) || masterEntityId != null) {
-            masterId = masterEntityId;
-            getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getControllerId() : null);
+        if (masterEntity == null && masterId == null) {
+            return;
         }
+
+        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
+        masterId = masterEntityId;
+        getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getControllerId() : null);
     }
 
     public Long getMasterEntityId() {
