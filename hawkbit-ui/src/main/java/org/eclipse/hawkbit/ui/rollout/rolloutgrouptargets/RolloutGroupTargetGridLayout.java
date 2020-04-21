@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -48,11 +49,13 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
 
         initGridDataUpdatedListener();
 
-        this.rolloutChangedListener = new SelectionChangedListener<>(eventBus,
-                Collections.singletonList(rolloutGroupTargetsListHeader::rolloutChanged), View.ROLLOUT,
-                Layout.ROLLOUT_LIST);
-        this.rolloutGroupChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
-                View.ROLLOUT, Layout.ROLLOUT_GROUP_LIST);
+        final LayoutViewAware rolloutLayoutView = new LayoutViewAware(Layout.ROLLOUT_LIST, View.ROLLOUT);
+        final LayoutViewAware rolloutGroupLayoutView = new LayoutViewAware(Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT);
+
+        this.rolloutChangedListener = new SelectionChangedListener<>(eventBus, rolloutLayoutView,
+                Collections.singletonList(rolloutGroupTargetsListHeader::rolloutChanged));
+        this.rolloutGroupChangedListener = new SelectionChangedListener<>(eventBus, rolloutGroupLayoutView,
+                getMasterEntityAwareComponents());
 
         buildLayout(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid, rolloutGroupTargetCountMessageLabel);
     }

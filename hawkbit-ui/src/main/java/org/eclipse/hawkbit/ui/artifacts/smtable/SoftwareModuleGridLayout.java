@@ -21,15 +21,17 @@ import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
-import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
-import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.TypeFilterListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -45,9 +47,8 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SoftwareModuleDetails softwareModuleDetails;
 
-    private final transient SoftwareModuleGridLayoutEventListener eventListener;
-
     private final transient SearchFilterListener searchFilterListener;
+    private final transient TypeFilterListener<SoftwareModuleType> typeFilterListener;
     private final transient SelectionChangedListener<ProxySoftwareModule> masterEntityChangedListener;
     private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedListener;
 
@@ -74,12 +75,13 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, softwareModuleManagement,
                 smMetaDataWindowBuilder);
 
-        this.eventListener = new SoftwareModuleGridLayoutEventListener(this, eventBus);
+        final LayoutViewAware layoutView = new LayoutViewAware(Layout.SM_LIST, View.UPLOAD);
+        final LayoutViewAware typeLayoutView = new LayoutViewAware(Layout.SM_TYPE_FILTER, View.UPLOAD);
 
-        this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridBySearch, getView(),
-                getLayout());
-        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
-                getView(), getLayout());
+        this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridBySearch);
+        this.typeFilterListener = new TypeFilterListener<>(eventBus, typeLayoutView, this::filterGridByType);
+        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, layoutView,
+                getMasterEntityAwareComponents());
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxySoftwareModule.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
@@ -130,18 +132,9 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
         searchFilterListener.unsubscribe();
+        typeFilterListener.unsubscribe();
         masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
-    }
-
-    public Layout getLayout() {
-        return Layout.SM_LIST;
-    }
-
-    public View getView() {
-        return View.UPLOAD;
     }
 }

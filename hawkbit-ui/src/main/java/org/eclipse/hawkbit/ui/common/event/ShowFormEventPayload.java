@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class ShowFormEventPayload<T> extends ViewAwareEventPayload {
+public class ShowFormEventPayload<T> extends ViewAware {
     private final FormType formType;
     private final Class<?> entityType;
     private final Class<?> parentEntityType;

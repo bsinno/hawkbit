@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.common.grid.support;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +20,7 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionGridDragSource;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityDraggingListener;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -28,13 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-import org.vaadin.spring.events.EventScope;
-import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.cronutils.utils.StringUtils;
 import com.vaadin.server.AbstractExtension;
 import com.vaadin.shared.ui.grid.DropMode;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.GridDragStartEvent;
 import com.vaadin.ui.components.grid.GridDropTarget;
@@ -91,13 +88,13 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
 
     private void addDraggingListenerSubscription() {
         grid.addAttachListener(event -> {
-            if (draggingListener != null) {
-                eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING);
+            if (draggingListener != null && !draggingListener.isSubscribed()) {
+                draggingListener.subscribe();
             }
         });
         grid.addDetachListener(event -> {
-            if (draggingListener != null) {
-                eventBus.unsubscribe(draggingListener);
+            if (draggingListener != null && draggingListener.isSubscribed()) {
+                draggingListener.unsubscribe();
             }
         });
     }
@@ -195,10 +192,16 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private void addGridDropStylingListener() {
-        draggingListener = new EntityDraggingListener(sourceTargetAssignmentStrategies.keySet(), grid);
-        // TODO: is it alright to subscribe here, what if already subscribed?
-        // Can we use addDraggingListenerSubscription method?
-        eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING);
+        // TODO: is it alright to subscribe here, can we use
+        // addDraggingListenerSubscription method?
+        if (draggingListener == null) {
+            draggingListener = new EntityDraggingListener(eventBus, sourceTargetAssignmentStrategies.keySet(), grid);
+            return;
+        }
+
+        if (!draggingListener.isSubscribed()) {
+            draggingListener.subscribe();
+        }
     }
 
     private boolean isDropValid(final String sourceId, final T dropTargetItem,
@@ -238,33 +241,8 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         }
 
         if (draggingListener != null) {
-            eventBus.unsubscribe(draggingListener);
+            draggingListener.unsubscribe();
             draggingListener = null;
-        }
-    }
-
-    public static class EntityDraggingListener {
-        private static final String DROP_HINT_STYLE = "show-drop-hint";
-        private final Collection<String> draggingSourceIds;
-        private final Component dropComponent;
-
-        public EntityDraggingListener(final Collection<String> draggingSourceIds, final Component dropComponent) {
-            this.draggingSourceIds = draggingSourceIds;
-            this.dropComponent = dropComponent;
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onEntityDraggingEvent(final EntityDraggingEventPayload eventPayload) {
-            if (CollectionUtils.isEmpty(draggingSourceIds)
-                    || !draggingSourceIds.contains(eventPayload.getSourceGridId())) {
-                return;
-            }
-
-            if (eventPayload.getDraggingEventType() == DraggingEventType.STARTED) {
-                dropComponent.addStyleName(DROP_HINT_STYLE);
-            } else {
-                dropComponent.removeStyleName(DROP_HINT_STYLE);
-            }
         }
     }
 }

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterByDsEventPayload;
-import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport.EntityDraggingListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityDraggingListener;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
@@ -52,6 +52,8 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
 
     private final HorizontalLayout currentDsFilterInfo;
     private final HorizontalLayout dropAreaLayout;
+
+    private EntityDraggingListener draggingListener;
 
     /**
      * Constructor
@@ -172,10 +174,30 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
     }
 
     private void addDropStylingListener() {
-        final EntityDraggingListener draggingListener = new EntityDraggingListener(
-                Collections.singletonList(UIComponentIdProvider.DIST_TABLE_ID), dropAreaLayout);
-        dropAreaLayout.addAttachListener(event -> eventBus.subscribe(draggingListener, EventTopics.ENTITY_DRAGGING));
-        dropAreaLayout.addDetachListener(event -> eventBus.unsubscribe(draggingListener));
+        // TODO: is it alright to subscribe here, can we use
+        // addDraggingListenerSubscription method?
+        if (draggingListener == null) {
+            draggingListener = new EntityDraggingListener(eventBus,
+                    Collections.singletonList(UIComponentIdProvider.DIST_TABLE_ID), dropAreaLayout);
+            return;
+        }
+
+        if (!draggingListener.isSubscribed()) {
+            draggingListener.subscribe();
+        }
+    }
+
+    private void addDraggingListenerSubscription() {
+        dropAreaLayout.addAttachListener(event -> {
+            if (draggingListener != null && !draggingListener.isSubscribed()) {
+                draggingListener.subscribe();
+            }
+        });
+        dropAreaLayout.addDetachListener(event -> {
+            if (draggingListener != null && draggingListener.isSubscribed()) {
+                draggingListener.unsubscribe();
+            }
+        });
     }
 
     @Override

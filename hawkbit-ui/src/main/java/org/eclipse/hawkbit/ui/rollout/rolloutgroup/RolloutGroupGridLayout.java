@@ -17,14 +17,15 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
-import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
-import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -62,9 +63,10 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
         this.rolloutGroupListGrid = new RolloutGroupGrid(i18n, eventBus, permissionChecker, rolloutGroupManagement,
                 rolloutManagementUIState);
 
-        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
-                View.ROLLOUT, Layout.ROLLOUT_LIST);
+        final LayoutViewAware masterLayoutView = new LayoutViewAware(Layout.ROLLOUT_LIST, View.ROLLOUT);
 
+        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
+                getMasterEntityAwareComponents());
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyRolloutGroup.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).parentEntityType(ProxyRollout.class)
                 .parentEntityIdProvider(this::getMasterEntityId).build();

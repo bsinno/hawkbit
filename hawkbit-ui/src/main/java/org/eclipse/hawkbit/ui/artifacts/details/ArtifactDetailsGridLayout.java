@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -82,8 +83,9 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new ArtifactDetailsGridLayoutEventListener(this, eventBus);
 
-        this.selectionChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
-                View.UPLOAD, Layout.SM_LIST);
+        final LayoutViewAware masterLayoutView = new LayoutViewAware(Layout.SM_LIST, View.UPLOAD);
+        this.selectionChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
+                getMasterEntityAwareComponents());
     }
 
     private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterEntityAwareComponents() {

@@ -14,6 +14,7 @@ import java.util.List;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
@@ -44,8 +45,9 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
         this.actionStatusGridHeader = new ActionStatusGridHeader(i18n);
         this.actionStatusGrid = new ActionStatusGrid(i18n, eventBus, deploymentManagement);
 
-        this.selectionChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
-                View.DEPLOYMENT, Layout.ACTION_HISTORY_LIST);
+        final LayoutViewAware masterLayoutView = new LayoutViewAware(Layout.ACTION_HISTORY_LIST, View.DEPLOYMENT);
+        this.selectionChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
+                getMasterEntityAwareComponents());
 
         buildLayout(actionStatusGridHeader, actionStatusGrid);
     }

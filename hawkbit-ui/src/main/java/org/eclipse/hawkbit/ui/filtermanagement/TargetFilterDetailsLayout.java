@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
@@ -76,7 +77,9 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetFilterDetailsLayoutEventListener(this, eventBus);
 
-        this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridByQuery, getView(), getLayout());
+        final LayoutViewAware layoutView = new LayoutViewAware(Layout.TARGET_FILTER_QUERY_FORM, View.TARGET_FILTER);
+
+        this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridByQuery);
 
         buildLayout(targetFilterDetailsGridHeader, targetFilterTargetGrid, targetFilterCountMessageLabel);
     }
@@ -131,13 +134,5 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
         eventListener.unsubscribeListeners();
 
         searchFilterListener.unsubscribe();
-    }
-
-    public Layout getLayout() {
-        return Layout.TARGET_FILTER_QUERY_FORM;
-    }
-
-    public View getView() {
-        return View.TARGET_FILTER;
     }
 }

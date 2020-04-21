@@ -8,11 +8,23 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public abstract class ViewAwareEventPayload {
+public class ViewAware {
     private final View view;
 
-    protected ViewAwareEventPayload(final View view) {
+    public ViewAware(final View view) {
         this.view = view;
+    }
+
+    public ViewAware(final ViewAware viewAware) {
+        this.view = viewAware.getView();
+    }
+
+    public boolean suitableView(final View view) {
+        return this.view != null && view != null && this.view == view;
+    }
+
+    public boolean suitableView(final ViewAware viewAware) {
+        return suitableView(viewAware.getView());
     }
 
     public View getView() {

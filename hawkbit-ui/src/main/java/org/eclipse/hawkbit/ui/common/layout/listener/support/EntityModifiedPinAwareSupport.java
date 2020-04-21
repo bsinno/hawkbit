@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.common.layout.listener;
+package org.eclipse.hawkbit.ui.common.layout.listener.support;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 
 public class EntityModifiedPinAwareSupport<T extends ProxyIdentifiableEntity> implements EntityModifiedAwareSupport {

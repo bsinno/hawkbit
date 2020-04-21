@@ -12,19 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterByDsEventPayload;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.View;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -46,14 +39,11 @@ public class TargetGridLayoutEventListener {
 
     private void registerEventListeners() {
         eventListeners.add(new FilterModeChangedListener());
-        eventListeners.add(new TagFilterChangedListener());
-        eventListeners.add(new NoTagFilterChangedListener());
         eventListeners.add(new StatusFilterChangedListener());
         eventListeners.add(new OverdueFilterChangedListener());
         eventListeners.add(new CustomFilterChangedListener());
-        eventListeners.add(new PinnedDsChangedListener());
-        eventListeners.add(new BulkUploadChangedListener());
         eventListeners.add(new FilterByDsListener());
+        eventListeners.add(new BulkUploadChangedListener());
     }
 
     private class FilterModeChangedListener {
@@ -65,38 +55,6 @@ public class TargetGridLayoutEventListener {
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onTargetFilterTabChangedEvent(final TargetFilterTabChangedEventPayload eventPayload) {
             targetGridLayout.onTargetFilterTabChanged(TargetFilterTabChangedEventPayload.CUSTOM == eventPayload);
-        }
-    }
-
-    private class TagFilterChangedListener {
-
-        public TagFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.TAG_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetTagEvent(final TagFilterChangedEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_TAG_FILTER) {
-                return;
-            }
-
-            targetGridLayout.filterGridByTags(eventPayload.getTagNames());
-        }
-    }
-
-    private class NoTagFilterChangedListener {
-
-        public NoTagFilterChangedListener() {
-            eventBus.subscribe(this, EventTopics.NO_TAG_FILTER_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetNoTagEvent(final NoTagFilterChangedEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DEPLOYMENT || eventPayload.getLayout() != Layout.TARGET_TAG_FILTER) {
-                return;
-            }
-
-            targetGridLayout.filterGridByNoTag(eventPayload.getIsNoTagActive());
         }
     }
 
@@ -140,24 +98,20 @@ public class TargetGridLayoutEventListener {
         }
     }
 
-    private class PinnedDsChangedListener {
+    private class FilterByDsListener {
 
-        public PinnedDsChangedListener() {
-            eventBus.subscribe(this, EventTopics.PINNING_CHANGED);
+        public FilterByDsListener() {
+            eventBus.subscribe(this, EventTopics.FILTER_BY_DS_CHANGED);
         }
 
         @EventBusListenerMethod(scope = EventScope.UI)
-        private void onTargetPinEvent(final PinningChangedEventPayload<Long> eventPayload) {
-            if (!ProxyDistributionSet.class.equals(eventPayload.getEntityType())) {
-                return;
-            }
-
-            if (eventPayload.getPinningChangedEventType() == PinningChangedEventType.ENTITY_PINNED) {
-                targetGridLayout.filterGridByPinnedDs(eventPayload.getEntityId());
-            } else {
-                targetGridLayout.filterGridByPinnedDs(null);
-            }
+        private void onDsFilterChanged(final FilterByDsEventPayload eventPayload) {
+            targetGridLayout.filterGridByDs(eventPayload.getDsId());
         }
+    }
+
+    void unsubscribeListeners() {
+        eventListeners.forEach(eventBus::unsubscribe);
     }
 
     private class BulkUploadChangedListener {
@@ -173,21 +127,5 @@ public class TargetGridLayoutEventListener {
         private void onBulkUploadEvent(final BulkUploadEventPayload eventPayload) {
             VaadinSession.getCurrent().access(() -> targetGridLayout.onBulkUploadChanged(eventPayload));
         }
-    }
-
-    private class FilterByDsListener {
-
-        public FilterByDsListener() {
-            eventBus.subscribe(this, EventTopics.FILTER_BY_DS_CHANGED);
-        }
-
-        @EventBusListenerMethod(scope = EventScope.UI)
-        private void onDsFilterChanged(final FilterByDsEventPayload eventPayload) {
-            targetGridLayout.filterGridByDs(eventPayload.getDsId());
-        }
-    }
-
-    void unsubscribeListeners() {
-        eventListeners.forEach(eventBus::unsubscribe);
     }
 }

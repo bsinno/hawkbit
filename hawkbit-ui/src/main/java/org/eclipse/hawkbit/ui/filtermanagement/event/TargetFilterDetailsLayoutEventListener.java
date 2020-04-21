@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
+import org.eclipse.hawkbit.ui.common.event.Layout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
@@ -60,7 +61,7 @@ public class TargetFilterDetailsLayoutEventListener {
             }
 
             eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
-                    VisibilityType.SHOW, targetFilterDetailsLayout.getLayout(), View.TARGET_FILTER));
+                    VisibilityType.SHOW, Layout.TARGET_FILTER_QUERY_FORM, View.TARGET_FILTER));
         }
     }
 

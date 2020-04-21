@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class ActionsVisibilityEventPayload extends LayoutAwareEventPayload {
+public class ActionsVisibilityEventPayload extends LayoutViewAware {
     private final ActionsVisibilityType actionsVisibilityType;
 
     public ActionsVisibilityEventPayload(final ActionsVisibilityType actionsVisibilityType, final Layout layout,

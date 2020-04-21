@@ -24,8 +24,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.UI;
 
-public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implements EventListener {
-    private final UIEventBus eventBus;
+public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends EventListener {
     private final Class<T> entityType;
     private final Class<? extends ProxyIdentifiableEntity> parentEntityType;
     private final Supplier<Optional<Long>> parentEntityIdProvider;
@@ -35,13 +34,12 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
             final Class<? extends ProxyIdentifiableEntity> parentEntityType,
             final Supplier<Optional<Long>> parentEntityIdProvider,
             final List<EntityModifiedAwareSupport> entityModifiedAwareSupports) {
-        this.eventBus = eventBus;
+        super(eventBus, EventTopics.ENTITY_MODIFIED);
+
         this.entityType = entityType;
         this.parentEntityType = parentEntityType;
         this.parentEntityIdProvider = parentEntityIdProvider;
         this.entityModifiedAwareSupports = entityModifiedAwareSupports;
-
-        eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
     }
 
     @EventBusListenerMethod(scope = EventScope.UI)
@@ -93,11 +91,6 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> implement
 
     private void handleEntitiesModified(final Consumer<EntityModifiedAwareSupport> handler) {
         UI.getCurrent().access(() -> entityModifiedAwareSupports.forEach(handler::accept));
-    }
-
-    @Override
-    public void unsubscribe() {
-        eventBus.unsubscribe(this);
     }
 
     public interface EntityModifiedAwareSupport {

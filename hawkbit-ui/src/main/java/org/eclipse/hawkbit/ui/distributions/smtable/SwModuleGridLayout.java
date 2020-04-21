@@ -24,15 +24,17 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
-import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
-import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.TypeFilterListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -50,9 +52,8 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SwModuleDetails swModuleDetails;
 
-    private final transient SwModuleGridLayoutEventListener eventListener;
-
     private final transient SearchFilterListener searchFilterListener;
+    private final transient TypeFilterListener<SoftwareModuleType> typeFilterListener;
     private final transient SelectionChangedListener<ProxyDistributionSet> masterDsEntityChangedListener;
     private final transient SelectionChangedListener<ProxySoftwareModule> masterSmEntityChangedListener;
     private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedListener;
@@ -77,14 +78,16 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 smWindowBuilder, smMetaDataWindowBuilder, artifactManagement);
         this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, smMetaDataWindowBuilder);
 
-        this.eventListener = new SwModuleGridLayoutEventListener(this, eventBus);
+        final LayoutViewAware layoutView = new LayoutViewAware(Layout.SM_LIST, View.DISTRIBUTIONS);
+        final LayoutViewAware typeLayoutView = new LayoutViewAware(Layout.SM_TYPE_FILTER, View.DISTRIBUTIONS);
+        final LayoutViewAware masterLayoutView = new LayoutViewAware(Layout.DS_LIST, View.DISTRIBUTIONS);
 
-        this.searchFilterListener = new SearchFilterListener(eventBus, this::filterGridBySearch, getView(),
-                getLayout());
-        this.masterDsEntityChangedListener = new SelectionChangedListener<>(eventBus,
-                Collections.singletonList(swModuleGrid), getView(), Layout.DS_LIST);
-        this.masterSmEntityChangedListener = new SelectionChangedListener<>(eventBus, getMasterEntityAwareComponents(),
-                getView(), getLayout());
+        this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridBySearch);
+        this.typeFilterListener = new TypeFilterListener<>(eventBus, typeLayoutView, this::filterGridByType);
+        this.masterDsEntityChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
+                Collections.singletonList(swModuleGrid));
+        this.masterSmEntityChangedListener = new SelectionChangedListener<>(eventBus, layoutView,
+                getMasterEntityAwareComponents());
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxySoftwareModule.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
 
@@ -135,19 +138,10 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
         searchFilterListener.unsubscribe();
+        typeFilterListener.unsubscribe();
         masterDsEntityChangedListener.unsubscribe();
         masterSmEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();
-    }
-
-    public Layout getLayout() {
-        return Layout.SM_LIST;
-    }
-
-    public View getView() {
-        return View.DISTRIBUTIONS;
     }
 }
