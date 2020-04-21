@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PreDestroy;
+
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityDraggingEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityDraggingEventPayload.DraggingEventType;
@@ -74,29 +76,12 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         this.draggingListener = null;
 
         this.ignoreSelection = false;
-
-        // TODO: check if needed or implement unsubscribe on pre destroy of grid
-        // (does not work on grid maximize/minimize)
-        // addDraggingListenerSubscription();
     }
 
-    // TODO: workaround for target/ds tags that currently do not support
+    // workaround for target/ds tags that currently do not support
     // selection
     public void ignoreSelection(final boolean ignoreSelection) {
         this.ignoreSelection = ignoreSelection;
-    }
-
-    private void addDraggingListenerSubscription() {
-        grid.addAttachListener(event -> {
-            if (draggingListener != null && !draggingListener.isSubscribed()) {
-                draggingListener.subscribe();
-            }
-        });
-        grid.addDetachListener(event -> {
-            if (draggingListener != null && draggingListener.isSubscribed()) {
-                draggingListener.unsubscribe();
-            }
-        });
     }
 
     public void addDragAndDrop() {
@@ -192,8 +177,6 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     }
 
     private void addGridDropStylingListener() {
-        // TODO: is it alright to subscribe here, can we use
-        // addDraggingListenerSubscription method?
         if (draggingListener == null) {
             draggingListener = new EntityDraggingListener(eventBus, sourceTargetAssignmentStrategies.keySet(), grid);
             return;
@@ -244,5 +227,10 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
             draggingListener.unsubscribe();
             draggingListener = null;
         }
+    }
+
+    @PreDestroy
+    void destroy() {
+        removeDragAndDrop();
     }
 }

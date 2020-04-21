@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.PreDestroy;
+
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.FilterByDsEventPayload;
@@ -174,8 +176,6 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
     }
 
     private void addDropStylingListener() {
-        // TODO: is it alright to subscribe here, can we use
-        // addDraggingListenerSubscription method?
         if (draggingListener == null) {
             draggingListener = new EntityDraggingListener(eventBus,
                     Collections.singletonList(UIComponentIdProvider.DIST_TABLE_ID), dropAreaLayout);
@@ -185,19 +185,6 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
         if (!draggingListener.isSubscribed()) {
             draggingListener.subscribe();
         }
-    }
-
-    private void addDraggingListenerSubscription() {
-        dropAreaLayout.addAttachListener(event -> {
-            if (draggingListener != null && !draggingListener.isSubscribed()) {
-                draggingListener.subscribe();
-            }
-        });
-        dropAreaLayout.addDetachListener(event -> {
-            if (draggingListener != null && draggingListener.isSubscribed()) {
-                draggingListener.unsubscribe();
-            }
-        });
     }
 
     @Override
@@ -212,6 +199,14 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
                     targetGridLayoutUiState.getFilterDsIdNameVersion().getName(),
                     targetGridLayoutUiState.getFilterDsIdNameVersion().getVersion());
             addDsFilterDropAreaTextField(dsNameVersion);
+        }
+    }
+
+    @PreDestroy
+    void destroy() {
+        if (draggingListener != null) {
+            draggingListener.unsubscribe();
+            draggingListener = null;
         }
     }
 }
