@@ -24,10 +24,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
@@ -140,8 +139,8 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
         // needed to trigger style generator
         getDataCommunicator().reset();
 
-        eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this, new TagFilterChangedEventPayload(
-                activeTagIdsWithName.values(), Layout.TARGET_TAG_FILTER, View.DEPLOYMENT));
+        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyTarget.class,
+                FilterType.TAG, activeTagIdsWithName.values(), EventView.DEPLOYMENT));
 
         targetTagFilterLayoutUiState.setClickedTargetTagIdsWithName(activeTagIdsWithName);
     }
@@ -155,8 +154,8 @@ public class TargetTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void
             noTagButton.removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
 
-        eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this,
-                new NoTagFilterChangedEventPayload(isNoTagActivated, Layout.TARGET_TAG_FILTER, View.DEPLOYMENT));
+        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyTarget.class,
+                FilterType.NO_TAG, isNoTagActivated, EventView.DEPLOYMENT));
 
         targetTagFilterLayoutUiState.setNoTagClicked(isNoTagActivated);
     }

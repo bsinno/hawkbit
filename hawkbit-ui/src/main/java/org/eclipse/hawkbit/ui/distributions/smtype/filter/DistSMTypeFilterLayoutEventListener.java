@@ -14,7 +14,7 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload.ActionsVisibilityType;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -45,7 +45,7 @@ public class DistSMTypeFilterLayoutEventListener {
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onActionsVisibilityEvent(final ActionsVisibilityEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DISTRIBUTIONS
+            if (eventPayload.getView() != EventView.DISTRIBUTIONS
                     || eventPayload.getLayout() != distSMTypeFilterLayout.getLayout()) {
                 return;
             }

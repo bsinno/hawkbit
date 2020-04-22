@@ -18,8 +18,8 @@ import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatu
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -67,8 +67,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long>
         this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
                 new ActionStatusToProxyActionStatusMapper()).withConfigurableFilter();
 
-        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, Layout.ACTION_HISTORY_STATUS_LIST,
-                View.DEPLOYMENT, null, null, null));
+        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, EventLayout.ACTION_HISTORY_STATUS_LIST,
+                EventView.DEPLOYMENT, null, null, null));
         getSelectionSupport().enableSingleSelection();
 
         initStatusIconMap();

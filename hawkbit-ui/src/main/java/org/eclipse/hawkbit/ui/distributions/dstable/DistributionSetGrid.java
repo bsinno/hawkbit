@@ -29,8 +29,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
@@ -100,8 +100,8 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
         setResizeSupport(new DistributionSetResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, Layout.DS_LIST,
-                View.DISTRIBUTIONS, this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState,
+        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, EventLayout.DS_LIST,
+                EventView.DISTRIBUTIONS, this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState,
                 this::setSelectedEntityIdToUiState));
         if (distributionSetGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();

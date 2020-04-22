@@ -16,8 +16,11 @@ import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.FilterByDsEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityDraggingListener;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorder;
@@ -104,7 +107,8 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
                 final ProxyDistributionSet droppedDs = dSets.get(0);
                 addDsFilterDropAreaTextField(droppedDs.getNameVersion());
 
-                eventBus.publish(EventTopics.FILTER_BY_DS_CHANGED, this, new FilterByDsEventPayload(droppedDs.getId()));
+                eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyTarget.class,
+                        FilterType.DISTRIBUTION, droppedDs.getId(), EventView.DEPLOYMENT));
                 updateUiState(droppedDs);
             } else {
                 notification.displayValidationError(i18n.getMessage("message.onlyone.distribution.dropallowed"));
@@ -153,7 +157,8 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
 
     private void removeFilter() {
         reset();
-        eventBus.publish(EventTopics.FILTER_BY_DS_CHANGED, this, new FilterByDsEventPayload(null));
+        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyTarget.class,
+                FilterType.DISTRIBUTION, null, EventView.DEPLOYMENT));
     }
 
     public void reset() {

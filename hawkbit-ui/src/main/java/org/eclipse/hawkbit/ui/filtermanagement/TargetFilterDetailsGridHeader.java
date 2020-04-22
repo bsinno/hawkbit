@@ -18,10 +18,10 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -162,7 +162,7 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         targetFilterAddUpdateLayout.setEntity(null);
 
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
-                VisibilityType.HIDE, Layout.TARGET_FILTER_QUERY_FORM, View.TARGET_FILTER));
+                VisibilityType.HIDE, EventLayout.TARGET_FILTER_QUERY_FORM, EventView.TARGET_FILTER));
     }
 
     @Override

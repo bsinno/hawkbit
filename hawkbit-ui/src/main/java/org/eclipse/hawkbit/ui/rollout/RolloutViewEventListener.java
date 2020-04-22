@@ -13,10 +13,10 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -55,25 +55,25 @@ public class RolloutViewEventListener {
             eventBus.subscribe(this, CommandTopics.CHANGE_LAYOUT_VISIBILITY);
         }
 
-        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.ROLLOUT_LIST, Layout.ROLLOUT_GROUP_LIST,
-                Layout.ROLLOUT_GROUP_TARGET_LIST);
+        final EnumSet<EventLayout> availableLayouts = EnumSet.of(EventLayout.ROLLOUT_LIST, EventLayout.ROLLOUT_GROUP_LIST,
+                EventLayout.ROLLOUT_GROUP_TARGET_LIST);
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onLayoutVisibilityEvent(final LayoutVisibilityEventPayload eventPayload) {
-            if (eventPayload.getView() != View.ROLLOUT || !availableLayouts.contains(eventPayload.getLayout())) {
+            if (eventPayload.getView() != EventView.ROLLOUT || !availableLayouts.contains(eventPayload.getLayout())) {
                 return;
             }
 
-            final Layout changedLayout = eventPayload.getLayout();
+            final EventLayout changedLayout = eventPayload.getLayout();
             final VisibilityType visibilityType = eventPayload.getVisibilityType();
 
-            if ((changedLayout == Layout.ROLLOUT_LIST && visibilityType == VisibilityType.SHOW)
-                    || (changedLayout == Layout.ROLLOUT_GROUP_LIST && visibilityType == VisibilityType.HIDE)) {
+            if ((changedLayout == EventLayout.ROLLOUT_LIST && visibilityType == VisibilityType.SHOW)
+                    || (changedLayout == EventLayout.ROLLOUT_GROUP_LIST && visibilityType == VisibilityType.HIDE)) {
                 rolloutView.showRolloutListView();
-            } else if ((changedLayout == Layout.ROLLOUT_GROUP_LIST && visibilityType == VisibilityType.SHOW)
-                    || (changedLayout == Layout.ROLLOUT_GROUP_TARGET_LIST && visibilityType == VisibilityType.HIDE)) {
+            } else if ((changedLayout == EventLayout.ROLLOUT_GROUP_LIST && visibilityType == VisibilityType.SHOW)
+                    || (changedLayout == EventLayout.ROLLOUT_GROUP_TARGET_LIST && visibilityType == VisibilityType.HIDE)) {
                 rolloutView.showRolloutGroupListView();
-            } else if (changedLayout == Layout.ROLLOUT_GROUP_TARGET_LIST && visibilityType == VisibilityType.SHOW) {
+            } else if (changedLayout == EventLayout.ROLLOUT_GROUP_TARGET_LIST && visibilityType == VisibilityType.SHOW) {
                 rolloutView.showRolloutGroupTargetsListView();
             }
         }

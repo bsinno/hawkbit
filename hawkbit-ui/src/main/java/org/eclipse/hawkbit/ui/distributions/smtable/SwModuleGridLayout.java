@@ -23,9 +23,9 @@ import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
@@ -78,9 +78,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 smWindowBuilder, smMetaDataWindowBuilder, artifactManagement);
         this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, smMetaDataWindowBuilder);
 
-        final LayoutViewAware layoutView = new LayoutViewAware(Layout.SM_LIST, View.DISTRIBUTIONS);
-        final LayoutViewAware typeLayoutView = new LayoutViewAware(Layout.SM_TYPE_FILTER, View.DISTRIBUTIONS);
-        final LayoutViewAware masterLayoutView = new LayoutViewAware(Layout.DS_LIST, View.DISTRIBUTIONS);
+        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.SM_LIST, EventView.DISTRIBUTIONS);
+        final EventLayoutViewAware typeLayoutView = new EventLayoutViewAware(EventLayout.SM_TYPE_FILTER, EventView.DISTRIBUTIONS);
+        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS);
 
         this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridBySearch);
         this.typeFilterListener = new TypeFilterListener<>(eventBus, typeLayoutView, this::filterGridByType);

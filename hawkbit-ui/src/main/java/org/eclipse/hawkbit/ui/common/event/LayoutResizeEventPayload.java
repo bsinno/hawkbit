@@ -8,10 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class LayoutResizeEventPayload extends LayoutViewAware {
+public class LayoutResizeEventPayload extends EventLayoutViewAware {
     private final ResizeType resizeType;
 
-    public LayoutResizeEventPayload(final ResizeType resizeType, final Layout layout, final View view) {
+    public LayoutResizeEventPayload(final ResizeType resizeType, final EventLayout layout, final EventView view) {
         super(layout, view);
 
         this.resizeType = resizeType;

@@ -12,10 +12,12 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.CustomFilterChangedEventPayload.CustomFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -121,14 +123,12 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         // needed to trigger style generator
         getDataCommunicator().reset();
 
-        eventBus.publish(EventTopics.CUSTOM_FILTER_CHANGED, this,
-                new CustomFilterChangedEventPayload(
-                        ClickBehaviourType.CLICKED == clickType ? CustomFilterChangedEventType.CLICKED
-                                : CustomFilterChangedEventType.UNCLICKED,
-                        targetFilterQueryFilter.getId()));
+        final Long targetFilterQueryId = ClickBehaviourType.CLICKED == clickType ? targetFilterQueryFilter.getId()
+                : null;
 
-        targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(
-                ClickBehaviourType.CLICKED == clickType ? targetFilterQueryFilter.getId() : null);
+        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyTarget.class,
+                FilterType.QUERY, targetFilterQueryId, EventView.DEPLOYMENT));
+        targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(targetFilterQueryId);
     }
 
     public void clearAppliedTargetFilterQuery() {

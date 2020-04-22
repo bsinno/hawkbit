@@ -28,9 +28,9 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
@@ -92,8 +92,8 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 distributionSetManagement, smManagement, distributionSetTypeManagement, distributionSetTagManagement,
                 targetFilterQueryManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
-        final LayoutViewAware layoutView = new LayoutViewAware(Layout.DS_LIST, View.DISTRIBUTIONS);
-        final LayoutViewAware typeLayoutView = new LayoutViewAware(Layout.DS_TYPE_FILTER, View.DISTRIBUTIONS);
+        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS);
+        final EventLayoutViewAware typeLayoutView = new EventLayoutViewAware(EventLayout.DS_TYPE_FILTER, EventView.DISTRIBUTIONS);
 
         this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridBySearch);
         this.typeFilterListener = new TypeFilterListener<>(eventBus, typeLayoutView, this::filterGridByType);

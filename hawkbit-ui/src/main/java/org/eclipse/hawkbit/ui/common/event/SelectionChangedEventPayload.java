@@ -8,13 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class SelectionChangedEventPayload<T> extends LayoutViewAware {
+public class SelectionChangedEventPayload<T> extends EventLayoutViewAware {
 
     private final SelectionChangedEventType selectionChangedEventType;
     private final T entity;
 
     public SelectionChangedEventPayload(final SelectionChangedEventType selectionChangedEventType, final T entity,
-            final Layout layout, final View view) {
+            final EventLayout layout, final EventView view) {
         super(layout, view);
 
         this.selectionChangedEventType = selectionChangedEventType;

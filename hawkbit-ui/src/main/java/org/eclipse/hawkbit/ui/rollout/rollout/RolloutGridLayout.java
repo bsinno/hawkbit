@@ -22,9 +22,9 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
@@ -70,7 +70,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
                 uiNotification, rolloutManagementUIState, permissionChecker, tenantConfigManagement,
                 rolloutWindowBuilder);
 
-        final LayoutViewAware layoutView = new LayoutViewAware(Layout.ROLLOUT_LIST, View.ROLLOUT);
+        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.ROLLOUT_LIST, EventView.ROLLOUT);
 
         this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, rolloutListGrid::updateSearchFilter);
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyRollout.class)

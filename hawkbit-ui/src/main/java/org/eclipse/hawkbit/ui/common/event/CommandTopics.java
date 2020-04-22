@@ -13,7 +13,6 @@ public final class CommandTopics {
     public static final String RESIZE_LAYOUT = "resizeLayout";
 
     public static final String SHOW_ENTITY_FORM_LAYOUT = "showEntityForm";
-    public static final String SHOW_ENTITY_DETAILS_LAYOUT = "showEntityDetails";
 
     public static final String CHANGE_ACTIONS_VISIBILITY = "changeActionsVisibility";
 

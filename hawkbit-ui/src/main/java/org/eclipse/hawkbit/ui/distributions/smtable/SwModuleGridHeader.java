@@ -15,13 +15,13 @@ import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
@@ -95,14 +95,14 @@ public class SwModuleGridHeader extends AbstractGridHeader {
 
     private void searchBy(final String newSearchText) {
         eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this,
-                new SearchFilterEventPayload(newSearchText, Layout.SM_LIST, View.DISTRIBUTIONS));
+                new SearchFilterEventPayload(newSearchText, EventLayout.SM_LIST, EventView.DISTRIBUTIONS));
 
         swModuleGridLayoutUiState.setSearchFilter(newSearchText);
     }
 
     private void showFilterButtonsLayout() {
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
-                new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.SM_TYPE_FILTER, View.DISTRIBUTIONS));
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.SM_TYPE_FILTER, EventView.DISTRIBUTIONS));
 
         distSMTypeFilterLayoutUiState.setHidden(false);
     }
@@ -125,7 +125,7 @@ public class SwModuleGridHeader extends AbstractGridHeader {
 
     private void maximizeTable() {
         eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, Layout.SM_LIST, View.DISTRIBUTIONS));
+                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, EventLayout.SM_LIST, EventView.DISTRIBUTIONS));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.hideAddIcon();
@@ -136,7 +136,7 @@ public class SwModuleGridHeader extends AbstractGridHeader {
 
     private void minimizeTable() {
         eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MINIMIZE, Layout.SM_LIST, View.DISTRIBUTIONS));
+                new LayoutResizeEventPayload(ResizeType.MINIMIZE, EventLayout.SM_LIST, EventView.DISTRIBUTIONS));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.showAddIcon();

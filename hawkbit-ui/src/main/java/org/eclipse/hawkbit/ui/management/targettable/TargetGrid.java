@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -33,14 +34,16 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.View;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport.PinBehaviourType;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
@@ -99,13 +102,12 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
-    private final ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> targetDataProvider;
     private final transient TargetToProxyTargetMapper targetToProxyTargetMapper;
-    private final TargetManagementFilterParams targetFilter;
 
     private final transient PinSupport<ProxyTarget, Long> pinSupport;
     private final transient DeleteSupport<ProxyTarget> targetDeleteSupport;
     private final transient DragAndDropSupport<ProxyTarget> dragAndDropSupport;
+    private final transient FilterSupport<ProxyTarget, TargetManagementFilterParams> filterSupport;
 
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final SpPermissionChecker permChecker,
@@ -122,14 +124,14 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         this.distributionGridLayoutUiState = distributionGridLayoutUiState;
 
         this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n);
-        this.targetDataProvider = new TargetManagementStateDataProvider(targetManagement, targetToProxyTargetMapper)
-                .withConfigurableFilter();
-        this.targetFilter = new TargetManagementFilterParams();
+        final TargetManagementStateDataProvider dataProvider = new TargetManagementStateDataProvider(targetManagement,
+                targetToProxyTargetMapper);
 
         setResizeSupport(new TargetResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, Layout.TARGET_LIST, View.DEPLOYMENT,
-                this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
+        setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, EventLayout.TARGET_LIST,
+                EventView.DEPLOYMENT, this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState,
+                this::setSelectedEntityIdToUiState));
         if (targetGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -162,6 +164,10 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             this.dragAndDropSupport.addDragAndDrop();
         }
 
+        this.filterSupport = new FilterSupport<>(dataProvider, getSelectionSupport()::deselectAll);
+        this.filterSupport.setFilter(new TargetManagementFilterParams());
+
+        initFilterMappings();
         initDsPinningStyleGenerator();
         initTargetStatusIconMap();
         init();
@@ -196,9 +202,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyTarget pinnedItem) {
-        if (targetFilter.getPinnedDistId() != null) {
-            targetFilter.setPinnedDistId(null);
-            getFilterDataProvider().setFilter(targetFilter);
+        if (getFilter().getPinnedDistId() != null) {
+            getFilter().setPinnedDistId(null);
+            filterSupport.refreshFilter();
         }
 
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
@@ -237,9 +243,19 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         return getTargetIdsByFunction(query -> targetManagement.findByInstalledDistributionSet(query, pinnedDsId));
     }
 
+    private void initFilterMappings() {
+        this.filterSupport.addMapping(FilterType.SEARCH, TargetManagementFilterParams::setSearchText);
+        this.filterSupport.addMapping(FilterType.STATUS, TargetManagementFilterParams::setTargetUpdateStatusList);
+        this.filterSupport.addMapping(FilterType.OVERDUE, TargetManagementFilterParams::setOverdueState);
+        this.filterSupport.addMapping(FilterType.DISTRIBUTION, TargetManagementFilterParams::setDistributionId);
+        this.filterSupport.addMapping(FilterType.NO_TAG, TargetManagementFilterParams::setNoTagClicked);
+        this.filterSupport.addMapping(FilterType.TAG, TargetManagementFilterParams::setTargetTags);
+        this.filterSupport.addMapping(FilterType.QUERY, TargetManagementFilterParams::setTargetFilterQueryId);
+    }
+
     private void initDsPinningStyleGenerator() {
         setStyleGenerator(target -> {
-            if (targetFilter.getPinnedDistId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
+            if (getFilter().getPinnedDistId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
                 return pinSupport.getAssignedOrInstalledRowStyle(target.getId());
             }
 
@@ -274,71 +290,39 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     @Override
     public ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> getFilterDataProvider() {
-        return targetDataProvider;
+        return filterSupport.getFilterDataProvider();
     }
 
-    public void updateSearchFilter(final String searchFilter) {
-        targetFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
-        getFilterDataProvider().setFilter(targetFilter);
-    }
-
-    public void updateTagFilter(final Collection<String> tagFilterNames) {
-        targetFilter.setTargetTags(tagFilterNames.toArray(new String[tagFilterNames.size()]));
-        getFilterDataProvider().setFilter(targetFilter);
-    }
-
-    public void updateNoTagFilter(final boolean isActive) {
-        targetFilter.setNoTagClicked(isActive);
-        getFilterDataProvider().setFilter(targetFilter);
-    }
-
-    public void updateStatusFilter(final List<TargetUpdateStatus> statusFilters) {
-        targetFilter.setTargetUpdateStatusList(statusFilters);
-        getFilterDataProvider().setFilter(targetFilter);
-    }
-
-    public void updateOverdueFilter(final boolean isOverdue) {
-        targetFilter.setOverdueState(isOverdue);
-        getFilterDataProvider().setFilter(targetFilter);
-    }
-
-    public void updateCustomFilter(final Long customFilterId) {
-        targetFilter.setTargetFilterQueryId(customFilterId);
-        getFilterDataProvider().setFilter(targetFilter);
-    }
-
-    public void updatePinnedDsFilter(final Long pinnedDsId) {
+    public void updatePinnedDs(final Long pinnedDsId) {
         if (pinSupport.clearPinning()) {
             targetGridLayoutUiState.setPinnedTargetId(null);
             targetGridLayoutUiState.setPinnedControllerId(null);
         }
 
-        if ((pinnedDsId == null && targetFilter.getPinnedDistId() != null) || pinnedDsId != null) {
-            pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
-
-            targetFilter.setPinnedDistId(pinnedDsId);
-            getFilterDataProvider().setFilter(targetFilter);
+        if (pinnedDsId == null && getFilter().getPinnedDistId() == null) {
+            return;
         }
-    }
 
-    public void updateDsFilter(final Long dsId) {
-        targetFilter.setDistributionId(dsId);
-        getFilterDataProvider().setFilter(targetFilter);
+        pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
+        getFilter().setPinnedDistId(pinnedDsId);
+
+        filterSupport.refreshFilter();
+        getSelectionSupport().deselectAll();
     }
 
     public void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
         if (isCustomFilterTabSelected) {
-            targetFilter.setDistributionId(null);
-            targetFilter.setNoTagClicked(false);
-            targetFilter.setOverdueState(false);
-            targetFilter.setSearchText(null);
-            targetFilter.setTargetTags(new String[] {});
-            targetFilter.setTargetUpdateStatusList(new ArrayList<>());
+            getFilter().setDistributionId(null);
+            getFilter().setNoTagClicked(false);
+            getFilter().setOverdueState(false);
+            getFilter().setSearchText(null);
+            getFilter().setTargetTags(Collections.emptyList());
+            getFilter().setTargetUpdateStatusList(Collections.emptyList());
         } else {
-            targetFilter.setTargetFilterQueryId(null);
+            getFilter().setTargetFilterQueryId(null);
         }
 
-        getFilterDataProvider().setFilter(targetFilter);
+        filterSupport.refreshFilter();
     }
 
     /**
@@ -467,49 +451,53 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
         if (pinnedDsId != null) {
             pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
-            targetFilter.setPinnedDistId(pinnedDsId);
+            getFilter().setPinnedDistId(pinnedDsId);
         }
 
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
-            targetFilter.setTargetFilterQueryId(targetTagFilterLayoutUiState.getClickedTargetFilterQueryId());
+            getFilter().setTargetFilterQueryId(targetTagFilterLayoutUiState.getClickedTargetFilterQueryId());
         } else {
             final String searchFilter = targetGridLayoutUiState.getSearchFilter();
-            targetFilter
+            getFilter()
                     .setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
 
             final List<TargetUpdateStatus> statusFilters = targetTagFilterLayoutUiState
                     .getClickedTargetUpdateStatusFilters();
             if (!CollectionUtils.isEmpty(statusFilters)) {
-                targetFilter.setTargetUpdateStatusList(statusFilters);
+                getFilter().setTargetUpdateStatusList(statusFilters);
             }
 
-            targetFilter.setOverdueState(targetTagFilterLayoutUiState.isOverdueFilterClicked());
+            getFilter().setOverdueState(targetTagFilterLayoutUiState.isOverdueFilterClicked());
 
-            targetFilter.setNoTagClicked(targetTagFilterLayoutUiState.isNoTagClicked());
+            getFilter().setNoTagClicked(targetTagFilterLayoutUiState.isNoTagClicked());
 
             final Collection<String> tagFilterNames = targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName()
                     .values();
             if (!CollectionUtils.isEmpty(tagFilterNames)) {
-                targetFilter.setTargetTags(tagFilterNames.toArray(new String[tagFilterNames.size()]));
+                getFilter().setTargetTags(tagFilterNames);
             }
 
             final Long dsIdFilter = targetGridLayoutUiState.getFilterDsIdNameVersion() != null
                     ? targetGridLayoutUiState.getFilterDsIdNameVersion().getId()
                     : null;
-            targetFilter.setDistributionId(dsIdFilter);
+            getFilter().setDistributionId(dsIdFilter);
         }
 
-        getFilterDataProvider().setFilter(targetFilter);
+        filterSupport.refreshFilter();
 
         getSelectionSupport().restoreSelection();
     }
 
-    public TargetManagementFilterParams getTargetFilter() {
-        return targetFilter;
+    public TargetManagementFilterParams getFilter() {
+        return filterSupport.getFilter();
     }
 
     public PinSupport<ProxyTarget, Long> getPinSupport() {
         return pinSupport;
+    }
+
+    public FilterSupport<ProxyTarget, TargetManagementFilterParams> getFilterSupport() {
+        return filterSupport;
     }
 
     /**

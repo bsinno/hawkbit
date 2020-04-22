@@ -13,12 +13,12 @@ import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.filtermanagement.TargetFilterDetailsLayout;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -49,7 +49,7 @@ public class TargetFilterDetailsLayoutEventListener {
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onShowFormEvent(final ShowFormEventPayload<ProxyTargetFilterQuery> eventPayload) {
-            if (eventPayload.getView() != View.TARGET_FILTER
+            if (eventPayload.getView() != EventView.TARGET_FILTER
                     || eventPayload.getEntityType() != ProxyTargetFilterQuery.class) {
                 return;
             }
@@ -61,7 +61,7 @@ public class TargetFilterDetailsLayoutEventListener {
             }
 
             eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
-                    VisibilityType.SHOW, Layout.TARGET_FILTER_QUERY_FORM, View.TARGET_FILTER));
+                    VisibilityType.SHOW, EventLayout.TARGET_FILTER_QUERY_FORM, EventView.TARGET_FILTER));
         }
     }
 

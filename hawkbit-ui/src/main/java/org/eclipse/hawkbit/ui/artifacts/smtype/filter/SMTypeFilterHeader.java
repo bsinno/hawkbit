@@ -10,8 +10,8 @@ package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -72,12 +72,12 @@ public class SMTypeFilterHeader extends AbstractFilterHeader {
     }
 
     @Override
-    protected Layout getLayout() {
-        return Layout.SM_TYPE_FILTER;
+    protected EventLayout getLayout() {
+        return EventLayout.SM_TYPE_FILTER;
     }
 
     @Override
-    protected View getView() {
-        return View.UPLOAD;
+    protected EventView getView() {
+        return EventView.UPLOAD;
     }
 }

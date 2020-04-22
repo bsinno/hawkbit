@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.rollout;
 import java.io.Serializable;
 import java.util.Optional;
 
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
@@ -25,7 +25,7 @@ import com.vaadin.spring.annotation.VaadinSessionScope;
 public class RolloutManagementUIState implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Layout currentLayout;
+    private EventLayout currentLayout;
     private String searchText;
 
     private Long selectedRolloutId;
@@ -34,11 +34,11 @@ public class RolloutManagementUIState implements Serializable {
     private Long selectedRolloutGroupId;
     private String selectedRolloutGroupName;
 
-    public Optional<Layout> getCurrentLayout() {
+    public Optional<EventLayout> getCurrentLayout() {
         return Optional.ofNullable(currentLayout);
     }
 
-    public void setCurrentLayout(final Layout currentLayout) {
+    public void setCurrentLayout(final EventLayout currentLayout) {
         this.currentLayout = currentLayout;
     }
 

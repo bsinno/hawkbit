@@ -17,7 +17,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
@@ -115,8 +115,8 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
         sMTypeFilterButtons.refreshContainer();
     }
 
-    public Layout getLayout() {
-        return Layout.SM_TYPE_FILTER;
+    public EventLayout getLayout() {
+        return EventLayout.SM_TYPE_FILTER;
     }
 
     public void unsubscribeListener() {

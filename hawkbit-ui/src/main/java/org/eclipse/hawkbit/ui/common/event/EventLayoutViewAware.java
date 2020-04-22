@@ -8,38 +8,38 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class LayoutViewAware extends ViewAware {
-    private final Layout layout;
+public class EventLayoutViewAware extends EventViewAware {
+    private final EventLayout layout;
 
-    public LayoutViewAware(final Layout layout, final View view) {
+    public EventLayoutViewAware(final EventLayout layout, final EventView view) {
         super(view);
 
         this.layout = layout;
     }
 
-    public LayoutViewAware(final LayoutViewAware layoutViewAware) {
+    public EventLayoutViewAware(final EventLayoutViewAware layoutViewAware) {
         super(layoutViewAware);
 
         this.layout = layoutViewAware.getLayout();
     }
 
-    public boolean suitableLayout(final Layout layout) {
+    public boolean suitableLayout(final EventLayout layout) {
         return this.layout != null && layout != null && this.layout == layout;
     }
 
-    public boolean suitableLayout(final LayoutViewAware layoutAware) {
+    public boolean suitableLayout(final EventLayoutViewAware layoutAware) {
         return suitableLayout(layoutAware.getLayout());
     }
 
-    public boolean suitableViewLayout(final Layout layout, final View view) {
+    public boolean suitableViewLayout(final EventLayout layout, final EventView view) {
         return suitableView(view) && suitableLayout(layout);
     }
 
-    public boolean suitableViewLayout(final LayoutViewAware layoutAware) {
+    public boolean suitableViewLayout(final EventLayoutViewAware layoutAware) {
         return suitableViewLayout(layoutAware.getLayout(), layoutAware.getView());
     }
 
-    public Layout getLayout() {
+    public EventLayout getLayout() {
         return layout;
     }
 }

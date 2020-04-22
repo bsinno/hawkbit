@@ -16,9 +16,9 @@ import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.filtermanagement.event.TargetFilterDetailsLayoutEventListener;
@@ -77,7 +77,7 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetFilterDetailsLayoutEventListener(this, eventBus);
 
-        final LayoutViewAware layoutView = new LayoutViewAware(Layout.TARGET_FILTER_QUERY_FORM, View.TARGET_FILTER);
+        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.TARGET_FILTER_QUERY_FORM, EventView.TARGET_FILTER);
 
         this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridByQuery);
 

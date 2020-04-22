@@ -28,8 +28,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
@@ -105,8 +105,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
 
         setResizeSupport(new ActionHistoryResizeSupport());
         // TODO: currently we do not restore action history selection
-        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, Layout.ACTION_HISTORY_LIST,
-                View.DEPLOYMENT, this::mapIdToProxyEntity, null, null));
+        setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, EventLayout.ACTION_HISTORY_LIST,
+                EventView.DEPLOYMENT, this::mapIdToProxyEntity, null, null));
         if (actionHistoryGridLayoutUiState.isMaximized()) {
             getSelectionSupport().enableSingleSelection();
         } else {

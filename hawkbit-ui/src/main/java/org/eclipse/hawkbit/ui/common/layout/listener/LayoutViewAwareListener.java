@@ -9,27 +9,27 @@ package org.eclipse.hawkbit.ui.common.layout.listener;
 
 import java.util.Collection;
 
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 public abstract class LayoutViewAwareListener extends EventListener {
-    private final LayoutViewAware layoutViewAware;
+    private final EventLayoutViewAware layoutViewAware;
 
     public LayoutViewAwareListener(final UIEventBus eventBus, final String topic,
-            final LayoutViewAware layoutViewAware) {
+            final EventLayoutViewAware layoutViewAware) {
         super(eventBus, topic);
 
         this.layoutViewAware = layoutViewAware;
     }
 
     public LayoutViewAwareListener(final UIEventBus eventBus, final Collection<String> topics,
-            final LayoutViewAware layoutViewAware) {
+            final EventLayoutViewAware layoutViewAware) {
         super(eventBus, topics);
 
         this.layoutViewAware = layoutViewAware;
     }
 
-    public LayoutViewAware getLayoutViewAware() {
+    public EventLayoutViewAware getLayoutViewAware() {
         return layoutViewAware;
     }
 }

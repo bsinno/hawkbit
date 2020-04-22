@@ -15,11 +15,11 @@ import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
@@ -89,12 +89,12 @@ public class TargetFilterGridHeader extends AbstractGridHeader {
     private void searchBy(final String newSearchText) {
         uiState.setSearchFilterInput(newSearchText);
         eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this,
-                new SearchFilterEventPayload(newSearchText, Layout.TARGET_FILTER_QUERY_LIST, View.TARGET_FILTER));
+                new SearchFilterEventPayload(newSearchText, EventLayout.TARGET_FILTER_QUERY_LIST, EventView.TARGET_FILTER));
     }
 
     private void addNewItem() {
         eventBus.publish(CommandTopics.SHOW_ENTITY_FORM_LAYOUT, this, new ShowFormEventPayload<ProxyTargetFilterQuery>(
-                FormType.ADD, ProxyTargetFilterQuery.class, View.TARGET_FILTER));
+                FormType.ADD, ProxyTargetFilterQuery.class, EventView.TARGET_FILTER));
     }
 
     @Override

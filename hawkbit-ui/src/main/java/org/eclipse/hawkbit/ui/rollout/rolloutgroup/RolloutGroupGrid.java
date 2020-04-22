@@ -22,11 +22,11 @@ import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -80,7 +80,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
         this.rolloutGroupDataProvider = new RolloutGroupDataProvider(rolloutGroupManagement, rolloutGroupMapper)
                 .withConfigurableFilter();
 
-        setSelectionSupport(new SelectionSupport<>(this, eventBus, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT,
+        setSelectionSupport(new SelectionSupport<>(this, eventBus, EventLayout.ROLLOUT_GROUP_LIST, EventView.ROLLOUT,
                 this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         getSelectionSupport().disableSelection();
 
@@ -230,7 +230,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
         rolloutManagementUIState.setSelectedRolloutGroupName(rolloutGroup.getName());
 
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
-                new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_GROUP_TARGET_LIST, View.ROLLOUT));
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.ROLLOUT_GROUP_TARGET_LIST, EventView.ROLLOUT));
     }
 
     @Override

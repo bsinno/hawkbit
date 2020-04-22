@@ -13,10 +13,10 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.filtermanagement.FilterManagementView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -45,24 +45,24 @@ public class FilterManagementViewEventListener {
             eventBus.subscribe(this, CommandTopics.CHANGE_LAYOUT_VISIBILITY);
         }
 
-        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.TARGET_FILTER_QUERY_LIST,
-                Layout.TARGET_FILTER_QUERY_FORM);
+        final EnumSet<EventLayout> availableLayouts = EnumSet.of(EventLayout.TARGET_FILTER_QUERY_LIST,
+                EventLayout.TARGET_FILTER_QUERY_FORM);
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onLayoutVisibilityEvent(final LayoutVisibilityEventPayload eventPayload) {
-            if (eventPayload.getView() != View.TARGET_FILTER || !availableLayouts.contains(eventPayload.getLayout())) {
+            if (eventPayload.getView() != EventView.TARGET_FILTER || !availableLayouts.contains(eventPayload.getLayout())) {
                 return;
             }
 
-            final Layout changedLayout = eventPayload.getLayout();
+            final EventLayout changedLayout = eventPayload.getLayout();
             final VisibilityType visibilityType = eventPayload.getVisibilityType();
 
-            if ((changedLayout == Layout.TARGET_FILTER_QUERY_LIST && visibilityType == VisibilityType.SHOW)
-                    || (changedLayout == Layout.TARGET_FILTER_QUERY_FORM && visibilityType == VisibilityType.HIDE)) {
+            if ((changedLayout == EventLayout.TARGET_FILTER_QUERY_LIST && visibilityType == VisibilityType.SHOW)
+                    || (changedLayout == EventLayout.TARGET_FILTER_QUERY_FORM && visibilityType == VisibilityType.HIDE)) {
                 filterManagementView.showFilterGridLayout();
-            } else if ((eventPayload.getLayout() == Layout.TARGET_FILTER_QUERY_LIST
+            } else if ((eventPayload.getLayout() == EventLayout.TARGET_FILTER_QUERY_LIST
                     && eventPayload.getVisibilityType() == VisibilityType.HIDE)
-                    || (eventPayload.getLayout() == Layout.TARGET_FILTER_QUERY_FORM
+                    || (eventPayload.getLayout() == EventLayout.TARGET_FILTER_QUERY_FORM
                             && eventPayload.getVisibilityType() == VisibilityType.SHOW)) {
                 filterManagementView.showFilterDetailsLayout();
             }

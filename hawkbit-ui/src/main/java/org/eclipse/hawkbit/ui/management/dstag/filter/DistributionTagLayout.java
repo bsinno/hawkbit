@@ -17,8 +17,8 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
@@ -130,11 +130,11 @@ public class DistributionTagLayout extends AbstractFilterLayout {
         entityModifiedListener.unsubscribe();
     }
 
-    public Layout getLayout() {
-        return Layout.DS_TAG_FILTER;
+    public EventLayout getLayout() {
+        return EventLayout.DS_TAG_FILTER;
     }
 
-    public View getView() {
-        return View.DEPLOYMENT;
+    public EventView getView() {
+        return EventView.DEPLOYMENT;
     }
 }

@@ -13,10 +13,10 @@ import java.util.Arrays;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -95,7 +95,7 @@ public class RolloutGroupGridHeader extends AbstractGridHeader implements Master
 
     public void closeRolloutGroups() {
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
-                new LayoutVisibilityEventPayload(VisibilityType.HIDE, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
+                new LayoutVisibilityEventPayload(VisibilityType.HIDE, EventLayout.ROLLOUT_GROUP_LIST, EventView.ROLLOUT));
     }
 
     @Override

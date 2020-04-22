@@ -19,9 +19,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
@@ -185,11 +185,11 @@ public class MultipleTargetFilter extends Accordion {
         entityFilterQueryModifiedListener.unsubscribe();
     }
 
-    public Layout getLayout() {
-        return Layout.TARGET_TAG_FILTER;
+    public EventLayout getLayout() {
+        return EventLayout.TARGET_TAG_FILTER;
     }
 
-    public View getView() {
-        return View.DEPLOYMENT;
+    public EventView getView() {
+        return EventView.DEPLOYMENT;
     }
 }

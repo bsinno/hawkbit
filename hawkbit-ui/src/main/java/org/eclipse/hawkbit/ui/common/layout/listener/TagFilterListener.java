@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -23,7 +23,7 @@ public class TagFilterListener extends LayoutViewAwareListener {
     private final Consumer<Collection<String>> tagFilterCallback;
     private final Consumer<Boolean> noTagFilterCallback;
 
-    public TagFilterListener(final UIEventBus eventBus, final LayoutViewAware layoutViewAware,
+    public TagFilterListener(final UIEventBus eventBus, final EventLayoutViewAware layoutViewAware,
             final Consumer<Collection<String>> tagFilterCallback, final Consumer<Boolean> noTagFilterCallback) {
         super(eventBus, Arrays.asList(EventTopics.TAG_FILTER_CHANGED, EventTopics.NO_TAG_FILTER_CHANGED),
                 layoutViewAware);

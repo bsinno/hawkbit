@@ -13,12 +13,12 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -47,18 +47,18 @@ public class DistributionsViewEventListener {
             eventBus.subscribe(this, CommandTopics.CHANGE_LAYOUT_VISIBILITY);
         }
 
-        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.DS_TYPE_FILTER, Layout.SM_TYPE_FILTER);
+        final EnumSet<EventLayout> availableLayouts = EnumSet.of(EventLayout.DS_TYPE_FILTER, EventLayout.SM_TYPE_FILTER);
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onLayoutVisibilityEvent(final LayoutVisibilityEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DISTRIBUTIONS || !availableLayouts.contains(eventPayload.getLayout())) {
+            if (eventPayload.getView() != EventView.DISTRIBUTIONS || !availableLayouts.contains(eventPayload.getLayout())) {
                 return;
             }
 
-            final Layout changedLayout = eventPayload.getLayout();
+            final EventLayout changedLayout = eventPayload.getLayout();
             final VisibilityType visibilityType = eventPayload.getVisibilityType();
 
-            if (changedLayout == Layout.DS_TYPE_FILTER) {
+            if (changedLayout == EventLayout.DS_TYPE_FILTER) {
                 if (visibilityType == VisibilityType.SHOW) {
                     distributionsView.showDsTypeLayout();
                 } else {
@@ -66,7 +66,7 @@ public class DistributionsViewEventListener {
                 }
             }
 
-            if (changedLayout == Layout.SM_TYPE_FILTER) {
+            if (changedLayout == EventLayout.SM_TYPE_FILTER) {
                 if (visibilityType == VisibilityType.SHOW) {
                     distributionsView.showSmTypeLayout();
                 } else {
@@ -82,18 +82,18 @@ public class DistributionsViewEventListener {
             eventBus.subscribe(this, CommandTopics.RESIZE_LAYOUT);
         }
 
-        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.DS_LIST, Layout.SM_LIST);
+        final EnumSet<EventLayout> availableLayouts = EnumSet.of(EventLayout.DS_LIST, EventLayout.SM_LIST);
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onLayoutResizeEvent(final LayoutResizeEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DISTRIBUTIONS || !availableLayouts.contains(eventPayload.getLayout())) {
+            if (eventPayload.getView() != EventView.DISTRIBUTIONS || !availableLayouts.contains(eventPayload.getLayout())) {
                 return;
             }
 
-            final Layout changedLayout = eventPayload.getLayout();
+            final EventLayout changedLayout = eventPayload.getLayout();
             final ResizeType visibilityType = eventPayload.getResizeType();
 
-            if (changedLayout == Layout.DS_LIST) {
+            if (changedLayout == EventLayout.DS_LIST) {
                 if (visibilityType == ResizeType.MAXIMIZE) {
                     distributionsView.maximizeDsGridLayout();
                 } else {
@@ -101,7 +101,7 @@ public class DistributionsViewEventListener {
                 }
             }
 
-            if (changedLayout == Layout.SM_LIST) {
+            if (changedLayout == EventLayout.SM_LIST) {
                 if (visibilityType == ResizeType.MAXIMIZE) {
                     distributionsView.maximizeSmGridLayout();
                 } else {

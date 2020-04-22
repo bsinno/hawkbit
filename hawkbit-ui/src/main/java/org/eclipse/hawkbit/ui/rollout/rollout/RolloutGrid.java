@@ -32,11 +32,11 @@ import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -122,7 +122,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         this.rolloutMapper = new RolloutToProxyRolloutMapper();
         this.rolloutDataProvider = new RolloutDataProvider(rolloutManagement, rolloutMapper).withConfigurableFilter();
 
-        setSelectionSupport(new SelectionSupport<>(this, eventBus, Layout.ROLLOUT_LIST, View.ROLLOUT,
+        setSelectionSupport(new SelectionSupport<>(this, eventBus, EventLayout.ROLLOUT_LIST, EventView.ROLLOUT,
                 this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         getSelectionSupport().disableSelection();
 
@@ -427,7 +427,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         rolloutManagementUIState.setSelectedRolloutName(rollout.getName());
 
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
-                new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_GROUP_LIST, View.ROLLOUT));
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.ROLLOUT_GROUP_LIST, EventView.ROLLOUT));
     }
 
     private void pauseRollout(final Long rolloutId, final String rolloutName, final RolloutStatus rolloutStatus) {
@@ -530,10 +530,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private void showRolloutListLayout() {
-        if (rolloutManagementUIState.getCurrentLayout().map(currentLayout -> currentLayout != Layout.ROLLOUT_LIST)
+        if (rolloutManagementUIState.getCurrentLayout().map(currentLayout -> currentLayout != EventLayout.ROLLOUT_LIST)
                 .orElse(true)) {
             eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
-                    new LayoutVisibilityEventPayload(VisibilityType.SHOW, Layout.ROLLOUT_LIST, View.ROLLOUT));
+                    new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.ROLLOUT_LIST, EventView.ROLLOUT));
         }
     }
 

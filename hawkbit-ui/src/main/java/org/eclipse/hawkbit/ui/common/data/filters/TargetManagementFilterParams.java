@@ -9,8 +9,8 @@
 package org.eclipse.hawkbit.ui.common.data.filters;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
@@ -29,11 +29,11 @@ public class TargetManagementFilterParams implements Serializable {
     private boolean overdueState;
     private Long distributionId;
     private boolean noTagClicked;
-    private String[] targetTags;
+    private Collection<String> targetTags;
     private Long targetFilterQueryId;
 
     public TargetManagementFilterParams() {
-        this(null, null, new ArrayList<>(), false, null, false, new String[] {}, null);
+        this(null, null, Collections.emptyList(), false, null, false, Collections.emptyList(), null);
     }
 
     /**
@@ -50,25 +50,25 @@ public class TargetManagementFilterParams implements Serializable {
      */
     public TargetManagementFilterParams(final Long pinnedDistId, final String searchText,
             final Collection<TargetUpdateStatus> targetUpdateStatusList, final boolean overdueState,
-            final Long distributionId, final boolean noTagClicked, final String[] targetTags,
+            final Long distributionId, final boolean noTagClicked, final Collection<String> targetTags,
             final Long targetFilterQueryId) {
         this.pinnedDistId = pinnedDistId;
         this.searchText = searchText;
         this.targetUpdateStatusList = targetUpdateStatusList;
-        this.setOverdueState(overdueState);
+        this.overdueState = overdueState;
         this.distributionId = distributionId;
-        this.setNoTagClicked(noTagClicked);
+        this.noTagClicked = noTagClicked;
         this.targetTags = targetTags;
         this.targetFilterQueryId = targetFilterQueryId;
     }
 
     public boolean isAnyFilterSelected() {
         return isTagSelected() || overdueState || !CollectionUtils.isEmpty(targetUpdateStatusList)
-                || distributionId != null || !StringUtils.isEmpty(searchText);
+                || distributionId != null || !StringUtils.isEmpty(searchText) || targetFilterQueryId != null;
     }
 
     private boolean isTagSelected() {
-        return (targetTags != null && targetTags.length > 0) || noTagClicked;
+        return !CollectionUtils.isEmpty(targetTags) || noTagClicked;
     }
 
     public Long getPinnedDistId() {
@@ -84,7 +84,7 @@ public class TargetManagementFilterParams implements Serializable {
     }
 
     public void setSearchText(final String searchText) {
-        this.searchText = searchText;
+        this.searchText = !StringUtils.isEmpty(searchText) ? String.format("%%%s%%", searchText) : null;
     }
 
     public Collection<TargetUpdateStatus> getTargetUpdateStatusList() {
@@ -103,11 +103,11 @@ public class TargetManagementFilterParams implements Serializable {
         this.distributionId = distributionId;
     }
 
-    public String[] getTargetTags() {
+    public Collection<String> getTargetTags() {
         return targetTags;
     }
 
-    public void setTargetTags(final String[] targetTags) {
+    public void setTargetTags(final Collection<String> targetTags) {
         this.targetTags = targetTags;
     }
 

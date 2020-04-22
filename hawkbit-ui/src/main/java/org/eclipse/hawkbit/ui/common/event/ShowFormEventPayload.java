@@ -8,32 +8,32 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class ShowFormEventPayload<T> extends ViewAware {
+public class ShowFormEventPayload<T> extends EventViewAware {
     private final FormType formType;
     private final Class<?> entityType;
     private final Class<?> parentEntityType;
     private final T entity;
 
-    public ShowFormEventPayload(final FormType formType, final Class<?> entityType, final View view) {
+    public ShowFormEventPayload(final FormType formType, final Class<?> entityType, final EventView view) {
         this(formType, entityType, null, null, view);
     }
 
-    public ShowFormEventPayload(final FormType formType, final T entity, final View view) {
+    public ShowFormEventPayload(final FormType formType, final T entity, final EventView view) {
         this(formType, entity.getClass(), null, entity, view);
     }
 
     public ShowFormEventPayload(final FormType formType, final Class<?> entityType, final Class<?> parentEntityType,
-            final View view) {
+            final EventView view) {
         this(formType, entityType, parentEntityType, null, view);
     }
 
     public ShowFormEventPayload(final FormType formType, final Class<?> parentEntityType, final T entity,
-            final View view) {
+            final EventView view) {
         this(formType, entity.getClass(), parentEntityType, entity, view);
     }
 
     private ShowFormEventPayload(final FormType formType, final Class<?> entityType, final Class<?> parentEntityType,
-            final T entity, final View view) {
+            final T entity, final EventView view) {
         super(view);
 
         this.formType = formType;

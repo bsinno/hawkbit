@@ -14,6 +14,8 @@ public final class EventTopics {
 
     public static final String TARGET_FILTER_TAB_CHANGED = "targetFilterTabChanged";
 
+    public static final String FILTER_CHANGED = "filterChanged";
+
     public static final String SEARCH_FILTER_CHANGED = "searchFilterChanged";
     public static final String TYPE_FILTER_CHANGED = "typeFilterChanged";
     public static final String TAG_FILTER_CHANGED = "tagFilterChanged";

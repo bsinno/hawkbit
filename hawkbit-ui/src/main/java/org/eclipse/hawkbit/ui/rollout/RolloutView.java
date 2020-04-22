@@ -22,7 +22,7 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.rollout.rollout.RolloutGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgroup.RolloutGroupGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets.RolloutGroupTargetGridLayout;
@@ -108,7 +108,7 @@ public class RolloutView extends VerticalLayout implements View {
     }
 
     void showRolloutGroupTargetsListView() {
-        rolloutManagementUIState.setCurrentLayout(Layout.ROLLOUT_GROUP_TARGET_LIST);
+        rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_GROUP_TARGET_LIST);
 
         rolloutsLayout.setVisible(false);
         rolloutGroupsLayout.setVisible(false);
@@ -116,7 +116,7 @@ public class RolloutView extends VerticalLayout implements View {
     }
 
     void showRolloutGroupListView() {
-        rolloutManagementUIState.setCurrentLayout(Layout.ROLLOUT_GROUP_LIST);
+        rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_GROUP_LIST);
         rolloutManagementUIState.setSelectedRolloutGroupId(null);
         rolloutManagementUIState.setSelectedRolloutGroupName("");
 
@@ -126,7 +126,7 @@ public class RolloutView extends VerticalLayout implements View {
     }
 
     void showRolloutListView() {
-        rolloutManagementUIState.setCurrentLayout(Layout.ROLLOUT_LIST);
+        rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_LIST);
         rolloutManagementUIState.setSelectedRolloutId(null);
         rolloutManagementUIState.setSelectedRolloutName("");
         rolloutManagementUIState.setSelectedRolloutGroupId(null);
@@ -138,7 +138,7 @@ public class RolloutView extends VerticalLayout implements View {
     }
 
     private void restoreState() {
-        final Layout layout = rolloutManagementUIState.getCurrentLayout().orElse(Layout.ROLLOUT_LIST);
+        final EventLayout layout = rolloutManagementUIState.getCurrentLayout().orElse(EventLayout.ROLLOUT_LIST);
         switch (layout) {
         case ROLLOUT_LIST:
             showRolloutListView();

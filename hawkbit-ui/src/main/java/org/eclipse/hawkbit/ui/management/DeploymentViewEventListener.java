@@ -13,12 +13,12 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -47,18 +47,18 @@ public class DeploymentViewEventListener {
             eventBus.subscribe(this, CommandTopics.CHANGE_LAYOUT_VISIBILITY);
         }
 
-        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.TARGET_TAG_FILTER, Layout.DS_TAG_FILTER);
+        final EnumSet<EventLayout> availableLayouts = EnumSet.of(EventLayout.TARGET_TAG_FILTER, EventLayout.DS_TAG_FILTER);
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onLayoutVisibilityEvent(final LayoutVisibilityEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DEPLOYMENT || !availableLayouts.contains(eventPayload.getLayout())) {
+            if (eventPayload.getView() != EventView.DEPLOYMENT || !availableLayouts.contains(eventPayload.getLayout())) {
                 return;
             }
 
-            final Layout changedLayout = eventPayload.getLayout();
+            final EventLayout changedLayout = eventPayload.getLayout();
             final VisibilityType visibilityType = eventPayload.getVisibilityType();
 
-            if (changedLayout == Layout.TARGET_TAG_FILTER) {
+            if (changedLayout == EventLayout.TARGET_TAG_FILTER) {
                 if (visibilityType == VisibilityType.SHOW) {
                     deploymentView.showTargetTagLayout();
                 } else {
@@ -66,7 +66,7 @@ public class DeploymentViewEventListener {
                 }
             }
 
-            if (changedLayout == Layout.DS_TAG_FILTER) {
+            if (changedLayout == EventLayout.DS_TAG_FILTER) {
                 if (visibilityType == VisibilityType.SHOW) {
                     deploymentView.showDsTagLayout();
                 } else {
@@ -82,19 +82,19 @@ public class DeploymentViewEventListener {
             eventBus.subscribe(this, CommandTopics.RESIZE_LAYOUT);
         }
 
-        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.TARGET_LIST, Layout.DS_LIST,
-                Layout.ACTION_HISTORY_LIST);
+        final EnumSet<EventLayout> availableLayouts = EnumSet.of(EventLayout.TARGET_LIST, EventLayout.DS_LIST,
+                EventLayout.ACTION_HISTORY_LIST);
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onLayoutResizeEvent(final LayoutResizeEventPayload eventPayload) {
-            if (eventPayload.getView() != View.DEPLOYMENT || !availableLayouts.contains(eventPayload.getLayout())) {
+            if (eventPayload.getView() != EventView.DEPLOYMENT || !availableLayouts.contains(eventPayload.getLayout())) {
                 return;
             }
 
-            final Layout changedLayout = eventPayload.getLayout();
+            final EventLayout changedLayout = eventPayload.getLayout();
             final ResizeType visibilityType = eventPayload.getResizeType();
 
-            if (changedLayout == Layout.TARGET_LIST) {
+            if (changedLayout == EventLayout.TARGET_LIST) {
                 if (visibilityType == ResizeType.MAXIMIZE) {
                     deploymentView.maximizeTargetGridLayout();
                 } else {
@@ -102,7 +102,7 @@ public class DeploymentViewEventListener {
                 }
             }
 
-            if (changedLayout == Layout.DS_LIST) {
+            if (changedLayout == EventLayout.DS_LIST) {
                 if (visibilityType == ResizeType.MAXIMIZE) {
                     deploymentView.maximizeDsGridLayout();
                 } else {
@@ -110,7 +110,7 @@ public class DeploymentViewEventListener {
                 }
             }
 
-            if (changedLayout == Layout.ACTION_HISTORY_LIST) {
+            if (changedLayout == EventLayout.ACTION_HISTORY_LIST) {
                 if (visibilityType == ResizeType.MAXIMIZE) {
                     deploymentView.maximizeActionHistoryGridLayout();
                 } else {

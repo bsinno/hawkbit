@@ -8,26 +8,26 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class ViewAware {
-    private final View view;
+public class EventViewAware {
+    private final EventView view;
 
-    public ViewAware(final View view) {
+    public EventViewAware(final EventView view) {
         this.view = view;
     }
 
-    public ViewAware(final ViewAware viewAware) {
+    public EventViewAware(final EventViewAware viewAware) {
         this.view = viewAware.getView();
     }
 
-    public boolean suitableView(final View view) {
+    public boolean suitableView(final EventView view) {
         return this.view != null && view != null && this.view == view;
     }
 
-    public boolean suitableView(final ViewAware viewAware) {
+    public boolean suitableView(final EventViewAware viewAware) {
         return suitableView(viewAware.getView());
     }
 
-    public View getView() {
+    public EventView getView() {
         return view;
     }
 }

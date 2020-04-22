@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.common.layout.listener;
 import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
@@ -19,7 +19,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 public class SearchFilterListener extends LayoutViewAwareListener {
     private final Consumer<String> searchFilterCallback;
 
-    public SearchFilterListener(final UIEventBus eventBus, final LayoutViewAware layoutViewAware,
+    public SearchFilterListener(final UIEventBus eventBus, final EventLayoutViewAware layoutViewAware,
             final Consumer<String> searchFilterCallback) {
         super(eventBus, EventTopics.SEARCH_FILTER_CHANGED, layoutViewAware);
 

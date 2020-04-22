@@ -29,7 +29,7 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -178,7 +178,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     private void onClickOfFilterName(final ProxyTargetFilterQuery targetFilter) {
         eventBus.publish(CommandTopics.SHOW_ENTITY_FORM_LAYOUT, this,
-                new ShowFormEventPayload<ProxyTargetFilterQuery>(FormType.EDIT, targetFilter, View.TARGET_FILTER));
+                new ShowFormEventPayload<ProxyTargetFilterQuery>(FormType.EDIT, targetFilter, EventView.TARGET_FILTER));
     }
 
     private void onClickOfAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {

@@ -12,7 +12,7 @@ import java.util.Objects;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -24,7 +24,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 public class SelectionChangedListener<T extends ProxyIdentifiableEntity> extends LayoutViewAwareListener {
     private final List<MasterEntityAwareComponent<T>> masterEntityAwareComponents;
 
-    public SelectionChangedListener(final UIEventBus eventBus, final LayoutViewAware layoutViewAware,
+    public SelectionChangedListener(final UIEventBus eventBus, final EventLayoutViewAware layoutViewAware,
             final List<MasterEntityAwareComponent<T>> masterEntityAwareComponents) {
         super(eventBus, EventTopics.SELECTION_CHANGED, layoutViewAware);
 

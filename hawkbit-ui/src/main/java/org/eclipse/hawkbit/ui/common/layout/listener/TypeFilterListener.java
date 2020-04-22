@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.common.layout.listener;
 import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -20,7 +20,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 public class TypeFilterListener<T> extends LayoutViewAwareListener {
     private final Consumer<T> typeFilterCallback;
 
-    public TypeFilterListener(final UIEventBus eventBus, final LayoutViewAware layoutViewAware,
+    public TypeFilterListener(final UIEventBus eventBus, final EventLayoutViewAware layoutViewAware,
             final Consumer<T> typeFilterCallback) {
         super(eventBus, EventTopics.TYPE_FILTER_CHANGED, layoutViewAware);
 

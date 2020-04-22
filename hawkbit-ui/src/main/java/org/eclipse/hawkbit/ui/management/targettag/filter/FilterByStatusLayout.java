@@ -15,7 +15,11 @@ import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleSmall;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -119,7 +123,8 @@ public class FilterByStatusLayout extends VerticalLayout {
     }
 
     private void publishStatusFilterChangedEvent() {
-        eventBus.publish(EventTopics.STATUS_FILTER_CHANGED, this, activeStatusFilters);
+        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyTarget.class,
+                FilterType.STATUS, activeStatusFilters, EventView.DEPLOYMENT));
 
         targetTagFilterLayoutUiState.setClickedTargetUpdateStatusFilters(activeStatusFilters);
     }
@@ -144,7 +149,8 @@ public class FilterByStatusLayout extends VerticalLayout {
     }
 
     private void publishOverdueFilterChangedEvent() {
-        eventBus.publish(EventTopics.OVERDUE_FILTER_CHANGED, this, isOverdueFilterActive);
+        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyTarget.class,
+                FilterType.OVERDUE, isOverdueFilterActive, EventView.DEPLOYMENT));
 
         targetTagFilterLayoutUiState.setOverdueFilterClicked(isOverdueFilterActive);
     }

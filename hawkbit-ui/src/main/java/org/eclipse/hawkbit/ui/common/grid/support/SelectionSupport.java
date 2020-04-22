@@ -17,10 +17,10 @@ import java.util.function.Supplier;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Grid;
@@ -39,8 +39,8 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
 public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     private final Grid<T> grid;
     private final UIEventBus eventBus;
-    private final Layout layout;
-    private final View view;
+    private final EventLayout layout;
+    private final EventView view;
 
     private final LongFunction<Optional<T>> mapIdToProxyEntityFunction;
     private final Supplier<Optional<Long>> selectedEntityIdUiStateProvider;
@@ -51,7 +51,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         this(grid, null, null, null, null, null, null);
     }
 
-    public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final Layout layout, final View view,
+    public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final EventLayout layout, final EventView view,
             final LongFunction<Optional<T>> mapIdToProxyEntityFunction,
             final Supplier<Optional<Long>> selectedEntityIdUiStateProvider,
             final Consumer<Optional<Long>> setSelectedEntityIdUiStateCallback) {

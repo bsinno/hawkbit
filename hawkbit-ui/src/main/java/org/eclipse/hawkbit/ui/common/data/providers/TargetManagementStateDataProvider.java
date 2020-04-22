@@ -56,21 +56,25 @@ public class TargetManagementStateDataProvider
             final boolean overdueState = filterParams.isOverdueState();
             final Long distributionId = filterParams.getDistributionId();
             final boolean noTagClicked = filterParams.isNoTagClicked();
-            final String[] targetTags = filterParams.getTargetTags();
+            final String[] targetTags = filterParams.getTargetTags().toArray(new String[0]);
             final Long targetFilterQueryId = filterParams.getTargetFilterQueryId();
 
             if (pinnedDistId != null) {
                 return targetManagement.findByFilterOrderByLinkedDistributionSet(pageRequest, pinnedDistId,
                         new FilterParams(targetUpdateStatusList, overdueState, searchText, distributionId, noTagClicked,
                                 targetTags));
-            } else if (targetFilterQueryId != null) {
-                return targetManagement.findByTargetFilterQuery(pageRequest, targetFilterQueryId);
-            } else if (filterParams.isAnyFilterSelected()) {
+            }
+
+            if (filterParams.isAnyFilterSelected()) {
+                if (targetFilterQueryId != null) {
+                    return targetManagement.findByTargetFilterQuery(pageRequest, targetFilterQueryId);
+                }
+
                 return targetManagement.findByFilters(pageRequest, new FilterParams(targetUpdateStatusList,
                         overdueState, searchText, distributionId, noTagClicked, targetTags));
-            } else {
-                return targetManagement.findAll(pageRequest);
             }
+
+            return targetManagement.findAll(pageRequest);
         });
     }
 
@@ -82,17 +86,19 @@ public class TargetManagementStateDataProvider
             final boolean overdueState = filterParams.isOverdueState();
             final Long distributionId = filterParams.getDistributionId();
             final boolean noTagClicked = filterParams.isNoTagClicked();
-            final String[] targetTags = filterParams.getTargetTags();
+            final String[] targetTags = filterParams.getTargetTags().toArray(new String[0]);
             final Long targetFilterQueryId = filterParams.getTargetFilterQueryId();
 
-            if (targetFilterQueryId != null) {
-                return targetManagement.countByTargetFilterQuery(targetFilterQueryId);
-            } else if (filterParams.isAnyFilterSelected()) {
+            if (filterParams.isAnyFilterSelected()) {
+                if (targetFilterQueryId != null) {
+                    return targetManagement.countByTargetFilterQuery(targetFilterQueryId);
+                }
+
                 return targetManagement.countByFilters(targetUpdateStatusList, overdueState, searchText, distributionId,
                         noTagClicked, targetTags);
-            } else {
-                return targetManagement.count();
             }
+
+            return targetManagement.count();
         }).orElse(targetManagement.count());
     }
 }

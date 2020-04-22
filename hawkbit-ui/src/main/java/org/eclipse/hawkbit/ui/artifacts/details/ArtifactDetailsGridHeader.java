@@ -12,10 +12,10 @@ import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -78,14 +78,14 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader
 
     private void maximizeTable() {
         eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, Layout.ARTIFACT_LIST, View.UPLOAD));
+                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, EventLayout.ARTIFACT_LIST, EventView.UPLOAD));
 
         artifactDetailsGridLayoutUiState.setMaximized(true);
     }
 
     private void minimizeTable() {
         eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MINIMIZE, Layout.ARTIFACT_LIST, View.UPLOAD));
+                new LayoutResizeEventPayload(ResizeType.MINIMIZE, EventLayout.ARTIFACT_LIST, EventView.UPLOAD));
 
         artifactDetailsGridLayoutUiState.setMaximized(false);
     }

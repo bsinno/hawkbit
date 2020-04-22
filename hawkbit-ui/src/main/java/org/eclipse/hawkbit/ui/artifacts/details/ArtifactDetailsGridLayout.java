@@ -21,9 +21,9 @@ import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.artifacts.upload.UploadDropAreaLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.GenericEventListener;
@@ -82,7 +82,7 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
             buildLayout(artifactDetailsHeader, artifactDetailsGrid);
         }
 
-        final LayoutViewAware masterLayoutView = new LayoutViewAware(Layout.SM_LIST, View.UPLOAD);
+        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.SM_LIST, EventView.UPLOAD);
         this.selectionChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
                 getMasterEntityAwareComponents());
         this.fileUploadChangedListener = new GenericEventListener<>(eventBus, EventTopics.FILE_UPLOAD_CHANGED,

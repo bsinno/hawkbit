@@ -15,10 +15,10 @@ import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ActionsVisibilityEventPayload.ActionsVisibilityType;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CrudMenuHeaderSupport;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -94,9 +94,9 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
         updateHiddenUiState();
     }
 
-    protected abstract Layout getLayout();
+    protected abstract EventLayout getLayout();
 
-    protected abstract View getView();
+    protected abstract EventView getView();
 
     protected abstract void updateHiddenUiState();
 

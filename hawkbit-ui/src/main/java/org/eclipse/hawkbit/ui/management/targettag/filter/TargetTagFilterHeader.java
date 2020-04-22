@@ -9,8 +9,8 @@
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -82,12 +82,12 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
     }
 
     @Override
-    protected Layout getLayout() {
-        return Layout.TARGET_TAG_FILTER;
+    protected EventLayout getLayout() {
+        return EventLayout.TARGET_TAG_FILTER;
     }
 
     @Override
-    protected View getView() {
-        return View.DEPLOYMENT;
+    protected EventView getView() {
+        return EventView.DEPLOYMENT;
     }
 }

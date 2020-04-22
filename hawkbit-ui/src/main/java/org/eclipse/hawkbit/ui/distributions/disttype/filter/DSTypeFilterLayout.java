@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
@@ -126,7 +126,7 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
         entityModifiedListener.unsubscribe();
     }
 
-    public Layout getLayout() {
-        return Layout.DS_TYPE_FILTER;
+    public EventLayout getLayout() {
+        return EventLayout.DS_TYPE_FILTER;
     }
 }

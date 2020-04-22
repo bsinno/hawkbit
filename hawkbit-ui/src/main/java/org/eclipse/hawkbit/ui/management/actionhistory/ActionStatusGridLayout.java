@@ -13,10 +13,10 @@ import java.util.List;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
@@ -45,7 +45,7 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
         this.actionStatusGridHeader = new ActionStatusGridHeader(i18n);
         this.actionStatusGrid = new ActionStatusGrid(i18n, eventBus, deploymentManagement);
 
-        final LayoutViewAware masterLayoutView = new LayoutViewAware(Layout.ACTION_HISTORY_LIST, View.DEPLOYMENT);
+        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.ACTION_HISTORY_LIST, EventView.DEPLOYMENT);
         this.selectionChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
                 getMasterEntityAwareComponents());
 

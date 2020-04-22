@@ -13,12 +13,12 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
@@ -47,11 +47,11 @@ public class UploadArtifactViewEventListener {
             eventBus.subscribe(this, CommandTopics.CHANGE_LAYOUT_VISIBILITY);
         }
 
-        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.SM_TYPE_FILTER);
+        final EnumSet<EventLayout> availableLayouts = EnumSet.of(EventLayout.SM_TYPE_FILTER);
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onLayoutVisibilityEvent(final LayoutVisibilityEventPayload eventPayload) {
-            if (eventPayload.getView() != View.UPLOAD || !availableLayouts.contains(eventPayload.getLayout())) {
+            if (eventPayload.getView() != EventView.UPLOAD || !availableLayouts.contains(eventPayload.getLayout())) {
                 return;
             }
 
@@ -71,18 +71,18 @@ public class UploadArtifactViewEventListener {
             eventBus.subscribe(this, CommandTopics.RESIZE_LAYOUT);
         }
 
-        final EnumSet<Layout> availableLayouts = EnumSet.of(Layout.SM_LIST, Layout.ARTIFACT_LIST);
+        final EnumSet<EventLayout> availableLayouts = EnumSet.of(EventLayout.SM_LIST, EventLayout.ARTIFACT_LIST);
 
         @EventBusListenerMethod(scope = EventScope.UI)
         private void onLayoutResizeEvent(final LayoutResizeEventPayload eventPayload) {
-            if (eventPayload.getView() != View.UPLOAD || !availableLayouts.contains(eventPayload.getLayout())) {
+            if (eventPayload.getView() != EventView.UPLOAD || !availableLayouts.contains(eventPayload.getLayout())) {
                 return;
             }
 
-            final Layout changedLayout = eventPayload.getLayout();
+            final EventLayout changedLayout = eventPayload.getLayout();
             final ResizeType visibilityType = eventPayload.getResizeType();
 
-            if (changedLayout == Layout.SM_LIST) {
+            if (changedLayout == EventLayout.SM_LIST) {
                 if (visibilityType == ResizeType.MAXIMIZE) {
                     uploadArtifactView.maximizeSmGridLayout();
                 } else {
@@ -90,7 +90,7 @@ public class UploadArtifactViewEventListener {
                 }
             }
 
-            if (changedLayout == Layout.ARTIFACT_LIST) {
+            if (changedLayout == EventLayout.ARTIFACT_LIST) {
                 if (visibilityType == ResizeType.MAXIMIZE) {
                     uploadArtifactView.maximizeArtifactGridLayout();
                 } else {

@@ -8,10 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class SearchFilterEventPayload extends LayoutViewAware {
+public class SearchFilterEventPayload extends EventLayoutViewAware {
     private final String filter;
 
-    public SearchFilterEventPayload(final String filter, final Layout layout, final View view) {
+    public SearchFilterEventPayload(final String filter, final EventLayout layout, final EventView view) {
         super(layout, view);
 
         this.filter = filter;

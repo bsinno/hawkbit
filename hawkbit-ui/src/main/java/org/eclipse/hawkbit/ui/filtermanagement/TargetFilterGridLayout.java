@@ -17,9 +17,9 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.event.Layout;
-import org.eclipse.hawkbit.ui.common.event.LayoutViewAware;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
@@ -79,7 +79,7 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
                 filterManagementUIState.getGridLayoutUiState(), targetFilterQueryManagement, permissionChecker,
                 autoAssignmentWindowBuilder);
 
-        final LayoutViewAware layoutView = new LayoutViewAware(Layout.TARGET_FILTER_QUERY_LIST, View.TARGET_FILTER);
+        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.TARGET_FILTER_QUERY_LIST, EventView.TARGET_FILTER);
 
         this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridByName);
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTargetFilterQuery.class)

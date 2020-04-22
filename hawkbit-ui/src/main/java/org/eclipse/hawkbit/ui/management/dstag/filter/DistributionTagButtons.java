@@ -24,10 +24,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.Layout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.NoTagFilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.TagFilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.View;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
@@ -145,7 +145,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         getDataCommunicator().reset();
 
         eventBus.publish(EventTopics.TAG_FILTER_CHANGED, this,
-                new TagFilterChangedEventPayload(activeTagIdsWithName.values(), Layout.DS_TAG_FILTER, View.DEPLOYMENT));
+                new TagFilterChangedEventPayload(activeTagIdsWithName.values(), EventLayout.DS_TAG_FILTER, EventView.DEPLOYMENT));
 
         distributionTagLayoutUiState.setClickedTargetTagIdsWithName(activeTagIdsWithName);
     }
@@ -160,7 +160,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         }
 
         eventBus.publish(EventTopics.NO_TAG_FILTER_CHANGED, this,
-                new NoTagFilterChangedEventPayload(isNoTagActivated, Layout.DS_TAG_FILTER, View.DEPLOYMENT));
+                new NoTagFilterChangedEventPayload(isNoTagActivated, EventLayout.DS_TAG_FILTER, EventView.DEPLOYMENT));
 
         distributionTagLayoutUiState.setNoTagClicked(isNoTagActivated);
     }

@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.shared.ui.ContentMode;
@@ -111,9 +112,9 @@ public class CountMessageLabel extends AbstractFooterSupport {
         return !overdueState ? " " : param;
     }
 
-    private static String getTagsMsg(final Boolean noTargetTagSelected, final String[] tags, final String param) {
-        return (tags == null || tags.length == 0)
-                && (noTargetTagSelected == null || !noTargetTagSelected.booleanValue()) ? " " : param;
+    private static String getTagsMsg(final Boolean noTargetTagSelected, final Collection<String> tags,
+            final String param) {
+        return CollectionUtils.isEmpty(tags) && Boolean.FALSE.equals(noTargetTagSelected) ? " " : param;
     }
 
     public void updatePinningDetails(final Long pinnedDsId) {
