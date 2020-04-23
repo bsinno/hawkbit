@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.management.dstable;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,14 +31,14 @@ import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.PinningChangedListener;
-import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
-import org.eclipse.hawkbit.ui.common.layout.listener.TagFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedPinAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
@@ -63,11 +62,10 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     private final DistributionSetDetailsHeader distributionSetDetailsHeader;
     private final DistributionDetails distributionDetails;
 
-    private final transient SearchFilterListener searchFilterListener;
-    private final transient TagFilterListener tagFilterListener;
+    private final transient FilterChangedListener<ProxyDistributionSet> dsFilterListener;
     private final transient PinningChangedListener<String> pinningChangedListener;
-    private final transient SelectionChangedListener<ProxyDistributionSet> masterEntityChangedListener;
-    private final transient EntityModifiedListener<ProxyDistributionSet> entityModifiedListener;
+    private final transient SelectionChangedListener<ProxyDistributionSet> masterDsChangedListener;
+    private final transient EntityModifiedListener<ProxyDistributionSet> dsModifiedListener;
     private final transient EntityModifiedListener<ProxyTag> tagModifiedListener;
 
     public DistributionGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -100,18 +98,14 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
                 distributionSetManagement, smManagement, distributionSetTypeManagement, distributionSetTagManagement,
                 configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
-        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DEPLOYMENT);
-        final EventLayoutViewAware tagLayoutView = new EventLayoutViewAware(EventLayout.DS_TAG_FILTER, EventView.DEPLOYMENT);
-
-        this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridBySearch);
-        this.tagFilterListener = new TagFilterListener(eventBus, tagLayoutView, this::filterGridByTags,
-                this::filterGridByNoTag);
+        this.dsFilterListener = new FilterChangedListener<>(eventBus, ProxyDistributionSet.class,
+                new EventViewAware(EventView.DEPLOYMENT), distributionGrid.getFilterSupport());
         this.pinningChangedListener = new PinningChangedListener<>(eventBus, ProxyTarget.class,
-                this::filterGridByPinnedTarget);
-        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, layoutView,
-                getMasterEntityAwareComponents());
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)
-                .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
+                distributionGrid::updatePinnedTarget);
+        this.masterDsChangedListener = new SelectionChangedListener<>(eventBus,
+                new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DEPLOYMENT), getMasterDsAwareComponents());
+        this.dsModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)
+                .entityModifiedAwareSupports(getDsModifiedAwareSupports()).build();
         this.tagModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
                 .entityModifiedAwareSupports(getTagModifiedAwareSupports()).parentEntityType(ProxyDistributionSet.class)
                 .build();
@@ -119,11 +113,11 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         buildLayout(distributionGridHeader, distributionGrid, distributionSetDetailsHeader, distributionDetails);
     }
 
-    private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterEntityAwareComponents() {
+    private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterDsAwareComponents() {
         return Arrays.asList(distributionSetDetailsHeader, distributionDetails);
     }
 
-    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+    private List<EntityModifiedAwareSupport> getDsModifiedAwareSupports() {
         return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(distributionGrid::refreshContainer),
                 EntityModifiedSelectionAwareSupport.of(distributionGrid.getSelectionSupport(),
                         distributionGrid::mapIdToProxyEntity, this::isIncomplete),
@@ -131,13 +125,13 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
                         this::isIncomplete));
     }
 
+    private boolean isIncomplete(final ProxyDistributionSet ds) {
+        return ds != null && !ds.getIsComplete();
+    }
+
     private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {
         return Collections
                 .singletonList(EntityModifiedTagTokenAwareSupport.of(distributionDetails.getDistributionTagToken()));
-    }
-
-    private boolean isIncomplete(final ProxyDistributionSet ds) {
-        return ds != null && !ds.getIsComplete();
     }
 
     public void showDsTagHeaderIcon() {
@@ -146,26 +140,6 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
     public void hideDsTagHeaderIcon() {
         distributionGridHeader.hideDsTagIcon();
-    }
-
-    public void filterGridBySearch(final String searchFilter) {
-        distributionGrid.updateSearchFilter(searchFilter);
-        distributionGrid.deselectAll();
-    }
-
-    public void filterGridByTags(final Collection<String> tagFilterNames) {
-        distributionGrid.updateTagFilter(tagFilterNames);
-        distributionGrid.deselectAll();
-    }
-
-    public void filterGridByNoTag(final boolean isNoTagClicked) {
-        distributionGrid.updateNoTagFilter(isNoTagClicked);
-        distributionGrid.deselectAll();
-    }
-
-    public void filterGridByPinnedTarget(final String controllerId) {
-        distributionGrid.updatePinnedTargetFilter(controllerId);
-        distributionGrid.deselectAll();
     }
 
     public void maximize() {
@@ -184,11 +158,10 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     }
 
     public void unsubscribeListener() {
-        searchFilterListener.unsubscribe();
-        tagFilterListener.unsubscribe();
+        dsFilterListener.unsubscribe();
         pinningChangedListener.unsubscribe();
-        masterEntityChangedListener.unsubscribe();
-        entityModifiedListener.unsubscribe();
+        masterDsChangedListener.unsubscribe();
+        dsModifiedListener.unsubscribe();
         tagModifiedListener.unsubscribe();
     }
 }

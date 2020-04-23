@@ -122,10 +122,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         this.targetGridLayoutUiState = targetGridLayoutUiState;
         this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
         this.distributionGridLayoutUiState = distributionGridLayoutUiState;
-
         this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n);
-        final TargetManagementStateDataProvider dataProvider = new TargetManagementStateDataProvider(targetManagement,
-                targetToProxyTargetMapper);
 
         setResizeSupport(new TargetResizeSupport());
 
@@ -164,7 +161,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             this.dragAndDropSupport.addDragAndDrop();
         }
 
-        this.filterSupport = new FilterSupport<>(dataProvider, getSelectionSupport()::deselectAll);
+        this.filterSupport = new FilterSupport<>(
+                new TargetManagementStateDataProvider(targetManagement, targetToProxyTargetMapper),
+                getSelectionSupport()::deselectAll);
         this.filterSupport.setFilter(new TargetManagementFilterParams());
 
         initFilterMappings();
@@ -244,13 +243,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void initFilterMappings() {
-        this.filterSupport.addMapping(FilterType.SEARCH, TargetManagementFilterParams::setSearchText);
-        this.filterSupport.addMapping(FilterType.STATUS, TargetManagementFilterParams::setTargetUpdateStatusList);
-        this.filterSupport.addMapping(FilterType.OVERDUE, TargetManagementFilterParams::setOverdueState);
-        this.filterSupport.addMapping(FilterType.DISTRIBUTION, TargetManagementFilterParams::setDistributionId);
-        this.filterSupport.addMapping(FilterType.NO_TAG, TargetManagementFilterParams::setNoTagClicked);
-        this.filterSupport.addMapping(FilterType.TAG, TargetManagementFilterParams::setTargetTags);
-        this.filterSupport.addMapping(FilterType.QUERY, TargetManagementFilterParams::setTargetFilterQueryId);
+        filterSupport.addMapping(FilterType.SEARCH, TargetManagementFilterParams::setSearchText);
+        filterSupport.addMapping(FilterType.STATUS, TargetManagementFilterParams::setTargetUpdateStatusList);
+        filterSupport.addMapping(FilterType.OVERDUE, TargetManagementFilterParams::setOverdueState);
+        filterSupport.addMapping(FilterType.DISTRIBUTION, TargetManagementFilterParams::setDistributionId);
+        filterSupport.addMapping(FilterType.NO_TAG, TargetManagementFilterParams::setNoTagClicked);
+        filterSupport.addMapping(FilterType.TAG, TargetManagementFilterParams::setTargetTags);
+        filterSupport.addMapping(FilterType.QUERY, TargetManagementFilterParams::setTargetFilterQueryId);
     }
 
     private void initDsPinningStyleGenerator() {
@@ -457,9 +456,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
             getFilter().setTargetFilterQueryId(targetTagFilterLayoutUiState.getClickedTargetFilterQueryId());
         } else {
-            final String searchFilter = targetGridLayoutUiState.getSearchFilter();
-            getFilter()
-                    .setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+            getFilter().setSearchText(targetGridLayoutUiState.getSearchFilter());
 
             final List<TargetUpdateStatus> statusFilters = targetTagFilterLayoutUiState
                     .getClickedTargetUpdateStatusFilters();

@@ -22,7 +22,6 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
     private String selectedFilterName;
     private String nameInput;
     private String filterQueryValueInput;
-    private String filterQueryValueOfLatestSearch;
 
     public Mode getCurrentMode() {
         return currentMode;
@@ -62,13 +61,5 @@ public class TargetFilterDetailsLayoutUiState implements Serializable {
 
     public void setFilterQueryValueInput(final String filterQueryValueInput) {
         this.filterQueryValueInput = filterQueryValueInput;
-    }
-
-    public String getFilterQueryValueOfLatestSearch() {
-        return filterQueryValueOfLatestSearch == null ? "" : filterQueryValueOfLatestSearch;
-    }
-
-    public void setFilterQueryValueOfLatestSearch(final String filterQueryValueOfLatestSearch) {
-        this.filterQueryValueOfLatestSearch = filterQueryValueOfLatestSearch;
     }
 }

@@ -66,7 +66,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     private final transient CountMessageLabel countMessageLabel;
 
     private final transient GenericEventListener<TargetFilterTabChangedEventPayload> filterTabChangedListener;
-    private final transient FilterChangedListener filterListener;
+    private final transient FilterChangedListener<ProxyTarget> targetFilterListener;
     private final transient PinningChangedListener<Long> pinningChangedListener;
     private final transient SelectionChangedListener<ProxyTarget> targetChangedListener;
     private final transient EntityModifiedListener<ProxyTarget> targetModifiedListener;
@@ -109,7 +109,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         this.filterTabChangedListener = new GenericEventListener<>(eventBus, EventTopics.TARGET_FILTER_TAB_CHANGED,
                 this::onTargetFilterTabChanged);
-        this.filterListener = new FilterChangedListener(eventBus, ProxyTarget.class,
+        this.targetFilterListener = new FilterChangedListener<>(eventBus, ProxyTarget.class,
                 new EventViewAware(EventView.DEPLOYMENT), targetGrid.getFilterSupport());
         this.pinningChangedListener = new PinningChangedListener<>(eventBus, ProxyDistributionSet.class,
                 targetGrid::updatePinnedDs);
@@ -183,7 +183,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     public void unsubscribeListener() {
         filterTabChangedListener.unsubscribe();
-        filterListener.unsubscribe();
+        targetFilterListener.unsubscribe();
         pinningChangedListener.unsubscribe();
         targetChangedListener.unsubscribe();
         targetModifiedListener.unsubscribe();

@@ -31,13 +31,15 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
@@ -103,7 +105,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
     private final UINotification uiNotification;
 
-    private final ConfigurableFilterDataProvider<ProxyRollout, Void, String> rolloutDataProvider;
+    private final transient FilterSupport<ProxyRollout, String> filterSupport;
 
     RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final RolloutManagement rolloutManagement,
             final RolloutGroupManagement rolloutGroupManagement, final UINotification uiNotification,
@@ -118,18 +120,26 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         this.tenantConfigManagement = tenantConfigManagement;
         this.uiNotification = uiNotification;
         this.rolloutWindowBuilder = rolloutWindowBuilder;
-
         this.rolloutMapper = new RolloutToProxyRolloutMapper();
-        this.rolloutDataProvider = new RolloutDataProvider(rolloutManagement, rolloutMapper).withConfigurableFilter();
 
         setSelectionSupport(new SelectionSupport<>(this, eventBus, EventLayout.ROLLOUT_LIST, EventView.ROLLOUT,
                 this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         getSelectionSupport().disableSelection();
 
+        this.filterSupport = new FilterSupport<>(new RolloutDataProvider(rolloutManagement, rolloutMapper));
+
+        initFilterMappings();
         initStatusIconMap();
         initActionTypeIconMap();
-
         init();
+    }
+
+    private void initFilterMappings() {
+        filterSupport.<String> addMapping(FilterType.SEARCH, (filter, searchText) -> setSearchFilter(searchText));
+    }
+
+    private void setSearchFilter(final String searchText) {
+        filterSupport.setFilter(!StringUtils.isEmpty(searchText) ? String.format("%%%s%%", searchText) : null);
     }
 
     public Optional<ProxyRollout> mapIdToProxyEntity(final long entityId) {
@@ -177,7 +187,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
     @Override
     public ConfigurableFilterDataProvider<ProxyRollout, Void, String> getFilterDataProvider() {
-        return rolloutDataProvider;
+        return filterSupport.getFilterDataProvider();
     }
 
     public void updateGridItems(final Collection<Long> ids) {
@@ -194,11 +204,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         }
 
         getDataProvider().refreshItem(proxyRollout);
-    }
-
-    public void updateSearchFilter(final String searchFilter) {
-        getFilterDataProvider()
-                .setFilter(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
     }
 
     private void initStatusIconMap() {
@@ -426,8 +431,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         getSelectionSupport().sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED, rollout);
         rolloutManagementUIState.setSelectedRolloutName(rollout.getName());
 
-        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
-                new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.ROLLOUT_GROUP_LIST, EventView.ROLLOUT));
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
+                VisibilityType.SHOW, EventLayout.ROLLOUT_GROUP_LIST, EventView.ROLLOUT));
     }
 
     private void pauseRollout(final Long rolloutId, final String rolloutName, final RolloutStatus rolloutStatus) {
@@ -538,6 +543,11 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     public void restoreState() {
-        updateSearchFilter(rolloutManagementUIState.getSearchText().orElse(null));
+        setSearchFilter(rolloutManagementUIState.getSearchText().orElse(null));
+        filterSupport.refreshFilter();
+    }
+
+    public FilterSupport<ProxyRollout, String> getFilterSupport() {
+        return filterSupport;
     }
 }

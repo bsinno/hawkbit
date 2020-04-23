@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.data.filters;
 import java.io.Serializable;
 
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetDistributionsStateDataProvider;
+import org.springframework.util.StringUtils;
 
 /**
  * Filter params for {@link DistributionSetDistributionsStateDataProvider}.
@@ -41,7 +42,7 @@ public class DsDistributionsFilterParams implements Serializable {
     }
 
     public void setSearchText(final String searchText) {
-        this.searchText = searchText;
+        this.searchText = !StringUtils.isEmpty(searchText) ? String.format("%%%s%%", searchText) : null;
     }
 
     public Long getDsTypeId() {

@@ -17,12 +17,12 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-public class FilterChangedListener extends ViewAwareListener {
-    private final Class<? extends ProxyIdentifiableEntity> entityType;
-    private final FilterSupport<?, ?> filterSupport;
+public class FilterChangedListener<T extends ProxyIdentifiableEntity> extends ViewAwareListener {
+    private final Class<T> entityType;
+    private final FilterSupport<T, ?> filterSupport;
 
-    public FilterChangedListener(final UIEventBus eventBus, final Class<? extends ProxyIdentifiableEntity> entityType,
-            final EventViewAware viewAware, final FilterSupport<?, ?> filterSupport) {
+    public FilterChangedListener(final UIEventBus eventBus, final Class<T> entityType, final EventViewAware viewAware,
+            final FilterSupport<T, ?> filterSupport) {
         super(eventBus, EventTopics.FILTER_CHANGED, viewAware);
 
         this.entityType = entityType;

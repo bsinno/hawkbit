@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
@@ -24,11 +23,13 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -36,7 +37,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
@@ -69,10 +69,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private final transient SoftwareModuleManagement softwareModuleManagement;
     private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
 
-    private final ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> swModuleDataProvider;
-    private final SwFilterParams smFilter;
-
     private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
+    private final transient FilterSupport<ProxySoftwareModule, SwFilterParams> filterSupport;
 
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -88,14 +86,11 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         this.softwareModuleManagement = softwareModuleManagement;
         this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
 
-        this.swModuleDataProvider = new SoftwareModuleArtifactsStateDataProvider(softwareModuleManagement,
-                softwareModuleToProxyMapper).withConfigurableFilter();
-        this.smFilter = new SwFilterParams();
-
         setResizeSupport(new SwModuleResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, EventLayout.SM_LIST, EventView.UPLOAD,
-                this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
+        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, EventLayout.SM_LIST,
+                EventView.UPLOAD, this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState,
+                this::setSelectedEntityIdToUiState));
         if (smGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -106,7 +101,18 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 ProxySoftwareModule::getNameAndVersion, permissionChecker, notification, this::deleteSoftwareModules,
                 UIComponentIdProvider.SM_DELETE_CONFIRMATION_DIALOG);
 
+        this.filterSupport = new FilterSupport<>(
+                new SoftwareModuleArtifactsStateDataProvider(softwareModuleManagement, softwareModuleToProxyMapper),
+                getSelectionSupport()::deselectAll);
+        this.filterSupport.setFilter(new SwFilterParams());
+
+        initFilterMappings();
         init();
+    }
+
+    private void initFilterMappings() {
+        filterSupport.addMapping(FilterType.SEARCH, SwFilterParams::setSearchText);
+        filterSupport.addMapping(FilterType.TYPE, SwFilterParams::setSoftwareModuleTypeId);
     }
 
     @Override
@@ -158,17 +164,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     @Override
     public ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> getFilterDataProvider() {
-        return swModuleDataProvider;
-    }
-
-    public void updateSearchFilter(final String searchFilter) {
-        smFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
-        getFilterDataProvider().setFilter(smFilter);
-    }
-
-    public void updateTypeFilter(final SoftwareModuleType typeFilter) {
-        smFilter.setSoftwareModuleTypeId(typeFilter != null ? typeFilter.getId() : null);
-        getFilterDataProvider().setFilter(smFilter);
+        return filterSupport.getFilterDataProvider();
     }
 
     /**
@@ -247,14 +243,19 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     public void restoreState() {
-        final String searchFilter = smGridLayoutUiState.getSearchFilter();
-        smFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+        getFilter().setSearchText(smGridLayoutUiState.getSearchFilter());
+        getFilter().setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedSmTypeId());
 
-        smFilter.setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedSmTypeId());
-
-        getFilterDataProvider().setFilter(smFilter);
-
+        filterSupport.refreshFilter();
         getSelectionSupport().restoreSelection();
+    }
+
+    public SwFilterParams getFilter() {
+        return filterSupport.getFilter();
+    }
+
+    public FilterSupport<ProxySoftwareModule, SwFilterParams> getFilterSupport() {
+        return filterSupport;
     }
 
     /**

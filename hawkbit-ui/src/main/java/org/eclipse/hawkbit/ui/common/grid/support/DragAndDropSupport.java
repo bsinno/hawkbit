@@ -100,14 +100,14 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         dragSource.setDataTransferData("source_id", gridId);
         dragSource.addGridDragStartListener(event -> {
             dragSource.setDragData(getItemsToDrag(event));
-            eventBus.publish(EventTopics.ENTITY_DRAGGING, this,
+            eventBus.publish(EventTopics.ENTITY_DRAGGING_CHANGED, this,
                     new EntityDraggingEventPayload(gridId, DraggingEventType.STARTED));
         });
         dragSource.addGridDragEndListener(event -> {
             if (event.isCanceled()) {
                 showActionNotAllowedNotification();
             }
-            eventBus.publish(EventTopics.ENTITY_DRAGGING, this,
+            eventBus.publish(EventTopics.ENTITY_DRAGGING_CHANGED, this,
                     new EntityDraggingEventPayload(gridId, DraggingEventType.STOPPED));
         });
     }

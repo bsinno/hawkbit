@@ -16,7 +16,6 @@ import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
@@ -26,13 +25,13 @@ import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
-import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
-import org.eclipse.hawkbit.ui.common.layout.listener.TypeFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
@@ -52,11 +51,10 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SwModuleDetails swModuleDetails;
 
-    private final transient SearchFilterListener searchFilterListener;
-    private final transient TypeFilterListener<SoftwareModuleType> typeFilterListener;
-    private final transient SelectionChangedListener<ProxyDistributionSet> masterDsEntityChangedListener;
-    private final transient SelectionChangedListener<ProxySoftwareModule> masterSmEntityChangedListener;
-    private final transient EntityModifiedListener<ProxySoftwareModule> entityModifiedListener;
+    private final transient FilterChangedListener<ProxySoftwareModule> smFilterListener;
+    private final transient SelectionChangedListener<ProxyDistributionSet> masterDsChangedListener;
+    private final transient SelectionChangedListener<ProxySoftwareModule> masterSmChangedListener;
+    private final transient EntityModifiedListener<ProxySoftwareModule> smModifiedListener;
 
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
@@ -78,27 +76,27 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 smWindowBuilder, smMetaDataWindowBuilder, artifactManagement);
         this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, smMetaDataWindowBuilder);
 
-        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.SM_LIST, EventView.DISTRIBUTIONS);
-        final EventLayoutViewAware typeLayoutView = new EventLayoutViewAware(EventLayout.SM_TYPE_FILTER, EventView.DISTRIBUTIONS);
-        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS);
-
-        this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridBySearch);
-        this.typeFilterListener = new TypeFilterListener<>(eventBus, typeLayoutView, this::filterGridByType);
-        this.masterDsEntityChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
-                Collections.singletonList(swModuleGrid));
-        this.masterSmEntityChangedListener = new SelectionChangedListener<>(eventBus, layoutView,
-                getMasterEntityAwareComponents());
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxySoftwareModule.class)
-                .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
+        this.smFilterListener = new FilterChangedListener<>(eventBus, ProxySoftwareModule.class,
+                new EventViewAware(EventView.DISTRIBUTIONS), swModuleGrid.getFilterSupport());
+        this.masterDsChangedListener = new SelectionChangedListener<>(eventBus,
+                new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS), getMasterDswareComponents());
+        this.masterSmChangedListener = new SelectionChangedListener<>(eventBus,
+                new EventLayoutViewAware(EventLayout.SM_LIST, EventView.DISTRIBUTIONS), getMasterSmAwareComponents());
+        this.smModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxySoftwareModule.class)
+                .entityModifiedAwareSupports(getSmModifiedAwareSupports()).build();
 
         buildLayout(swModuleGridHeader, swModuleGrid, softwareModuleDetailsHeader, swModuleDetails);
     }
 
-    private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterEntityAwareComponents() {
+    private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterDswareComponents() {
+        return Collections.singletonList(swModuleGrid);
+    }
+
+    private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterSmAwareComponents() {
         return Arrays.asList(softwareModuleDetailsHeader, swModuleDetails);
     }
 
-    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+    private List<EntityModifiedAwareSupport> getSmModifiedAwareSupports() {
         return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(swModuleGrid::refreshContainer),
                 EntityModifiedSelectionAwareSupport.of(swModuleGrid.getSelectionSupport(),
                         swModuleGrid::mapIdToProxyEntity));
@@ -110,16 +108,6 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
     public void hideSmTypeHeaderIcon() {
         swModuleGridHeader.hideSmTypeIcon();
-    }
-
-    public void filterGridBySearch(final String searchFilter) {
-        swModuleGrid.updateSearchFilter(searchFilter);
-        swModuleGrid.deselectAll();
-    }
-
-    public void filterGridByType(final SoftwareModuleType typeFilter) {
-        swModuleGrid.updateTypeFilter(typeFilter);
-        swModuleGrid.deselectAll();
     }
 
     public void maximize() {
@@ -138,10 +126,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     public void unsubscribeListener() {
-        searchFilterListener.unsubscribe();
-        typeFilterListener.unsubscribe();
-        masterDsEntityChangedListener.unsubscribe();
-        masterSmEntityChangedListener.unsubscribe();
-        entityModifiedListener.unsubscribe();
+        smFilterListener.unsubscribe();
+        masterDsChangedListener.unsubscribe();
+        masterSmChangedListener.unsubscribe();
+        smModifiedListener.unsubscribe();
     }
 }

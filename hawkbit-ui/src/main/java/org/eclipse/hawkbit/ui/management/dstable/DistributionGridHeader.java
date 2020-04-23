@@ -12,15 +12,17 @@ import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.SearchFilterEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
@@ -75,8 +77,8 @@ public class DistributionGridHeader extends AbstractGridHeader {
     }
 
     private void searchBy(final String newSearchText) {
-        eventBus.publish(EventTopics.SEARCH_FILTER_CHANGED, this,
-                new SearchFilterEventPayload(newSearchText, EventLayout.DS_LIST, EventView.DEPLOYMENT));
+        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyDistributionSet.class,
+                FilterType.SEARCH, newSearchText, EventView.DEPLOYMENT));
 
         distributionGridLayoutUiState.setSearchFilter(newSearchText);
     }

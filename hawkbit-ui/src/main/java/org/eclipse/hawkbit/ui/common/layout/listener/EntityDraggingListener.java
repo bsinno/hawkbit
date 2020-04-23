@@ -26,7 +26,7 @@ public class EntityDraggingListener extends EventListener {
 
     public EntityDraggingListener(final UIEventBus eventBus, final Collection<String> draggingSourceIds,
             final Component dropComponent) {
-        super(eventBus, EventTopics.ENTITY_DRAGGING);
+        super(eventBus, EventTopics.ENTITY_DRAGGING_CHANGED);
 
         this.draggingSourceIds = draggingSourceIds;
         this.dropComponent = dropComponent;

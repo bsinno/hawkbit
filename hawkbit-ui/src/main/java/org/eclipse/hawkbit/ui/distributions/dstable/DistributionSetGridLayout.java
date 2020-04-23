@@ -22,7 +22,6 @@ import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
@@ -31,13 +30,13 @@ import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
-import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
-import org.eclipse.hawkbit.ui.common.layout.listener.TypeFilterListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedTagTokenAwareSupport;
@@ -57,10 +56,9 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     private final DistributionSetDetailsHeader distributionSetDetailsHeader;
     private final DistributionSetDetails distributionSetDetails;
 
-    private final transient SearchFilterListener searchFilterListener;
-    private final transient TypeFilterListener<DistributionSetType> typeFilterListener;
-    private final transient SelectionChangedListener<ProxyDistributionSet> masterEntityChangedListener;
-    private final transient EntityModifiedListener<ProxyDistributionSet> entityModifiedListener;
+    private final transient FilterChangedListener<ProxyDistributionSet> dsFilterListener;
+    private final transient SelectionChangedListener<ProxyDistributionSet> masterDsChangedListener;
+    private final transient EntityModifiedListener<ProxyDistributionSet> dsModifiedListener;
     private final transient EntityModifiedListener<ProxyTag> tagModifiedListener;
 
     public DistributionSetGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -92,15 +90,12 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 distributionSetManagement, smManagement, distributionSetTypeManagement, distributionSetTagManagement,
                 targetFilterQueryManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
 
-        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS);
-        final EventLayoutViewAware typeLayoutView = new EventLayoutViewAware(EventLayout.DS_TYPE_FILTER, EventView.DISTRIBUTIONS);
-
-        this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridBySearch);
-        this.typeFilterListener = new TypeFilterListener<>(eventBus, typeLayoutView, this::filterGridByType);
-        this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, layoutView,
-                getMasterEntityAwareComponents());
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)
-                .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
+        this.dsFilterListener = new FilterChangedListener<>(eventBus, ProxyDistributionSet.class,
+                new EventViewAware(EventView.DISTRIBUTIONS), distributionSetGrid.getFilterSupport());
+        this.masterDsChangedListener = new SelectionChangedListener<>(eventBus,
+                new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS), getDsEntityAwareComponents());
+        this.dsModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)
+                .entityModifiedAwareSupports(getDsModifiedAwareSupports()).build();
         this.tagModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
                 .entityModifiedAwareSupports(getTagModifiedAwareSupports()).parentEntityType(ProxyDistributionSet.class)
                 .build();
@@ -109,11 +104,11 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 distributionSetDetails);
     }
 
-    private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterEntityAwareComponents() {
+    private List<MasterEntityAwareComponent<ProxyDistributionSet>> getDsEntityAwareComponents() {
         return Arrays.asList(distributionSetDetailsHeader, distributionSetDetails);
     }
 
-    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+    private List<EntityModifiedAwareSupport> getDsModifiedAwareSupports() {
         return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(distributionSetGrid::refreshContainer),
                 EntityModifiedSelectionAwareSupport.of(distributionSetGrid.getSelectionSupport(),
                         distributionSetGrid::mapIdToProxyEntity));
@@ -132,16 +127,6 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
         distributionSetGridHeader.hideDsTypeIcon();
     }
 
-    public void filterGridBySearch(final String searchFilter) {
-        distributionSetGrid.updateSearchFilter(searchFilter);
-        distributionSetGrid.deselectAll();
-    }
-
-    public void filterGridByType(final DistributionSetType typeFilter) {
-        distributionSetGrid.updateTypeFilter(typeFilter);
-        distributionSetGrid.deselectAll();
-    }
-
     public void maximize() {
         distributionSetGrid.createMaximizedContent();
         hideDetailsLayout();
@@ -158,10 +143,9 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     }
 
     public void unsubscribeListener() {
-        searchFilterListener.unsubscribe();
-        typeFilterListener.unsubscribe();
-        masterEntityChangedListener.unsubscribe();
-        entityModifiedListener.unsubscribe();
+        dsFilterListener.unsubscribe();
+        masterDsChangedListener.unsubscribe();
+        dsModifiedListener.unsubscribe();
         tagModifiedListener.unsubscribe();
     }
 }

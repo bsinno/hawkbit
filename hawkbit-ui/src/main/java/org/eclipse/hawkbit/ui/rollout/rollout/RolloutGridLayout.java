@@ -22,13 +22,12 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
-import org.eclipse.hawkbit.ui.common.event.EventLayout;
-import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
-import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
@@ -47,8 +46,8 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
     private final RolloutGridHeader rolloutListHeader;
     private final RolloutGrid rolloutListGrid;
 
-    private final transient SearchFilterListener searchFilterListener;
-    private final transient EntityModifiedListener<ProxyRollout> entityModifiedListener;
+    private final transient FilterChangedListener<ProxyRollout> rolloutFilterListener;
+    private final transient EntityModifiedListener<ProxyRollout> rolloutModifiedListener;
 
     public RolloutGridLayout(final SpPermissionChecker permissionChecker,
             final RolloutManagementUIState rolloutManagementUIState, final UIEventBus eventBus,
@@ -70,16 +69,15 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
                 uiNotification, rolloutManagementUIState, permissionChecker, tenantConfigManagement,
                 rolloutWindowBuilder);
 
-        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.ROLLOUT_LIST, EventView.ROLLOUT);
-
-        this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, rolloutListGrid::updateSearchFilter);
-        this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyRollout.class)
-                .entityModifiedAwareSupports(getEntityModifiedAwareSupports()).build();
+        this.rolloutFilterListener = new FilterChangedListener<>(eventBus, ProxyRollout.class,
+                new EventViewAware(EventView.ROLLOUT), rolloutListGrid.getFilterSupport());
+        this.rolloutModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyRollout.class)
+                .entityModifiedAwareSupports(getRolloutModifiedAwareSupports()).build();
 
         buildLayout(rolloutListHeader, rolloutListGrid);
     }
 
-    private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
+    private List<EntityModifiedAwareSupport> getRolloutModifiedAwareSupports() {
         return Arrays.asList(
                 EntityModifiedGridRefreshAwareSupport.of(rolloutListGrid::refreshContainer,
                         rolloutListGrid::updateGridItems),
@@ -96,7 +94,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
      * unsubscribe all listener
      */
     public void unsubscribeListener() {
-        searchFilterListener.unsubscribe();
-        entityModifiedListener.unsubscribe();
+        rolloutFilterListener.unsubscribe();
+        rolloutModifiedListener.unsubscribe();
     }
 }

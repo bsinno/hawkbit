@@ -17,7 +17,9 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
@@ -27,6 +29,7 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.cronutils.utils.StringUtils;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
@@ -47,20 +50,30 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
 
-    private final ConfigurableFilterDataProvider<ProxyTarget, Void, String> configurableTargetDataProvider;
-
     private final TargetFilterDetailsLayoutUiState uiState;
+
+    private final transient FilterSupport<ProxyTarget, String> filterSupport;
 
     TargetFilterTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final TargetManagement targetManagement, final TargetFilterDetailsLayoutUiState uiState) {
         super(i18n, eventBus);
 
         this.uiState = uiState;
-        configurableTargetDataProvider = new TargetFilterStateDataProvider(targetManagement,
-                new TargetToProxyTargetMapper(i18n)).withConfigurableFilter();
-        initTargetStatusIconMap();
 
+        this.filterSupport = new FilterSupport<>(
+                new TargetFilterStateDataProvider(targetManagement, new TargetToProxyTargetMapper(i18n)));
+
+        initFilterMappings();
+        initTargetStatusIconMap();
         init();
+    }
+
+    private void initFilterMappings() {
+        filterSupport.<String> addMapping(FilterType.QUERY, (filter, queryText) -> setQueryFilter(queryText));
+    }
+
+    private void setQueryFilter(final String queryText) {
+        filterSupport.setFilter(queryText);
     }
 
     @Override
@@ -77,7 +90,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     @Override
     public ConfigurableFilterDataProvider<ProxyTarget, Void, String> getFilterDataProvider() {
-        return configurableTargetDataProvider;
+        return filterSupport.getFilterDataProvider();
     }
 
     // TODO: reuse code with TargetGrid
@@ -99,12 +112,6 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     private String getTargetStatusDescription(final TargetUpdateStatus targetStatus) {
         return i18n
                 .getMessage(UIMessageIdProvider.TOOLTIP_TARGET_STATUS_PREFIX + targetStatus.toString().toLowerCase());
-    }
-
-    public void updateTargetFilterQueryFilter(final String targetFilterQuery) {
-        uiState.setFilterQueryValueOfLatestSearch(targetFilterQuery);
-
-        getFilterDataProvider().setFilter(targetFilterQuery);
     }
 
     @Override
@@ -144,9 +151,13 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     }
 
     public void restoreState() {
-        final String latestFilter = uiState.getFilterQueryValueOfLatestSearch();
-        if (!latestFilter.isEmpty()) {
-            updateTargetFilterQueryFilter(latestFilter);
+        if (!StringUtils.isEmpty(uiState.getFilterQueryValueInput())) {
+            filterSupport.setFilter(uiState.getFilterQueryValueInput());
+            filterSupport.refreshFilter();
         }
+    }
+
+    public FilterSupport<ProxyTarget, String> getFilterSupport() {
+        return filterSupport;
     }
 }

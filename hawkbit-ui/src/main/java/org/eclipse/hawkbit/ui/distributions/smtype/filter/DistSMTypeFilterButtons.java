@@ -23,10 +23,9 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.event.EventLayout;
-import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.TypeFilterChangedEventPayload.TypeFilterChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
@@ -116,14 +115,11 @@ public class DistSMTypeFilterButtons extends AbstractFilterButtons<ProxyType, St
             // needed to trigger style generator
             getDataCommunicator().reset();
 
-            eventBus.publish(EventTopics.TYPE_FILTER_CHANGED, this,
-                    new TypeFilterChangedEventPayload<SoftwareModuleType>(
-                            ClickBehaviourType.CLICKED == clickType ? TypeFilterChangedEventType.TYPE_CLICKED
-                                    : TypeFilterChangedEventType.TYPE_UNCLICKED,
-                            smType, EventLayout.SM_TYPE_FILTER, EventView.DISTRIBUTIONS));
+            final Long typeId = ClickBehaviourType.CLICKED == clickType ? smType.getId() : null;
 
-            distSMTypeFilterLayoutUiState
-                    .setClickedSmTypeId(ClickBehaviourType.CLICKED == clickType ? smType.getId() : null);
+            eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(
+                    ProxySoftwareModule.class, FilterType.TYPE, typeId, EventView.DISTRIBUTIONS));
+            distSMTypeFilterLayoutUiState.setClickedSmTypeId(typeId);
         });
     }
 

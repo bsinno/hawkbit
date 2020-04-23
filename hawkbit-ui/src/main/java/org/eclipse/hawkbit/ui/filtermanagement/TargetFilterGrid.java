@@ -27,11 +27,13 @@ import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload;
 import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
@@ -41,6 +43,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
@@ -72,12 +75,12 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     private final TargetFilterGridLayoutUiState uiState;
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
 
+    private final transient AutoAssignmentWindowBuilder autoAssignmentWindowBuilder;
+
     private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> targetFilterDataProvider;
     private final transient DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
-
-    private final transient AutoAssignmentWindowBuilder autoAssignmentWindowBuilder;
+    private final transient FilterSupport<ProxyTargetFilterQuery, String> filterSupport;
 
     public TargetFilterGrid(final VaadinMessageSource i18n, final UINotification notification,
             final UIEventBus eventBus, final TargetFilterGridLayoutUiState uiState,
@@ -90,15 +93,24 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.autoAssignmentWindowBuilder = autoAssignmentWindowBuilder;
 
-        this.targetFilterDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
-                new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
-
         this.targetFilterDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.filter.custom"),
                 ProxyTargetFilterQuery::getName, permChecker, notification, this::targetFiltersDeletionCallback,
                 UIComponentIdProvider.TARGET_FILTER_DELETE_CONFIRMATION_DIALOG);
 
+        this.filterSupport = new FilterSupport<>(new TargetFilterQueryDataProvider(targetFilterQueryManagement,
+                new TargetFilterQueryToProxyTargetFilterMapper()));
+
+        initFilterMappings();
         initActionTypeIconMap();
         init();
+    }
+
+    private void initFilterMappings() {
+        filterSupport.<String> addMapping(FilterType.SEARCH, (filter, searchText) -> setSearchFilter(searchText));
+    }
+
+    private void setSearchFilter(final String searchText) {
+        filterSupport.setFilter(!StringUtils.isEmpty(searchText) ? String.format("%%%s%%", searchText) : null);
     }
 
     @Override
@@ -108,7 +120,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     @Override
     public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> getFilterDataProvider() {
-        return targetFilterDataProvider;
+        return filterSupport.getFilterDataProvider();
     }
 
     private void targetFiltersDeletionCallback(final Collection<ProxyTargetFilterQuery> targetFiltersToBeDeleted) {
@@ -118,18 +130,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyTargetFilterQuery.class, targetFilterIdsToBeDeleted));
-    }
-
-    public void setFilter(final String filter) {
-        uiState.setLatestSearchFilterApplied(filter);
-        filter(filter);
-    }
-
-    private void filter(String filter) {
-        if (filter == null) {
-            filter = "";
-        }
-        getFilterDataProvider().setFilter(String.format("%%%s%%", filter));
     }
 
     @Override
@@ -197,7 +197,12 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     }
 
     public void restoreState() {
-        setFilter(uiState.getLatestSearchFilterApplied());
+        setSearchFilter(uiState.getSearchFilterInput());
+        filterSupport.refreshFilter();
+    }
+
+    public FilterSupport<ProxyTargetFilterQuery, String> getFilterSupport() {
+        return filterSupport;
     }
 
     // TODO: remove duplication with ActionHistoryGrid

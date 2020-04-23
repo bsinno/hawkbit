@@ -19,7 +19,6 @@ import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.filters.DsDistributionsFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
@@ -28,12 +27,14 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
@@ -45,7 +46,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
@@ -74,11 +74,9 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private final transient DistributionSetManagement dsManagement;
     private final transient DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper;
 
-    private final ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsDistributionsFilterParams> dsDataProvider;
-    private final DsDistributionsFilterParams dsFilter;
-
     private final transient DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
     private final transient DragAndDropSupport<ProxyDistributionSet> dragAndDropSupport;
+    private final transient FilterSupport<ProxyDistributionSet, DsDistributionsFilterParams> filterSupport;
 
     public DistributionSetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -93,10 +91,6 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
         this.dsManagement = dsManagement;
         this.dsToProxyDistributionMapper = new DistributionSetToProxyDistributionMapper();
-
-        this.dsDataProvider = new DistributionSetDistributionsStateDataProvider(dsManagement, dsTypeManagement,
-                dsToProxyDistributionMapper).withConfigurableFilter();
-        this.dsFilter = new DsDistributionsFilterParams();
 
         setResizeSupport(new DistributionSetResizeSupport());
 
@@ -125,8 +119,18 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
             this.dragAndDropSupport.addDropTarget();
         }
 
+        this.filterSupport = new FilterSupport<>(new DistributionSetDistributionsStateDataProvider(dsManagement,
+                dsTypeManagement, dsToProxyDistributionMapper), getSelectionSupport()::deselectAll);
+        this.filterSupport.setFilter(new DsDistributionsFilterParams());
+
+        initFilterMappings();
         initIsCompleteStyleGenerator();
         init();
+    }
+
+    private void initFilterMappings() {
+        filterSupport.addMapping(FilterType.SEARCH, DsDistributionsFilterParams::setSearchText);
+        filterSupport.addMapping(FilterType.TYPE, DsDistributionsFilterParams::setDsTypeId);
     }
 
     @Override
@@ -174,17 +178,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
     @Override
     public ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsDistributionsFilterParams> getFilterDataProvider() {
-        return dsDataProvider;
-    }
-
-    public void updateSearchFilter(final String searchFilter) {
-        dsFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
-        getFilterDataProvider().setFilter(dsFilter);
-    }
-
-    public void updateTypeFilter(final DistributionSetType typeFilter) {
-        dsFilter.setDsTypeId(typeFilter != null ? typeFilter.getId() : null);
-        getFilterDataProvider().setFilter(dsFilter);
+        return filterSupport.getFilterDataProvider();
     }
 
     /**
@@ -262,14 +256,19 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     }
 
     public void restoreState() {
-        final String searchFilter = distributionSetGridLayoutUiState.getSearchFilter();
-        dsFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
+        getFilter().setSearchText(distributionSetGridLayoutUiState.getSearchFilter());
+        getFilter().setDsTypeId(dSTypeFilterLayoutUiState.getClickedDsTypeId());
 
-        dsFilter.setDsTypeId(dSTypeFilterLayoutUiState.getClickedDsTypeId());
-
-        getFilterDataProvider().setFilter(dsFilter);
-
+        filterSupport.refreshFilter();
         getSelectionSupport().restoreSelection();
+    }
+
+    public DsDistributionsFilterParams getFilter() {
+        return filterSupport.getFilter();
+    }
+
+    public FilterSupport<ProxyDistributionSet, DsDistributionsFilterParams> getFilterSupport() {
+        return filterSupport;
     }
 
     /**

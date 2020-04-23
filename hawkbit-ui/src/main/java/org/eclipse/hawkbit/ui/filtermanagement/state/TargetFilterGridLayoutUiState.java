@@ -14,7 +14,6 @@ public class TargetFilterGridLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String searchFilterInput;
-    private String latestSearchFilterApplied;
 
     public String getSearchFilterInput() {
         return searchFilterInput;
@@ -23,13 +22,4 @@ public class TargetFilterGridLayoutUiState implements Serializable {
     public void setSearchFilterInput(final String searchFilterInput) {
         this.searchFilterInput = searchFilterInput;
     }
-
-    public String getLatestSearchFilterApplied() {
-        return latestSearchFilterApplied;
-    }
-
-    public void setLatestSearchFilterApplied(final String latestSearchFilterApplied) {
-        this.latestSearchFilterApplied = latestSearchFilterApplied;
-    }
-
 }

@@ -28,14 +28,16 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport.PinBehaviourType;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
@@ -82,14 +84,12 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     private final DistributionTagLayoutUiState distributionTagLayoutUiState;
     private final transient DistributionSetManagement distributionSetManagement;
     private final transient DeploymentManagement deploymentManagement;
-
-    private final ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsManagementFilterParams> dsDataProvider;
     private final transient DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
-    private final DsManagementFilterParams dsFilter;
 
     private final transient PinSupport<ProxyDistributionSet, String> pinSupport;
     private final transient DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
     private final transient DragAndDropSupport<ProxyDistributionSet> dragAndDropSupport;
+    private final transient FilterSupport<ProxyDistributionSet, DsManagementFilterParams> filterSupport;
 
     public DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -105,16 +105,13 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.distributionSetManagement = distributionSetManagement;
         this.deploymentManagement = deploymentManagement;
-
         this.distributionSetToProxyDistributionMapper = new DistributionSetToProxyDistributionMapper();
-        this.dsDataProvider = new DistributionSetManagementStateDataProvider(distributionSetManagement,
-                distributionSetToProxyDistributionMapper).withConfigurableFilter();
-        this.dsFilter = new DsManagementFilterParams();
 
         setResizeSupport(new DistributionResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, EventLayout.DS_LIST, EventView.DEPLOYMENT,
-                this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
+        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, EventLayout.DS_LIST,
+                EventView.DEPLOYMENT, this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState,
+                this::setSelectedEntityIdToUiState));
         if (distributionGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -150,8 +147,21 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             this.dragAndDropSupport.addDragAndDrop();
         }
 
+        this.filterSupport = new FilterSupport<>(
+                new DistributionSetManagementStateDataProvider(distributionSetManagement,
+                        distributionSetToProxyDistributionMapper),
+                getSelectionSupport()::deselectAll);
+        this.filterSupport.setFilter(new DsManagementFilterParams());
+
+        initFilterMappings();
         initTargetPinningStyleGenerator();
         init();
+    }
+
+    private void initFilterMappings() {
+        filterSupport.addMapping(FilterType.SEARCH, DsManagementFilterParams::setSearchText);
+        filterSupport.addMapping(FilterType.NO_TAG, DsManagementFilterParams::setNoTagClicked);
+        filterSupport.addMapping(FilterType.TAG, DsManagementFilterParams::setDistributionSetTags);
     }
 
     @Override
@@ -183,9 +193,9 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyDistributionSet pinnedItem) {
-        if (!StringUtils.isEmpty(dsFilter.getPinnedTargetControllerId())) {
-            dsFilter.setPinnedTargetControllerId(null);
-            getFilterDataProvider().setFilter(dsFilter);
+        if (!StringUtils.isEmpty(getFilter().getPinnedTargetControllerId())) {
+            getFilter().setPinnedTargetControllerId(null);
+            filterSupport.refreshFilter();
         }
 
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
@@ -219,7 +229,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     private void initTargetPinningStyleGenerator() {
         setStyleGenerator(ds -> {
-            if (dsFilter.getPinnedTargetControllerId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
+            if (getFilter().getPinnedTargetControllerId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
                 return pinSupport.getAssignedOrInstalledRowStyle(ds.getId());
             }
 
@@ -234,36 +244,23 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     @Override
     public ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsManagementFilterParams> getFilterDataProvider() {
-        return dsDataProvider;
+        return filterSupport.getFilterDataProvider();
     }
 
-    public void updateSearchFilter(final String searchFilter) {
-        dsFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
-        getFilterDataProvider().setFilter(dsFilter);
-    }
-
-    public void updateTagFilter(final Collection<String> tagFilterNames) {
-        dsFilter.setDistributionSetTags(tagFilterNames);
-        getFilterDataProvider().setFilter(dsFilter);
-    }
-
-    public void updateNoTagFilter(final boolean isNoTagClicked) {
-        dsFilter.setNoTagClicked(isNoTagClicked);
-        getFilterDataProvider().setFilter(dsFilter);
-    }
-
-    public void updatePinnedTargetFilter(final String pinnedControllerId) {
+    public void updatePinnedTarget(final String pinnedControllerId) {
         if (pinSupport.clearPinning()) {
             distributionGridLayoutUiState.setPinnedDsId(null);
         }
 
-        if ((StringUtils.isEmpty(pinnedControllerId) && dsFilter.getPinnedTargetControllerId() != null)
-                || !StringUtils.isEmpty(pinnedControllerId)) {
-            pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
-
-            dsFilter.setPinnedTargetControllerId(pinnedControllerId);
-            getFilterDataProvider().setFilter(dsFilter);
+        if (StringUtils.isEmpty(pinnedControllerId) && getFilter().getPinnedTargetControllerId() == null) {
+            return;
         }
+
+        pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
+        getFilter().setPinnedTargetControllerId(pinnedControllerId);
+
+        filterSupport.refreshFilter();
+        getSelectionSupport().deselectAll();
     }
 
     /**
@@ -358,23 +355,28 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
         if (!StringUtils.isEmpty(pinnedControllerId)) {
             pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
-            dsFilter.setPinnedTargetControllerId(pinnedControllerId);
+            getFilter().setPinnedTargetControllerId(pinnedControllerId);
         }
 
-        final String searchFilter = distributionGridLayoutUiState.getSearchFilter();
-        dsFilter.setSearchText(!StringUtils.isEmpty(searchFilter) ? String.format("%%%s%%", searchFilter) : null);
-
-        dsFilter.setNoTagClicked(distributionTagLayoutUiState.isNoTagClicked());
+        getFilter().setSearchText(distributionGridLayoutUiState.getSearchFilter());
+        getFilter().setNoTagClicked(distributionTagLayoutUiState.isNoTagClicked());
 
         final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedTargetTagIdsWithName()
                 .values();
         if (!CollectionUtils.isEmpty(tagFilterNames)) {
-            dsFilter.setDistributionSetTags(tagFilterNames);
+            getFilter().setDistributionSetTags(tagFilterNames);
         }
 
-        getFilterDataProvider().setFilter(dsFilter);
-
+        filterSupport.refreshFilter();
         getSelectionSupport().restoreSelection();
+    }
+
+    public DsManagementFilterParams getFilter() {
+        return filterSupport.getFilter();
+    }
+
+    public FilterSupport<ProxyDistributionSet, DsManagementFilterParams> getFilterSupport() {
+        return filterSupport;
     }
 
     public PinSupport<ProxyDistributionSet, String> getPinSupport() {

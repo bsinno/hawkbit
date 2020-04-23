@@ -11,16 +11,15 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.event.EventLayout;
-import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
-import org.eclipse.hawkbit.ui.common.layout.listener.SearchFilterListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
 import org.eclipse.hawkbit.ui.filtermanagement.event.TargetFilterDetailsLayoutEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -39,7 +38,7 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
 
     private final transient TargetFilterDetailsLayoutEventListener eventListener;
 
-    private final transient SearchFilterListener searchFilterListener;
+    private final transient FilterChangedListener<ProxyTarget> targetFilterListener;
 
     /**
      * TargetFilterDetailsLayout constructor
@@ -77,9 +76,8 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
 
         this.eventListener = new TargetFilterDetailsLayoutEventListener(this, eventBus);
 
-        final EventLayoutViewAware layoutView = new EventLayoutViewAware(EventLayout.TARGET_FILTER_QUERY_FORM, EventView.TARGET_FILTER);
-
-        this.searchFilterListener = new SearchFilterListener(eventBus, layoutView, this::filterGridByQuery);
+        this.targetFilterListener = new FilterChangedListener<>(eventBus, ProxyTarget.class,
+                new EventViewAware(EventView.TARGET_FILTER), targetFilterTargetGrid.getFilterSupport());
 
         buildLayout(targetFilterDetailsGridHeader, targetFilterTargetGrid, targetFilterCountMessageLabel);
     }
@@ -94,7 +92,6 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
      */
     public void showAddFilterUi() {
         targetFilterDetailsGridHeader.showAddFilterLayout();
-        targetFilterTargetGrid.updateTargetFilterQueryFilter(null);
     }
 
     /**
@@ -106,17 +103,6 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
      */
     public void showEditFilterUi(final ProxyTargetFilterQuery proxyEntity) {
         targetFilterDetailsGridHeader.showEditFilterLayout(proxyEntity);
-        targetFilterTargetGrid.updateTargetFilterQueryFilter(proxyEntity.getQuery());
-    }
-
-    /**
-     * Update the grid with {@link Target}s that match a query
-     * 
-     * @param newFilterquery
-     *            the RSQL query to match the targets against
-     */
-    public void filterGridByQuery(final String newFilterquery) {
-        targetFilterTargetGrid.updateTargetFilterQueryFilter(newFilterquery);
     }
 
     /**
@@ -133,6 +119,6 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
     public void unsubscribeListener() {
         eventListener.unsubscribeListeners();
 
-        searchFilterListener.unsubscribe();
+        targetFilterListener.unsubscribe();
     }
 }

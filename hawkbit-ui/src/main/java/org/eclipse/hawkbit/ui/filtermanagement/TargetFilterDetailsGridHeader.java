@@ -19,9 +19,9 @@ import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -97,6 +97,7 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     public void showAddFilterLayout() {
         uiState.setCurrentMode(Mode.CREATE);
 
+        targetFilterAddUpdateLayout.filterTargetListByQuery(null);
         doShowAddFilterLayout(new ProxyTargetFilterQuery());
     }
 
@@ -110,6 +111,7 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         uiState.setSelectedFilterId(proxyEntity.getId());
         uiState.setSelectedFilterName(proxyEntity.getName());
 
+        targetFilterAddUpdateLayout.filterTargetListByQuery(proxyEntity.getQuery());
         doShowEditFilterLayout(proxyEntity.getName(), proxyEntity);
     }
 
