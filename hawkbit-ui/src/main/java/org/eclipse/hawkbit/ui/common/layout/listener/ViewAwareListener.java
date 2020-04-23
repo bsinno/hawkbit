@@ -9,6 +9,7 @@ package org.eclipse.hawkbit.ui.common.layout.listener;
 
 import java.util.Collection;
 
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -30,5 +31,9 @@ public abstract class ViewAwareListener extends EventListener {
 
     public EventViewAware getViewAware() {
         return viewAware;
+    }
+
+    public EventView getView() {
+        return viewAware.getView();
     }
 }

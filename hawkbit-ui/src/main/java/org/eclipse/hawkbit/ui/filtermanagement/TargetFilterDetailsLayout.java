@@ -11,16 +11,17 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
-import org.eclipse.hawkbit.ui.filtermanagement.event.TargetFilterDetailsLayoutEventListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.ShowEntityFormLayoutListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -36,8 +37,7 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
     private final TargetFilterTargetGrid targetFilterTargetGrid;
     private final transient TargetFilterCountMessageLabel targetFilterCountMessageLabel;
 
-    private final transient TargetFilterDetailsLayoutEventListener eventListener;
-
+    private final transient ShowEntityFormLayoutListener<ProxyTargetFilterQuery> showFilterQueryFormListener;
     private final transient FilterChangedListener<ProxyTarget> targetFilterListener;
 
     /**
@@ -74,8 +74,10 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
 
         initGridDataUpdatedListener();
 
-        this.eventListener = new TargetFilterDetailsLayoutEventListener(this, eventBus);
-
+        this.showFilterQueryFormListener = new ShowEntityFormLayoutListener<>(eventBus, ProxyTargetFilterQuery.class,
+                new EventLayoutViewAware(EventLayout.TARGET_FILTER_QUERY_FORM, EventView.TARGET_FILTER),
+                targetFilterDetailsGridHeader::showAddFilterLayout,
+                targetFilterDetailsGridHeader::showEditFilterLayout);
         this.targetFilterListener = new FilterChangedListener<>(eventBus, ProxyTarget.class,
                 new EventViewAware(EventView.TARGET_FILTER), targetFilterTargetGrid.getFilterSupport());
 
@@ -85,24 +87,6 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
     private void initGridDataUpdatedListener() {
         targetFilterTargetGrid.getFilterDataProvider().addDataProviderListener(event -> targetFilterCountMessageLabel
                 .updateTotalFilteredTargetsCount(targetFilterTargetGrid.getDataSize()));
-    }
-
-    /**
-     * Change UI content to create a {@link TargetFilterQuery}
-     */
-    public void showAddFilterUi() {
-        targetFilterDetailsGridHeader.showAddFilterLayout();
-    }
-
-    /**
-     * Change UI content to modify a {@link TargetFilterQuery}
-     * 
-     * @param proxyEntity
-     *            the filter to modify
-     * 
-     */
-    public void showEditFilterUi(final ProxyTargetFilterQuery proxyEntity) {
-        targetFilterDetailsGridHeader.showEditFilterLayout(proxyEntity);
     }
 
     /**
@@ -117,8 +101,7 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
      * unsubscribe all listener
      */
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
+        showFilterQueryFormListener.unsubscribe();
         targetFilterListener.unsubscribe();
     }
 }

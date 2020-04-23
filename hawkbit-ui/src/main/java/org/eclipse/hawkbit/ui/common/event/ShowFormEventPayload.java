@@ -8,13 +8,16 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class ShowFormEventPayload<T> extends EventViewAware {
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+
+public class ShowFormEventPayload<T extends ProxyIdentifiableEntity> extends EventViewAware {
     private final FormType formType;
-    private final Class<?> entityType;
-    private final Class<?> parentEntityType;
+    private final Class<? extends ProxyIdentifiableEntity> entityType;
+    private final Class<? extends ProxyIdentifiableEntity> parentEntityType;
     private final T entity;
 
-    public ShowFormEventPayload(final FormType formType, final Class<?> entityType, final EventView view) {
+    public ShowFormEventPayload(final FormType formType, final Class<? extends ProxyIdentifiableEntity> entityType,
+            final EventView view) {
         this(formType, entityType, null, null, view);
     }
 
@@ -22,18 +25,18 @@ public class ShowFormEventPayload<T> extends EventViewAware {
         this(formType, entity.getClass(), null, entity, view);
     }
 
-    public ShowFormEventPayload(final FormType formType, final Class<?> entityType, final Class<?> parentEntityType,
-            final EventView view) {
+    public ShowFormEventPayload(final FormType formType, final Class<? extends ProxyIdentifiableEntity> entityType,
+            final Class<? extends ProxyIdentifiableEntity> parentEntityType, final EventView view) {
         this(formType, entityType, parentEntityType, null, view);
     }
 
-    public ShowFormEventPayload(final FormType formType, final Class<?> parentEntityType, final T entity,
-            final EventView view) {
+    public ShowFormEventPayload(final FormType formType,
+            final Class<? extends ProxyIdentifiableEntity> parentEntityType, final T entity, final EventView view) {
         this(formType, entity.getClass(), parentEntityType, entity, view);
     }
 
-    private ShowFormEventPayload(final FormType formType, final Class<?> entityType, final Class<?> parentEntityType,
-            final T entity, final EventView view) {
+    private ShowFormEventPayload(final FormType formType, final Class<? extends ProxyIdentifiableEntity> entityType,
+            final Class<? extends ProxyIdentifiableEntity> parentEntityType, final T entity, final EventView view) {
         super(view);
 
         this.formType = formType;
@@ -46,11 +49,11 @@ public class ShowFormEventPayload<T> extends EventViewAware {
         return formType;
     }
 
-    public Class<?> getEntityType() {
+    public Class<? extends ProxyIdentifiableEntity> getEntityType() {
         return entityType;
     }
 
-    public Class<?> getParentEntityType() {
+    public Class<? extends ProxyIdentifiableEntity> getParentEntityType() {
         return parentEntityType;
     }
 

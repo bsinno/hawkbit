@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
-import org.eclipse.hawkbit.ui.filtermanagement.event.FilterManagementViewEventListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState.FilterView;
 import org.eclipse.hawkbit.ui.utils.UINotification;

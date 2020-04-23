@@ -9,7 +9,9 @@ package org.eclipse.hawkbit.ui.common.layout.listener;
 
 import java.util.Collection;
 
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 public abstract class LayoutViewAwareListener extends EventListener {
@@ -31,5 +33,13 @@ public abstract class LayoutViewAwareListener extends EventListener {
 
     public EventLayoutViewAware getLayoutViewAware() {
         return layoutViewAware;
+    }
+
+    public EventView getView() {
+        return layoutViewAware.getView();
+    }
+
+    public EventLayout getLayout() {
+        return layoutViewAware.getLayout();
     }
 }
