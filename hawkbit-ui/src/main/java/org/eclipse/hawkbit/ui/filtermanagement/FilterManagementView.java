@@ -8,6 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -15,11 +19,14 @@ import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.repository.rsql.RsqlValidationOracle;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState;
 import org.eclipse.hawkbit.ui.filtermanagement.state.FilterManagementUIState.FilterView;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -48,7 +55,7 @@ public class FilterManagementView extends VerticalLayout implements View {
     private final TargetFilterGridLayout targetFilterGridLayout;
     private final TargetFilterDetailsLayout targetFilterDetailsLayout;
 
-    private final transient FilterManagementViewEventListener eventListener;
+    private final transient LayoutVisibilityListener layoutVisibilityListener;
 
     @Autowired
     FilterManagementView(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -66,7 +73,11 @@ public class FilterManagementView extends VerticalLayout implements View {
                 entityFactory, rsqlValidationOracle, targetManagement, targetFilterQueryManagement,
                 filterManagementUIState.getDetailsLayoutUiState());
 
-        this.eventListener = new FilterManagementViewEventListener(this, eventBus);
+        final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
+        layoutVisibilityHandlers.put(EventLayout.TARGET_FILTER_QUERY_LIST, this::changeTfqListLayoutVisibility);
+        layoutVisibilityHandlers.put(EventLayout.TARGET_FILTER_QUERY_FORM, this::changeTfqFormTypeLayoutVisibility);
+        this.layoutVisibilityListener = new LayoutVisibilityListener(eventBus,
+                new EventViewAware(EventView.TARGET_FILTER), layoutVisibilityHandlers);
     }
 
     @PostConstruct
@@ -90,29 +101,23 @@ public class FilterManagementView extends VerticalLayout implements View {
         setExpandRatio(targetFilterDetailsLayout, 1.0F);
     }
 
-    /**
-     * Change UI content to show a {@link TargetFilterQuery} create/edit form
-     */
-    public void showFilterDetailsLayout() {
-        filterManagementUIState.setCurrentView(FilterView.DETAILS);
-        targetFilterGridLayout.setVisible(false);
-        targetFilterDetailsLayout.setVisible(true);
+    private void changeTfqListLayoutVisibility(final boolean shouldShow) {
+        filterManagementUIState.setCurrentView(shouldShow ? FilterView.FILTERS : FilterView.DETAILS);
+        targetFilterGridLayout.setVisible(shouldShow);
+        targetFilterDetailsLayout.setVisible(!shouldShow);
     }
 
-    /**
-     * Change UI content to show all {@link TargetFilterQuery}
-     */
-    public void showFilterGridLayout() {
-        filterManagementUIState.setCurrentView(FilterView.FILTERS);
-        targetFilterDetailsLayout.setVisible(false);
-        targetFilterGridLayout.setVisible(true);
+    private void changeTfqFormTypeLayoutVisibility(final boolean shouldShow) {
+        filterManagementUIState.setCurrentView(shouldShow ? FilterView.DETAILS : FilterView.FILTERS);
+        targetFilterGridLayout.setVisible(!shouldShow);
+        targetFilterDetailsLayout.setVisible(shouldShow);
     }
 
     private void restoreState() {
         if (FilterView.FILTERS == filterManagementUIState.getCurrentView()) {
-            showFilterGridLayout();
+            changeTfqListLayoutVisibility(true);
         } else if (FilterView.DETAILS == filterManagementUIState.getCurrentView()) {
-            showFilterDetailsLayout();
+            changeTfqFormTypeLayoutVisibility(true);
         }
         targetFilterDetailsLayout.restoreState();
         targetFilterGridLayout.restoreState();
@@ -120,8 +125,9 @@ public class FilterManagementView extends VerticalLayout implements View {
 
     @PreDestroy
     void destroy() {
+        layoutVisibilityListener.unsubscribe();
+
         targetFilterGridLayout.unsubscribeListener();
         targetFilterDetailsLayout.unsubscribeListener();
-        eventListener.unsubscribeListeners();
     }
 }

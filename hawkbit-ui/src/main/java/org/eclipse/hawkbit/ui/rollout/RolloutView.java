@@ -8,6 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.rollout;
 
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -23,6 +27,9 @@ import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener;
 import org.eclipse.hawkbit.ui.rollout.rollout.RolloutGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgroup.RolloutGroupGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets.RolloutGroupTargetGridLayout;
@@ -52,7 +59,7 @@ public class RolloutView extends VerticalLayout implements View {
     private final RolloutGroupTargetGridLayout rolloutGroupTargetsLayout;
     private final RolloutManagementUIState rolloutManagementUIState;
 
-    private final transient RolloutViewEventListener eventListener;
+    private final transient LayoutVisibilityListener layoutVisibilityListener;
 
     @Autowired
     RolloutView(final SpPermissionChecker permissionChecker, final RolloutManagementUIState rolloutManagementUIState,
@@ -73,18 +80,18 @@ public class RolloutView extends VerticalLayout implements View {
         this.rolloutGroupTargetsLayout = new RolloutGroupTargetGridLayout(eventBus, i18n, rolloutGroupManagement,
                 rolloutManagementUIState);
 
-        this.eventListener = new RolloutViewEventListener(this, eventBus);
+        final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
+        layoutVisibilityHandlers.put(EventLayout.ROLLOUT_LIST, this::changeRolloutListLayoutVisibility);
+        layoutVisibilityHandlers.put(EventLayout.ROLLOUT_GROUP_LIST, this::changeRolloutGroupListLayoutVisibility);
+        layoutVisibilityHandlers.put(EventLayout.ROLLOUT_GROUP_TARGET_LIST, this::changeRgtListLayoutVisibility);
+        this.layoutVisibilityListener = new LayoutVisibilityListener(eventBus, new EventViewAware(EventView.ROLLOUT),
+                layoutVisibilityHandlers);
     }
 
     @PostConstruct
     void init() {
         buildLayout();
         restoreState();
-    }
-
-    @PreDestroy
-    void destroy() {
-        eventListener.unsubscribeListeners();
     }
 
     private void buildLayout() {
@@ -107,34 +114,56 @@ public class RolloutView extends VerticalLayout implements View {
         setExpandRatio(rolloutGroupTargetsLayout, 1.0F);
     }
 
-    void showRolloutGroupTargetsListView() {
-        rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_GROUP_TARGET_LIST);
-
-        rolloutsLayout.setVisible(false);
-        rolloutGroupsLayout.setVisible(false);
-        rolloutGroupTargetsLayout.setVisible(true);
+    private void changeRolloutListLayoutVisibility(final boolean shouldShow) {
+        if (shouldShow) {
+            showRolloutListView();
+        }
     }
 
-    void showRolloutGroupListView() {
-        rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_GROUP_LIST);
-        rolloutManagementUIState.setSelectedRolloutGroupId(null);
-        rolloutManagementUIState.setSelectedRolloutGroupName("");
-
-        rolloutsLayout.setVisible(false);
-        rolloutGroupTargetsLayout.setVisible(false);
-        rolloutGroupsLayout.setVisible(true);
-    }
-
-    void showRolloutListView() {
+    private void showRolloutListView() {
         rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_LIST);
         rolloutManagementUIState.setSelectedRolloutId(null);
         rolloutManagementUIState.setSelectedRolloutName("");
         rolloutManagementUIState.setSelectedRolloutGroupId(null);
         rolloutManagementUIState.setSelectedRolloutGroupName("");
 
+        rolloutsLayout.setVisible(true);
         rolloutGroupsLayout.setVisible(false);
         rolloutGroupTargetsLayout.setVisible(false);
-        rolloutsLayout.setVisible(true);
+    }
+
+    private void changeRolloutGroupListLayoutVisibility(final boolean shouldShow) {
+        if (shouldShow) {
+            showRolloutGroupListView();
+        } else {
+            showRolloutListView();
+        }
+    }
+
+    private void showRolloutGroupListView() {
+        rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_GROUP_LIST);
+        rolloutManagementUIState.setSelectedRolloutGroupId(null);
+        rolloutManagementUIState.setSelectedRolloutGroupName("");
+
+        rolloutsLayout.setVisible(false);
+        rolloutGroupsLayout.setVisible(true);
+        rolloutGroupTargetsLayout.setVisible(false);
+    }
+
+    private void changeRgtListLayoutVisibility(final boolean shouldShow) {
+        if (shouldShow) {
+            showRolloutGroupTargetsListView();
+        } else {
+            showRolloutGroupListView();
+        }
+    }
+
+    private void showRolloutGroupTargetsListView() {
+        rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_GROUP_TARGET_LIST);
+
+        rolloutsLayout.setVisible(false);
+        rolloutGroupsLayout.setVisible(false);
+        rolloutGroupTargetsLayout.setVisible(true);
     }
 
     private void restoreState() {
@@ -156,5 +185,14 @@ public class RolloutView extends VerticalLayout implements View {
         rolloutsLayout.restoreState();
         rolloutGroupsLayout.restoreState();
         rolloutGroupTargetsLayout.restoreState();
+    }
+
+    @PreDestroy
+    void destroy() {
+        layoutVisibilityListener.unsubscribe();
+
+        rolloutsLayout.unsubscribeListener();
+        rolloutGroupsLayout.unsubscribeListener();
+        rolloutGroupTargetsLayout.unsubscribeListener();
     }
 }
