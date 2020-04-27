@@ -8,6 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.distributions;
 
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -25,6 +29,11 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutResizeListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener;
 import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayout;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridLayout;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleGridLayout;
@@ -66,7 +75,8 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
 
     private HorizontalLayout mainLayout;
 
-    private final transient DistributionsViewEventListener eventListener;
+    private final transient LayoutVisibilityListener layoutVisibilityListener;
+    private final transient LayoutResizeListener layoutResizeListener;
 
     @Autowired
     DistributionsView(final SpPermissionChecker permChecker, final UIEventBus eventBus, final VaadinMessageSource i18n,
@@ -98,13 +108,25 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
                     manageDistUIState.getSwModuleGridLayoutUiState());
             this.distSMTypeFilterLayout = new DistSMTypeFilterLayout(eventBus, i18n, permChecker, entityFactory,
                     uiNotification, softwareModuleTypeManagement, manageDistUIState.getDistSMTypeFilterLayoutUiState());
-            this.eventListener = new DistributionsViewEventListener(this, eventBus);
+
+            final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
+            layoutVisibilityHandlers.put(EventLayout.DS_TYPE_FILTER, this::changeDsTypeLayoutVisibility);
+            layoutVisibilityHandlers.put(EventLayout.SM_TYPE_FILTER, this::changeSmTypeLayoutVisibility);
+            this.layoutVisibilityListener = new LayoutVisibilityListener(eventBus,
+                    new EventViewAware(EventView.DISTRIBUTIONS), layoutVisibilityHandlers);
+
+            final Map<EventLayout, Consumer<Boolean>> layoutResizeHandlers = new EnumMap<>(EventLayout.class);
+            layoutResizeHandlers.put(EventLayout.DS_LIST, this::resizeDsGridLayout);
+            layoutResizeHandlers.put(EventLayout.SM_LIST, this::resizeSmGridLayout);
+            this.layoutResizeListener = new LayoutResizeListener(eventBus, new EventViewAware(EventView.DISTRIBUTIONS),
+                    layoutResizeHandlers);
         } else {
             this.dsTypeFilterLayout = null;
             this.distributionSetGridLayout = null;
             this.swModuleGridLayout = null;
             this.distSMTypeFilterLayout = null;
-            this.eventListener = null;
+            this.layoutVisibilityListener = null;
+            this.layoutResizeListener = null;
         }
     }
 
@@ -146,75 +168,95 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     }
 
     private void restoreState() {
-        if (manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()
-                || manageDistUIState.getSwModuleGridLayoutUiState().isMaximized()) {
-            hideDsTypeLayout();
-        } else {
-            showDsTypeLayout();
-        }
+        changeDsTypeLayoutVisibility(!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()
+                && !manageDistUIState.getSwModuleGridLayoutUiState().isMaximized());
         dsTypeFilterLayout.restoreState();
 
         if (manageDistUIState.getDistributionSetGridLayoutUiState().isMaximized()) {
-            maximizeDsGridLayout();
+            resizeDsGridLayout(true);
         }
         distributionSetGridLayout.restoreState();
 
         if (manageDistUIState.getSwModuleGridLayoutUiState().isMaximized()) {
-            maximizeSmGridLayout();
+            resizeSmGridLayout(true);
         }
         swModuleGridLayout.restoreState();
 
-        if (manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()
-                || manageDistUIState.getDistributionSetGridLayoutUiState().isMaximized()) {
-            hideSmTypeLayout();
-        } else {
-            showSmTypeLayout();
-        }
+        changeSmTypeLayoutVisibility(!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()
+                && !manageDistUIState.getDistributionSetGridLayoutUiState().isMaximized());
         distSMTypeFilterLayout.restoreState();
     }
 
-    void hideDsTypeLayout() {
-        dsTypeFilterLayout.setVisible(false);
-        distributionSetGridLayout.showDsTypeHeaderIcon();
+    private void changeDsTypeLayoutVisibility(final boolean shouldShow) {
+        if (shouldShow) {
+            dsTypeFilterLayout.setVisible(true);
+            distributionSetGridLayout.hideDsTypeHeaderIcon();
+        } else {
+            dsTypeFilterLayout.setVisible(false);
+            distributionSetGridLayout.showDsTypeHeaderIcon();
+        }
     }
 
-    void showDsTypeLayout() {
-        dsTypeFilterLayout.setVisible(true);
-        distributionSetGridLayout.hideDsTypeHeaderIcon();
+    private void resizeDsGridLayout(final boolean shouldMaximize) {
+        if (shouldMaximize) {
+            swModuleGridLayout.setVisible(false);
+            changeSmTypeLayoutVisibility(false);
+
+            mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
+            mainLayout.setExpandRatio(distributionSetGridLayout, 1.0F);
+            mainLayout.setExpandRatio(swModuleGridLayout, 0F);
+            mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
+
+            distributionSetGridLayout.maximize();
+        } else {
+            swModuleGridLayout.setVisible(true);
+            if (!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
+                changeSmTypeLayoutVisibility(true);
+            }
+
+            mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
+            mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
+            mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
+            mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
+
+            distributionSetGridLayout.minimize();
+        }
     }
 
-    void maximizeDsGridLayout() {
-        swModuleGridLayout.setVisible(false);
-        hideSmTypeLayout();
+    private void resizeSmGridLayout(final boolean shouldMaximize) {
+        if (shouldMaximize) {
+            distributionSetGridLayout.setVisible(false);
+            changeDsTypeLayoutVisibility(false);
 
-        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(distributionSetGridLayout, 1.0F);
-        mainLayout.setExpandRatio(swModuleGridLayout, 0F);
-        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
+            mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
+            mainLayout.setExpandRatio(distributionSetGridLayout, 0F);
+            mainLayout.setExpandRatio(swModuleGridLayout, 1.0F);
+            mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
 
-        distributionSetGridLayout.maximize();
+            swModuleGridLayout.maximize();
+        } else {
+            distributionSetGridLayout.setVisible(true);
+            if (!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
+                changeDsTypeLayoutVisibility(true);
+            }
+
+            mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
+            mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
+            mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
+            mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
+
+            swModuleGridLayout.minimize();
+        }
     }
 
-    void maximizeSmGridLayout() {
-        hideDsTypeLayout();
-        distributionSetGridLayout.setVisible(false);
-
-        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(distributionSetGridLayout, 0F);
-        mainLayout.setExpandRatio(swModuleGridLayout, 1.0F);
-        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
-
-        swModuleGridLayout.maximize();
-    }
-
-    void hideSmTypeLayout() {
-        distSMTypeFilterLayout.setVisible(false);
-        swModuleGridLayout.showSmTypeHeaderIcon();
-    }
-
-    void showSmTypeLayout() {
-        distSMTypeFilterLayout.setVisible(true);
-        swModuleGridLayout.hideSmTypeHeaderIcon();
+    private void changeSmTypeLayoutVisibility(final boolean shouldShow) {
+        if (shouldShow) {
+            distSMTypeFilterLayout.setVisible(true);
+            swModuleGridLayout.hideSmTypeHeaderIcon();
+        } else {
+            distSMTypeFilterLayout.setVisible(false);
+            swModuleGridLayout.showSmTypeHeaderIcon();
+        }
     }
 
     @Override
@@ -225,67 +267,33 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     private void showOrHideFilterButtons(final int browserWidth) {
         if (browserWidth < SPUIDefinitions.REQ_MIN_BROWSER_WIDTH) {
             if (!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
-                hideDsTypeLayout();
+                changeDsTypeLayoutVisibility(false);
             }
 
             if (!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
-                hideSmTypeLayout();
+                changeSmTypeLayoutVisibility(false);
             }
         } else {
             if (manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
-                showDsTypeLayout();
+                changeDsTypeLayoutVisibility(true);
             }
 
             if (manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
-                showSmTypeLayout();
+                changeSmTypeLayoutVisibility(true);
             }
         }
-    }
-
-    void minimizeDsGridLayout() {
-        swModuleGridLayout.setVisible(true);
-        if (!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
-            showSmTypeLayout();
-        }
-
-        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
-        mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
-        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
-
-        distributionSetGridLayout.minimize();
-    }
-
-    void minimizeSmGridLayout() {
-        distributionSetGridLayout.setVisible(true);
-        if (!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
-            showDsTypeLayout();
-        }
-
-        mainLayout.setExpandRatio(dsTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(distributionSetGridLayout, 0.5F);
-        mainLayout.setExpandRatio(swModuleGridLayout, 0.5F);
-        mainLayout.setExpandRatio(distSMTypeFilterLayout, 0F);
-
-        swModuleGridLayout.minimize();
     }
 
     @PreDestroy
     void destroy() {
-        if (dsTypeFilterLayout != null) {
+        if (permChecker.hasReadRepositoryPermission()) {
+            layoutVisibilityListener.unsubscribe();
+            layoutResizeListener.unsubscribe();
+
             dsTypeFilterLayout.unsubscribeListener();
-        }
-        if (distributionSetGridLayout != null) {
             distributionSetGridLayout.unsubscribeListener();
-        }
-        if (swModuleGridLayout != null) {
             swModuleGridLayout.unsubscribeListener();
-        }
-        if (distSMTypeFilterLayout != null) {
             distSMTypeFilterLayout.unsubscribeListener();
-        }
-        if (eventListener != null) {
-            eventListener.unsubscribeListeners();
         }
     }
 }

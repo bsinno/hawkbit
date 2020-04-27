@@ -8,6 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.artifacts;
 
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.MultipartConfigElement;
@@ -21,6 +25,11 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridLayout;
 import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutResizeListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -55,7 +64,8 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
 
     private HorizontalLayout mainLayout;
 
-    private final transient UploadArtifactViewEventListener eventListener;
+    private final transient LayoutVisibilityListener layoutVisibilityListener;
+    private final transient LayoutResizeListener layoutResizeListener;
 
     @Autowired
     UploadArtifactView(final UIEventBus eventBus, final SpPermissionChecker permChecker, final VaadinMessageSource i18n,
@@ -75,12 +85,23 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
             this.artifactDetailsGridLayout = new ArtifactDetailsGridLayout(i18n, eventBus, permChecker, uiNotification,
                     artifactUploadState, artifactUploadState.getArtifactDetailsGridLayoutUiState(), artifactManagement,
                     softwareModuleManagement, multipartConfigElement);
-            this.eventListener = new UploadArtifactViewEventListener(this, eventBus);
+
+            final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
+            layoutVisibilityHandlers.put(EventLayout.SM_TYPE_FILTER, this::changeSmTypeLayoutVisibility);
+            this.layoutVisibilityListener = new LayoutVisibilityListener(eventBus, new EventViewAware(EventView.UPLOAD),
+                    layoutVisibilityHandlers);
+
+            final Map<EventLayout, Consumer<Boolean>> layoutResizeHandlers = new EnumMap<>(EventLayout.class);
+            layoutResizeHandlers.put(EventLayout.SM_LIST, this::resizeSmGridLayout);
+            layoutResizeHandlers.put(EventLayout.ARTIFACT_LIST, this::resizeArtifactGridLayout);
+            this.layoutResizeListener = new LayoutResizeListener(eventBus, new EventViewAware(EventView.UPLOAD),
+                    layoutResizeHandlers);
         } else {
             this.smTypeFilterLayout = null;
             this.smGridLayout = null;
             this.artifactDetailsGridLayout = null;
-            this.eventListener = null;
+            this.layoutVisibilityListener = null;
+            this.layoutResizeListener = null;
         }
     }
 
@@ -120,53 +141,72 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     private void restoreState() {
-        if (artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
-            hideSmTypeLayout();
-        } else {
-            showSmTypeLayout();
-        }
+        changeSmTypeLayoutVisibility(!artifactUploadState.getSmTypeFilterLayoutUiState().isHidden());
         smTypeFilterLayout.restoreState();
 
         if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
-            maximizeSmGridLayout();
+            resizeSmGridLayout(true);
         }
         smGridLayout.restoreState();
 
         if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
-            maximizeArtifactGridLayout();
+            resizeArtifactGridLayout(true);
         }
         artifactDetailsGridLayout.restoreState();
     }
 
-    void hideSmTypeLayout() {
-        smTypeFilterLayout.setVisible(false);
-        smGridLayout.showSmTypeHeaderIcon();
+    private void changeSmTypeLayoutVisibility(final boolean shouldShow) {
+        if (shouldShow) {
+            smTypeFilterLayout.setVisible(true);
+            smGridLayout.hideSmTypeHeaderIcon();
+        } else {
+            smTypeFilterLayout.setVisible(false);
+            smGridLayout.showSmTypeHeaderIcon();
+        }
     }
 
-    void showSmTypeLayout() {
-        smTypeFilterLayout.setVisible(true);
-        smGridLayout.hideSmTypeHeaderIcon();
+    private void resizeSmGridLayout(final boolean shouldMaximize) {
+        if (shouldMaximize) {
+            artifactDetailsGridLayout.setVisible(false);
+
+            mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+            mainLayout.setExpandRatio(smGridLayout, 1.0F);
+            mainLayout.setExpandRatio(artifactDetailsGridLayout, 0F);
+
+            smGridLayout.maximize();
+        } else {
+            artifactDetailsGridLayout.setVisible(true);
+
+            mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+            mainLayout.setExpandRatio(smGridLayout, 0.5F);
+            mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
+
+            smGridLayout.minimize();
+        }
     }
 
-    void maximizeSmGridLayout() {
-        artifactDetailsGridLayout.setVisible(false);
+    private void resizeArtifactGridLayout(final boolean shouldMaximize) {
+        if (shouldMaximize) {
+            smTypeFilterLayout.setVisible(false);
+            smGridLayout.setVisible(false);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 1.0F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0F);
+            mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+            mainLayout.setExpandRatio(smGridLayout, 0F);
+            mainLayout.setExpandRatio(artifactDetailsGridLayout, 1.0F);
 
-        smGridLayout.maximize();
-    }
+            artifactDetailsGridLayout.maximize();
+        } else {
+            if (!artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
+                smTypeFilterLayout.setVisible(true);
+            }
+            smGridLayout.setVisible(true);
 
-    void maximizeArtifactGridLayout() {
-        smTypeFilterLayout.setVisible(false);
-        smGridLayout.setVisible(false);
+            mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+            mainLayout.setExpandRatio(smGridLayout, 0.5F);
+            mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
 
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 1.0F);
-
-        artifactDetailsGridLayout.maximize();
+            artifactDetailsGridLayout.minimize();
+        }
     }
 
     @Override
@@ -177,46 +217,24 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     private void showOrHideFilterButtons(final int browserWidth) {
         if (browserWidth < SPUIDefinitions.REQ_MIN_BROWSER_WIDTH) {
             if (!artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
-                hideSmTypeLayout();
+                changeSmTypeLayoutVisibility(false);
             }
         } else {
             if (artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
-                showSmTypeLayout();
+                changeSmTypeLayoutVisibility(true);
             }
         }
-    }
-
-    void minimizeSmGridLayout() {
-        artifactDetailsGridLayout.setVisible(true);
-
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0.5F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
-
-        smGridLayout.minimize();
-    }
-
-    void minimizeArtifactGridLayout() {
-        if (!artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
-            smTypeFilterLayout.setVisible(true);
-        }
-        smGridLayout.setVisible(true);
-
-        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-        mainLayout.setExpandRatio(smGridLayout, 0.5F);
-        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
-
-        artifactDetailsGridLayout.minimize();
     }
 
     @PreDestroy
     void destroy() {
-        if (smTypeFilterLayout != null && smGridLayout != null && artifactDetailsGridLayout != null
-                && eventListener != null) {
+        if (permChecker.hasReadRepositoryPermission()) {
+            layoutVisibilityListener.unsubscribe();
+            layoutResizeListener.unsubscribe();
+
             smTypeFilterLayout.unsubscribeListener();
             smGridLayout.unsubscribeListener();
             artifactDetailsGridLayout.unsubscribeListener();
-            eventListener.unsubscribeListeners();
         }
     }
 }

@@ -8,7 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.management;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -28,6 +31,11 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.EventViewAware;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutResizeListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryLayout;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayout;
 import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayout;
@@ -72,7 +80,8 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
 
     private HorizontalLayout mainLayout;
 
-    private final transient DeploymentViewEventListener eventListener;
+    private final transient LayoutVisibilityListener layoutVisibilityListener;
+    private final transient LayoutResizeListener layoutResizeListener;
 
     @Autowired
     DeploymentView(final UIEventBus eventBus, final SpPermissionChecker permChecker, final VaadinMessageSource i18n,
@@ -128,9 +137,21 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         }
 
         if (permChecker.hasTargetReadPermission() || permChecker.hasReadRepositoryPermission()) {
-            this.eventListener = new DeploymentViewEventListener(this, eventBus);
+            final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
+            layoutVisibilityHandlers.put(EventLayout.TARGET_TAG_FILTER, this::changeTargetTagLayoutVisibility);
+            layoutVisibilityHandlers.put(EventLayout.DS_TAG_FILTER, this::changeDsTagLayoutVisibility);
+            this.layoutVisibilityListener = new LayoutVisibilityListener(eventBus,
+                    new EventViewAware(EventView.DEPLOYMENT), layoutVisibilityHandlers);
+
+            final Map<EventLayout, Consumer<Boolean>> layoutResizeHandlers = new EnumMap<>(EventLayout.class);
+            layoutResizeHandlers.put(EventLayout.TARGET_LIST, this::resizeTargetGridLayout);
+            layoutResizeHandlers.put(EventLayout.DS_LIST, this::resizeDsGridLayout);
+            layoutResizeHandlers.put(EventLayout.ACTION_HISTORY_LIST, this::resizeActionHistoryGridLayout);
+            this.layoutResizeListener = new LayoutResizeListener(eventBus, new EventViewAware(EventView.DEPLOYMENT),
+                    layoutResizeHandlers);
         } else {
-            this.eventListener = null;
+            this.layoutVisibilityListener = null;
+            this.layoutResizeListener = null;
         }
     }
 
@@ -208,120 +229,176 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
 
     private void restoreState() {
         if (permChecker.hasTargetReadPermission()) {
-            if (managementUIState.getTargetTagFilterLayoutUiState().isHidden()
-                    || managementUIState.getDistributionGridLayoutUiState().isMaximized()
-                    || managementUIState.getActionHistoryGridLayoutUiState().isMaximized()) {
-                hideTargetTagLayout();
-            } else {
-                showTargetTagLayout();
-            }
+            changeTargetTagLayoutVisibility(!managementUIState.getTargetTagFilterLayoutUiState().isHidden()
+                    && !managementUIState.getDistributionGridLayoutUiState().isMaximized()
+                    && !managementUIState.getActionHistoryGridLayoutUiState().isMaximized());
             targetTagFilterLayout.restoreState();
 
             if (managementUIState.getTargetGridLayoutUiState().isMaximized()) {
-                maximizeTargetGridLayout();
+                resizeTargetGridLayout(true);
             }
             targetGridLayout.restoreState();
 
             if (managementUIState.getActionHistoryGridLayoutUiState().isMaximized()) {
-                maximizeActionHistoryGridLayout();
+                resizeActionHistoryGridLayout(true);
             }
             actionHistoryLayout.restoreState();
         }
 
         if (permChecker.hasReadRepositoryPermission()) {
-            if (managementUIState.getDistributionTagLayoutUiState().isHidden()
-                    || managementUIState.getTargetGridLayoutUiState().isMaximized()
-                    || managementUIState.getActionHistoryGridLayoutUiState().isMaximized()) {
-                hideDsTagLayout();
-            } else {
-                showDsTagLayout();
-            }
+            changeDsTagLayoutVisibility(!managementUIState.getDistributionTagLayoutUiState().isHidden()
+                    && !managementUIState.getTargetGridLayoutUiState().isMaximized()
+                    && !managementUIState.getActionHistoryGridLayoutUiState().isMaximized());
             distributionTagLayout.restoreState();
 
             if (managementUIState.getDistributionGridLayoutUiState().isMaximized()) {
-                maximizeDsGridLayout();
+                resizeDsGridLayout(true);
             }
             distributionGridLayout.restoreState();
         }
     }
 
-    void hideTargetTagLayout() {
-        targetTagFilterLayout.setVisible(false);
-        targetGridLayout.showTargetTagHeaderIcon();
-    }
-
-    void showTargetTagLayout() {
-        targetTagFilterLayout.setVisible(true);
-        targetGridLayout.hideTargetTagHeaderIcon();
-    }
-
-    void maximizeTargetGridLayout() {
-        if (distributionGridLayout != null) {
-            distributionGridLayout.setVisible(false);
+    private void changeTargetTagLayoutVisibility(final boolean shouldShow) {
+        if (shouldShow) {
+            targetTagFilterLayout.setVisible(true);
+            targetGridLayout.hideTargetTagHeaderIcon();
+        } else {
+            targetTagFilterLayout.setVisible(false);
+            targetGridLayout.showTargetTagHeaderIcon();
         }
-        if (distributionTagLayout != null) {
-            hideDsTagLayout();
-        }
-        actionHistoryLayout.setVisible(false);
-
-        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
-        mainLayout.setExpandRatio(targetGridLayout, 1F);
-        mainLayout.setExpandRatio(distributionGridLayout, 0F);
-        mainLayout.setExpandRatio(distributionTagLayout, 0F);
-        mainLayout.setExpandRatio(actionHistoryLayout, 0F);
-
-        targetGridLayout.maximize();
     }
 
-    void maximizeActionHistoryGridLayout() {
-        hideTargetTagLayout();
-        targetGridLayout.setVisible(false);
-        targetCountLayout.setVisible(false);
-        if (distributionGridLayout != null) {
-            distributionGridLayout.setVisible(false);
-        }
-        if (distributionTagLayout != null) {
-            hideDsTagLayout();
-        }
+    private void resizeTargetGridLayout(final boolean shouldMaximize) {
+        if (shouldMaximize) {
+            if (distributionGridLayout != null) {
+                distributionGridLayout.setVisible(false);
+            }
+            if (distributionTagLayout != null) {
+                changeDsTagLayoutVisibility(false);
+            }
+            actionHistoryLayout.setVisible(false);
 
-        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
-        mainLayout.setExpandRatio(targetGridLayout, 0F);
-        mainLayout.setExpandRatio(distributionGridLayout, 0F);
-        mainLayout.setExpandRatio(distributionTagLayout, 0F);
-        mainLayout.setExpandRatio(actionHistoryLayout, 1F);
+            mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+            mainLayout.setExpandRatio(targetGridLayout, 1F);
+            mainLayout.setExpandRatio(distributionGridLayout, 0F);
+            mainLayout.setExpandRatio(distributionTagLayout, 0F);
+            mainLayout.setExpandRatio(actionHistoryLayout, 0F);
 
-        actionHistoryLayout.maximize();
+            targetGridLayout.maximize();
+        } else {
+            if (distributionGridLayout != null) {
+                distributionGridLayout.setVisible(true);
+            }
+            if (distributionTagLayout != null && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
+                changeDsTagLayoutVisibility(true);
+            }
+            actionHistoryLayout.setVisible(true);
+
+            // TODO: adapt expand ratios according to permissions
+            mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+            mainLayout.setExpandRatio(targetGridLayout, 0.275F);
+            mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
+            mainLayout.setExpandRatio(distributionTagLayout, 0F);
+            mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
+
+            targetGridLayout.minimize();
+        }
     }
 
-    void hideDsTagLayout() {
-        distributionTagLayout.setVisible(false);
-        distributionGridLayout.showDsTagHeaderIcon();
-    }
+    private void resizeDsGridLayout(final boolean shouldMaximize) {
+        if (shouldMaximize) {
+            if (targetTagFilterLayout != null) {
+                changeTargetTagLayoutVisibility(false);
+            }
+            if (targetGridLayout != null) {
+                targetGridLayout.setVisible(false);
+                targetCountLayout.setVisible(false);
+            }
+            if (actionHistoryLayout != null) {
+                actionHistoryLayout.setVisible(false);
+            }
 
-    void showDsTagLayout() {
-        distributionTagLayout.setVisible(true);
-        distributionGridLayout.hideDsTagHeaderIcon();
-    }
+            mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+            mainLayout.setExpandRatio(targetGridLayout, 0F);
+            mainLayout.setExpandRatio(distributionGridLayout, 1F);
+            mainLayout.setExpandRatio(distributionTagLayout, 0F);
+            mainLayout.setExpandRatio(actionHistoryLayout, 0F);
 
-    void maximizeDsGridLayout() {
-        if (targetTagFilterLayout != null) {
-            hideTargetTagLayout();
+            distributionGridLayout.maximize();
+        } else {
+            if (targetTagFilterLayout != null && !managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
+                changeTargetTagLayoutVisibility(true);
+            }
+            if (targetGridLayout != null) {
+                targetGridLayout.setVisible(true);
+                targetCountLayout.setVisible(true);
+            }
+            if (actionHistoryLayout != null) {
+                actionHistoryLayout.setVisible(true);
+            }
+
+            // TODO: adapt expand ratios according to permissions
+            mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+            mainLayout.setExpandRatio(targetGridLayout, 0.275F);
+            mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
+            mainLayout.setExpandRatio(distributionTagLayout, 0F);
+            mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
+
+            distributionGridLayout.minimize();
         }
-        if (targetGridLayout != null) {
+    }
+
+    private void changeDsTagLayoutVisibility(final boolean shouldShow) {
+        if (shouldShow) {
+            distributionTagLayout.setVisible(true);
+            distributionGridLayout.hideDsTagHeaderIcon();
+        } else {
+            distributionTagLayout.setVisible(false);
+            distributionGridLayout.showDsTagHeaderIcon();
+        }
+    }
+
+    private void resizeActionHistoryGridLayout(final boolean shouldMaximize) {
+        if (shouldMaximize) {
+            changeTargetTagLayoutVisibility(false);
             targetGridLayout.setVisible(false);
             targetCountLayout.setVisible(false);
-        }
-        if (actionHistoryLayout != null) {
-            actionHistoryLayout.setVisible(false);
-        }
+            if (distributionGridLayout != null) {
+                distributionGridLayout.setVisible(false);
+            }
+            if (distributionTagLayout != null) {
+                changeDsTagLayoutVisibility(false);
+            }
 
-        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
-        mainLayout.setExpandRatio(targetGridLayout, 0F);
-        mainLayout.setExpandRatio(distributionGridLayout, 1F);
-        mainLayout.setExpandRatio(distributionTagLayout, 0F);
-        mainLayout.setExpandRatio(actionHistoryLayout, 0F);
+            mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+            mainLayout.setExpandRatio(targetGridLayout, 0F);
+            mainLayout.setExpandRatio(distributionGridLayout, 0F);
+            mainLayout.setExpandRatio(distributionTagLayout, 0F);
+            mainLayout.setExpandRatio(actionHistoryLayout, 1F);
 
-        distributionGridLayout.maximize();
+            actionHistoryLayout.maximize();
+        } else {
+            if (!managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
+                changeTargetTagLayoutVisibility(true);
+            }
+            targetGridLayout.setVisible(true);
+            targetCountLayout.setVisible(true);
+            if (distributionGridLayout != null) {
+                distributionGridLayout.setVisible(true);
+            }
+            if (distributionTagLayout != null && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
+                changeDsTagLayoutVisibility(true);
+            }
+
+            // TODO: adapt expand ratios according to permissions
+            mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
+            mainLayout.setExpandRatio(targetGridLayout, 0.275F);
+            mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
+            mainLayout.setExpandRatio(distributionTagLayout, 0F);
+            mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
+
+            actionHistoryLayout.minimize();
+        }
     }
 
     @Override
@@ -333,109 +410,42 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         if (browserWidth < SPUIDefinitions.REQ_MIN_BROWSER_WIDTH) {
             if (permChecker.hasTargetReadPermission()
                     && !managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
-                hideTargetTagLayout();
+                changeTargetTagLayoutVisibility(false);
             }
 
             if (permChecker.hasReadRepositoryPermission()
                     && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
-                hideDsTagLayout();
+                changeDsTagLayoutVisibility(false);
             }
         } else {
             if (permChecker.hasTargetReadPermission()
                     && managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
-                showTargetTagLayout();
+                changeTargetTagLayoutVisibility(true);
             }
 
             if (permChecker.hasReadRepositoryPermission()
                     && managementUIState.getDistributionTagLayoutUiState().isHidden()) {
-                showDsTagLayout();
+                changeDsTagLayoutVisibility(true);
             }
         }
     }
 
-    void minimizeTargetGridLayout() {
-        if (distributionGridLayout != null) {
-            distributionGridLayout.setVisible(true);
-        }
-        if (distributionTagLayout != null && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
-            showDsTagLayout();
-        }
-        actionHistoryLayout.setVisible(true);
-
-        // TODO: adapt expand ratios according to permissions
-        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
-        mainLayout.setExpandRatio(targetGridLayout, 0.275F);
-        mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
-        mainLayout.setExpandRatio(distributionTagLayout, 0F);
-        mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
-
-        targetGridLayout.minimize();
-    }
-
-    void minimizeDsGridLayout() {
-        if (targetTagFilterLayout != null && !managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
-            showTargetTagLayout();
-        }
-        if (targetGridLayout != null) {
-            targetGridLayout.setVisible(true);
-            targetCountLayout.setVisible(true);
-        }
-        if (actionHistoryLayout != null) {
-            actionHistoryLayout.setVisible(true);
-        }
-
-        // TODO: adapt expand ratios according to permissions
-        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
-        mainLayout.setExpandRatio(targetGridLayout, 0.275F);
-        mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
-        mainLayout.setExpandRatio(distributionTagLayout, 0F);
-        mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
-
-        distributionGridLayout.minimize();
-    }
-
-    void minimizeActionHistoryGridLayout() {
-        if (!managementUIState.getTargetTagFilterLayoutUiState().isHidden()) {
-            showTargetTagLayout();
-        }
-        targetGridLayout.setVisible(true);
-        targetCountLayout.setVisible(true);
-        if (distributionGridLayout != null) {
-            distributionGridLayout.setVisible(true);
-        }
-        if (distributionTagLayout != null && !managementUIState.getDistributionTagLayoutUiState().isHidden()) {
-            showDsTagLayout();
-        }
-
-        // TODO: adapt expand ratios according to permissions
-        mainLayout.setExpandRatio(targetTagFilterLayout, 0F);
-        mainLayout.setExpandRatio(targetGridLayout, 0.275F);
-        mainLayout.setExpandRatio(distributionGridLayout, 0.275F);
-        mainLayout.setExpandRatio(distributionTagLayout, 0F);
-        mainLayout.setExpandRatio(actionHistoryLayout, 0.45F);
-
-        actionHistoryLayout.minimize();
-    }
-
     @PreDestroy
     void destroy() {
-        if (targetTagFilterLayout != null) {
+        if (permChecker.hasTargetReadPermission() || permChecker.hasReadRepositoryPermission()) {
+            layoutVisibilityListener.unsubscribe();
+            layoutResizeListener.unsubscribe();
+        }
+
+        if (permChecker.hasTargetReadPermission()) {
             targetTagFilterLayout.unsubscribeListener();
-        }
-        if (targetGridLayout != null) {
             targetGridLayout.unsubscribeListener();
-        }
-        if (distributionGridLayout != null) {
-            distributionGridLayout.unsubscribeListener();
-        }
-        if (distributionTagLayout != null) {
-            distributionTagLayout.unsubscribeListener();
-        }
-        if (actionHistoryLayout != null) {
             actionHistoryLayout.unsubscribeListener();
         }
-        if (eventListener != null) {
-            eventListener.unsubscribeListeners();
+
+        if (permChecker.hasReadRepositoryPermission()) {
+            distributionTagLayout.unsubscribeListener();
+            distributionGridLayout.unsubscribeListener();
         }
     }
 }
