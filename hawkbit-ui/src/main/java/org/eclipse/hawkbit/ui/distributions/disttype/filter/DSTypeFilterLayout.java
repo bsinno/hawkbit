@@ -20,9 +20,12 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -40,8 +43,7 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     private final DSTypeFilterHeader dsTypeFilterHeader;
     private final DSTypeFilterButtons dSTypeFilterButtons;
 
-    private final transient DSTypeFilterLayoutEventListener eventListener;
-
+    private final transient GridActionsVisibilityListener gridActionsVisibilityListener;
     private final transient EntityModifiedListener<ProxyType> entityModifiedListener;
 
     /**
@@ -76,8 +78,10 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
         this.dSTypeFilterButtons = new DSTypeFilterButtons(eventBus, distributionSetTypeManagement, i18n, permChecker,
                 uiNotification, systemManagement, dSTypeFilterLayoutUiState, dsTypeWindowBuilder);
 
-        this.eventListener = new DSTypeFilterLayoutEventListener(this, eventBus);
-
+        this.gridActionsVisibilityListener = new GridActionsVisibilityListener(eventBus,
+                new EventLayoutViewAware(EventLayout.DS_TYPE_FILTER, EventView.DISTRIBUTIONS),
+                dSTypeFilterButtons::hideActionColumns, dSTypeFilterButtons::showEditColumn,
+                dSTypeFilterButtons::showDeleteColumn);
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyType.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
                 .parentEntityType(ProxyDistributionSet.class).build();
@@ -104,29 +108,8 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
         dSTypeFilterButtons.restoreState();
     }
 
-    public void showFilterButtonsEditIcon() {
-        dSTypeFilterButtons.showEditColumn();
-    }
-
-    public void showFilterButtonsDeleteIcon() {
-        dSTypeFilterButtons.showDeleteColumn();
-    }
-
-    public void hideFilterButtonsActionIcons() {
-        dSTypeFilterButtons.hideActionColumns();
-    }
-
-    public void refreshFilterButtons() {
-        dSTypeFilterButtons.refreshContainer();
-    }
-
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
+        gridActionsVisibilityListener.unsubscribe();
         entityModifiedListener.unsubscribe();
-    }
-
-    public EventLayout getLayout() {
-        return EventLayout.DS_TYPE_FILTER;
     }
 }

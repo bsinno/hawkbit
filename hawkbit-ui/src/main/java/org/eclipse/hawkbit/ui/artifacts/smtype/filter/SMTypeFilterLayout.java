@@ -18,9 +18,12 @@ import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -37,8 +40,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     private final SMTypeFilterHeader smTypeFilterHeader;
     private final SMTypeFilterButtons sMTypeFilterButtons;
 
-    private final transient SMTypeFilterLayoutEventListener eventListener;
-
+    private final transient GridActionsVisibilityListener gridActionsVisibilityListener;
     private final transient EntityModifiedListener<ProxyType> entityModifiedListener;
 
     /**
@@ -71,8 +73,10 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
         this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, smTypeFilterLayoutUiState,
                 softwareModuleTypeManagement, i18n, permChecker, uiNotification, smTypeWindowBuilder);
 
-        this.eventListener = new SMTypeFilterLayoutEventListener(this, eventBus);
-
+        this.gridActionsVisibilityListener = new GridActionsVisibilityListener(eventBus,
+                new EventLayoutViewAware(EventLayout.SM_TYPE_FILTER, EventView.UPLOAD),
+                sMTypeFilterButtons::hideActionColumns, sMTypeFilterButtons::showEditColumn,
+                sMTypeFilterButtons::showDeleteColumn);
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyType.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
                 .parentEntityType(ProxySoftwareModule.class).build();
@@ -99,29 +103,8 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
         sMTypeFilterButtons.restoreState();
     }
 
-    public void showFilterButtonsEditIcon() {
-        sMTypeFilterButtons.showEditColumn();
-    }
-
-    public void showFilterButtonsDeleteIcon() {
-        sMTypeFilterButtons.showDeleteColumn();
-    }
-
-    public void hideFilterButtonsActionIcons() {
-        sMTypeFilterButtons.hideActionColumns();
-    }
-
-    public void refreshFilterButtons() {
-        sMTypeFilterButtons.refreshContainer();
-    }
-
-    public EventLayout getLayout() {
-        return EventLayout.SM_TYPE_FILTER;
-    }
-
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
+        gridActionsVisibilityListener.unsubscribe();
         entityModifiedListener.unsubscribe();
     }
 }

@@ -18,12 +18,14 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
-import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -53,8 +55,7 @@ public class MultipleTargetFilter extends Accordion {
     private final FilterByStatusLayout filterByStatusFooter;
     private final TargetFilterQueryButtons customFilterTab;
 
-    private final transient MultipleTargetFilterLayoutEventListener eventListener;
-
+    private final transient GridActionsVisibilityListener gridActionsVisibilityListener;
     private final transient EntityModifiedListener<ProxyTag> entityTagModifiedListener;
     private final transient EntityModifiedListener<ProxyTargetFilterQuery> entityFilterQueryModifiedListener;
 
@@ -75,8 +76,9 @@ public class MultipleTargetFilter extends Accordion {
         this.customFilterTab = new TargetFilterQueryButtons(i18n, eventBus, targetFilterQueryManagement,
                 targetTagFilterLayoutUiState);
 
-        this.eventListener = new MultipleTargetFilterLayoutEventListener(this, eventBus);
-
+        this.gridActionsVisibilityListener = new GridActionsVisibilityListener(eventBus,
+                new EventLayoutViewAware(EventLayout.TARGET_TAG_FILTER, EventView.DEPLOYMENT),
+                filterByButtons::hideActionColumns, filterByButtons::showEditColumn, filterByButtons::showDeleteColumn);
         this.entityTagModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
                 .entityModifiedAwareSupports(getTagModifiedAwareSupports()).parentEntityType(ProxyTarget.class).build();
         this.entityFilterQueryModifiedListener = new EntityModifiedListener.Builder<>(eventBus,
@@ -86,14 +88,6 @@ public class MultipleTargetFilter extends Accordion {
         init();
         addTabs();
         addSelectedTabChangeListener(event -> selectedTabChanged());
-    }
-
-    private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(filterByButtons::refreshContainer));
-    }
-
-    private List<EntityModifiedAwareSupport> getFilterQueryModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(customFilterTab::refreshContainer));
     }
 
     private VerticalLayout buildSimpleFilterTab() {
@@ -122,6 +116,14 @@ public class MultipleTargetFilter extends Accordion {
         simpleTab.setComponentAlignment(filterByStatusFooter, Alignment.MIDDLE_CENTER);
 
         return simpleTab;
+    }
+
+    private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(filterByButtons::refreshContainer));
+    }
+
+    private List<EntityModifiedAwareSupport> getFilterQueryModifiedAwareSupports() {
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(customFilterTab::refreshContainer));
     }
 
     private void init() {
@@ -166,30 +168,9 @@ public class MultipleTargetFilter extends Accordion {
         }
     }
 
-    public void showFilterButtonsEditIcon() {
-        filterByButtons.showEditColumn();
-    }
-
-    public void showFilterButtonsDeleteIcon() {
-        filterByButtons.showDeleteColumn();
-    }
-
-    public void hideFilterButtonsActionIcons() {
-        filterByButtons.hideActionColumns();
-    }
-
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
+        gridActionsVisibilityListener.unsubscribe();
         entityTagModifiedListener.unsubscribe();
         entityFilterQueryModifiedListener.unsubscribe();
-    }
-
-    public EventLayout getLayout() {
-        return EventLayout.TARGET_TAG_FILTER;
-    }
-
-    public EventView getView() {
-        return EventView.DEPLOYMENT;
     }
 }

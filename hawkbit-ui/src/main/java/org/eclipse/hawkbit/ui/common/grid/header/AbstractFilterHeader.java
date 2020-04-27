@@ -71,17 +71,17 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
     protected abstract String getAddEntityWindowCaptionMsgKey();
 
     private void publishShowEditMode() {
-        eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
+        eventBus.publish(CommandTopics.CHANGE_GRID_ACTIONS_VISIBILITY, this,
                 new ActionsVisibilityEventPayload(ActionsVisibilityType.SHOW_EDIT, getLayout(), getView()));
     }
 
     private void publishShowDeleteMode() {
-        eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
+        eventBus.publish(CommandTopics.CHANGE_GRID_ACTIONS_VISIBILITY, this,
                 new ActionsVisibilityEventPayload(ActionsVisibilityType.SHOW_DELETE, getLayout(), getView()));
     }
 
     private void publishHideAllMode() {
-        eventBus.publish(CommandTopics.CHANGE_ACTIONS_VISIBILITY, this,
+        eventBus.publish(CommandTopics.CHANGE_GRID_ACTIONS_VISIBILITY, this,
                 new ActionsVisibilityEventPayload(ActionsVisibilityType.HIDE_ALL, getLayout(), getView()));
     }
 

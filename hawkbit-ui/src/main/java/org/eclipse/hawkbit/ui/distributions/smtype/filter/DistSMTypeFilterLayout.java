@@ -25,9 +25,12 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -53,8 +56,7 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     private final DistSMTypeFilterHeader distSMTypeFilterHeader;
     private final DistSMTypeFilterButtons distSMTypeFilterButtons;
 
-    private final transient DistSMTypeFilterLayoutEventListener eventListener;
-
+    private final transient GridActionsVisibilityListener gridActionsVisibilityListener;
     private final transient EntityModifiedListener<ProxyType> entityModifiedListener;
 
     /**
@@ -89,8 +91,10 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
                 entityFactory, permChecker, uiNotification, distSMTypeFilterLayoutUiState, smTypeWindowBuilder,
                 smTypeMapper);
 
-        this.eventListener = new DistSMTypeFilterLayoutEventListener(this, eventBus);
-
+        this.gridActionsVisibilityListener = new GridActionsVisibilityListener(eventBus,
+                new EventLayoutViewAware(EventLayout.SM_TYPE_FILTER, EventView.DISTRIBUTIONS),
+                distSMTypeFilterButtons::hideActionColumns, distSMTypeFilterButtons::showEditColumn,
+                distSMTypeFilterButtons::showDeleteColumn);
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyType.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
                 .parentEntityType(ProxySoftwareModule.class).build();
@@ -100,8 +104,12 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Collections
-                .singletonList(EntityModifiedGridRefreshAwareSupport.of(distSMTypeFilterButtons::refreshContainer));
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(this::refreshFilterButtons));
+    }
+
+    private void refreshFilterButtons() {
+        distSMTypeFilterButtons.refreshContainer();
+        updateSmTypeStyles();
     }
 
     private void updateSmTypeStyles() {
@@ -136,7 +144,7 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
                     String.valueOf(entry.getKey()));
             final String typeColor = entry.getValue();
 
-            // !important is needed because we are overriding valo theme here
+            // "!important" is needed because we are overriding valo theme here
             // (alternatively we could provide more specific selector)
             return String.format(
                     "addStyleRule(stylesheet, '.%1$s, .%1$s > td, .%1$s .v-grid-cell', "
@@ -159,30 +167,8 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
         distSMTypeFilterButtons.restoreState();
     }
 
-    public void showFilterButtonsEditIcon() {
-        distSMTypeFilterButtons.showEditColumn();
-    }
-
-    public void showFilterButtonsDeleteIcon() {
-        distSMTypeFilterButtons.showDeleteColumn();
-    }
-
-    public void hideFilterButtonsActionIcons() {
-        distSMTypeFilterButtons.hideActionColumns();
-    }
-
-    public void refreshFilterButtons() {
-        distSMTypeFilterButtons.refreshContainer();
-        updateSmTypeStyles();
-    }
-
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
+        gridActionsVisibilityListener.unsubscribe();
         entityModifiedListener.unsubscribe();
-    }
-
-    public EventLayout getLayout() {
-        return EventLayout.SM_TYPE_FILTER;
     }
 }

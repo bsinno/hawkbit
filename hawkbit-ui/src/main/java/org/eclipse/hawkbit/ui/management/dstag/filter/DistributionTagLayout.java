@@ -18,10 +18,12 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
+import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -43,8 +45,7 @@ public class DistributionTagLayout extends AbstractFilterLayout {
     private final DistributionTagFilterHeader distributionTagFilterHeader;
     private final DistributionTagButtons distributionTagButtons;
 
-    private final transient DistributionTagLayoutEventListener eventListener;
-
+    private final transient GridActionsVisibilityListener gridActionsVisibilityListener;
     private final transient EntityModifiedListener<ProxyTag> entityModifiedListener;
 
     /**
@@ -77,8 +78,10 @@ public class DistributionTagLayout extends AbstractFilterLayout {
                 distributionSetTagManagement, distributionSetManagement, dsTagWindowBuilder,
                 distributionTagLayoutUiState);
 
-        this.eventListener = new DistributionTagLayoutEventListener(this, eventBus);
-
+        this.gridActionsVisibilityListener = new GridActionsVisibilityListener(eventBus,
+                new EventLayoutViewAware(EventLayout.DS_TAG_FILTER, EventView.DEPLOYMENT),
+                distributionTagButtons::hideActionColumns, distributionTagButtons::showEditColumn,
+                distributionTagButtons::showDeleteColumn);
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
                 .parentEntityType(ProxyDistributionSet.class).build();
@@ -107,34 +110,13 @@ public class DistributionTagLayout extends AbstractFilterLayout {
         return filterButtonsLayout;
     }
 
-    public void showFilterButtonsEditIcon() {
-        distributionTagButtons.showEditColumn();
-    }
-
-    public void showFilterButtonsDeleteIcon() {
-        distributionTagButtons.showDeleteColumn();
-    }
-
-    public void hideFilterButtonsActionIcons() {
-        distributionTagButtons.hideActionColumns();
-    }
-
     public void restoreState() {
         distributionTagFilterHeader.restoreState();
         distributionTagButtons.restoreState();
     }
 
     public void unsubscribeListener() {
-        eventListener.unsubscribeListeners();
-
+        gridActionsVisibilityListener.unsubscribe();
         entityModifiedListener.unsubscribe();
-    }
-
-    public EventLayout getLayout() {
-        return EventLayout.DS_TAG_FILTER;
-    }
-
-    public EventView getView() {
-        return EventView.DEPLOYMENT;
     }
 }
