@@ -83,7 +83,7 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
             final String metaDataKey = metaDataToDelete.iterator().next().getKey();
             targetManagement.deleteMetaData(masterEntityFilter, metaDataKey);
 
-            targetMetaDataWindowGrid.refreshContainer();
+            targetMetaDataWindowGrid.refreshAll();
 
             publishEntityModifiedEvent();
         } else {

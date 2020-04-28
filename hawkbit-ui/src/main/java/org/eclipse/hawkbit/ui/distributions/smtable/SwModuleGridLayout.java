@@ -97,7 +97,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<EntityModifiedAwareSupport> getSmModifiedAwareSupports() {
-        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(swModuleGrid::refreshContainer),
+        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(swModuleGrid::refreshAll),
                 EntityModifiedSelectionAwareSupport.of(swModuleGrid.getSelectionSupport(),
                         swModuleGrid::mapIdToProxyEntity));
     }

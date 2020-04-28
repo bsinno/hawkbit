@@ -27,8 +27,8 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
@@ -395,10 +395,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
                 i18n.getMessage("caption.cancel.action.confirmbox"), i18n.getMessage("message.cancel.action.confirm"),
                 i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
                 ok -> {
-                    if (!ok) {
-                        return;
+                    if (ok) {
+                        cancelActiveAction(actionId);
                     }
-                    cancelActiveAction(actionId);
                 }, UIComponentIdProvider.CONFIRMATION_POPUP_ID);
         UI.getCurrent().addWindow(confirmDialog.getWindow());
         confirmDialog.getWindow().bringToFront();
@@ -434,10 +433,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
                 i18n.getMessage("caption.force.action.confirmbox"), i18n.getMessage("message.force.action.confirm"),
                 i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
                 ok -> {
-                    if (!ok) {
-                        return;
+                    if (ok) {
+                        forceActiveAction(actionId);
                     }
-                    forceActiveAction(actionId);
                 }, UIComponentIdProvider.CONFIRMATION_POPUP_ID);
         UI.getCurrent().addWindow(confirmDialog.getWindow());
 
@@ -467,10 +465,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
                 i18n.getMessage("caption.forcequit.action.confirmbox"),
                 i18n.getMessage("message.forcequit.action.confirm"), i18n.getMessage(UIMessageIdProvider.BUTTON_OK),
                 i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), ok -> {
-                    if (!ok) {
-                        return;
+                    if (ok) {
+                        forceQuitActiveAction(actionId);
                     }
-                    forceQuitActiveAction(actionId);
                 }, VaadinIcons.WARNING, UIComponentIdProvider.CONFIRMATION_POPUP_ID, null);
         UI.getCurrent().addWindow(confirmDialog.getWindow());
 

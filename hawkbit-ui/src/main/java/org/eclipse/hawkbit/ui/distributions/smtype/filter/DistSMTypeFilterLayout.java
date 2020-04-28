@@ -108,7 +108,7 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     private void refreshFilterButtons() {
-        distSMTypeFilterButtons.refreshContainer();
+        distSMTypeFilterButtons.refreshAll();
         updateSmTypeStyles();
     }
 

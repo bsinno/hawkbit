@@ -80,7 +80,7 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
     public void setMasterEntityFilter(final F masterEntityFilter, final ProxyMetaData metaData) {
         this.masterEntityFilter = masterEntityFilter;
 
-        getMetaDataWindowGrid().updateMasterEntityFilter(masterEntityFilter);
+        getMetaDataWindowGrid().masterEntityChanged(masterEntityFilter);
 
         if (metaData == null) {
             if (!getMetaDataWindowGrid().getSelectionSupport().selectFirstRow()) {
@@ -132,7 +132,7 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
     public abstract UpdateMetaDataWindowController getUpdateMetaDataWindowController();
 
     protected void onMetaDataModified(final ProxyMetaData metaData) {
-        getMetaDataWindowGrid().refreshContainer();
+        getMetaDataWindowGrid().refreshAll();
         getMetaDataWindowGrid().select(metaData);
 
         resetSaveButton();

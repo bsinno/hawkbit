@@ -81,7 +81,7 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
             final String metaDataKey = metaDataToDelete.iterator().next().getKey();
             dsManagement.deleteMetaData(masterEntityFilter, metaDataKey);
 
-            dsMetaDataWindowGrid.refreshContainer();
+            dsMetaDataWindowGrid.refreshAll();
 
             publishEntityModifiedEvent();
         } else {

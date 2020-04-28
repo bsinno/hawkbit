@@ -87,7 +87,7 @@ public class TargetFilterGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<EntityModifiedAwareSupport> getFilterQueryModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(targetFilterGrid::refreshContainer));
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(targetFilterGrid::refreshAll));
     }
 
     /**

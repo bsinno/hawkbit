@@ -130,18 +130,4 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long>
     public Long getMasterEntityId() {
         return masterId;
     }
-
-    /**
-     * Creates the grid content for maximized-state.
-     */
-    public void createMaximizedContent() {
-        getSelectionSupport().enableSingleSelection();
-    }
-
-    /**
-     * Creates the grid content for normal (minimized) state.
-     */
-    public void createMinimizedContent() {
-        getSelectionSupport().disableSelection();
-    }
 }

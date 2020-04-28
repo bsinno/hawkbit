@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTarget
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDetailsDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -24,7 +25,8 @@ import com.vaadin.ui.themes.ValoTheme;
  * DistributionSet TargetFilterQuery table
  *
  */
-public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilterQuery, Long> {
+public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilterQuery, Long>
+        implements MasterEntityAwareComponent<Long> {
     private static final long serialVersionUID = 1L;
 
     private static final String TFQ_NAME_ID = "tfqName";
@@ -72,7 +74,8 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
         return UIComponentIdProvider.TARGET_FILTER_TABLE_ID;
     }
 
-    public void updateMasterEntityFilter(final Long masterEntityId) {
+    @Override
+    public void masterEntityChanged(final Long masterEntityId) {
         getFilterDataProvider().setFilter(masterEntityId);
         setVisible(masterEntityId != null);
     }

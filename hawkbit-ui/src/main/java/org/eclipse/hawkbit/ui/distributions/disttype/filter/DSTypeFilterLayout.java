@@ -91,7 +91,7 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
         return Collections
-                .singletonList(EntityModifiedGridRefreshAwareSupport.of(dSTypeFilterButtons::refreshContainer));
+                .singletonList(EntityModifiedGridRefreshAwareSupport.of(dSTypeFilterButtons::refreshAll));
     }
 
     @Override

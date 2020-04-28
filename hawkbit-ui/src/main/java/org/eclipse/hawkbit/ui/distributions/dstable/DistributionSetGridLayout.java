@@ -109,7 +109,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<EntityModifiedAwareSupport> getDsModifiedAwareSupports() {
-        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(distributionSetGrid::refreshContainer),
+        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(distributionSetGrid::refreshAll),
                 EntityModifiedSelectionAwareSupport.of(distributionSetGrid.getSelectionSupport(),
                         distributionSetGrid::mapIdToProxyEntity));
     }

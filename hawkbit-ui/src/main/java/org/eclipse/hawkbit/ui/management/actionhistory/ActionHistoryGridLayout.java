@@ -74,7 +74,7 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(actionHistoryGrid::refreshContainer),
+        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(actionHistoryGrid::refreshAll),
                 EntityModifiedSelectionAwareSupport.of(actionHistoryGrid.getSelectionSupport(),
                         actionHistoryGrid::mapIdToProxyEntity));
     }

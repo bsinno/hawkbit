@@ -79,7 +79,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
 
     private List<EntityModifiedAwareSupport> getRolloutModifiedAwareSupports() {
         return Arrays.asList(
-                EntityModifiedGridRefreshAwareSupport.of(rolloutListGrid::refreshContainer,
+                EntityModifiedGridRefreshAwareSupport.of(rolloutListGrid::refreshAll,
                         rolloutListGrid::updateGridItems),
                 EntityModifiedSelectionAwareSupport.of(rolloutListGrid.getSelectionSupport(),
                         rolloutListGrid::mapIdToProxyEntity, rolloutListGrid::onSelectedRolloutDeleted));

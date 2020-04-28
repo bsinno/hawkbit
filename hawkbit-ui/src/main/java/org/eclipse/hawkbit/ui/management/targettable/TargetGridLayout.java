@@ -136,7 +136,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     private List<EntityModifiedAwareSupport> getTargetModifiedAwareSupports() {
         return Arrays
-                .asList(EntityModifiedGridRefreshAwareSupport.of(targetGrid::refreshContainer),
+                .asList(EntityModifiedGridRefreshAwareSupport.of(targetGrid::refreshAll),
                         EntityModifiedSelectionAwareSupport.of(targetGrid.getSelectionSupport(),
                                 targetGrid::mapIdToProxyEntity),
                         EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport()));

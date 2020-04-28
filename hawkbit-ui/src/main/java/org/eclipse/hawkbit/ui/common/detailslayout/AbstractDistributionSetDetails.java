@@ -154,8 +154,8 @@ public abstract class AbstractDistributionSetDetails extends AbstractGridDetails
 
         // TODO: consider populating the grid only when metadata tab is/becomes
         // active (lazy loading)
-        dsMetadataGrid.updateMasterEntityFilter(entity != null ? entity.getId() : null);
-        smDetailsGrid.updateMasterEntityFilter(entity);
+        dsMetadataGrid.masterEntityChanged(entity != null ? entity.getId() : null);
+        smDetailsGrid.masterEntityChanged(entity);
         distributionTagToken.masterEntityChanged(entity);
     }
 

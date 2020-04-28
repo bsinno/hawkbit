@@ -91,7 +91,7 @@ public class DistributionTagLayout extends AbstractFilterLayout {
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
         return Collections
-                .singletonList(EntityModifiedGridRefreshAwareSupport.of(distributionTagButtons::refreshContainer));
+                .singletonList(EntityModifiedGridRefreshAwareSupport.of(distributionTagButtons::refreshAll));
     }
 
     @Override

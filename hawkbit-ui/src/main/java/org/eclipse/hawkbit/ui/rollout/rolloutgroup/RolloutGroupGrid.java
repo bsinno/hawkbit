@@ -23,10 +23,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -85,7 +85,6 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
         getSelectionSupport().disableSelection();
 
         initStatusIconMap();
-
         init();
     }
 
@@ -229,8 +228,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long>
         getSelectionSupport().sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED, rolloutGroup);
         rolloutManagementUIState.setSelectedRolloutGroupName(rolloutGroup.getName());
 
-        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
-                new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.ROLLOUT_GROUP_TARGET_LIST, EventView.ROLLOUT));
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
+                VisibilityType.SHOW, EventLayout.ROLLOUT_GROUP_TARGET_LIST, EventView.ROLLOUT));
     }
 
     @Override

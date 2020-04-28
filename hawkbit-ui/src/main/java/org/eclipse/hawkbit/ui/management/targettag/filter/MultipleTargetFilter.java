@@ -119,11 +119,11 @@ public class MultipleTargetFilter extends Accordion {
     }
 
     private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(filterByButtons::refreshContainer));
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(filterByButtons::refreshAll));
     }
 
     private List<EntityModifiedAwareSupport> getFilterQueryModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(customFilterTab::refreshContainer));
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(customFilterTab::refreshAll));
     }
 
     private void init() {

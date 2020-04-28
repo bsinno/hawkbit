@@ -166,7 +166,7 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
 
     @Override
     protected void deleteFilterButtons(final Collection<ProxyTag> filterButtonsToDelete) {
-        // TODO: we do not allow multiple deletion yet
+        // We do not allow multiple deletion of tags yet
         final ProxyTag dsTagToDelete = filterButtonsToDelete.iterator().next();
         final String dsTagToDeleteName = dsTagToDelete.getName();
         final Long dsTagToDeleteId = dsTagToDelete.getId();

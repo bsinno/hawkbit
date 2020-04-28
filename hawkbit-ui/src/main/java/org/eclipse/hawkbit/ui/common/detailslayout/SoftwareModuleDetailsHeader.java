@@ -75,7 +75,7 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
             } else {
                 artifactDetailsHeaderSupport.enableArtifactDetailsIcon();
                 if (artifactDetailsGrid != null) {
-                    artifactDetailsGrid.refreshContainer();
+                    artifactDetailsGrid.refreshAll();
                 }
             }
         }

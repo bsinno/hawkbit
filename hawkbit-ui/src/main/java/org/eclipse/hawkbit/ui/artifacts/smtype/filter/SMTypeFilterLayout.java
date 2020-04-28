@@ -86,7 +86,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
         return Collections
-                .singletonList(EntityModifiedGridRefreshAwareSupport.of(sMTypeFilterButtons::refreshContainer));
+                .singletonList(EntityModifiedGridRefreshAwareSupport.of(sMTypeFilterButtons::refreshAll));
     }
 
     @Override

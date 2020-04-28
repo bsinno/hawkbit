@@ -29,6 +29,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModuleDetails;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -53,7 +54,8 @@ import com.vaadin.ui.themes.ValoTheme;
  * Software module details table.
  * 
  */
-public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> {
+public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
+        implements MasterEntityAwareComponent<ProxyDistributionSet> {
     private static final long serialVersionUID = 1L;
 
     private static final String SOFT_TYPE_NAME_ID = "typeName";
@@ -252,8 +254,9 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails> 
         }
     }
 
-    public void updateMasterEntityFilter(final ProxyDistributionSet masterEntityFilter) {
-        masterEntity = masterEntityFilter;
+    @Override
+    public void masterEntityChanged(final ProxyDistributionSet masterEntity) {
+        this.masterEntity = masterEntity;
         typeIdIsRendered.clear();
 
         if (masterEntity == null) {

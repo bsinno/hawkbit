@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import org.eclipse.hawkbit.ui.common.data.providers.AbstractMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -26,7 +27,7 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * Metadata grid for entities.
  */
-public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> {
+public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> implements MasterEntityAwareComponent<F> {
     private static final long serialVersionUID = 1L;
 
     private static final String METADATA_KEY_ID = "Key";
@@ -102,8 +103,9 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> {
         return metaDataKeyLink;
     }
 
-    public void updateMasterEntityFilter(final F masterEntityFilter) {
-        getFilterDataProvider().setFilter(masterEntityFilter);
-        setVisible(masterEntityFilter != null);
+    @Override
+    public void masterEntityChanged(final F masterEntity) {
+        getFilterDataProvider().setFilter(masterEntity);
+        setVisible(masterEntity != null);
     }
 }

@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.rollout;
 
 import com.cronutils.utils.StringUtils;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontIcon;
 
 /**
@@ -22,7 +21,7 @@ import com.vaadin.server.FontIcon;
 public class ProxyFontIcon implements FontIcon {
     private static final long serialVersionUID = 1L;
 
-    private final VaadinIcons icon;
+    private final FontIcon icon;
     private final String style;
     private final String description;
     private final String color;
@@ -33,7 +32,7 @@ public class ProxyFontIcon implements FontIcon {
      * @param icon
      *            the font representing the icon
      */
-    public ProxyFontIcon(final VaadinIcons icon) {
+    public ProxyFontIcon(final FontIcon icon) {
         this(icon, "");
     }
 
@@ -45,7 +44,7 @@ public class ProxyFontIcon implements FontIcon {
      * @param style
      *            the style
      */
-    public ProxyFontIcon(final VaadinIcons icon, final String style) {
+    public ProxyFontIcon(final FontIcon icon, final String style) {
         this(icon, style, "");
     }
 
@@ -59,7 +58,7 @@ public class ProxyFontIcon implements FontIcon {
      * @param description
      *            the description shown as tooltip
      */
-    public ProxyFontIcon(final VaadinIcons icon, final String style, final String description) {
+    public ProxyFontIcon(final FontIcon icon, final String style, final String description) {
         this(icon, style, description, "");
     }
 
@@ -75,7 +74,7 @@ public class ProxyFontIcon implements FontIcon {
      * @param color
      *            the color of the icon
      */
-    public ProxyFontIcon(final VaadinIcons icon, final String style, final String description, final String color) {
+    public ProxyFontIcon(final FontIcon icon, final String style, final String description, final String color) {
         this.icon = icon;
         this.style = style;
         this.description = description;

@@ -63,6 +63,6 @@ public class DistributionSetDetails extends AbstractDistributionSetDetails {
 
         // TODO: consider populating the grid only when metadata tab is/becomes
         // active (lazy loading)
-        tfqDetailsGrid.updateMasterEntityFilter(entity != null ? entity.getId() : null);
+        tfqDetailsGrid.masterEntityChanged(entity != null ? entity.getId() : null);
     }
 }

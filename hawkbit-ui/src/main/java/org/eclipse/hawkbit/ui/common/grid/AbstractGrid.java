@@ -13,7 +13,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.components.RefreshableContainer;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -30,8 +29,7 @@ import com.vaadin.ui.components.grid.GridSelectionModel;
  * @param <F>
  *            The filter-type used by the grid
  */
-public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends Grid<T>
-        implements RefreshableContainer {
+public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends Grid<T> {
     private static final long serialVersionUID = 1L;
 
     protected static final String CENTER_ALIGN = "v-align-center";
@@ -104,19 +102,23 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         setFrozenColumnCount(-1);
     }
 
-    // TODO: check if it is needed or could be called directly
     /**
-     * Refresh the container.
+     * Refresh all items.
      */
-    @Override
-    public void refreshContainer() {
+    public void refreshAll() {
         getFilterDataProvider().refreshAll();
     }
 
+    /**
+     * Refresh single item.
+     */
     public void refreshItem(final T item) {
         getFilterDataProvider().refreshItem(item);
     }
 
+    /**
+     * Get total number of items.
+     */
     public int getDataSize() {
         return getDataCommunicator().getDataProviderSize();
     }

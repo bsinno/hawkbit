@@ -99,6 +99,6 @@ public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsL
 
         // TODO: consider populating the grid only when metadata tab is/becomes
         // active (lazy loading)
-        smMetadataGrid.updateMasterEntityFilter(entity != null ? entity.getId() : null);
+        smMetadataGrid.masterEntityChanged(entity != null ? entity.getId() : null);
     }
 }

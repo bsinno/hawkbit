@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -32,7 +33,7 @@ import com.vaadin.ui.Button.ClickListener;
 /**
  * Grid for MetaData pop up layout.
  */
-public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> {
+public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implements MasterEntityAwareComponent<F> {
     private static final long serialVersionUID = 1L;
 
     public static final String META_DATA_KEY_ID = "metaDataKey";
@@ -41,7 +42,7 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> {
 
     private final ConfigurableFilterDataProvider<ProxyMetaData, Void, F> metaDataDataProvider;
 
-    private final DeleteSupport<ProxyMetaData> metaDataDeleteSupport;
+    private final transient DeleteSupport<ProxyMetaData> metaDataDeleteSupport;
 
     public MetaDataWindowGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -109,7 +110,8 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> {
         return actionButton;
     }
 
-    public void updateMasterEntityFilter(final F masterEntityFilter) {
-        getFilterDataProvider().setFilter(masterEntityFilter);
+    @Override
+    public void masterEntityChanged(final F masterEntity) {
+        getFilterDataProvider().setFilter(masterEntity);
     }
 }

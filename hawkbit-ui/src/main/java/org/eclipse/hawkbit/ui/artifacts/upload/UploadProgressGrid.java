@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress.ProgressSatus;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -22,7 +23,6 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.renderers.ProgressBarRenderer;
@@ -105,23 +105,6 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
         final String progressStatusId = new StringBuilder(UIComponentIdProvider.UPLOAD_STATUS_LABEL_ID).append(".")
                 .append(uploadProgress.getId()).toString();
 
-        return buildLabelIcon(progressStatusFontIcon, progressStatusId);
+        return SPUIComponentProvider.getLabelIcon(progressStatusFontIcon, progressStatusId);
     }
-
-    // TODO move to GridComponentBuilder
-    private Label buildLabelIcon(final ProxyFontIcon fontIcon, final String id) {
-        if (fontIcon == null) {
-            return new Label("");
-        }
-
-        final Label labelIcon = new Label(fontIcon.getHtml(), ContentMode.HTML);
-        labelIcon.setId(id);
-        labelIcon.setDescription(fontIcon.getDescription());
-        labelIcon.addStyleName("small");
-        labelIcon.addStyleName("font-icon");
-        labelIcon.addStyleName(fontIcon.getStyle());
-
-        return labelIcon;
-    }
-
 }
