@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.AbstractMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
@@ -27,8 +28,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 
 /**
  * Grid for MetaData pop up layout.
@@ -82,32 +81,13 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
         addColumn(ProxyMetaData::getValue).setId(META_DATA_VALUE_ID).setCaption(i18n.getMessage("header.value"))
                 .setHidden(true);
 
-        addComponentColumn(metaData -> buildActionButton(
+        addComponentColumn(metaData -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> metaDataDeleteSupport.openConfirmationWindowDeleteAction(metaData), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.META_DATA_DELET_ICON + "." + metaData.getId(),
                 metaDataDeleteSupport.hasDeletePermission())).setId(META_DATA_DELETE_BUTTON_ID)
                         .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d).setMaximumWidth(50d)
                         .setHidable(false).setHidden(false);
-    }
-
-    // TODO: remove duplication
-    private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
-        final Button actionButton = new Button();
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon);
-        actionButton.setDescription(i18n.getMessage(descriptionProperty));
-        actionButton.setEnabled(enabled);
-        actionButton.setId(buttonId);
-        actionButton.addStyleName("tiny");
-        actionButton.addStyleName("borderless");
-        actionButton.addStyleName("button-no-border");
-        actionButton.addStyleName("action-type-padding");
-        actionButton.addStyleName(style);
-
-        return actionButton;
     }
 
     @Override

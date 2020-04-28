@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.filters.DsDistributionsFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetDistributionsStateDataProvider;
@@ -50,8 +51,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 
 //TODO: remove duplication with DistributionGrid
 /**
@@ -228,31 +227,12 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     }
 
     private void addActionColumns() {
-        addComponentColumn(
-                ds -> buildActionButton(clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds),
-                        VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                        UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
-                        distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
-                                .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
-    }
-
-    // TODO: remove duplication
-    private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
-        final Button actionButton = new Button();
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon);
-        actionButton.setDescription(i18n.getMessage(descriptionProperty));
-        actionButton.setEnabled(enabled);
-        actionButton.setId(buttonId);
-        actionButton.addStyleName("tiny");
-        actionButton.addStyleName("borderless");
-        actionButton.addStyleName("button-no-border");
-        actionButton.addStyleName("action-type-padding");
-        actionButton.addStyleName(style);
-
-        return actionButton;
+        addComponentColumn(ds -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds), VaadinIcons.TRASH,
+                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
+                distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
+                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
     }
 
     public void restoreState() {

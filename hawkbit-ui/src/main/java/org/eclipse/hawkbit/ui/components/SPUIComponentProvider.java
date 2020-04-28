@@ -94,7 +94,7 @@ public final class SPUIComponentProvider {
      *            should be used
      * @return a link UI component
      */
-    public static Link getLink(final String id, final String name, final String resource, final VaadinIcons icon,
+    public static Link getLink(final String id, final String name, final String resource, final Resource icon,
             final String targetOpen, final String style) {
 
         final Link link = new Link(name, new ExternalResource(resource));

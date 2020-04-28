@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
@@ -72,10 +73,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Concrete implementation of Target grid which is displayed on the Deployment
@@ -405,12 +403,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void addActionColumns() {
-        addComponentColumn(target -> buildActionButton(clickEvent -> pinSupport.changeItemPinning(target),
-                VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+        addComponentColumn(target -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> pinSupport.changeItemPinning(target), VaadinIcons.PIN,
+                UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true)).setId(TARGET_PIN_BUTTON_ID)
                         .setMinimumWidth(50d).setStyleGenerator(pinSupport::getPinningStyle);
 
-        addComponentColumn(target -> buildActionButton(
+        addComponentColumn(target -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(),
@@ -418,25 +417,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
-    }
-
-    private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
-        final Button actionButton = new Button();
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon);
-        actionButton.setDescription(i18n.getMessage(descriptionProperty));
-        actionButton.setEnabled(enabled);
-        actionButton.setId(buttonId);
-        actionButton.addStyleName(ValoTheme.LABEL_TINY);
-        actionButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-        actionButton.addStyleName("button-no-border");
-        actionButton.addStyleName("action-type-padding");
-        actionButton.addStyleName("icon-only");
-        actionButton.addStyleName(style);
-
-        return actionButton;
     }
 
     public void restoreState() {

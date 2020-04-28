@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.filterlayout;
 import java.util.Collection;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyFilterButton;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
@@ -27,7 +28,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -118,35 +118,16 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
     private Button buildEditFilterButton(final T clickedFilter) {
         // TODO: check permissions for enable/disable
-        return buildActionButton(clickEvent -> editButtonClickListener(clickedFilter), VaadinIcons.EDIT,
-                SPUIDefinitions.EDIT, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+        return GridComponentBuilder.buildActionButton(i18n, clickEvent -> editButtonClickListener(clickedFilter),
+                VaadinIcons.EDIT, SPUIDefinitions.EDIT, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 getFilterButtonIdPrefix() + ".edit." + clickedFilter.getId(), true);
-    }
-
-    // TODO: remove duplication with other grids
-    private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
-        final Button actionButton = new Button();
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon);
-        actionButton.setDescription(i18n.getMessage(descriptionProperty));
-        actionButton.setEnabled(enabled);
-        actionButton.setId(buttonId);
-        actionButton.addStyleName("tiny");
-        actionButton.addStyleName("borderless");
-        actionButton.addStyleName("button-no-border");
-        actionButton.addStyleName("action-type-padding");
-        actionButton.addStyleName(style);
-
-        return actionButton;
     }
 
     protected abstract void editButtonClickListener(final T clickedFilter);
 
     private Button buildDeleteFilterButton(final T clickedFilter) {
         // TODO: check permissions
-        return buildActionButton(
+        return GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> filterButtonDeleteSupport.openConfirmationWindowDeleteAction(clickedFilter),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 getFilterButtonIdPrefix() + ".delete." + clickedFilter.getId(),

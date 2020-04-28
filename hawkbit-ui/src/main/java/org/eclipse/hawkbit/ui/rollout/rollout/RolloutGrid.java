@@ -25,6 +25,7 @@ import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus.Status;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
@@ -59,7 +60,6 @@ import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
@@ -349,58 +349,48 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private void addActionColumns() {
-        addComponentColumn(rollout -> buildActionButton(
+        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> startOrResumeRollout(rollout.getId(), rollout.getName(), rollout.getStatus()),
-                VaadinIcons.PLAY, UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN,
-                isStartingAndResumingAllowed(rollout.getStatus()), UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID))
+                VaadinIcons.PLAY, UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID, isStartingAndResumingAllowed(rollout.getStatus())))
                         .setId(RUN_BUTTON_ID).setCaption(i18n.getMessage("header.action.run")).setHidable(false)
                         .setExpandRatio(1);
 
-        addComponentColumn(rollout -> buildActionButton(clickEvent -> approveRollout(rollout), VaadinIcons.HANDSHAKE,
-                UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE, isApprovingAllowed(rollout.getStatus()),
-                UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID)).setId(APPROVE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.approve")).setHidable(false).setExpandRatio(1);
+        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> approveRollout(rollout), VaadinIcons.HANDSHAKE,
+                UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID, isApprovingAllowed(rollout.getStatus())))
+                        .setId(APPROVE_BUTTON_ID).setCaption(i18n.getMessage("header.action.approve")).setHidable(false)
+                        .setExpandRatio(1);
 
-        addComponentColumn(rollout -> buildActionButton(
+        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> pauseRollout(rollout.getId(), rollout.getName(), rollout.getStatus()), VaadinIcons.PAUSE,
-                UIMessageIdProvider.TOOLTIP_ROLLOUT_PAUSE, isPausingAllowed(rollout.getStatus()),
-                UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID)).setId(PAUSE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.pause")).setHidable(false).setExpandRatio(1);
+                UIMessageIdProvider.TOOLTIP_ROLLOUT_PAUSE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID, isPausingAllowed(rollout.getStatus())))
+                        .setId(PAUSE_BUTTON_ID).setCaption(i18n.getMessage("header.action.pause")).setHidable(false)
+                        .setExpandRatio(1);
 
-        addComponentColumn(rollout -> buildActionButton(clickEvent -> updateRollout(rollout), VaadinIcons.EDIT,
-                UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE, isEditingAllowed(rollout.getStatus()),
-                UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID)).setId(UPDATE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.update")).setHidable(false).setExpandRatio(1);
+        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n, clickEvent -> updateRollout(rollout),
+                VaadinIcons.EDIT, UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID, isEditingAllowed(rollout.getStatus())))
+                        .setId(UPDATE_BUTTON_ID).setCaption(i18n.getMessage("header.action.update")).setHidable(false)
+                        .setExpandRatio(1);
 
-        addComponentColumn(rollout -> buildActionButton(clickEvent -> copyRollout(rollout), VaadinIcons.COPY,
-                UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY, isCopyingAllowed(rollout.getStatus()),
-                UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID)).setId(COPY_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.copy")).setHidable(false).setExpandRatio(1);
+        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n, clickEvent -> copyRollout(rollout),
+                VaadinIcons.COPY, UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID, isCopyingAllowed(rollout.getStatus())))
+                        .setId(COPY_BUTTON_ID).setCaption(i18n.getMessage("header.action.copy")).setHidable(false)
+                        .setExpandRatio(1);
 
-        addComponentColumn(rollout -> buildActionButton(clickEvent -> deleteRollout(rollout.getId(), rollout.getName()),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, isDeletionAllowed(rollout.getStatus()),
-                UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID)).setId(DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete")).setHidable(false).setExpandRatio(1);
+        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> deleteRollout(rollout.getId(), rollout.getName()), VaadinIcons.TRASH,
+                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, isDeletionAllowed(rollout.getStatus())))
+                        .setId(DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete")).setHidable(false)
+                        .setExpandRatio(1);
 
         getDefaultHeaderRow().join(RUN_BUTTON_ID, APPROVE_BUTTON_ID, PAUSE_BUTTON_ID, UPDATE_BUTTON_ID, COPY_BUTTON_ID,
                 DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
-    }
-
-    private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionProperty, final boolean enable, final String buttonId) {
-        final Button actionButton = new Button();
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon, i18n.getMessage(descriptionProperty));
-        actionButton.setDescription(i18n.getMessage(descriptionProperty));
-        actionButton.setEnabled(enable);
-        actionButton.setId(buttonId);
-        actionButton.addStyleName("tiny");
-        actionButton.addStyleName("borderless");
-        actionButton.addStyleName("button-no-border");
-        actionButton.addStyleName("action-type-padding");
-
-        return actionButton;
     }
 
     private Button buildRolloutLink(final ProxyRollout rollout) {

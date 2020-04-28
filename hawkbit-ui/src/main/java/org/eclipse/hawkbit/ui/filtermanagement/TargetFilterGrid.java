@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdNameVersion;
@@ -158,7 +159,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         getDefaultHeaderRow().join(FILTER_AUTOASSIGNMENT_TYPE_ID, FILTER_AUTOASSIGNMENT_DS_ID)
                 .setText(i18n.getMessage("header.auto.assignment.ds"));
 
-        addComponentColumn(targetFilter -> buildActionButton(
+        addComponentColumn(targetFilter -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> targetFilterDeleteSupport.openConfirmationWindowDeleteAction(targetFilter),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON + "." + targetFilter.getId(),
@@ -268,24 +269,5 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         return buildLink(clickEvent -> onClickOfAutoAssignmentLink(targetFilter), autoAssignmenLinkCaption,
                 autoAssignmenLinkDescription, autoAssignmenLinkId, true);
 
-    }
-
-    // TODO: remove duplication with other Grids
-    private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
-        final Button actionButton = new Button();
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon);
-        actionButton.setDescription(i18n.getMessage(descriptionProperty));
-        actionButton.setEnabled(enabled);
-        actionButton.setId(buttonId);
-        actionButton.addStyleName("tiny");
-        actionButton.addStyleName("borderless");
-        actionButton.addStyleName("button-no-border");
-        actionButton.addStyleName("action-type-padding");
-        actionButton.addStyleName(style);
-
-        return actionButton;
     }
 }

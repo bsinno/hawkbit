@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionToProxyActionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
@@ -49,8 +50,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 
@@ -340,23 +339,26 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
     }
 
     private void addActionColumns() {
-        addComponentColumn(action -> buildActionButton(clickEvent -> confirmAndCancelAction(action.getId()),
-                VaadinIcons.CLOSE_SMALL, "message.cancel.action", SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+        addComponentColumn(action -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> confirmAndCancelAction(action.getId()), VaadinIcons.CLOSE_SMALL, "message.cancel.action",
+                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_CANCEL_ID + "." + action.getId(),
                 action.isActive() && !action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission()))
                         .setId(CANCEL_BUTTON_ID).setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX)
                         .setHidable(false).setHidden(false);
 
-        addComponentColumn(action -> buildActionButton(clickEvent -> confirmAndForceAction(action.getId()),
-                VaadinIcons.BOLT, "message.force.action", SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+        addComponentColumn(action -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> confirmAndForceAction(action.getId()), VaadinIcons.BOLT, "message.force.action",
+                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_ID + "." + action.getId(),
                 action.isActive() && !action.isForce() && !action.isCancelingOrCanceled()
                         && permissionChecker.hasUpdateTargetPermission())).setId(FORCE_BUTTON_ID)
                                 .setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX).setHidable(false)
                                 .setHidden(false);
 
-        addComponentColumn(action -> buildActionButton(clickEvent -> confirmAndForceQuitAction(action.getId()),
-                VaadinIcons.CLOSE_SMALL, "message.forcequit.action", SPUIStyleDefinitions.STATUS_ICON_RED,
+        addComponentColumn(action -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> confirmAndForceQuitAction(action.getId()), VaadinIcons.CLOSE_SMALL,
+                "message.forcequit.action", SPUIStyleDefinitions.STATUS_ICON_RED,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_QUIT_ID + "." + action.getId(),
                 action.isActive() && action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission()))
                         .setId(FORCE_QUIT_BUTTON_ID).setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX)
@@ -364,24 +366,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
 
         getDefaultHeaderRow().join(CANCEL_BUTTON_ID, FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
-    }
-
-    private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
-        final Button actionButton = new Button();
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon);
-        actionButton.setDescription(i18n.getMessage(descriptionProperty));
-        actionButton.setEnabled(enabled);
-        actionButton.setId(buttonId);
-        actionButton.addStyleName("tiny");
-        actionButton.addStyleName("borderless");
-        actionButton.addStyleName("button-no-border");
-        actionButton.addStyleName("action-type-padding");
-        actionButton.addStyleName(style);
-
-        return actionButton;
     }
 
     /**

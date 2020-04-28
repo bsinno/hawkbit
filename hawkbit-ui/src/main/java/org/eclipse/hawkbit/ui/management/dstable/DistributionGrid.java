@@ -21,6 +21,7 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.filters.DsManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetManagementStateDataProvider;
@@ -60,8 +61,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 
 /**
  * Distribution set grid which is shown on the Deployment View.
@@ -311,37 +310,19 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     private void addActionColumns() {
-        addComponentColumn(ds -> buildActionButton(event -> pinSupport.changeItemPinning(ds), VaadinIcons.PIN,
-                UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(), true)).setId(DS_PIN_BUTTON_ID)
-                        .setMinimumWidth(50d).setStyleGenerator(pinSupport::getPinningStyle);
+        addComponentColumn(ds -> GridComponentBuilder.buildActionButton(i18n, event -> pinSupport.changeItemPinning(ds),
+                VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN,
+                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL, UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(), true))
+                        .setId(DS_PIN_BUTTON_ID).setMinimumWidth(50d).setStyleGenerator(pinSupport::getPinningStyle);
 
-        addComponentColumn(
-                ds -> buildActionButton(clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds),
-                        VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                        UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
-                        distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
-                                .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d);
+        addComponentColumn(ds -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds), VaadinIcons.TRASH,
+                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
+                distributionDeleteSupport.hasDeletePermission())).setId(DS_DELETE_BUTTON_ID)
+                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d);
 
         getDefaultHeaderRow().join(DS_PIN_BUTTON_ID, DS_DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
-    }
-
-    private Button buildActionButton(final ClickListener clickListener, final VaadinIcons icon,
-            final String descriptionProperty, final String style, final String buttonId, final boolean enabled) {
-        final Button actionButton = new Button();
-
-        actionButton.addClickListener(clickListener);
-        actionButton.setIcon(icon);
-        actionButton.setDescription(i18n.getMessage(descriptionProperty));
-        actionButton.setEnabled(enabled);
-        actionButton.setId(buttonId);
-        actionButton.addStyleName("tiny");
-        actionButton.addStyleName("borderless");
-        actionButton.addStyleName("button-no-border");
-        actionButton.addStyleName("action-type-padding");
-        actionButton.addStyleName(style);
-
-        return actionButton;
     }
 
     public void restoreState() {

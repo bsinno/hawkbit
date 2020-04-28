@@ -63,41 +63,29 @@ import com.vaadin.ui.themes.ValoTheme;
  * Define groups for a Rollout
  */
 public class DefineGroupsLayout extends GridLayout {
-
     private static final long serialVersionUID = 1L;
 
     private static final String MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED = "message.rollout.max.group.size.exceeded.advanced";
 
     private final VaadinMessageSource i18n;
-
     private transient EntityFactory entityFactory;
-
     private transient RolloutManagement rolloutManagement;
-
     private transient RolloutGroupManagement rolloutGroupManagement;
-
     private final transient QuotaManagement quotaManagement;
-
     private transient TargetFilterQueryManagement targetFilterQueryManagement;
 
     private String defaultTriggerThreshold;
-
     private String defaultErrorThreshold;
-
     private String targetFilter;
 
     private transient List<GroupRow> groupRows;
 
-    private int groupsCount;
-
     private transient List<RolloutGroupCreate> savedRolloutGroups;
-
     private transient ValidationListener validationListener;
-
-    private ValidationStatus validationStatus = ValidationStatus.VALID;
-
     private transient RolloutGroupsValidation groupsValidation;
 
+    private ValidationStatus validationStatus = ValidationStatus.VALID;
+    private int groupsCount;
     private final AtomicInteger runningValidationsCounter;
 
     private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
