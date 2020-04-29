@@ -342,8 +342,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         getFilter().setSearchText(distributionGridLayoutUiState.getSearchFilter());
         getFilter().setNoTagClicked(distributionTagLayoutUiState.isNoTagClicked());
 
-        final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedTargetTagIdsWithName()
-                .values();
+        final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedDsTagIdsWithName().values();
         if (!CollectionUtils.isEmpty(tagFilterNames)) {
             getFilter().setDistributionSetTags(tagFilterNames);
         }

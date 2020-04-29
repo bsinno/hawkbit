@@ -39,28 +39,20 @@ import com.vaadin.ui.themes.ValoTheme;
  *
  */
 public class CommonDialogWindow extends Window {
-
     private static final long serialVersionUID = 1L;
 
+    private final VaadinMessageSource i18n;
+
     private final VerticalLayout mainLayout;
-
     private final String caption;
-
     private final Component content;
-
     private final String helpLink;
-
     private Button saveButton;
-
     private Button cancelButton;
-
     private HorizontalLayout buttonsLayout;
 
     private final ClickListener cancelButtonClickListener;
-
     private final ClickListener closeClickListener;
-
-    private final VaadinMessageSource i18n;
 
     private transient SaveDialogCloseListener closeListener;
 

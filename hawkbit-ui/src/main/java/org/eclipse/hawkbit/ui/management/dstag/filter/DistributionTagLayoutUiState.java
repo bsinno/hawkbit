@@ -16,7 +16,7 @@ public class DistributionTagLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean hidden;
-    private final Map<Long, String> clickedTargetTagIdsWithName = new HashMap<>();
+    private final Map<Long, String> clickedDsTagIdsWithName = new HashMap<>();
     private boolean noTagClicked;
 
     public boolean isHidden() {
@@ -35,12 +35,12 @@ public class DistributionTagLayoutUiState implements Serializable {
         this.noTagClicked = noTagClicked;
     }
 
-    public Map<Long, String> getClickedTargetTagIdsWithName() {
-        return clickedTargetTagIdsWithName;
+    public Map<Long, String> getClickedDsTagIdsWithName() {
+        return clickedDsTagIdsWithName;
     }
 
-    public void setClickedTargetTagIdsWithName(final Map<Long, String> clickedTargetTagIdsWithName) {
-        this.clickedTargetTagIdsWithName.clear();
-        this.clickedTargetTagIdsWithName.putAll(clickedTargetTagIdsWithName);
+    public void setClickedDsTagIdsWithName(final Map<Long, String> clickedDsTagIdsWithName) {
+        this.clickedDsTagIdsWithName.clear();
+        this.clickedDsTagIdsWithName.putAll(clickedDsTagIdsWithName);
     }
 }

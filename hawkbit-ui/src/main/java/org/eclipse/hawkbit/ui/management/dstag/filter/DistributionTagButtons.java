@@ -8,10 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
@@ -20,49 +18,32 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTagDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
-import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.FilterType;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractTagFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTagAssignmentSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 /**
  * Class for defining the tag buttons of the distribution sets on the Deployment
  * View.
  */
-public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void> {
+public class DistributionTagButtons extends AbstractTagFilterButtons {
     private static final long serialVersionUID = 1L;
 
     private final DistributionTagLayoutUiState distributionTagLayoutUiState;
-    private final UINotification uiNotification;
-
-    private final Button noTagButton;
 
     private final transient DistributionSetTagManagement distributionSetTagManagement;
-    private final transient DistributionTagButtonClick distributionTagButtonClickBehaviour;
     private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyTag, Void, Void> dsTagDataProvider;
@@ -78,14 +59,9 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         super(eventBus, i18n, uiNotification, permChecker);
 
         this.distributionTagLayoutUiState = distributionTagLayoutUiState;
-        this.uiNotification = uiNotification;
         this.distributionSetTagManagement = distributionSetTagManagement;
         this.dsTagWindowBuilder = dsTagWindowBuilder;
 
-        this.noTagButton = buildNoTagButton();
-
-        this.distributionTagButtonClickBehaviour = new DistributionTagButtonClick(this::publishFilterChangedEvent,
-                this::publishNoTagChangedEvent);
         this.dsTagMapper = new TagToProxyTagMapper<>();
         this.dsTagDataProvider = new DistributionSetTagDataProvider(distributionSetTagManagement, dsTagMapper)
                 .withConfigurableFilter();
@@ -100,22 +76,6 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
         this.dragAndDropSupport.addDragAndDrop();
 
         init();
-    }
-
-    // TODO: remove duplication with TargetTagFilterButtons
-    private Button buildNoTagButton() {
-        final Button noTag = SPUIComponentProvider.getButton(
-                UIComponentIdProvider.DISTRIBUTION_TAG_ID_PREFIXS + SPUIDefinitions.NO_TAG_BUTTON_ID,
-                i18n.getMessage(UIMessageIdProvider.LABEL_NO_TAG),
-                i18n.getMessage(UIMessageIdProvider.TOOLTIP_CLICK_TO_FILTER), null, false, null,
-                SPUITagButtonStyle.class);
-
-        final ProxyTag dummyNoTag = new ProxyTag();
-        dummyNoTag.setNoTag(true);
-
-        noTag.addClickListener(event -> distributionTagButtonClickBehaviour.processFilterClick(dummyNoTag));
-
-        return noTag;
     }
 
     @Override
@@ -134,84 +94,47 @@ public class DistributionTagButtons extends AbstractFilterButtons<ProxyTag, Void
     }
 
     @Override
-    protected AbstractFilterButtonClickBehaviour<ProxyTag> getFilterButtonClickBehaviour() {
-        return distributionTagButtonClickBehaviour;
-    }
-
-    private void publishFilterChangedEvent(final Map<Long, String> activeTagIdsWithName) {
-        // TODO: somehow move it to abstract class/TypeFilterButtonClick
-        // needed to trigger style generator
-        getDataCommunicator().reset();
-
-        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyDistributionSet.class,
-                FilterType.TAG, activeTagIdsWithName.values(), EventView.DEPLOYMENT));
-
-        distributionTagLayoutUiState.setClickedTargetTagIdsWithName(activeTagIdsWithName);
-    }
-
-    private void publishNoTagChangedEvent(final ClickBehaviourType clickType) {
-        final boolean isNoTagActivated = ClickBehaviourType.CLICKED == clickType;
-
-        if (isNoTagActivated) {
-            noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
-        } else {
-            noTagButton.removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
-        }
-
-        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyDistributionSet.class,
-                FilterType.NO_TAG, isNoTagActivated, EventView.DEPLOYMENT));
-
-        distributionTagLayoutUiState.setNoTagClicked(isNoTagActivated);
-    }
-
-    @Override
-    protected void deleteFilterButtons(final Collection<ProxyTag> filterButtonsToDelete) {
-        // We do not allow multiple deletion of tags yet
-        final ProxyTag dsTagToDelete = filterButtonsToDelete.iterator().next();
-        final String dsTagToDeleteName = dsTagToDelete.getName();
-        final Long dsTagToDeleteId = dsTagToDelete.getId();
-
-        final Set<Long> clickedDsTagIds = distributionTagLayoutUiState.getClickedTargetTagIdsWithName().keySet();
-
-        if (!CollectionUtils.isEmpty(clickedDsTagIds) && clickedDsTagIds.contains(dsTagToDeleteId)) {
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", dsTagToDeleteName));
-        } else {
-            distributionSetTagManagement.delete(dsTagToDeleteName);
-
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class,
-                            ProxyTag.class, dsTagToDeleteId));
-        }
-    }
-
-    @Override
-    protected void editButtonClickListener(final ProxyTag clickedFilter) {
-        final Window updateWindow = dsTagWindowBuilder.getWindowForUpdateDsTag(clickedFilter);
-
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.tag")));
-        UI.getCurrent().addWindow(updateWindow);
-        updateWindow.setVisible(Boolean.TRUE);
-    }
-
-    @Override
     protected String getFilterButtonIdPrefix() {
         return UIComponentIdProvider.DISTRIBUTION_TAG_ID_PREFIXS;
     }
 
-    public Button getNoTagButton() {
-        return noTagButton;
+    @Override
+    protected Class<? extends ProxyIdentifiableEntity> getFilterMasterEntityType() {
+        return ProxyDistributionSet.class;
     }
 
-    public void restoreState() {
-        final Map<Long, String> tagsToRestore = distributionTagLayoutUiState.getClickedTargetTagIdsWithName();
+    @Override
+    protected EventView getView() {
+        return EventView.DEPLOYMENT;
+    }
 
-        if (!CollectionUtils.isEmpty(tagsToRestore)) {
-            distributionTagButtonClickBehaviour.setPreviouslyClickedFilterIdsWithName(tagsToRestore);
-            // TODO: should we reset data communicator here for styling update
-        }
+    @Override
+    protected void updateClickedTagsUiState(final Map<Long, String> activeTagIdsWithName) {
+        distributionTagLayoutUiState.setClickedDsTagIdsWithName(activeTagIdsWithName);
+    }
 
-        if (distributionTagLayoutUiState.isNoTagClicked()) {
-            noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
-        }
+    @Override
+    protected void updateClickedNoTagUiState(final boolean isNoTagActivated) {
+        distributionTagLayoutUiState.setNoTagClicked(isNoTagActivated);
+    }
+
+    @Override
+    protected Map<Long, String> getClickedTagIdsWithNameFromUiState() {
+        return distributionTagLayoutUiState.getClickedDsTagIdsWithName();
+    }
+
+    @Override
+    protected boolean getClickedNoTagFromUiState() {
+        return distributionTagLayoutUiState.isNoTagClicked();
+    }
+
+    @Override
+    protected void deleteTag(final ProxyTag tagToDelete) {
+        distributionSetTagManagement.delete(tagToDelete.getName());
+    }
+
+    @Override
+    protected Window getUpdateWindow(final ProxyTag clickedFilter) {
+        return dsTagWindowBuilder.getWindowForUpdateDsTag(clickedFilter);
     }
 }
