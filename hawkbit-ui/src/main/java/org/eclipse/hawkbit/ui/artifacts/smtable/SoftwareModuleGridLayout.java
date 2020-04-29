@@ -16,7 +16,6 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
@@ -31,6 +30,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -54,7 +54,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
             final UINotification uiNotification, final UIEventBus eventBus,
             final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
-            final ArtifactUploadState artifactUploadState, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
+            final ArtifactUploadState artifactUploadState, final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleGridLayoutUiState smGridLayoutUiState) {
         super();
 

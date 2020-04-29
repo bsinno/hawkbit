@@ -34,7 +34,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
-import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -47,7 +47,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
     private final SwModuleGridHeader swModuleGridHeader;
     private final SwModuleGrid swModuleGrid;
-    // TODO: change to SwModuleDetailsHeader
+    // TODO: change to SwModuleDetailsHeader?
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SwModuleDetails swModuleDetails;
 
@@ -60,7 +60,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
             final SpPermissionChecker permChecker, final ArtifactManagement artifactManagement,
-            final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
+            final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 softwareModuleManagement, softwareModuleTypeManagement);
@@ -68,9 +68,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 eventBus, uiNotification, permChecker, softwareModuleManagement);
 
         this.swModuleGridHeader = new SwModuleGridHeader(i18n, permChecker, eventBus, smWindowBuilder,
-                distSMTypeFilterLayoutUiState, swModuleGridLayoutUiState);
+                smTypeFilterLayoutUiState, swModuleGridLayoutUiState);
         this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, softwareModuleManagement,
-                distSMTypeFilterLayoutUiState, swModuleGridLayoutUiState);
+                smTypeFilterLayoutUiState, swModuleGridLayoutUiState);
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder, artifactManagement);

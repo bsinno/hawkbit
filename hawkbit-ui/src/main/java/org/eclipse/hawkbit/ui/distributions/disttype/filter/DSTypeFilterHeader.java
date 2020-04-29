@@ -12,6 +12,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -26,7 +27,7 @@ import com.vaadin.ui.Window;
 public class DSTypeFilterHeader extends AbstractFilterHeader {
     private static final long serialVersionUID = 1L;
 
-    private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState dSTypeFilterLayoutUiState;
 
     private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
 
@@ -52,8 +53,8 @@ public class DSTypeFilterHeader extends AbstractFilterHeader {
      * @param dSTypeFilterButtons
      *            DSTypeFilterButtons
      */
-    DSTypeFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState, final DsTypeWindowBuilder dsTypeWindowBuilder) {
+    DSTypeFilterHeader(final UIEventBus eventBus, final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
+            final DsTypeWindowBuilder dsTypeWindowBuilder, final TypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
         super(i18n, permChecker, eventBus);
 
         this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;

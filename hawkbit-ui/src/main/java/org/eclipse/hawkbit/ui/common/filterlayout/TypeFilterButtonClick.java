@@ -6,12 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
+package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import java.util.function.BiConsumer;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterSingleButtonClick;
 
 /**
  * Single button click behaviour of filter buttons layout.

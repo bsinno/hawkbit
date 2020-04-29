@@ -28,7 +28,7 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -44,7 +44,7 @@ import com.vaadin.ui.Window;
 public class DistributionSetGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState dSTypeFilterLayoutUiState;
     private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
 
     private final transient DsWindowBuilder dsWindowBuilder;
@@ -56,7 +56,7 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
 
     DistributionSetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final DsWindowBuilder dsWindowBuilder,
-            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
+            final TypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         super(i18n, permChecker, eventBus);
 

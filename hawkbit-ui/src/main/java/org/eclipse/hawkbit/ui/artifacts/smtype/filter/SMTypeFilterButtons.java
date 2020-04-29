@@ -8,56 +8,44 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
 
-import java.util.Collection;
-
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
-import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.FilterType;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractTypeFilterButtons;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 /**
  * Software module type filter buttons.
  *
  */
-public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String> {
+public class SMTypeFilterButtons extends AbstractTypeFilterButtons {
     private static final long serialVersionUID = 1L;
 
-    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
-    private final UINotification uiNotification;
-
     private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-    private final transient TypeFilterButtonClick typeFilterButtonClickBehaviour;
     private final transient SmTypeWindowBuilder smTypeWindowBuilder;
 
     private final ConfigurableFilterDataProvider<ProxyType, Void, String> sMTypeDataProvider;
+
+    private final EventView view;
 
     /**
      * Constructor
      * 
      * @param eventBus
      *            UIEventBus
-     * @param smTypeFilterLayoutUiState
-     *            SMTypeFilterLayoutUiState
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
      * @param i18n
@@ -69,18 +57,17 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
      * @param smTypeWindowBuilder
      *            SmTypeWindowBuilder
      */
-    public SMTypeFilterButtons(final UIEventBus eventBus, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
-            final SoftwareModuleTypeManagement softwareModuleTypeManagement, final VaadinMessageSource i18n,
-            final SpPermissionChecker permChecker, final UINotification uiNotification,
-            final SmTypeWindowBuilder smTypeWindowBuilder) {
-        super(eventBus, i18n, uiNotification, permChecker);
+    public SMTypeFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
+            final UINotification uiNotification, final SpPermissionChecker permChecker,
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement,
+            final SmTypeWindowBuilder smTypeWindowBuilder, final TypeFilterLayoutUiState typeFilterLayoutUiState,
+            final EventView view) {
+        super(eventBus, i18n, uiNotification, permChecker, typeFilterLayoutUiState);
 
-        this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
-        this.uiNotification = uiNotification;
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
         this.smTypeWindowBuilder = smTypeWindowBuilder;
+        this.view = view;
 
-        this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
         this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement,
                 new TypeToProxyTypeMapper<>()).withConfigurableFilter();
 
@@ -99,68 +86,38 @@ public class SMTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
 
     @Override
     protected String getFilterButtonsType() {
+        // TODO: use constant
         return i18n.getMessage("caption.entity.software.module.type");
     }
 
     @Override
-    protected AbstractFilterButtonClickBehaviour<ProxyType> getFilterButtonClickBehaviour() {
-        return typeFilterButtonClickBehaviour;
-    }
-
-    private void publishFilterChangedEvent(final ProxyType typeFilter, final ClickBehaviourType clickType) {
-        softwareModuleTypeManagement.getByName(typeFilter.getName()).ifPresent(smType -> {
-            // TODO: somehow move it to abstract class/TypeFilterButtonClick
-            // needed to trigger style generator
-            getDataCommunicator().reset();
-
-            final Long typeId = ClickBehaviourType.CLICKED == clickType ? smType.getId() : null;
-
-            eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(
-                    ProxySoftwareModule.class, FilterType.TYPE, typeId, EventView.UPLOAD));
-            smTypeFilterLayoutUiState.setClickedSmTypeId(typeId);
-        });
-    }
-
-    @Override
-    protected void deleteFilterButtons(final Collection<ProxyType> filterButtonsToDelete) {
-        // we do not allow multiple deletion yet
-        final ProxyType distSMTypeToDelete = filterButtonsToDelete.iterator().next();
-        final String distSMTypeToDeleteName = distSMTypeToDelete.getName();
-        final Long distSMTypeToDeleteId = distSMTypeToDelete.getId();
-
-        final Long clickedDistSMTypeId = smTypeFilterLayoutUiState.getClickedSmTypeId();
-
-        if (clickedDistSMTypeId != null && clickedDistSMTypeId.equals(distSMTypeToDeleteId)) {
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", distSMTypeToDeleteName));
-        } else {
-            softwareModuleTypeManagement.delete(distSMTypeToDeleteId);
-
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, ProxySoftwareModule.class,
-                            ProxyType.class, distSMTypeToDeleteId));
-        }
-    }
-
-    @Override
-    protected void editButtonClickListener(final ProxyType clickedFilter) {
-        final Window updateWindow = smTypeWindowBuilder.getWindowForUpdateSmType(clickedFilter);
-
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
-        UI.getCurrent().addWindow(updateWindow);
-        updateWindow.setVisible(Boolean.TRUE);
-    }
-
-    @Override
     protected String getFilterButtonIdPrefix() {
-        return UIComponentIdProvider.UPLOAD_TYPE_BUTTON_PREFIX;
+        return UIComponentIdProvider.SOFTWARE_MODULE_TYPE_ID_PREFIXS;
     }
 
-    public void restoreState() {
-        final Long lastClickedTypeId = smTypeFilterLayoutUiState.getClickedSmTypeId();
+    @Override
+    protected boolean isDefaultType(final ProxyType type) {
+        // We do not have default type for software module
+        return false;
+    }
 
-        if (lastClickedTypeId != null) {
-            typeFilterButtonClickBehaviour.setPreviouslyClickedFilterId(lastClickedTypeId);
-            // TODO: should we reset data communicator here for styling update
-        }
+    @Override
+    protected Class<? extends ProxyIdentifiableEntity> getFilterMasterEntityType() {
+        return ProxySoftwareModule.class;
+    }
+
+    @Override
+    protected EventView getView() {
+        return view;
+    }
+
+    @Override
+    protected void deleteType(final ProxyType typeToDelete) {
+        softwareModuleTypeManagement.delete(typeToDelete.getId());
+    }
+
+    @Override
+    protected Window getUpdateWindow(final ProxyType clickedFilter) {
+        return smTypeWindowBuilder.getWindowForUpdateSmType(clickedFilter);
     }
 }

@@ -40,7 +40,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.SwModulesToDistributionSetAssignmentSupport;
-import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -68,7 +68,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private static final String DS_DESC_ID = "dsDescription";
     private static final String DS_DELETE_BUTTON_ID = "dsDeleteButton";
 
-    private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState dSTypeFilterLayoutUiState;
     private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
     private final transient DistributionSetManagement dsManagement;
     private final transient DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper;
@@ -82,7 +82,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
             final TargetManagement targetManagement, final DistributionSetManagement dsManagement,
             final SoftwareModuleManagement smManagement, final DistributionSetTypeManagement dsTypeManagement,
             final SoftwareModuleTypeManagement smTypeManagement,
-            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
+            final TypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
@@ -237,7 +237,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
 
     public void restoreState() {
         getFilter().setSearchText(distributionSetGridLayoutUiState.getSearchFilter());
-        getFilter().setDsTypeId(dSTypeFilterLayoutUiState.getClickedDsTypeId());
+        getFilter().setDsTypeId(dSTypeFilterLayoutUiState.getClickedTypeId());
 
         filterSupport.refreshFilter();
         getSelectionSupport().restoreSelection();

@@ -95,19 +95,18 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         if (permChecker.hasReadRepositoryPermission()) {
             this.dsTypeFilterLayout = new DSTypeFilterLayout(i18n, permChecker, eventBus, entityFactory, uiNotification,
                     softwareModuleTypeManagement, distributionSetTypeManagement, distributionSetManagement,
-                    systemManagement, manageDistUIState.getDSTypeFilterLayoutUiState());
+                    systemManagement, manageDistUIState.getDsTypeFilterLayoutUiState());
             this.distributionSetGridLayout = new DistributionSetGridLayout(i18n, eventBus, permChecker, uiNotification,
                     entityFactory, targetManagement, targetFilterQueryManagement, distributionSetManagement,
                     softwareModuleManagement, distributionSetTypeManagement, distributionSetTagManagement,
                     softwareModuleTypeManagement, systemManagement, configManagement, systemSecurityContext,
-                    manageDistUIState.getDSTypeFilterLayoutUiState(),
+                    manageDistUIState.getDsTypeFilterLayoutUiState(),
                     manageDistUIState.getDistributionSetGridLayoutUiState());
             this.swModuleGridLayout = new SwModuleGridLayout(i18n, uiNotification, eventBus, softwareModuleManagement,
                     softwareModuleTypeManagement, entityFactory, permChecker, artifactManagement,
-                    manageDistUIState.getDistSMTypeFilterLayoutUiState(),
-                    manageDistUIState.getSwModuleGridLayoutUiState());
+                    manageDistUIState.getSmTypeFilterLayoutUiState(), manageDistUIState.getSwModuleGridLayoutUiState());
             this.distSMTypeFilterLayout = new DistSMTypeFilterLayout(eventBus, i18n, permChecker, entityFactory,
-                    uiNotification, softwareModuleTypeManagement, manageDistUIState.getDistSMTypeFilterLayoutUiState());
+                    uiNotification, softwareModuleTypeManagement, manageDistUIState.getSmTypeFilterLayoutUiState());
 
             final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
             layoutVisibilityHandlers.put(EventLayout.DS_TYPE_FILTER, this::changeDsTypeLayoutVisibility);
@@ -168,7 +167,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
     }
 
     private void restoreState() {
-        changeDsTypeLayoutVisibility(!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()
+        changeDsTypeLayoutVisibility(!manageDistUIState.getDsTypeFilterLayoutUiState().isHidden()
                 && !manageDistUIState.getSwModuleGridLayoutUiState().isMaximized());
         dsTypeFilterLayout.restoreState();
 
@@ -182,7 +181,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
         }
         swModuleGridLayout.restoreState();
 
-        changeSmTypeLayoutVisibility(!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()
+        changeSmTypeLayoutVisibility(!manageDistUIState.getSmTypeFilterLayoutUiState().isHidden()
                 && !manageDistUIState.getDistributionSetGridLayoutUiState().isMaximized());
         distSMTypeFilterLayout.restoreState();
     }
@@ -210,7 +209,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
             distributionSetGridLayout.maximize();
         } else {
             swModuleGridLayout.setVisible(true);
-            if (!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
+            if (!manageDistUIState.getSmTypeFilterLayoutUiState().isHidden()) {
                 changeSmTypeLayoutVisibility(true);
             }
 
@@ -236,7 +235,7 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
             swModuleGridLayout.maximize();
         } else {
             distributionSetGridLayout.setVisible(true);
-            if (!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
+            if (!manageDistUIState.getDsTypeFilterLayoutUiState().isHidden()) {
                 changeDsTypeLayoutVisibility(true);
             }
 
@@ -266,19 +265,19 @@ public class DistributionsView extends VerticalLayout implements View, BrowserWi
 
     private void showOrHideFilterButtons(final int browserWidth) {
         if (browserWidth < SPUIDefinitions.REQ_MIN_BROWSER_WIDTH) {
-            if (!manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
+            if (!manageDistUIState.getDsTypeFilterLayoutUiState().isHidden()) {
                 changeDsTypeLayoutVisibility(false);
             }
 
-            if (!manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
+            if (!manageDistUIState.getSmTypeFilterLayoutUiState().isHidden()) {
                 changeSmTypeLayoutVisibility(false);
             }
         } else {
-            if (manageDistUIState.getDSTypeFilterLayoutUiState().isHidden()) {
+            if (manageDistUIState.getDsTypeFilterLayoutUiState().isHidden()) {
                 changeDsTypeLayoutVisibility(true);
             }
 
-            if (manageDistUIState.getDistSMTypeFilterLayoutUiState().isHidden()) {
+            if (manageDistUIState.getSmTypeFilterLayoutUiState().isHidden()) {
                 changeSmTypeLayoutVisibility(true);
             }
         }

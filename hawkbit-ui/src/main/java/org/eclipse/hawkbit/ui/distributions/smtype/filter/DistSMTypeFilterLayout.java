@@ -8,20 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
-import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
-import org.eclipse.hawkbit.repository.model.Type;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
-import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterButtons;
+import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterHeader;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
@@ -32,32 +27,27 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.server.Page;
 import com.vaadin.ui.ComponentContainer;
 
+//TODO: remove duplication with SMTypeFilterLayout
 /**
  * Software Module Type filter layout.
  */
 public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     private static final long serialVersionUID = 1L;
 
-    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
-    private final transient TypeToProxyTypeMapper<SoftwareModuleType> smTypeMapper;
-
-    private final DistSMTypeFilterHeader distSMTypeFilterHeader;
-    private final DistSMTypeFilterButtons distSMTypeFilterButtons;
+    private final SMTypeFilterHeader smTypeFilterHeader;
+    private final SMTypeFilterButtons smTypeFilterButtons;
 
     private final transient GridActionsVisibilityListener gridActionsVisibilityListener;
     private final transient EntityModifiedListener<ProxyType> entityModifiedListener;
+
+    private final transient SmTypeCssStylesHandler smTypeCssStylesHandler;
 
     /**
      * Constructor
@@ -78,28 +68,26 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     public DistSMTypeFilterLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final EntityFactory entityFactory,
             final UINotification uiNotification, final SoftwareModuleTypeManagement softwareModuleTypeManagement,
-            final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState) {
-        this.softwareModuleTypeManagement = softwareModuleTypeManagement;
-        this.smTypeMapper = new TypeToProxyTypeMapper<>();
-
+            final TypeFilterLayoutUiState smTypeFilterLayoutUiState) {
         final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, softwareModuleTypeManagement);
 
-        this.distSMTypeFilterHeader = new DistSMTypeFilterHeader(i18n, permChecker, eventBus,
-                distSMTypeFilterLayoutUiState, smTypeWindowBuilder);
-        this.distSMTypeFilterButtons = new DistSMTypeFilterButtons(eventBus, softwareModuleTypeManagement, i18n,
-                entityFactory, permChecker, uiNotification, distSMTypeFilterLayoutUiState, smTypeWindowBuilder,
-                smTypeMapper);
+        this.smTypeFilterHeader = new SMTypeFilterHeader(eventBus, i18n, permChecker, smTypeWindowBuilder,
+                smTypeFilterLayoutUiState, EventView.DISTRIBUTIONS);
+        this.smTypeFilterButtons = new SMTypeFilterButtons(eventBus, i18n, uiNotification, permChecker,
+                softwareModuleTypeManagement, smTypeWindowBuilder, smTypeFilterLayoutUiState, EventView.DISTRIBUTIONS);
 
         this.gridActionsVisibilityListener = new GridActionsVisibilityListener(eventBus,
                 new EventLayoutViewAware(EventLayout.SM_TYPE_FILTER, EventView.DISTRIBUTIONS),
-                distSMTypeFilterButtons::hideActionColumns, distSMTypeFilterButtons::showEditColumn,
-                distSMTypeFilterButtons::showDeleteColumn);
+                smTypeFilterButtons::hideActionColumns, smTypeFilterButtons::showEditColumn,
+                smTypeFilterButtons::showDeleteColumn);
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyType.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
                 .parentEntityType(ProxySoftwareModule.class).build();
 
-        updateSmTypeStyles();
+        this.smTypeCssStylesHandler = new SmTypeCssStylesHandler(softwareModuleTypeManagement);
+        this.smTypeCssStylesHandler.updateSmTypeStyles();
+
         buildLayout();
     }
 
@@ -108,63 +96,22 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     private void refreshFilterButtons() {
-        distSMTypeFilterButtons.refreshAll();
-        updateSmTypeStyles();
-    }
-
-    private void updateSmTypeStyles() {
-        final String recreateStylesheetScript = String.format("const stylesheet = recreateStylesheet('%s').sheet;",
-                UIComponentIdProvider.SM_TYPE_COLOR_STYLE);
-        final String addStyleRulesScript = buildStyleRulesScript(getSmTypeIdWithColor(getAllSmTypes()));
-
-        Page.getCurrent().getJavaScript().execute(recreateStylesheetScript + addStyleRulesScript);
-    }
-
-    private List<SoftwareModuleType> getAllSmTypes() {
-        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
-        Slice<SoftwareModuleType> smTypeSlice;
-        final List<SoftwareModuleType> smTypes = new ArrayList<>();
-
-        do {
-            smTypeSlice = softwareModuleTypeManagement.findAll(query);
-            smTypes.addAll(smTypeSlice.getContent());
-        } while ((query = smTypeSlice.nextPageable()) != Pageable.unpaged());
-
-        return smTypes;
-    }
-
-    private Map<Long, String> getSmTypeIdWithColor(final List<SoftwareModuleType> smTypes) {
-        return smTypes.stream().collect(Collectors.toMap(Type::getId,
-                type -> Optional.ofNullable(type.getColour()).orElse(SPUIDefinitions.DEFAULT_COLOR)));
-    }
-
-    private String buildStyleRulesScript(final Map<Long, String> typeIdWithColor) {
-        return typeIdWithColor.entrySet().stream().map(entry -> {
-            final String typeClass = String.join("-", UIComponentIdProvider.SM_TYPE_COLOR_CLASS,
-                    String.valueOf(entry.getKey()));
-            final String typeColor = entry.getValue();
-
-            // "!important" is needed because we are overriding valo theme here
-            // (alternatively we could provide more specific selector)
-            return String.format(
-                    "addStyleRule(stylesheet, '.%1$s, .%1$s > td, .%1$s .v-grid-cell', "
-                            + "'background-color:%2$s !important; background-image: none !important;')",
-                    typeClass, typeColor);
-        }).collect(Collectors.joining(";"));
+        smTypeFilterButtons.refreshAll();
+        smTypeCssStylesHandler.updateSmTypeStyles();
     }
 
     @Override
-    protected DistSMTypeFilterHeader getFilterHeader() {
-        return distSMTypeFilterHeader;
+    protected SMTypeFilterHeader getFilterHeader() {
+        return smTypeFilterHeader;
     }
 
     @Override
     protected ComponentContainer getFilterContent() {
-        return wrapFilterContent(distSMTypeFilterButtons);
+        return wrapFilterContent(smTypeFilterButtons);
     }
 
     public void restoreState() {
-        distSMTypeFilterButtons.restoreState();
+        smTypeFilterButtons.restoreState();
     }
 
     public void unsubscribeListener() {

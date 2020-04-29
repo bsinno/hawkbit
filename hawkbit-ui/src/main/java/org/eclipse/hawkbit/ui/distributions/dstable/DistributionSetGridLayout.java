@@ -40,7 +40,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedTagTokenAwareSupport;
-import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -70,7 +70,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
             final DistributionSetTagManagement distributionSetTagManagement,
             final SoftwareModuleTypeManagement smTypeManagement, final SystemManagement systemManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
-            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
+            final TypeFilterLayoutUiState dSTypeFilterLayoutUiState,
             final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
         final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 systemManagement, systemSecurityContext, configManagement, distributionSetManagement,

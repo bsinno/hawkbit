@@ -25,6 +25,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -38,7 +39,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     private static final long serialVersionUID = 1L;
 
     private final SMTypeFilterHeader smTypeFilterHeader;
-    private final SMTypeFilterButtons sMTypeFilterButtons;
+    private final SMTypeFilterButtons smTypeFilterButtons;
 
     private final transient GridActionsVisibilityListener gridActionsVisibilityListener;
     private final transient EntityModifiedListener<ProxyType> entityModifiedListener;
@@ -64,19 +65,19 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     public SMTypeFilterLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final EntityFactory entityFactory, final UINotification uiNotification,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement,
-            final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState) {
+            final TypeFilterLayoutUiState smTypeFilterLayoutUiState) {
         final SmTypeWindowBuilder smTypeWindowBuilder = new SmTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, softwareModuleTypeManagement);
 
-        this.smTypeFilterHeader = new SMTypeFilterHeader(i18n, permChecker, eventBus, smTypeFilterLayoutUiState,
-                smTypeWindowBuilder);
-        this.sMTypeFilterButtons = new SMTypeFilterButtons(eventBus, smTypeFilterLayoutUiState,
-                softwareModuleTypeManagement, i18n, permChecker, uiNotification, smTypeWindowBuilder);
+        this.smTypeFilterHeader = new SMTypeFilterHeader(eventBus, i18n, permChecker, smTypeWindowBuilder,
+                smTypeFilterLayoutUiState, EventView.UPLOAD);
+        this.smTypeFilterButtons = new SMTypeFilterButtons(eventBus, i18n, uiNotification, permChecker,
+                softwareModuleTypeManagement, smTypeWindowBuilder, smTypeFilterLayoutUiState, EventView.UPLOAD);
 
         this.gridActionsVisibilityListener = new GridActionsVisibilityListener(eventBus,
                 new EventLayoutViewAware(EventLayout.SM_TYPE_FILTER, EventView.UPLOAD),
-                sMTypeFilterButtons::hideActionColumns, sMTypeFilterButtons::showEditColumn,
-                sMTypeFilterButtons::showDeleteColumn);
+                smTypeFilterButtons::hideActionColumns, smTypeFilterButtons::showEditColumn,
+                smTypeFilterButtons::showDeleteColumn);
         this.entityModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyType.class)
                 .entityModifiedAwareSupports(getEntityModifiedAwareSupports())
                 .parentEntityType(ProxySoftwareModule.class).build();
@@ -85,8 +86,7 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Collections
-                .singletonList(EntityModifiedGridRefreshAwareSupport.of(sMTypeFilterButtons::refreshAll));
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(smTypeFilterButtons::refreshAll));
     }
 
     @Override
@@ -96,11 +96,11 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
 
     @Override
     protected ComponentContainer getFilterContent() {
-        return wrapFilterContent(sMTypeFilterButtons);
+        return wrapFilterContent(smTypeFilterButtons);
     }
 
     public void restoreState() {
-        sMTypeFilterButtons.restoreState();
+        smTypeFilterButtons.restoreState();
     }
 
     public void unsubscribeListener() {

@@ -20,10 +20,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayoutUiState;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridLayoutUiState;
-import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadId;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress.FileUploadStatus;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class ArtifactUploadState implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactUploadState.class);
 
-    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
     private final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState;
 
@@ -55,7 +55,7 @@ public class ArtifactUploadState implements Serializable {
     private Map<FileUploadId, FileUploadProgress> overallFilesInUploadProcess;
 
     public ArtifactUploadState() {
-        this.smTypeFilterLayoutUiState = new SMTypeFilterLayoutUiState();
+        this.smTypeFilterLayoutUiState = new TypeFilterLayoutUiState();
         this.smGridLayoutUiState = new SoftwareModuleGridLayoutUiState();
         this.artifactDetailsGridLayoutUiState = new ArtifactDetailsGridLayoutUiState();
     }
@@ -68,7 +68,7 @@ public class ArtifactUploadState implements Serializable {
         return statusPopupMinimized;
     }
 
-    public SMTypeFilterLayoutUiState getSmTypeFilterLayoutUiState() {
+    public TypeFilterLayoutUiState getSmTypeFilterLayoutUiState() {
         return smTypeFilterLayoutUiState;
     }
 

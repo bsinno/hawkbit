@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
-import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
@@ -33,6 +32,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -61,7 +61,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
 
     private final ArtifactUploadState artifactUploadState;
-    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
     private final UINotification notification;
 
@@ -73,7 +73,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final ArtifactUploadState artifactUploadState, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
+            final ArtifactUploadState artifactUploadState, final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleGridLayoutUiState smGridLayoutUiState,
             final SoftwareModuleManagement softwareModuleManagement) {
         super(i18n, eventBus, permissionChecker);
@@ -224,7 +224,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     public void restoreState() {
         getFilter().setSearchText(smGridLayoutUiState.getSearchFilter());
-        getFilter().setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedSmTypeId());
+        getFilter().setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedTypeId());
 
         filterSupport.refreshFilter();
         getSelectionSupport().restoreSelection();

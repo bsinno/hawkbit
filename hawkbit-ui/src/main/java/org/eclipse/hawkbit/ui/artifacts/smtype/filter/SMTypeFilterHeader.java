@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.ui.artifacts.smtype.SmTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -26,17 +27,20 @@ import com.vaadin.ui.Window;
 public class SMTypeFilterHeader extends AbstractFilterHeader {
     private static final long serialVersionUID = 1L;
 
-    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
 
     private final transient SmTypeWindowBuilder smTypeWindowBuilder;
 
-    public SMTypeFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
-            final SmTypeWindowBuilder smTypeWindowBuilder) {
+    private final EventView view;
+
+    public SMTypeFilterHeader(final UIEventBus eventBus, final VaadinMessageSource i18n,
+            final SpPermissionChecker permChecker, final SmTypeWindowBuilder smTypeWindowBuilder,
+            final TypeFilterLayoutUiState smTypeFilterLayoutUiState, final EventView view) {
         super(i18n, permChecker, eventBus);
 
         this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
         this.smTypeWindowBuilder = smTypeWindowBuilder;
+        this.view = view;
 
         buildHeader();
     }
@@ -78,6 +82,6 @@ public class SMTypeFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected EventView getView() {
-        return EventView.UPLOAD;
+        return view;
     }
 }

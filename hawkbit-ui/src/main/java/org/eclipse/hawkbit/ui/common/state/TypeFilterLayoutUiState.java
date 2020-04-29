@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.artifacts.smtype.filter;
+package org.eclipse.hawkbit.ui.common.state;
 
 import java.io.Serializable;
 
-public class SMTypeFilterLayoutUiState implements Serializable {
+public class TypeFilterLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean hidden;
-    private Long clickedSmTypeId;
+    private Long clickedTypeId;
 
     public boolean isHidden() {
         return hidden;
@@ -24,11 +24,11 @@ public class SMTypeFilterLayoutUiState implements Serializable {
         this.hidden = hidden;
     }
 
-    public Long getClickedSmTypeId() {
-        return clickedSmTypeId;
+    public Long getClickedTypeId() {
+        return clickedTypeId;
     }
 
-    public void setClickedSmTypeId(final Long clickedSmTypeId) {
-        this.clickedSmTypeId = clickedSmTypeId;
+    public void setClickedTypeId(final Long clickedTypeId) {
+        this.clickedTypeId = clickedTypeId;
     }
 }

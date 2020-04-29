@@ -10,10 +10,9 @@ package org.eclipse.hawkbit.ui.distributions;
 
 import java.io.Serializable;
 
-import org.eclipse.hawkbit.ui.distributions.disttype.filter.DSTypeFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleGridLayoutUiState;
-import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
 
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
@@ -26,20 +25,20 @@ import com.vaadin.spring.annotation.VaadinSessionScope;
 public class ManageDistUIState implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState dsTypeFilterLayoutUiState;
     private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
     private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
-    private final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
 
     ManageDistUIState() {
-        this.dSTypeFilterLayoutUiState = new DSTypeFilterLayoutUiState();
+        this.dsTypeFilterLayoutUiState = new TypeFilterLayoutUiState();
         this.distributionSetGridLayoutUiState = new DistributionSetGridLayoutUiState();
         this.swModuleGridLayoutUiState = new SwModuleGridLayoutUiState();
-        this.distSMTypeFilterLayoutUiState = new DistSMTypeFilterLayoutUiState();
+        this.smTypeFilterLayoutUiState = new TypeFilterLayoutUiState();
     }
 
-    public DSTypeFilterLayoutUiState getDSTypeFilterLayoutUiState() {
-        return dSTypeFilterLayoutUiState;
+    public TypeFilterLayoutUiState getDsTypeFilterLayoutUiState() {
+        return dsTypeFilterLayoutUiState;
     }
 
     public DistributionSetGridLayoutUiState getDistributionSetGridLayoutUiState() {
@@ -50,7 +49,7 @@ public class ManageDistUIState implements Serializable {
         return swModuleGridLayoutUiState;
     }
 
-    public DistSMTypeFilterLayoutUiState getDistSMTypeFilterLayoutUiState() {
-        return distSMTypeFilterLayoutUiState;
+    public TypeFilterLayoutUiState getSmTypeFilterLayoutUiState() {
+        return smTypeFilterLayoutUiState;
     }
 }

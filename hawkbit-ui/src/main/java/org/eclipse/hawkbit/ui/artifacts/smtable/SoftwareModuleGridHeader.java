@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.artifacts.smtable;
 import java.util.Arrays;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.smtype.filter.SMTypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
@@ -29,6 +28,7 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -43,7 +43,7 @@ import com.vaadin.ui.Window;
 public class SoftwareModuleGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
 
     private final transient SmWindowBuilder smWindowBuilder;
@@ -54,7 +54,7 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
     SoftwareModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final SMTypeFilterLayoutUiState smTypeFilterLayoutUiState,
+            final UIEventBus eventBus, final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SoftwareModuleGridLayoutUiState smGridLayoutUiState, final SmWindowBuilder smWindowBuilder) {
         super(i18n, permChecker, eventBus);
 

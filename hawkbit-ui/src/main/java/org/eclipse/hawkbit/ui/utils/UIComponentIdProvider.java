@@ -397,10 +397,6 @@ public final class UIComponentIdProvider {
      * Confirmation dialogue OK button id.
      */
     public static final String OK_BUTTON = "ok.button";
-    /**
-     * Upload - type button id.
-     */
-    public static final String UPLOAD_TYPE_BUTTON_PREFIX = "upload.type.button";
 
     /**
      * Upload - artifact detail close button.
@@ -1462,12 +1458,11 @@ public final class UIComponentIdProvider {
      */
     public static final String DISTRIBUTION_TAG_ID_PREFIXS = "dist.tag.";
     /**
-     * Distribution tag button id prefix.
+     * Software Module Type button id prefix.
      */
-    public static final String SOFTWARE_MODULE_TAG_ID_PREFIXS = "swmodule.type.";
-
+    public static final String SOFTWARE_MODULE_TYPE_ID_PREFIXS = "swmodule.type.";
     /**
-     * DistributionSet Type tag button id prefix.
+     * DistributionSet Type button id prefix.
      */
     public static final String DISTRIBUTION_SET_TYPE_ID_PREFIXS = "dist.set.type.";
 

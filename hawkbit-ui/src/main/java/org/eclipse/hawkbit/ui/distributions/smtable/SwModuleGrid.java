@@ -36,7 +36,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
-import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -64,7 +64,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     private static final String SM_VENDOR_ID = "smVendor";
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
 
-    private final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
     private final transient SoftwareModuleManagement softwareModuleManagement;
     private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
@@ -77,11 +77,11 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     public SwModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final SoftwareModuleManagement softwareModuleManagement,
-            final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
+            final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
-        this.distSMTypeFilterLayoutUiState = distSMTypeFilterLayoutUiState;
+        this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
         this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
         this.softwareModuleManagement = softwareModuleManagement;
         this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
@@ -247,7 +247,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
 
     public void restoreState() {
         getFilter().setSearchText(swModuleGridLayoutUiState.getSearchFilter());
-        getFilter().setSoftwareModuleTypeId(distSMTypeFilterLayoutUiState.getClickedSmTypeId());
+        getFilter().setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedTypeId());
 
         filterSupport.refreshFilter();
         getSelectionSupport().restoreSelection();

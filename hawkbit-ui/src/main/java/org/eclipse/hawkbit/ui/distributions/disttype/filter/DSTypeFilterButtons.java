@@ -8,26 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
-import java.util.Collection;
-
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.smtype.filter.TypeFilterButtonClick;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
-import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.FilterType;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
-import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtons;
+import org.eclipse.hawkbit.ui.common.filterlayout.AbstractTypeFilterButtons;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -35,20 +27,15 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 /**
  * Distribution Set Type filter buttons.
  */
-public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String> {
+public class DSTypeFilterButtons extends AbstractTypeFilterButtons {
     private static final long serialVersionUID = 1L;
 
-    private final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState;
-    private final UINotification uiNotification;
-
     private final transient DistributionSetTypeManagement distributionSetTypeManagement;
-    private final transient TypeFilterButtonClick typeFilterButtonClickBehaviour;
     private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
     private final transient SystemManagement systemManagement;
 
@@ -70,20 +57,16 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
      * @param systemManagement
      *            SystemManagement
      */
-    public DSTypeFilterButtons(final UIEventBus eventBus,
-            final DistributionSetTypeManagement distributionSetTypeManagement, final VaadinMessageSource i18n,
-            final SpPermissionChecker permChecker, final UINotification uiNotification,
-            final SystemManagement systemManagement, final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState,
-            final DsTypeWindowBuilder dsTypeWindowBuilder) {
-        super(eventBus, i18n, uiNotification, permChecker);
+    public DSTypeFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
+            final UINotification uiNotification, final SpPermissionChecker permChecker,
+            final DistributionSetTypeManagement distributionSetTypeManagement, final SystemManagement systemManagement,
+            final DsTypeWindowBuilder dsTypeWindowBuilder, final TypeFilterLayoutUiState typeFilterLayoutUiState) {
+        super(eventBus, i18n, uiNotification, permChecker, typeFilterLayoutUiState);
 
-        this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
-        this.uiNotification = uiNotification;
         this.distributionSetTypeManagement = distributionSetTypeManagement;
         this.dsTypeWindowBuilder = dsTypeWindowBuilder;
         this.systemManagement = systemManagement;
 
-        this.typeFilterButtonClickBehaviour = new TypeFilterButtonClick(this::publishFilterChangedEvent);
         this.dsTypeDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement,
                 new TypeToProxyTypeMapper<>()).withConfigurableFilter();
 
@@ -107,74 +90,34 @@ public class DSTypeFilterButtons extends AbstractFilterButtons<ProxyType, String
     }
 
     @Override
-    protected AbstractFilterButtonClickBehaviour<ProxyType> getFilterButtonClickBehaviour() {
-        return typeFilterButtonClickBehaviour;
-    }
-
-    private void publishFilterChangedEvent(final ProxyType typeFilter, final ClickBehaviourType clickType) {
-        distributionSetTypeManagement.getByName(typeFilter.getName()).ifPresent(dsType -> {
-            // TODO: somehow move it to abstract class/TypeFilterButtonClick
-            // needed to trigger style generator
-            getDataCommunicator().reset();
-
-            final Long typeId = ClickBehaviourType.CLICKED == clickType ? dsType.getId() : null;
-
-            eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(
-                    ProxyDistributionSet.class, FilterType.TYPE, typeId, EventView.DISTRIBUTIONS));
-            dSTypeFilterLayoutUiState.setClickedDsTypeId(typeId);
-        });
-    }
-
-    @Override
-    protected void deleteFilterButtons(final Collection<ProxyType> filterButtonsToDelete) {
-        // we do not allow multiple deletion yet
-        final ProxyType dsTypeToDelete = filterButtonsToDelete.iterator().next();
-        final String dsTypeToDeleteName = dsTypeToDelete.getName();
-        final Long dsTypeToDeleteId = dsTypeToDelete.getId();
-
-        final Long clickedDsTypeId = dSTypeFilterLayoutUiState.getClickedDsTypeId();
-
-        if (clickedDsTypeId != null && clickedDsTypeId.equals(dsTypeToDeleteId)) {
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", dsTypeToDeleteName));
-        } else if (isDefaultDsType(dsTypeToDeleteName)) {
-            uiNotification.displayValidationError(i18n.getMessage("message.cannot.delete.default.dstype"));
-        } else {
-            distributionSetTypeManagement.delete(dsTypeToDeleteId);
-
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class,
-                            ProxyType.class, dsTypeToDeleteId));
-        }
-    }
-
-    private boolean isDefaultDsType(final String dsTypeName) {
-        return getCurrentDistributionSetType() != null && getCurrentDistributionSetType().getName().equals(dsTypeName);
-    }
-
-    private DistributionSetType getCurrentDistributionSetType() {
-        return systemManagement.getTenantMetadata().getDefaultDsType();
-    }
-
-    @Override
-    protected void editButtonClickListener(final ProxyType clickedFilter) {
-        final Window updateWindow = dsTypeWindowBuilder.getWindowForUpdateDsType(clickedFilter);
-
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.type")));
-        UI.getCurrent().addWindow(updateWindow);
-        updateWindow.setVisible(Boolean.TRUE);
-    }
-
-    @Override
     protected String getFilterButtonIdPrefix() {
         return UIComponentIdProvider.DISTRIBUTION_SET_TYPE_ID_PREFIXS;
     }
 
-    public void restoreState() {
-        final Long lastClickedTypeId = dSTypeFilterLayoutUiState.getClickedDsTypeId();
+    @Override
+    protected boolean isDefaultType(final ProxyType type) {
+        final DistributionSetType defaultDsType = systemManagement.getTenantMetadata().getDefaultDsType();
 
-        if (lastClickedTypeId != null) {
-            typeFilterButtonClickBehaviour.setPreviouslyClickedFilterId(lastClickedTypeId);
-            // TODO: should we reset data communicator here for styling update
-        }
+        return defaultDsType != null && defaultDsType.getName().equals(type.getName());
+    }
+
+    @Override
+    protected Class<? extends ProxyIdentifiableEntity> getFilterMasterEntityType() {
+        return ProxyDistributionSet.class;
+    }
+
+    @Override
+    protected EventView getView() {
+        return EventView.DISTRIBUTIONS;
+    }
+
+    @Override
+    protected void deleteType(final ProxyType typeToDelete) {
+        distributionSetTypeManagement.delete(typeToDelete.getId());
+    }
+
+    @Override
+    protected Window getUpdateWindow(final ProxyType clickedFilter) {
+        return dsTypeWindowBuilder.getWindowForUpdateDsType(clickedFilter);
     }
 }

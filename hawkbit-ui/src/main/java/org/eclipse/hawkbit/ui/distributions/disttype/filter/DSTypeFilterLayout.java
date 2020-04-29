@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -69,14 +70,14 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
             final SoftwareModuleTypeManagement softwareModuleTypeManagement,
             final DistributionSetTypeManagement distributionSetTypeManagement,
             final DistributionSetManagement distributionSetManagement, final SystemManagement systemManagement,
-            final DSTypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
+            final TypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
         final DsTypeWindowBuilder dsTypeWindowBuilder = new DsTypeWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, distributionSetTypeManagement, distributionSetManagement, softwareModuleTypeManagement);
 
-        this.dsTypeFilterHeader = new DSTypeFilterHeader(i18n, permChecker, eventBus, dSTypeFilterLayoutUiState,
-                dsTypeWindowBuilder);
-        this.dSTypeFilterButtons = new DSTypeFilterButtons(eventBus, distributionSetTypeManagement, i18n, permChecker,
-                uiNotification, systemManagement, dSTypeFilterLayoutUiState, dsTypeWindowBuilder);
+        this.dsTypeFilterHeader = new DSTypeFilterHeader(eventBus, i18n, permChecker, dsTypeWindowBuilder,
+                dSTypeFilterLayoutUiState);
+        this.dSTypeFilterButtons = new DSTypeFilterButtons(eventBus, i18n, uiNotification, permChecker,
+                distributionSetTypeManagement, systemManagement, dsTypeWindowBuilder, dSTypeFilterLayoutUiState);
 
         this.gridActionsVisibilityListener = new GridActionsVisibilityListener(eventBus,
                 new EventLayoutViewAware(EventLayout.DS_TYPE_FILTER, EventView.DISTRIBUTIONS),
@@ -90,8 +91,7 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Collections
-                .singletonList(EntityModifiedGridRefreshAwareSupport.of(dSTypeFilterButtons::refreshAll));
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(dSTypeFilterButtons::refreshAll));
     }
 
     @Override

@@ -97,9 +97,9 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         final boolean isNoTagActivated = ClickBehaviourType.CLICKED == clickType;
 
         if (isNoTagActivated) {
-            noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTagButton().addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         } else {
-            noTagButton.removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTagButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
 
         eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(getFilterMasterEntityType(),
@@ -155,12 +155,12 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         final Map<Long, String> tagsToRestore = getClickedTagIdsWithNameFromUiState();
 
         if (!CollectionUtils.isEmpty(tagsToRestore)) {
-            tagFilterButtonClick.setPreviouslyClickedFilterIdsWithName(tagsToRestore);
+            getFilterButtonClickBehaviour().setPreviouslyClickedFilterIdsWithName(tagsToRestore);
             // TODO: should we reset data communicator here for styling update
         }
 
         if (getClickedNoTagFromUiState()) {
-            noTagButton.addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            getNoTagButton().addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
     }
 }

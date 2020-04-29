@@ -29,7 +29,7 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.distributions.smtype.filter.DistSMTypeFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -46,7 +46,7 @@ import com.vaadin.ui.Window;
 public class SwModuleGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState;
+    private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
 
     private final transient SmWindowBuilder smWindowBuilder;
@@ -57,11 +57,11 @@ public class SwModuleGridHeader extends AbstractGridHeader {
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
     SwModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
-            final SmWindowBuilder smWindowBuilder, final DistSMTypeFilterLayoutUiState distSMTypeFilterLayoutUiState,
+            final SmWindowBuilder smWindowBuilder, final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
         super(i18n, permChecker, eventBus);
 
-        this.distSMTypeFilterLayoutUiState = distSMTypeFilterLayoutUiState;
+        this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
         this.swModuleGridLayoutUiState = swModuleGridLayoutUiState;
 
         this.smWindowBuilder = smWindowBuilder;
@@ -106,11 +106,11 @@ public class SwModuleGridHeader extends AbstractGridHeader {
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
                 VisibilityType.SHOW, EventLayout.SM_TYPE_FILTER, EventView.DISTRIBUTIONS));
 
-        distSMTypeFilterLayoutUiState.setHidden(false);
+        smTypeFilterLayoutUiState.setHidden(false);
     }
 
     private boolean onLoadIsShowFilterButtonDisplayed() {
-        return distSMTypeFilterLayoutUiState.isHidden();
+        return smTypeFilterLayoutUiState.isHidden();
     }
 
     private void addNewItem() {
