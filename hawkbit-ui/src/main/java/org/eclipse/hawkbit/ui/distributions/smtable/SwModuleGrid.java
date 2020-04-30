@@ -98,9 +98,9 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
             getSelectionSupport().enableMultiSelection();
         }
 
-        this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.software.module"),
-                ProxySoftwareModule::getNameAndVersion, permissionChecker, notification, this::deleteSoftwareModules,
-                UIComponentIdProvider.SM_DELETE_CONFIRMATION_DIALOG);
+        this.swModuleDeleteSupport = new DeleteSupport<>(this, i18n, notification,
+                i18n.getMessage("caption.software.module"), ProxySoftwareModule::getNameAndVersion,
+                this::deleteSoftwareModules, UIComponentIdProvider.SM_DELETE_CONFIRMATION_DIALOG);
 
         this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap(), eventBus);
         if (!swModuleGridLayoutUiState.isMaximized()) {
@@ -240,9 +240,9 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         addComponentColumn(sm -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> swModuleDeleteSupport.openConfirmationWindowDeleteAction(sm), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(), swModuleDeleteSupport.hasDeletePermission()))
-                        .setId(SM_DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete"))
-                        .setMinimumWidth(80d);
+                UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(),
+                permissionChecker.hasDeleteRepositoryPermission())).setId(SM_DELETE_BUTTON_ID)
+                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
     }
 
     public void restoreState() {

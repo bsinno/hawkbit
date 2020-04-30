@@ -102,6 +102,11 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
     protected abstract void deleteType(final ProxyType typeToDelete);
 
     @Override
+    protected boolean isDeletionAllowed() {
+        return permissionChecker.hasDeleteRepositoryPermission();
+    }
+
+    @Override
     protected void editButtonClickListener(final ProxyType clickedFilter) {
         final Window updateWindow = getUpdateWindow(clickedFilter);
 

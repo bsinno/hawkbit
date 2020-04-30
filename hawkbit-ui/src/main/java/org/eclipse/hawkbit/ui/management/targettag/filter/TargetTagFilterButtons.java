@@ -132,6 +132,11 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
     }
 
     @Override
+    protected boolean isDeletionAllowed() {
+        return permissionChecker.hasDeleteTargetPermission();
+    }
+
+    @Override
     protected Window getUpdateWindow(final ProxyTag clickedFilter) {
         return targetTagWindowBuilder.getWindowForUpdateTargetTag(clickedFilter);
     }

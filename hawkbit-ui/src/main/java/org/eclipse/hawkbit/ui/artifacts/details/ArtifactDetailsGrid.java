@@ -72,8 +72,8 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
 
         setResizeSupport(new ArtifactDetailsResizeSupport());
 
-        this.artifactDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("artifact.details.header"),
-                ProxyArtifact::getFilename, permissionChecker, notification, this::artifactsDeletionCallback,
+        this.artifactDeleteSupport = new DeleteSupport<>(this, i18n, notification,
+                i18n.getMessage("artifact.details.header"), ProxyArtifact::getFilename, this::artifactsDeletionCallback,
                 UIComponentIdProvider.ARTIFACT_DELETE_CONFIRMATION_DIALOG);
 
         init();
@@ -164,7 +164,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
                 clickEvent -> artifactDeleteSupport.openConfirmationWindowDeleteAction(artifact), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ARTIFACT_DELET_ICON + "." + artifact.getId(),
-                artifactDeleteSupport.hasDeletePermission())).setId(ARTIFACT_DELETE_BUTTON_ID)
+                permissionChecker.hasDeleteRepositoryPermission())).setId(ARTIFACT_DELETE_BUTTON_ID)
                         .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
     }
 

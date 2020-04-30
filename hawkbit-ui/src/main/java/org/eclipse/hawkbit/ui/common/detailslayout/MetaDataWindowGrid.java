@@ -51,8 +51,8 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
 
         this.metaDataDataProvider = dataProvider.withConfigurableFilter();
 
-        this.metaDataDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.metadata"),
-                ProxyMetaData::getKey, permissionChecker, notification, itemsDeletionCallback,
+        this.metaDataDeleteSupport = new DeleteSupport<>(this, i18n, notification, i18n.getMessage("caption.metadata"),
+                ProxyMetaData::getKey, itemsDeletionCallback,
                 UIComponentIdProvider.METADATA_DELETE_CONFIRMATION_DIALOG);
 
         // TODO: we don't need to send selection events, because details layout
@@ -85,7 +85,7 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
                 clickEvent -> metaDataDeleteSupport.openConfirmationWindowDeleteAction(metaData), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.META_DATA_DELET_ICON + "." + metaData.getId(),
-                metaDataDeleteSupport.hasDeletePermission())).setId(META_DATA_DELETE_BUTTON_ID)
+                permissionChecker.hasDeleteRepositoryPermission())).setId(META_DATA_DELETE_BUTTON_ID)
                         .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d).setMaximumWidth(50d)
                         .setHidable(false).setHidden(false);
     }

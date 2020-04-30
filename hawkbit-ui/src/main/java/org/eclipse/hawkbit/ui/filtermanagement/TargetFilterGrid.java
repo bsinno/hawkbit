@@ -94,9 +94,9 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.autoAssignmentWindowBuilder = autoAssignmentWindowBuilder;
 
-        this.targetFilterDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("caption.filter.custom"),
-                ProxyTargetFilterQuery::getName, permChecker, notification, this::targetFiltersDeletionCallback,
-                UIComponentIdProvider.TARGET_FILTER_DELETE_CONFIRMATION_DIALOG);
+        this.targetFilterDeleteSupport = new DeleteSupport<>(this, i18n, notification,
+                i18n.getMessage("caption.filter.custom"), ProxyTargetFilterQuery::getName,
+                this::targetFiltersDeletionCallback, UIComponentIdProvider.TARGET_FILTER_DELETE_CONFIRMATION_DIALOG);
 
         this.filterSupport = new FilterSupport<>(new TargetFilterQueryDataProvider(targetFilterQueryManagement,
                 new TargetFilterQueryToProxyTargetFilterMapper()));
@@ -163,7 +163,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 clickEvent -> targetFilterDeleteSupport.openConfirmationWindowDeleteAction(targetFilter),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON + "." + targetFilter.getId(),
-                targetFilterDeleteSupport.hasDeletePermission())).setId(FILTER_DELETE_BUTTON_ID)
+                permissionChecker.hasDeleteTargetPermission())).setId(FILTER_DELETE_BUTTON_ID)
                         .setCaption(i18n.getMessage("header.delete")).setExpandRatio(1);
     }
 

@@ -14,6 +14,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
@@ -24,10 +25,10 @@ import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus.Status;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
@@ -40,6 +41,7 @@ import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -105,6 +107,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
     private final UINotification uiNotification;
 
+    private final transient DeleteSupport<ProxyRollout> rolloutDeleteSupport;
     private final transient FilterSupport<ProxyRollout, String> filterSupport;
 
     RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final RolloutManagement rolloutManagement,
@@ -125,6 +128,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         setSelectionSupport(new SelectionSupport<>(this, eventBus, EventLayout.ROLLOUT_LIST, EventView.ROLLOUT,
                 this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         getSelectionSupport().disableSelection();
+
+        this.rolloutDeleteSupport = new DeleteSupport<>(this, i18n, uiNotification, i18n.getMessage("caption.rollout"),
+                ProxyRollout::getName, this::deleteRollout, UIComponentIdProvider.ROLLOUT_DELETE_CONFIRMATION_DIALOG);
+        this.rolloutDeleteSupport.setConfirmationQuestionDetailsGenerator(this::getDeletionDetails);
 
         this.filterSupport = new FilterSupport<>(new RolloutDataProvider(rolloutManagement, rolloutMapper));
 
@@ -152,6 +159,36 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
     private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
         rolloutManagementUIState.setSelectedRolloutId(entityId.orElse(null));
+    }
+
+    private void deleteRollout(final Collection<ProxyRollout> rolloutsToBeDeleted) {
+        final Collection<Long> rolloutToBeDeletedIds = rolloutsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
+                .collect(Collectors.toList());
+        rolloutToBeDeletedIds.forEach(rolloutManagement::delete);
+
+        // Rollout is not deleted straight away, but updated to
+        // deleting state
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, rolloutToBeDeletedIds));
+    }
+
+    private String getDeletionDetails(final ProxyRollout rollout) {
+        final Map<Status, Long> statusTotalCount = rollout.getStatusTotalCountMap();
+
+        Long scheduledActions = statusTotalCount.get(Status.SCHEDULED);
+        if (scheduledActions == null) {
+            scheduledActions = 0L;
+        }
+        Long runningActions = statusTotalCount.get(Status.RUNNING);
+        if (runningActions == null) {
+            runningActions = 0L;
+        }
+
+        if ((scheduledActions > 0) || (runningActions > 0)) {
+            return i18n.getMessage("message.delete.rollout.details", runningActions, scheduledActions);
+        }
+
+        return "";
     }
 
     private static boolean isDeletionAllowed(final RolloutStatus status) {
@@ -383,7 +420,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                         .setExpandRatio(1);
 
         addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> deleteRollout(rollout.getId(), rollout.getName()), VaadinIcons.TRASH,
+                clickEvent -> rolloutDeleteSupport.openConfirmationWindowDeleteAction(rollout), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, isDeletionAllowed(rollout.getStatus())))
                         .setId(DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete")).setHidable(false)
@@ -472,49 +509,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         copyWindow.setCaption(i18n.getMessage("caption.copy", i18n.getMessage("caption.rollout")));
         UI.getCurrent().addWindow(copyWindow);
         copyWindow.setVisible(Boolean.TRUE);
-    }
-
-    private void deleteRollout(final Long rolloutId, final String rolloutName) {
-        final Optional<Rollout> rollout = rolloutManagement.getWithDetailedStatus(rolloutId);
-
-        if (!rollout.isPresent()) {
-            return;
-        }
-
-        final String formattedConfirmationQuestion = getConfirmationQuestion(rollout.get());
-        final ConfirmationDialog confirmationDialog = new ConfirmationDialog(
-                i18n.getMessage("caption.entity.delete.action.confirmbox"), formattedConfirmationQuestion,
-                i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
-                ok -> {
-                    if (!ok) {
-                        return;
-                    }
-                    rolloutManagement.delete(rolloutId);
-
-                    uiNotification.displaySuccess(i18n.getMessage("message.rollout.deleted", rolloutName));
-                    // Rollout is not deleted straight away, but updated to
-                    // deleting state
-                    eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                            EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, rolloutId));
-                }, UIComponentIdProvider.ROLLOUT_DELETE_CONFIRMATION_DIALOG);
-        UI.getCurrent().addWindow(confirmationDialog.getWindow());
-        confirmationDialog.getWindow().bringToFront();
-    }
-
-    private String getConfirmationQuestion(final Rollout rollout) {
-
-        final Map<Status, Long> statusTotalCount = rollout.getTotalTargetCountStatus().getStatusTotalCountMap();
-        Long scheduledActions = statusTotalCount.get(Status.SCHEDULED);
-        if (scheduledActions == null) {
-            scheduledActions = 0L;
-        }
-        final Long runningActions = statusTotalCount.get(Status.RUNNING);
-        String rolloutDetailsMessage = "";
-        if ((scheduledActions > 0) || (runningActions > 0)) {
-            rolloutDetailsMessage = i18n.getMessage("message.delete.rollout.details", runningActions, scheduledActions);
-        }
-
-        return i18n.getMessage("message.delete.rollout", rollout.getName(), rolloutDetailsMessage);
     }
 
     public void onSelectedRolloutDeleted(final long deletedSelectedRolloutId) {

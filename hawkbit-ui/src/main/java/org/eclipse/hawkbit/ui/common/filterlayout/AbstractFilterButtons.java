@@ -53,8 +53,8 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
             final UINotification notification, final SpPermissionChecker permChecker) {
         super(i18n, eventBus, permChecker);
 
-        this.filterButtonDeleteSupport = new DeleteSupport<>(this, i18n, getFilterButtonsType(),
-                ProxyFilterButton::getName, permChecker, notification, this::deleteFilterButtons,
+        this.filterButtonDeleteSupport = new DeleteSupport<>(this, i18n, notification, getFilterButtonsType(),
+                ProxyFilterButton::getName, this::deleteFilterButtons,
                 UIComponentIdProvider.FILTER_BUTTON_DELETE_CONFIRMATION_DIALOG);
     }
 
@@ -126,13 +126,13 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     protected abstract void editButtonClickListener(final T clickedFilter);
 
     private Button buildDeleteFilterButton(final T clickedFilter) {
-        // TODO: check permissions
         return GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> filterButtonDeleteSupport.openConfirmationWindowDeleteAction(clickedFilter),
                 VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                getFilterButtonIdPrefix() + ".delete." + clickedFilter.getId(),
-                filterButtonDeleteSupport.hasDeletePermission());
+                getFilterButtonIdPrefix() + ".delete." + clickedFilter.getId(), isDeletionAllowed());
     }
+
+    protected abstract boolean isDeletionAllowed();
 
     /**
      * Hides the edit and delete icon next to the filter tags in target,

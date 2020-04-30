@@ -136,8 +136,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent, this::refreshItem,
                 this::getAssignedToDsTargetIds, this::getInstalledToDsTargetIds);
 
-        this.targetDeleteSupport = new DeleteSupport<>(this, i18n, i18n.getMessage("target.details.header"),
-                ProxyTarget::getName, permChecker, notification, this::deleteTargets,
+        this.targetDeleteSupport = new DeleteSupport<>(this, i18n, notification,
+                i18n.getMessage("target.details.header"), ProxyTarget::getName, this::deleteTargets,
                 UIComponentIdProvider.TARGET_DELETE_CONFIRMATION_DIALOG);
 
         final Map<String, AssignmentSupport<?, ProxyTarget>> sourceTargetAssignmentStrategies = new HashMap<>();
@@ -413,7 +413,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(),
-                targetDeleteSupport.hasDeletePermission())).setId(TARGET_DELETE_BUTTON_ID).setMinimumWidth(50d);
+                permissionChecker.hasDeleteTargetPermission())).setId(TARGET_DELETE_BUTTON_ID).setMinimumWidth(50d);
 
         getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
