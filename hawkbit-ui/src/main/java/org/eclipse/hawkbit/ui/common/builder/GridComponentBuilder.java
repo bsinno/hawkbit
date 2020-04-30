@@ -35,7 +35,7 @@ public final class GridComponentBuilder {
         actionButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
         actionButton.addStyleName("button-no-border");
         actionButton.addStyleName("action-type-padding");
-        actionButton.addStyleName("icon-only");
+        actionButton.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
         actionButton.addStyleName(style);
 
         return actionButton;
