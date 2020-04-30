@@ -82,7 +82,7 @@ public class RolloutGridHeader extends AbstractGridHeader {
     }
 
     private void addNewRollout() {
-        final Window addWindow = rolloutWindowBuilder.getWindowForAddRollout();
+        final Window addWindow = rolloutWindowBuilder.getWindowForAdd();
 
         addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.rollout")));
         UI.getCurrent().addWindow(addWindow);

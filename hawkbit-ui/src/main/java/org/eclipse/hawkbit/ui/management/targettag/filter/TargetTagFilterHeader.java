@@ -62,7 +62,7 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected Window getWindowForAdd() {
-        return targetTagWindowBuilder.getWindowForAddTargetTag();
+        return targetTagWindowBuilder.getWindowForAdd();
     }
 
     @Override

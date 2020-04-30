@@ -44,13 +44,15 @@ public class DsTagWindowBuilder extends AbstractEntityWindowBuilder<ProxyTag> {
         return UIComponentIdProvider.TAG_POPUP_ID;
     }
 
-    public Window getWindowForAddDsTag() {
+    @Override
+    public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddDsTagWindowController(i18n, entityFactory, eventBus, uiNotification,
                 dsTagManagement, new TagWindowLayout<ProxyTag>(i18n, uiNotification)));
 
     }
 
-    public Window getWindowForUpdateDsTag(final ProxyTag proxyTag) {
+    @Override
+    public Window getWindowForUpdate(final ProxyTag proxyTag) {
         return getWindowForEntity(proxyTag, new UpdateDsTagWindowController(i18n, entityFactory, eventBus,
                 uiNotification, dsTagManagement, new TagWindowLayout<ProxyTag>(i18n, uiNotification)));
     }

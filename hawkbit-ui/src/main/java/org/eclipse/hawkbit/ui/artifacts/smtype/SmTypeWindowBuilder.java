@@ -43,13 +43,15 @@ public class SmTypeWindowBuilder extends AbstractEntityWindowBuilder<ProxyType> 
         return UIComponentIdProvider.TAG_POPUP_ID;
     }
 
-    public Window getWindowForAddSmType() {
+    @Override
+    public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddSmTypeWindowController(i18n, entityFactory, eventBus, uiNotification,
                 smTypeManagement, new SmTypeWindowLayout(i18n, uiNotification)));
 
     }
 
-    public Window getWindowForUpdateSmType(final ProxyType proxyType) {
+    @Override
+    public Window getWindowForUpdate(final ProxyType proxyType) {
         return getWindowForEntity(proxyType, new UpdateSmTypeWindowController(i18n, entityFactory, eventBus,
                 uiNotification, smTypeManagement, new SmTypeWindowLayout(i18n, uiNotification)));
     }

@@ -71,6 +71,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
 
         this.swModuleGridHeader = new SoftwareModuleGridHeader(i18n, permChecker, eventBus, smTypeFilterLayoutUiState,
                 swModuleGridLayoutUiState, smWindowBuilder, EventView.DISTRIBUTIONS);
+        this.swModuleGridHeader.buildHeader();
         this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, softwareModuleManagement,
                 smTypeFilterLayoutUiState, swModuleGridLayoutUiState);
 
@@ -109,11 +110,11 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     public void showSmTypeHeaderIcon() {
-        swModuleGridHeader.showSmTypeIcon();
+        swModuleGridHeader.showFilterIcon();
     }
 
     public void hideSmTypeHeaderIcon() {
-        swModuleGridHeader.hideSmTypeIcon();
+        swModuleGridHeader.hideFilterIcon();
     }
 
     public void maximize() {

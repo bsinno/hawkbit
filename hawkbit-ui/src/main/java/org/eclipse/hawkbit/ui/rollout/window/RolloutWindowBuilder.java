@@ -43,7 +43,8 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
         return dependencies.getUiProperties().getLinks().getDocumentation().getRolloutView();
     }
 
-    public Window getWindowForAddRollout() {
+    @Override
+    public Window getWindowForAdd() {
         return getWindowForNewEntity(
                 new AddRolloutWindowController(dependencies, new AddRolloutWindowLayout(dependencies)));
     }
@@ -53,7 +54,8 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
                 new CopyRolloutWindowController(dependencies, new AddRolloutWindowLayout(dependencies)));
     }
 
-    public Window getWindowForUpdateRollout(final ProxyRollout proxyRollout) {
+    @Override
+    public Window getWindowForUpdate(final ProxyRollout proxyRollout) {
         return getWindowForEntity(proxyRollout,
                 new UpdateRolloutWindowController(dependencies, new UpdateRolloutWindowLayout(dependencies)));
     }

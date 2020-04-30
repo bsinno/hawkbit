@@ -138,7 +138,7 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
 
     @Override
     protected Window getUpdateWindow(final ProxyTag clickedFilter) {
-        return targetTagWindowBuilder.getWindowForUpdateTargetTag(clickedFilter);
+        return targetTagWindowBuilder.getWindowForUpdate(clickedFilter);
     }
 
     public void clearTargetTagFilters() {

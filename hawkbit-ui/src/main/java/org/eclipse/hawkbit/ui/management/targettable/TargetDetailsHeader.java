@@ -63,7 +63,7 @@ public class TargetDetailsHeader extends DetailsHeader<ProxyTarget> {
             return;
         }
 
-        final Window updateWindow = targetWindowBuilder.getWindowForUpdateTarget(selectedEntity);
+        final Window updateWindow = targetWindowBuilder.getWindowForUpdate(selectedEntity);
 
         updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.target")));
         UI.getCurrent().addWindow(updateWindow);

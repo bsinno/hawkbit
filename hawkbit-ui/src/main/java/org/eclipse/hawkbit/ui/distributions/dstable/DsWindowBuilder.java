@@ -57,14 +57,16 @@ public class DsWindowBuilder extends AbstractEntityWindowBuilder<ProxyDistributi
         return UIComponentIdProvider.CREATE_POPUP_ID;
     }
 
-    public Window getWindowForAddDs() {
+    @Override
+    public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddDsWindowController(i18n, entityFactory, eventBus, uiNotification,
                 systemManagement, dsManagement,
                 new DsWindowLayout(i18n, systemSecurityContext, tenantConfigurationManagement, dsTypeManagement)));
 
     }
 
-    public Window getWindowForUpdateDs(final ProxyDistributionSet proxyDs) {
+    @Override
+    public Window getWindowForUpdate(final ProxyDistributionSet proxyDs) {
         return getWindowForEntity(proxyDs, new UpdateDsWindowController(i18n, entityFactory, eventBus, uiNotification,
                 dsManagement,
                 new DsWindowLayout(i18n, systemSecurityContext, tenantConfigurationManagement, dsTypeManagement)));

@@ -68,7 +68,7 @@ public class DistributionSetDetailsHeader extends DetailsHeader<ProxyDistributio
             return;
         }
 
-        final Window updateWindow = dsWindowBuilder.getWindowForUpdateDs(selectedEntity);
+        final Window updateWindow = dsWindowBuilder.getWindowForUpdate(selectedEntity);
 
         updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.distribution")));
         UI.getCurrent().addWindow(updateWindow);

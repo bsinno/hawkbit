@@ -42,13 +42,15 @@ public class TargetWindowBuilder extends AbstractEntityWindowBuilder<ProxyTarget
         return UIComponentIdProvider.CREATE_POPUP_ID;
     }
 
-    public Window getWindowForAddTarget() {
+    @Override
+    public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddTargetWindowController(i18n, entityFactory, eventBus, uiNotification,
                 targetManagement, new TargetWindowLayout(i18n)));
 
     }
 
-    public Window getWindowForUpdateTarget(final ProxyTarget proxyTarget) {
+    @Override
+    public Window getWindowForUpdate(final ProxyTarget proxyTarget) {
         return getWindowForEntity(proxyTarget, new UpdateTargetWindowController(i18n, entityFactory, eventBus,
                 uiNotification, targetManagement, new TargetWindowLayout(i18n)));
     }

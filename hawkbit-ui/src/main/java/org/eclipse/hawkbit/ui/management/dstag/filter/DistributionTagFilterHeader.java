@@ -54,7 +54,7 @@ public class DistributionTagFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected Window getWindowForAdd() {
-        return dsTagWindowBuilder.getWindowForAddDsTag();
+        return dsTagWindowBuilder.getWindowForAdd();
     }
 
     @Override

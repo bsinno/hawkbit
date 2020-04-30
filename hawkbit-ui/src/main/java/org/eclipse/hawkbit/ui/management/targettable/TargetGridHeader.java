@@ -8,29 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import java.util.Arrays;
-
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
-import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
-import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.FilterType;
-import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
-import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
-import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractEntityGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.BulkUploadHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.DistributionSetFilterDropAreaSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
-import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
 import org.eclipse.hawkbit.ui.management.bulkupload.BulkUploadWindowBuilder;
 import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUploadUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
@@ -47,21 +33,16 @@ import com.vaadin.ui.Window;
 /**
  * Target table header layout.
  */
-public class TargetGridHeader extends AbstractGridHeader {
+public class TargetGridHeader extends AbstractEntityGridHeader {
     private static final long serialVersionUID = 1L;
 
     private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
-    private final TargetGridLayoutUiState targetGridLayoutUiState;
     private final TargetBulkUploadUiState targetBulkUploadUiState;
+    private final TargetGridLayoutUiState targetGridLayoutUiState;
 
-    private final transient TargetWindowBuilder targetWindowBuilder;
     private final transient BulkUploadWindowBuilder bulkUploadWindowBuilder;
 
-    private final transient SearchHeaderSupport searchHeaderSupport;
-    private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
-    private final transient AddHeaderSupport addHeaderSupport;
     private final transient BulkUploadHeaderSupport bulkUploadHeaderSupport;
-    private final transient ResizeHeaderSupport resizeHeaderSupport;
     private final transient DistributionSetFilterDropAreaSupport distributionSetFilterDropAreaSupport;
 
     TargetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker, final UIEventBus eventBus,
@@ -70,49 +51,86 @@ public class TargetGridHeader extends AbstractGridHeader {
             final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
             final TargetGridLayoutUiState targetGridLayoutUiState,
             final TargetBulkUploadUiState targetBulkUploadUiState) {
-        super(i18n, permChecker, eventBus);
+        super(i18n, permChecker, eventBus, targetTagFilterLayoutUiState, targetGridLayoutUiState,
+                EventLayout.TARGET_TAG_FILTER, EventView.DEPLOYMENT);
 
         this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
         this.targetGridLayoutUiState = targetGridLayoutUiState;
         this.targetBulkUploadUiState = targetBulkUploadUiState;
 
-        this.targetWindowBuilder = targetWindowBuilder;
         this.bulkUploadWindowBuilder = bulkUploadWindowBuilder;
 
-        this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.TARGET_TEXT_FIELD,
-                UIComponentIdProvider.TARGET_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState, this::searchBy);
-        this.filterButtonsHeaderSupport = new FilterButtonsHeaderSupport(i18n, UIComponentIdProvider.SHOW_TARGET_TAGS,
-                this::showFilterButtonsLayout, this::onLoadIsShowFilterButtonDisplayed);
-        // TODO: consider moving permission check to header support or parent
-        // header
-        if (permChecker.hasCreateTargetPermission()) {
-            this.addHeaderSupport = new AddHeaderSupport(i18n, UIComponentIdProvider.TARGET_TBL_ADD_ICON_ID,
-                    this::addNewItem, this::onLoadIsTableMaximized);
+        addAddHeaderSupport(targetWindowBuilder);
+
+        if (hasCreatePermission()) {
             this.bulkUploadHeaderSupport = new BulkUploadHeaderSupport(i18n, this::showBulkUploadWindow,
                     this::isBulkUploadInProgress, this::onLoadIsTableMaximized);
+            addHeaderSupport(bulkUploadHeaderSupport, getHeaderSupportsSize() - 1);
         } else {
-            this.addHeaderSupport = null;
             this.bulkUploadHeaderSupport = null;
         }
-
-        this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, UIComponentIdProvider.TARGET_MAX_MIN_TABLE_ICON,
-                this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
-        addHeaderSupports(Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, addHeaderSupport,
-                bulkUploadHeaderSupport, resizeHeaderSupport));
-
-        buildHeader();
 
         // DistributionSetFilterDropArea is only available in TargetTableHeader
         this.distributionSetFilterDropAreaSupport = new DistributionSetFilterDropAreaSupport(i18n, eventBus,
                 notification, targetGridLayoutUiState);
+    }
+
+    public void addDsDroArea() {
         final Component distributionSetFilterDropArea = distributionSetFilterDropAreaSupport.getHeaderComponent();
         addComponent(distributionSetFilterDropArea);
         setComponentAlignment(distributionSetFilterDropArea, Alignment.TOP_CENTER);
     }
 
     @Override
-    protected Component getHeaderCaption() {
-        return new LabelBuilder().name(i18n.getMessage("header.target.table")).buildCaptionLabel();
+    protected String getCaptionMsg() {
+        // TODO use constant
+        return "header.target.table";
+    }
+
+    @Override
+    protected String getSearchFieldId() {
+        return UIComponentIdProvider.TARGET_TEXT_FIELD;
+    }
+
+    @Override
+    protected String getSearchResetIconId() {
+        return UIComponentIdProvider.TARGET_TBL_SEARCH_RESET_ID;
+    }
+
+    @Override
+    protected Class<? extends ProxyIdentifiableEntity> getEntityType() {
+        return ProxyTarget.class;
+    }
+
+    @Override
+    protected String getFilterButtonsIconId() {
+        return UIComponentIdProvider.SHOW_TARGET_TAGS;
+    }
+
+    @Override
+    protected String getMaxMinIconId() {
+        return UIComponentIdProvider.TARGET_MAX_MIN_TABLE_ICON;
+    }
+
+    @Override
+    protected EventLayout getLayout() {
+        return EventLayout.TARGET_LIST;
+    }
+
+    @Override
+    protected boolean hasCreatePermission() {
+        return permChecker.hasCreateTargetPermission();
+    }
+
+    @Override
+    protected String getAddIconId() {
+        return UIComponentIdProvider.TARGET_TBL_ADD_ICON_ID;
+    }
+
+    @Override
+    protected String getAddWindowCaptionMsg() {
+        // TODO use constant
+        return "caption.target";
     }
 
     @Override
@@ -133,74 +151,28 @@ public class TargetGridHeader extends AbstractGridHeader {
     }
 
     public void onSimpleFilterReset() {
-        searchHeaderSupport.resetSearch();
-        searchHeaderSupport.disableSearch();
+        getSearchHeaderSupport().resetSearch();
+        getSearchHeaderSupport().disableSearch();
 
         distributionSetFilterDropAreaSupport.reset();
     }
 
-    private String getSearchTextFromUiState() {
-        return targetGridLayoutUiState.getSearchFilter();
-    }
-
-    private void searchBy(final String newSearchText) {
-        eventBus.publish(EventTopics.FILTER_CHANGED, this,
-                new FilterChangedEventPayload<>(ProxyTarget.class, FilterType.SEARCH, newSearchText, EventView.DEPLOYMENT));
-
-        targetGridLayoutUiState.setSearchFilter(newSearchText);
-    }
-
-    private void showFilterButtonsLayout() {
-        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
-                VisibilityType.SHOW, EventLayout.TARGET_TAG_FILTER, EventView.DEPLOYMENT));
-
-        targetTagFilterLayoutUiState.setHidden(false);
-    }
-
-    private Boolean onLoadIsShowFilterButtonDisplayed() {
-        return targetTagFilterLayoutUiState.isHidden();
-    }
-
-    private void addNewItem() {
-        final Window addWindow = targetWindowBuilder.getWindowForAddTarget();
-
-        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.target")));
-        UI.getCurrent().addWindow(addWindow);
-        addWindow.setVisible(Boolean.TRUE);
-    }
-
-    private Boolean onLoadIsTableMaximized() {
-        return targetGridLayoutUiState.isMaximized();
-    }
-
-    private void maximizeTable() {
-        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, EventLayout.TARGET_LIST, EventView.DEPLOYMENT));
-
-        if (addHeaderSupport != null) {
-            addHeaderSupport.hideAddIcon();
-        }
+    @Override
+    protected void maximizeTable() {
+        super.maximizeTable();
 
         if (bulkUploadHeaderSupport != null) {
             bulkUploadHeaderSupport.hideBulkUpload();
         }
-
-        targetGridLayoutUiState.setMaximized(true);
     }
 
-    private void minimizeTable() {
-        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MINIMIZE, EventLayout.TARGET_LIST, EventView.DEPLOYMENT));
-
-        if (addHeaderSupport != null) {
-            addHeaderSupport.showAddIcon();
-        }
+    @Override
+    protected void minimizeTable() {
+        super.minimizeTable();
 
         if (bulkUploadHeaderSupport != null) {
             bulkUploadHeaderSupport.showBulkUpload();
         }
-
-        targetGridLayoutUiState.setMaximized(false);
     }
 
     private void showBulkUploadWindow() {
@@ -254,15 +226,7 @@ public class TargetGridHeader extends AbstractGridHeader {
         targetBulkUploadUiState.setInProgress(isInProgress);
     }
 
-    public void showTargetTagIcon() {
-        filterButtonsHeaderSupport.showFilterButtonsIcon();
-    }
-
-    public void hideTargetTagIcon() {
-        filterButtonsHeaderSupport.hideFilterButtonsIcon();
-    }
-
     public void enableSearchIcon() {
-        searchHeaderSupport.enableSearch();
+        getSearchHeaderSupport().enableSearch();
     }
 }

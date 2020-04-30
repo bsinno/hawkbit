@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Window;
 
 public abstract class AbstractEntityWindowBuilder<T> {
     protected final VaadinMessageSource i18n;
@@ -54,6 +55,10 @@ public abstract class AbstractEntityWindowBuilder<T> {
     }
 
     protected abstract String getWindowId();
+
+    public abstract Window getWindowForAdd();
+
+    public abstract Window getWindowForUpdate(final T entity);
 
     protected String getHelpLink() {
         // can be overriden to provide help link to documentation

@@ -128,11 +128,11 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     }
 
     public void showDsTypeHeaderIcon() {
-        distributionSetGridHeader.showDsFilterIcon();
+        distributionSetGridHeader.showFilterIcon();
     }
 
     public void hideDsTypeHeaderIcon() {
-        distributionSetGridHeader.hideDsFilterIcon();
+        distributionSetGridHeader.hideFilterIcon();
     }
 
     public void maximize() {

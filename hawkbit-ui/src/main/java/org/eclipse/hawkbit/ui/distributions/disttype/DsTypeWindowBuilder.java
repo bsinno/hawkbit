@@ -50,13 +50,15 @@ public class DsTypeWindowBuilder extends AbstractEntityWindowBuilder<ProxyType> 
         return UIComponentIdProvider.TAG_POPUP_ID;
     }
 
-    public Window getWindowForAddDsType() {
+    @Override
+    public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddDsTypeWindowController(i18n, entityFactory, eventBus, uiNotification,
                 dsTypeManagement, new DsTypeWindowLayout(i18n, uiNotification, smTypeManagement)));
 
     }
 
-    public Window getWindowForUpdateDsType(final ProxyType proxyType) {
+    @Override
+    public Window getWindowForUpdate(final ProxyType proxyType) {
         return getWindowForEntity(proxyType,
                 new UpdateDsTypeWindowController(i18n, entityFactory, eventBus, uiNotification, dsTypeManagement,
                         dsManagement, new DsTypeWindowLayout(i18n, uiNotification, smTypeManagement)));

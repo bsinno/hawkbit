@@ -41,4 +41,14 @@ public abstract class AbstractMetaDataWindowBuilder<F> extends AbstractEntityWin
 
         return window;
     }
+
+    @Override
+    public Window getWindowForAdd() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Window getWindowForUpdate(final ProxyMetaData entity) {
+        throw new UnsupportedOperationException();
+    }
 }

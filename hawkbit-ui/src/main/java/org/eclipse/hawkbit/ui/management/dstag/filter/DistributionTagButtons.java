@@ -141,6 +141,6 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
 
     @Override
     protected Window getUpdateWindow(final ProxyTag clickedFilter) {
-        return dsTagWindowBuilder.getWindowForUpdateDsTag(clickedFilter);
+        return dsTagWindowBuilder.getWindowForUpdate(clickedFilter);
     }
 }

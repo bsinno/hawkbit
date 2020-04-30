@@ -46,13 +46,15 @@ public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareMo
         return UIComponentIdProvider.CREATE_POPUP_ID;
     }
 
-    public Window getWindowForAddSm() {
+    @Override
+    public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddSmWindowController(i18n, entityFactory, eventBus, uiNotification,
                 smManagement, new SmWindowLayout(i18n, smTypeManagement)));
 
     }
 
-    public Window getWindowForUpdateSm(final ProxySoftwareModule proxySm) {
+    @Override
+    public Window getWindowForUpdate(final ProxySoftwareModule proxySm) {
         return getWindowForEntity(proxySm, new UpdateSmWindowController(i18n, entityFactory, eventBus, uiNotification,
                 smManagement, new SmWindowLayout(i18n, smTypeManagement)));
     }

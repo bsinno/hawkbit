@@ -55,4 +55,14 @@ public class AutoAssignmentWindowBuilder extends AbstractEntityWindowBuilder<Pro
                 new AutoAssignmentWindowController(i18n, eventBus, uiNotification, entityFactory, targetManagement,
                         targetFilterQueryManagement, new AutoAssignmentWindowLayout(i18n, dsManagement)));
     }
+
+    @Override
+    public Window getWindowForAdd() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Window getWindowForUpdate(final ProxyTargetFilterQuery entity) {
+        throw new UnsupportedOperationException();
+    }
 }

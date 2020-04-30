@@ -44,13 +44,15 @@ public class TargetTagWindowBuilder extends AbstractEntityWindowBuilder<ProxyTag
         return UIComponentIdProvider.TAG_POPUP_ID;
     }
 
-    public Window getWindowForAddTargetTag() {
+    @Override
+    public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddTargetTagWindowController(i18n, entityFactory, eventBus, uiNotification,
                 targetTagManagement, new TagWindowLayout<ProxyTag>(i18n, uiNotification)));
 
     }
 
-    public Window getWindowForUpdateTargetTag(final ProxyTag proxyTag) {
+    @Override
+    public Window getWindowForUpdate(final ProxyTag proxyTag) {
         return getWindowForEntity(proxyTag, new UpdateTargetTagWindowController(i18n, entityFactory, eventBus,
                 uiNotification, targetTagManagement, new TagWindowLayout<ProxyTag>(i18n, uiNotification)));
     }

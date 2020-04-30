@@ -91,7 +91,7 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
             return;
         }
 
-        final Window updateWindow = smWindowBuilder.getWindowForUpdateSm(selectedEntity);
+        final Window updateWindow = smWindowBuilder.getWindowForUpdate(selectedEntity);
 
         updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.software.module")));
         UI.getCurrent().addWindow(updateWindow);

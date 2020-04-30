@@ -94,6 +94,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         this.targetGridHeader = new TargetGridHeader(i18n, permissionChecker, eventBus, uiNotification,
                 targetWindowBuilder, bulkUploadWindowBuilder, targetTagFilterLayoutUiState, targetGridLayoutUiState,
                 targetBulkUploadUiState);
+        this.targetGridHeader.buildHeader();
+        this.targetGridHeader.addDsDroArea();
         this.targetGrid = new TargetGrid(eventBus, i18n, uiNotification, targetManagement, permissionChecker,
                 deploymentManagement, configManagement, systemSecurityContext, uiProperties, targetGridLayoutUiState,
                 distributionGridLayoutUiState, targetTagFilterLayoutUiState);
@@ -135,11 +137,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<EntityModifiedAwareSupport> getTargetModifiedAwareSupports() {
-        return Arrays
-                .asList(EntityModifiedGridRefreshAwareSupport.of(targetGrid::refreshAll),
-                        EntityModifiedSelectionAwareSupport.of(targetGrid.getSelectionSupport(),
-                                targetGrid::mapIdToProxyEntity),
-                        EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport()));
+        return Arrays.asList(
+                EntityModifiedGridRefreshAwareSupport.of(targetGrid::refreshAll), EntityModifiedSelectionAwareSupport
+                        .of(targetGrid.getSelectionSupport(), targetGrid::mapIdToProxyEntity),
+                EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport()));
     }
 
     private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {
@@ -147,11 +148,11 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     }
 
     public void showTargetTagHeaderIcon() {
-        targetGridHeader.showTargetTagIcon();
+        targetGridHeader.showFilterIcon();
     }
 
     public void hideTargetTagHeaderIcon() {
-        targetGridHeader.hideTargetTagIcon();
+        targetGridHeader.hideFilterIcon();
     }
 
     public void onTargetFilterTabChanged(final TargetFilterTabChangedEventPayload eventPayload) {

@@ -496,7 +496,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private void updateRollout(final ProxyRollout rollout) {
-        final Window updateWindow = rolloutWindowBuilder.getWindowForUpdateRollout(rollout);
+        final Window updateWindow = rolloutWindowBuilder.getWindowForUpdate(rollout);
 
         updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.rollout")));
         UI.getCurrent().addWindow(updateWindow);

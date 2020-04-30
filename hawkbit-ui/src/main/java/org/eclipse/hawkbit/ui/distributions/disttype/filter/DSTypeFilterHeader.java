@@ -75,7 +75,7 @@ public class DSTypeFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected Window getWindowForAdd() {
-        return dsTypeWindowBuilder.getWindowForAddDsType();
+        return dsTypeWindowBuilder.getWindowForAdd();
     }
 
     @Override

@@ -57,7 +57,7 @@ public class SMTypeFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected Window getWindowForAdd() {
-        return smTypeWindowBuilder.getWindowForAddSmType();
+        return smTypeWindowBuilder.getWindowForAdd();
     }
 
     @Override
