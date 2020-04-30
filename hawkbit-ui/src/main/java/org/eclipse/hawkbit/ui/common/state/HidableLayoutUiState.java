@@ -8,16 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.common.state;
 
-public class TypeFilterLayoutUiState extends HidableLayoutUiState {
+import java.io.Serializable;
+
+public class HidableLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long clickedTypeId;
+    private boolean hidden;
 
-    public Long getClickedTypeId() {
-        return clickedTypeId;
+    public boolean isHidden() {
+        return hidden;
     }
 
-    public void setClickedTypeId(final Long clickedTypeId) {
-        this.clickedTypeId = clickedTypeId;
+    public void setHidden(final boolean hidden) {
+        this.hidden = hidden;
     }
 }

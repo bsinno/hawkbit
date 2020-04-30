@@ -71,10 +71,10 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
     private final transient SoftwareModuleManagement smManagement;
     private final transient DistributionSetTypeManagement dsTypeManagement;
 
-    private final boolean isUnassignSmAllowed;
-
     private ProxyDistributionSet masterEntity;
     private final Map<Long, Boolean> typeIdIsRendered;
+
+    private boolean isUnassignSmAllowed;
 
     /**
      * Initialize software module table- to be displayed in details layout.
@@ -93,14 +93,11 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
      *            SoftwareModuleManagement
      * @param dsTypeManagement
      *            DistributionSetTypeManagement
-     * @param isUnassignSmAllowed
-     *            boolean flag to check for unassign functionality allowed for
-     *            the view.
      */
     public SoftwareModuleDetailsGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final UINotification uiNotification, final SpPermissionChecker permissionChecker,
             final DistributionSetManagement distributionSetManagement, final SoftwareModuleManagement smManagement,
-            final DistributionSetTypeManagement dsTypeManagement, final boolean isUnassignSmAllowed) {
+            final DistributionSetTypeManagement dsTypeManagement) {
         this.i18n = i18n;
         this.uiNotification = uiNotification;
         this.eventBus = eventBus;
@@ -109,8 +106,6 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         this.distributionSetManagement = distributionSetManagement;
         this.smManagement = smManagement;
         this.dsTypeManagement = dsTypeManagement;
-
-        this.isUnassignSmAllowed = isUnassignSmAllowed;
 
         this.typeIdIsRendered = new HashMap<>();
 
@@ -318,5 +313,9 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         }
 
         return smDetails;
+    }
+
+    public void setUnassignSmAllowed(final boolean isUnassignSmAllowed) {
+        this.isUnassignSmAllowed = isUnassignSmAllowed;
     }
 }

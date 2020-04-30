@@ -28,7 +28,8 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.HidableLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -43,8 +44,8 @@ import com.vaadin.ui.Window;
 public class SoftwareModuleGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
-    private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
+    private final HidableLayoutUiState smTypeFilterLayoutUiState;
+    private final GridLayoutUiState smGridLayoutUiState;
 
     private final transient SmWindowBuilder smWindowBuilder;
 
@@ -53,15 +54,18 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     private final transient AddHeaderSupport addHeaderSupport;
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
-    SoftwareModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
-            final SoftwareModuleGridLayoutUiState smGridLayoutUiState, final SmWindowBuilder smWindowBuilder) {
+    private final EventView view;
+
+    public SoftwareModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final HidableLayoutUiState smTypeFilterLayoutUiState,
+            final GridLayoutUiState smGridLayoutUiState, final SmWindowBuilder smWindowBuilder, final EventView view) {
         super(i18n, permChecker, eventBus);
 
         this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
         this.smGridLayoutUiState = smGridLayoutUiState;
 
         this.smWindowBuilder = smWindowBuilder;
+        this.view = view;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.SW_MODULE_SEARCH_TEXT_FIELD,
                 UIComponentIdProvider.SW_MODULE_SEARCH_RESET_ICON, this::getSearchTextFromUiState, this::searchBy);
@@ -93,15 +97,15 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
     }
 
     private void searchBy(final String newSearchText) {
-        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxySoftwareModule.class,
-                FilterType.SEARCH, newSearchText, EventView.UPLOAD));
+        eventBus.publish(EventTopics.FILTER_CHANGED, this,
+                new FilterChangedEventPayload<>(ProxySoftwareModule.class, FilterType.SEARCH, newSearchText, view));
 
         smGridLayoutUiState.setSearchFilter(newSearchText);
     }
 
     private void showFilterButtonsLayout() {
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
-                new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.SM_TYPE_FILTER, EventView.UPLOAD));
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.SM_TYPE_FILTER, view));
 
         smTypeFilterLayoutUiState.setHidden(false);
     }
@@ -124,7 +128,7 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
 
     private void maximizeTable() {
         eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, EventLayout.SM_LIST, EventView.UPLOAD));
+                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, EventLayout.SM_LIST, view));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.hideAddIcon();
@@ -135,7 +139,7 @@ public class SoftwareModuleGridHeader extends AbstractGridHeader {
 
     private void minimizeTable() {
         eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MINIMIZE, EventLayout.SM_LIST, EventView.UPLOAD));
+                new LayoutResizeEventPayload(ResizeType.MINIMIZE, EventLayout.SM_LIST, view));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.showAddIcon();

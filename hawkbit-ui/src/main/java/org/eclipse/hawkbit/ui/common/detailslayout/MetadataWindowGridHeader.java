@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
-import java.util.Arrays;
-
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
@@ -41,7 +39,7 @@ public class MetadataWindowGridHeader extends AbstractGridHeader {
             this.addHeaderSupport = null;
         }
 
-        addHeaderSupports(Arrays.asList(addHeaderSupport));
+        addHeaderSupport(addHeaderSupport);
 
         buildHeader();
     }

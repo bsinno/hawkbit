@@ -8,14 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
-import java.util.Arrays;
-
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -53,7 +51,7 @@ public class ActionHistoryGridHeader extends AbstractGridHeader implements Maste
 
         this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, SPUIDefinitions.EXPAND_ACTION_HISTORY,
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
-        addHeaderSupports(Arrays.asList(resizeHeaderSupport));
+        addHeaderSupport(resizeHeaderSupport);
 
         buildHeader();
     }
@@ -74,15 +72,15 @@ public class ActionHistoryGridHeader extends AbstractGridHeader implements Maste
     }
 
     private void maximizeTable() {
-        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, EventLayout.ACTION_HISTORY_LIST, EventView.DEPLOYMENT));
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this, new LayoutResizeEventPayload(ResizeType.MAXIMIZE,
+                EventLayout.ACTION_HISTORY_LIST, EventView.DEPLOYMENT));
 
         actionHistoryGridLayoutUiState.setMaximized(true);
     }
 
     private void minimizeTable() {
-        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MINIMIZE, EventLayout.ACTION_HISTORY_LIST, EventView.DEPLOYMENT));
+        eventBus.publish(CommandTopics.RESIZE_LAYOUT, this, new LayoutResizeEventPayload(ResizeType.MINIMIZE,
+                EventLayout.ACTION_HISTORY_LIST, EventView.DEPLOYMENT));
 
         actionHistoryGridLayoutUiState.setMaximized(false);
     }

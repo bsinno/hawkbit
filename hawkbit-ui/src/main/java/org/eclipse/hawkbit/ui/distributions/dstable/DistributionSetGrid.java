@@ -40,6 +40,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.SwModulesToDistributionSetAssignmentSupport;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -69,7 +70,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private static final String DS_DELETE_BUTTON_ID = "dsDeleteButton";
 
     private final TypeFilterLayoutUiState dSTypeFilterLayoutUiState;
-    private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
+    private final GridLayoutUiState distributionSetGridLayoutUiState;
     private final transient DistributionSetManagement dsManagement;
     private final transient DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper;
 
@@ -83,7 +84,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
             final SoftwareModuleManagement smManagement, final DistributionSetTypeManagement dsTypeManagement,
             final SoftwareModuleTypeManagement smTypeManagement,
             final TypeFilterLayoutUiState dSTypeFilterLayoutUiState,
-            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
+            final GridLayoutUiState distributionSetGridLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
         this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
@@ -144,11 +145,11 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     }
 
     private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(distributionSetGridLayoutUiState.getSelectedDsId());
+        return Optional.ofNullable(distributionSetGridLayoutUiState.getSelectedEntityId());
     }
 
     private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        distributionSetGridLayoutUiState.setSelectedDsId(entityId.orElse(null));
+        distributionSetGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
     }
 
     private void deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {

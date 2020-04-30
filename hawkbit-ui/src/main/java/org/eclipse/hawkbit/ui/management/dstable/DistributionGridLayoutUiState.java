@@ -8,39 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.management.dstable;
 
-import java.io.Serializable;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 
-public class DistributionGridLayoutUiState implements Serializable {
+public class DistributionGridLayoutUiState extends GridLayoutUiState {
     private static final long serialVersionUID = 1L;
 
-    private boolean maximized;
-    private String searchFilter;
-    private Long selectedDsId;
     private Long pinnedDsId;
-
-    public boolean isMaximized() {
-        return maximized;
-    }
-
-    public void setMaximized(final boolean maximized) {
-        this.maximized = maximized;
-    }
-
-    public String getSearchFilter() {
-        return searchFilter;
-    }
-
-    public void setSearchFilter(final String searchFilter) {
-        this.searchFilter = searchFilter;
-    }
-
-    public Long getSelectedDsId() {
-        return selectedDsId;
-    }
-
-    public void setSelectedDsId(final Long selectedDsId) {
-        this.selectedDsId = selectedDsId;
-    }
 
     public Long getPinnedDsId() {
         return pinnedDsId;

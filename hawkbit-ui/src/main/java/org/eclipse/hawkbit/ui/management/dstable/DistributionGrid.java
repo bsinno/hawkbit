@@ -47,7 +47,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DsTagsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToDistributionSetAssignmentSupport;
-import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -80,7 +80,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     private final TargetGridLayoutUiState targetGridLayoutUiState;
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
-    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
+    private final TagFilterLayoutUiState distributionTagLayoutUiState;
     private final transient DistributionSetManagement distributionSetManagement;
     private final transient DeploymentManagement deploymentManagement;
     private final transient DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
@@ -96,7 +96,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             final DeploymentManagement deploymentManagement, final UiProperties uiProperties,
             final DistributionGridLayoutUiState distributionGridLayoutUiState,
             final TargetGridLayoutUiState targetGridLayoutUiState,
-            final DistributionTagLayoutUiState distributionTagLayoutUiState) {
+            final TagFilterLayoutUiState distributionTagLayoutUiState) {
         super(i18n, eventBus, permissionChecker);
 
         this.targetGridLayoutUiState = targetGridLayoutUiState;
@@ -175,11 +175,11 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(distributionGridLayoutUiState.getSelectedDsId());
+        return Optional.ofNullable(distributionGridLayoutUiState.getSelectedEntityId());
     }
 
     private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        distributionGridLayoutUiState.setSelectedDsId(entityId.orElse(null));
+        distributionGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
     }
 
     private void deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
@@ -342,7 +342,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         getFilter().setSearchText(distributionGridLayoutUiState.getSearchFilter());
         getFilter().setNoTagClicked(distributionTagLayoutUiState.isNoTagClicked());
 
-        final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedDsTagIdsWithName().values();
+        final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedTagIdsWithName().values();
         if (!CollectionUtils.isEmpty(tagFilterNames)) {
             getFilter().setDistributionSetTags(tagFilterNames);
         }

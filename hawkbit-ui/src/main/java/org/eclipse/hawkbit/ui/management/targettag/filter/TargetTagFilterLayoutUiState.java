@@ -8,49 +8,19 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
+import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 
-public class TargetTagFilterLayoutUiState implements Serializable {
+public class TargetTagFilterLayoutUiState extends TagFilterLayoutUiState {
     private static final long serialVersionUID = 1L;
 
-    private boolean hidden;
-    private final Map<Long, String> clickedTargetTagIdsWithName = new HashMap<>();
-    private boolean isNoTagClicked;
     private Long clickedTargetFilterQueryId;
     private final List<TargetUpdateStatus> clickedTargetUpdateStatusFilters = new ArrayList<>();
     private boolean isOverdueFilterClicked;
     private boolean isCustomFilterTabSelected;
-
-    public boolean isHidden() {
-        return hidden;
-    }
-
-    public void setHidden(final boolean hidden) {
-        this.hidden = hidden;
-    }
-
-    public Map<Long, String> getClickedTargetTagIdsWithName() {
-        return clickedTargetTagIdsWithName;
-    }
-
-    public void setClickedTargetTagIdsWithName(final Map<Long, String> clickedTargetTagIdsWithName) {
-        this.clickedTargetTagIdsWithName.clear();
-        this.clickedTargetTagIdsWithName.putAll(clickedTargetTagIdsWithName);
-    }
-
-    public boolean isNoTagClicked() {
-        return isNoTagClicked;
-    }
-
-    public void setNoTagClicked(final boolean isNoTagClicked) {
-        this.isNoTagClicked = isNoTagClicked;
-    }
 
     public Long getClickedTargetFilterQueryId() {
         return clickedTargetFilterQueryId;

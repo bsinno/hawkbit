@@ -6,16 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.ui.distributions.dstable;
+package org.eclipse.hawkbit.ui.common.state;
 
 import java.io.Serializable;
 
-public class DistributionSetGridLayoutUiState implements Serializable {
+public class GridLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean maximized;
     private String searchFilter;
-    private Long selectedDsId;
+    private Long selectedEntityId;
 
     public boolean isMaximized() {
         return maximized;
@@ -33,11 +33,11 @@ public class DistributionSetGridLayoutUiState implements Serializable {
         this.searchFilter = searchFilter;
     }
 
-    public Long getSelectedDsId() {
-        return selectedDsId;
+    public Long getSelectedEntityId() {
+        return selectedEntityId;
     }
 
-    public void setSelectedDsId(final Long selectedDsId) {
-        this.selectedDsId = selectedDsId;
+    public void setSelectedEntityId(final Long selectedEntityId) {
+        this.selectedEntityId = selectedEntityId;
     }
 }

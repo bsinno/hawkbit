@@ -8,17 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import java.io.Serializable;
-
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdNameVersion;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 
-public class TargetGridLayoutUiState implements Serializable {
+public class TargetGridLayoutUiState extends GridLayoutUiState {
     private static final long serialVersionUID = 1L;
 
-    private boolean maximized;
-    private String searchFilter;
-    private Long selectedTargetId;
     private Long pinnedTargetId;
     // TODO: check if we could only keep pinned targetId or controllerId
     private String pinnedControllerId;
@@ -26,30 +22,6 @@ public class TargetGridLayoutUiState implements Serializable {
 
     // TODO: check if it is right, make sure to update it in TargetGrid
     private TargetManagementFilterParams targetManagementFilterParams;
-
-    public boolean isMaximized() {
-        return maximized;
-    }
-
-    public void setMaximized(final boolean maximized) {
-        this.maximized = maximized;
-    }
-
-    public String getSearchFilter() {
-        return searchFilter;
-    }
-
-    public void setSearchFilter(final String searchFilter) {
-        this.searchFilter = searchFilter;
-    }
-
-    public Long getSelectedTargetId() {
-        return selectedTargetId;
-    }
-
-    public void setSelectedTargetId(final Long selectedTargetId) {
-        this.selectedTargetId = selectedTargetId;
-    }
 
     public TargetManagementFilterParams getTargetManagementFilterParams() {
         return targetManagementFilterParams;

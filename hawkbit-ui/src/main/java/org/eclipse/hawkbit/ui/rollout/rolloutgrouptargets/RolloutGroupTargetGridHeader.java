@@ -8,16 +8,14 @@
  */
 package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
-import java.util.Arrays;
-
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutVisibilityEventPayload.VisibilityType;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.CloseHeaderSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -61,7 +59,7 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader
 
         this.closeHeaderSupport = new CloseHeaderSupport(i18n,
                 UIComponentIdProvider.ROLLOUT_TARGET_VIEW_CLOSE_BUTTON_ID, this::closeRolloutGroupTargets);
-        addHeaderSupports(Arrays.asList(closeHeaderSupport));
+        addHeaderSupport(closeHeaderSupport);
 
         buildHeader();
     }
@@ -79,8 +77,8 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader
     }
 
     private void closeRolloutGroupTargets() {
-        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
-                new LayoutVisibilityEventPayload(VisibilityType.HIDE, EventLayout.ROLLOUT_GROUP_TARGET_LIST, EventView.ROLLOUT));
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
+                VisibilityType.HIDE, EventLayout.ROLLOUT_GROUP_TARGET_LIST, EventView.ROLLOUT));
     }
 
     private Label createHeaderCaptionDetails() {

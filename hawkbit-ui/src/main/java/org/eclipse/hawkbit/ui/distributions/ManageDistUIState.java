@@ -10,9 +10,8 @@ package org.eclipse.hawkbit.ui.distributions;
 
 import java.io.Serializable;
 
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
-import org.eclipse.hawkbit.ui.distributions.dstable.DistributionSetGridLayoutUiState;
-import org.eclipse.hawkbit.ui.distributions.smtable.SwModuleGridLayoutUiState;
 
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
@@ -26,14 +25,14 @@ public class ManageDistUIState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final TypeFilterLayoutUiState dsTypeFilterLayoutUiState;
-    private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
-    private final SwModuleGridLayoutUiState swModuleGridLayoutUiState;
+    private final GridLayoutUiState distributionSetGridLayoutUiState;
+    private final GridLayoutUiState swModuleGridLayoutUiState;
     private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
 
     ManageDistUIState() {
         this.dsTypeFilterLayoutUiState = new TypeFilterLayoutUiState();
-        this.distributionSetGridLayoutUiState = new DistributionSetGridLayoutUiState();
-        this.swModuleGridLayoutUiState = new SwModuleGridLayoutUiState();
+        this.distributionSetGridLayoutUiState = new GridLayoutUiState();
+        this.swModuleGridLayoutUiState = new GridLayoutUiState();
         this.smTypeFilterLayoutUiState = new TypeFilterLayoutUiState();
     }
 
@@ -41,11 +40,11 @@ public class ManageDistUIState implements Serializable {
         return dsTypeFilterLayoutUiState;
     }
 
-    public DistributionSetGridLayoutUiState getDistributionSetGridLayoutUiState() {
+    public GridLayoutUiState getDistributionSetGridLayoutUiState() {
         return distributionSetGridLayoutUiState;
     }
 
-    public SwModuleGridLayoutUiState getSwModuleGridLayoutUiState() {
+    public GridLayoutUiState getSwModuleGridLayoutUiState() {
         return swModuleGridLayoutUiState;
     }
 

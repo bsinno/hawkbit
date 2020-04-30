@@ -69,7 +69,7 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
 
         this.closeHeaderSupport = new CloseHeaderSupport(i18n, UIComponentIdProvider.CUSTOM_FILTER_CLOSE,
                 this::closeDetails);
-        addHeaderSupports(Arrays.asList(closeHeaderSupport));
+        addHeaderSupport(closeHeaderSupport);
 
         this.targetFilterAddUpdateLayout = new TargetFilterAddUpdateLayout(i18n, uiProperties, uiState, eventBus,
                 rsqlValidationOracle);
@@ -89,8 +89,9 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     }
 
     @Override
-    protected void buildHeader() {
+    public void buildHeader() {
         super.buildHeader();
+
         addComponent(targetFilterAddUpdateLayout.getRootComponent());
     }
 

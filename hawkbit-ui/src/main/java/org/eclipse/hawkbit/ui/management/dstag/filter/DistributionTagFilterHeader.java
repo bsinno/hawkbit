@@ -12,6 +12,7 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
+import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -25,13 +26,13 @@ import com.vaadin.ui.Window;
 public class DistributionTagFilterHeader extends AbstractFilterHeader {
     private static final long serialVersionUID = 1L;
 
-    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
+    private final TagFilterLayoutUiState distributionTagLayoutUiState;
 
     private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
     public DistributionTagFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final DsTagWindowBuilder dsTagWindowBuilder,
-            final DistributionTagLayoutUiState distributionTagLayoutUiState) {
+            final TagFilterLayoutUiState distributionTagLayoutUiState) {
         super(i18n, permChecker, eventBus);
 
         this.distributionTagLayoutUiState = distributionTagLayoutUiState;

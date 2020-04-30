@@ -25,6 +25,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
+import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -68,7 +69,7 @@ public class DistributionTagLayout extends AbstractFilterLayout {
             final SpPermissionChecker permChecker, final DistributionSetTagManagement distributionSetTagManagement,
             final EntityFactory entityFactory, final UINotification uiNotification,
             final DistributionSetManagement distributionSetManagement,
-            final DistributionTagLayoutUiState distributionTagLayoutUiState) {
+            final TagFilterLayoutUiState distributionTagLayoutUiState) {
         final DsTagWindowBuilder dsTagWindowBuilder = new DsTagWindowBuilder(i18n, entityFactory, eventBus,
                 uiNotification, distributionSetTagManagement);
 
@@ -90,8 +91,7 @@ public class DistributionTagLayout extends AbstractFilterLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Collections
-                .singletonList(EntityModifiedGridRefreshAwareSupport.of(distributionTagButtons::refreshAll));
+        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(distributionTagButtons::refreshAll));
     }
 
     @Override

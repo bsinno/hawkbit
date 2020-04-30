@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
-import java.util.Collections;
-
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
@@ -33,36 +31,17 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
     private final transient SmWindowBuilder smWindowBuilder;
     private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
 
-    private final transient ArtifactManagement artifactManagement;
+    private transient ArtifactDetailsHeaderSupport artifactDetailsHeaderSupport;
+    private transient ArtifactManagement artifactManagement;
     private ArtifactDetailsGrid artifactDetailsGrid;
-
-    private final transient ArtifactDetailsHeaderSupport artifactDetailsHeaderSupport;
 
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification, final SmWindowBuilder smWindowBuilder,
             final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
-        this(i18n, permChecker, eventBus, uiNotification, smWindowBuilder, smMetaDataWindowBuilder, null);
-    }
-
-    public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final UINotification uiNotification, final SmWindowBuilder smWindowBuilder,
-            final SmMetaDataWindowBuilder smMetaDataWindowBuilder, final ArtifactManagement artifactManagement) {
         super(i18n, permChecker, eventBus, uiNotification);
 
         this.smWindowBuilder = smWindowBuilder;
         this.smMetaDataWindowBuilder = smMetaDataWindowBuilder;
-        this.artifactManagement = artifactManagement;
-        this.artifactDetailsGrid = null;
-
-        if (artifactManagement != null) {
-            this.artifactDetailsHeaderSupport = new ArtifactDetailsHeaderSupport(i18n,
-                    UIComponentIdProvider.SW_MODULE_ARTIFACT_DETAILS_BUTTON, this::showArtifactDetailsWindow);
-            addHeaderSupports(Collections.singletonList(artifactDetailsHeaderSupport));
-        } else {
-            this.artifactDetailsHeaderSupport = null;
-        }
-
-        buildHeader();
     }
 
     @Override
@@ -135,6 +114,16 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
         metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + selectedEntity.getNameAndVersion());
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
+    }
+
+    public void addArtifactDetailsHeaderSupport(final ArtifactManagement artifactManagement) {
+        if (artifactDetailsHeaderSupport == null) {
+            this.artifactManagement = artifactManagement;
+
+            artifactDetailsHeaderSupport = new ArtifactDetailsHeaderSupport(i18n,
+                    UIComponentIdProvider.SW_MODULE_ARTIFACT_DETAILS_BUTTON, this::showArtifactDetailsWindow);
+            addHeaderSupport(artifactDetailsHeaderSupport);
+        }
     }
 
     // TODO: use Common*Window?

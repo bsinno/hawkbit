@@ -32,6 +32,7 @@ import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -62,7 +63,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     private final ArtifactUploadState artifactUploadState;
     private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
-    private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
+    private final GridLayoutUiState smGridLayoutUiState;
     private final UINotification notification;
 
     private final transient SoftwareModuleManagement softwareModuleManagement;
@@ -74,8 +75,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final ArtifactUploadState artifactUploadState, final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
-            final SoftwareModuleGridLayoutUiState smGridLayoutUiState,
-            final SoftwareModuleManagement softwareModuleManagement) {
+            final GridLayoutUiState smGridLayoutUiState, final SoftwareModuleManagement softwareModuleManagement) {
         super(i18n, eventBus, permissionChecker);
 
         this.artifactUploadState = artifactUploadState;
@@ -126,11 +126,11 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(smGridLayoutUiState.getSelectedSmId());
+        return Optional.ofNullable(smGridLayoutUiState.getSelectedEntityId());
     }
 
     private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        smGridLayoutUiState.setSelectedSmId(entityId.orElse(null));
+        smGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
     }
 
     private void deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {

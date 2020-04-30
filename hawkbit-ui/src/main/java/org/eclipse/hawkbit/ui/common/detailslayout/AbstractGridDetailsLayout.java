@@ -135,7 +135,7 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         this.detailsComponents.addAll(detailsComponents);
     }
 
-    protected void buildDetails() {
+    public void buildDetails() {
         detailsComponents.forEach(detailsComponentEntry -> {
             final String detailsComponentCaption = detailsComponentEntry.getKey();
             final Component detailsComponent = detailsComponentEntry.getValue();

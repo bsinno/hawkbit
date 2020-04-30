@@ -29,14 +29,14 @@ import com.vaadin.ui.Window;
  * Abstract class which contains common code for Software Module Details
  *
  */
-public abstract class AbstractSoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwareModule> {
+public class SoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
     private final MetadataDetailsGrid<Long> smMetadataGrid;
 
     private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
 
-    protected AbstractSoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
+    public SoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SoftwareModuleManagement softwareManagement, final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
         super(i18n);
 

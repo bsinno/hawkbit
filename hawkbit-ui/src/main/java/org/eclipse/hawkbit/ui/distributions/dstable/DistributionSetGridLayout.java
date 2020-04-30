@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.DistributionSetDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
@@ -40,6 +41,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedTagTokenAwareSupport;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -71,7 +73,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
             final SoftwareModuleTypeManagement smTypeManagement, final SystemManagement systemManagement,
             final TenantConfigurationManagement configManagement, final SystemSecurityContext systemSecurityContext,
             final TypeFilterLayoutUiState dSTypeFilterLayoutUiState,
-            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
+            final GridLayoutUiState distributionSetGridLayoutUiState) {
         final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
                 distributionSetTypeManagement);
@@ -79,7 +81,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 eventBus, uiNotification, permissionChecker, distributionSetManagement);
 
         this.distributionSetGridHeader = new DistributionSetGridHeader(i18n, permissionChecker, eventBus,
-                dsWindowBuilder, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
+                dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState, EventLayout.DS_TYPE_FILTER,
+                EventView.DISTRIBUTIONS);
+        this.distributionSetGridHeader.addAddHeaderSupport(dsWindowBuilder);
+        this.distributionSetGridHeader.buildHeader();
         this.distributionSetGrid = new DistributionSetGrid(eventBus, i18n, permissionChecker, uiNotification,
                 targetManagement, distributionSetManagement, smManagement, distributionSetTypeManagement,
                 smTypeManagement, dSTypeFilterLayoutUiState, distributionSetGridLayoutUiState);
@@ -88,7 +93,10 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 uiNotification, dsWindowBuilder, dsMetaDataWindowBuilder);
         this.distributionSetDetails = new DistributionSetDetails(i18n, eventBus, permissionChecker, uiNotification,
                 distributionSetManagement, smManagement, distributionSetTypeManagement, distributionSetTagManagement,
-                targetFilterQueryManagement, configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
+                configManagement, systemSecurityContext, dsMetaDataWindowBuilder);
+        this.distributionSetDetails.setUnassignSmAllowed(true);
+        this.distributionSetDetails.addTfqDetailsGrid(targetFilterQueryManagement);
+        this.distributionSetDetails.buildDetails();
 
         this.dsFilterListener = new FilterChangedListener<>(eventBus, ProxyDistributionSet.class,
                 new EventViewAware(EventView.DISTRIBUTIONS), distributionSetGrid.getFilterSupport());
@@ -120,11 +128,11 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     }
 
     public void showDsTypeHeaderIcon() {
-        distributionSetGridHeader.showDsTypeIcon();
+        distributionSetGridHeader.showDsFilterIcon();
     }
 
     public void hideDsTypeHeaderIcon() {
-        distributionSetGridHeader.hideDsTypeIcon();
+        distributionSetGridHeader.hideDsFilterIcon();
     }
 
     public void maximize() {

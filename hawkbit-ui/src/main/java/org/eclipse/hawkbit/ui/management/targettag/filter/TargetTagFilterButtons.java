@@ -108,7 +108,7 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
 
     @Override
     protected void updateClickedTagsUiState(final Map<Long, String> activeTagIdsWithName) {
-        targetTagFilterLayoutUiState.setClickedTargetTagIdsWithName(activeTagIdsWithName);
+        targetTagFilterLayoutUiState.setClickedTagIdsWithName(activeTagIdsWithName);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
 
     @Override
     protected Map<Long, String> getClickedTagIdsWithNameFromUiState() {
-        return targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName();
+        return targetTagFilterLayoutUiState.getClickedTagIdsWithName();
     }
 
     @Override
@@ -149,7 +149,7 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
             }
 
             getFilterButtonClickBehaviour().clearPreviouslyClickedFilters();
-            targetTagFilterLayoutUiState.setClickedTargetTagIdsWithName(Collections.emptyMap());
+            targetTagFilterLayoutUiState.setClickedTagIdsWithName(Collections.emptyMap());
             // TODO: should we reset data communicator here for styling update
         }
     }

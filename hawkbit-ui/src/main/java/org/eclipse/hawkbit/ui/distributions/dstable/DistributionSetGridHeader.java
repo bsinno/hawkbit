@@ -28,7 +28,8 @@ import org.eclipse.hawkbit.ui.common.grid.header.support.AddHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.FilterButtonsHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.SearchHeaderSupport;
-import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
+import org.eclipse.hawkbit.ui.common.state.HidableLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -40,50 +41,41 @@ import com.vaadin.ui.Window;
 /**
  * Distribution table header.
  */
-// TODO: remove duplication with DistributionGridHeader
 public class DistributionSetGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
-    private final TypeFilterLayoutUiState dSTypeFilterLayoutUiState;
-    private final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState;
+    private final HidableLayoutUiState dSTypeFilterLayoutUiState;
+    private final GridLayoutUiState distributionSetGridLayoutUiState;
 
-    private final transient DsWindowBuilder dsWindowBuilder;
+    private transient AddHeaderSupport addHeaderSupport;
+    private transient DsWindowBuilder dsWindowBuilder;
 
     private final transient SearchHeaderSupport searchHeaderSupport;
     private final transient FilterButtonsHeaderSupport filterButtonsHeaderSupport;
-    private final transient AddHeaderSupport addHeaderSupport;
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
-    DistributionSetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
-            final UIEventBus eventBus, final DsWindowBuilder dsWindowBuilder,
-            final TypeFilterLayoutUiState dSTypeFilterLayoutUiState,
-            final DistributionSetGridLayoutUiState distributionSetGridLayoutUiState) {
+    private final EventLayout filterLayout;
+    private final EventView view;
+
+    public DistributionSetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
+            final UIEventBus eventBus, final HidableLayoutUiState dSTypeFilterLayoutUiState,
+            final GridLayoutUiState distributionSetGridLayoutUiState, final EventLayout filterLayout,
+            final EventView view) {
         super(i18n, permChecker, eventBus);
 
         this.dSTypeFilterLayoutUiState = dSTypeFilterLayoutUiState;
         this.distributionSetGridLayoutUiState = distributionSetGridLayoutUiState;
-
-        this.dsWindowBuilder = dsWindowBuilder;
+        this.filterLayout = filterLayout;
+        this.view = view;
 
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.DIST_SEARCH_TEXTFIELD,
                 UIComponentIdProvider.DIST_SEARCH_ICON, this::getSearchTextFromUiState, this::searchBy);
         this.filterButtonsHeaderSupport = new FilterButtonsHeaderSupport(i18n, UIComponentIdProvider.SHOW_DIST_TAG_ICON,
                 this::showFilterButtonsLayout, this::onLoadIsShowFilterButtonDisplayed);
-        // TODO: consider moving permission check to header support or parent
-        // header
-        if (permChecker.hasCreateRepositoryPermission()) {
-            this.addHeaderSupport = new AddHeaderSupport(i18n, UIComponentIdProvider.DIST_ADD_ICON, this::addNewItem,
-                    this::onLoadIsTableMaximized);
-        } else {
-            this.addHeaderSupport = null;
-        }
-
         this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, UIComponentIdProvider.DS_MAX_MIN_TABLE_ICON,
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
-        addHeaderSupports(
-                Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, addHeaderSupport, resizeHeaderSupport));
 
-        buildHeader();
+        addHeaderSupports(Arrays.asList(searchHeaderSupport, filterButtonsHeaderSupport, resizeHeaderSupport));
     }
 
     @Override
@@ -96,15 +88,15 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
     }
 
     private void searchBy(final String newSearchText) {
-        eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyDistributionSet.class,
-                FilterType.SEARCH, newSearchText, EventView.DISTRIBUTIONS));
+        eventBus.publish(EventTopics.FILTER_CHANGED, this,
+                new FilterChangedEventPayload<>(ProxyDistributionSet.class, FilterType.SEARCH, newSearchText, view));
 
         distributionSetGridLayoutUiState.setSearchFilter(newSearchText);
     }
 
     private void showFilterButtonsLayout() {
-        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
-                VisibilityType.SHOW, EventLayout.DS_TYPE_FILTER, EventView.DISTRIBUTIONS));
+        eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
+                new LayoutVisibilityEventPayload(VisibilityType.SHOW, filterLayout, view));
 
         dSTypeFilterLayoutUiState.setHidden(false);
     }
@@ -113,21 +105,9 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
         return dSTypeFilterLayoutUiState.isHidden();
     }
 
-    private void addNewItem() {
-        final Window addWindow = dsWindowBuilder.getWindowForAddDs();
-
-        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.distribution")));
-        UI.getCurrent().addWindow(addWindow);
-        addWindow.setVisible(Boolean.TRUE);
-    }
-
-    private Boolean onLoadIsTableMaximized() {
-        return distributionSetGridLayoutUiState.isMaximized();
-    }
-
     private void maximizeTable() {
         eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, EventLayout.DS_LIST, EventView.DISTRIBUTIONS));
+                new LayoutResizeEventPayload(ResizeType.MAXIMIZE, EventLayout.DS_LIST, view));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.hideAddIcon();
@@ -138,7 +118,7 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
 
     private void minimizeTable() {
         eventBus.publish(CommandTopics.RESIZE_LAYOUT, this,
-                new LayoutResizeEventPayload(ResizeType.MINIMIZE, EventLayout.DS_LIST, EventView.DISTRIBUTIONS));
+                new LayoutResizeEventPayload(ResizeType.MINIMIZE, EventLayout.DS_LIST, view));
 
         if (addHeaderSupport != null) {
             addHeaderSupport.showAddIcon();
@@ -147,11 +127,33 @@ public class DistributionSetGridHeader extends AbstractGridHeader {
         distributionSetGridLayoutUiState.setMaximized(false);
     }
 
-    public void showDsTypeIcon() {
+    private Boolean onLoadIsTableMaximized() {
+        return distributionSetGridLayoutUiState.isMaximized();
+    }
+
+    public void addAddHeaderSupport(final DsWindowBuilder dsWindowBuilder) {
+        if (addHeaderSupport == null && permChecker.hasCreateRepositoryPermission()) {
+            this.dsWindowBuilder = dsWindowBuilder;
+
+            addHeaderSupport = new AddHeaderSupport(i18n, UIComponentIdProvider.DIST_ADD_ICON, this::addNewItem,
+                    this::onLoadIsTableMaximized);
+            addHeaderSupport(addHeaderSupport, getHeaderSupportsSize() - 1);
+        }
+    }
+
+    private void addNewItem() {
+        final Window addWindow = dsWindowBuilder.getWindowForAddDs();
+
+        addWindow.setCaption(i18n.getMessage("caption.create.new", i18n.getMessage("caption.distribution")));
+        UI.getCurrent().addWindow(addWindow);
+        addWindow.setVisible(Boolean.TRUE);
+    }
+
+    public void showDsFilterIcon() {
         filterButtonsHeaderSupport.showFilterButtonsIcon();
     }
 
-    public void hideDsTypeIcon() {
+    public void hideDsFilterIcon() {
         filterButtonsHeaderSupport.hideFilterButtonsIcon();
     }
 }

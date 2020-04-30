@@ -19,10 +19,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayoutUiState;
-import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridLayoutUiState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadId;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress.FileUploadStatus;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class ArtifactUploadState implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactUploadState.class);
 
     private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
-    private final SoftwareModuleGridLayoutUiState smGridLayoutUiState;
+    private final GridLayoutUiState smGridLayoutUiState;
     private final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState;
 
     private boolean statusPopupMinimized;
@@ -56,7 +56,7 @@ public class ArtifactUploadState implements Serializable {
 
     public ArtifactUploadState() {
         this.smTypeFilterLayoutUiState = new TypeFilterLayoutUiState();
-        this.smGridLayoutUiState = new SoftwareModuleGridLayoutUiState();
+        this.smGridLayoutUiState = new GridLayoutUiState();
         this.artifactDetailsGridLayoutUiState = new ArtifactDetailsGridLayoutUiState();
     }
 
@@ -72,7 +72,7 @@ public class ArtifactUploadState implements Serializable {
         return smTypeFilterLayoutUiState;
     }
 
-    public SoftwareModuleGridLayoutUiState getSmGridLayoutUiState() {
+    public GridLayoutUiState getSmGridLayoutUiState() {
         return smGridLayoutUiState;
     }
 

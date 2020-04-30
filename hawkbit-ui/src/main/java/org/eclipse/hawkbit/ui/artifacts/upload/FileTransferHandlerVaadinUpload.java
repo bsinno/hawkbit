@@ -91,7 +91,8 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
                 interruptUploadDueToIllegalFilename();
                 event.getUpload().interruptUpload();
             } else if (isFileAlreadyContainedInSoftwareModule(fileUploadId, softwareModule)) {
-                LOG.debug("File {} already contained in Software Module {}", fileUploadId.getFilename(), softwareModule);
+                LOG.debug("File {} already contained in Software Module {}", fileUploadId.getFilename(),
+                        softwareModule);
                 interruptUploadDueToDuplicateFile();
                 event.getUpload().interruptUpload();
             }
@@ -99,7 +100,7 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
     }
 
     private SoftwareModule getSelectedSoftwareModule() {
-        final Long lastSelectedSmId = getUploadState().getSmGridLayoutUiState().getSelectedSmId();
+        final Long lastSelectedSmId = getUploadState().getSmGridLayoutUiState().getSelectedEntityId();
 
         // if (getUploadState().isMoreThanOneSoftwareModulesSelected()) {
         // throw new IllegalStateException("More than one SoftwareModul selected

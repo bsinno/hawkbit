@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
@@ -30,6 +31,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -55,7 +57,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
             final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
             final ArtifactUploadState artifactUploadState, final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
-            final SoftwareModuleGridLayoutUiState smGridLayoutUiState) {
+            final GridLayoutUiState smGridLayoutUiState) {
         super();
 
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
@@ -64,14 +66,16 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
                 eventBus, uiNotification, permChecker, softwareModuleManagement);
 
         this.softwareModuleGridHeader = new SoftwareModuleGridHeader(i18n, permChecker, eventBus,
-                smTypeFilterLayoutUiState, smGridLayoutUiState, smWindowBuilder);
+                smTypeFilterLayoutUiState, smGridLayoutUiState, smWindowBuilder, EventView.UPLOAD);
         this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
                 artifactUploadState, smTypeFilterLayoutUiState, smGridLayoutUiState, softwareModuleManagement);
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder);
+        this.softwareModuleDetailsHeader.buildHeader();
         this.softwareModuleDetails = new SoftwareModuleDetails(i18n, eventBus, softwareModuleManagement,
                 smMetaDataWindowBuilder);
+        this.softwareModuleDetails.buildDetails();
 
         this.smFilterListener = new FilterChangedListener<>(eventBus, ProxySoftwareModule.class,
                 new EventViewAware(EventView.UPLOAD), softwareModuleGrid.getFilterSupport());

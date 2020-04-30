@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.grid.header;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
@@ -33,7 +34,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     protected final SpPermissionChecker permChecker;
     protected final transient UIEventBus eventBus;
 
-    private final transient Collection<HeaderSupport> headerSupports;
+    private final transient List<HeaderSupport> headerSupports;
 
     public AbstractGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus) {
@@ -51,7 +52,19 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     }
 
     protected void addHeaderSupports(final Collection<HeaderSupport> headerSupports) {
-        headerSupports.stream().filter(Objects::nonNull).forEach(this.headerSupports::add);
+        headerSupports.forEach(this::addHeaderSupport);
+    }
+
+    protected void addHeaderSupport(final HeaderSupport headerSupport) {
+        if (headerSupport != null) {
+            headerSupports.add(headerSupport);
+        }
+    }
+
+    protected void addHeaderSupport(final HeaderSupport headerSupport, final int index) {
+        if (headerSupport != null) {
+            headerSupports.add(index, headerSupport);
+        }
     }
 
     protected void init() {
@@ -64,7 +77,7 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         setHeight("50px");
     }
 
-    protected void buildHeader() {
+    public void buildHeader() {
         final HorizontalLayout headerComponentsLayout = new HorizontalLayout();
 
         headerComponentsLayout.addStyleName(SPUIStyleDefinitions.WIDGET_TITLE);
@@ -93,5 +106,9 @@ public abstract class AbstractGridHeader extends VerticalLayout {
     public void restoreState() {
         restoreCaption();
         headerSupports.stream().filter(Objects::nonNull).forEach(HeaderSupport::restoreState);
+    }
+
+    protected int getHeaderSupportsSize() {
+        return headerSupports.size();
     }
 }

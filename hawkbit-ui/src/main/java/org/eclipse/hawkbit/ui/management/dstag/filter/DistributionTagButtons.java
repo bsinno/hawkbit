@@ -24,6 +24,7 @@ import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractTagFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTagAssignmentSupport;
+import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -41,7 +42,7 @@ import com.vaadin.ui.Window;
 public class DistributionTagButtons extends AbstractTagFilterButtons {
     private static final long serialVersionUID = 1L;
 
-    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
+    private final TagFilterLayoutUiState distributionTagLayoutUiState;
 
     private final transient DistributionSetTagManagement distributionSetTagManagement;
     private final transient DsTagWindowBuilder dsTagWindowBuilder;
@@ -55,7 +56,7 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
             final UINotification uiNotification, final SpPermissionChecker permChecker,
             final DistributionSetTagManagement distributionSetTagManagement,
             final DistributionSetManagement distributionSetManagement, final DsTagWindowBuilder dsTagWindowBuilder,
-            final DistributionTagLayoutUiState distributionTagLayoutUiState) {
+            final TagFilterLayoutUiState distributionTagLayoutUiState) {
         super(eventBus, i18n, uiNotification, permChecker);
 
         this.distributionTagLayoutUiState = distributionTagLayoutUiState;
@@ -110,7 +111,7 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
 
     @Override
     protected void updateClickedTagsUiState(final Map<Long, String> activeTagIdsWithName) {
-        distributionTagLayoutUiState.setClickedDsTagIdsWithName(activeTagIdsWithName);
+        distributionTagLayoutUiState.setClickedTagIdsWithName(activeTagIdsWithName);
     }
 
     @Override
@@ -120,7 +121,7 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
 
     @Override
     protected Map<Long, String> getClickedTagIdsWithNameFromUiState() {
-        return distributionTagLayoutUiState.getClickedDsTagIdsWithName();
+        return distributionTagLayoutUiState.getClickedTagIdsWithName();
     }
 
     @Override

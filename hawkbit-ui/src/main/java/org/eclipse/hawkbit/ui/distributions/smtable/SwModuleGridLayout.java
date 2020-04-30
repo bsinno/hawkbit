@@ -19,8 +19,10 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridHeader;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
@@ -34,6 +36,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
+import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -45,11 +48,10 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
-    private final SwModuleGridHeader swModuleGridHeader;
+    private final SoftwareModuleGridHeader swModuleGridHeader;
     private final SwModuleGrid swModuleGrid;
-    // TODO: change to SwModuleDetailsHeader?
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
-    private final SwModuleDetails swModuleDetails;
+    private final SoftwareModuleDetails swModuleDetails;
 
     private final transient FilterChangedListener<ProxySoftwareModule> smFilterListener;
     private final transient SelectionChangedListener<ProxyDistributionSet> masterDsChangedListener;
@@ -61,20 +63,24 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
             final SpPermissionChecker permChecker, final ArtifactManagement artifactManagement,
             final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
-            final SwModuleGridLayoutUiState swModuleGridLayoutUiState) {
+            final GridLayoutUiState swModuleGridLayoutUiState) {
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 softwareModuleManagement, softwareModuleTypeManagement);
         final SmMetaDataWindowBuilder smMetaDataWindowBuilder = new SmMetaDataWindowBuilder(i18n, entityFactory,
                 eventBus, uiNotification, permChecker, softwareModuleManagement);
 
-        this.swModuleGridHeader = new SwModuleGridHeader(i18n, permChecker, eventBus, smWindowBuilder,
-                smTypeFilterLayoutUiState, swModuleGridLayoutUiState);
+        this.swModuleGridHeader = new SoftwareModuleGridHeader(i18n, permChecker, eventBus, smTypeFilterLayoutUiState,
+                swModuleGridLayoutUiState, smWindowBuilder, EventView.DISTRIBUTIONS);
         this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, softwareModuleManagement,
                 smTypeFilterLayoutUiState, swModuleGridLayoutUiState);
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
-                smWindowBuilder, smMetaDataWindowBuilder, artifactManagement);
-        this.swModuleDetails = new SwModuleDetails(i18n, eventBus, softwareModuleManagement, smMetaDataWindowBuilder);
+                smWindowBuilder, smMetaDataWindowBuilder);
+        this.softwareModuleDetailsHeader.addArtifactDetailsHeaderSupport(artifactManagement);
+        this.softwareModuleDetailsHeader.buildHeader();
+        this.swModuleDetails = new SoftwareModuleDetails(i18n, eventBus, softwareModuleManagement,
+                smMetaDataWindowBuilder);
+        this.swModuleDetails.buildDetails();
 
         this.smFilterListener = new FilterChangedListener<>(eventBus, ProxySoftwareModule.class,
                 new EventViewAware(EventView.DISTRIBUTIONS), swModuleGrid.getFilterSupport());

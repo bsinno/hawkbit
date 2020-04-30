@@ -182,11 +182,11 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(targetGridLayoutUiState.getSelectedTargetId());
+        return Optional.ofNullable(targetGridLayoutUiState.getSelectedEntityId());
     }
 
     private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        targetGridLayoutUiState.setSelectedTargetId(entityId.orElse(null));
+        targetGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
     }
 
     private void deleteTargets(final Collection<ProxyTarget> targetsToBeDeleted) {
@@ -448,8 +448,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
             getFilter().setNoTagClicked(targetTagFilterLayoutUiState.isNoTagClicked());
 
-            final Collection<String> tagFilterNames = targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName()
-                    .values();
+            final Collection<String> tagFilterNames = targetTagFilterLayoutUiState.getClickedTagIdsWithName().values();
             if (!CollectionUtils.isEmpty(tagFilterNames)) {
                 getFilter().setTargetTags(tagFilterNames);
             }

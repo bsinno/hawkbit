@@ -155,7 +155,7 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
             if (validate(event)) {
                 // selected software module at the time of file drop is
                 // considered for upload
-                final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedSmId();
+                final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedEntityId();
                 if (lastSelectedSmId != null) {
                     uploadFilesForSoftwareModule(event.getFiles(), lastSelectedSmId);
                 }
@@ -196,7 +196,7 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
         }
 
         private boolean validateSoftwareModuleSelection() {
-            final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedSmId();
+            final Long lastSelectedSmId = artifactUploadState.getSmGridLayoutUiState().getSelectedEntityId();
 
             if (lastSelectedSmId == null) {
                 uiNotification.displayValidationError(i18n.getMessage("message.error.noSwModuleSelected"));

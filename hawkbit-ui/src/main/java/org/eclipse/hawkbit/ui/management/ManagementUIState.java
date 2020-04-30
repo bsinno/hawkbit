@@ -10,10 +10,10 @@ package org.eclipse.hawkbit.ui.management;
 
 import java.io.Serializable;
 
+import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.management.actionhistory.ActionHistoryGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUploadUiState;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
-import org.eclipse.hawkbit.ui.management.dstag.filter.DistributionTagLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 
@@ -32,7 +32,7 @@ public class ManagementUIState implements Serializable {
     private final TargetGridLayoutUiState targetGridLayoutUiState;
     private final TargetBulkUploadUiState targetBulkUploadUiState;
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
-    private final DistributionTagLayoutUiState distributionTagLayoutUiState;
+    private final TagFilterLayoutUiState distributionTagLayoutUiState;
     private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
 
     ManagementUIState() {
@@ -40,7 +40,7 @@ public class ManagementUIState implements Serializable {
         this.targetGridLayoutUiState = new TargetGridLayoutUiState();
         this.targetBulkUploadUiState = new TargetBulkUploadUiState();
         this.distributionGridLayoutUiState = new DistributionGridLayoutUiState();
-        this.distributionTagLayoutUiState = new DistributionTagLayoutUiState();
+        this.distributionTagLayoutUiState = new TagFilterLayoutUiState();
         this.actionHistoryGridLayoutUiState = new ActionHistoryGridLayoutUiState();
 
         init();
@@ -62,7 +62,7 @@ public class ManagementUIState implements Serializable {
         return distributionGridLayoutUiState;
     }
 
-    public DistributionTagLayoutUiState getDistributionTagLayoutUiState() {
+    public TagFilterLayoutUiState getDistributionTagLayoutUiState() {
         return distributionTagLayoutUiState;
     }
 

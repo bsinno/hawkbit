@@ -8,14 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.details;
 
-import java.util.Arrays;
-
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
@@ -55,7 +53,7 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader
 
         this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, SPUIDefinitions.EXPAND_ARTIFACT_DETAILS,
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
-        addHeaderSupports(Arrays.asList(resizeHeaderSupport));
+        addHeaderSupport(resizeHeaderSupport);
 
         buildHeader();
     }
