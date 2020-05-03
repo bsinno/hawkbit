@@ -46,7 +46,7 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
 
         this.uiNotification = uiNotification;
         this.typeFilterLayoutUiState = typeFilterLayoutUiState;
-        this.typeFilterButtonClick = new TypeFilterButtonClick(this::publishFilterChangedEvent);
+        this.typeFilterButtonClick = new TypeFilterButtonClick(this::onFilterChanged);
     }
 
     @Override
@@ -54,13 +54,17 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
         return typeFilterButtonClick;
     }
 
-    private void publishFilterChangedEvent(final ProxyType typeFilter, final ClickBehaviourType clickType) {
+    private void onFilterChanged(final ProxyType typeFilter, final ClickBehaviourType clickType) {
         // TODO: somehow move it to abstract class/TypeFilterButtonClick
         // needed to trigger style generator
         getDataCommunicator().reset();
 
         final Long typeId = ClickBehaviourType.CLICKED == clickType ? typeFilter.getId() : null;
 
+        publishFilterChangedEvent(typeId);
+    }
+
+    private void publishFilterChangedEvent(final Long typeId) {
         eventBus.publish(EventTopics.FILTER_CHANGED, this,
                 new FilterChangedEventPayload<>(getFilterMasterEntityType(), FilterType.TYPE, typeId, getView()));
 
@@ -78,7 +82,7 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
         final String typeToDeleteName = typeToDelete.getName();
         final Long typeToDeleteId = typeToDelete.getId();
 
-        final Long clickedTypeId = getClickedTypeIdFromUiState();
+        final Long clickedTypeId = getFilterButtonClickBehaviour().getPreviouslyClickedFilterId();
 
         if (clickedTypeId != null && clickedTypeId.equals(typeToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.type.delete", typeToDeleteName));
@@ -99,13 +103,18 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
         }
     }
 
-    protected Long getClickedTypeIdFromUiState() {
-        return typeFilterLayoutUiState.getClickedTypeId();
-    }
-
     protected abstract boolean isDefaultType(final ProxyType typeToDelete);
 
     protected abstract void deleteType(final ProxyType typeToDelete);
+
+    public void resetFilterOnTypesDeleted(final Collection<Long> deletedTypeIds) {
+        final Long clickedTypeId = getFilterButtonClickBehaviour().getPreviouslyClickedFilterId();
+
+        if (clickedTypeId != null && deletedTypeIds.contains(clickedTypeId)) {
+            getFilterButtonClickBehaviour().setPreviouslyClickedFilterId(null);
+            publishFilterChangedEvent(null);
+        }
+    }
 
     @Override
     protected boolean isDeletionAllowed() {
@@ -124,7 +133,7 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
     protected abstract Window getUpdateWindow(final ProxyType clickedFilter);
 
     public void restoreState() {
-        final Long lastClickedTypeId = getClickedTypeIdFromUiState();
+        final Long lastClickedTypeId = typeFilterLayoutUiState.getClickedTypeId();
 
         if (lastClickedTypeId != null) {
             getFilterButtonClickBehaviour().setPreviouslyClickedFilterId(lastClickedTypeId);

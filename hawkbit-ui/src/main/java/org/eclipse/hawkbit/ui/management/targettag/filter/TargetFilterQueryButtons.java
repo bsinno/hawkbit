@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
+import java.util.Collection;
+
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
@@ -51,7 +53,7 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
 
         this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
 
-        this.customTargetTagFilterButtonClick = new CustomTargetTagFilterButtonClick(this::publishFilterChangedEvent);
+        this.customTargetTagFilterButtonClick = new CustomTargetTagFilterButtonClick(this::onFilterChangedEvent);
 
         this.tfqDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
                 new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
@@ -117,7 +119,7 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         return tfqButton;
     }
 
-    private void publishFilterChangedEvent(final ProxyTargetFilterQuery targetFilterQueryFilter,
+    private void onFilterChangedEvent(final ProxyTargetFilterQuery targetFilterQueryFilter,
             final ClickBehaviourType clickType) {
         // TODO: somehow move it to abstract class/TypeFilterButtonClick
         // needed to trigger style generator
@@ -126,16 +128,30 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         final Long targetFilterQueryId = ClickBehaviourType.CLICKED == clickType ? targetFilterQueryFilter.getId()
                 : null;
 
+        publishFilterChangedEvent(targetFilterQueryId);
+    }
+
+    private void publishFilterChangedEvent(final Long targetFilterQueryId) {
         eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(ProxyTarget.class,
                 FilterType.QUERY, targetFilterQueryId, EventView.DEPLOYMENT));
+
         targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(targetFilterQueryId);
     }
 
     public void clearAppliedTargetFilterQuery() {
-        if (customTargetTagFilterButtonClick.isFilterClicked()) {
-            customTargetTagFilterButtonClick.clearPreviouslyClickedFilter();
+        if (customTargetTagFilterButtonClick.getPreviouslyClickedFilterId() != null) {
+            customTargetTagFilterButtonClick.setPreviouslyClickedFilterId(null);
             targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(null);
             // TODO: should we reset data communicator here for styling update
+        }
+    }
+
+    public void resetFilterOnTfqDeleted(final Collection<Long> deletedTargetFilterQueryIds) {
+        final Long clickedTargetFilterQueryId = customTargetTagFilterButtonClick.getPreviouslyClickedFilterId();
+
+        if (clickedTargetFilterQueryId != null && deletedTargetFilterQueryIds.contains(clickedTargetFilterQueryId)) {
+            customTargetTagFilterButtonClick.setPreviouslyClickedFilterId(null);
+            publishFilterChangedEvent(null);
         }
     }
 

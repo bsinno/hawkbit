@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 
@@ -48,5 +49,25 @@ public abstract class AbstractFilterMultiButtonClick<T extends ProxyNamedEntity>
     public void setPreviouslyClickedFilterIdsWithName(final Map<Long, String> idsWithName) {
         this.previouslyClickedFilterIdsWithName.clear();
         this.previouslyClickedFilterIdsWithName.putAll(idsWithName);
+    }
+
+    public Map<Long, String> getPreviouslyClickedFilterIdsWithName() {
+        return previouslyClickedFilterIdsWithName;
+    }
+
+    public void clearPreviouslyClickedFilters() {
+        previouslyClickedFilterIdsWithName.clear();
+    }
+
+    public void removePreviouslyClickedFilter(final Long filterId) {
+        previouslyClickedFilterIdsWithName.remove(filterId);
+    }
+
+    public int getPreviouslyClickedFiltersSize() {
+        return previouslyClickedFilterIdsWithName.size();
+    }
+
+    public Set<Long> getPreviouslyClickedFilterIds() {
+        return previouslyClickedFilterIdsWithName.keySet();
     }
 }

@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype.filter;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGenericSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.distributions.disttype.DsTypeWindowBuilder;
@@ -91,7 +93,8 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(dSTypeFilterButtons::refreshAll));
+        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(dSTypeFilterButtons::refreshAll),
+                EntityModifiedGenericSupport.of(null, null, dSTypeFilterButtons::resetFilterOnTypesDeleted));
     }
 
     @Override

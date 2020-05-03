@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -24,6 +24,7 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterLayout;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGenericSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.management.dstag.DsTagWindowBuilder;
@@ -91,7 +92,8 @@ public class DistributionTagLayout extends AbstractFilterLayout {
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(distributionTagButtons::refreshAll));
+        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(distributionTagButtons::refreshAll),
+                EntityModifiedGenericSupport.of(null, null, distributionTagButtons::resetFilterOnTagsDeleted));
     }
 
     @Override

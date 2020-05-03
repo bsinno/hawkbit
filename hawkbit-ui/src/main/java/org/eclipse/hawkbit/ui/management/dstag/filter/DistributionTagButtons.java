@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.management.dstag.filter;
 
 import java.util.Collections;
-import java.util.Map;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
@@ -42,8 +41,6 @@ import com.vaadin.ui.Window;
 public class DistributionTagButtons extends AbstractTagFilterButtons {
     private static final long serialVersionUID = 1L;
 
-    private final TagFilterLayoutUiState distributionTagLayoutUiState;
-
     private final transient DistributionSetTagManagement distributionSetTagManagement;
     private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
@@ -57,9 +54,8 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
             final DistributionSetTagManagement distributionSetTagManagement,
             final DistributionSetManagement distributionSetManagement, final DsTagWindowBuilder dsTagWindowBuilder,
             final TagFilterLayoutUiState distributionTagLayoutUiState) {
-        super(eventBus, i18n, uiNotification, permChecker);
+        super(eventBus, i18n, uiNotification, permChecker, distributionTagLayoutUiState);
 
-        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.distributionSetTagManagement = distributionSetTagManagement;
         this.dsTagWindowBuilder = dsTagWindowBuilder;
 
@@ -107,26 +103,6 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
     @Override
     protected EventView getView() {
         return EventView.DEPLOYMENT;
-    }
-
-    @Override
-    protected void updateClickedTagsUiState(final Map<Long, String> activeTagIdsWithName) {
-        distributionTagLayoutUiState.setClickedTagIdsWithName(activeTagIdsWithName);
-    }
-
-    @Override
-    protected void updateClickedNoTagUiState(final boolean isNoTagActivated) {
-        distributionTagLayoutUiState.setNoTagClicked(isNoTagActivated);
-    }
-
-    @Override
-    protected Map<Long, String> getClickedTagIdsWithNameFromUiState() {
-        return distributionTagLayoutUiState.getClickedTagIdsWithName();
-    }
-
-    @Override
-    protected boolean getClickedNoTagFromUiState() {
-        return distributionTagLayoutUiState.isNoTagClicked();
     }
 
     @Override

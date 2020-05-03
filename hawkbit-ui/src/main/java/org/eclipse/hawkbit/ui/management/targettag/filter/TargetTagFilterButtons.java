@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
 import java.util.Collections;
-import java.util.Map;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
@@ -25,7 +24,6 @@ import org.eclipse.hawkbit.ui.common.filterlayout.AbstractTagFilterButtons;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetsToTagAssignmentSupport;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -41,8 +39,6 @@ import com.vaadin.ui.Window;
 public class TargetTagFilterButtons extends AbstractTagFilterButtons {
     private static final long serialVersionUID = 1L;
 
-    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
-
     private final transient TargetTagManagement targetTagManagement;
     private final transient TargetTagWindowBuilder targetTagWindowBuilder;
 
@@ -55,9 +51,8 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
             final SpPermissionChecker permChecker, final TargetTagManagement targetTagManagement,
             final TargetManagement targetManagement, final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
             final TargetTagWindowBuilder targetTagWindowBuilder) {
-        super(eventBus, i18n, notification, permChecker);
+        super(eventBus, i18n, notification, permChecker, targetTagFilterLayoutUiState);
 
-        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
         this.targetTagManagement = targetTagManagement;
         this.targetTagWindowBuilder = targetTagWindowBuilder;
 
@@ -107,26 +102,6 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
     }
 
     @Override
-    protected void updateClickedTagsUiState(final Map<Long, String> activeTagIdsWithName) {
-        targetTagFilterLayoutUiState.setClickedTagIdsWithName(activeTagIdsWithName);
-    }
-
-    @Override
-    protected void updateClickedNoTagUiState(final boolean isNoTagActivated) {
-        targetTagFilterLayoutUiState.setNoTagClicked(isNoTagActivated);
-    }
-
-    @Override
-    protected Map<Long, String> getClickedTagIdsWithNameFromUiState() {
-        return targetTagFilterLayoutUiState.getClickedTagIdsWithName();
-    }
-
-    @Override
-    protected boolean getClickedNoTagFromUiState() {
-        return targetTagFilterLayoutUiState.isNoTagClicked();
-    }
-
-    @Override
     protected void deleteTag(final ProxyTag tagToDelete) {
         targetTagManagement.delete(tagToDelete.getName());
     }
@@ -139,18 +114,5 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
     @Override
     protected Window getUpdateWindow(final ProxyTag clickedFilter) {
         return targetTagWindowBuilder.getWindowForUpdate(clickedFilter);
-    }
-
-    public void clearTargetTagFilters() {
-        if (getFilterButtonClickBehaviour().getPreviouslyClickedFiltersSize() > 0) {
-            if (targetTagFilterLayoutUiState.isNoTagClicked()) {
-                targetTagFilterLayoutUiState.setNoTagClicked(false);
-                getNoTagButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
-            }
-
-            getFilterButtonClickBehaviour().clearPreviouslyClickedFilters();
-            targetTagFilterLayoutUiState.setClickedTagIdsWithName(Collections.emptyMap());
-            // TODO: should we reset data communicator here for styling update
-        }
     }
 }

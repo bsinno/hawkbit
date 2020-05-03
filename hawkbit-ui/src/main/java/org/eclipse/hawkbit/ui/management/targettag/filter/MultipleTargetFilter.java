@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.targettag.filter;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.ui.common.event.TargetFilterTabChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.GridActionsVisibilityListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGenericSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -119,11 +120,13 @@ public class MultipleTargetFilter extends Accordion {
     }
 
     private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(filterByButtons::refreshAll));
+        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(filterByButtons::refreshAll),
+                EntityModifiedGenericSupport.of(null, null, filterByButtons::resetFilterOnTagsDeleted));
     }
 
     private List<EntityModifiedAwareSupport> getFilterQueryModifiedAwareSupports() {
-        return Collections.singletonList(EntityModifiedGridRefreshAwareSupport.of(customFilterTab::refreshAll));
+        return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(customFilterTab::refreshAll),
+                EntityModifiedGenericSupport.of(null, null, filterByButtons::resetFilterOnTagsDeleted));
     }
 
     private void init() {

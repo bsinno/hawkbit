@@ -42,12 +42,4 @@ public class CustomTargetTagFilterButtonClick extends AbstractFilterSingleButton
     protected void filterClicked(final ProxyTargetFilterQuery clickedFilter) {
         filterChangedCallback.accept(clickedFilter, ClickBehaviourType.CLICKED);
     }
-
-    void clearPreviouslyClickedFilter() {
-        previouslyClickedFilterId = null;
-    }
-
-    boolean isFilterClicked() {
-        return previouslyClickedFilterId != null;
-    }
 }

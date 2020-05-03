@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
+import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -42,18 +44,21 @@ import com.vaadin.ui.Window;
 public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<ProxyTag, Void> {
     private static final long serialVersionUID = 1L;
 
+    private final TagFilterLayoutUiState tagFilterLayoutUiState;
+
     private final UINotification uiNotification;
     private final Button noTagButton;
     private final transient TagFilterButtonClick tagFilterButtonClick;
 
     public AbstractTagFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
-            final UINotification uiNotification, final SpPermissionChecker permChecker) {
+            final UINotification uiNotification, final SpPermissionChecker permChecker,
+            final TagFilterLayoutUiState tagFilterLayoutUiState) {
         super(eventBus, i18n, uiNotification, permChecker);
 
+        this.tagFilterLayoutUiState = tagFilterLayoutUiState;
         this.uiNotification = uiNotification;
         this.noTagButton = buildNoTagButton();
-        this.tagFilterButtonClick = new TagFilterButtonClick(this::publishFilterChangedEvent,
-                this::publishNoTagChangedEvent);
+        this.tagFilterButtonClick = new TagFilterButtonClick(this::onFilterChangedEvent, this::onNoTagChangedEvent);
     }
 
     private Button buildNoTagButton() {
@@ -76,24 +81,26 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         return tagFilterButtonClick;
     }
 
-    private void publishFilterChangedEvent(final Map<Long, String> activeTagIdsWithName) {
+    private void onFilterChangedEvent(final Map<Long, String> activeTagIdsWithName) {
         // TODO: somehow move it to abstract class/TypeFilterButtonClick
         // needed to trigger style generator
         getDataCommunicator().reset();
 
+        publishFilterChangedEvent(activeTagIdsWithName);
+    }
+
+    private void publishFilterChangedEvent(final Map<Long, String> activeTagIdsWithName) {
         eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(getFilterMasterEntityType(),
                 FilterType.TAG, activeTagIdsWithName.values(), getView()));
 
-        updateClickedTagsUiState(activeTagIdsWithName);
+        tagFilterLayoutUiState.setClickedTagIdsWithName(activeTagIdsWithName);
     }
 
     protected abstract Class<? extends ProxyIdentifiableEntity> getFilterMasterEntityType();
 
     protected abstract EventView getView();
 
-    protected abstract void updateClickedTagsUiState(final Map<Long, String> activeTagIdsWithName);
-
-    private void publishNoTagChangedEvent(final ClickBehaviourType clickType) {
+    private void onNoTagChangedEvent(final ClickBehaviourType clickType) {
         final boolean isNoTagActivated = ClickBehaviourType.CLICKED == clickType;
 
         if (isNoTagActivated) {
@@ -102,13 +109,15 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
             getNoTagButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
 
+        publishNoTagChangedEvent(isNoTagActivated);
+    }
+
+    private void publishNoTagChangedEvent(final boolean isNoTagActivated) {
         eventBus.publish(EventTopics.FILTER_CHANGED, this, new FilterChangedEventPayload<>(getFilterMasterEntityType(),
                 FilterType.NO_TAG, isNoTagActivated, getView()));
 
-        updateClickedNoTagUiState(isNoTagActivated);
+        tagFilterLayoutUiState.setNoTagClicked(isNoTagActivated);
     }
-
-    protected abstract void updateClickedNoTagUiState(boolean isNoTagActivated);
 
     @Override
     protected boolean deleteFilterButtons(final Collection<ProxyTag> filterButtonsToDelete) {
@@ -117,7 +126,7 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         final String tagToDeleteName = tagToDelete.getName();
         final Long tagToDeleteId = tagToDelete.getId();
 
-        final Set<Long> clickedTagIds = getClickedTagIdsWithNameFromUiState().keySet();
+        final Set<Long> clickedTagIds = getFilterButtonClickBehaviour().getPreviouslyClickedFilterIds();
 
         if (!CollectionUtils.isEmpty(clickedTagIds) && clickedTagIds.contains(tagToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", tagToDeleteName));
@@ -134,11 +143,18 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         }
     }
 
-    protected abstract Map<Long, String> getClickedTagIdsWithNameFromUiState();
-
-    protected abstract boolean getClickedNoTagFromUiState();
-
     protected abstract void deleteTag(final ProxyTag tagToDelete);
+
+    public void resetFilterOnTagsDeleted(final Collection<Long> deletedTagIds) {
+        final Set<Long> clickedTagIds = getFilterButtonClickBehaviour().getPreviouslyClickedFilterIds();
+
+        if (CollectionUtils.isEmpty(clickedTagIds) || Collections.disjoint(clickedTagIds, deletedTagIds)) {
+            return;
+        }
+
+        deletedTagIds.forEach(getFilterButtonClickBehaviour()::removePreviouslyClickedFilter);
+        publishFilterChangedEvent(getFilterButtonClickBehaviour().getPreviouslyClickedFilterIdsWithName());
+    }
 
     @Override
     protected void editButtonClickListener(final ProxyTag clickedFilter) {
@@ -155,15 +171,28 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         return noTagButton;
     }
 
+    public void clearTargetTagFilters() {
+        if (getFilterButtonClickBehaviour().getPreviouslyClickedFiltersSize() > 0) {
+            if (tagFilterLayoutUiState.isNoTagClicked()) {
+                tagFilterLayoutUiState.setNoTagClicked(false);
+                getNoTagButton().removeStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
+            }
+
+            getFilterButtonClickBehaviour().clearPreviouslyClickedFilters();
+            tagFilterLayoutUiState.setClickedTagIdsWithName(Collections.emptyMap());
+            // TODO: should we reset data communicator here for styling update
+        }
+    }
+
     public void restoreState() {
-        final Map<Long, String> tagsToRestore = getClickedTagIdsWithNameFromUiState();
+        final Map<Long, String> tagsToRestore = tagFilterLayoutUiState.getClickedTagIdsWithName();
 
         if (!CollectionUtils.isEmpty(tagsToRestore)) {
             getFilterButtonClickBehaviour().setPreviouslyClickedFilterIdsWithName(tagsToRestore);
             // TODO: should we reset data communicator here for styling update
         }
 
-        if (getClickedNoTagFromUiState()) {
+        if (tagFilterLayoutUiState.isNoTagClicked()) {
             getNoTagButton().addStyleName(SPUIStyleDefinitions.SP_NO_TAG_BTN_CLICKED_STYLE);
         }
     }

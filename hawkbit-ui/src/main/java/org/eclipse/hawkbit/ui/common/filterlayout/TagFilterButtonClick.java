@@ -45,12 +45,4 @@ public class TagFilterButtonClick extends AbstractFilterMultiButtonClick<ProxyTa
             filterChangedCallback.accept(previouslyClickedFilterIdsWithName);
         }
     }
-
-    public void clearPreviouslyClickedFilters() {
-        previouslyClickedFilterIdsWithName.clear();
-    }
-
-    public int getPreviouslyClickedFiltersSize() {
-        return previouslyClickedFilterIdsWithName.size();
-    }
 }

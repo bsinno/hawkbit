@@ -9,7 +9,6 @@ package org.eclipse.hawkbit.ui.common.layout.listener.support;
 
 import java.util.Collection;
 
-import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.tagdetails.AbstractTagToken;
 
