@@ -102,6 +102,7 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
     private SoftwareModule getSelectedSoftwareModule() {
         final Long lastSelectedSmId = getUploadState().getSmGridLayoutUiState().getSelectedEntityId();
 
+        // TODO: check if needed
         // if (getUploadState().isMoreThanOneSoftwareModulesSelected()) {
         // throw new IllegalStateException("More than one SoftwareModul selected
         // but only one is allowed");

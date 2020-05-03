@@ -189,13 +189,15 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         targetGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
     }
 
-    private void deleteTargets(final Collection<ProxyTarget> targetsToBeDeleted) {
+    private boolean deleteTargets(final Collection<ProxyTarget> targetsToBeDeleted) {
         final Collection<Long> targetToBeDeletedIds = targetsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         targetManagement.delete(targetToBeDeletedIds);
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyTarget.class, targetToBeDeletedIds));
+
+        return true;
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyTarget pinnedItem) {

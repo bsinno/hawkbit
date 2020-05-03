@@ -11,8 +11,8 @@ package org.eclipse.hawkbit.ui.common.grid.support;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
@@ -40,7 +40,7 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
     private final VaadinMessageSource i18n;
     private final String entityType;
     private final UINotification notification;
-    private final Consumer<Collection<T>> itemsDeletionCallback;
+    private final Predicate<Collection<T>> itemsDeletionCallback;
     private final String deletionWindowId;
     private final Function<T, String> entityNameGenerator;
 
@@ -48,7 +48,7 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
 
     public DeleteSupport(final Grid<T> grid, final VaadinMessageSource i18n, final UINotification notification,
             final String entityType, final Function<T, String> entityNameGenerator,
-            final Consumer<Collection<T>> itemsDeletionCallback, final String deletionWindowId) {
+            final Predicate<Collection<T>> itemsDeletionCallback, final String deletionWindowId) {
         this.grid = grid;
         this.i18n = i18n;
         this.entityType = entityType;
@@ -129,17 +129,20 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
             final String failureNotificationText) {
         grid.deselectAll();
 
+        boolean isDeletionSuccessfull = false;
         try {
-            itemsDeletionCallback.accept(itemsToBeDeleted);
+            isDeletionSuccessfull = itemsDeletionCallback.test(itemsToBeDeleted);
         } catch (final Exception ex) {
             final String itemsToBeDeletedIds = itemsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                     .map(String::valueOf).collect(Collectors.joining(","));
             LOG.warn("Deletion of {} with ids '{}' failed", entityType, itemsToBeDeletedIds);
-
-            notification.displayWarning(failureNotificationText);
         }
 
-        notification.displaySuccess(successNotificationText);
+        if (isDeletionSuccessfull) {
+            notification.displaySuccess(successNotificationText);
+        } else {
+            notification.displayWarning(failureNotificationText);
+        }
     }
 
     public void setConfirmationQuestionDetailsGenerator(

@@ -74,7 +74,7 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
         addGridSelectionListener();
     }
 
-    private void deleteMetaData(final Collection<ProxyMetaData> metaDataToDelete) {
+    private boolean deleteMetaData(final Collection<ProxyMetaData> metaDataToDelete) {
         if (masterEntityFilter != null && !CollectionUtils.isEmpty(metaDataToDelete)) {
             // as of now we only allow deletion of single metadata entry
             final String metaDataKey = metaDataToDelete.iterator().next().getKey();
@@ -83,10 +83,14 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
             smMetaDataWindowGrid.refreshAll();
 
             publishEntityModifiedEvent();
+
+            return true;
         } else {
             // TODO: use i18n
             uiNotification.displayValidationError(
                     "No software module is currently selected or metadata to delete is missing");
+
+            return false;
         }
     }
 

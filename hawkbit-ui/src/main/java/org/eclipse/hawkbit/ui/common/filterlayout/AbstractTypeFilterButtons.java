@@ -72,7 +72,7 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
     protected abstract EventView getView();
 
     @Override
-    protected void deleteFilterButtons(final Collection<ProxyType> filterButtonsToDelete) {
+    protected boolean deleteFilterButtons(final Collection<ProxyType> filterButtonsToDelete) {
         // We do not allow multiple deletion yet
         final ProxyType typeToDelete = filterButtonsToDelete.iterator().next();
         final String typeToDeleteName = typeToDelete.getName();
@@ -82,14 +82,20 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
 
         if (clickedTypeId != null && clickedTypeId.equals(typeToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.type.delete", typeToDeleteName));
+
+            return false;
         } else if (isDefaultType(typeToDelete)) {
             uiNotification.displayValidationError(i18n.getMessage("message.cannot.delete.default.dstype"));
+
+            return false;
         } else {
             deleteType(typeToDelete);
 
             eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                     new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, getFilterMasterEntityType(),
                             ProxyType.class, typeToDeleteId));
+
+            return true;
         }
     }
 

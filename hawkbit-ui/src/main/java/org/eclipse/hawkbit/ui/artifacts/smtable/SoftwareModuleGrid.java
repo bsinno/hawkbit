@@ -9,12 +9,14 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
@@ -61,10 +63,10 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private static final String SM_VENDOR_ID = "smVendor";
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
 
-    private final ArtifactUploadState artifactUploadState;
+    private final UINotification notification;
+
     private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final GridLayoutUiState smGridLayoutUiState;
-    private final UINotification notification;
 
     private final transient SoftwareModuleManagement softwareModuleManagement;
     private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
@@ -72,13 +74,14 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
     private final transient FilterSupport<ProxySoftwareModule, SwFilterParams> filterSupport;
 
+    private final Map<Long, Integer> smNumberOfUploads;
+
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
-            final ArtifactUploadState artifactUploadState, final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
-            final GridLayoutUiState smGridLayoutUiState, final SoftwareModuleManagement softwareModuleManagement) {
+            final TypeFilterLayoutUiState smTypeFilterLayoutUiState, final GridLayoutUiState smGridLayoutUiState,
+            final SoftwareModuleManagement softwareModuleManagement) {
         super(i18n, eventBus, permissionChecker);
 
-        this.artifactUploadState = artifactUploadState;
         this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
         this.smGridLayoutUiState = smGridLayoutUiState;
         this.notification = notification;
@@ -104,6 +107,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 new SoftwareModuleArtifactsStateDataProvider(softwareModuleManagement, softwareModuleToProxyMapper),
                 getSelectionSupport()::deselectAll);
         this.filterSupport.setFilter(new SwFilterParams());
+
+        this.smNumberOfUploads = new HashMap<>();
 
         initFilterMappings();
         init();
@@ -133,27 +138,46 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         smGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
     }
 
-    private void deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
+    private boolean deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
         final Collection<Long> swModuleToBeDeletedIds = swModulesToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         if (isUploadInProgressForSoftwareModule(swModuleToBeDeletedIds)) {
             notification.displayValidationError(i18n.getMessage("message.error.swModule.notDeleted"));
-            return;
+
+            return false;
         }
 
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxySoftwareModule.class, swModuleToBeDeletedIds));
+
+        return true;
     }
 
     private boolean isUploadInProgressForSoftwareModule(final Collection<Long> swModuleToBeDeletedIds) {
-        for (final Long id : swModuleToBeDeletedIds) {
-            if (artifactUploadState.isUploadInProgressForSelectedSoftwareModule(id)) {
-                return true;
-            }
+        return swModuleToBeDeletedIds.stream()
+                .anyMatch(smId -> smNumberOfUploads.containsKey(smId) && smNumberOfUploads.get(smId) > 0);
+    }
+
+    public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
+        final FileUploadProgress.FileUploadStatus uploadProgressEventType = fileUploadProgress.getFileUploadStatus();
+        final Long fileUploadSmId = fileUploadProgress.getFileUploadId().getSoftwareModuleId();
+
+        if (fileUploadSmId == null) {
+            return;
         }
-        return false;
+
+        if (FileUploadProgress.FileUploadStatus.UPLOAD_STARTED == uploadProgressEventType) {
+            smNumberOfUploads.merge(fileUploadSmId, 1, Integer::sum);
+        }
+
+        if (FileUploadProgress.FileUploadStatus.UPLOAD_FINISHED == uploadProgressEventType) {
+            smNumberOfUploads.computeIfPresent(fileUploadSmId, (smId, oldCount) -> {
+                final Integer newCount = oldCount - 1;
+                return newCount.equals(0) ? null : newCount;
+            });
+        }
     }
 
     @Override

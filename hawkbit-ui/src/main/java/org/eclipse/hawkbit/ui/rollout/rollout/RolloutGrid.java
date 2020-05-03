@@ -161,7 +161,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         rolloutManagementUIState.setSelectedRolloutId(entityId.orElse(null));
     }
 
-    private void deleteRollout(final Collection<ProxyRollout> rolloutsToBeDeleted) {
+    private boolean deleteRollout(final Collection<ProxyRollout> rolloutsToBeDeleted) {
         final Collection<Long> rolloutToBeDeletedIds = rolloutsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         rolloutToBeDeletedIds.forEach(rolloutManagement::delete);
@@ -170,6 +170,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         // deleting state
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, rolloutToBeDeletedIds));
+
+        return true;
     }
 
     private String getDeletionDetails(final ProxyRollout rollout) {

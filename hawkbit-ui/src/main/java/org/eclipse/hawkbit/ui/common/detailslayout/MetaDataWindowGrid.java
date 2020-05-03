@@ -9,7 +9,7 @@
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.Collection;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
@@ -46,7 +46,7 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
     public MetaDataWindowGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final AbstractMetaDataDataProvider<?, F> dataProvider,
-            final Consumer<Collection<ProxyMetaData>> itemsDeletionCallback) {
+            final Predicate<Collection<ProxyMetaData>> itemsDeletionCallback) {
         super(i18n, eventBus, permissionChecker);
 
         this.metaDataDataProvider = dataProvider.withConfigurableFilter();

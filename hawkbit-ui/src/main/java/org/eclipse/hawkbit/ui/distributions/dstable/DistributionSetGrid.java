@@ -152,7 +152,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         distributionSetGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
     }
 
-    private void deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
+    private boolean deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
         final Collection<Long> dsToBeDeletedIds = setsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         dsManagement.delete(dsToBeDeletedIds);
@@ -160,6 +160,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class, dsToBeDeletedIds));
 
+        return true;
         // TODO: check if we need to notify Deployment View if deleted DS was
         // pinned
         // getPinnedDsIdFromUiState()

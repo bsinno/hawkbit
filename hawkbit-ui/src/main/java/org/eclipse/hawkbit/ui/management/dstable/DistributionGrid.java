@@ -182,13 +182,15 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         distributionGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
     }
 
-    private void deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
+    private boolean deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
         final Collection<Long> dsToBeDeletedIds = setsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         distributionSetManagement.delete(dsToBeDeletedIds);
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class, dsToBeDeletedIds));
+
+        return true;
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyDistributionSet pinnedItem) {

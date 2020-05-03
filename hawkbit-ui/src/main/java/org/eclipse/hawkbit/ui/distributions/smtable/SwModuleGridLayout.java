@@ -64,6 +64,8 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
             final SpPermissionChecker permChecker, final ArtifactManagement artifactManagement,
             final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
             final GridLayoutUiState swModuleGridLayoutUiState) {
+        super();
+
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 softwareModuleManagement, softwareModuleTypeManagement);
         final SmMetaDataWindowBuilder smMetaDataWindowBuilder = new SmMetaDataWindowBuilder(i18n, entityFactory,
@@ -86,7 +88,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         this.smFilterListener = new FilterChangedListener<>(eventBus, ProxySoftwareModule.class,
                 new EventViewAware(EventView.DISTRIBUTIONS), swModuleGrid.getFilterSupport());
         this.masterDsChangedListener = new SelectionChangedListener<>(eventBus,
-                new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS), getMasterDswareComponents());
+                new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS), getMasterDsAwareComponents());
         this.masterSmChangedListener = new SelectionChangedListener<>(eventBus,
                 new EventLayoutViewAware(EventLayout.SM_LIST, EventView.DISTRIBUTIONS), getMasterSmAwareComponents());
         this.smModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxySoftwareModule.class)
@@ -95,7 +97,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         buildLayout(swModuleGridHeader, swModuleGrid, softwareModuleDetailsHeader, swModuleDetails);
     }
 
-    private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterDswareComponents() {
+    private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterDsAwareComponents() {
         return Collections.singletonList(swModuleGrid);
     }
 

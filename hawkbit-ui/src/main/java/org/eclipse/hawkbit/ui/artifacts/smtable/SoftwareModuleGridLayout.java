@@ -15,12 +15,13 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.artifacts.ArtifactUploadState;
+import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.SoftwareModuleDetailsHeader;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
@@ -28,6 +29,7 @@ import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.GenericEventListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
@@ -51,13 +53,13 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     private final transient FilterChangedListener<ProxySoftwareModule> smFilterListener;
     private final transient SelectionChangedListener<ProxySoftwareModule> masterSmChangedListener;
     private final transient EntityModifiedListener<ProxySoftwareModule> smModifiedListener;
+    private final transient GenericEventListener<FileUploadProgress> fileUploadChangedListener;
 
     public SoftwareModuleGridLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UINotification uiNotification, final UIEventBus eventBus,
             final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
-            final ArtifactUploadState artifactUploadState, final TypeFilterLayoutUiState smTypeFilterLayoutUiState,
-            final GridLayoutUiState smGridLayoutUiState) {
+            final TypeFilterLayoutUiState smTypeFilterLayoutUiState, final GridLayoutUiState smGridLayoutUiState) {
         super();
 
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
@@ -69,7 +71,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
                 smTypeFilterLayoutUiState, smGridLayoutUiState, smWindowBuilder, EventView.UPLOAD);
         this.softwareModuleGridHeader.buildHeader();
         this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
-                artifactUploadState, smTypeFilterLayoutUiState, smGridLayoutUiState, softwareModuleManagement);
+                smTypeFilterLayoutUiState, smGridLayoutUiState, softwareModuleManagement);
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder);
@@ -84,6 +86,8 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
                 new EventLayoutViewAware(EventLayout.SM_LIST, EventView.UPLOAD), getMasterSmAwareComponents());
         this.smModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxySoftwareModule.class)
                 .entityModifiedAwareSupports(getSmModifiedAwareSupports()).build();
+        this.fileUploadChangedListener = new GenericEventListener<>(eventBus, EventTopics.FILE_UPLOAD_CHANGED,
+                this::onUploadChanged);
 
         buildLayout(softwareModuleGridHeader, softwareModuleGrid, softwareModuleDetailsHeader, softwareModuleDetails);
     }
@@ -96,6 +100,10 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         return Arrays.asList(EntityModifiedGridRefreshAwareSupport.of(softwareModuleGrid::refreshAll),
                 EntityModifiedSelectionAwareSupport.of(softwareModuleGrid.getSelectionSupport(),
                         softwareModuleGrid::mapIdToProxyEntity));
+    }
+
+    public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
+        softwareModuleGrid.onUploadChanged(fileUploadProgress);
     }
 
     public void showSmTypeHeaderIcon() {
@@ -125,5 +133,6 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
         smFilterListener.unsubscribe();
         masterSmChangedListener.unsubscribe();
         smModifiedListener.unsubscribe();
+        fileUploadChangedListener.unsubscribe();
     }
 }

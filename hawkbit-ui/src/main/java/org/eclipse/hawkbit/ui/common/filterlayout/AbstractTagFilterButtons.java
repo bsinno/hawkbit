@@ -111,7 +111,7 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
     protected abstract void updateClickedNoTagUiState(boolean isNoTagActivated);
 
     @Override
-    protected void deleteFilterButtons(final Collection<ProxyTag> filterButtonsToDelete) {
+    protected boolean deleteFilterButtons(final Collection<ProxyTag> filterButtonsToDelete) {
         // We do not allow multiple deletion of tags yet
         final ProxyTag tagToDelete = filterButtonsToDelete.iterator().next();
         final String tagToDeleteName = tagToDelete.getName();
@@ -121,12 +121,16 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
 
         if (!CollectionUtils.isEmpty(clickedTagIds) && clickedTagIds.contains(tagToDeleteId)) {
             uiNotification.displayValidationError(i18n.getMessage("message.tag.delete", tagToDeleteName));
+
+            return false;
         } else {
             deleteTag(tagToDelete);
 
             eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
                     new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_REMOVED, getFilterMasterEntityType(),
                             ProxyTag.class, tagToDeleteId));
+
+            return true;
         }
     }
 

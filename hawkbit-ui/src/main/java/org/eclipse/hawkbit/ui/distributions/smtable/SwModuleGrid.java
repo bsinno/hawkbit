@@ -67,6 +67,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
 
     private final TypeFilterLayoutUiState smTypeFilterLayoutUiState;
     private final GridLayoutUiState swModuleGridLayoutUiState;
+
     private final transient SoftwareModuleManagement softwareModuleManagement;
     private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
     private final transient AssignedSoftwareModuleToProxyMapper assignedSoftwareModuleToProxyMapper;
@@ -141,13 +142,15 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
         swModuleGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
     }
 
-    private void deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
+    private boolean deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {
         final Collection<Long> swModuleToBeDeletedIds = swModulesToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         softwareModuleManagement.delete(swModuleToBeDeletedIds);
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxySoftwareModule.class, swModuleToBeDeletedIds));
+
+        return true;
     }
 
     private void initMasterDsStyleGenerator() {

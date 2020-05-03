@@ -75,7 +75,7 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
         addGridSelectionListener();
     }
 
-    private void deleteMetaData(final Collection<ProxyMetaData> metaDataToDelete) {
+    private boolean deleteMetaData(final Collection<ProxyMetaData> metaDataToDelete) {
         if (masterEntityFilter != null && !CollectionUtils.isEmpty(metaDataToDelete)) {
             // as of now we only allow deletion of single metadata entry
             final String metaDataKey = metaDataToDelete.iterator().next().getKey();
@@ -84,10 +84,14 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
             dsMetaDataWindowGrid.refreshAll();
 
             publishEntityModifiedEvent();
+
+            return true;
         } else {
             // TODO: use i18n
             uiNotification.displayValidationError(
                     "No distribution set is currently selected or metadata to delete is missing");
+
+            return false;
         }
     }
 

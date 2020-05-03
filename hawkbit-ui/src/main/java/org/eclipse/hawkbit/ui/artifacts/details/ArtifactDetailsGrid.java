@@ -86,13 +86,15 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
         addStyleName("grid-row-border");
     }
 
-    private void artifactsDeletionCallback(final Collection<ProxyArtifact> artifactsToBeDeleted) {
+    private boolean artifactsDeletionCallback(final Collection<ProxyArtifact> artifactsToBeDeleted) {
         final Collection<Long> artifactToBeDeletedIds = artifactsToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         artifactToBeDeletedIds.forEach(artifactManagement::delete);
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class, masterId));
+
+        return true;
     }
 
     @Override

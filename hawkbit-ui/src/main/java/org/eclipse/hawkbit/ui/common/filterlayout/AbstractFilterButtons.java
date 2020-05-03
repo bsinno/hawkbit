@@ -73,7 +73,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
     protected abstract String getFilterButtonsType();
 
-    protected abstract void deleteFilterButtons(Collection<T> filterButtonsToDelete);
+    protected abstract boolean deleteFilterButtons(Collection<T> filterButtonsToDelete);
 
     @Override
     public void addColumns() {

@@ -124,13 +124,15 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         return filterSupport.getFilterDataProvider();
     }
 
-    private void targetFiltersDeletionCallback(final Collection<ProxyTargetFilterQuery> targetFiltersToBeDeleted) {
+    private boolean targetFiltersDeletionCallback(final Collection<ProxyTargetFilterQuery> targetFiltersToBeDeleted) {
         final Collection<Long> targetFilterIdsToBeDeleted = targetFiltersToBeDeleted.stream()
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         targetFilterIdsToBeDeleted.forEach(targetFilterQueryManagement::delete);
 
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_REMOVED, ProxyTargetFilterQuery.class, targetFilterIdsToBeDeleted));
+
+        return true;
     }
 
     @Override

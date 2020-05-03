@@ -77,7 +77,7 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
         addGridSelectionListener();
     }
 
-    private void deleteMetaData(final Collection<ProxyMetaData> metaDataToDelete) {
+    private boolean deleteMetaData(final Collection<ProxyMetaData> metaDataToDelete) {
         if (!StringUtils.isEmpty(masterEntityFilter) && !CollectionUtils.isEmpty(metaDataToDelete)) {
             // as of now we only allow deletion of single metadata entry
             final String metaDataKey = metaDataToDelete.iterator().next().getKey();
@@ -86,9 +86,13 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
             targetMetaDataWindowGrid.refreshAll();
 
             publishEntityModifiedEvent();
+
+            return true;
         } else {
             // TODO: use i18n
             uiNotification.displayValidationError("No Target is currently selected or metadata to delete is missing");
+
+            return false;
         }
     }
 
