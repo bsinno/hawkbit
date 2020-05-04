@@ -54,7 +54,7 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<MasterEntityAwareComponent<ProxyActionStatus>> getMasterEntityAwareComponents() {
-        return Collections.singletonList(actionStatusMsgGrid);
+        return Collections.singletonList(actionStatusMsgGrid.getMasterEntitySupport());
     }
 
     public void maximize() {

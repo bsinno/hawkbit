@@ -98,7 +98,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<MasterEntityAwareComponent<ProxyDistributionSet>> getMasterDsAwareComponents() {
-        return Collections.singletonList(swModuleGrid);
+        return Collections.singletonList(swModuleGrid.getMasterEntitySupport());
     }
 
     private List<MasterEntityAwareComponent<ProxySoftwareModule>> getMasterSmAwareComponents() {

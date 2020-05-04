@@ -63,7 +63,8 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
         this.rolloutGroupListGrid = new RolloutGroupGrid(i18n, eventBus, permissionChecker, rolloutGroupManagement,
                 rolloutManagementUIState);
 
-        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.ROLLOUT_LIST, EventView.ROLLOUT);
+        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.ROLLOUT_LIST,
+                EventView.ROLLOUT);
 
         this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
                 getMasterEntityAwareComponents());
@@ -75,7 +76,7 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<MasterEntityAwareComponent<ProxyRollout>> getMasterEntityAwareComponents() {
-        return Arrays.asList(rolloutGroupsListHeader, rolloutGroupListGrid);
+        return Arrays.asList(rolloutGroupsListHeader, rolloutGroupListGrid.getMasterEntitySupport());
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
@@ -87,7 +88,7 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
     }
 
     private Optional<Long> getMasterEntityId() {
-        return Optional.ofNullable(rolloutGroupListGrid.getMasterEntityId());
+        return Optional.ofNullable(rolloutGroupListGrid.getMasterEntitySupport().getMasterId());
     }
 
     public void restoreState() {

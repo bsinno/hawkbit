@@ -58,7 +58,8 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
         this.actionHistoryGrid = new ActionHistoryGrid(i18n, deploymentManagement, eventBus, notification, permChecker,
                 actionHistoryGridLayoutUiState);
 
-        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.TARGET_LIST, EventView.DEPLOYMENT);
+        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.TARGET_LIST,
+                EventView.DEPLOYMENT);
 
         this.masterEntityChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
                 getMasterEntityAwareComponents());
@@ -70,7 +71,7 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<MasterEntityAwareComponent<ProxyTarget>> getMasterEntityAwareComponents() {
-        return Arrays.asList(actionHistoryHeader, actionHistoryGrid);
+        return Arrays.asList(actionHistoryHeader, actionHistoryGrid.getMasterEntitySupport());
     }
 
     private List<EntityModifiedAwareSupport> getEntityModifiedAwareSupports() {
@@ -80,7 +81,7 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     }
 
     private Optional<Long> getMasterEntityId() {
-        return Optional.ofNullable(actionHistoryGrid.getMasterEntityId());
+        return Optional.ofNullable(actionHistoryGrid.getMasterEntitySupport().getMasterId());
     }
 
     public void restoreState() {

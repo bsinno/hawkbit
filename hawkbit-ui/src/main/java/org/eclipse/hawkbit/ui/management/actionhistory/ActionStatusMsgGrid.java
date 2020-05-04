@@ -12,9 +12,11 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusMsgDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -29,16 +31,14 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * This grid presents the messages for a selected action-status.
  */
-public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long>
-        implements MasterEntityAwareComponent<ProxyActionStatus> {
+public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
     private static final long serialVersionUID = 1L;
 
     private static final String MSG_ID = "id";
     private static final String VALUE_ID = "msgValue";
 
-    private final ConfigurableFilterDataProvider<ProxyMessage, Void, Long> actionStatusMsgDataProvider;
-
-    private Long masterId;
+    private final transient FilterSupport<ProxyMessage, Long> filterSupport;
+    private final transient MasterEntitySupport<ProxyActionStatus> masterEntitySupport;
 
     /**
      * Constructor.
@@ -49,9 +49,6 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long>
     protected ActionStatusMsgGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus, null);
-
-        this.actionStatusMsgDataProvider = new ActionStatusMsgDataProvider(deploymentManagement,
-                createNoMessageProxy(i18n)).withConfigurableFilter();
 
         setSelectionSupport(new SelectionSupport<ProxyMessage>(this));
         getSelectionSupport().enableSingleSelection();
@@ -65,7 +62,18 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long>
             setDetailsVisible(msg, !isDetailsVisible(msg));
         });
 
+        this.filterSupport = new FilterSupport<>(
+                new ActionStatusMsgDataProvider(deploymentManagement, createNoMessageProxy(i18n)));
+        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
+
+        initFilterMappings();
+
         init();
+    }
+
+    private void initFilterMappings() {
+        filterSupport.<Long> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
     }
 
     private Component generateDetails(final ProxyMessage msg) {
@@ -86,7 +94,7 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long>
 
     @Override
     public ConfigurableFilterDataProvider<ProxyMessage, Void, Long> getFilterDataProvider() {
-        return actionStatusMsgDataProvider;
+        return filterSupport.getFilterDataProvider();
     }
 
     @Override
@@ -116,18 +124,7 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long>
         setFrozenColumnCount(2);
     }
 
-    @Override
-    public void masterEntityChanged(final ProxyActionStatus masterEntity) {
-        if (masterEntity == null && masterId == null) {
-            return;
-        }
-
-        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-        getFilterDataProvider().setFilter(masterEntityId);
-        masterId = masterEntityId;
-    }
-
-    public Long getMasterEntityId() {
-        return masterId;
+    public MasterEntitySupport<ProxyActionStatus> getMasterEntitySupport() {
+        return masterEntitySupport;
     }
 }

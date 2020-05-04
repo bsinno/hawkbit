@@ -22,8 +22,10 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetWithActionStatusToProxyT
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupTargetsDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
@@ -42,8 +44,7 @@ import com.vaadin.ui.Label;
 /**
  * Grid component with targets of rollout group.
  */
-public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
-        implements MasterEntityAwareComponent<ProxyRolloutGroup> {
+public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
     private static final long serialVersionUID = 1L;
 
     private final RolloutManagementUIState rolloutManagementUIState;
@@ -52,9 +53,8 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
-    private Long masterId;
-
-    private final ConfigurableFilterDataProvider<ProxyTarget, Void, Long> rolloutGroupTargetsDataProvider;
+    private final transient FilterSupport<ProxyTarget, Long> filterSupport;
+    private final transient MasterEntitySupport<ProxyRolloutGroup> masterEntitySupport;
 
     /**
      * Constructor for RolloutGroupTargetsListGrid
@@ -73,17 +73,25 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
         this.rolloutManagementUIState = rolloutManagementUIState;
         this.rolloutGroupManagement = rolloutGroupManagement;
 
-        this.rolloutGroupTargetsDataProvider = new RolloutGroupTargetsDataProvider(rolloutGroupManagement,
-                new TargetWithActionStatusToProxyTargetMapper()).withConfigurableFilter();
+        this.filterSupport = new FilterSupport<>(new RolloutGroupTargetsDataProvider(rolloutGroupManagement,
+                new TargetWithActionStatusToProxyTargetMapper()));
+        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
+
+        initFilterMappings();
 
         initStatusIconMap();
 
         init();
     }
 
+    private void initFilterMappings() {
+        filterSupport.<Long> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
+    }
+
     @Override
     public ConfigurableFilterDataProvider<ProxyTarget, Void, Long> getFilterDataProvider() {
-        return rolloutGroupTargetsDataProvider;
+        return filterSupport.getFilterDataProvider();
     }
 
     private void initStatusIconMap() {
@@ -188,25 +196,14 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long>
         }
     }
 
-    @Override
-    public void masterEntityChanged(final ProxyRolloutGroup masterEntity) {
-        if (masterEntity == null && masterId == null) {
-            return;
-        }
-
-        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-        getFilterDataProvider().setFilter(masterEntityId);
-        masterId = masterEntityId;
-    }
-
-    public Long getMasterEntityId() {
-        return masterId;
-    }
-
     public void restoreState() {
         final Long masterEntityId = rolloutManagementUIState.getSelectedRolloutGroupId();
         if (masterEntityId != null) {
-            masterEntityChanged(new ProxyRolloutGroup(masterEntityId));
+            getMasterEntitySupport().masterEntityChanged(new ProxyRolloutGroup(masterEntityId));
         }
+    }
+
+    public MasterEntitySupport<ProxyRolloutGroup> getMasterEntitySupport() {
+        return masterEntitySupport;
     }
 }

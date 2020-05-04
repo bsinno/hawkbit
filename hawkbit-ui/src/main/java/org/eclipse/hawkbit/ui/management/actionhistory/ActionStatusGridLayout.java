@@ -15,8 +15,8 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
-import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.common.layout.AbstractGridComponentLayout;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
@@ -45,7 +45,8 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
         this.actionStatusGridHeader = new ActionStatusGridHeader(i18n);
         this.actionStatusGrid = new ActionStatusGrid(i18n, eventBus, deploymentManagement);
 
-        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.ACTION_HISTORY_LIST, EventView.DEPLOYMENT);
+        final EventLayoutViewAware masterLayoutView = new EventLayoutViewAware(EventLayout.ACTION_HISTORY_LIST,
+                EventView.DEPLOYMENT);
         this.selectionChangedListener = new SelectionChangedListener<>(eventBus, masterLayoutView,
                 getMasterEntityAwareComponents());
 
@@ -53,7 +54,7 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<MasterEntityAwareComponent<ProxyAction>> getMasterEntityAwareComponents() {
-        return Arrays.asList(actionStatusGrid, action -> reselectActionStatus());
+        return Arrays.asList(actionStatusGrid.getMasterEntitySupport(), action -> reselectActionStatus());
     }
 
     private void reselectActionStatus() {

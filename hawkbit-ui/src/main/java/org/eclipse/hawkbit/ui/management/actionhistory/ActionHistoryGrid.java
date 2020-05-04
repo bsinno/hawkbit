@@ -31,10 +31,12 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -56,8 +58,7 @@ import com.vaadin.ui.UI;
 /**
  * This grid presents the action history for a selected target.
  */
-public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
-        implements MasterEntityAwareComponent<ProxyTarget> {
+public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionHistoryGrid.class);
@@ -86,9 +87,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
     private final Map<IsActiveDecoration, ProxyFontIcon> activeStatusIconMap = new EnumMap<>(IsActiveDecoration.class);
     private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    private Long masterId;
-
-    private final ConfigurableFilterDataProvider<ProxyAction, Void, String> actionDataProvider;
+    private final transient FilterSupport<ProxyAction, String> filterSupport;
+    private final transient MasterEntitySupport<ProxyTarget> masterEntitySupport;
 
     ActionHistoryGrid(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
             final UIEventBus eventBus, final UINotification notification, final SpPermissionChecker permissionChecker,
@@ -98,9 +98,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
         this.notification = notification;
         this.deploymentManagement = deploymentManagement;
         this.actionToProxyActionMapper = new ActionToProxyActionMapper();
-
-        this.actionDataProvider = new ActionDataProvider(deploymentManagement, actionToProxyActionMapper)
-                .withConfigurableFilter();
 
         setResizeSupport(new ActionHistoryResizeSupport());
         // TODO: currently we do not restore action history selection
@@ -112,6 +109,12 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
             getSelectionSupport().disableSelection();
         }
 
+        this.filterSupport = new FilterSupport<>(
+                new ActionDataProvider(deploymentManagement, actionToProxyActionMapper));
+        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport, ProxyTarget::getControllerId);
+
+        initFilterMappings();
+
         initStatusIconMap();
         initActiveStatusIconMap();
         initActionTypeIconMap();
@@ -121,6 +124,11 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
 
     public Optional<ProxyAction> mapIdToProxyEntity(final long entityId) {
         return deploymentManagement.findAction(entityId).map(actionToProxyActionMapper::map);
+    }
+
+    private void initFilterMappings() {
+        filterSupport.<String> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
     }
 
     private void initStatusIconMap() {
@@ -187,22 +195,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
 
     @Override
     public ConfigurableFilterDataProvider<ProxyAction, Void, String> getFilterDataProvider() {
-        return actionDataProvider;
-    }
-
-    @Override
-    public void masterEntityChanged(final ProxyTarget masterEntity) {
-        if (masterEntity == null && masterId == null) {
-            return;
-        }
-
-        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-        masterId = masterEntityId;
-        getFilterDataProvider().setFilter(masterEntity != null ? masterEntity.getControllerId() : null);
-    }
-
-    public Long getMasterEntityId() {
-        return masterId;
+        return filterSupport.getFilterDataProvider();
     }
 
     /**
@@ -400,9 +393,10 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
     }
 
     private void publishEntityModifiedEvent(final Long actionId) {
-        if (masterId != null) {
-            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, masterId, ProxyAction.class, actionId));
+        if (masterEntitySupport.getMasterId() != null) {
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class,
+                            masterEntitySupport.getMasterId(), ProxyAction.class, actionId));
         }
     }
 
@@ -468,6 +462,10 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String>
             LOG.trace("Force Cancel action not allowed exception: {}", e.getMessage());
             notification.displayValidationError(i18n.getMessage("message.forcequit.action.failed"));
         }
+    }
+
+    public MasterEntitySupport<ProxyTarget> getMasterEntitySupport() {
+        return masterEntitySupport;
     }
 
     /**

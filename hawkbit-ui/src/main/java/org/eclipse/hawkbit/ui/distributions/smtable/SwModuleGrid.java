@@ -33,9 +33,9 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -51,8 +51,7 @@ import com.vaadin.icons.VaadinIcons;
 /**
  * Software Module grid which is shown on the Distributions View.
  */
-public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterParams>
-        implements MasterEntityAwareComponent<ProxyDistributionSet> {
+public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterParams> {
     private static final long serialVersionUID = 1L;
 
     private static final String SM_NAME_ID = "smName";
@@ -75,6 +74,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
     private final transient DragAndDropSupport<ProxySoftwareModule> dragAndDropSupport;
     private final transient FilterSupport<ProxySoftwareModule, SwFilterParams> filterSupport;
+    private final transient MasterEntitySupport<ProxyDistributionSet> masterEntitySupport;
 
     public SwModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -113,6 +113,8 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
                 softwareModuleManagement, assignedSoftwareModuleToProxyMapper), getSelectionSupport()::deselectAll);
         this.filterSupport.setFilter(new SwFilterParams());
 
+        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
+
         initFilterMappings();
         initMasterDsStyleGenerator();
         init();
@@ -121,6 +123,7 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     private void initFilterMappings() {
         filterSupport.addMapping(FilterType.SEARCH, SwFilterParams::setSearchText);
         filterSupport.addMapping(FilterType.TYPE, SwFilterParams::setSoftwareModuleTypeId);
+        filterSupport.addMapping(FilterType.MASTER, SwFilterParams::setLastSelectedDistributionId);
     }
 
     @Override
@@ -172,23 +175,6 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
     @Override
     public ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> getFilterDataProvider() {
         return filterSupport.getFilterDataProvider();
-    }
-
-    @Override
-    public void masterEntityChanged(final ProxyDistributionSet masterEntity) {
-        if (masterEntity == null && getMasterEntityId() == null) {
-            return;
-        }
-
-        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-        getFilter().setLastSelectedDistributionId(masterEntityId);
-        filterSupport.refreshFilter();
-
-        getSelectionSupport().deselectAll();
-    }
-
-    public Long getMasterEntityId() {
-        return getFilter().getLastSelectedDistributionId();
     }
 
     /**
@@ -263,6 +249,10 @@ public class SwModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterPara
 
     public FilterSupport<ProxySoftwareModule, SwFilterParams> getFilterSupport() {
         return filterSupport;
+    }
+
+    public MasterEntitySupport<ProxyDistributionSet> getMasterEntitySupport() {
+        return masterEntitySupport;
     }
 
     /**

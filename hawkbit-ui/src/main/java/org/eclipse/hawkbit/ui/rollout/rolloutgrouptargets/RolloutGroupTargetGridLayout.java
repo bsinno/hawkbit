@@ -49,8 +49,10 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
 
         initGridDataUpdatedListener();
 
-        final EventLayoutViewAware rolloutLayoutView = new EventLayoutViewAware(EventLayout.ROLLOUT_LIST, EventView.ROLLOUT);
-        final EventLayoutViewAware rolloutGroupLayoutView = new EventLayoutViewAware(EventLayout.ROLLOUT_GROUP_LIST, EventView.ROLLOUT);
+        final EventLayoutViewAware rolloutLayoutView = new EventLayoutViewAware(EventLayout.ROLLOUT_LIST,
+                EventView.ROLLOUT);
+        final EventLayoutViewAware rolloutGroupLayoutView = new EventLayoutViewAware(EventLayout.ROLLOUT_GROUP_LIST,
+                EventView.ROLLOUT);
 
         this.rolloutChangedListener = new SelectionChangedListener<>(eventBus, rolloutLayoutView,
                 Collections.singletonList(rolloutGroupTargetsListHeader::rolloutChanged));
@@ -67,7 +69,7 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<MasterEntityAwareComponent<ProxyRolloutGroup>> getMasterEntityAwareComponents() {
-        return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid);
+        return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid.getMasterEntitySupport());
     }
 
     public void restoreState() {

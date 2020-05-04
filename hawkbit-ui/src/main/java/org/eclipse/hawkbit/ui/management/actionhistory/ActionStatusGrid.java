@@ -20,9 +20,11 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -40,8 +42,7 @@ import com.vaadin.ui.Label;
 /**
  * This grid presents the action states for a selected action.
  */
-public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long>
-        implements MasterEntityAwareComponent<ProxyAction> {
+public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     private static final long serialVersionUID = 1L;
 
     private static final String STATUS_ID = "status";
@@ -49,9 +50,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long>
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
-    private final ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> actionStatusDataProvider;
-
-    private Long masterId;
+    private final transient FilterSupport<ProxyActionStatus, Long> filterSupport;
+    private final transient MasterEntitySupport<ProxyAction> masterEntitySupport;
 
     /**
      * Constructor.
@@ -64,16 +64,24 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long>
             final DeploymentManagement deploymentManagement) {
         super(i18n, eventBus, null);
 
-        this.actionStatusDataProvider = new ActionStatusDataProvider(deploymentManagement,
-                new ActionStatusToProxyActionStatusMapper()).withConfigurableFilter();
-
-        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus, EventLayout.ACTION_HISTORY_STATUS_LIST,
-                EventView.DEPLOYMENT, null, null, null));
+        setSelectionSupport(new SelectionSupport<ProxyActionStatus>(this, eventBus,
+                EventLayout.ACTION_HISTORY_STATUS_LIST, EventView.DEPLOYMENT, null, null, null));
         getSelectionSupport().enableSingleSelection();
+
+        this.filterSupport = new FilterSupport<>(
+                new ActionStatusDataProvider(deploymentManagement, new ActionStatusToProxyActionStatusMapper()));
+        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
+
+        initFilterMappings();
 
         initStatusIconMap();
 
         init();
+    }
+
+    private void initFilterMappings() {
+        filterSupport.<Long> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
     }
 
     private void initStatusIconMap() {
@@ -111,7 +119,7 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long>
 
     @Override
     public ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> getFilterDataProvider() {
-        return actionStatusDataProvider;
+        return filterSupport.getFilterDataProvider();
     }
 
     @Override
@@ -139,20 +147,6 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long>
         return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
     }
 
-    @Override
-    public void masterEntityChanged(final ProxyAction masterEntity) {
-        if (masterEntity == null && masterId == null) {
-            return;
-        }
-        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-        getFilterDataProvider().setFilter(masterEntityId);
-        masterId = masterEntityId;
-    }
-
-    public Long getMasterEntityId() {
-        return masterId;
-    }
-
     /**
      * Creates the grid content for maximized-state.
      */
@@ -165,5 +159,9 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long>
      */
     public void createMinimizedContent() {
         getSelectionSupport().disableSelection();
+    }
+
+    public MasterEntitySupport<ProxyAction> getMasterEntitySupport() {
+        return masterEntitySupport;
     }
 }

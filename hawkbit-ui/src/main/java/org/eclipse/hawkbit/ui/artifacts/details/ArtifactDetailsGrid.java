@@ -22,10 +22,12 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
-import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -39,8 +41,7 @@ import com.vaadin.icons.VaadinIcons;
 /**
  * Artifact Details grid which is shown on the Upload View.
  */
-public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
-        implements MasterEntityAwareComponent<ProxySoftwareModule> {
+public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     private static final long serialVersionUID = 1L;
 
     private static final String ARTIFACT_NAME_ID = "artifactName";
@@ -53,11 +54,9 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
 
     private final transient ArtifactManagement artifactManagement;
 
-    private final ConfigurableFilterDataProvider<ProxyArtifact, Void, Long> artifactDataProvider;
-    private final transient ArtifactToProxyArtifactMapper artifactToProxyMapper;
     private final transient DeleteSupport<ProxyArtifact> artifactDeleteSupport;
-
-    private Long masterId;
+    private final transient FilterSupport<ProxyArtifact, Long> filterSupport;
+    private final transient MasterEntitySupport<ProxySoftwareModule> masterEntitySupport;
 
     public ArtifactDetailsGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -66,17 +65,23 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
 
         this.artifactManagement = artifactManagement;
 
-        this.artifactToProxyMapper = new ArtifactToProxyArtifactMapper();
-        this.artifactDataProvider = new ArtifactDataProvider(artifactManagement, artifactToProxyMapper)
-                .withConfigurableFilter();
-
         setResizeSupport(new ArtifactDetailsResizeSupport());
 
         this.artifactDeleteSupport = new DeleteSupport<>(this, i18n, notification,
                 i18n.getMessage("artifact.details.header"), ProxyArtifact::getFilename, this::artifactsDeletionCallback,
                 UIComponentIdProvider.ARTIFACT_DELETE_CONFIRMATION_DIALOG);
 
+        this.filterSupport = new FilterSupport<>(
+                new ArtifactDataProvider(artifactManagement, new ArtifactToProxyArtifactMapper()));
+        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
+
+        initFilterMappings();
         init();
+    }
+
+    private void initFilterMappings() {
+        filterSupport.<Long> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
     }
 
     @Override
@@ -91,8 +96,9 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
                 .map(ProxyIdentifiableEntity::getId).collect(Collectors.toList());
         artifactToBeDeletedIds.forEach(artifactManagement::delete);
 
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class, masterId));
+        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class,
+                        getMasterEntitySupport().getMasterId()));
 
         return true;
     }
@@ -104,22 +110,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
 
     @Override
     public ConfigurableFilterDataProvider<ProxyArtifact, Void, Long> getFilterDataProvider() {
-        return artifactDataProvider;
-    }
-
-    @Override
-    public void masterEntityChanged(final ProxySoftwareModule masterEntity) {
-        if (masterEntity == null && masterId == null) {
-            return;
-        }
-
-        final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
-        getFilterDataProvider().setFilter(masterEntityId);
-        masterId = masterEntityId;
-    }
-
-    public Long getMasterEntityId() {
-        return masterId;
+        return filterSupport.getFilterDataProvider();
     }
 
     /**
@@ -168,6 +159,10 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long>
                 UIComponentIdProvider.ARTIFACT_DELET_ICON + "." + artifact.getId(),
                 permissionChecker.hasDeleteRepositoryPermission())).setId(ARTIFACT_DELETE_BUTTON_ID)
                         .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
+    }
+
+    public MasterEntitySupport<ProxySoftwareModule> getMasterEntitySupport() {
+        return masterEntitySupport;
     }
 
     /**
