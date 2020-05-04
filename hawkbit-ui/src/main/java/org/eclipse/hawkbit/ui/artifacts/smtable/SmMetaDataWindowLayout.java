@@ -86,9 +86,7 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
 
             return true;
         } else {
-            // TODO: use i18n
-            uiNotification.displayValidationError(
-                    "No software module is currently selected or metadata to delete is missing");
+            uiNotification.displayValidationError(i18n.getMessage("message.error.deleteMetaData"));
 
             return false;
         }
