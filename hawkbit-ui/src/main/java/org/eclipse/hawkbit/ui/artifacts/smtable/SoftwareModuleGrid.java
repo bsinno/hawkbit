@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.artifacts.smtable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,8 +20,10 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadProgress;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.filters.SwFilterParams;
+import org.eclipse.hawkbit.ui.common.data.mappers.AssignedSoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
-import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleArtifactsStateDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
@@ -31,7 +34,9 @@ import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
@@ -46,9 +51,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 
-//TODO: remove duplication with SwModuleGrid
 /**
- * Software Module grid which is shown on the Upload View.
+ * Software Module grid.
  */
 public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilterParams> {
     private static final long serialVersionUID = 1L;
@@ -74,12 +78,15 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
     private final transient FilterSupport<ProxySoftwareModule, SwFilterParams> filterSupport;
 
+    private transient DragAndDropSupport<ProxySoftwareModule> dragAndDropSupport;
+    private transient MasterEntitySupport<ProxyDistributionSet> masterEntitySupport;
+
     private final Map<Long, Integer> smNumberOfUploads;
 
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final TypeFilterLayoutUiState smTypeFilterLayoutUiState, final GridLayoutUiState smGridLayoutUiState,
-            final SoftwareModuleManagement softwareModuleManagement) {
+            final SoftwareModuleManagement softwareModuleManagement, final EventView view) {
         super(i18n, eventBus, permissionChecker);
 
         this.smTypeFilterLayoutUiState = smTypeFilterLayoutUiState;
@@ -90,9 +97,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
         setResizeSupport(new SwModuleResizeSupport());
 
-        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, EventLayout.SM_LIST,
-                EventView.UPLOAD, this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState,
-                this::setSelectedEntityIdToUiState));
+        setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, EventLayout.SM_LIST, view,
+                this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         if (smGridLayoutUiState.isMaximized()) {
             getSelectionSupport().disableSelection();
         } else {
@@ -104,14 +110,14 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 this::deleteSoftwareModules, UIComponentIdProvider.SM_DELETE_CONFIRMATION_DIALOG);
 
         this.filterSupport = new FilterSupport<>(
-                new SoftwareModuleArtifactsStateDataProvider(softwareModuleManagement, softwareModuleToProxyMapper),
+                new SoftwareModuleDataProvider(softwareModuleManagement,
+                        new AssignedSoftwareModuleToProxyMapper(softwareModuleToProxyMapper)),
                 getSelectionSupport()::deselectAll);
         this.filterSupport.setFilter(new SwFilterParams());
 
         this.smNumberOfUploads = new HashMap<>();
 
         initFilterMappings();
-        init();
     }
 
     private void initFilterMappings() {
@@ -120,7 +126,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         addStyleName("grid-row-border");
@@ -180,9 +186,35 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
     }
 
+    public void addDragAndDropSupport() {
+        dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap(), eventBus);
+        if (!smGridLayoutUiState.isMaximized()) {
+            this.dragAndDropSupport.addDragSource();
+        }
+    }
+
+    public void addMasterSupport() {
+        filterSupport.addMapping(FilterType.MASTER, SwFilterParams::setLastSelectedDistributionId);
+
+        masterEntitySupport = new MasterEntitySupport<>(filterSupport);
+
+        initMasterDsStyleGenerator();
+    }
+
+    private void initMasterDsStyleGenerator() {
+        setStyleGenerator(sm -> {
+            if (masterEntitySupport.getMasterId() == null || !sm.isAssigned()) {
+                return null;
+            }
+
+            return String.join("-", UIComponentIdProvider.SM_TYPE_COLOR_CLASS,
+                    String.valueOf(sm.getProxyType().getId()));
+        });
+    }
+
     @Override
     public String getGridId() {
-        return UIComponentIdProvider.UPLOAD_SOFTWARE_MODULE_TABLE;
+        return UIComponentIdProvider.SOFTWARE_MODULE_TABLE;
     }
 
     @Override
@@ -197,6 +229,9 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         getSelectionSupport().disableSelection();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
+        if (dragAndDropSupport != null) {
+            dragAndDropSupport.removeDragSource();
+        }
     }
 
     /**
@@ -206,6 +241,9 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         getSelectionSupport().enableMultiSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
+        if (dragAndDropSupport != null) {
+            dragAndDropSupport.addDragSource();
+        }
     }
 
     @Override
@@ -260,6 +298,10 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     public FilterSupport<ProxySoftwareModule, SwFilterParams> getFilterSupport() {
         return filterSupport;
+    }
+
+    public MasterEntitySupport<ProxyDistributionSet> getMasterEntitySupport() {
+        return masterEntitySupport;
     }
 
     /**

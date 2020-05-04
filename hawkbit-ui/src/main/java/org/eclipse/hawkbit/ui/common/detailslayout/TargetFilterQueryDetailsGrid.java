@@ -46,7 +46,7 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         setHeightMode(HeightMode.UNDEFINED);

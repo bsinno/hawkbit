@@ -71,7 +71,8 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
                 smTypeFilterLayoutUiState, smGridLayoutUiState, smWindowBuilder, EventView.UPLOAD);
         this.softwareModuleGridHeader.buildHeader();
         this.softwareModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
-                smTypeFilterLayoutUiState, smGridLayoutUiState, softwareModuleManagement);
+                smTypeFilterLayoutUiState, smGridLayoutUiState, softwareModuleManagement, EventView.UPLOAD);
+        this.softwareModuleGrid.init();
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder);

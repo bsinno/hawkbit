@@ -85,7 +85,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         addStyleName("grid-row-border");

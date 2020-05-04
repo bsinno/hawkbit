@@ -27,14 +27,14 @@ import org.springframework.util.StringUtils;
  * batch of {@link AssignedSoftwareModule} entities from backend and maps them
  * to corresponding {@link ProxySoftwareModule} entities.
  */
-public class SoftwareModuleDistributionsStateDataProvider
+public class SoftwareModuleDataProvider
         extends ProxyDataProvider<ProxySoftwareModule, AssignedSoftwareModule, SwFilterParams> {
 
     private static final long serialVersionUID = 1L;
 
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
-    public SoftwareModuleDistributionsStateDataProvider(final SoftwareModuleManagement softwareModuleManagement,
+    public SoftwareModuleDataProvider(final SoftwareModuleManagement softwareModuleManagement,
             final AssignedSoftwareModuleToProxyMapper entityMapper) {
         super(entityMapper, Sort.by(Direction.ASC, "name", "version"));
 

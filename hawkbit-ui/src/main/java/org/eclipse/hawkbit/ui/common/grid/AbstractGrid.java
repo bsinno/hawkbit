@@ -88,7 +88,7 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      * <b>NOTE:</b> Sub-classes should configure the grid before calling this
      * method (this means: set all support-classes needed, and then call init).
      */
-    protected void init() {
+    public void init() {
         setSizeFull();
         setId(getGridId());
         if (selectionSupport == null) {

@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
+import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGrid;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SoftwareModuleGridHeader;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
@@ -49,7 +50,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private static final long serialVersionUID = 1L;
 
     private final SoftwareModuleGridHeader swModuleGridHeader;
-    private final SwModuleGrid swModuleGrid;
+    private final SoftwareModuleGrid swModuleGrid;
     private final SoftwareModuleDetailsHeader softwareModuleDetailsHeader;
     private final SoftwareModuleDetails swModuleDetails;
 
@@ -74,8 +75,12 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         this.swModuleGridHeader = new SoftwareModuleGridHeader(i18n, permChecker, eventBus, smTypeFilterLayoutUiState,
                 swModuleGridLayoutUiState, smWindowBuilder, EventView.DISTRIBUTIONS);
         this.swModuleGridHeader.buildHeader();
-        this.swModuleGrid = new SwModuleGrid(eventBus, i18n, permChecker, uiNotification, softwareModuleManagement,
-                smTypeFilterLayoutUiState, swModuleGridLayoutUiState);
+        this.swModuleGrid = new SoftwareModuleGrid(eventBus, i18n, permChecker, uiNotification,
+                smTypeFilterLayoutUiState, swModuleGridLayoutUiState, softwareModuleManagement,
+                EventView.DISTRIBUTIONS);
+        this.swModuleGrid.addDragAndDropSupport();
+        this.swModuleGrid.addMasterSupport();
+        this.swModuleGrid.init();
 
         this.softwareModuleDetailsHeader = new SoftwareModuleDetailsHeader(i18n, permChecker, eventBus, uiNotification,
                 smWindowBuilder, smMetaDataWindowBuilder);

@@ -171,7 +171,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         addStyleName("grid-row-border");

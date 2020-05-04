@@ -10,11 +10,11 @@ package org.eclipse.hawkbit.ui.common.data.filters;
 
 import java.io.Serializable;
 
-import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDistributionsStateDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleDataProvider;
 import org.springframework.util.StringUtils;
 
 /**
- * Filter params for {@link SoftwareModuleDistributionsStateDataProvider}.
+ * Filter params for {@link SoftwareModuleDataProvider}.
  */
 public class SwFilterParams implements Serializable {
     private static final long serialVersionUID = 1L;

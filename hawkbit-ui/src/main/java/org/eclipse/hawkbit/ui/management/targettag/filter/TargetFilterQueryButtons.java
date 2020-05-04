@@ -67,7 +67,7 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
      * @param filterButtonClickBehaviour
      */
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         setStyleName("type-button-layout");

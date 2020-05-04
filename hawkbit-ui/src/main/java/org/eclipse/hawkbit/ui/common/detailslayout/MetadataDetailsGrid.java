@@ -50,7 +50,7 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         setHeaderVisible(false);

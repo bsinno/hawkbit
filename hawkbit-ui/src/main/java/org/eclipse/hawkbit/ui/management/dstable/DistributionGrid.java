@@ -164,7 +164,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         addStyleName("grid-row-border");

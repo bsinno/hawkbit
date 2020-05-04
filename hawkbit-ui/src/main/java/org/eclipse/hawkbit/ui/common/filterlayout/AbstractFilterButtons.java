@@ -59,7 +59,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         setHeaderVisible(false);
