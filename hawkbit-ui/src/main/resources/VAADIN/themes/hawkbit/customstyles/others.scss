@@ -110,90 +110,20 @@
     color: $signal-red-color;
   }
 
-  .v-button-statusIconRed:after {
-    content: "\f06a";
-  }
-
-  tr:not(.v-selected):hover .v-button-statusIconRed:after {
-    content: "\f08d";
-    color: $hawkbit-primary-color;
-  }
-
-  tr.v-selected:hover .v-button-statusIconRed:after {
-    content: "\f08d";
-    color: $widget-bg;
-  }
-
   .statusIconBlue {
     color: $status-unknown-color;
-  }
-
-  .v-button-statusIconBlue:after {
-    content: "\f059";
-  }
-
-  tr:not(.v-selected):hover .v-button-statusIconBlue:after {
-    content: "\f08d";
-    color: $hawkbit-primary-color;
-  }
-
-  tr.v-selected:hover .v-button-statusIconBlue:after {
-    content: "\f08d";
-    color: $widget-bg;
   }
 
   .statusIconYellow {
     color: $signal-yellow-color;
   }
 
-  .v-button-statusIconYellow:after {
-    content: "\f042";
-  }
-
-  tr:not(.v-selected):hover .v-button-statusIconYellow:after {
-    content: "\f08d";
-    color: $hawkbit-primary-color;
-  }
-
-  tr.v-selected:hover .v-button-statusIconYellow:after {
-    content: "\f08d";
-    color: $widget-bg;
-  }
-
   .statusIconGreen {
     color: $signal-green-color;
   }
 
-  .v-button-statusIconGreen:after {
-    content: "\f058";
-  }
-
-  tr:not(.v-selected):hover .v-button-statusIconGreen:after {
-    content: "\f08d";
-    color: $hawkbit-primary-color;
-  }
-
-  tr.v-selected:hover .v-button-statusIconGreen:after {
-    content: "\f08d";
-    color: $widget-bg;
-  }
-
   .statusIconLightBlue {
     color: $signal-light-blue-color;
-  }
-
-  .v-button-statusIconLightBlue:after {
-    content: "\f192";
-  }
-
-  tr:not(.v-selected):hover .v-button-statusIconLightBlue:after {
-    content: "\f08d";
-    color: $hawkbit-primary-color;
-  }
-
-  tr.v-selected:hover .v-button-statusIconLightBlue:after {
-    content: "\f08d";
-    color: $widget-bg;
   }
 
   // pending status label not selected
@@ -316,24 +246,24 @@
     margin-top: 12px;
     margin-left: -10px;
   }
-  
+
   .bulk-upload-loading:before {
-  	background: none;
-	height: 18px !important;
-	width: 18px !important;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-	border: 2px solid transparent;
-	border-top-color: #551f62;
-	border-right-color: #551f62;
-	border-radius: 100%;
-	-webkit-animation: v-rotate-360 500ms infinite linear;
-	-moz-animation: v-rotate-360 500ms infinite linear;
-	-ms-animation: v-rotate-360 500ms infinite linear;
-	-o-animation: v-rotate-360 500ms infinite linear;
-	animation: v-rotate-360 500ms infinite linear;
-	pointer-events: none;
+    background: none;
+    height: 18px !important;
+    width: 18px !important;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    border-top-color: #551f62;
+    border-right-color: #551f62;
+    border-radius: 100%;
+    -webkit-animation: v-rotate-360 500ms infinite linear;
+    -moz-animation: v-rotate-360 500ms infinite linear;
+    -ms-animation: v-rotate-360 500ms infinite linear;
+    -o-animation: v-rotate-360 500ms infinite linear;
+    animation: v-rotate-360 500ms infinite linear;
+    pointer-events: none;
   }
 
   #target\.attributes\.update {
