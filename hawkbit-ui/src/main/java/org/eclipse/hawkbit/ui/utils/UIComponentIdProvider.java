@@ -424,10 +424,6 @@ public final class UIComponentIdProvider {
      * Upload- file delete button id.
      */
     public static final String UPLOAD_FILE_DELETE_ICON = "upload.file.delete.button";
-    /**
-     * ID-Dist for Software Module Table within Upload View.
-     */
-    public static final String UPLOAD_SOFTWARE_MODULE_TABLE = "upload.swModule.table";
 
     /**
      * Upload result popup close button.
