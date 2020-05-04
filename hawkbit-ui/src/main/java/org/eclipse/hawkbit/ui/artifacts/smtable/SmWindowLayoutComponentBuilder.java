@@ -54,8 +54,7 @@ public class SmWindowLayoutComponentBuilder {
         smTypeSelect.setItemCaptionGenerator(ProxyType::getName);
         smTypeSelect.setDataProvider(smTypeDataProvider);
 
-        // TODO: use i18n
-        binder.forField(smTypeSelect).asRequired("You must provide the software module type")
+        binder.forField(smTypeSelect).asRequired(i18n.getMessage("message.error.typeRequired"))
                 .bind(ProxySoftwareModule::getProxyType, ProxySoftwareModule::setProxyType);
 
         return smTypeSelect;
@@ -91,7 +90,6 @@ public class SmWindowLayoutComponentBuilder {
                 .prompt(i18n.getMessage(TEXTFIELD_VENDOR)).buildTextComponent();
         smVendor.setSizeUndefined();
 
-        // TODO: use i18n
         binder.forField(smVendor).bind(ProxySoftwareModule::getVendor, ProxySoftwareModule::setVendor);
 
         return smVendor;
