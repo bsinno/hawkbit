@@ -26,6 +26,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class SoftwareModuleGridHeader extends AbstractEntityGridHeader {
     private static final long serialVersionUID = 1L;
 
+    private static final String SWM_TABLE_HEADER = "upload.swModuleTable.header";
+    private static final String SWM_CAPTION = "caption.software.module";
+
     public SoftwareModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final HidableLayoutUiState smTypeFilterLayoutUiState,
             final GridLayoutUiState smGridLayoutUiState, final SmWindowBuilder smWindowBuilder, final EventView view) {
@@ -37,8 +40,7 @@ public class SoftwareModuleGridHeader extends AbstractEntityGridHeader {
 
     @Override
     protected String getCaptionMsg() {
-        // TODO use constant
-        return "upload.swModuleTable.header";
+        return SWM_TABLE_HEADER;
     }
 
     @Override
@@ -83,7 +85,6 @@ public class SoftwareModuleGridHeader extends AbstractEntityGridHeader {
 
     @Override
     protected String getAddWindowCaptionMsg() {
-        // TODO use constant
-        return "caption.software.module";
+        return SWM_CAPTION;
     }
 }

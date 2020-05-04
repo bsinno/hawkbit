@@ -26,6 +26,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DistributionSetGridHeader extends AbstractEntityGridHeader {
     private static final long serialVersionUID = 1L;
 
+    private static final String DS_TABLE_HEADER = "header.dist.table";
+    private static final String DS_CAPTION = "caption.distribution";
+
     public DistributionSetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final HidableLayoutUiState dSTypeFilterLayoutUiState,
             final GridLayoutUiState distributionSetGridLayoutUiState, final EventLayout filterLayout,
@@ -36,8 +39,7 @@ public class DistributionSetGridHeader extends AbstractEntityGridHeader {
 
     @Override
     protected String getCaptionMsg() {
-        // TODO: use constant
-        return "header.dist.table";
+        return DS_TABLE_HEADER;
     }
 
     @Override
@@ -82,7 +84,6 @@ public class DistributionSetGridHeader extends AbstractEntityGridHeader {
 
     @Override
     protected String getAddWindowCaptionMsg() {
-        // TODO: use constant
-        return "caption.distribution";
+        return DS_CAPTION;
     }
 }

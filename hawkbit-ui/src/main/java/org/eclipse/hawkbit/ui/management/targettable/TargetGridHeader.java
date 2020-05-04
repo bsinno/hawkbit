@@ -36,6 +36,9 @@ import com.vaadin.ui.Window;
 public class TargetGridHeader extends AbstractEntityGridHeader {
     private static final long serialVersionUID = 1L;
 
+    private static final String TARGET_TABLE_HEADER = "header.target.table";
+    private static final String TARGET_CAPTION = "caption.target";
+
     private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
     private final TargetBulkUploadUiState targetBulkUploadUiState;
     private final TargetGridLayoutUiState targetGridLayoutUiState;
@@ -83,8 +86,7 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
 
     @Override
     protected String getCaptionMsg() {
-        // TODO use constant
-        return "header.target.table";
+        return TARGET_TABLE_HEADER;
     }
 
     @Override
@@ -129,8 +131,7 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
 
     @Override
     protected String getAddWindowCaptionMsg() {
-        // TODO use constant
-        return "caption.target";
+        return TARGET_CAPTION;
     }
 
     @Override
