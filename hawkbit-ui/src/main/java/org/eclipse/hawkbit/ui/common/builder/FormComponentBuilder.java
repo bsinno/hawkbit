@@ -143,7 +143,7 @@ public final class FormComponentBuilder {
 
         // TODO: use i18n
         final Binding<T, Long> binding = binder.forField(actionTypeOptionGroupLayout.getForcedTimeDateField())
-                .asRequired("Forced time can not be empty").withConverter(localDateTime -> {
+                .asRequired(i18n.getMessage("message.forcedTime.cannotBeEmpty")).withConverter(localDateTime -> {
                     if (localDateTime == null) {
                         return null;
                     }
