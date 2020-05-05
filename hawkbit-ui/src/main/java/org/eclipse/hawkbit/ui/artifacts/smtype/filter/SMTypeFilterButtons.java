@@ -86,7 +86,6 @@ public class SMTypeFilterButtons extends AbstractTypeFilterButtons {
 
     @Override
     protected String getFilterButtonsType() {
-        // TODO: use constant
         return i18n.getMessage("caption.entity.software.module.type");
     }
 

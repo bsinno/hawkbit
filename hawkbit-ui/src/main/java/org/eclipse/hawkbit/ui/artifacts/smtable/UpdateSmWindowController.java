@@ -83,8 +83,8 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
         try {
             updatedSm = smManagement.update(smUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
-            uiNotification
-                    .displayWarning(i18n.getMessage("message.software.update.deletedOrNotAllowed", entity.getName()));
+            uiNotification.displayWarning(
+                    i18n.getMessage("message.deleted.or.notAllowed", "Software module", entity.getName()));
             return;
         }
 

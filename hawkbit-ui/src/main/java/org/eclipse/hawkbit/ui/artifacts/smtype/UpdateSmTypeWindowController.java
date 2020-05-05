@@ -97,9 +97,7 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
         try {
             updatedSmType = smTypeManagement.update(smTypeUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
-            // TODO: use i18n
-            uiNotification.displayWarning(
-                    "Type with name " + entity.getName() + " was deleted or you are not allowed to update it");
+            uiNotification.displayWarning(i18n.getMessage("message.deleted.or.notAllowed", "Type", entity.getName()));
             return;
         }
 

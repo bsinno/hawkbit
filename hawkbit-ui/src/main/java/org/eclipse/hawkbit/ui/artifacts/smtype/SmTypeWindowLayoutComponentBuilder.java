@@ -35,8 +35,8 @@ public class SmTypeWindowLayoutComponentBuilder {
                 .caption(i18n.getMessage(TEXTFIELD_KEY)).prompt(i18n.getMessage(TEXTFIELD_KEY)).buildTextComponent();
         typeKey.setSizeUndefined();
 
-        // TODO: use i18n for all the required fields messages
-        binder.forField(typeKey).asRequired("You must provide type key").bind(ProxyType::getKey, ProxyType::setKey);
+        binder.forField(typeKey).asRequired(i18n.getMessage("message.type.key.empty")).bind(ProxyType::getKey,
+                ProxyType::setKey);
 
         return typeKey;
     }
