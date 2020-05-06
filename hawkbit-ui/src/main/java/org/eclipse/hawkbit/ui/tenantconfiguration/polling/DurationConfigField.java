@@ -32,12 +32,9 @@ public final class DurationConfigField extends HorizontalLayout {
 
     private DurationConfigField(final String id, final VaadinMessageSource i18n) {
         this.setId(id);
-
-        // TODO: duration-config-field css does not exist. add styling for
-        // bottom margin
-        this.addStyleName("duration-config-field");
         this.setSpacing(true);
         this.setMargin(false);
+        this.addStyleName("duration-config-field");
 
         durationField.setId(id + ".field");
         checkBox.setId(id + ".checkbox");

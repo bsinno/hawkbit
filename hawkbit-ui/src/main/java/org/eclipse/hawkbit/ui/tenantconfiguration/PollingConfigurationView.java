@@ -61,7 +61,7 @@ public class PollingConfigurationView extends CustomComponent {
 
         final VerticalLayout vLayout = new VerticalLayout();
         vLayout.setSpacing(false);
-        vLayout.setMargin(false);
+        vLayout.setMargin(true);
 
         final Label headerDisSetType = new Label(i18n.getMessage("configuration.polling.title"));
         headerDisSetType.addStyleName("config-panel-header");
