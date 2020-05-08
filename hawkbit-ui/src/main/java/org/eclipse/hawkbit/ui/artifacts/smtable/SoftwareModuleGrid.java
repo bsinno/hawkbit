@@ -48,7 +48,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 
 /**
@@ -76,9 +75,6 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private final transient SoftwareModuleToProxyMapper softwareModuleToProxyMapper;
 
     private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
-    private final transient FilterSupport<ProxySoftwareModule, SwFilterParams> filterSupport;
-
-    private transient DragAndDropSupport<ProxySoftwareModule> dragAndDropSupport;
     private transient MasterEntitySupport<ProxyDistributionSet> masterEntitySupport;
 
     private final Map<Long, Integer> smNumberOfUploads;
@@ -109,20 +105,19 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 i18n.getMessage("caption.software.module"), ProxySoftwareModule::getNameAndVersion,
                 this::deleteSoftwareModules, UIComponentIdProvider.SM_DELETE_CONFIRMATION_DIALOG);
 
-        this.filterSupport = new FilterSupport<>(
+        setFilterSupport(new FilterSupport<>(
                 new SoftwareModuleDataProvider(softwareModuleManagement,
                         new AssignedSoftwareModuleToProxyMapper(softwareModuleToProxyMapper)),
-                getSelectionSupport()::deselectAll);
-        this.filterSupport.setFilter(new SwFilterParams());
+                getSelectionSupport()::deselectAll));
+        initFilterMappings();
+        getFilterSupport().setFilter(new SwFilterParams());
 
         this.smNumberOfUploads = new HashMap<>();
-
-        initFilterMappings();
     }
 
     private void initFilterMappings() {
-        filterSupport.addMapping(FilterType.SEARCH, SwFilterParams::setSearchText);
-        filterSupport.addMapping(FilterType.TYPE, SwFilterParams::setSoftwareModuleTypeId);
+        getFilterSupport().addMapping(FilterType.SEARCH, SwFilterParams::setSearchText);
+        getFilterSupport().addMapping(FilterType.TYPE, SwFilterParams::setSoftwareModuleTypeId);
     }
 
     @Override
@@ -187,16 +182,17 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     public void addDragAndDropSupport() {
-        dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap(), eventBus);
+        setDragAndDropSupportSupport(
+                new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap(), eventBus));
         if (!smGridLayoutUiState.isMaximized()) {
-            this.dragAndDropSupport.addDragSource();
+            getDragAndDropSupportSupport().addDragSource();
         }
     }
 
     public void addMasterSupport() {
-        filterSupport.addMapping(FilterType.MASTER, SwFilterParams::setLastSelectedDistributionId);
+        getFilterSupport().addMapping(FilterType.MASTER, SwFilterParams::setLastSelectedDistributionId);
 
-        masterEntitySupport = new MasterEntitySupport<>(filterSupport);
+        masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
         initMasterDsStyleGenerator();
     }
@@ -217,11 +213,6 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         return UIComponentIdProvider.SOFTWARE_MODULE_TABLE;
     }
 
-    @Override
-    public ConfigurableFilterDataProvider<ProxySoftwareModule, Void, SwFilterParams> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
-    }
-
     /**
      * Creates the grid content for maximized-state.
      */
@@ -229,8 +220,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         getSelectionSupport().disableSelection();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
-        if (dragAndDropSupport != null) {
-            dragAndDropSupport.removeDragSource();
+        if (hasDragAndDropSupportSupport()) {
+            getDragAndDropSupportSupport().removeDragSource();
         }
     }
 
@@ -241,8 +232,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         getSelectionSupport().enableMultiSelection();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
-        if (dragAndDropSupport != null) {
-            dragAndDropSupport.addDragSource();
+        if (hasDragAndDropSupportSupport()) {
+            getDragAndDropSupportSupport().addDragSource();
         }
     }
 
@@ -285,19 +276,16 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     public void restoreState() {
-        getFilter().setSearchText(smGridLayoutUiState.getSearchFilter());
-        getFilter().setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedTypeId());
+        getFilter().ifPresent(filter -> {
+            filter.setSearchText(smGridLayoutUiState.getSearchFilter());
+            filter.setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedTypeId());
 
-        filterSupport.refreshFilter();
-        getSelectionSupport().restoreSelection();
-    }
+            getFilterSupport().refreshFilter();
+        });
 
-    public SwFilterParams getFilter() {
-        return filterSupport.getFilter();
-    }
-
-    public FilterSupport<ProxySoftwareModule, SwFilterParams> getFilterSupport() {
-        return filterSupport;
+        if (hasSelectionSupport()) {
+            getSelectionSupport().restoreSelection();
+        }
     }
 
     public MasterEntitySupport<ProxyDistributionSet> getMasterEntitySupport() {

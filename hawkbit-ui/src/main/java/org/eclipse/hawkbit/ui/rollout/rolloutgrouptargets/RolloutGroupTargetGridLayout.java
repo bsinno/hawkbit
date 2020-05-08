@@ -63,9 +63,8 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     }
 
     private void initGridDataUpdatedListener() {
-        rolloutGroupTargetsListGrid.getFilterDataProvider()
-                .addDataProviderListener(event -> rolloutGroupTargetCountMessageLabel
-                        .updateTotalFilteredTargetsCount(rolloutGroupTargetsListGrid.getDataSize()));
+        rolloutGroupTargetsListGrid.addDataChangedListener(event -> rolloutGroupTargetCountMessageLabel
+                .updateTotalFilteredTargetsCount(rolloutGroupTargetsListGrid.getDataSize()));
     }
 
     private List<MasterEntityAwareComponent<ProxyRolloutGroup>> getMasterEntityAwareComponents() {

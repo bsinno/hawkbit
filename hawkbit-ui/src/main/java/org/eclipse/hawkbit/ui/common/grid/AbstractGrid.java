@@ -8,15 +8,19 @@
  */
 package org.eclipse.hawkbit.ui.common.grid;
 
+import java.util.Optional;
+
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
+import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.data.provider.DataProviderListener;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.components.grid.GridSelectionModel;
 
@@ -39,8 +43,10 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     protected final transient UIEventBus eventBus;
     protected final SpPermissionChecker permissionChecker;
 
+    private transient FilterSupport<T, F> filterSupport;
     private transient ResizeSupport resizeSupport;
     private transient SelectionSupport<T> selectionSupport;
+    private transient DragAndDropSupport<T> dragAndDropSupport;
 
     /**
      * Constructor.
@@ -91,29 +97,32 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     public void init() {
         setSizeFull();
         setId(getGridId());
+        setColumnReorderingAllowed(false);
+        addColumns();
+        disableColumnSorting();
+        setFrozenColumnCount(-1);
+
         if (selectionSupport == null) {
             selectionSupport = new SelectionSupport<>(this);
             selectionSupport.disableSelection();
         }
-        setColumnReorderingAllowed(false);
-        setDataProvider(getFilterDataProvider());
-        addColumns();
-        disableColumnSorting();
-        setFrozenColumnCount(-1);
+        if (filterSupport != null) {
+            setDataProvider(filterSupport.getFilterDataProvider());
+        }
     }
 
     /**
      * Refresh all items.
      */
     public void refreshAll() {
-        getFilterDataProvider().refreshAll();
+        getDataProvider().refreshAll();
     }
 
     /**
      * Refresh single item.
      */
     public void refreshItem(final T item) {
-        getFilterDataProvider().refreshItem(item);
+        getDataProvider().refreshItem(item);
     }
 
     /**
@@ -121,6 +130,10 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      */
     public int getDataSize() {
         return getDataCommunicator().getDataProviderSize();
+    }
+
+    public void addDataChangedListener(final DataProviderListener<T> listener) {
+        getDataProvider().addDataProviderListener(listener);
     }
 
     /**
@@ -133,6 +146,36 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         for (final Column<T, ?> c : getColumns()) {
             c.setSortable(false);
         }
+    }
+
+    /**
+     * Gets the FilterSupport implementation describing the data provider with
+     * filter.
+     *
+     * @return filterSupport that encapsulates the data provider with filter.
+     */
+    public FilterSupport<T, F> getFilterSupport() {
+        return filterSupport;
+    }
+
+    /**
+     * Gets the filter for this grid from FilterSupport.
+     *
+     * @return filter for the grid.
+     */
+    public Optional<F> getFilter() {
+        return filterSupport != null ? Optional.ofNullable(filterSupport.getFilter()) : Optional.empty();
+    }
+
+    /**
+     * Enables filter support for the grid by setting a FilterSupport
+     * implementation.
+     *
+     * @param filterSupport
+     *            encapsulates the data provider with filter.
+     */
+    public void setFilterSupport(final FilterSupport<T, F> filterSupport) {
+        this.filterSupport = filterSupport;
     }
 
     /**
@@ -199,12 +242,35 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     }
 
     /**
-     * Gets the wrapped in {@link ConfigurableFilterDataProvider} dataprovider
-     * in order to dynamically update the filters.
+     * Enables drag and drop for the grid by setting DragAndDropSupport
+     * configuration.
      *
-     * @return {@link ConfigurableFilterDataProvider} wrapper of dataprovider.
+     * @param dragAndDropSupport
+     *            encapsulates behavior for drag and drop and offers some
+     *            convenient functionality.
      */
-    public abstract ConfigurableFilterDataProvider<T, Void, F> getFilterDataProvider();
+    protected void setDragAndDropSupportSupport(final DragAndDropSupport<T> dragAndDropSupport) {
+        this.dragAndDropSupport = dragAndDropSupport;
+    }
+
+    /**
+     * Gets the DragAndDropSupport implementation configuring drag and drop.
+     *
+     * @return dragAndDropSupport that configures drag and drop.
+     */
+    public DragAndDropSupport<T> getDragAndDropSupportSupport() {
+        return dragAndDropSupport;
+    }
+
+    /**
+     * Checks whether drag and drop is enabled.
+     *
+     * @return <code>true</code> if drag and drop is enabled, otherwise
+     *         <code>false</code>
+     */
+    public boolean hasDragAndDropSupportSupport() {
+        return dragAndDropSupport != null;
+    }
 
     /**
      * Gets id of the grid.

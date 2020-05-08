@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.ui.common.data.providers.AbstractMetaDataDataProvider
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -26,7 +27,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 
 /**
@@ -39,8 +39,6 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
     public static final String META_DATA_VALUE_ID = "metaDataValue";
     public static final String META_DATA_DELETE_BUTTON_ID = "metaDataDeleteButton";
 
-    private final ConfigurableFilterDataProvider<ProxyMetaData, Void, F> metaDataDataProvider;
-
     private final transient DeleteSupport<ProxyMetaData> metaDataDeleteSupport;
 
     public MetaDataWindowGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -49,23 +47,18 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
             final Predicate<Collection<ProxyMetaData>> itemsDeletionCallback) {
         super(i18n, eventBus, permissionChecker);
 
-        this.metaDataDataProvider = dataProvider.withConfigurableFilter();
-
         this.metaDataDeleteSupport = new DeleteSupport<>(this, i18n, notification, i18n.getMessage("caption.metadata"),
                 ProxyMetaData::getKey, itemsDeletionCallback,
                 UIComponentIdProvider.METADATA_DELETE_CONFIRMATION_DIALOG);
 
-        // TODO: we don't need to send selection events, because details layout
+        setFilterSupport(new FilterSupport<>(dataProvider));
+
+        // we don't need to send selection events, because details layout
         // is part of MetaData Window
         setSelectionSupport(new SelectionSupport<ProxyMetaData>(this));
         getSelectionSupport().enableSingleSelection();
 
         init();
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyMetaData, Void, F> getFilterDataProvider() {
-        return metaDataDataProvider;
     }
 
     @Override
@@ -92,6 +85,7 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
 
     @Override
     public void masterEntityChanged(final F masterEntity) {
-        getFilterDataProvider().setFilter(masterEntity);
+        getFilterSupport().setFilter(masterEntity);
+        getFilterSupport().refreshFilter();
     }
 }

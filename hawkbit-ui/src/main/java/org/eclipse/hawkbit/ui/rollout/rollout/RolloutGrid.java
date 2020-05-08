@@ -58,7 +58,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.cronutils.utils.StringUtils;
 import com.google.common.base.Predicates;
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
@@ -108,7 +107,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private final UINotification uiNotification;
 
     private final transient DeleteSupport<ProxyRollout> rolloutDeleteSupport;
-    private final transient FilterSupport<ProxyRollout, String> filterSupport;
 
     RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final RolloutManagement rolloutManagement,
             final RolloutGroupManagement rolloutGroupManagement, final UINotification uiNotification,
@@ -133,20 +131,20 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                 ProxyRollout::getName, this::deleteRollout, UIComponentIdProvider.ROLLOUT_DELETE_CONFIRMATION_DIALOG);
         this.rolloutDeleteSupport.setConfirmationQuestionDetailsGenerator(this::getDeletionDetails);
 
-        this.filterSupport = new FilterSupport<>(new RolloutDataProvider(rolloutManagement, rolloutMapper));
-
+        setFilterSupport(new FilterSupport<>(new RolloutDataProvider(rolloutManagement, rolloutMapper)));
         initFilterMappings();
+
         initStatusIconMap();
         initActionTypeIconMap();
         init();
     }
 
     private void initFilterMappings() {
-        filterSupport.<String> addMapping(FilterType.SEARCH, (filter, searchText) -> setSearchFilter(searchText));
+        getFilterSupport().<String> addMapping(FilterType.SEARCH, (filter, searchText) -> setSearchFilter(searchText));
     }
 
     private void setSearchFilter(final String searchText) {
-        filterSupport.setFilter(!StringUtils.isEmpty(searchText) ? String.format("%%%s%%", searchText) : null);
+        getFilterSupport().setFilter(!StringUtils.isEmpty(searchText) ? String.format("%%%s%%", searchText) : null);
     }
 
     public Optional<ProxyRollout> mapIdToProxyEntity(final long entityId) {
@@ -222,11 +220,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         final List<RolloutStatus> statesThatAllowStartingAndResuming = Arrays.asList(RolloutStatus.READY,
                 RolloutStatus.PAUSED);
         return statesThatAllowStartingAndResuming.contains(status);
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyRollout, Void, String> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
     }
 
     public void updateGridItems(final Collection<Long> ids) {
@@ -530,10 +523,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
     public void restoreState() {
         setSearchFilter(rolloutManagementUIState.getSearchText().orElse(null));
-        filterSupport.refreshFilter();
-    }
-
-    public FilterSupport<ProxyRollout, String> getFilterSupport() {
-        return filterSupport;
+        getFilterSupport().refreshFilter();
     }
 }

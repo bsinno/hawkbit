@@ -13,11 +13,11 @@ import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTarget
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDetailsDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -32,14 +32,12 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
     private static final String TFQ_NAME_ID = "tfqName";
     private static final String TFQ_QUERY_ID = "tfqQuery";
 
-    private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, Long> targetFilterQueryDataProvider;
-
     public TargetFilterQueryDetailsGrid(final VaadinMessageSource i18n,
             final TargetFilterQueryManagement targetFilterQueryManagement) {
         super(i18n, null);
 
-        this.targetFilterQueryDataProvider = new TargetFilterQueryDetailsDataProvider(targetFilterQueryManagement,
-                new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
+        setFilterSupport(new FilterSupport<>(new TargetFilterQueryDetailsDataProvider(targetFilterQueryManagement,
+                new TargetFilterQueryToProxyTargetFilterMapper())));
 
         init();
         setVisible(false);
@@ -65,18 +63,15 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
     }
 
     @Override
-    public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, Long> getFilterDataProvider() {
-        return targetFilterQueryDataProvider;
-    }
-
-    @Override
     public String getGridId() {
         return UIComponentIdProvider.TARGET_FILTER_TABLE_ID;
     }
 
     @Override
     public void masterEntityChanged(final Long masterEntityId) {
-        getFilterDataProvider().setFilter(masterEntityId);
+        getFilterSupport().setFilter(masterEntityId);
+        getFilterSupport().refreshFilter();
+
         setVisible(masterEntityId != null);
     }
 }

@@ -59,7 +59,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 
 /**
@@ -87,8 +86,6 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     private final transient PinSupport<ProxyDistributionSet, String> pinSupport;
     private final transient DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
-    private final transient DragAndDropSupport<ProxyDistributionSet> dragAndDropSupport;
-    private final transient FilterSupport<ProxyDistributionSet, DsManagementFilterParams> filterSupport;
 
     public DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -140,27 +137,25 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToDsAssignment);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.DISTRIBUTION_TAG_TABLE_ID, dsTagsToDsAssignment);
 
-        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies,
-                eventBus);
+        setDragAndDropSupportSupport(
+                new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies, eventBus));
         if (!distributionGridLayoutUiState.isMaximized()) {
-            this.dragAndDropSupport.addDragAndDrop();
+            getDragAndDropSupportSupport().addDragAndDrop();
         }
 
-        this.filterSupport = new FilterSupport<>(
-                new DistributionSetManagementStateDataProvider(distributionSetManagement,
-                        distributionSetToProxyDistributionMapper),
-                getSelectionSupport()::deselectAll);
-        this.filterSupport.setFilter(new DsManagementFilterParams());
-
+        setFilterSupport(new FilterSupport<>(new DistributionSetManagementStateDataProvider(distributionSetManagement,
+                distributionSetToProxyDistributionMapper), getSelectionSupport()::deselectAll));
         initFilterMappings();
+        getFilterSupport().setFilter(new DsManagementFilterParams());
+
         initTargetPinningStyleGenerator();
         init();
     }
 
     private void initFilterMappings() {
-        filterSupport.addMapping(FilterType.SEARCH, DsManagementFilterParams::setSearchText);
-        filterSupport.addMapping(FilterType.NO_TAG, DsManagementFilterParams::setNoTagClicked);
-        filterSupport.addMapping(FilterType.TAG, DsManagementFilterParams::setDistributionSetTags);
+        getFilterSupport().addMapping(FilterType.SEARCH, DsManagementFilterParams::setSearchText);
+        getFilterSupport().addMapping(FilterType.NO_TAG, DsManagementFilterParams::setNoTagClicked);
+        getFilterSupport().addMapping(FilterType.TAG, DsManagementFilterParams::setDistributionSetTags);
     }
 
     @Override
@@ -194,9 +189,8 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyDistributionSet pinnedItem) {
-        if (!StringUtils.isEmpty(getFilter().getPinnedTargetControllerId())) {
-            getFilter().setPinnedTargetControllerId(null);
-            filterSupport.refreshFilter();
+        if (isPinFilterActive()) {
+            getFilterSupport().updateFilter(DsManagementFilterParams::setPinnedTargetControllerId, null);
         }
 
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
@@ -206,6 +200,10 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
                         ProxyDistributionSet.class, pinnedItem.getId()));
 
         distributionGridLayoutUiState.setPinnedDsId(pinType == PinBehaviourType.PINNED ? pinnedItem.getId() : null);
+    }
+
+    private boolean isPinFilterActive() {
+        return getFilter().map(DsManagementFilterParams::getPinnedTargetControllerId).isPresent();
     }
 
     private Collection<Long> getAssignedToTargetDsIds(final String controllerId) {
@@ -230,7 +228,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     private void initTargetPinningStyleGenerator() {
         setStyleGenerator(ds -> {
-            if (getFilter().getPinnedTargetControllerId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
+            if (isPinFilterActive() && pinSupport.assignedOrInstalledNotEmpty()) {
                 return pinSupport.getAssignedOrInstalledRowStyle(ds.getId());
             }
 
@@ -243,25 +241,17 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         return UIComponentIdProvider.DIST_TABLE_ID;
     }
 
-    @Override
-    public ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsManagementFilterParams> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
-    }
-
     public void updatePinnedTarget(final String pinnedControllerId) {
         if (pinSupport.clearPinning()) {
             distributionGridLayoutUiState.setPinnedDsId(null);
         }
 
-        if (StringUtils.isEmpty(pinnedControllerId) && getFilter().getPinnedTargetControllerId() == null) {
+        if (StringUtils.isEmpty(pinnedControllerId) && !isPinFilterActive()) {
             return;
         }
 
         pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
-        getFilter().setPinnedTargetControllerId(pinnedControllerId);
-
-        filterSupport.refreshFilter();
-        getSelectionSupport().deselectAll();
+        getFilterSupport().updateFilter(DsManagementFilterParams::setPinnedTargetControllerId, pinnedControllerId);
     }
 
     /**
@@ -269,7 +259,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
      */
     public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
-        dragAndDropSupport.removeDragAndDrop();
+        getDragAndDropSupportSupport().removeDragAndDrop();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
     }
@@ -279,7 +269,7 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
      */
     public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
-        dragAndDropSupport.addDragAndDrop();
+        getDragAndDropSupportSupport().addDragAndDrop();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
     }
@@ -335,30 +325,27 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             pinSupport.restorePinning(pinnedDs);
         }
 
-        final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
-        if (!StringUtils.isEmpty(pinnedControllerId)) {
-            pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
-            getFilter().setPinnedTargetControllerId(pinnedControllerId);
+        getFilter().ifPresent(filter -> {
+            final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
+            if (!StringUtils.isEmpty(pinnedControllerId)) {
+                pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
+                filter.setPinnedTargetControllerId(pinnedControllerId);
+            }
+
+            filter.setSearchText(distributionGridLayoutUiState.getSearchFilter());
+            filter.setNoTagClicked(distributionTagLayoutUiState.isNoTagClicked());
+
+            final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedTagIdsWithName().values();
+            if (!CollectionUtils.isEmpty(tagFilterNames)) {
+                filter.setDistributionSetTags(tagFilterNames);
+            }
+
+            getFilterSupport().refreshFilter();
+        });
+
+        if (hasSelectionSupport()) {
+            getSelectionSupport().restoreSelection();
         }
-
-        getFilter().setSearchText(distributionGridLayoutUiState.getSearchFilter());
-        getFilter().setNoTagClicked(distributionTagLayoutUiState.isNoTagClicked());
-
-        final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedTagIdsWithName().values();
-        if (!CollectionUtils.isEmpty(tagFilterNames)) {
-            getFilter().setDistributionSetTags(tagFilterNames);
-        }
-
-        filterSupport.refreshFilter();
-        getSelectionSupport().restoreSelection();
-    }
-
-    public DsManagementFilterParams getFilter() {
-        return filterSupport.getFilter();
-    }
-
-    public FilterSupport<ProxyDistributionSet, DsManagementFilterParams> getFilterSupport() {
-        return filterSupport;
     }
 
     public PinSupport<ProxyDistributionSet, String> getPinSupport() {

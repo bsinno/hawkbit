@@ -71,7 +71,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
 
@@ -104,8 +103,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private final transient PinSupport<ProxyTarget, Long> pinSupport;
     private final transient DeleteSupport<ProxyTarget> targetDeleteSupport;
-    private final transient DragAndDropSupport<ProxyTarget> dragAndDropSupport;
-    private final transient FilterSupport<ProxyTarget, TargetManagementFilterParams> filterSupport;
 
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final SpPermissionChecker permChecker,
@@ -153,18 +150,18 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.DIST_TABLE_ID, distributionsToTargetAssignment);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToTargetAssignment);
 
-        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies,
-                eventBus);
+        setDragAndDropSupportSupport(
+                new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies, eventBus));
         if (!targetGridLayoutUiState.isMaximized()) {
-            this.dragAndDropSupport.addDragAndDrop();
+            getDragAndDropSupportSupport().addDragAndDrop();
         }
 
-        this.filterSupport = new FilterSupport<>(
-                new TargetManagementStateDataProvider(targetManagement, targetToProxyTargetMapper),
-                getSelectionSupport()::deselectAll);
-        this.filterSupport.setFilter(new TargetManagementFilterParams());
-
+        setFilterSupport(
+                new FilterSupport<>(new TargetManagementStateDataProvider(targetManagement, targetToProxyTargetMapper),
+                        getSelectionSupport()::deselectAll));
         initFilterMappings();
+        getFilterSupport().setFilter(new TargetManagementFilterParams());
+
         initDsPinningStyleGenerator();
         initTargetStatusIconMap();
         init();
@@ -201,9 +198,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyTarget pinnedItem) {
-        if (getFilter().getPinnedDistId() != null) {
-            getFilter().setPinnedDistId(null);
-            filterSupport.refreshFilter();
+        if (isPinFilterActive()) {
+            getFilterSupport().updateFilter(TargetManagementFilterParams::setPinnedDistId, null);
         }
 
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
@@ -215,6 +211,10 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         targetGridLayoutUiState.setPinnedTargetId(pinType == PinBehaviourType.PINNED ? pinnedItem.getId() : null);
         targetGridLayoutUiState
                 .setPinnedControllerId(pinType == PinBehaviourType.PINNED ? pinnedItem.getControllerId() : null);
+    }
+
+    private boolean isPinFilterActive() {
+        return getFilter().map(TargetManagementFilterParams::getPinnedDistId).isPresent();
     }
 
     private Collection<Long> getAssignedToDsTargetIds(final Long pinnedDsId) {
@@ -243,18 +243,18 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void initFilterMappings() {
-        filterSupport.addMapping(FilterType.SEARCH, TargetManagementFilterParams::setSearchText);
-        filterSupport.addMapping(FilterType.STATUS, TargetManagementFilterParams::setTargetUpdateStatusList);
-        filterSupport.addMapping(FilterType.OVERDUE, TargetManagementFilterParams::setOverdueState);
-        filterSupport.addMapping(FilterType.DISTRIBUTION, TargetManagementFilterParams::setDistributionId);
-        filterSupport.addMapping(FilterType.NO_TAG, TargetManagementFilterParams::setNoTagClicked);
-        filterSupport.addMapping(FilterType.TAG, TargetManagementFilterParams::setTargetTags);
-        filterSupport.addMapping(FilterType.QUERY, TargetManagementFilterParams::setTargetFilterQueryId);
+        getFilterSupport().addMapping(FilterType.SEARCH, TargetManagementFilterParams::setSearchText);
+        getFilterSupport().addMapping(FilterType.STATUS, TargetManagementFilterParams::setTargetUpdateStatusList);
+        getFilterSupport().addMapping(FilterType.OVERDUE, TargetManagementFilterParams::setOverdueState);
+        getFilterSupport().addMapping(FilterType.DISTRIBUTION, TargetManagementFilterParams::setDistributionId);
+        getFilterSupport().addMapping(FilterType.NO_TAG, TargetManagementFilterParams::setNoTagClicked);
+        getFilterSupport().addMapping(FilterType.TAG, TargetManagementFilterParams::setTargetTags);
+        getFilterSupport().addMapping(FilterType.QUERY, TargetManagementFilterParams::setTargetFilterQueryId);
     }
 
     private void initDsPinningStyleGenerator() {
         setStyleGenerator(target -> {
-            if (getFilter().getPinnedDistId() != null && pinSupport.assignedOrInstalledNotEmpty()) {
+            if (isPinFilterActive() && pinSupport.assignedOrInstalledNotEmpty()) {
                 return pinSupport.getAssignedOrInstalledRowStyle(target.getId());
             }
 
@@ -287,41 +287,35 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         return UIComponentIdProvider.TARGET_TABLE_ID;
     }
 
-    @Override
-    public ConfigurableFilterDataProvider<ProxyTarget, Void, TargetManagementFilterParams> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
-    }
-
     public void updatePinnedDs(final Long pinnedDsId) {
         if (pinSupport.clearPinning()) {
             targetGridLayoutUiState.setPinnedTargetId(null);
             targetGridLayoutUiState.setPinnedControllerId(null);
         }
 
-        if (pinnedDsId == null && getFilter().getPinnedDistId() == null) {
+        if (pinnedDsId == null && !isPinFilterActive()) {
             return;
         }
 
         pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
-        getFilter().setPinnedDistId(pinnedDsId);
-
-        filterSupport.refreshFilter();
-        getSelectionSupport().deselectAll();
+        getFilterSupport().updateFilter(TargetManagementFilterParams::setPinnedDistId, pinnedDsId);
     }
 
     public void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
-        if (isCustomFilterTabSelected) {
-            getFilter().setDistributionId(null);
-            getFilter().setNoTagClicked(false);
-            getFilter().setOverdueState(false);
-            getFilter().setSearchText(null);
-            getFilter().setTargetTags(Collections.emptyList());
-            getFilter().setTargetUpdateStatusList(Collections.emptyList());
-        } else {
-            getFilter().setTargetFilterQueryId(null);
-        }
+        getFilter().ifPresent(filter -> {
+            if (isCustomFilterTabSelected) {
+                filter.setDistributionId(null);
+                filter.setNoTagClicked(false);
+                filter.setOverdueState(false);
+                filter.setSearchText(null);
+                filter.setTargetTags(Collections.emptyList());
+                filter.setTargetUpdateStatusList(Collections.emptyList());
+            } else {
+                filter.setTargetFilterQueryId(null);
+            }
 
-        filterSupport.refreshFilter();
+            getFilterSupport().refreshFilter();
+        });
     }
 
     /**
@@ -329,7 +323,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      */
     public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
-        dragAndDropSupport.removeDragAndDrop();
+        getDragAndDropSupportSupport().removeDragAndDrop();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
     }
@@ -339,7 +333,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      */
     public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
-        dragAndDropSupport.addDragAndDrop();
+        getDragAndDropSupportSupport().addDragAndDrop();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
     }
@@ -429,53 +423,50 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             pinSupport.restorePinning(pinnedTarget);
         }
 
-        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
-        if (pinnedDsId != null) {
-            pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
-            getFilter().setPinnedDistId(pinnedDsId);
-        }
-
-        if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
-            getFilter().setTargetFilterQueryId(targetTagFilterLayoutUiState.getClickedTargetFilterQueryId());
-        } else {
-            getFilter().setSearchText(targetGridLayoutUiState.getSearchFilter());
-
-            final List<TargetUpdateStatus> statusFilters = targetTagFilterLayoutUiState
-                    .getClickedTargetUpdateStatusFilters();
-            if (!CollectionUtils.isEmpty(statusFilters)) {
-                getFilter().setTargetUpdateStatusList(statusFilters);
+        getFilter().ifPresent(filter -> {
+            final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
+            if (pinnedDsId != null) {
+                pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
+                filter.setPinnedDistId(pinnedDsId);
             }
 
-            getFilter().setOverdueState(targetTagFilterLayoutUiState.isOverdueFilterClicked());
+            if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
+                filter.setTargetFilterQueryId(targetTagFilterLayoutUiState.getClickedTargetFilterQueryId());
+            } else {
+                filter.setSearchText(targetGridLayoutUiState.getSearchFilter());
 
-            getFilter().setNoTagClicked(targetTagFilterLayoutUiState.isNoTagClicked());
+                final List<TargetUpdateStatus> statusFilters = targetTagFilterLayoutUiState
+                        .getClickedTargetUpdateStatusFilters();
+                if (!CollectionUtils.isEmpty(statusFilters)) {
+                    filter.setTargetUpdateStatusList(statusFilters);
+                }
 
-            final Collection<String> tagFilterNames = targetTagFilterLayoutUiState.getClickedTagIdsWithName().values();
-            if (!CollectionUtils.isEmpty(tagFilterNames)) {
-                getFilter().setTargetTags(tagFilterNames);
+                filter.setOverdueState(targetTagFilterLayoutUiState.isOverdueFilterClicked());
+
+                filter.setNoTagClicked(targetTagFilterLayoutUiState.isNoTagClicked());
+
+                final Collection<String> tagFilterNames = targetTagFilterLayoutUiState.getClickedTagIdsWithName()
+                        .values();
+                if (!CollectionUtils.isEmpty(tagFilterNames)) {
+                    filter.setTargetTags(tagFilterNames);
+                }
+
+                final Long dsIdFilter = targetGridLayoutUiState.getFilterDsIdNameVersion() != null
+                        ? targetGridLayoutUiState.getFilterDsIdNameVersion().getId()
+                        : null;
+                filter.setDistributionId(dsIdFilter);
             }
 
-            final Long dsIdFilter = targetGridLayoutUiState.getFilterDsIdNameVersion() != null
-                    ? targetGridLayoutUiState.getFilterDsIdNameVersion().getId()
-                    : null;
-            getFilter().setDistributionId(dsIdFilter);
+            getFilterSupport().refreshFilter();
+        });
+
+        if (hasSelectionSupport()) {
+            getSelectionSupport().restoreSelection();
         }
-
-        filterSupport.refreshFilter();
-
-        getSelectionSupport().restoreSelection();
-    }
-
-    public TargetManagementFilterParams getFilter() {
-        return filterSupport.getFilter();
     }
 
     public PinSupport<ProxyTarget, Long> getPinSupport() {
         return pinSupport;
-    }
-
-    public FilterSupport<ProxyTarget, TargetManagementFilterParams> getFilterSupport() {
-        return filterSupport;
     }
 
     /**

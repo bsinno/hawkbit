@@ -35,7 +35,6 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
 
@@ -50,7 +49,6 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
-    private final transient FilterSupport<ProxyActionStatus, Long> filterSupport;
     private final transient MasterEntitySupport<ProxyAction> masterEntitySupport;
 
     /**
@@ -68,11 +66,11 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
                 EventLayout.ACTION_HISTORY_STATUS_LIST, EventView.DEPLOYMENT, null, null, null));
         getSelectionSupport().enableSingleSelection();
 
-        this.filterSupport = new FilterSupport<>(
-                new ActionStatusDataProvider(deploymentManagement, new ActionStatusToProxyActionStatusMapper()));
-        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
-
+        setFilterSupport(new FilterSupport<>(
+                new ActionStatusDataProvider(deploymentManagement, new ActionStatusToProxyActionStatusMapper())));
         initFilterMappings();
+
+        this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
         initStatusIconMap();
 
@@ -80,8 +78,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     }
 
     private void initFilterMappings() {
-        filterSupport.<Long> addMapping(FilterType.MASTER,
-                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
+        getFilterSupport().<Long> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
     }
 
     private void initStatusIconMap() {
@@ -115,11 +113,6 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     @Override
     public String getGridId() {
         return UIComponentIdProvider.ACTION_HISTORY_DETAILS_GRID_ID;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyActionStatus, Void, Long> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
     }
 
     @Override

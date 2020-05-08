@@ -35,7 +35,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 
 /**
@@ -55,7 +54,6 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     private final transient ArtifactManagement artifactManagement;
 
     private final transient DeleteSupport<ProxyArtifact> artifactDeleteSupport;
-    private final transient FilterSupport<ProxyArtifact, Long> filterSupport;
     private final transient MasterEntitySupport<ProxySoftwareModule> masterEntitySupport;
 
     public ArtifactDetailsGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
@@ -71,17 +69,18 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
                 i18n.getMessage("artifact.details.header"), ProxyArtifact::getFilename, this::artifactsDeletionCallback,
                 UIComponentIdProvider.ARTIFACT_DELETE_CONFIRMATION_DIALOG);
 
-        this.filterSupport = new FilterSupport<>(
-                new ArtifactDataProvider(artifactManagement, new ArtifactToProxyArtifactMapper()));
-        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
-
+        setFilterSupport(
+                new FilterSupport<>(new ArtifactDataProvider(artifactManagement, new ArtifactToProxyArtifactMapper())));
         initFilterMappings();
+
+        this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
+
         init();
     }
 
     private void initFilterMappings() {
-        filterSupport.<Long> addMapping(FilterType.MASTER,
-                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
+        getFilterSupport().<Long> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
     }
 
     @Override
@@ -106,11 +105,6 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     @Override
     public String getGridId() {
         return UIComponentIdProvider.UPLOAD_ARTIFACT_DETAILS_TABLE;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyArtifact, Void, Long> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
     }
 
     /**

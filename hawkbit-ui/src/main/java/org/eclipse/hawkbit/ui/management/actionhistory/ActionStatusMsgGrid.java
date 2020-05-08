@@ -23,7 +23,6 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.themes.ValoTheme;
@@ -37,7 +36,6 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
     private static final String MSG_ID = "id";
     private static final String VALUE_ID = "msgValue";
 
-    private final transient FilterSupport<ProxyMessage, Long> filterSupport;
     private final transient MasterEntitySupport<ProxyActionStatus> masterEntitySupport;
 
     /**
@@ -62,18 +60,18 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
             setDetailsVisible(msg, !isDetailsVisible(msg));
         });
 
-        this.filterSupport = new FilterSupport<>(
-                new ActionStatusMsgDataProvider(deploymentManagement, createNoMessageProxy(i18n)));
-        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
-
+        setFilterSupport(
+                new FilterSupport<>(new ActionStatusMsgDataProvider(deploymentManagement, createNoMessageProxy(i18n))));
         initFilterMappings();
+
+        this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
         init();
     }
 
     private void initFilterMappings() {
-        filterSupport.<Long> addMapping(FilterType.MASTER,
-                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
+        getFilterSupport().<Long> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
     }
 
     private Component generateDetails(final ProxyMessage msg) {
@@ -90,11 +88,6 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
         textArea.setReadOnly(Boolean.TRUE);
 
         return textArea;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyMessage, Void, Long> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
     }
 
     @Override

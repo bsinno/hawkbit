@@ -50,7 +50,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 
 //TODO: remove duplication with DistributionGrid
@@ -75,8 +74,6 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     private final transient DistributionSetToProxyDistributionMapper dsToProxyDistributionMapper;
 
     private final transient DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
-    private final transient DragAndDropSupport<ProxyDistributionSet> dragAndDropSupport;
-    private final transient FilterSupport<ProxyDistributionSet, DsDistributionsFilterParams> filterSupport;
 
     public DistributionSetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -113,24 +110,24 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
                 dsTypeManagement, smTypeManagement);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.SOFTWARE_MODULE_TABLE, swModulesToDsAssignment);
 
-        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies,
-                eventBus);
+        setDragAndDropSupportSupport(
+                new DragAndDropSupport<>(this, i18n, notification, sourceTargetAssignmentStrategies, eventBus));
         if (!distributionSetGridLayoutUiState.isMaximized()) {
-            this.dragAndDropSupport.addDropTarget();
+            getDragAndDropSupportSupport().addDropTarget();
         }
 
-        this.filterSupport = new FilterSupport<>(new DistributionSetDistributionsStateDataProvider(dsManagement,
-                dsTypeManagement, dsToProxyDistributionMapper), getSelectionSupport()::deselectAll);
-        this.filterSupport.setFilter(new DsDistributionsFilterParams());
-
+        setFilterSupport(new FilterSupport<>(new DistributionSetDistributionsStateDataProvider(dsManagement,
+                dsTypeManagement, dsToProxyDistributionMapper), getSelectionSupport()::deselectAll));
         initFilterMappings();
+        getFilterSupport().setFilter(new DsDistributionsFilterParams());
+
         initIsCompleteStyleGenerator();
         init();
     }
 
     private void initFilterMappings() {
-        filterSupport.addMapping(FilterType.SEARCH, DsDistributionsFilterParams::setSearchText);
-        filterSupport.addMapping(FilterType.TYPE, DsDistributionsFilterParams::setDsTypeId);
+        getFilterSupport().addMapping(FilterType.SEARCH, DsDistributionsFilterParams::setSearchText);
+        getFilterSupport().addMapping(FilterType.TYPE, DsDistributionsFilterParams::setDsTypeId);
     }
 
     @Override
@@ -177,17 +174,12 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
         return UIComponentIdProvider.DIST_SET_TABLE_ID;
     }
 
-    @Override
-    public ConfigurableFilterDataProvider<ProxyDistributionSet, Void, DsDistributionsFilterParams> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
-    }
-
     /**
      * Creates the grid content for maximized-state.
      */
     public void createMaximizedContent() {
         getSelectionSupport().disableSelection();
-        dragAndDropSupport.removeDropTarget();
+        getDragAndDropSupportSupport().removeDropTarget();
         getResizeSupport().createMaximizedContent();
         recalculateColumnWidths();
     }
@@ -197,7 +189,7 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
      */
     public void createMinimizedContent() {
         getSelectionSupport().enableMultiSelection();
-        dragAndDropSupport.addDropTarget();
+        getDragAndDropSupportSupport().addDropTarget();
         getResizeSupport().createMinimizedContent();
         recalculateColumnWidths();
     }
@@ -238,19 +230,16 @@ public class DistributionSetGrid extends AbstractGrid<ProxyDistributionSet, DsDi
     }
 
     public void restoreState() {
-        getFilter().setSearchText(distributionSetGridLayoutUiState.getSearchFilter());
-        getFilter().setDsTypeId(dSTypeFilterLayoutUiState.getClickedTypeId());
+        getFilter().ifPresent(filter -> {
+            filter.setSearchText(distributionSetGridLayoutUiState.getSearchFilter());
+            filter.setDsTypeId(dSTypeFilterLayoutUiState.getClickedTypeId());
 
-        filterSupport.refreshFilter();
-        getSelectionSupport().restoreSelection();
-    }
+            getFilterSupport().refreshFilter();
+        });
 
-    public DsDistributionsFilterParams getFilter() {
-        return filterSupport.getFilter();
-    }
-
-    public FilterSupport<ProxyDistributionSet, DsDistributionsFilterParams> getFilterSupport() {
-        return filterSupport;
+        if (hasSelectionSupport()) {
+            getSelectionSupport().restoreSelection();
+        }
     }
 
     /**

@@ -13,13 +13,13 @@ import java.util.function.Consumer;
 import org.eclipse.hawkbit.ui.common.data.providers.AbstractMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.cronutils.utils.StringUtils;
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.themes.ValoTheme;
@@ -34,7 +34,6 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
 
     private final String typePrefix;
     private final transient Consumer<ProxyMetaData> showMetadataDetailsCallback;
-    private final ConfigurableFilterDataProvider<ProxyMetaData, Void, F> metaDataDataProvider;
 
     public MetadataDetailsGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final String typePrefix,
             final Consumer<ProxyMetaData> showMetadataDetailsCallback,
@@ -43,7 +42,7 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
 
         this.typePrefix = typePrefix;
         this.showMetadataDetailsCallback = showMetadataDetailsCallback;
-        this.metaDataDataProvider = metaDataDataProvider.withConfigurableFilter();
+        setFilterSupport(new FilterSupport<>(metaDataDataProvider));
 
         init();
         setVisible(false);
@@ -62,11 +61,6 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
         addStyleName(ValoTheme.TABLE_NO_VERTICAL_LINES);
         addStyleName(ValoTheme.TABLE_BORDERLESS);
         addStyleName(ValoTheme.TABLE_COMPACT);
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyMetaData, Void, F> getFilterDataProvider() {
-        return metaDataDataProvider;
     }
 
     @Override
@@ -105,7 +99,9 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
 
     @Override
     public void masterEntityChanged(final F masterEntity) {
-        getFilterDataProvider().setFilter(masterEntity);
+        getFilterSupport().setFilter(masterEntity);
+        getFilterSupport().refreshFilter();
+
         setVisible(masterEntity != null);
     }
 }

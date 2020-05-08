@@ -85,7 +85,7 @@ public class TargetFilterDetailsLayout extends AbstractGridComponentLayout {
     }
 
     private void initGridDataUpdatedListener() {
-        targetFilterTargetGrid.getFilterDataProvider().addDataProviderListener(event -> targetFilterCountMessageLabel
+        targetFilterTargetGrid.addDataChangedListener(event -> targetFilterCountMessageLabel
                 .updateTotalFilteredTargetsCount(targetFilterTargetGrid.getDataSize()));
     }
 

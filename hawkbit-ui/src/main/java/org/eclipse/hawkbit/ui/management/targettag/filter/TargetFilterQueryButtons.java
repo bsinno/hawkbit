@@ -22,13 +22,13 @@ import org.eclipse.hawkbit.ui.common.event.FilterChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -42,8 +42,6 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
 
     private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
 
-    private final ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> tfqDataProvider;
-
     private final CustomTargetTagFilterButtonClick customTargetTagFilterButtonClick;
 
     TargetFilterQueryButtons(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -55,16 +53,14 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
 
         this.customTargetTagFilterButtonClick = new CustomTargetTagFilterButtonClick(this::onFilterChangedEvent);
 
-        this.tfqDataProvider = new TargetFilterQueryDataProvider(targetFilterQueryManagement,
-                new TargetFilterQueryToProxyTargetFilterMapper()).withConfigurableFilter();
+        setFilterSupport(new FilterSupport<>(new TargetFilterQueryDataProvider(targetFilterQueryManagement,
+                new TargetFilterQueryToProxyTargetFilterMapper())));
 
         init();
     }
 
     /**
      * initializing table.
-     * 
-     * @param filterButtonClickBehaviour
      */
     @Override
     public void init() {
@@ -84,11 +80,6 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
     @Override
     public String getGridId() {
         return UIComponentIdProvider.CUSTOM_TARGET_TAG_TABLE_ID;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyTargetFilterQuery, Void, String> getFilterDataProvider() {
-        return tfqDataProvider;
     }
 
     @Override

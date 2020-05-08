@@ -24,7 +24,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.ui.Window;
 
 /**
@@ -36,8 +35,6 @@ public class SMTypeFilterButtons extends AbstractTypeFilterButtons {
 
     private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
     private final transient SmTypeWindowBuilder smTypeWindowBuilder;
-
-    private final ConfigurableFilterDataProvider<ProxyType, Void, String> sMTypeDataProvider;
 
     private final EventView view;
 
@@ -68,20 +65,14 @@ public class SMTypeFilterButtons extends AbstractTypeFilterButtons {
         this.smTypeWindowBuilder = smTypeWindowBuilder;
         this.view = view;
 
-        this.sMTypeDataProvider = new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement,
-                new TypeToProxyTypeMapper<>()).withConfigurableFilter();
-
         init();
+        setDataProvider(
+                new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, new TypeToProxyTypeMapper<>()));
     }
 
     @Override
     public String getGridId() {
         return UIComponentIdProvider.SW_MODULE_TYPE_TABLE_ID;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyType, Void, String> getFilterDataProvider() {
-        return sMTypeDataProvider;
     }
 
     @Override

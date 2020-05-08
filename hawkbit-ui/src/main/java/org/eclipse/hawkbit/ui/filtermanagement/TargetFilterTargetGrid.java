@@ -30,7 +30,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.cronutils.utils.StringUtils;
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
 
@@ -52,28 +51,26 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     private final TargetFilterDetailsLayoutUiState uiState;
 
-    private final transient FilterSupport<ProxyTarget, String> filterSupport;
-
     TargetFilterTargetGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final TargetManagement targetManagement, final TargetFilterDetailsLayoutUiState uiState) {
         super(i18n, eventBus);
 
         this.uiState = uiState;
 
-        this.filterSupport = new FilterSupport<>(
-                new TargetFilterStateDataProvider(targetManagement, new TargetToProxyTargetMapper(i18n)));
-
+        setFilterSupport(new FilterSupport<>(
+                new TargetFilterStateDataProvider(targetManagement, new TargetToProxyTargetMapper(i18n))));
         initFilterMappings();
+
         initTargetStatusIconMap();
         init();
     }
 
     private void initFilterMappings() {
-        filterSupport.<String> addMapping(FilterType.QUERY, (filter, queryText) -> setQueryFilter(queryText));
+        getFilterSupport().<String> addMapping(FilterType.QUERY, (filter, queryText) -> setQueryFilter(queryText));
     }
 
     private void setQueryFilter(final String queryText) {
-        filterSupport.setFilter(queryText);
+        getFilterSupport().setFilter(queryText);
     }
 
     @Override
@@ -86,11 +83,6 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     @Override
     public String getGridId() {
         return UIComponentIdProvider.CUSTOM_FILTER_TARGET_TABLE_ID;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyTarget, Void, String> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
     }
 
     // TODO: reuse code with TargetGrid
@@ -152,12 +144,8 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     public void restoreState() {
         if (!StringUtils.isEmpty(uiState.getFilterQueryValueInput())) {
-            filterSupport.setFilter(uiState.getFilterQueryValueInput());
-            filterSupport.refreshFilter();
+            setQueryFilter(uiState.getFilterQueryValueInput());
+            getFilterSupport().refreshFilter();
         }
-    }
-
-    public FilterSupport<ProxyTarget, String> getFilterSupport() {
-        return filterSupport;
     }
 }

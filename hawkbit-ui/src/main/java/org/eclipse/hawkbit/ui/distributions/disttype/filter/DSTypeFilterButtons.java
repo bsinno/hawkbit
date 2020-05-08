@@ -26,7 +26,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.ui.Window;
 
 /**
@@ -38,8 +37,6 @@ public class DSTypeFilterButtons extends AbstractTypeFilterButtons {
     private final transient DistributionSetTypeManagement distributionSetTypeManagement;
     private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
     private final transient SystemManagement systemManagement;
-
-    private final ConfigurableFilterDataProvider<ProxyType, Void, String> dsTypeDataProvider;
 
     /**
      * Constructor
@@ -67,20 +64,14 @@ public class DSTypeFilterButtons extends AbstractTypeFilterButtons {
         this.dsTypeWindowBuilder = dsTypeWindowBuilder;
         this.systemManagement = systemManagement;
 
-        this.dsTypeDataProvider = new DistributionSetTypeDataProvider(distributionSetTypeManagement,
-                new TypeToProxyTypeMapper<>()).withConfigurableFilter();
-
         init();
+        setDataProvider(
+                new DistributionSetTypeDataProvider(distributionSetTypeManagement, new TypeToProxyTypeMapper<>()));
     }
 
     @Override
     public String getGridId() {
         return UIComponentIdProvider.DISTRIBUTION_SET_TYPE_TABLE_ID;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyType, Void, String> getFilterDataProvider() {
-        return dsTypeDataProvider;
     }
 
     @Override

@@ -5,8 +5,8 @@ import java.util.function.BiConsumer;
 
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 
-import com.vaadin.data.provider.AbstractBackEndDataProvider;
 import com.vaadin.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.data.provider.DataProvider;
 
 public class FilterSupport<T, F> {
     private final ConfigurableFilterDataProvider<T, Void, F> filterDataProvider;
@@ -15,12 +15,11 @@ public class FilterSupport<T, F> {
 
     private F entityFilter;
 
-    public FilterSupport(final AbstractBackEndDataProvider<T, F> dataProvider) {
+    public FilterSupport(final DataProvider<T, F> dataProvider) {
         this(dataProvider, null);
     }
 
-    public FilterSupport(final AbstractBackEndDataProvider<T, F> dataProvider,
-            final Runnable afterRefreshFilterCallback) {
+    public FilterSupport(final DataProvider<T, F> dataProvider, final Runnable afterRefreshFilterCallback) {
         this.filterDataProvider = dataProvider.withConfigurableFilter();
         this.filterTypeToSetterMapping = new EnumMap<>(FilterType.class);
         this.afterRefreshFilterCallback = afterRefreshFilterCallback;
@@ -31,8 +30,10 @@ public class FilterSupport<T, F> {
     }
 
     public <R> void updateFilter(final FilterType filterType, final R filterValue) {
-        final BiConsumer<F, R> setter = (BiConsumer<F, R>) filterTypeToSetterMapping.get(filterType);
+        updateFilter((BiConsumer<F, R>) filterTypeToSetterMapping.get(filterType), filterValue);
+    }
 
+    public <R> void updateFilter(final BiConsumer<F, R> setter, final R filterValue) {
         if (setter != null) {
             setter.accept(entityFilter, filterValue);
             refreshFilter();

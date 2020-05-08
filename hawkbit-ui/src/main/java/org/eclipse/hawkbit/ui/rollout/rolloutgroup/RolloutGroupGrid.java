@@ -44,7 +44,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.google.common.base.Predicates;
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
@@ -65,7 +64,6 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
     private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
 
-    private final transient FilterSupport<ProxyRolloutGroup, Long> filterSupport;
     private final transient MasterEntitySupport<ProxyRollout> masterEntitySupport;
 
     public RolloutGroupGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
@@ -81,11 +79,10 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
                 this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         getSelectionSupport().disableSelection();
 
-        this.filterSupport = new FilterSupport<>(
-                new RolloutGroupDataProvider(rolloutGroupManagement, rolloutGroupMapper));
-        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
-
+        setFilterSupport(new FilterSupport<>(new RolloutGroupDataProvider(rolloutGroupManagement, rolloutGroupMapper)));
         initFilterMappings();
+
+        this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
         initStatusIconMap();
         init();
@@ -104,13 +101,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
     }
 
     private void initFilterMappings() {
-        filterSupport.<Long> addMapping(FilterType.MASTER,
-                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyRolloutGroup, Void, Long> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
+        getFilterSupport().<Long> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
     }
 
     private void initStatusIconMap() {

@@ -37,7 +37,6 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
 
@@ -53,7 +52,6 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
 
     private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
 
-    private final transient FilterSupport<ProxyTarget, Long> filterSupport;
     private final transient MasterEntitySupport<ProxyRolloutGroup> masterEntitySupport;
 
     /**
@@ -73,25 +71,19 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
         this.rolloutManagementUIState = rolloutManagementUIState;
         this.rolloutGroupManagement = rolloutGroupManagement;
 
-        this.filterSupport = new FilterSupport<>(new RolloutGroupTargetsDataProvider(rolloutGroupManagement,
-                new TargetWithActionStatusToProxyTargetMapper()));
-        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport);
-
+        setFilterSupport(new FilterSupport<>(new RolloutGroupTargetsDataProvider(rolloutGroupManagement,
+                new TargetWithActionStatusToProxyTargetMapper())));
         initFilterMappings();
 
-        initStatusIconMap();
+        this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
+        initStatusIconMap();
         init();
     }
 
     private void initFilterMappings() {
-        filterSupport.<Long> addMapping(FilterType.MASTER,
-                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyTarget, Void, Long> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
+        getFilterSupport().<Long> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
     }
 
     private void initStatusIconMap() {

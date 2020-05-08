@@ -12,7 +12,6 @@ import java.util.Collections;
 
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
-import org.eclipse.hawkbit.repository.model.DistributionSetTag;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTagDataProvider;
@@ -31,7 +30,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.ui.Window;
 
 /**
@@ -44,11 +42,6 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
     private final transient DistributionSetTagManagement distributionSetTagManagement;
     private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
-    private final ConfigurableFilterDataProvider<ProxyTag, Void, Void> dsTagDataProvider;
-    private final transient TagToProxyTagMapper<DistributionSetTag> dsTagMapper;
-
-    private final transient DragAndDropSupport<ProxyTag> dragAndDropSupport;
-
     public DistributionTagButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final UINotification uiNotification, final SpPermissionChecker permChecker,
             final DistributionSetTagManagement distributionSetTagManagement,
@@ -59,30 +52,22 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
         this.distributionSetTagManagement = distributionSetTagManagement;
         this.dsTagWindowBuilder = dsTagWindowBuilder;
 
-        this.dsTagMapper = new TagToProxyTagMapper<>();
-        this.dsTagDataProvider = new DistributionSetTagDataProvider(distributionSetTagManagement, dsTagMapper)
-                .withConfigurableFilter();
-
         final DistributionSetsToTagAssignmentSupport distributionSetsToTagAssignment = new DistributionSetsToTagAssignmentSupport(
                 uiNotification, i18n, distributionSetManagement, eventBus, permChecker, distributionTagLayoutUiState);
 
-        this.dragAndDropSupport = new DragAndDropSupport<>(this, i18n, uiNotification,
+        setDragAndDropSupportSupport(new DragAndDropSupport<>(this, i18n, uiNotification,
                 Collections.singletonMap(UIComponentIdProvider.DIST_TABLE_ID, distributionSetsToTagAssignment),
-                eventBus);
-        this.dragAndDropSupport.ignoreSelection(true);
-        this.dragAndDropSupport.addDragAndDrop();
+                eventBus));
+        getDragAndDropSupportSupport().ignoreSelection(true);
+        getDragAndDropSupportSupport().addDragAndDrop();
 
         init();
+        setDataProvider(new DistributionSetTagDataProvider(distributionSetTagManagement, new TagToProxyTagMapper<>()));
     }
 
     @Override
     public String getGridId() {
         return UIComponentIdProvider.DISTRIBUTION_TAG_TABLE_ID;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyTag, Void, Void> getFilterDataProvider() {
-        return dsTagDataProvider;
     }
 
     @Override

@@ -128,8 +128,8 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     }
 
     private void initGridDataUpdatedListener() {
-        targetGrid.getFilterDataProvider().addDataProviderListener(
-                event -> countMessageLabel.displayTargetCountStatus(targetGrid.getDataSize(), targetGrid.getFilter()));
+        targetGrid.addDataChangedListener(event -> countMessageLabel.displayTargetCountStatus(targetGrid.getDataSize(),
+                targetGrid.getFilter().orElse(null)));
     }
 
     private List<MasterEntityAwareComponent<ProxyTarget>> getMasterTargetAwareComponents() {

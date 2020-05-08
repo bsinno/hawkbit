@@ -50,7 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
@@ -87,7 +86,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private final Map<IsActiveDecoration, ProxyFontIcon> activeStatusIconMap = new EnumMap<>(IsActiveDecoration.class);
     private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
 
-    private final transient FilterSupport<ProxyAction, String> filterSupport;
     private final transient MasterEntitySupport<ProxyTarget> masterEntitySupport;
 
     ActionHistoryGrid(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
@@ -109,11 +107,10 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
             getSelectionSupport().disableSelection();
         }
 
-        this.filterSupport = new FilterSupport<>(
-                new ActionDataProvider(deploymentManagement, actionToProxyActionMapper));
-        this.masterEntitySupport = new MasterEntitySupport<>(filterSupport, ProxyTarget::getControllerId);
-
+        setFilterSupport(new FilterSupport<>(new ActionDataProvider(deploymentManagement, actionToProxyActionMapper)));
         initFilterMappings();
+
+        this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport(), ProxyTarget::getControllerId);
 
         initStatusIconMap();
         initActiveStatusIconMap();
@@ -127,8 +124,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private void initFilterMappings() {
-        filterSupport.<String> addMapping(FilterType.MASTER,
-                (filter, masterFilter) -> filterSupport.setFilter(masterFilter));
+        getFilterSupport().<String> addMapping(FilterType.MASTER,
+                (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
     }
 
     private void initStatusIconMap() {
@@ -191,11 +188,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     @Override
     public String getGridId() {
         return UIComponentIdProvider.ACTION_HISTORY_GRID_ID;
-    }
-
-    @Override
-    public ConfigurableFilterDataProvider<ProxyAction, Void, String> getFilterDataProvider() {
-        return filterSupport.getFilterDataProvider();
     }
 
     /**

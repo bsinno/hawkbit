@@ -60,6 +60,9 @@ public class CountMessageLabel extends AbstractFooterSupport {
     }
 
     public void displayTargetCountStatus(final long count, final TargetManagementFilterParams targetFilterParams) {
+        if (targetFilterParams == null) {
+            return;
+        }
         // TODO: adapt so we don't always get the total targets value from the
         // database if it hasn't changed
         final StringBuilder message = getTotalTargetMessage();
