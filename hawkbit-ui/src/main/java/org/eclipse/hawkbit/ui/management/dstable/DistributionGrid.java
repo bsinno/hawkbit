@@ -213,6 +213,7 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
                         .setStyleGenerator(pinSupport::getPinningStyle);
     }
 
+    @Override
     public void restoreState() {
         final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
         if (pinnedDsId != null) {
@@ -227,13 +228,7 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
             getFilter().ifPresent(filter -> filter.setPinnedTargetControllerId(pinnedControllerId));
         }
 
-        if (hasFilterSupport()) {
-            getFilterSupport().restoreFilter();
-        }
-
-        if (hasSelectionSupport()) {
-            getSelectionSupport().restoreSelection();
-        }
+        super.restoreState();
     }
 
     public PinSupport<ProxyDistributionSet, String> getPinSupport() {

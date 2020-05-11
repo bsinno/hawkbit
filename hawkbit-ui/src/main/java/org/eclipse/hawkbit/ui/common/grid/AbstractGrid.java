@@ -106,8 +106,9 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
             selectionSupport = new SelectionSupport<>(this);
             selectionSupport.disableSelection();
         }
-        if (filterSupport != null) {
-            setDataProvider(filterSupport.getFilterDataProvider());
+
+        if (hasFilterSupport()) {
+            setDataProvider(getFilterSupport().getFilterDataProvider());
         }
     }
 
@@ -288,4 +289,14 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      * @return id of the grid
      */
     public abstract String getGridId();
+
+    public void restoreState() {
+        if (hasFilterSupport()) {
+            getFilterSupport().restoreFilter();
+        }
+
+        if (hasSelectionSupport()) {
+            getSelectionSupport().restoreSelection();
+        }
+    }
 }

@@ -140,7 +140,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private void initFilterMappings() {
-        getFilterSupport().<String> addMapping(FilterType.SEARCH, (filter, searchText) -> setSearchFilter(searchText));
+        getFilterSupport().<String> addMapping(FilterType.SEARCH, (filter, searchText) -> setSearchFilter(searchText),
+                rolloutManagementUIState.getSearchText().orElse(null));
     }
 
     private void setSearchFilter(final String searchText) {
@@ -519,10 +520,5 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
             eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this,
                     new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.ROLLOUT_LIST, EventView.ROLLOUT));
         }
-    }
-
-    public void restoreState() {
-        setSearchFilter(rolloutManagementUIState.getSearchText().orElse(null));
-        getFilterSupport().refreshFilter();
     }
 }

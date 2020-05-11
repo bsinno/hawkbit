@@ -105,7 +105,8 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     }
 
     private void initFilterMappings() {
-        getFilterSupport().<String> addMapping(FilterType.SEARCH, (filter, searchText) -> setSearchFilter(searchText));
+        getFilterSupport().<String> addMapping(FilterType.SEARCH, (filter, searchText) -> setSearchFilter(searchText),
+                uiState.getSearchFilterInput());
     }
 
     private void setSearchFilter(final String searchText) {
@@ -190,11 +191,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
             notification.displayValidationError(
                     i18n.getMessage("message.permission.insufficient", SpPermission.READ_REPOSITORY));
         }
-    }
-
-    public void restoreState() {
-        setSearchFilter(uiState.getSearchFilterInput());
-        getFilterSupport().refreshFilter();
     }
 
     // TODO: remove duplication with ActionHistoryGrid

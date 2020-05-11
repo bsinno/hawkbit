@@ -100,14 +100,4 @@ public class DistributionSetGrid extends AbstractDsGrid<DsDistributionsFilterPar
 
         addDeleteColumn().setMinimumWidth(80d);
     }
-
-    public void restoreState() {
-        if (hasFilterSupport()) {
-            getFilterSupport().restoreFilter();
-        }
-
-        if (hasSelectionSupport()) {
-            getSelectionSupport().restoreSelection();
-        }
-    }
 }

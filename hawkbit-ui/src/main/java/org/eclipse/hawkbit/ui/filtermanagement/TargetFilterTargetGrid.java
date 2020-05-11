@@ -29,7 +29,6 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.cronutils.utils.StringUtils;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
 
@@ -66,7 +65,8 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     }
 
     private void initFilterMappings() {
-        getFilterSupport().<String> addMapping(FilterType.QUERY, (filter, queryText) -> setQueryFilter(queryText));
+        getFilterSupport().<String> addMapping(FilterType.QUERY, (filter, queryText) -> setQueryFilter(queryText),
+                uiState.getFilterQueryValueInput());
     }
 
     private void setQueryFilter(final String queryText) {
@@ -140,12 +140,5 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         final String targetStatusId = new StringBuilder(TARGET_STATUS_ID).append(".").append(target.getId()).toString();
 
         return SPUIComponentProvider.getLabelIcon(targetStatusFontIcon, targetStatusId);
-    }
-
-    public void restoreState() {
-        if (!StringUtils.isEmpty(uiState.getFilterQueryValueInput())) {
-            setQueryFilter(uiState.getFilterQueryValueInput());
-            getFilterSupport().refreshFilter();
-        }
     }
 }

@@ -116,8 +116,10 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     private void initFilterMappings() {
-        getFilterSupport().addMapping(FilterType.SEARCH, SwFilterParams::setSearchText);
-        getFilterSupport().addMapping(FilterType.TYPE, SwFilterParams::setSoftwareModuleTypeId);
+        getFilterSupport().addMapping(FilterType.SEARCH, SwFilterParams::setSearchText,
+                smGridLayoutUiState.getSearchFilter());
+        getFilterSupport().addMapping(FilterType.TYPE, SwFilterParams::setSoftwareModuleTypeId,
+                smTypeFilterLayoutUiState.getClickedTypeId());
     }
 
     @Override
@@ -273,19 +275,6 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(),
                 permissionChecker.hasDeleteRepositoryPermission())).setId(SM_DELETE_BUTTON_ID)
                         .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
-    }
-
-    public void restoreState() {
-        getFilter().ifPresent(filter -> {
-            filter.setSearchText(smGridLayoutUiState.getSearchFilter());
-            filter.setSoftwareModuleTypeId(smTypeFilterLayoutUiState.getClickedTypeId());
-
-            getFilterSupport().refreshFilter();
-        });
-
-        if (hasSelectionSupport()) {
-            getSelectionSupport().restoreSelection();
-        }
     }
 
     public MasterEntitySupport<ProxyDistributionSet> getMasterEntitySupport() {
