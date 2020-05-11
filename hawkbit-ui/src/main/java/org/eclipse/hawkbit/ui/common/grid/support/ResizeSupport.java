@@ -17,8 +17,8 @@ public interface ResizeSupport {
      * Renews the content for maximized layout.
      */
     default void createMaximizedContent() {
-        setMaximizedColumnOrder();
         setMaximizedHiddenColumns();
+        setMaximizedColumnOrder();
         setMaximizedColumnExpandRatio();
     }
 
@@ -26,8 +26,8 @@ public interface ResizeSupport {
      * Renews the content for minimized layout.
      */
     default void createMinimizedContent() {
-        setMinimizedColumnOrder();
         setMinimizedHiddenColumns();
+        setMinimizedColumnOrder();
         setMinimizedColumnExpandRatio();
     }
 

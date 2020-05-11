@@ -159,6 +159,16 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     }
 
     /**
+     * Checks whether filter support is enabled.
+     *
+     * @return <code>true</code> iffilter support is enabled, otherwise
+     *         <code>false</code>
+     */
+    protected boolean hasFilterSupport() {
+        return filterSupport != null;
+    }
+
+    /**
      * Gets the filter for this grid from FilterSupport.
      *
      * @return filter for the grid.

@@ -12,8 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -23,26 +21,18 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.filters.DsManagementFilterParams;
-import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetManagementStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.PinningChangedEventPayload.PinningChangedEventType;
-import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
-import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
+import org.eclipse.hawkbit.ui.common.grid.AbstractDsGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport.PinBehaviourType;
-import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
-import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DsTagsToDistributionSetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToDistributionSetAssignmentSupport;
@@ -55,37 +45,27 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Button;
 
 /**
  * Distribution set grid which is shown on the Deployment View.
  */
-public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManagementFilterParams> {
+public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
     private static final long serialVersionUID = 1L;
 
-    private static final String DS_NAME_ID = "dsName";
-    private static final String DS_VERSION_ID = "dsVersion";
-    private static final String DS_CREATED_BY_ID = "dsCreatedBy";
-    private static final String DS_CREATED_DATE_ID = "dsCreatedDate";
-    private static final String DS_MODIFIED_BY_ID = "dsModifiedBy";
-    private static final String DS_MODIFIED_DATE_ID = "dsModifiedDate";
-    private static final String DS_DESC_ID = "dsDescription";
     private static final String DS_PIN_BUTTON_ID = "dsPinnButton";
-    private static final String DS_DELETE_BUTTON_ID = "dsDeleteButton";
 
     private final TargetGridLayoutUiState targetGridLayoutUiState;
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
     private final TagFilterLayoutUiState distributionTagLayoutUiState;
-    private final transient DistributionSetManagement distributionSetManagement;
+
     private final transient DeploymentManagement deploymentManagement;
-    private final transient DistributionSetToProxyDistributionMapper distributionSetToProxyDistributionMapper;
 
     private final transient PinSupport<ProxyDistributionSet, String> pinSupport;
-    private final transient DeleteSupport<ProxyDistributionSet> distributionDeleteSupport;
 
     public DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -94,32 +74,16 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             final DistributionGridLayoutUiState distributionGridLayoutUiState,
             final TargetGridLayoutUiState targetGridLayoutUiState,
             final TagFilterLayoutUiState distributionTagLayoutUiState) {
-        super(i18n, eventBus, permissionChecker);
+        super(i18n, eventBus, permissionChecker, notification, distributionSetManagement, distributionGridLayoutUiState,
+                EventView.DEPLOYMENT);
 
         this.targetGridLayoutUiState = targetGridLayoutUiState;
         this.distributionGridLayoutUiState = distributionGridLayoutUiState;
         this.distributionTagLayoutUiState = distributionTagLayoutUiState;
-        this.distributionSetManagement = distributionSetManagement;
         this.deploymentManagement = deploymentManagement;
-        this.distributionSetToProxyDistributionMapper = new DistributionSetToProxyDistributionMapper();
-
-        setResizeSupport(new DistributionResizeSupport());
-
-        setSelectionSupport(new SelectionSupport<ProxyDistributionSet>(this, eventBus, EventLayout.DS_LIST,
-                EventView.DEPLOYMENT, this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState,
-                this::setSelectedEntityIdToUiState));
-        if (distributionGridLayoutUiState.isMaximized()) {
-            getSelectionSupport().disableSelection();
-        } else {
-            getSelectionSupport().enableMultiSelection();
-        }
 
         this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent, this::refreshItem,
                 this::getAssignedToTargetDsIds, this::getInstalledToTargetDsIds);
-
-        this.distributionDeleteSupport = new DeleteSupport<>(this, i18n, notification,
-                i18n.getMessage("distribution.details.header"), ProxyDistributionSet::getNameVersion,
-                this::deleteDistributionSets, UIComponentIdProvider.DS_DELETE_CONFIRMATION_DIALOG);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
 
@@ -143,8 +107,9 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             getDragAndDropSupportSupport().addDragAndDrop();
         }
 
-        setFilterSupport(new FilterSupport<>(new DistributionSetManagementStateDataProvider(distributionSetManagement,
-                distributionSetToProxyDistributionMapper), getSelectionSupport()::deselectAll));
+        setFilterSupport(new FilterSupport<>(
+                new DistributionSetManagementStateDataProvider(distributionSetManagement, dsToProxyDistributionMapper),
+                getSelectionSupport()::deselectAll));
         initFilterMappings();
         getFilterSupport().setFilter(new DsManagementFilterParams());
 
@@ -153,39 +118,12 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
     }
 
     private void initFilterMappings() {
-        getFilterSupport().addMapping(FilterType.SEARCH, DsManagementFilterParams::setSearchText);
-        getFilterSupport().addMapping(FilterType.NO_TAG, DsManagementFilterParams::setNoTagClicked);
-        getFilterSupport().addMapping(FilterType.TAG, DsManagementFilterParams::setDistributionSetTags);
-    }
-
-    @Override
-    public void init() {
-        super.init();
-
-        addStyleName("grid-row-border");
-    }
-
-    public Optional<ProxyDistributionSet> mapIdToProxyEntity(final long entityId) {
-        return distributionSetManagement.get(entityId).map(distributionSetToProxyDistributionMapper::map);
-    }
-
-    private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(distributionGridLayoutUiState.getSelectedEntityId());
-    }
-
-    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        distributionGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
-    }
-
-    private boolean deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {
-        final Collection<Long> dsToBeDeletedIds = setsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
-                .collect(Collectors.toList());
-        distributionSetManagement.delete(dsToBeDeletedIds);
-
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_REMOVED, ProxyDistributionSet.class, dsToBeDeletedIds));
-
-        return true;
+        getFilterSupport().addMapping(FilterType.SEARCH, DsManagementFilterParams::setSearchText,
+                distributionGridLayoutUiState.getSearchFilter());
+        getFilterSupport().addMapping(FilterType.NO_TAG, DsManagementFilterParams::setNoTagClicked,
+                distributionTagLayoutUiState.isNoTagClicked());
+        getFilterSupport().addMapping(FilterType.TAG, DsManagementFilterParams::setDistributionSetTags,
+                distributionTagLayoutUiState.getClickedTagIdsWithName().values());
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyDistributionSet pinnedItem) {
@@ -254,67 +192,25 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
         getFilterSupport().updateFilter(DsManagementFilterParams::setPinnedTargetControllerId, pinnedControllerId);
     }
 
-    /**
-     * Creates the grid content for maximized-state.
-     */
-    public void createMaximizedContent() {
-        getSelectionSupport().disableSelection();
-        getDragAndDropSupportSupport().removeDragAndDrop();
-        getResizeSupport().createMaximizedContent();
-        recalculateColumnWidths();
-    }
-
-    /**
-     * Creates the grid content for normal (minimized) state.
-     */
-    public void createMinimizedContent() {
-        getSelectionSupport().enableMultiSelection();
-        getDragAndDropSupportSupport().addDragAndDrop();
-        getResizeSupport().createMinimizedContent();
-        recalculateColumnWidths();
-    }
-
     @Override
     public void addColumns() {
-        // TODO: check width
-        addColumn(ProxyDistributionSet::getName).setId(DS_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setMinimumWidth(100d).setExpandRatio(1);
+        addNameColumn().setMinimumWidth(100d).setExpandRatio(1);
 
-        addColumn(ProxyDistributionSet::getVersion).setId(DS_VERSION_ID).setCaption(i18n.getMessage("header.version"))
-                .setMinimumWidth(50d);
+        addVersionColumn().setMinimumWidth(100d);
 
-        addActionColumns();
+        addPinColumn().setMinimumWidth(50d);
 
-        addColumn(ProxyDistributionSet::getCreatedBy).setId(DS_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy")).setHidden(true);
-
-        addColumn(ProxyDistributionSet::getCreatedDate).setId(DS_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setHidden(true);
-
-        addColumn(ProxyDistributionSet::getLastModifiedBy).setId(DS_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidden(true);
-
-        addColumn(ProxyDistributionSet::getModifiedDate).setId(DS_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidden(true);
-
-        addColumn(ProxyDistributionSet::getDescription).setId(DS_DESC_ID)
-                .setCaption(i18n.getMessage("header.description")).setHidden(true);
-    }
-
-    private void addActionColumns() {
-        addComponentColumn(ds -> GridComponentBuilder.buildActionButton(i18n, event -> pinSupport.changeItemPinning(ds),
-                VaadinIcons.PIN, UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN,
-                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL, UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(), true))
-                        .setId(DS_PIN_BUTTON_ID).setMinimumWidth(50d).setStyleGenerator(pinSupport::getPinningStyle);
-
-        addComponentColumn(ds -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
-                permissionChecker.hasDeleteRepositoryPermission())).setId(DS_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d);
+        addDeleteColumn().setMinimumWidth(80d);
 
         getDefaultHeaderRow().join(DS_PIN_BUTTON_ID, DS_DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
+    }
+
+    private Column<ProxyDistributionSet, Button> addPinColumn() {
+        return addComponentColumn(ds -> GridComponentBuilder.buildActionButton(i18n,
+                event -> pinSupport.changeItemPinning(ds), VaadinIcons.PIN,
+                UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(), true)).setId(DS_PIN_BUTTON_ID)
+                        .setStyleGenerator(pinSupport::getPinningStyle);
     }
 
     public void restoreState() {
@@ -325,23 +221,15 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
             pinSupport.restorePinning(pinnedDs);
         }
 
-        getFilter().ifPresent(filter -> {
-            final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
-            if (!StringUtils.isEmpty(pinnedControllerId)) {
-                pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
-                filter.setPinnedTargetControllerId(pinnedControllerId);
-            }
+        final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
+        if (!StringUtils.isEmpty(pinnedControllerId)) {
+            pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
+            getFilter().ifPresent(filter -> filter.setPinnedTargetControllerId(pinnedControllerId));
+        }
 
-            filter.setSearchText(distributionGridLayoutUiState.getSearchFilter());
-            filter.setNoTagClicked(distributionTagLayoutUiState.isNoTagClicked());
-
-            final Collection<String> tagFilterNames = distributionTagLayoutUiState.getClickedTagIdsWithName().values();
-            if (!CollectionUtils.isEmpty(tagFilterNames)) {
-                filter.setDistributionSetTags(tagFilterNames);
-            }
-
-            getFilterSupport().refreshFilter();
-        });
+        if (hasFilterSupport()) {
+            getFilterSupport().restoreFilter();
+        }
 
         if (hasSelectionSupport()) {
             getSelectionSupport().restoreSelection();
@@ -350,70 +238,5 @@ public class DistributionGrid extends AbstractGrid<ProxyDistributionSet, DsManag
 
     public PinSupport<ProxyDistributionSet, String> getPinSupport() {
         return pinSupport;
-    }
-
-    /**
-     * Adds support to resize the Distribution grid.
-     */
-    class DistributionResizeSupport implements ResizeSupport {
-
-        private final String[] maxColumnOrder = new String[] { DS_NAME_ID, DS_CREATED_BY_ID, DS_CREATED_DATE_ID,
-                DS_MODIFIED_BY_ID, DS_MODIFIED_DATE_ID, DS_DESC_ID, DS_VERSION_ID, DS_DELETE_BUTTON_ID };
-
-        private final String[] minColumnOrder = new String[] { DS_NAME_ID, DS_VERSION_ID, DS_PIN_BUTTON_ID,
-                DS_DELETE_BUTTON_ID };
-
-        @Override
-        public void setMaximizedColumnOrder() {
-            clearSortOrder();
-            setColumnOrder(maxColumnOrder);
-        }
-
-        @Override
-        public void setMaximizedHiddenColumns() {
-            getColumn(DS_PIN_BUTTON_ID).setHidden(true);
-
-            getColumn(DS_CREATED_BY_ID).setHidden(false);
-            getColumn(DS_CREATED_DATE_ID).setHidden(false);
-            getColumn(DS_MODIFIED_BY_ID).setHidden(false);
-            getColumn(DS_MODIFIED_DATE_ID).setHidden(false);
-            getColumn(DS_DESC_ID).setHidden(false);
-
-            getColumns().forEach(column -> column.setHidable(true));
-        }
-
-        @Override
-        public void setMaximizedColumnExpandRatio() {
-            getColumns().forEach(column -> column.setExpandRatio(0));
-
-            getColumn(DS_NAME_ID).setExpandRatio(1);
-            getColumn(DS_DESC_ID).setExpandRatio(1);
-        }
-
-        @Override
-        public void setMinimizedColumnOrder() {
-            clearSortOrder();
-            setColumnOrder(minColumnOrder);
-        }
-
-        @Override
-        public void setMinimizedHiddenColumns() {
-            getColumn(DS_PIN_BUTTON_ID).setHidden(false);
-
-            getColumn(DS_CREATED_BY_ID).setHidden(true);
-            getColumn(DS_CREATED_DATE_ID).setHidden(true);
-            getColumn(DS_MODIFIED_BY_ID).setHidden(true);
-            getColumn(DS_MODIFIED_DATE_ID).setHidden(true);
-            getColumn(DS_DESC_ID).setHidden(true);
-
-            getColumns().forEach(column -> column.setHidable(false));
-        }
-
-        @Override
-        public void setMinimizedColumnExpandRatio() {
-            getColumns().forEach(column -> column.setExpandRatio(0));
-
-            getColumn(DS_NAME_ID).setExpandRatio(1);
-        }
     }
 }

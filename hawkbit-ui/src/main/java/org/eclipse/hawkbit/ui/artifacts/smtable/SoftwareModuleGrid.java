@@ -77,7 +77,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     private final transient DeleteSupport<ProxySoftwareModule> swModuleDeleteSupport;
     private transient MasterEntitySupport<ProxyDistributionSet> masterEntitySupport;
 
-    private final Map<Long, Integer> smNumberOfUploads;
+    private final Map<Long, Integer> numberOfArtifactUploadsForSm;
 
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -112,7 +112,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         initFilterMappings();
         getFilterSupport().setFilter(new SwFilterParams());
 
-        this.smNumberOfUploads = new HashMap<>();
+        this.numberOfArtifactUploadsForSm = new HashMap<>();
     }
 
     private void initFilterMappings() {
@@ -157,8 +157,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     private boolean isUploadInProgressForSoftwareModule(final Collection<Long> swModuleToBeDeletedIds) {
-        return swModuleToBeDeletedIds.stream()
-                .anyMatch(smId -> smNumberOfUploads.containsKey(smId) && smNumberOfUploads.get(smId) > 0);
+        return swModuleToBeDeletedIds.stream().anyMatch(
+                smId -> numberOfArtifactUploadsForSm.containsKey(smId) && numberOfArtifactUploadsForSm.get(smId) > 0);
     }
 
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
@@ -170,11 +170,11 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
 
         if (FileUploadProgress.FileUploadStatus.UPLOAD_STARTED == uploadProgressEventType) {
-            smNumberOfUploads.merge(fileUploadSmId, 1, Integer::sum);
+            numberOfArtifactUploadsForSm.merge(fileUploadSmId, 1, Integer::sum);
         }
 
         if (FileUploadProgress.FileUploadStatus.UPLOAD_FINISHED == uploadProgressEventType) {
-            smNumberOfUploads.computeIfPresent(fileUploadSmId, (smId, oldCount) -> {
+            numberOfArtifactUploadsForSm.computeIfPresent(fileUploadSmId, (smId, oldCount) -> {
                 final Integer newCount = oldCount - 1;
                 return newCount.equals(0) ? null : newCount;
             });
