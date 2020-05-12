@@ -15,7 +15,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
-import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -44,7 +43,6 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
     protected final SpPermissionChecker permissionChecker;
 
     private transient FilterSupport<T, F> filterSupport;
-    private transient ResizeSupport resizeSupport;
     private transient SelectionSupport<T> selectionSupport;
     private transient DragAndDropSupport<T> dragAndDropSupport;
 
@@ -187,38 +185,6 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      */
     public void setFilterSupport(final FilterSupport<T, F> filterSupport) {
         this.filterSupport = filterSupport;
-    }
-
-    /**
-     * Enables resize support for the grid by setting a ResizeSupport
-     * implementation.
-     *
-     * @param resizeSupport
-     *            encapsulates behavior for minimize and maximize.
-     */
-    protected void setResizeSupport(final ResizeSupport resizeSupport) {
-        this.resizeSupport = resizeSupport;
-    }
-
-    /**
-     * Gets the ResizeSupport implementation describing behavior for minimize
-     * and maximize.
-     *
-     * @return resizeSupport that encapsulates behavior for minimize and
-     *         maximize.
-     */
-    protected ResizeSupport getResizeSupport() {
-        return resizeSupport;
-    }
-
-    /**
-     * Checks whether maximize-support is enabled.
-     *
-     * @return <code>true</code> if maximize-support is enabled, otherwise
-     *         <code>false</code>
-     */
-    protected boolean hasResizeSupport() {
-        return resizeSupport != null;
     }
 
     /**
