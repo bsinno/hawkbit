@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.hawkbit.repository.event.entity.EntityIdEvent;
-import org.eclipse.hawkbit.ui.push.HawkbitEventProvider.EntityModifiedEventPayloadIdentifier;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayloadIdentifier;
 
 /**
  * The UI event provider hold all supported repository events which will

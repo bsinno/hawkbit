@@ -84,7 +84,7 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
 
         final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, notification,
                 systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
-                distributionSetTypeManagement);
+                distributionSetTypeManagement, EventView.DEPLOYMENT);
         final DsMetaDataWindowBuilder dsMetaDataWindowBuilder = new DsMetaDataWindowBuilder(i18n, entityFactory,
                 eventBus, notification, permissionChecker, distributionSetManagement);
 

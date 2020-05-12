@@ -16,11 +16,11 @@ import java.util.function.LongFunction;
 import java.util.function.Supplier;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
-import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Grid;
@@ -51,8 +51,8 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         this(grid, null, null, null, null, null, null);
     }
 
-    public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final EventLayout layout, final EventView view,
-            final LongFunction<Optional<T>> mapIdToProxyEntityFunction,
+    public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final EventLayout layout,
+            final EventView view, final LongFunction<Optional<T>> mapIdToProxyEntityFunction,
             final Supplier<Optional<Long>> selectedEntityIdUiStateProvider,
             final Consumer<Optional<Long>> setSelectedEntityIdUiStateCallback) {
         this.grid = grid;
@@ -202,10 +202,6 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
             return;
         }
 
-        if (!getSelectedItems().isEmpty()) {
-            deselectAll();
-        }
-
         mapIdToProxyEntityFunction.apply(entityId).ifPresent(this::select);
     }
 
@@ -233,7 +229,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
             return;
         }
 
-        grid.deselectAll();
+        if (!getSelectedItems().isEmpty()) {
+            grid.deselectAll();
+        }
     }
 
     public void restoreSelection() {

@@ -30,8 +30,8 @@ import org.eclipse.hawkbit.repository.event.remote.entity.RolloutGroupCreatedEve
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutGroupUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.RolloutUpdatedEvent;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayloadIdentifier;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.push.HawkbitEventProvider.EntityModifiedEventPayloadIdentifier;
 import org.eclipse.hawkbit.ui.push.event.ActionChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.ParentIdAwareEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;

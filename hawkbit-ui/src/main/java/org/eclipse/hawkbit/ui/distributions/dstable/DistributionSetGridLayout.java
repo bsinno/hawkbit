@@ -37,6 +37,7 @@ import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.SelectGridEntityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
@@ -60,6 +61,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
 
     private final transient FilterChangedListener<ProxyDistributionSet> dsFilterListener;
     private final transient SelectionChangedListener<ProxyDistributionSet> masterDsChangedListener;
+    private final transient SelectGridEntityListener<ProxyDistributionSet> selectDsListener;
     private final transient EntityModifiedListener<ProxyDistributionSet> dsModifiedListener;
     private final transient EntityModifiedListener<ProxyTag> tagModifiedListener;
 
@@ -76,7 +78,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
             final GridLayoutUiState distributionSetGridLayoutUiState) {
         final DsWindowBuilder dsWindowBuilder = new DsWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
                 systemManagement, systemSecurityContext, configManagement, distributionSetManagement,
-                distributionSetTypeManagement);
+                distributionSetTypeManagement, EventView.DISTRIBUTIONS);
         final DsMetaDataWindowBuilder dsMetaDataWindowBuilder = new DsMetaDataWindowBuilder(i18n, entityFactory,
                 eventBus, uiNotification, permissionChecker, distributionSetManagement);
 
@@ -102,6 +104,9 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 new EventViewAware(EventView.DISTRIBUTIONS), distributionSetGrid.getFilterSupport());
         this.masterDsChangedListener = new SelectionChangedListener<>(eventBus,
                 new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS), getDsEntityAwareComponents());
+        this.selectDsListener = new SelectGridEntityListener<>(eventBus,
+                new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS),
+                distributionSetGrid.getSelectionSupport());
         this.dsModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)
                 .entityModifiedAwareSupports(getDsModifiedAwareSupports()).build();
         this.tagModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyTag.class)
@@ -153,6 +158,7 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     public void unsubscribeListener() {
         dsFilterListener.unsubscribe();
         masterDsChangedListener.unsubscribe();
+        selectDsListener.unsubscribe();
         dsModifiedListener.unsubscribe();
         tagModifiedListener.unsubscribe();
     }

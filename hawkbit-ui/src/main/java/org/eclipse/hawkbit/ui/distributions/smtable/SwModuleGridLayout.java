@@ -34,6 +34,7 @@ import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.FilterChangedListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.SelectGridEntityListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.SelectionChangedListener;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedGridRefreshAwareSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.support.EntityModifiedSelectionAwareSupport;
@@ -57,6 +58,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private final transient FilterChangedListener<ProxySoftwareModule> smFilterListener;
     private final transient SelectionChangedListener<ProxyDistributionSet> masterDsChangedListener;
     private final transient SelectionChangedListener<ProxySoftwareModule> masterSmChangedListener;
+    private final transient SelectGridEntityListener<ProxySoftwareModule> selectSmListener;
     private final transient EntityModifiedListener<ProxySoftwareModule> smModifiedListener;
 
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
@@ -68,7 +70,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         super();
 
         final SmWindowBuilder smWindowBuilder = new SmWindowBuilder(i18n, entityFactory, eventBus, uiNotification,
-                softwareModuleManagement, softwareModuleTypeManagement);
+                softwareModuleManagement, softwareModuleTypeManagement, EventView.DISTRIBUTIONS);
         final SmMetaDataWindowBuilder smMetaDataWindowBuilder = new SmMetaDataWindowBuilder(i18n, entityFactory,
                 eventBus, uiNotification, permChecker, softwareModuleManagement);
 
@@ -96,6 +98,9 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                 new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DISTRIBUTIONS), getMasterDsAwareComponents());
         this.masterSmChangedListener = new SelectionChangedListener<>(eventBus,
                 new EventLayoutViewAware(EventLayout.SM_LIST, EventView.DISTRIBUTIONS), getMasterSmAwareComponents());
+        this.selectSmListener = new SelectGridEntityListener<>(eventBus,
+                new EventLayoutViewAware(EventLayout.SM_LIST, EventView.DISTRIBUTIONS),
+                swModuleGrid.getSelectionSupport());
         this.smModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxySoftwareModule.class)
                 .entityModifiedAwareSupports(getSmModifiedAwareSupports()).build();
 
@@ -143,6 +148,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         smFilterListener.unsubscribe();
         masterDsChangedListener.unsubscribe();
         masterSmChangedListener.unsubscribe();
+        selectSmListener.unsubscribe();
         smModifiedListener.unsubscribe();
     }
 }

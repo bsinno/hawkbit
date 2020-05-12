@@ -16,10 +16,16 @@ import org.eclipse.hawkbit.repository.builder.SoftwareModuleCreate;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.mappers.SoftwareModuleToProxyMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -35,9 +41,11 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
 
     private final SmWindowLayout layout;
 
+    private final EventView view;
+
     public AddSmWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SoftwareModuleManagement smManagement,
-            final SmWindowLayout layout) {
+            final SmWindowLayout layout, final EventView view) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.eventBus = eventBus;
@@ -46,6 +54,8 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
         this.smManagement = smManagement;
 
         this.layout = layout;
+
+        this.view = view;
     }
 
     @Override
@@ -79,6 +89,10 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
                 newSoftwareModule.getName() + ":" + newSoftwareModule.getVersion()));
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_ADDED, ProxySoftwareModule.class, newSoftwareModule.getId()));
+
+        final ProxySoftwareModule addedItem = new SoftwareModuleToProxyMapper().map(newSoftwareModule);
+        eventBus.publish(CommandTopics.SELECT_GRID_ENTITY, this, new SelectionChangedEventPayload<>(
+                SelectionChangedEventType.ENTITY_SELECTED, addedItem, EventLayout.SM_LIST, view));
     }
 
     @Override

@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.data.providers;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
@@ -40,11 +41,23 @@ public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget
     @Override
     protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest,
             final Optional<String> filter) {
-        return filter.map(searchText -> targetManagement.findByRsql(pageRequest, searchText));
+        return filter.map(searchText -> {
+            if (StringUtils.isEmpty(searchText)) {
+                return null;
+            }
+
+            return targetManagement.findByRsql(pageRequest, searchText);
+        });
     }
 
     @Override
     protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-        return filter.map(targetManagement::countByRsql).orElse(0L);
+        return filter.map(searchText -> {
+            if (StringUtils.isEmpty(searchText)) {
+                return 0L;
+            }
+
+            return targetManagement.countByRsql(searchText);
+        }).orElse(0L);
     }
 }

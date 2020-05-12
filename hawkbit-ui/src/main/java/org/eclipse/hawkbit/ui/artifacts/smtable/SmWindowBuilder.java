@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -28,9 +29,11 @@ public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareMo
     private final SoftwareModuleManagement smManagement;
     private final SoftwareModuleTypeManagement smTypeManagement;
 
+    private final EventView view;
+
     public SmWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory, final UIEventBus eventBus,
             final UINotification uiNotification, final SoftwareModuleManagement smManagement,
-            final SoftwareModuleTypeManagement smTypeManagement) {
+            final SoftwareModuleTypeManagement smTypeManagement, final EventView view) {
         super(i18n);
 
         this.entityFactory = entityFactory;
@@ -39,6 +42,8 @@ public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareMo
 
         this.smManagement = smManagement;
         this.smTypeManagement = smTypeManagement;
+
+        this.view = view;
     }
 
     @Override
@@ -49,7 +54,7 @@ public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareMo
     @Override
     public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddSmWindowController(i18n, entityFactory, eventBus, uiNotification,
-                smManagement, new SmWindowLayout(i18n, smTypeManagement)));
+                smManagement, new SmWindowLayout(i18n, smTypeManagement), view));
 
     }
 

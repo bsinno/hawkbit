@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.push;
 
 import java.util.Map;
-import java.util.Objects;
 
 import org.eclipse.hawkbit.repository.event.entity.EntityIdEvent;
 import org.eclipse.hawkbit.repository.event.remote.DistributionSetDeletedEvent;
@@ -40,7 +39,6 @@ import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetUpdatedEvent;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
@@ -48,14 +46,12 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayloadIdentifier;
 import org.eclipse.hawkbit.ui.push.event.ActionChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutChangedEvent;
 import org.eclipse.hawkbit.ui.push.event.RolloutGroupChangedEvent;
 
-import com.cronutils.utils.StringUtils;
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 
 /**
@@ -145,96 +141,4 @@ public class HawkbitEventProvider implements UIEventProvider {
     public Map<Class<? extends EntityIdEvent>, EntityModifiedEventPayloadIdentifier> getEvents() {
         return EVENTS;
     }
-
-    public static class EntityModifiedEventPayloadIdentifier {
-        private final Class<? extends ProxyIdentifiableEntity> parentType;
-        private final Class<? extends ProxyIdentifiableEntity> entityType;
-        private final EntityModifiedEventType modifiedEventType;
-        private final String eventTypeMessageKey;
-
-        public EntityModifiedEventPayloadIdentifier(final Class<? extends ProxyIdentifiableEntity> entityType,
-                final EntityModifiedEventType modifiedEventType) {
-            this(entityType, modifiedEventType, null);
-        }
-
-        public EntityModifiedEventPayloadIdentifier(final Class<? extends ProxyIdentifiableEntity> entityType,
-                final EntityModifiedEventType modifiedEventType, final String eventTypeMessageKey) {
-            this(null, entityType, modifiedEventType, eventTypeMessageKey);
-        }
-
-        public EntityModifiedEventPayloadIdentifier(final Class<? extends ProxyIdentifiableEntity> parentType,
-                final Class<? extends ProxyIdentifiableEntity> entityType,
-                final EntityModifiedEventType modifiedEventType) {
-            this(parentType, entityType, modifiedEventType, null);
-        }
-
-        public EntityModifiedEventPayloadIdentifier(final Class<? extends ProxyIdentifiableEntity> parentType,
-                final Class<? extends ProxyIdentifiableEntity> entityType,
-                final EntityModifiedEventType modifiedEventType, final String eventTypeMessageKey) {
-            this.parentType = parentType;
-            this.entityType = entityType;
-            this.modifiedEventType = modifiedEventType;
-            this.eventTypeMessageKey = eventTypeMessageKey;
-        }
-
-        public Class<? extends ProxyIdentifiableEntity> getParentType() {
-            return parentType;
-        }
-
-        public Class<? extends ProxyIdentifiableEntity> getEntityType() {
-            return entityType;
-        }
-
-        public EntityModifiedEventType getModifiedEventType() {
-            return modifiedEventType;
-        }
-
-        public String getEventTypeMessageKey() {
-            return eventTypeMessageKey;
-        }
-
-        public boolean shouldBeDeffered() {
-            return !StringUtils.isEmpty(eventTypeMessageKey);
-        }
-
-        public static EntityModifiedEventPayloadIdentifier of(final EntityModifiedEventPayload eventPayload) {
-            return new EntityModifiedEventPayloadIdentifier(eventPayload.getParentType(), eventPayload.getEntityType(),
-                    eventPayload.getEntityModifiedEventType());
-        }
-
-        @Override
-        public int hashCode() {
-            // eventTypeMessageKey is omitted intentionally, because it is not
-            // relevant for event identification
-            return getParentType() != null
-                    ? Objects.hash(getParentType().getName(), getEntityType().getName(), modifiedEventType)
-                    : Objects.hash(getEntityType().getName(), modifiedEventType);
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final EntityModifiedEventPayloadIdentifier other = (EntityModifiedEventPayloadIdentifier) obj;
-
-            // eventTypeMessageKey is omitted intentionally, because it is not
-            // relevant for event identification
-            return Objects.equals(this.getParentType(), other.getParentType())
-                    && Objects.equals(this.getEntityType(), other.getEntityType())
-                    && Objects.equals(this.modifiedEventType, other.modifiedEventType);
-        }
-
-        @Override
-        public String toString() {
-            return MoreObjects.toStringHelper(this)
-                    .add("Parent Type", getParentType() != null ? getParentType().getName() : "-")
-                    .add("Entity Type", getEntityType().getName()).add("ModifiedEventType", modifiedEventType.name())
-                    .toString();
-        }
-    }
-
 }

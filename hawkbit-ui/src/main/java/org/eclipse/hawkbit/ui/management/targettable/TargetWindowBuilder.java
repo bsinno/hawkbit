@@ -12,6 +12,7 @@ import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -26,8 +27,11 @@ public class TargetWindowBuilder extends AbstractEntityWindowBuilder<ProxyTarget
 
     private final TargetManagement targetManagement;
 
+    private final EventView view;
+
     public TargetWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory,
-            final UIEventBus eventBus, final UINotification uiNotification, final TargetManagement targetManagement) {
+            final UIEventBus eventBus, final UINotification uiNotification, final TargetManagement targetManagement,
+            final EventView view) {
         super(i18n);
 
         this.entityFactory = entityFactory;
@@ -35,6 +39,8 @@ public class TargetWindowBuilder extends AbstractEntityWindowBuilder<ProxyTarget
         this.uiNotification = uiNotification;
 
         this.targetManagement = targetManagement;
+
+        this.view = view;
     }
 
     @Override
@@ -45,7 +51,7 @@ public class TargetWindowBuilder extends AbstractEntityWindowBuilder<ProxyTarget
     @Override
     public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddTargetWindowController(i18n, entityFactory, eventBus, uiNotification,
-                targetManagement, new TargetWindowLayout(i18n)));
+                targetManagement, new TargetWindowLayout(i18n), view));
 
     }
 

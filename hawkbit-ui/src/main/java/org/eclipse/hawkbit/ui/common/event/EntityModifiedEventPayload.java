@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
-import org.eclipse.hawkbit.ui.push.HawkbitEventProvider.EntityModifiedEventPayloadIdentifier;
 
 public class EntityModifiedEventPayload {
 

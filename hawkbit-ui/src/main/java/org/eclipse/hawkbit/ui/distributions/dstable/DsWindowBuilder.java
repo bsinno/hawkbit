@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -34,11 +35,14 @@ public class DsWindowBuilder extends AbstractEntityWindowBuilder<ProxyDistributi
     private final DistributionSetManagement dsManagement;
     private final DistributionSetTypeManagement dsTypeManagement;
 
+    private final EventView view;
+
     public DsWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory, final UIEventBus eventBus,
             final UINotification uiNotification, final SystemManagement systemManagement,
             final SystemSecurityContext systemSecurityContext,
             final TenantConfigurationManagement tenantConfigurationManagement,
-            final DistributionSetManagement dsManagement, final DistributionSetTypeManagement dsTypeManagement) {
+            final DistributionSetManagement dsManagement, final DistributionSetTypeManagement dsTypeManagement,
+            final EventView view) {
         super(i18n);
 
         this.entityFactory = entityFactory;
@@ -50,6 +54,8 @@ public class DsWindowBuilder extends AbstractEntityWindowBuilder<ProxyDistributi
 
         this.dsManagement = dsManagement;
         this.dsTypeManagement = dsTypeManagement;
+
+        this.view = view;
     }
 
     @Override
@@ -61,7 +67,8 @@ public class DsWindowBuilder extends AbstractEntityWindowBuilder<ProxyDistributi
     public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddDsWindowController(i18n, entityFactory, eventBus, uiNotification,
                 systemManagement, dsManagement,
-                new DsWindowLayout(i18n, systemSecurityContext, tenantConfigurationManagement, dsTypeManagement)));
+                new DsWindowLayout(i18n, systemSecurityContext, tenantConfigurationManagement, dsTypeManagement),
+                view));
 
     }
 

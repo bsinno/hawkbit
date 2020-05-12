@@ -13,6 +13,7 @@ public final class CommandTopics {
     public static final String CHANGE_LAYOUT_VISIBILITY = "changeLayoutVisibility";
     public static final String RESIZE_LAYOUT = "resizeLayout";
     public static final String SHOW_ENTITY_FORM_LAYOUT = "showEntityForm";
+    public static final String SELECT_GRID_ENTITY = "selectGridEntity";
 
     private CommandTopics() {
     }

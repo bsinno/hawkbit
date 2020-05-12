@@ -14,11 +14,17 @@ import org.eclipse.hawkbit.repository.SystemManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -35,9 +41,11 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
 
     private final DsWindowLayout layout;
 
+    private final EventView view;
+
     public AddDsWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SystemManagement systemManagement,
-            final DistributionSetManagement dsManagement, final DsWindowLayout layout) {
+            final DistributionSetManagement dsManagement, final DsWindowLayout layout, final EventView view) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.eventBus = eventBus;
@@ -47,6 +55,8 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
         this.dsManagement = dsManagement;
 
         this.layout = layout;
+
+        this.view = view;
     }
 
     @Override
@@ -75,9 +85,12 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
 
         uiNotification
                 .displaySuccess(i18n.getMessage("message.save.success", newDs.getName() + ":" + newDs.getVersion()));
-        // TODO: verify if sender is correct
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_ADDED, ProxyDistributionSet.class, newDs.getId()));
+
+        final ProxyDistributionSet addedItem = new DistributionSetToProxyDistributionMapper().map(newDs);
+        eventBus.publish(CommandTopics.SELECT_GRID_ENTITY, this, new SelectionChangedEventPayload<>(
+                SelectionChangedEventType.ENTITY_SELECTED, addedItem, EventLayout.DS_LIST, view));
     }
 
     @Override

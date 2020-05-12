@@ -59,18 +59,6 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
     }
 
     @Override
-    public void onEntitiesAdded(final Collection<Long> entityIds) {
-        if (selectionSupport == null || selectionSupport.isNoSelectionModel()) {
-            return;
-        }
-
-        if (entityIds.size() == 1) {
-            // we always select newly added item
-            selectionSupport.selectEntityById(entityIds.iterator().next());
-        }
-    }
-
-    @Override
     public void onEntitiesUpdated(final Collection<Long> entityIds) {
         if (getFromBackendCallback == null) {
             return;

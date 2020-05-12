@@ -13,10 +13,16 @@ import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
+import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -32,9 +38,11 @@ public class AddTargetWindowController extends AbstractEntityWindowController<Pr
 
     private final TargetWindowLayout layout;
 
+    private final EventView view;
+
     public AddTargetWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final TargetManagement targetManagement,
-            final TargetWindowLayout layout) {
+            final TargetWindowLayout layout, final EventView view) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.eventBus = eventBus;
@@ -43,6 +51,8 @@ public class AddTargetWindowController extends AbstractEntityWindowController<Pr
         this.targetManagement = targetManagement;
 
         this.layout = layout;
+
+        this.view = view;
     }
 
     @Override
@@ -71,6 +81,10 @@ public class AddTargetWindowController extends AbstractEntityWindowController<Pr
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", newTarget.getName()));
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_ADDED, ProxyTarget.class, newTarget.getId()));
+
+        final ProxyTarget addedItem = new TargetToProxyTargetMapper(i18n).map(newTarget);
+        eventBus.publish(CommandTopics.SELECT_GRID_ENTITY, this, new SelectionChangedEventPayload<>(
+                SelectionChangedEventType.ENTITY_SELECTED, addedItem, EventLayout.TARGET_LIST, view));
     }
 
     @Override
