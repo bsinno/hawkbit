@@ -15,6 +15,8 @@ import java.util.function.Consumer;
 import java.util.function.LongFunction;
 import java.util.function.Supplier;
 
+import javax.annotation.PreDestroy;
+
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -23,6 +25,7 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
@@ -46,6 +49,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     private final Supplier<Optional<Long>> selectedEntityIdUiStateProvider;
     private final Consumer<Optional<Long>> setSelectedEntityIdUiStateCallback;
 
+    private Registration singleSelectListenerRegistration;
+    private Registration multiSelectListenerRegistration;
+
     // For grids without selection support
     public SelectionSupport(final Grid<T> grid) {
         this(grid, null, null, null, null, null, null);
@@ -67,12 +73,26 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
 
     public final void disableSelection() {
         grid.setSelectionMode(SelectionMode.NONE);
+
+        removeListeners();
+    }
+
+    private void removeListeners() {
+        if (singleSelectListenerRegistration != null) {
+            singleSelectListenerRegistration.remove();
+            singleSelectListenerRegistration = null;
+        }
+
+        if (multiSelectListenerRegistration != null) {
+            multiSelectListenerRegistration.remove();
+            multiSelectListenerRegistration = null;
+        }
     }
 
     public final void enableSingleSelection() {
         grid.setSelectionMode(SelectionMode.SINGLE);
 
-        grid.asSingleSelect().addSingleSelectionListener(event -> {
+        singleSelectListenerRegistration = grid.asSingleSelect().addSingleSelectionListener(event -> {
             final SelectionChangedEventType selectionType = event.getSelectedItem().isPresent()
                     ? SelectionChangedEventType.ENTITY_SELECTED
                     : SelectionChangedEventType.ENTITY_DESELECTED;
@@ -112,7 +132,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         grid.setSelectionMode(SelectionMode.MULTI);
 
         grid.asMultiSelect().setSelectAllCheckBoxVisibility(SelectAllCheckBoxVisibility.VISIBLE);
-        grid.asMultiSelect().addMultiSelectionListener(event -> {
+        multiSelectListenerRegistration = grid.asMultiSelect().addMultiSelectionListener(event -> {
             if (event.getAllSelectedItems().size() == 1) {
                 sendSelectionChangedEvent(SelectionChangedEventType.ENTITY_SELECTED,
                         event.getAllSelectedItems().iterator().next());
@@ -246,5 +266,10 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         } else {
             selectFirstRow();
         }
+    }
+
+    @PreDestroy
+    void destroy() {
+        removeListeners();
     }
 }

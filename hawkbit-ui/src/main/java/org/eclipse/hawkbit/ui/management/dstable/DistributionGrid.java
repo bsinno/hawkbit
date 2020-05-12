@@ -194,14 +194,12 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
 
     @Override
     public void addColumns() {
-        addNameColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addNameColumn().setMinimumWidth(100d).setMaximumWidth(330d).setExpandRatio(1);
 
-        addVersionColumn().setMinimumWidth(100d);
+        addVersionColumn().setMinimumWidth(100d).setMaximumWidth(150d);
 
-        addPinColumn().setMinimumWidth(50d);
-
-        addDeleteColumn().setMinimumWidth(80d);
-
+        addPinColumn().setWidth(25d);
+        addDeleteColumn().setWidth(50d);
         getDefaultHeaderRow().join(DS_PIN_BUTTON_ID, DS_DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
     }
 

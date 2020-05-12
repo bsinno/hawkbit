@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
+import javax.annotation.PreDestroy;
+
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusMsgDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
@@ -23,6 +25,8 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.provider.Query;
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.themes.ValoTheme;
@@ -37,6 +41,8 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
     private static final String VALUE_ID = "msgValue";
 
     private final transient MasterEntitySupport<ProxyActionStatus> masterEntitySupport;
+
+    private final Registration itemClickListenerRegistration;
 
     /**
      * Constructor.
@@ -55,18 +61,23 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
 
         setDetailsGenerator(this::generateDetails);
 
-        addItemClickListener(event -> {
+        this.itemClickListenerRegistration = addItemClickListener(event -> {
             final ProxyMessage msg = event.getItem();
             setDetailsVisible(msg, !isDetailsVisible(msg));
         });
 
-        setFilterSupport(
-                new FilterSupport<>(new ActionStatusMsgDataProvider(deploymentManagement, createNoMessageProxy(i18n))));
+        setFilterSupport(new FilterSupport<>(
+                new ActionStatusMsgDataProvider(deploymentManagement, i18n.getMessage("message.no.available")),
+                this::hideAllDetails));
         initFilterMappings();
 
         this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
         init();
+    }
+
+    private void hideAllDetails() {
+        getDataProvider().fetch(new Query<>()).forEach(msg -> setDetailsVisible(msg, false));
     }
 
     private void initFilterMappings() {
@@ -95,16 +106,6 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
         return UIComponentIdProvider.ACTION_HISTORY_MESSAGE_GRID_ID;
     }
 
-    /**
-     * Creates the default text when no message is available for action-status
-     *
-     * @param i18n
-     * @return default text
-     */
-    private static String createNoMessageProxy(final VaadinMessageSource i18n) {
-        return i18n.getMessage("message.no.available");
-    }
-
     @Override
     public void addColumns() {
         addColumn(ProxyMessage::getId).setId(MSG_ID).setCaption("##").setExpandRatio(0).setHidable(false)
@@ -119,5 +120,10 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
 
     public MasterEntitySupport<ProxyActionStatus> getMasterEntitySupport() {
         return masterEntitySupport;
+    }
+
+    @PreDestroy
+    void destroy() {
+        itemClickListenerRegistration.remove();
     }
 }

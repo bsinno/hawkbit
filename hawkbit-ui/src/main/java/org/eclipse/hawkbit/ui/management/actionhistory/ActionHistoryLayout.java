@@ -73,18 +73,20 @@ public class ActionHistoryLayout extends HorizontalLayout {
     }
 
     public void maximize() {
+        actionStatusLayout.enableSelection();
+        actionStatusMsgLayout.enableSelection();
+
         actionHistoryGridLayout.maximize();
-        actionStatusLayout.maximize();
-        actionStatusMsgLayout.maximize();
 
         actionStatusLayout.setVisible(true);
         actionStatusMsgLayout.setVisible(true);
     }
 
     public void minimize() {
+        actionStatusLayout.disableSelection();
+        actionStatusMsgLayout.disableSelection();
+
         actionHistoryGridLayout.minimize();
-        actionStatusLayout.minimize();
-        actionStatusMsgLayout.minimize();
 
         actionStatusLayout.setVisible(false);
         actionStatusMsgLayout.setVisible(false);

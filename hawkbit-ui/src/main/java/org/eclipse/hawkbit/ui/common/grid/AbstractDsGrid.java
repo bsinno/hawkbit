@@ -99,29 +99,6 @@ public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSe
         return true;
     }
 
-    /**
-     * Creates the grid content for maximized-state.
-     */
-    public void createMaximizedContent() {
-        removeAllColumns();
-        addMaxColumns();
-        getColumns().forEach(column -> column.setHidable(true));
-
-        getSelectionSupport().disableSelection();
-        getDragAndDropSupportSupport().removeDropTarget();
-    }
-
-    /**
-     * Creates the grid content for normal (minimized) state.
-     */
-    public void createMinimizedContent() {
-        removeAllColumns();
-        addColumns();
-
-        getSelectionSupport().enableMultiSelection();
-        getDragAndDropSupportSupport().addDropTarget();
-    }
-
     protected Column<ProxyDistributionSet, String> addNameColumn() {
         return addColumn(ProxyDistributionSet::getName).setId(DS_NAME_ID).setCaption(i18n.getMessage("header.name"));
     }
@@ -140,19 +117,22 @@ public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSe
                         .setCaption(i18n.getMessage("header.action.delete"));
     }
 
+    @Override
     protected void addMaxColumns() {
-        addNameColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addNameColumn().setMinimumWidth(100d).setExpandRatio(7);
 
-        addCreatedByColumn();
-        addCreatedDateColumn();
-        addModifiedByColumn();
-        addModifiedDateColumn();
+        addCreatedByColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addCreatedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addModifiedByColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
 
-        addDescriptionColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addDescriptionColumn().setMinimumWidth(100d).setExpandRatio(5);
 
-        addVersionColumn().setMinimumWidth(100d);
+        addVersionColumn().setMinimumWidth(100d).setExpandRatio(1);
 
-        addDeleteColumn().setMinimumWidth(80d);
+        addDeleteColumn().setWidth(75d);
+
+        getColumns().forEach(column -> column.setHidable(true));
     }
 
     protected Column<ProxyDistributionSet, String> addCreatedByColumn() {

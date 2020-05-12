@@ -57,12 +57,11 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
         return Collections.singletonList(actionStatusMsgGrid.getMasterEntitySupport());
     }
 
-    public void maximize() {
+    public void enableSelection() {
         actionStatusMsgGrid.getSelectionSupport().enableSingleSelection();
-        actionStatusMsgGrid.getSelectionSupport().selectFirstRow();
     }
 
-    public void minimize() {
+    public void disableSelection() {
         actionStatusMsgGrid.getSelectionSupport().disableSelection();
     }
 

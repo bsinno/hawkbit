@@ -140,20 +140,6 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
         return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
     }
 
-    /**
-     * Creates the grid content for maximized-state.
-     */
-    public void createMaximizedContent() {
-        getSelectionSupport().enableSingleSelection();
-    }
-
-    /**
-     * Creates the grid content for normal (minimized) state.
-     */
-    public void createMinimizedContent() {
-        getSelectionSupport().disableSelection();
-    }
-
     public MasterEntitySupport<ProxyAction> getMasterEntitySupport() {
         return masterEntitySupport;
     }

@@ -16,9 +16,6 @@ import org.eclipse.hawkbit.repository.model.ActionStatus;
 public class ProxyMessage extends ProxyIdentifiableEntity {
     private static final long serialVersionUID = 1L;
 
-    public static final String PXY_MSG_ID = "id";
-    public static final String PXY_MSG_VALUE = "message";
-
     private String message;
 
     /**

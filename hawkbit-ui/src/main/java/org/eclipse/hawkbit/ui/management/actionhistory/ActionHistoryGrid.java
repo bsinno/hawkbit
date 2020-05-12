@@ -35,7 +35,6 @@ import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
-import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
@@ -51,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 
@@ -61,8 +61,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionHistoryGrid.class);
-    private static final double FIXED_PIX_MIN = 25;
-    private static final double FIXED_PIX_MAX = 32;
 
     private static final String ACTION_ID = "id";
     private static final String DS_NAME_VERSION_ID = "dsNameVersion";
@@ -97,8 +95,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         this.deploymentManagement = deploymentManagement;
         this.actionToProxyActionMapper = new ActionToProxyActionMapper();
 
-        setResizeSupport(new ActionHistoryResizeSupport());
-        // TODO: currently we do not restore action history selection
+        // currently we do not restore action history selection
         setSelectionSupport(new SelectionSupport<ProxyAction>(this, eventBus, EventLayout.ACTION_HISTORY_LIST,
                 EventView.DEPLOYMENT, this::mapIdToProxyEntity, null, null));
         if (actionHistoryGridLayoutUiState.isMaximized()) {
@@ -175,9 +172,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private void initActionTypeIconMap() {
         actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT,
                 SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
-        actionTypeIconMap.put(ActionType.TIMEFORCED,
-                new ProxyFontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
+        actionTypeIconMap.put(ActionType.TIMEFORCED, new ProxyFontIcon(VaadinIcons.BOLT,
+                SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
         actionTypeIconMap.put(ActionType.SOFT, new ProxyFontIcon(VaadinIcons.STEP_FORWARD,
                 SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
         actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
@@ -193,77 +189,45 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     /**
      * Creates the grid content for maximized-state.
      */
+    @Override
     public void createMaximizedContent() {
-        getSelectionSupport().enableSingleSelection();
-        getResizeSupport().createMaximizedContent();
-        recalculateColumnWidths();
+        createMaximizedContent(SelectionMode.SINGLE);
     }
 
     /**
      * Creates the grid content for normal (minimized) state.
      */
+    @Override
     public void createMinimizedContent() {
-        getSelectionSupport().disableSelection();
-        getResizeSupport().createMinimizedContent();
-        recalculateColumnWidths();
+        createMinimizedContent(SelectionMode.NONE);
     }
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildActiveStatusIcon).setId(ACTIVE_STATUS_ID)
-                .setCaption(i18n.getMessage("label.active")).setMinimumWidth(50d).setMaximumWidth(50d).setHidable(true)
-                .setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+        addActiveStatusColumn().setMinimumWidth(30d).setMaximumWidth(50d).setHidable(true);
 
-        addColumn(ProxyAction::getDsNameVersion).setId(DS_NAME_VERSION_ID)
-                .setCaption(i18n.getMessage("distribution.details.header")).setMinimumWidth(107d).setMaximumWidth(500d)
-                .setHidable(true).setHidden(false);
+        addDsColumn().setMinimumWidth(80d).setMaximumWidth(110d).setHidable(true);
 
-        addColumn(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt(),
-                SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT)).setId(LAST_MODIFIED_AT_ID)
-                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
-                        .setDescriptionGenerator(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt()))
-                        .setMinimumWidth(100d).setMaximumWidth(130d).setHidable(true).setHidden(false);
+        addDateAndTimeColumn().setMinimumWidth(80d).setMaximumWidth(110d).setHidable(true);
 
-        addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
-                .setMinimumWidth(53d).setMaximumWidth(55d).setHidable(true).setHidden(false)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+        addStatusColumn().setMinimumWidth(30d).setMaximumWidth(53d).setHidable(true);
 
-        addColumn(ProxyAction::getMaintenanceWindow).setId(MAINTENANCE_WINDOW_ID)
-                .setCaption(i18n.getMessage("header.maintenancewindow"))
-                .setDescriptionGenerator(action -> action.getMaintenanceWindowStartTime()
-                        .map(this::getFormattedNextMaintenanceWindow).orElse(null))
-                .setMinimumWidth(150d).setMaximumWidth(200d).setHidable(true).setHidden(true);
+        addMaintenanceWindowColumn().setMinimumWidth(150d).setMaximumWidth(150d).setHidable(true).setHidden(true);
 
-        addComponentColumn(this::buildTypeIcon).setId(TYPE_ID).setMinimumWidth(FIXED_PIX_MIN)
-                .setMaximumWidth(FIXED_PIX_MAX).setHidable(false).setHidden(false)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-
-        addComponentColumn(this::buildTimeforcedIcon).setId(TIME_FORCED_ID).setMinimumWidth(FIXED_PIX_MIN)
-                .setMaximumWidth(FIXED_PIX_MAX).setHidable(false).setHidden(false)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-
+        addTypeColumn().setWidth(25d);
+        addTimeforcedColumn().setWidth(25d);
         getDefaultHeaderRow().join(TYPE_ID, TIME_FORCED_ID).setText(i18n.getMessage("label.action.type"));
 
-        addActionColumns();
-
-        addColumn(ProxyAction::getId).setId(ACTION_ID).setCaption(i18n.getMessage("label.action.id"))
-                .setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(100d).setHidable(true).setHidden(true)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-
-        addColumn(ProxyAction::getRolloutName).setId(ROLLOUT_NAME_ID)
-                .setCaption(i18n.getMessage("caption.rollout.name")).setMinimumWidth(FIXED_PIX_MIN)
-                .setMaximumWidth(500d).setHidable(true).setHidden(true);
+        addCancelColumn().setWidth(25d);
+        addForceColumn().setWidth(25d);
+        addForceQuitColumn().setWidth(25d);
+        getDefaultHeaderRow().join(CANCEL_BUTTON_ID, FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID)
+                .setText(i18n.getMessage("header.action"));
     }
 
-    private Label buildStatusIcon(final ProxyAction action) {
-        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(action.getStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String statusId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_STATUS_LABEL_ID)
-                .append(".").append(action.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
+    private Column<ProxyAction, Label> addActiveStatusColumn() {
+        return addComponentColumn(this::buildActiveStatusIcon).setId(ACTIVE_STATUS_ID)
+                .setCaption(i18n.getMessage("label.active")).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
     }
 
     private Label buildActiveStatusIcon(final ProxyAction action) {
@@ -278,10 +242,49 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         return SPUIComponentProvider.getLabelIcon(activeStatusFontIcon, activeStatusId);
     }
 
+    private Column<ProxyAction, String> addDsColumn() {
+        return addColumn(ProxyAction::getDsNameVersion).setId(DS_NAME_VERSION_ID)
+                .setCaption(i18n.getMessage("distribution.details.header"));
+    }
+
+    private Column<ProxyAction, String> addDateAndTimeColumn() {
+        return addColumn(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt(),
+                SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT)).setId(LAST_MODIFIED_AT_ID)
+                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
+                        .setDescriptionGenerator(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt()));
+    }
+
+    private Column<ProxyAction, Label> addStatusColumn() {
+        return addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+    }
+
+    private Label buildStatusIcon(final ProxyAction action) {
+        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(action.getStatus()))
+                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
+
+        final String statusId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_STATUS_LABEL_ID)
+                .append(".").append(action.getId()).toString();
+
+        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
+    }
+
+    private Column<ProxyAction, String> addMaintenanceWindowColumn() {
+        return addColumn(ProxyAction::getMaintenanceWindow).setId(MAINTENANCE_WINDOW_ID)
+                .setCaption(i18n.getMessage("header.maintenancewindow")).setDescriptionGenerator(action -> action
+                        .getMaintenanceWindowStartTime().map(this::getFormattedNextMaintenanceWindow).orElse(null));
+    }
+
     private String getFormattedNextMaintenanceWindow(final ZonedDateTime nextAt) {
         final long nextAtMilli = nextAt.toInstant().toEpochMilli();
         return i18n.getMessage(UIMessageIdProvider.TOOLTIP_NEXT_MAINTENANCE_WINDOW,
                 SPDateTimeUtil.getFormattedDate(nextAtMilli, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT));
+    }
+
+    private Column<ProxyAction, Label> addTypeColumn() {
+        return addComponentColumn(this::buildTypeIcon).setId(TYPE_ID)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
     }
 
     private Label buildTypeIcon(final ProxyAction action) {
@@ -293,6 +296,11 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .append(".").append(action.getId()).toString();
 
         return SPUIComponentProvider.getLabelIcon(actionTypeFontIcon, actionTypeId);
+    }
+
+    private Column<ProxyAction, Label> addTimeforcedColumn() {
+        return addComponentColumn(this::buildTimeforcedIcon).setId(TIME_FORCED_ID)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
     }
 
     private Label buildTimeforcedIcon(final ProxyAction action) {
@@ -323,34 +331,14 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         return SPUIComponentProvider.getLabelIcon(timeforcedFontIcon, actionTypeId);
     }
 
-    private void addActionColumns() {
-        addComponentColumn(action -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> confirmAndCancelAction(action.getId()), VaadinIcons.CLOSE_SMALL, "message.cancel.action",
-                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ACTION_HISTORY_TABLE_CANCEL_ID + "." + action.getId(),
-                action.isActive() && !action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission()))
-                        .setId(CANCEL_BUTTON_ID).setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX)
-                        .setHidable(false).setHidden(false);
-
-        addComponentColumn(action -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> confirmAndForceAction(action.getId()), VaadinIcons.BOLT, "message.force.action",
-                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_ID + "." + action.getId(),
-                action.isActive() && !action.isForce() && !action.isCancelingOrCanceled()
-                        && permissionChecker.hasUpdateTargetPermission())).setId(FORCE_BUTTON_ID)
-                                .setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX).setHidable(false)
-                                .setHidden(false);
-
-        addComponentColumn(action -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> confirmAndForceQuitAction(action.getId()), VaadinIcons.CLOSE_SMALL,
-                "message.forcequit.action", SPUIStyleDefinitions.STATUS_ICON_RED,
-                UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_QUIT_ID + "." + action.getId(),
-                action.isActive() && action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission()))
-                        .setId(FORCE_QUIT_BUTTON_ID).setMinimumWidth(FIXED_PIX_MIN).setMaximumWidth(FIXED_PIX_MAX)
-                        .setHidable(false).setHidden(false);
-
-        getDefaultHeaderRow().join(CANCEL_BUTTON_ID, FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID)
-                .setText(i18n.getMessage("header.action"));
+    private Column<ProxyAction, Button> addCancelColumn() {
+        return addComponentColumn(
+                action -> GridComponentBuilder.buildActionButton(i18n,
+                        clickEvent -> confirmAndCancelAction(action.getId()), VaadinIcons.CLOSE_SMALL,
+                        "message.cancel.action", SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                        UIComponentIdProvider.ACTION_HISTORY_TABLE_CANCEL_ID + "." + action.getId(), action.isActive()
+                                && !action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission()))
+                                        .setId(CANCEL_BUTTON_ID);
     }
 
     /**
@@ -392,6 +380,15 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         }
     }
 
+    private Column<ProxyAction, Button> addForceColumn() {
+        return addComponentColumn(action -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> confirmAndForceAction(action.getId()), VaadinIcons.BOLT, "message.force.action",
+                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_ID + "." + action.getId(),
+                action.isActive() && !action.isForce() && !action.isCancelingOrCanceled()
+                        && permissionChecker.hasUpdateTargetPermission())).setId(FORCE_BUTTON_ID);
+    }
+
     /**
      * Show confirmation window and if ok then only, force the action.
      *
@@ -422,6 +419,15 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
             LOG.trace("Action was not found during force command: {}", e.getMessage());
             notification.displayValidationError(i18n.getMessage("message.force.action.failed"));
         }
+    }
+
+    private Column<ProxyAction, Button> addForceQuitColumn() {
+        return addComponentColumn(action -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> confirmAndForceQuitAction(action.getId()), VaadinIcons.CLOSE_SMALL,
+                "message.forcequit.action", SPUIStyleDefinitions.STATUS_ICON_RED,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_FORCE_QUIT_ID + "." + action.getId(),
+                action.isActive() && action.isCancelingOrCanceled() && permissionChecker.hasUpdateTargetPermission()))
+                        .setId(FORCE_QUIT_BUTTON_ID);
     }
 
     /**
@@ -456,55 +462,44 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         }
     }
 
-    public MasterEntitySupport<ProxyTarget> getMasterEntitySupport() {
-        return masterEntitySupport;
+    @Override
+    protected void addMaxColumns() {
+        addActiveStatusColumn().setMinimumWidth(30d).setExpandRatio(1).setHidable(true);
+
+        addActionIdColumn().setMinimumWidth(50d).setExpandRatio(1).setHidable(true);
+
+        addDsColumn().setMinimumWidth(80d).setExpandRatio(1).setHidable(true);
+
+        addDateAndTimeColumn().setMinimumWidth(80d).setExpandRatio(1).setHidable(true);
+
+        addStatusColumn().setMinimumWidth(30d).setExpandRatio(1).setHidable(true);
+
+        addMaintenanceWindowColumn().setMinimumWidth(150d).setExpandRatio(1).setHidable(true).setHidden(true);
+
+        addRolloutNameColumn().setMinimumWidth(50d).setExpandRatio(1).setHidable(true);
+
+        addTypeColumn().setWidth(25d);
+        addTimeforcedColumn().setWidth(25d);
+        getDefaultHeaderRow().join(TYPE_ID, TIME_FORCED_ID).setText(i18n.getMessage("label.action.type"));
+
+        addCancelColumn().setWidth(25d);
+        addForceColumn().setWidth(25d);
+        addForceQuitColumn().setWidth(25d);
+        getDefaultHeaderRow().join(CANCEL_BUTTON_ID, FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID)
+                .setText(i18n.getMessage("header.action"));
     }
 
-    /**
-     * Adds support to resize the action history grid.
-     */
-    class ActionHistoryResizeSupport implements ResizeSupport {
+    private Column<ProxyAction, Long> addActionIdColumn() {
+        return addColumn(ProxyAction::getId).setId(ACTION_ID).setCaption(i18n.getMessage("label.action.id"))
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+    }
 
-        private final String[] maxColumnOrder = new String[] { ACTIVE_STATUS_ID, ACTION_ID, DS_NAME_VERSION_ID,
-                LAST_MODIFIED_AT_ID, STATUS_ID, MAINTENANCE_WINDOW_ID, ROLLOUT_NAME_ID, TYPE_ID, TIME_FORCED_ID,
-                CANCEL_BUTTON_ID, FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID };
+    private Column<ProxyAction, String> addRolloutNameColumn() {
+        return addColumn(ProxyAction::getRolloutName).setId(ROLLOUT_NAME_ID)
+                .setCaption(i18n.getMessage("caption.rollout.name"));
+    }
 
-        private final String[] minColumnOrder = new String[] { ACTIVE_STATUS_ID, DS_NAME_VERSION_ID,
-                LAST_MODIFIED_AT_ID, STATUS_ID, MAINTENANCE_WINDOW_ID, TYPE_ID, TIME_FORCED_ID, CANCEL_BUTTON_ID,
-                FORCE_BUTTON_ID, FORCE_QUIT_BUTTON_ID };
-
-        @Override
-        public void setMaximizedColumnOrder() {
-            clearSortOrder();
-            setColumnOrder(maxColumnOrder);
-        }
-
-        @Override
-        public void setMaximizedHiddenColumns() {
-            getColumn(ACTION_ID).setHidden(false);
-            getColumn(ROLLOUT_NAME_ID).setHidden(false);
-        }
-
-        @Override
-        public void setMaximizedColumnExpandRatio() {
-            getColumn(LAST_MODIFIED_AT_ID).setMinimumWidth(100d).setMaximumWidth(150d);
-        }
-
-        @Override
-        public void setMinimizedColumnOrder() {
-            clearSortOrder();
-            setColumnOrder(minColumnOrder);
-        }
-
-        @Override
-        public void setMinimizedHiddenColumns() {
-            getColumn(ACTION_ID).setHidden(true);
-            getColumn(ROLLOUT_NAME_ID).setHidden(true);
-        }
-
-        @Override
-        public void setMinimizedColumnExpandRatio() {
-            getColumn(LAST_MODIFIED_AT_ID).setMinimumWidth(100d).setMaximumWidth(130d);
-        }
+    public MasterEntitySupport<ProxyTarget> getMasterEntitySupport() {
+        return masterEntitySupport;
     }
 }

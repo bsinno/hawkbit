@@ -290,6 +290,62 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      */
     public abstract String getGridId();
 
+    /**
+     * Creates the grid content for maximized-state.
+     */
+    public void createMaximizedContent() {
+        createMaximizedContent(SelectionMode.NONE);
+    }
+
+    protected void createMaximizedContent(final SelectionMode selectionMode) {
+        removeAllColumns();
+        addMaxColumns();
+
+        if (selectionSupport != null) {
+            changeSelection(selectionMode);
+        }
+        if (hasDragAndDropSupportSupport()) {
+            getDragAndDropSupportSupport().removeDragSource();
+        }
+    }
+
+    protected void addMaxColumns() {
+        // can be overriden in order to define columns in maximized state
+    }
+
+    private void changeSelection(final SelectionMode selectionMode) {
+        switch (selectionMode) {
+        case NONE:
+            getSelectionSupport().disableSelection();
+            break;
+        case SINGLE:
+            getSelectionSupport().enableSingleSelection();
+            break;
+        case MULTI:
+            getSelectionSupport().enableMultiSelection();
+            break;
+        }
+    }
+
+    /**
+     * Creates the grid content for normal (minimized) state.
+     */
+    public void createMinimizedContent() {
+        createMinimizedContent(SelectionMode.MULTI);
+    }
+
+    protected void createMinimizedContent(final SelectionMode selectionMode) {
+        removeAllColumns();
+        addColumns();
+
+        if (selectionSupport != null) {
+            changeSelection(selectionMode);
+        }
+        if (hasDragAndDropSupportSupport()) {
+            getDragAndDropSupportSupport().addDragSource();
+        }
+    }
+
     public void restoreState() {
         if (hasFilterSupport()) {
             getFilterSupport().restoreFilter();

@@ -47,7 +47,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport.PinBehaviourType;
-import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
@@ -71,6 +70,7 @@ import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 
 /**
@@ -117,8 +117,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
         this.distributionGridLayoutUiState = distributionGridLayoutUiState;
         this.targetToProxyTargetMapper = new TargetToProxyTargetMapper(i18n);
-
-        setResizeSupport(new TargetResizeSupport());
 
         setSelectionSupport(new SelectionSupport<ProxyTarget>(this, eventBus, EventLayout.TARGET_LIST,
                 EventView.DEPLOYMENT, this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState,
@@ -326,42 +324,19 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         });
     }
 
-    /**
-     * Creates the grid content for maximized-state.
-     */
-    public void createMaximizedContent() {
-        getSelectionSupport().disableSelection();
-        getDragAndDropSupportSupport().removeDragAndDrop();
-        getResizeSupport().createMaximizedContent();
-        recalculateColumnWidths();
-    }
-
-    /**
-     * Creates the grid content for normal (minimized) state.
-     */
-    public void createMinimizedContent() {
-        getSelectionSupport().enableMultiSelection();
-        getDragAndDropSupportSupport().addDragAndDrop();
-        getResizeSupport().createMinimizedContent();
-        recalculateColumnWidths();
-    }
-
     @Override
     public void addColumns() {
-        // TODO: check width
-        addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setMinimumWidth(100d).setExpandRatio(1);
+        addNameColumn().setMinimumWidth(130d).setMaximumWidth(150d).setExpandRatio(1);
 
-        addComponentColumn(this::buildTargetPollingStatusIcon).setId(TARGET_POLLING_STATUS_ID).setMinimumWidth(50d)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-
-        addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID).setMinimumWidth(50d)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-
+        addTargetPollingStatusColumn().setWidth(30d);
+        addTargetStatusColumn().setWidth(30d);
         getDefaultHeaderRow().join(TARGET_POLLING_STATUS_ID, TARGET_STATUS_ID)
                 .setText(i18n.getMessage("header.status"));
 
-        addActionColumns();
+        addPinColumn().setWidth(25d);
+        addDeleteColumn().setWidth(50d);
+        getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
+                .setText(i18n.getMessage("header.action"));
 
         addColumn(ProxyTarget::getCreatedBy).setId(TARGET_CREATED_BY_ID).setCaption(i18n.getMessage("header.createdBy"))
                 .setHidden(true);
@@ -379,16 +354,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 .setHidden(true);
     }
 
-    private Label buildTargetStatusIcon(final ProxyTarget target) {
-        final ProxyFontIcon targetStatusFontIcon = Optional
-                .ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
+    private Column<ProxyTarget, String> addNameColumn() {
+        return addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"));
+    }
 
-        final String targetStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID).append(".")
-                .append(target.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(targetStatusFontIcon, targetStatusId);
+    private Column<ProxyTarget, Label> addTargetPollingStatusColumn() {
+        return addComponentColumn(this::buildTargetPollingStatusIcon).setId(TARGET_POLLING_STATUS_ID)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
     }
 
     private Label buildTargetPollingStatusIcon(final ProxyTarget target) {
@@ -406,21 +378,79 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         return SPUIComponentProvider.getLabelIcon(pollStatusFontIcon, pollStatusId);
     }
 
-    private void addActionColumns() {
-        addComponentColumn(target -> GridComponentBuilder.buildActionButton(i18n,
+    private Column<ProxyTarget, Label> addTargetStatusColumn() {
+        return addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID)
+                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+    }
+
+    private Label buildTargetStatusIcon(final ProxyTarget target) {
+        final ProxyFontIcon targetStatusFontIcon = Optional
+                .ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
+                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
+
+        final String targetStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID).append(".")
+                .append(target.getId()).toString();
+
+        return SPUIComponentProvider.getLabelIcon(targetStatusFontIcon, targetStatusId);
+    }
+
+    private Column<ProxyTarget, Button> addPinColumn() {
+        return addComponentColumn(target -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> pinSupport.changeItemPinning(target), VaadinIcons.PIN,
                 UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true)).setId(TARGET_PIN_BUTTON_ID)
-                        .setMinimumWidth(50d).setStyleGenerator(pinSupport::getPinningStyle);
+                        .setStyleGenerator(pinSupport::getPinningStyle);
+    }
 
-        addComponentColumn(target -> GridComponentBuilder.buildActionButton(i18n,
+    private Column<ProxyTarget, Button> addDeleteColumn() {
+        return addComponentColumn(target -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(),
-                permissionChecker.hasDeleteTargetPermission())).setId(TARGET_DELETE_BUTTON_ID).setMinimumWidth(50d);
+                permissionChecker.hasDeleteTargetPermission())).setId(TARGET_DELETE_BUTTON_ID)
+                        .setCaption(i18n.getMessage("header.action.delete"));
+    }
 
-        getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
-                .setText(i18n.getMessage("header.action"));
+    @Override
+    protected void addMaxColumns() {
+        addNameColumn().setMinimumWidth(130d).setExpandRatio(7);
+
+        addCreatedByColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addCreatedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addModifiedByColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
+
+        addDescriptionColumn().setMinimumWidth(100d).setExpandRatio(5);
+
+        addDeleteColumn().setWidth(75d);
+
+        getColumns().forEach(column -> column.setHidable(true));
+    }
+
+    private Column<ProxyTarget, String> addCreatedByColumn() {
+        return addColumn(ProxyTarget::getCreatedBy).setId(TARGET_CREATED_BY_ID)
+                .setCaption(i18n.getMessage("header.createdBy"));
+    }
+
+    private Column<ProxyTarget, String> addCreatedDateColumn() {
+        return addColumn(ProxyTarget::getCreatedDate).setId(TARGET_CREATED_DATE_ID)
+                .setCaption(i18n.getMessage("header.createdDate"));
+    }
+
+    private Column<ProxyTarget, String> addModifiedByColumn() {
+        return addColumn(ProxyTarget::getLastModifiedBy).setId(TARGET_MODIFIED_BY_ID)
+                .setCaption(i18n.getMessage("header.modifiedBy"));
+    }
+
+    private Column<ProxyTarget, String> addModifiedDateColumn() {
+        return addColumn(ProxyTarget::getModifiedDate).setId(TARGET_MODIFIED_DATE_ID)
+                .setCaption(i18n.getMessage("header.modifiedDate"));
+    }
+
+    private Column<ProxyTarget, String> addDescriptionColumn() {
+        return addColumn(ProxyTarget::getDescription).setId(TARGET_DESC_ID)
+                .setCaption(i18n.getMessage("header.description"));
     }
 
     @Override
@@ -443,75 +473,5 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     public PinSupport<ProxyTarget, Long> getPinSupport() {
         return pinSupport;
-    }
-
-    /**
-     * Adds support to resize the target grid.
-     */
-    class TargetResizeSupport implements ResizeSupport {
-
-        private final String[] maxColumnOrder = new String[] { TARGET_NAME_ID, TARGET_CREATED_BY_ID,
-                TARGET_CREATED_DATE_ID, TARGET_MODIFIED_BY_ID, TARGET_MODIFIED_DATE_ID, TARGET_DESC_ID,
-                TARGET_DELETE_BUTTON_ID };
-
-        private final String[] minColumnOrder = new String[] { TARGET_NAME_ID, TARGET_POLLING_STATUS_ID,
-                TARGET_STATUS_ID, TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID };
-
-        @Override
-        public void setMaximizedColumnOrder() {
-            clearSortOrder();
-            setColumnOrder(maxColumnOrder);
-        }
-
-        @Override
-        public void setMaximizedHiddenColumns() {
-            getColumn(TARGET_POLLING_STATUS_ID).setHidden(true);
-            getColumn(TARGET_STATUS_ID).setHidden(true);
-            getColumn(TARGET_PIN_BUTTON_ID).setHidden(true);
-
-            getColumn(TARGET_CREATED_BY_ID).setHidden(false);
-            getColumn(TARGET_CREATED_DATE_ID).setHidden(false);
-            getColumn(TARGET_MODIFIED_BY_ID).setHidden(false);
-            getColumn(TARGET_MODIFIED_DATE_ID).setHidden(false);
-            getColumn(TARGET_DESC_ID).setHidden(false);
-
-            getColumns().forEach(column -> column.setHidable(true));
-        }
-
-        @Override
-        public void setMaximizedColumnExpandRatio() {
-            getColumns().forEach(column -> column.setExpandRatio(0));
-
-            getColumn(TARGET_NAME_ID).setExpandRatio(1);
-            getColumn(TARGET_DESC_ID).setExpandRatio(1);
-        }
-
-        @Override
-        public void setMinimizedColumnOrder() {
-            clearSortOrder();
-            setColumnOrder(minColumnOrder);
-        }
-
-        @Override
-        public void setMinimizedHiddenColumns() {
-            getColumn(TARGET_POLLING_STATUS_ID).setHidden(false);
-            getColumn(TARGET_STATUS_ID).setHidden(false);
-            getColumn(TARGET_PIN_BUTTON_ID).setHidden(false);
-
-            getColumn(TARGET_CREATED_BY_ID).setHidden(true);
-            getColumn(TARGET_CREATED_DATE_ID).setHidden(true);
-            getColumn(TARGET_MODIFIED_BY_ID).setHidden(true);
-            getColumn(TARGET_MODIFIED_DATE_ID).setHidden(true);
-            getColumn(TARGET_DESC_ID).setHidden(true);
-
-            getColumns().forEach(column -> column.setHidable(false));
-        }
-
-        @Override
-        public void setMinimizedColumnExpandRatio() {
-            getColumns().forEach(column -> column.setExpandRatio(0));
-
-            getColumn(TARGET_NAME_ID).setExpandRatio(1);
-        }
     }
 }

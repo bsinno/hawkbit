@@ -37,7 +37,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.DragAndDropSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
-import org.eclipse.hawkbit.ui.common.grid.support.ResizeSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
@@ -49,6 +48,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Button;
 
 /**
  * Software Module grid.
@@ -90,8 +90,6 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         this.notification = notification;
         this.softwareModuleManagement = softwareModuleManagement;
         this.softwareModuleToProxyMapper = new SoftwareModuleToProxyMapper();
-
-        setResizeSupport(new SwModuleResizeSupport());
 
         setSelectionSupport(new SelectionSupport<ProxySoftwareModule>(this, eventBus, EventLayout.SM_LIST, view,
                 this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
@@ -215,131 +213,84 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         return UIComponentIdProvider.SOFTWARE_MODULE_TABLE;
     }
 
-    /**
-     * Creates the grid content for maximized-state.
-     */
-    public void createMaximizedContent() {
-        getSelectionSupport().disableSelection();
-        getResizeSupport().createMaximizedContent();
-        recalculateColumnWidths();
-        if (hasDragAndDropSupportSupport()) {
-            getDragAndDropSupportSupport().removeDragSource();
-        }
-    }
-
-    /**
-     * Creates the grid content for normal (minimized) state.
-     */
-    public void createMinimizedContent() {
-        getSelectionSupport().enableMultiSelection();
-        getResizeSupport().createMinimizedContent();
-        recalculateColumnWidths();
-        if (hasDragAndDropSupportSupport()) {
-            getDragAndDropSupportSupport().addDragSource();
-        }
-    }
-
     @Override
     public void addColumns() {
-        addColumn(ProxySoftwareModule::getName).setId(SM_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setMinimumWidth(100d).setExpandRatio(1);
+        addNameColumn().setMinimumWidth(100d).setMaximumWidth(330d).setExpandRatio(2);
 
-        addColumn(ProxySoftwareModule::getVersion).setId(SM_VERSION_ID).setCaption(i18n.getMessage("header.version"))
-                .setMinimumWidth(100d);
+        addVersionColumn().setMinimumWidth(100d).setMaximumWidth(150d).setExpandRatio(1);
 
-        addActionColumns();
-
-        addColumn(ProxySoftwareModule::getCreatedBy).setId(SM_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy")).setHidden(true);
-
-        addColumn(ProxySoftwareModule::getCreatedDate).setId(SM_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setHidden(true);
-
-        addColumn(ProxySoftwareModule::getLastModifiedBy).setId(SM_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidden(true);
-
-        addColumn(ProxySoftwareModule::getModifiedDate).setId(SM_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidden(true);
-
-        addColumn(ProxySoftwareModule::getDescription).setId(SM_DESC_ID)
-                .setCaption(i18n.getMessage("header.description")).setHidden(true);
-
-        addColumn(ProxySoftwareModule::getVendor).setId(SM_VENDOR_ID).setCaption(i18n.getMessage("header.vendor"))
-                .setHidden(true);
+        addDeleteColumn().setWidth(75d);
     }
 
-    private void addActionColumns() {
-        addComponentColumn(sm -> GridComponentBuilder.buildActionButton(i18n,
+    private Column<ProxySoftwareModule, String> addNameColumn() {
+        return addColumn(ProxySoftwareModule::getName).setId(SM_NAME_ID).setCaption(i18n.getMessage("header.name"));
+    }
+
+    private Column<ProxySoftwareModule, String> addVersionColumn() {
+        return addColumn(ProxySoftwareModule::getVersion).setId(SM_VERSION_ID)
+                .setCaption(i18n.getMessage("header.version"));
+    }
+
+    private Column<ProxySoftwareModule, Button> addDeleteColumn() {
+        return addComponentColumn(sm -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> swModuleDeleteSupport.openConfirmationWindowDeleteAction(sm), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(),
                 permissionChecker.hasDeleteRepositoryPermission())).setId(SM_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(80d);
+                        .setCaption(i18n.getMessage("header.action.delete"));
+    }
+
+    @Override
+    protected void addMaxColumns() {
+        addNameColumn().setMinimumWidth(100d).setExpandRatio(7);
+
+        addCreatedByColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addCreatedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addModifiedByColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
+
+        addDescriptionColumn().setMinimumWidth(100d).setExpandRatio(5);
+
+        addVersionColumn().setMinimumWidth(100d).setExpandRatio(1);
+
+        addVendorColumn().setMinimumWidth(100d).setExpandRatio(1);
+
+        addDeleteColumn().setWidth(75d);
+
+        getColumns().forEach(column -> column.setHidable(true));
+    }
+
+    private Column<ProxySoftwareModule, String> addCreatedByColumn() {
+        return addColumn(ProxySoftwareModule::getCreatedBy).setId(SM_CREATED_BY_ID)
+                .setCaption(i18n.getMessage("header.createdBy"));
+    }
+
+    private Column<ProxySoftwareModule, String> addCreatedDateColumn() {
+        return addColumn(ProxySoftwareModule::getCreatedDate).setId(SM_CREATED_DATE_ID)
+                .setCaption(i18n.getMessage("header.createdDate"));
+    }
+
+    private Column<ProxySoftwareModule, String> addModifiedByColumn() {
+        return addColumn(ProxySoftwareModule::getLastModifiedBy).setId(SM_MODIFIED_BY_ID)
+                .setCaption(i18n.getMessage("header.modifiedBy"));
+    }
+
+    private Column<ProxySoftwareModule, String> addModifiedDateColumn() {
+        return addColumn(ProxySoftwareModule::getModifiedDate).setId(SM_MODIFIED_DATE_ID)
+                .setCaption(i18n.getMessage("header.modifiedDate"));
+    }
+
+    private Column<ProxySoftwareModule, String> addDescriptionColumn() {
+        return addColumn(ProxySoftwareModule::getDescription).setId(SM_DESC_ID)
+                .setCaption(i18n.getMessage("header.description"));
+    }
+
+    private Column<ProxySoftwareModule, String> addVendorColumn() {
+        return addColumn(ProxySoftwareModule::getVendor).setId(SM_VENDOR_ID)
+                .setCaption(i18n.getMessage("header.vendor"));
     }
 
     public MasterEntitySupport<ProxyDistributionSet> getMasterEntitySupport() {
         return masterEntitySupport;
-    }
-
-    /**
-     * Adds support to resize the SoftwareModule grid.
-     */
-    class SwModuleResizeSupport implements ResizeSupport {
-
-        private final String[] maxColumnOrder = new String[] { SM_NAME_ID, SM_CREATED_BY_ID, SM_CREATED_DATE_ID,
-                SM_MODIFIED_BY_ID, SM_MODIFIED_DATE_ID, SM_DESC_ID, SM_VERSION_ID, SM_VENDOR_ID, SM_DELETE_BUTTON_ID };
-
-        private final String[] minColumnOrder = new String[] { SM_NAME_ID, SM_VERSION_ID, SM_DELETE_BUTTON_ID };
-
-        @Override
-        public void setMaximizedColumnOrder() {
-            clearSortOrder();
-            setColumnOrder(maxColumnOrder);
-        }
-
-        @Override
-        public void setMaximizedHiddenColumns() {
-            getColumn(SM_CREATED_BY_ID).setHidden(false);
-            getColumn(SM_CREATED_DATE_ID).setHidden(false);
-            getColumn(SM_MODIFIED_BY_ID).setHidden(false);
-            getColumn(SM_MODIFIED_DATE_ID).setHidden(false);
-            getColumn(SM_DESC_ID).setHidden(false);
-            getColumn(SM_VENDOR_ID).setHidden(false);
-
-            getColumns().forEach(column -> column.setHidable(true));
-        }
-
-        @Override
-        public void setMaximizedColumnExpandRatio() {
-            getColumns().forEach(column -> column.setExpandRatio(0));
-
-            getColumn(SM_NAME_ID).setExpandRatio(1);
-            getColumn(SM_DESC_ID).setExpandRatio(1);
-        }
-
-        @Override
-        public void setMinimizedColumnOrder() {
-            clearSortOrder();
-            setColumnOrder(minColumnOrder);
-        }
-
-        @Override
-        public void setMinimizedHiddenColumns() {
-            getColumn(SM_CREATED_BY_ID).setHidden(true);
-            getColumn(SM_CREATED_DATE_ID).setHidden(true);
-            getColumn(SM_MODIFIED_BY_ID).setHidden(true);
-            getColumn(SM_MODIFIED_DATE_ID).setHidden(true);
-            getColumn(SM_DESC_ID).setHidden(true);
-            getColumn(SM_VENDOR_ID).setHidden(true);
-
-            getColumns().forEach(column -> column.setHidable(false));
-        }
-
-        @Override
-        public void setMinimizedColumnExpandRatio() {
-            getColumns().forEach(column -> column.setExpandRatio(0));
-
-            getColumn(SM_NAME_ID).setExpandRatio(1);
-        }
     }
 }

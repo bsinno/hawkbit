@@ -54,10 +54,27 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<MasterEntityAwareComponent<ProxyAction>> getMasterEntityAwareComponents() {
-        return Arrays.asList(actionStatusGrid.getMasterEntitySupport(), action -> reselectActionStatus());
+        final Long previousMasterActionId = actionStatusGrid.getMasterEntitySupport().getMasterId();
+
+        return Arrays.asList(actionStatusGrid.getMasterEntitySupport(),
+                masterAction -> reselectActionStatus(masterAction, previousMasterActionId));
     }
 
-    private void reselectActionStatus() {
+    private void reselectActionStatus(final ProxyAction masterAction, final Long previousMasterActionId) {
+        if (masterAction == null) {
+            actionStatusGrid.getSelectionSupport().deselectAll();
+            return;
+        }
+
+        if (masterAction.getId().equals(previousMasterActionId)) {
+            updatedActionStatusMessages();
+            return;
+        }
+
+        actionStatusGrid.getSelectionSupport().selectFirstRow();
+    }
+
+    private void updatedActionStatusMessages() {
         actionStatusGrid.getSelectionSupport().getSelectedEntity().ifPresent(selectedActionStatus ->
         // we do not need to fetch the updated action status from backend
         // here, because we only need to refresh messages based on id
@@ -65,13 +82,12 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
                 selectedActionStatus));
     }
 
-    public void maximize() {
-        actionStatusGrid.createMaximizedContent();
-        actionStatusGrid.getSelectionSupport().selectFirstRow();
+    public void enableSelection() {
+        actionStatusGrid.getSelectionSupport().enableSingleSelection();
     }
 
-    public void minimize() {
-        actionStatusGrid.createMinimizedContent();
+    public void disableSelection() {
+        actionStatusGrid.getSelectionSupport().disableSelection();
     }
 
     public void unsubscribeListener() {

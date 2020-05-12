@@ -84,10 +84,6 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
         return Optional.ofNullable(actionHistoryGrid.getMasterEntitySupport().getMasterId());
     }
 
-    public void restoreState() {
-        actionHistoryHeader.restoreState();
-    }
-
     public void maximize() {
         actionHistoryGrid.createMaximizedContent();
         actionHistoryGrid.getSelectionSupport().selectFirstRow();
@@ -95,6 +91,10 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
 
     public void minimize() {
         actionHistoryGrid.createMinimizedContent();
+    }
+
+    public void restoreState() {
+        actionHistoryHeader.restoreState();
     }
 
     public void unsubscribeListener() {
