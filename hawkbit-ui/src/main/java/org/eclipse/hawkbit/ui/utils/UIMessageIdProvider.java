@@ -15,6 +15,10 @@ package org.eclipse.hawkbit.ui.utils;
  */
 public final class UIMessageIdProvider {
 
+    public static final String TOOLTIP_ARTIFACT_DOWNLOAD = "tooltip.artifact.download";
+
+    public static final String ARTIFACT_DOWNLOAD_FAILURE_MSG = "message.artifact.download.failure";
+
     public static final String BUTTON_CANCEL = "button.cancel";
 
     public static final String BUTTON_OK = "button.ok";
@@ -54,8 +58,6 @@ public final class UIMessageIdProvider {
     public static final String CAPTION_ARTIFACT_DETAILS = "caption.artifact.details";
 
     public static final String CAPTION_ARTIFACT_DETAILS_OF = "caption.artifact.details.of";
-
-    public static final String CAPTION_ARTIFACT_DETAILS_OF_SM = "caption.artifact.details.of.sm";
 
     public static final String CAPTION_SELECT_AUTO_ASSIGN_DS = "caption.select.auto.assign.dist";
 
@@ -110,9 +112,9 @@ public final class UIMessageIdProvider {
     public static final String MESSAGE_AUTOASSIGN_CREATE_ERROR_MISSINGELEMENTS = "message.autoassign.create.error.missingElements";
 
     public static final String MESSAGE_ERROR_NAMEREQUIRED = "message.error.nameRequired";
-    
+
     public static final String MESSAGE_ERROR_VERSIONREQUIRED = "message.error.versionRequired";
-    
+
     public static final String MESSAGE_ERROR_DISTRIBUTIONSET_REQUIRED = "message.error.distributionSetRequired";
 
     public static final String MESSAGE_FILTER_QUERY_ERROR_NOTVALIDE = "message.filter.query.error.notValide";

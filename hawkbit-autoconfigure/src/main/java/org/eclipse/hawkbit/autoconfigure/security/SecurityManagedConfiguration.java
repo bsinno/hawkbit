@@ -74,15 +74,24 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -227,12 +236,12 @@ public class SecurityManagedConfiguration {
                 LOG.info(
                         "******************\n** Anonymous controller security enabled, should only be used for developing purposes **\n******************");
 
-                final AnonymousAuthenticationFilter anoymousFilter = new AnonymousAuthenticationFilter(
+                final AnonymousAuthenticationFilter anonymousFilter = new AnonymousAuthenticationFilter(
                         "controllerAnonymousFilter", "anonymous",
                         Arrays.asList(new SimpleGrantedAuthority(SpringEvalExpressions.CONTROLLER_ROLE_ANONYMOUS)));
-                anoymousFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                anonymousFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
                 httpSec.requestMatchers().antMatchers(DDI_ANT_MATCHERS).and().securityContext().disable().anonymous()
-                        .authenticationFilter(anoymousFilter);
+                        .authenticationFilter(anonymousFilter);
             } else {
 
                 httpSec.addFilter(securityHeaderFilter).addFilter(securityTokenFilter)
@@ -349,12 +358,12 @@ public class SecurityManagedConfiguration {
                 LOG.info(
                         "******************\n** Anonymous controller security enabled, should only be used for developing purposes **\n******************");
 
-                final AnonymousAuthenticationFilter anoymousFilter = new AnonymousAuthenticationFilter(
+                final AnonymousAuthenticationFilter anonymousFilter = new AnonymousAuthenticationFilter(
                         "controllerAnonymousFilter", "anonymous",
                         Arrays.asList(new SimpleGrantedAuthority(SpringEvalExpressions.CONTROLLER_ROLE_ANONYMOUS)));
-                anoymousFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                anonymousFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
                 httpSec.requestMatchers().antMatchers(DDI_DL_ANT_MATCHER).and().securityContext().disable().anonymous()
-                        .authenticationFilter(anoymousFilter);
+                        .authenticationFilter(anonymousFilter);
             } else {
 
                 httpSec.addFilter(securityHeaderFilter).addFilter(securityTokenFilter)
@@ -412,7 +421,7 @@ public class SecurityManagedConfiguration {
     }
 
     /**
-     * A Websecruity config to handle and filter the download ids.
+     * A Websecurity config to handle and filter the download ids.
      */
     @Configuration
     @EnableWebSecurity
@@ -453,13 +462,19 @@ public class SecurityManagedConfiguration {
      * Security configuration for the REST management API.
      */
     @Configuration
-    @EnableWebSecurity
     @Order(350)
+    @EnableWebSecurity
     @ConditionalOnClass(MgmtApiConfiguration.class)
     public static class RestSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
         @Autowired
         private UserAuthenticationFilter userAuthenticationFilter;
+
+        @Autowired(required = false)
+        private OidcBearerTokenAuthenticationFilter oidcBearerTokenAuthenticationFilter;
+
+        @Autowired(required = false)
+        private InMemoryClientRegistrationRepository clientRegistrationRepository;
 
         @Autowired
         private SystemManagement systemManagement;
@@ -496,9 +511,6 @@ public class SecurityManagedConfiguration {
         @Override
         protected void configure(final HttpSecurity http) throws Exception {
 
-            final BasicAuthenticationEntryPoint basicAuthEntryPoint = new BasicAuthenticationEntryPoint();
-            basicAuthEntryPoint.setRealmName(securityProperties.getBasicRealm());
-
             HttpSecurity httpSec = http.regexMatcher("\\/rest.*|\\/system/admin.*").csrf().disable();
 
             if (securityProperties.getCors().isEnabled()) {
@@ -509,30 +521,54 @@ public class SecurityManagedConfiguration {
                 httpSec = httpSec.requiresChannel().anyRequest().requiresSecure().and();
             }
 
-            httpSec.addFilterBefore(new Filter() {
-                @Override
-                public void init(final FilterConfig filterConfig) throws ServletException {
-                    userAuthenticationFilter.init(filterConfig);
-                }
-
-                @Override
-                public void doFilter(final ServletRequest request, final ServletResponse response,
-                        final FilterChain chain) throws IOException, ServletException {
-                    userAuthenticationFilter.doFilter(request, response, chain);
-                }
-
-                @Override
-                public void destroy() {
-                    userAuthenticationFilter.destroy();
-                }
-            }, RequestHeaderAuthenticationFilter.class)
-                    .addFilterAfter(new AuthenticationSuccessTenantMetadataCreationFilter(systemManagement,
-                            systemSecurityContext), SessionManagementFilter.class)
-                    .authorizeRequests().anyRequest().authenticated()
+            httpSec.authorizeRequests().anyRequest().authenticated()
                     .antMatchers(MgmtRestConstants.BASE_SYSTEM_MAPPING + "/admin/**")
                     .hasAnyAuthority(SpPermission.SYSTEM_ADMIN);
 
-            httpSec.httpBasic().and().exceptionHandling().authenticationEntryPoint(basicAuthEntryPoint);
+            if (oidcBearerTokenAuthenticationFilter != null) {
+
+                // Only get the first client registration. Testing against every
+                // client could increase the
+                // attack vector
+                final ClientRegistration clientRegistration = clientRegistrationRepository != null
+                        && clientRegistrationRepository.iterator().hasNext()
+                                ? clientRegistrationRepository.iterator().next()
+                                : null;
+
+                Assert.notNull(clientRegistration, "There must be a valid client registration");
+                httpSec.oauth2ResourceServer().jwt().jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri());
+
+                oidcBearerTokenAuthenticationFilter.setClientRegistration(clientRegistration);
+
+                httpSec.addFilterAfter(oidcBearerTokenAuthenticationFilter, BearerTokenAuthenticationFilter.class);
+            } else {
+                final BasicAuthenticationEntryPoint basicAuthEntryPoint = new BasicAuthenticationEntryPoint();
+                basicAuthEntryPoint.setRealmName(securityProperties.getBasicRealm());
+
+                httpSec.addFilterBefore(new Filter() {
+                    @Override
+                    public void init(final FilterConfig filterConfig) throws ServletException {
+                        userAuthenticationFilter.init(filterConfig);
+                    }
+
+                    @Override
+                    public void doFilter(final ServletRequest request, final ServletResponse response,
+                            final FilterChain chain) throws IOException, ServletException {
+                        userAuthenticationFilter.doFilter(request, response, chain);
+                    }
+
+                    @Override
+                    public void destroy() {
+                        userAuthenticationFilter.destroy();
+                    }
+                }, RequestHeaderAuthenticationFilter.class);
+                httpSec.httpBasic().and().exceptionHandling().authenticationEntryPoint(basicAuthEntryPoint);
+            }
+
+            httpSec.addFilterAfter(
+                    new AuthenticationSuccessTenantMetadataCreationFilter(systemManagement, systemSecurityContext),
+                    SessionManagementFilter.class);
+
             httpSec.anonymous().disable();
             httpSec.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
@@ -563,11 +599,20 @@ public class SecurityManagedConfiguration {
     @ConditionalOnClass(MgmtUiConfiguration.class)
     public static class UISecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
-        final HawkbitSecurityProperties hawkbitSecurityProperties;
+        @Autowired
+        private HawkbitSecurityProperties hawkbitSecurityProperties;
 
-        public UISecurityConfigurationAdapter(final HawkbitSecurityProperties hawkbitSecurityProperties) {
-            this.hawkbitSecurityProperties = hawkbitSecurityProperties;
-        }
+        @Autowired(required = false)
+        private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
+
+        @Autowired(required = false)
+        private AuthenticationSuccessHandler authenticationSuccessHandler;
+
+        @Autowired
+        private LogoutHandler logoutHandler;
+
+        @Autowired
+        private LogoutSuccessHandler logoutSuccessHandler;
 
         /**
          * Filter to protect the hawkBit management UI against to many requests.
@@ -614,7 +659,7 @@ public class SecurityManagedConfiguration {
         /**
          * Listener to redirect to login page after session timeout. Close the
          * vaadin session, because it's is not possible to redirect in
-         * atmospehere.
+         * atmosphere.
          *
          * @return the servlet listener.
          */
@@ -626,13 +671,20 @@ public class SecurityManagedConfiguration {
         @Override
         protected void configure(final HttpSecurity http) throws Exception {
 
+            final boolean enableOidc = oidcUserService != null && authenticationSuccessHandler != null;
+
             // workaround regex: we need to exclude the URL /UI/HEARTBEAT here
             // because we bound the vaadin application to /UI and not to root,
             // described in vaadin-forum:
             // https://vaadin.com/forum#!/thread/3200565.
-            HttpSecurity httpSec = http.regexMatcher("(?!.*HEARTBEAT)^.*\\/UI.*$")
-                    // disable as CSRF is handled by Vaadin
-                    .csrf().disable();
+            HttpSecurity httpSec;
+            if (enableOidc) {
+                httpSec = http.regexMatcher("(?!.*HEARTBEAT)^.*\\/(UI|oauth2).*$");
+            } else {
+                httpSec = http.regexMatcher("(?!.*HEARTBEAT)^.*\\/UI.*$");
+            }
+            // disable as CSRF is handled by Vaadin
+            httpSec.csrf().disable();
 
             if (hawkbitSecurityProperties.isRequireSsl()) {
                 httpSec = httpSec.requiresChannel().anyRequest().requiresSecure().and();
@@ -646,16 +698,23 @@ public class SecurityManagedConfiguration {
                 httpSec.headers().contentSecurityPolicy(hawkbitSecurityProperties.getContentSecurityPolicy());
             }
 
-            final SimpleUrlLogoutSuccessHandler simpleUrlLogoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
-            simpleUrlLogoutSuccessHandler.setTargetUrlParameter("login");
+            // UI
+            httpSec.authorizeRequests().antMatchers("/UI/login/**", "/UI/UIDL/**").permitAll().anyRequest()
+                    .authenticated();
 
-            httpSec
-                    // UI
-                    .authorizeRequests().antMatchers("/UI/login/**").permitAll().antMatchers("/UI/UIDL/**").permitAll()
-                    .anyRequest().authenticated().and()
-                    // UI login / logout
-                    .exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/UI/login/#/"))
-                    .and().logout().logoutUrl("/UI/logout").logoutSuccessHandler(simpleUrlLogoutSuccessHandler);
+            if (enableOidc) {
+                // OIDC
+                httpSec.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService).and()
+                        .successHandler(authenticationSuccessHandler).and().oauth2Client();
+            } else {
+                // UI login / Basic auth
+                httpSec.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/UI/login"));
+            }
+
+            // UI logout
+            httpSec.logout().logoutUrl("/UI/logout*").addLogoutHandler(logoutHandler)
+                    .logoutSuccessHandler(logoutSuccessHandler);
+
         }
 
         @Override
@@ -707,7 +766,8 @@ class TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler extends 
 }
 
 /**
- * Sevletfilter to create metadata after successful authentication over RESTful.
+ * Servletfilter to create metadata after successful authentication over
+ * RESTful.
  */
 class AuthenticationSuccessTenantMetadataCreationFilter implements Filter {
 
@@ -744,4 +804,5 @@ class AuthenticationSuccessTenantMetadataCreationFilter implements Filter {
     public void destroy() {
         // not needed
     }
+
 }

@@ -143,8 +143,14 @@ public class NotificationUnreadButton extends Button {
     }
 
     private Label buildEventNotificationLabel(final Entry<String, EntityModifiedEventPayload> remotelyOriginatedEvent) {
-        return new Label(remotelyOriginatedEvent.getValue().getEntityIds().size() + " "
-                + i18n.getMessage(remotelyOriginatedEvent.getKey()));
+        final int modifiedEntitiesCount = remotelyOriginatedEvent.getValue().getEntityIds().size();
+        final StringBuilder notificationLabelBuilder = new StringBuilder(modifiedEntitiesCount);
+
+        notificationLabelBuilder.append(" ");
+        final String pluralPrefix = modifiedEntitiesCount > 1 ? "s" : "";
+        notificationLabelBuilder.append(i18n.getMessage(remotelyOriginatedEvent.getKey(), pluralPrefix));
+
+        return new Label(notificationLabelBuilder.toString());
     }
 
     private void dispatchEntityModifiedEvents() {

@@ -139,6 +139,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
 
         binder.addStatusChangeListener(event -> signIn.setEnabled(event.getBinder().isValid()));
         binder.setBean(credentialsBean);
+
     }
 
     private VerticalLayout buildContent() {

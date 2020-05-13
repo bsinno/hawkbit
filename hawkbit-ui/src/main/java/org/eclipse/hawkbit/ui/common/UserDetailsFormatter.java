@@ -12,14 +12,18 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
 import org.eclipse.hawkbit.im.authentication.UserPrincipal;
 import org.eclipse.hawkbit.repository.model.BaseEntity;
 import org.eclipse.hawkbit.ui.utils.SpringContextHelper;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 import com.vaadin.server.VaadinService;
@@ -30,7 +34,6 @@ import com.vaadin.server.VaadinService;
 public final class UserDetailsFormatter {
 
     private static final String TRIM_APPENDIX = "...";
-    private static final String DETAIL_SEPERATOR = ", ";
 
     private UserDetailsFormatter() {
     }
@@ -72,7 +75,7 @@ public final class UserDetailsFormatter {
      * 
      * @param baseEntity
      *            the entity
-     * @return the formatted 'last modefied by user name' (max 100 characters)
+     * @return the formatted 'last modified by user name' (max 100 characters)
      *         cannot be <null>
      */
     public static String loadAndFormatLastModifiedBy(final BaseEntity baseEntity) {
@@ -121,21 +124,7 @@ public final class UserDetailsFormatter {
         }
 
         final UserPrincipal userPrincipal = (UserPrincipal) userDetails;
-
-        String lastname = StringUtils.defaultIfEmpty(userPrincipal.getLastname(), "");
-
-        if (!StringUtils.isEmpty(lastname)) {
-            lastname += DETAIL_SEPERATOR;
-        }
-
-        final String firstAndLastname = lastname + StringUtils.defaultIfEmpty(userPrincipal.getFirstname(), "");
-
-        final String trimmedUsername = trimAndFormatDetail(firstAndLastname, expectedNameLength);
-
-        if (StringUtils.isEmpty(trimmedUsername)) {
-            return trimAndFormatDetail(userPrincipal.getLoginname(), expectedNameLength);
-        }
-        return trimmedUsername;
+        return trimAndFormatDetail(userPrincipal.getLoginname(), expectedNameLength);
     }
 
     /**
@@ -187,7 +176,20 @@ public final class UserDetailsFormatter {
     public static UserDetails getCurrentUser() {
         final SecurityContext context = (SecurityContext) VaadinService.getCurrentRequest().getWrappedSession()
                 .getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
-        return (UserDetails) context.getAuthentication().getPrincipal();
+        Authentication authentication = context.getAuthentication();
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            Object details = authentication.getDetails();
+            String tenant = "DEFAULT";
+            if (details instanceof TenantAwareAuthenticationDetails) {
+                tenant = ((TenantAwareAuthenticationDetails) details).getTenant();
+            }
+            return new UserPrincipal(oidcUser.getPreferredUsername(), "***", oidcUser.getGivenName(),
+                    oidcUser.getFamilyName(), oidcUser.getPreferredUsername(), oidcUser.getEmail(), tenant,
+                    oidcUser.getAuthorities());
+        } else {
+            return (UserDetails) authentication.getPrincipal();
+        }
     }
 
     private static String trimAndFormatDetail(final String formatString, final int expectedDetailLength) {

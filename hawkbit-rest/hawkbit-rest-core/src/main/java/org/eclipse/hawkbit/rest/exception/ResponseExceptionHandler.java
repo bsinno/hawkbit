@@ -21,6 +21,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.hawkbit.exception.AbstractServerRtException;
 import org.eclipse.hawkbit.exception.SpServerError;
 import org.eclipse.hawkbit.rest.json.model.ExceptionInfo;
+import org.eclipse.hawkbit.rest.util.FileStreamingFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -57,6 +58,7 @@ public class ResponseExceptionHandler {
         ERROR_TO_HTTP_STATUS.put(SpServerError.SP_INSUFFICIENT_PERMISSION, HttpStatus.FORBIDDEN);
         ERROR_TO_HTTP_STATUS.put(SpServerError.SP_ARTIFACT_UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         ERROR_TO_HTTP_STATUS.put(SpServerError.SP_ARTIFACT_UPLOAD_FAILED_SHA1_MATCH, HttpStatus.BAD_REQUEST);
+        ERROR_TO_HTTP_STATUS.put(SpServerError.SP_ARTIFACT_UPLOAD_FAILED_SHA256_MATCH, HttpStatus.BAD_REQUEST);
         ERROR_TO_HTTP_STATUS.put(SpServerError.SP_ARTIFACT_UPLOAD_FAILED_MD5_MATCH, HttpStatus.BAD_REQUEST);
         ERROR_TO_HTTP_STATUS.put(SpServerError.SP_ARTIFACT_DELETE_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
         ERROR_TO_HTTP_STATUS.put(SpServerError.SP_ARTIFACT_LOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -117,10 +119,33 @@ public class ResponseExceptionHandler {
     }
 
     /**
+     * Method for handling exception of type
+     * {@link FileStreamingFailedException} which is thrown in case the
+     * streaming of a file failed due to an internal server error. As the
+     * streaming of the file has already begun, no JSON response but only the
+     * ResponseStatus 500 is returned. Called by the Spring-Framework for
+     * exception handling.
+     *
+     * @param request
+     *            the Http request
+     * @param ex
+     *            the exception which occurred
+     * @return the entity to be responded containing the response status 500
+     */
+    @ExceptionHandler(FileStreamingFailedException.class)
+    public ResponseEntity<Object> handleFileStreamingFailedException(final HttpServletRequest request,
+            final Exception ex) {
+        logRequest(request, ex);
+        LOG.warn("File streaming failed: {}", ex.getMessage());
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
      * Method for handling exception of type HttpMessageNotReadableException and
-     * MethodArgumentNotValidException which are thrown in case the request body is
-     * not well formed (e.g. syntax failures, missing/invalid parameters) and cannot
-     * be deserialized. Called by the Spring-Framework for exception handling.
+     * MethodArgumentNotValidException which are thrown in case the request body
+     * is not well formed (e.g. syntax failures, missing/invalid parameters) and
+     * cannot be deserialized. Called by the Spring-Framework for exception
+     * handling.
      *
      * @param request
      *            the Http request
@@ -129,7 +154,7 @@ public class ResponseExceptionHandler {
      * @return the entity to be responded containing the exception information
      *         as entity.
      */
-    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentNotValidException.class})
+    @ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentNotValidException.class })
     public ResponseEntity<ExceptionInfo> handleExceptionCausedByIncorrectRequestBody(final HttpServletRequest request,
             final Exception ex) {
         logRequest(request, ex);

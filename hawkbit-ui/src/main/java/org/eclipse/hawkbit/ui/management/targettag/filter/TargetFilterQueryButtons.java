@@ -133,7 +133,7 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         if (customTargetTagFilterButtonClick.getPreviouslyClickedFilterId() != null) {
             customTargetTagFilterButtonClick.setPreviouslyClickedFilterId(null);
             targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(null);
-            // TODO: should we reset data communicator here for styling update
+            // TODO: should we reset data communicator here for styling update?
         }
     }
 
@@ -146,6 +146,7 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         }
     }
 
+    @Override
     public void restoreState() {
         final Long targetFilterQueryIdToRestore = targetTagFilterLayoutUiState.getClickedTargetFilterQueryId();
 
