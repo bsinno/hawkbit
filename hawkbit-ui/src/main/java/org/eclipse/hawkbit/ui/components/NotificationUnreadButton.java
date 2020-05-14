@@ -144,7 +144,7 @@ public class NotificationUnreadButton extends Button {
 
     private Label buildEventNotificationLabel(final Entry<String, EntityModifiedEventPayload> remotelyOriginatedEvent) {
         final int modifiedEntitiesCount = remotelyOriginatedEvent.getValue().getEntityIds().size();
-        final StringBuilder notificationLabelBuilder = new StringBuilder(modifiedEntitiesCount);
+        final StringBuilder notificationLabelBuilder = new StringBuilder(String.valueOf(modifiedEntitiesCount));
 
         notificationLabelBuilder.append(" ");
         final String pluralPrefix = modifiedEntitiesCount > 1 ? "s" : "";

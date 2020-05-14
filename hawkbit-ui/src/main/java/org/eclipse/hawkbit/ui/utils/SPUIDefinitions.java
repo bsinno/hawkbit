@@ -15,10 +15,6 @@ import org.springframework.data.domain.Sort.Direction;
  */
 public final class SPUIDefinitions {
     /**
-     * Locale cookie name.
-     */
-    public static final String COOKIE_NAME = "BOSCHSI_UII_LOCALE";
-    /**
      * Lazy query container page size.
      */
     public static final int PAGE_SIZE = 50;

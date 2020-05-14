@@ -32,8 +32,6 @@ public class UiProperties implements Serializable {
 
     private final Links links = new Links();
 
-    private final Login login = new Login();
-
     private final Demo demo = new Demo();
 
     private final Event event = new Event();
@@ -349,40 +347,6 @@ public class UiProperties implements Serializable {
     }
 
     /**
-     * Configuration of login view.
-     *
-     */
-    public static class Login implements Serializable {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Cookie configuration for login credential cookie.
-         *
-         */
-        public static class Cookie implements Serializable {
-            private static final long serialVersionUID = 1L;
-            /**
-             * Secure cookie enabled.
-             */
-            private boolean secure = true;
-
-            public boolean isSecure() {
-                return secure;
-            }
-
-            public void setSecure(final boolean secure) {
-                this.secure = secure;
-            }
-        }
-
-        private final Cookie cookie = new Cookie();
-
-        public Cookie getCookie() {
-            return cookie;
-        }
-    }
-
-    /**
      * Configuration of the UI event bus.
      */
     public static class Event implements Serializable {
@@ -423,10 +387,6 @@ public class UiProperties implements Serializable {
 
     public Links getLinks() {
         return links;
-    }
-
-    public Login getLogin() {
-        return login;
     }
 
     public Event getEvent() {
