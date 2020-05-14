@@ -23,6 +23,7 @@ import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
@@ -68,13 +69,14 @@ public class RolloutView extends VerticalLayout implements View {
             final UINotification uiNotification, final UiProperties uiProperties, final EntityFactory entityFactory,
             final VaadinMessageSource i18n, final TargetFilterQueryManagement targetFilterQueryManagement,
             final QuotaManagement quotaManagement, final TenantConfigurationManagement tenantConfigManagement,
-            final DistributionSetManagement distributionSetManagement) {
+            final DistributionSetManagement distributionSetManagement,
+            final SystemSecurityContext systemSecurityContext) {
         this.rolloutManagementUIState = rolloutManagementUIState;
 
         this.rolloutsLayout = new RolloutGridLayout(permissionChecker, rolloutManagementUIState, eventBus,
                 rolloutManagement, targetManagement, uiNotification, uiProperties, entityFactory, i18n,
                 targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, tenantConfigManagement,
-                distributionSetManagement);
+                distributionSetManagement, systemSecurityContext);
         this.rolloutGroupsLayout = new RolloutGroupGridLayout(i18n, eventBus, rolloutGroupManagement,
                 rolloutManagementUIState, permissionChecker);
         this.rolloutGroupTargetsLayout = new RolloutGroupTargetGridLayout(eventBus, i18n, rolloutGroupManagement,

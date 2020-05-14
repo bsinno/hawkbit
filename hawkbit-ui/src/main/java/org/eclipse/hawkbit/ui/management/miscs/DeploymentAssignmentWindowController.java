@@ -147,6 +147,8 @@ public class DeploymentAssignmentWindowController {
         // TODO: use stacked notifications here: e.x. with
         // https://vaadin.com/directory/component/fancylayouts
         // Otherwise only the last one is shown
+        notification.displaySuccess(i18n.getMessage("message.target.ds.assign.success"));
+
         if (assignmentResult.getAssigned() > 0) {
             notification.displaySuccess(i18n.getMessage("message.target.assignment", assignmentResult.getAssigned()));
         }
@@ -155,8 +157,6 @@ public class DeploymentAssignmentWindowController {
             notification.displaySuccess(
                     i18n.getMessage("message.target.alreadyAssigned", assignmentResult.getAlreadyAssigned()));
         }
-
-        notification.displaySuccess(i18n.getMessage("message.target.ds.assign.success"));
     }
 
     // TODO: check if needed

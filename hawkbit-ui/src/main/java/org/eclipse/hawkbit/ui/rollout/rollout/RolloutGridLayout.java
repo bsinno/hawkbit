@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
@@ -56,7 +57,8 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
             final VaadinMessageSource i18n, final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
             final TenantConfigurationManagement tenantConfigManagement,
-            final DistributionSetManagement distributionSetManagement) {
+            final DistributionSetManagement distributionSetManagement,
+            final SystemSecurityContext systemSecurityContext) {
         final RolloutWindowDependencies rolloutWindowDependecies = new RolloutWindowDependencies(rolloutManagement,
                 targetManagement, uiNotification, entityFactory, i18n, uiProperties, eventBus,
                 targetFilterQueryManagement, rolloutGroupManagement, quotaManagement, distributionSetManagement);
@@ -67,7 +69,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
                 rolloutWindowBuilder);
         this.rolloutListGrid = new RolloutGrid(i18n, eventBus, rolloutManagement, rolloutGroupManagement,
                 uiNotification, rolloutManagementUIState, permissionChecker, tenantConfigManagement,
-                rolloutWindowBuilder);
+                rolloutWindowBuilder, systemSecurityContext);
 
         this.rolloutFilterListener = new FilterChangedListener<>(eventBus, ProxyRollout.class,
                 new EventViewAware(EventView.ROLLOUT), rolloutListGrid.getFilterSupport());
@@ -79,8 +81,7 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
 
     private List<EntityModifiedAwareSupport> getRolloutModifiedAwareSupports() {
         return Arrays.asList(
-                EntityModifiedGridRefreshAwareSupport.of(rolloutListGrid::refreshAll,
-                        rolloutListGrid::updateGridItems),
+                EntityModifiedGridRefreshAwareSupport.of(rolloutListGrid::refreshAll, rolloutListGrid::updateGridItems),
                 EntityModifiedSelectionAwareSupport.of(rolloutListGrid.getSelectionSupport(),
                         rolloutListGrid::mapIdToProxyEntity, rolloutListGrid::onSelectedRolloutDeleted));
     }

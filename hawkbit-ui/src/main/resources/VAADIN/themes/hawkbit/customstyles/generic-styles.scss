@@ -39,7 +39,7 @@ $generic-text-font-size: $generic-text-font-scale * $v-font-size;
   //Report widget max icon style
   .icon-only {
     @include sp-icon-style($sp-button-size: $icon-font-size);
-    margin-bottom: 12px !important;
+    margin-bottom: 6px !important;
     margin-right: 6px !important;
   }
 

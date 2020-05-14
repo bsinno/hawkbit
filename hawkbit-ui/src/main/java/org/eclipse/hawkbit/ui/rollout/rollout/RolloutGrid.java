@@ -23,6 +23,7 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus.Status;
+import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
@@ -103,6 +104,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private final transient RolloutToProxyRolloutMapper rolloutMapper;
     private final transient RolloutGroupManagement rolloutGroupManagement;
     private final transient TenantConfigurationManagement tenantConfigManagement;
+    private final transient SystemSecurityContext systemSecurityContext;
+
     private final transient RolloutWindowBuilder rolloutWindowBuilder;
     private final UINotification uiNotification;
 
@@ -111,14 +114,15 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     RolloutGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final RolloutManagement rolloutManagement,
             final RolloutGroupManagement rolloutGroupManagement, final UINotification uiNotification,
             final RolloutManagementUIState rolloutManagementUIState, final SpPermissionChecker permissionChecker,
-            final TenantConfigurationManagement tenantConfigManagement,
-            final RolloutWindowBuilder rolloutWindowBuilder) {
+            final TenantConfigurationManagement tenantConfigManagement, final RolloutWindowBuilder rolloutWindowBuilder,
+            final SystemSecurityContext systemSecurityContext) {
         super(i18n, eventBus, permissionChecker);
 
         this.rolloutManagementUIState = rolloutManagementUIState;
         this.rolloutManagement = rolloutManagement;
         this.rolloutGroupManagement = rolloutGroupManagement;
         this.tenantConfigManagement = tenantConfigManagement;
+        this.systemSecurityContext = systemSecurityContext;
         this.uiNotification = uiNotification;
         this.rolloutWindowBuilder = rolloutWindowBuilder;
         this.rolloutMapper = new RolloutToProxyRolloutMapper();
@@ -287,8 +291,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         if (!permissionChecker.hasRolloutCreatePermission()) {
             removeColumn(COPY_BUTTON_ID);
         }
-        if (!permissionChecker.hasRolloutApprovalPermission() || !tenantConfigManagement
-                .getConfigurationValue(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED, Boolean.class).getValue()) {
+        if (!permissionChecker.hasRolloutApprovalPermission() || !isRolloutApprovalEnabled()) {
             removeColumn(APPROVE_BUTTON_ID);
         }
         if (!permissionChecker.hasRolloutDeletePermission()) {
@@ -298,6 +301,11 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
             removeColumn(PAUSE_BUTTON_ID);
             removeColumn(RUN_BUTTON_ID);
         }
+    }
+
+    private boolean isRolloutApprovalEnabled() {
+        return systemSecurityContext.runAsSystem(() -> tenantConfigManagement
+                .getConfigurationValue(TenantConfigurationKey.ROLLOUT_APPROVAL_ENABLED, Boolean.class).getValue());
     }
 
     @Override
