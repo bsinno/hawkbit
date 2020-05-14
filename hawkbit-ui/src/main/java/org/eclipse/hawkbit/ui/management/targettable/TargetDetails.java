@@ -154,9 +154,9 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     private List<ProxyKeyValueDetails> getDistributionDetails(final DistributionSet ds) {
         final List<ProxyKeyValueDetails> dsDetails = Arrays.asList(
                 new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_ASSIGNED_DS_NAME_ID,
-                        i18n.getMessage("label.dist.details.name"), ds.getName()),
+                        i18n.getMessage("label.name"), ds.getName()),
                 new ProxyKeyValueDetails(UIComponentIdProvider.TARGET_ASSIGNED_DS_VERSION_ID,
-                        i18n.getMessage("label.dist.details.version"), ds.getVersion()));
+                        i18n.getMessage("label.version"), ds.getVersion()));
 
         final Stream<ProxyKeyValueDetails> dsSmDetailsStream = ds.getModules().stream()
                 .map(swModule -> new ProxyKeyValueDetails("target.assigned.ds.sm.id." + swModule.getId(),

@@ -59,7 +59,7 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
     }
 
     private Label buildKeyValueDetailLabel(final String id, final String key, final String value) {
-        final Label keyValueDetailLabel = new Label("<b>" + sanitized(key) + "</b> " + sanitized(value),
+        final Label keyValueDetailLabel = new Label("<b>" + sanitized(key) + " : </b> " + sanitized(value),
                 ContentMode.HTML);
 
         keyValueDetailLabel.setId(id);
@@ -73,5 +73,9 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
     // TODO: move to utilities, add HTML/Javascript sanitization
     private String sanitized(final String input) {
         return input != null ? input : "";
+    }
+
+    public void disableSpacing() {
+        keyValueDetailsLayout.setSpacing(false);
     }
 }

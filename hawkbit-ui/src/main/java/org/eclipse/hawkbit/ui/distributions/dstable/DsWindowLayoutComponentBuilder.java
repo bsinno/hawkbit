@@ -29,7 +29,7 @@ public class DsWindowLayoutComponentBuilder {
     public static final String TEXTFIELD_NAME = "textfield.name";
     public static final String TEXTFIELD_VERSION = "textfield.version";
     public static final String TEXTFIELD_DESCRIPTION = "textfield.description";
-    public static final String MIGRATION_STEP = "checkbox.dist.required.migration.step";
+    public static final String MIGRATION_STEP = "label.dist.required.migration.step";
 
     private final VaadinMessageSource i18n;
     private final DistributionSetTypeDataProvider dsTypeDataProvider;

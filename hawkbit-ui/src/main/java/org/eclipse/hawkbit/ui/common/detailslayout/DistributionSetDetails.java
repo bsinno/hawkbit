@@ -91,14 +91,14 @@ public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistr
     @Override
     protected List<ProxyKeyValueDetails> getEntityDetails(final ProxyDistributionSet entity) {
         final ProxyKeyValueDetails typeLabel = new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
-                i18n.getMessage("label.dist.details.type"), entity.getProxyType().getName());
+                i18n.getMessage("label.type"), entity.getProxyType().getName());
 
         if (isMultiAssignmentEnabled()) {
             return Collections.singletonList(typeLabel);
         } else {
             return Arrays.asList(typeLabel,
                     new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_REQUIRED_MIGRATION_STEP_LABEL_ID,
-                            i18n.getMessage("checkbox.dist.migration.required"),
+                            i18n.getMessage("label.dist.required.migration.step"),
                             getMigrationRequiredValue(entity.isRequiredMigrationStep())));
         }
     }

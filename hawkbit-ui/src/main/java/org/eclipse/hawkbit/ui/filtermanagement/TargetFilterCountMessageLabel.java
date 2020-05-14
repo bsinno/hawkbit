@@ -37,8 +37,8 @@ public class TargetFilterCountMessageLabel extends AbstractFooterSupport {
         targetCountLabel.setContentMode(ContentMode.HTML);
         targetCountLabel.addStyleName(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
 
-        targetCountLabel
-                .setCaption(new StringBuilder(i18n.getMessage("label.target.filtered.total")).append(0).toString());
+        targetCountLabel.setCaption(
+                new StringBuilder(i18n.getMessage("label.target.filtered.total")).append(" : ").append(0).toString());
     }
 
     @Override
@@ -48,6 +48,7 @@ public class TargetFilterCountMessageLabel extends AbstractFooterSupport {
 
     public void updateTotalFilteredTargetsCount(final long count) {
         final StringBuilder targetMessage = new StringBuilder(i18n.getMessage("label.target.filtered.total"));
+        targetMessage.append(" : ");
         targetMessage.append(count);
         targetCountLabel.setCaption(targetMessage.toString());
     }

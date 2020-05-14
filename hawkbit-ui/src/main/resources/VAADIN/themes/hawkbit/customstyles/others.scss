@@ -266,17 +266,19 @@
     pointer-events: none;
   }
 
-  #target\.attributes\.update {
-    position: absolute;
-    top: 12px;
-    right: 6px;
-  }
-
   .rotate-widget-90-deg .v-widget {
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
     -o-transform: rotate(90deg);
     transform: rotate(90deg);
+  }
+
+  .disable-horizontal-scroll {
+    overflow-x: hidden;
+  }
+
+  .enable-horizontal-scroll {
+    overflow-x: auto;
   }
 }

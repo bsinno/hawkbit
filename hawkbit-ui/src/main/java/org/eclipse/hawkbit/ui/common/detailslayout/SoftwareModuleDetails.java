@@ -59,10 +59,10 @@ public class SoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwa
     @Override
     protected List<ProxyKeyValueDetails> getEntityDetails(final ProxySoftwareModule entity) {
         return Arrays.asList(
-                new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_VENDOR_LABEL_ID,
-                        i18n.getMessage("label.dist.details.vendor"), entity.getVendor()),
-                new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
-                        i18n.getMessage("label.dist.details.type"), entity.getProxyType().getName()),
+                new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_VENDOR_LABEL_ID, i18n.getMessage("label.vendor"),
+                        entity.getVendor()),
+                new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID, i18n.getMessage("label.type"),
+                        entity.getProxyType().getName()),
                 new ProxyKeyValueDetails(UIComponentIdProvider.SWM_DTLS_MAX_ASSIGN,
                         i18n.getMessage("label.assigned.type"),
                         entity.getProxyType().getMaxAssignments() == 1 ? i18n.getMessage("label.singleAssign.type")

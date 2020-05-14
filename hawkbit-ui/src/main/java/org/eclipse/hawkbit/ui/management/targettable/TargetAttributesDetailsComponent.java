@@ -8,7 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetAttributesDetails;
 import org.eclipse.hawkbit.ui.common.detailslayout.KeyValueDetailsComponent;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
@@ -20,6 +23,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -30,15 +34,17 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
     private final VaadinMessageSource i18n;
     private final transient TargetManagement targetManagement;
 
-    private final VerticalLayout targetAttributesDetailsLayout;
+    private final HorizontalLayout targetAttributesDetailsLayout;
 
     public TargetAttributesDetailsComponent(final VaadinMessageSource i18n, final TargetManagement targetManagement) {
         this.i18n = i18n;
         this.targetManagement = targetManagement;
 
-        this.targetAttributesDetailsLayout = new VerticalLayout();
+        this.targetAttributesDetailsLayout = new HorizontalLayout();
         this.targetAttributesDetailsLayout.setSpacing(false);
         this.targetAttributesDetailsLayout.setMargin(false);
+        this.targetAttributesDetailsLayout.setSizeFull();
+        this.targetAttributesDetailsLayout.addStyleName("disable-horizontal-scroll");
 
         setReadOnly(true);
     }
@@ -65,16 +71,35 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
             return;
         }
 
-        if (targetAttributesDetails.isRequestAttributes()) {
-            targetAttributesDetailsLayout.addComponent(buildAttributesUpdateLabel());
+        final boolean isRequestAttributes = targetAttributesDetails.isRequestAttributes();
+        final List<ProxyKeyValueDetails> targetAttributes = targetAttributesDetails.getTargetAttributes();
+        final String controllerId = targetAttributesDetails.getControllerId();
+
+        final VerticalLayout attributesLayout = buildAttributesLayout(isRequestAttributes, targetAttributes);
+        targetAttributesDetailsLayout.addComponent(attributesLayout);
+        targetAttributesDetailsLayout.setExpandRatio(attributesLayout, 1.0F);
+
+        final Button requestAttributesButton = buildRequestAttributesUpdateButton(controllerId, isRequestAttributes);
+        targetAttributesDetailsLayout.addComponent(requestAttributesButton);
+    }
+
+    private VerticalLayout buildAttributesLayout(final boolean isRequestAttributes,
+            final List<ProxyKeyValueDetails> targetAttributes) {
+        final VerticalLayout attributesLayout = new VerticalLayout();
+        attributesLayout.setMargin(false);
+        attributesLayout.setSpacing(false);
+
+        if (isRequestAttributes) {
+            attributesLayout.addComponent(buildAttributesUpdateLabel());
         }
 
-        targetAttributesDetailsLayout.addComponent(buildRequestAttributesUpdateButton(
-                targetAttributesDetails.getControllerId(), targetAttributesDetails.isRequestAttributes()));
-
         final KeyValueDetailsComponent attributes = new KeyValueDetailsComponent();
-        targetAttributesDetailsLayout.addComponent(attributes);
-        attributes.setValue(targetAttributesDetails.getTargetAttributes());
+        attributes.disableSpacing();
+        attributes.addStyleName("enable-horizontal-scroll");
+        attributes.setValue(targetAttributes);
+        attributesLayout.addComponent(attributes);
+
+        return attributesLayout;
     }
 
     private Label buildAttributesUpdateLabel() {
