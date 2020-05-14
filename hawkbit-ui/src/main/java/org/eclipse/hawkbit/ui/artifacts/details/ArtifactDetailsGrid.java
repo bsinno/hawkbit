@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.artifacts.details;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.eclipse.hawkbit.artifact.repository.model.AbstractDbArtifact;
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
@@ -35,6 +36,8 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.FileDownloader;
+import com.vaadin.server.StreamResource;
 import com.vaadin.ui.Button;
 
 /**
@@ -49,8 +52,10 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     private static final String ARTIFACT_SHA1_ID = "artifactSha1";
     private static final String ARTIFACT_MD5_ID = "artifactMd5";
     private static final String ARTIFACT_SHA256_ID = "artifactSha256";
+    private static final String ARTIFACT_DOWNLOAD_BUTTON_ID = "artifactDownloadButton";
     private static final String ARTIFACT_DELETE_BUTTON_ID = "artifactDeleteButton";
 
+    private final UINotification notification;
     private final transient ArtifactManagement artifactManagement;
 
     private final transient DeleteSupport<ProxyArtifact> artifactDeleteSupport;
@@ -61,6 +66,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
             final ArtifactManagement artifactManagement) {
         super(i18n, eventBus, permissionChecker);
 
+        this.notification = notification;
         this.artifactManagement = artifactManagement;
 
         this.artifactDeleteSupport = new DeleteSupport<>(this, i18n, notification,
@@ -113,7 +119,10 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
 
         addModifiedDateColumn().setMinimumWidth(100d).setMaximumWidth(130d).setExpandRatio(1);
 
-        addDeleteColumn().setWidth(75d);
+        addDownloadColumn().setWidth(25d);
+        addDeleteColumn().setWidth(50d);
+        getDefaultHeaderRow().join(ARTIFACT_DOWNLOAD_BUTTON_ID, ARTIFACT_DELETE_BUTTON_ID)
+                .setText(i18n.getMessage("header.action"));
     }
 
     private Column<ProxyArtifact, String> addFilenameColumn() {
@@ -129,6 +138,35 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     protected Column<ProxyArtifact, String> addModifiedDateColumn() {
         return addColumn(ProxyArtifact::getModifiedDate).setId(ARTIFACT_MODIFIED_DATE_ID)
                 .setCaption(i18n.getMessage("upload.last.modified.date"));
+    }
+
+    private Column<ProxyArtifact, Button> addDownloadColumn() {
+        return addComponentColumn(this::buildDownloadButton).setId(ARTIFACT_DOWNLOAD_BUTTON_ID)
+                .setCaption(i18n.getMessage("header.action.delete"));
+    }
+
+    private Button buildDownloadButton(final ProxyArtifact artifact) {
+        final Button downloadButton = GridComponentBuilder.buildActionButton(i18n, clickEvent -> {
+        }, VaadinIcons.DOWNLOAD, UIMessageIdProvider.TOOLTIP_ARTIFACT_DOWNLOAD,
+                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ARTIFACT_FILE_DOWNLOAD_ICON + "." + artifact.getId(),
+                permissionChecker.hasDownloadRepositoryPermission());
+
+        attachFileDownloader(artifact, downloadButton);
+
+        return downloadButton;
+    }
+
+    private void attachFileDownloader(final ProxyArtifact artifact, final Button downloadButton) {
+        final StreamResource artifactStreamResource = new StreamResource(() -> artifactManagement
+                .loadArtifactBinary(artifact.getSha1Hash()).map(AbstractDbArtifact::getFileInputStream).orElse(null),
+                artifact.getFilename());
+
+        final FileDownloader fileDownloader = new FileDownloader(artifactStreamResource);
+        fileDownloader.setErrorHandler(event -> notification
+                .displayValidationError(i18n.getMessage(UIMessageIdProvider.ARTIFACT_DOWNLOAD_FAILURE_MSG)));
+
+        fileDownloader.extend(downloadButton);
     }
 
     private Column<ProxyArtifact, Button> addDeleteColumn() {
@@ -154,7 +192,10 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
 
         addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
 
-        addDeleteColumn().setWidth(75d);
+        addDownloadColumn().setWidth(25d);
+        addDeleteColumn().setWidth(50d);
+        getDefaultHeaderRow().join(ARTIFACT_DOWNLOAD_BUTTON_ID, ARTIFACT_DELETE_BUTTON_ID)
+                .setText(i18n.getMessage("header.action"));
 
         getColumns().forEach(column -> column.setHidable(true));
     }
