@@ -41,7 +41,7 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
         this.targetManagement = targetManagement;
 
         this.targetAttributesDetailsLayout = new HorizontalLayout();
-        this.targetAttributesDetailsLayout.setSpacing(false);
+        this.targetAttributesDetailsLayout.setSpacing(true);
         this.targetAttributesDetailsLayout.setMargin(false);
         this.targetAttributesDetailsLayout.setSizeFull();
         this.targetAttributesDetailsLayout.addStyleName("disable-horizontal-scroll");

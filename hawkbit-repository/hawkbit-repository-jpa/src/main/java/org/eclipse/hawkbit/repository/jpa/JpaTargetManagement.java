@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -781,9 +783,20 @@ public class JpaTargetManagement implements TargetManagement {
 
     @Override
     public Map<String, String> getControllerAttributes(final String controllerId) {
-        final JpaTarget target = getByControllerIdAndThrowIfNotFound(controllerId);
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);
 
-        return target.getControllerAttributes();
+        final Root<JpaTarget> targetRoot = query.from(JpaTarget.class);
+        query.where(cb.equal(targetRoot.get(JpaTarget_.controllerId), controllerId));
+
+        final MapJoin<JpaTarget, String, String> attributes = targetRoot.join(JpaTarget_.controllerAttributes);
+        query.multiselect(attributes.key(), attributes.value());
+        query.orderBy(cb.asc(attributes.key()));
+
+        final List<Object[]> attr = entityManager.createQuery(query).getResultList();
+
+        return attr.stream().collect(Collectors.toMap(entry -> (String) entry[0], entry -> (String) entry[1],
+                (v1, v2) -> v1, LinkedHashMap::new));
     }
 
     @Override
