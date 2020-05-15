@@ -204,7 +204,7 @@ public final class HawkbitCommonUtil {
         final Label labelValue = new Label(labelContent, ContentMode.TEXT);
         labelValue.setSizeFull();
         labelValue.addStyleName(SPUIDefinitions.TEXT_STYLE);
-        labelValue.addStyleName("label-style");
+        labelValue.addStyleName("text-cut");
         labelValue.addStyleName("avoid-tooltip");
         return labelValue;
     }

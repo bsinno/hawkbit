@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.distributions.dstable.DsWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -20,7 +21,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
-public class DistributionSetDetailsHeader extends DetailsHeader<ProxyDistributionSet> {
+public class DistributionSetDetailsHeader extends AbstractDetailsHeader<ProxyDistributionSet> {
     private static final long serialVersionUID = 1L;
 
     private final transient DsWindowBuilder dsWindowBuilder;
@@ -38,23 +39,23 @@ public class DistributionSetDetailsHeader extends DetailsHeader<ProxyDistributio
     }
 
     @Override
-    protected String getEntityName(final ProxyDistributionSet entity) {
-        return entity.getNameVersion();
+    protected String getMasterEntityType() {
+        return i18n.getMessage("distribution.details.header");
+    }
+
+    @Override
+    protected String getMasterEntityDetailsCaptionId() {
+        return UIComponentIdProvider.DISTRIBUTION_DETAILS_HEADER_LABEL_ID;
+    }
+
+    @Override
+    protected String getMasterEntityName(final ProxyDistributionSet masterEntity) {
+        return masterEntity.getNameVersion();
     }
 
     @Override
     protected boolean hasEditPermission() {
         return permChecker.hasUpdateRepositoryPermission();
-    }
-
-    @Override
-    protected String getEntityType() {
-        return i18n.getMessage("distribution.details.header");
-    }
-
-    @Override
-    protected String getDetailsHeaderCaptionId() {
-        return UIComponentIdProvider.DISTRIBUTION_DETAILS_HEADER_LABEL_ID;
     }
 
     @Override

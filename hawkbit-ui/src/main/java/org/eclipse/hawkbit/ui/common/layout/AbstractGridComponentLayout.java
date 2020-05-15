@@ -9,8 +9,8 @@
 package org.eclipse.hawkbit.ui.common.layout;
 
 import org.eclipse.hawkbit.ui.common.detailslayout.AbstractGridDetailsLayout;
-import org.eclipse.hawkbit.ui.common.detailslayout.DetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 
@@ -85,7 +85,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      * and grid details.
      */
     protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
-            final DetailsHeader<?> gridDetailsHeader, final AbstractGridDetailsLayout<?> gridDetailsLayout) {
+            final AbstractDetailsHeader<?> gridDetailsHeader, final AbstractGridDetailsLayout<?> gridDetailsLayout) {
         final VerticalLayout detailsHeaderLayout = new VerticalLayout();
         detailsHeaderLayout.setSizeFull();
         detailsHeaderLayout.setSpacing(false);
@@ -120,7 +120,7 @@ public abstract class AbstractGridComponentLayout extends VerticalLayout {
      * a footer.
      */
     protected void buildLayout(final AbstractGridHeader gridHeader, final AbstractGrid<?, ?> grid,
-            final DetailsHeader<?> gridDetailsHeader, final AbstractGridDetailsLayout<?> gridDetailsLayout,
+            final AbstractDetailsHeader<?> gridDetailsHeader, final AbstractGridDetailsLayout<?> gridDetailsLayout,
             final AbstractFooterSupport footerSupport) {
         buildLayout(gridHeader, grid, gridDetailsHeader, gridDetailsLayout);
 

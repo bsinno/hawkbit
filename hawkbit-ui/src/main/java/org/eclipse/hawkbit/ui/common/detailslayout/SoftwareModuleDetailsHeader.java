@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGrid;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -25,7 +26,7 @@ import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
-public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModule> {
+public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
     private final transient SmWindowBuilder smWindowBuilder;
@@ -45,6 +46,21 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
     }
 
     @Override
+    protected String getMasterEntityType() {
+        return i18n.getMessage("upload.swModuleTable.header");
+    }
+
+    @Override
+    protected String getMasterEntityDetailsCaptionId() {
+        return UIComponentIdProvider.SOFTWARE_MODULE_DETAILS_HEADER_LABEL_ID;
+    }
+
+    @Override
+    protected String getMasterEntityName(final ProxySoftwareModule masterEntity) {
+        return masterEntity.getNameAndVersion();
+    }
+
+    @Override
     public void masterEntityChanged(final ProxySoftwareModule entity) {
         super.masterEntityChanged(entity);
 
@@ -61,23 +77,8 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
     }
 
     @Override
-    protected String getEntityName(final ProxySoftwareModule entity) {
-        return entity.getNameAndVersion();
-    }
-
-    @Override
     protected boolean hasEditPermission() {
         return permChecker.hasUpdateRepositoryPermission();
-    }
-
-    @Override
-    protected String getEntityType() {
-        return i18n.getMessage("upload.swModuleTable.header");
-    }
-
-    @Override
-    protected String getDetailsHeaderCaptionId() {
-        return UIComponentIdProvider.SOFTWARE_MODULE_DETAILS_HEADER_LABEL_ID;
     }
 
     @Override

@@ -57,7 +57,7 @@ public class ArtifactDetailsGridHeader extends AbstractMasterAwareGridHeader<Pro
 
     @Override
     protected String getMasterEntityName(final ProxySoftwareModule masterEntity) {
-        return masterEntity != null ? masterEntity.getNameAndVersion() : "";
+        return masterEntity.getNameAndVersion();
     }
 
     @Override

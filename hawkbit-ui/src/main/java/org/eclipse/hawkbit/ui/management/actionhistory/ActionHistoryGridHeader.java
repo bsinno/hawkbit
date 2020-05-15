@@ -57,7 +57,7 @@ public class ActionHistoryGridHeader extends AbstractMasterAwareGridHeader<Proxy
 
     @Override
     protected String getMasterEntityName(final ProxyTarget masterEntity) {
-        return masterEntity != null ? masterEntity.getName() : "";
+        return masterEntity.getName();
     }
 
     @Override

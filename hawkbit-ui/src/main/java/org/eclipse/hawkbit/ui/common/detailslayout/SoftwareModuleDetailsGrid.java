@@ -150,7 +150,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
 
         isMandatoryLabel.setSizeFull();
         isMandatoryLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
-        isMandatoryLabel.addStyleName("label-style");
+        isMandatoryLabel.addStyleName("text-cut");
 
         if (softwareModuleDetails.isMandatory() && !isTypeAlreadyAdded(softwareModuleDetails.getTypeId())) {
             isMandatoryLabel.setValue("*");
@@ -204,7 +204,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         smLabel.setId("sm-label-" + smId);
         smLabel.setSizeFull();
         smLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
-        smLabel.addStyleName("label-style");
+        smLabel.addStyleName("text-cut");
 
         return smLabel;
     }

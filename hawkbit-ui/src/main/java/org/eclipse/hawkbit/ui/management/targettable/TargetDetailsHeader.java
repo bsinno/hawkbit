@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.common.detailslayout.DetailsHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -19,7 +19,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
-public class TargetDetailsHeader extends DetailsHeader<ProxyTarget> {
+public class TargetDetailsHeader extends AbstractDetailsHeader<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
     private final transient TargetWindowBuilder targetWindowBuilder;
@@ -38,18 +38,23 @@ public class TargetDetailsHeader extends DetailsHeader<ProxyTarget> {
     }
 
     @Override
-    protected boolean hasEditPermission() {
-        return permChecker.hasUpdateTargetPermission();
-    }
-
-    @Override
-    protected String getEntityType() {
+    protected String getMasterEntityType() {
         return i18n.getMessage("target.details.header");
     }
 
     @Override
-    protected String getDetailsHeaderCaptionId() {
+    protected String getMasterEntityDetailsCaptionId() {
         return UIComponentIdProvider.TARGET_DETAILS_HEADER_LABEL_ID;
+    }
+
+    @Override
+    protected String getMasterEntityName(final ProxyTarget masterEntity) {
+        return masterEntity.getName();
+    }
+
+    @Override
+    protected boolean hasEditPermission() {
+        return permChecker.hasUpdateTargetPermission();
     }
 
     @Override

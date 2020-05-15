@@ -95,7 +95,6 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
 
         final KeyValueDetailsComponent attributes = new KeyValueDetailsComponent();
         attributes.disableSpacing();
-        attributes.addStyleName("enable-horizontal-scroll");
         attributes.setValue(targetAttributes);
         attributesLayout.addComponent(attributes);
 

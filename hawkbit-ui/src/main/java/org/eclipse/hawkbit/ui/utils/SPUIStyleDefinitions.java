@@ -281,11 +281,6 @@ public final class SPUIStyleDefinitions {
     public static final String FILTER_TYPE_COMBO_STYLE = "filter-combo-specific-style";
 
     /**
-     * Color label style.
-     */
-    public static final String COLOR_LABEL_STYLE = "color-label-style";
-
-    /**
      * Style - Message.
      */
     public static final String SP_LABEL_MESSAGE_STYLE = "count-msg-box";

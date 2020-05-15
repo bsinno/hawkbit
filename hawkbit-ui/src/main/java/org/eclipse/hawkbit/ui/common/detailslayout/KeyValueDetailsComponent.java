@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
@@ -22,6 +21,8 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
         keyValueDetailsLayout = new VerticalLayout();
         keyValueDetailsLayout.setSpacing(true);
         keyValueDetailsLayout.setMargin(false);
+        keyValueDetailsLayout.setWidthFull();
+        keyValueDetailsLayout.addStyleName("enable-horizontal-scroll");
 
         setReadOnly(true);
     }
@@ -49,30 +50,38 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
 
     private void addKeyValueDetail(final ProxyKeyValueDetails keyValueDetail) {
         final HorizontalLayout keyValueDetailLayout = new HorizontalLayout();
-        keyValueDetailLayout.setSpacing(false);
+        keyValueDetailLayout.setSpacing(true);
         keyValueDetailLayout.setMargin(false);
+        keyValueDetailLayout.setWidthUndefined();
 
-        keyValueDetailLayout.addComponent(
-                buildKeyValueDetailLabel(keyValueDetail.getId(), keyValueDetail.getKey(), keyValueDetail.getValue()));
+        final Label keyDetail = buildKeyDetail(keyValueDetail.getKey());
+        final Label valueDetail = buildValueDetail(keyValueDetail.getId(), keyValueDetail.getValue());
+
+        keyValueDetailLayout.addComponent(keyDetail);
+        keyValueDetailLayout.setExpandRatio(keyDetail, 0.0F);
+
+        keyValueDetailLayout.addComponent(valueDetail);
+        keyValueDetailLayout.setExpandRatio(valueDetail, 1.0F);
 
         keyValueDetailsLayout.addComponent(keyValueDetailLayout);
     }
 
-    private Label buildKeyValueDetailLabel(final String id, final String key, final String value) {
-        final Label keyValueDetailLabel = new Label("<b>" + sanitized(key) + " : </b> " + sanitized(value),
-                ContentMode.HTML);
+    private Label buildKeyDetail(final String key) {
+        final Label keyLabel = new Label(key + ":");
 
-        keyValueDetailLabel.setId(id);
-        keyValueDetailLabel.setSizeFull();
-        keyValueDetailLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
-        keyValueDetailLabel.addStyleName("label-style");
+        keyLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
+        keyLabel.addStyleName("text-bold");
 
-        return keyValueDetailLabel;
+        return keyLabel;
     }
 
-    // TODO: move to utilities, add HTML/Javascript sanitization
-    private String sanitized(final String input) {
-        return input != null ? input : "";
+    private Label buildValueDetail(final String id, final String value) {
+        final Label valueLabel = new Label(value);
+
+        valueLabel.setId(id);
+        valueLabel.addStyleName(SPUIDefinitions.TEXT_STYLE);
+
+        return valueLabel;
     }
 
     public void disableSpacing() {

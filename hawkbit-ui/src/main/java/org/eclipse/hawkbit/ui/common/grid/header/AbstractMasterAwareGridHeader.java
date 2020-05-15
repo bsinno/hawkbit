@@ -30,16 +30,12 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
     private final Label entityDetailsCaption;
     private final Label masterEntityDetailsCaption;
 
-    private final HorizontalLayout masterAwareCaptionLayout;
-
     public AbstractMasterAwareGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus) {
         super(i18n, permChecker, eventBus);
 
         this.entityDetailsCaption = buildEntityDetailsCaption();
         this.masterEntityDetailsCaption = buildMasterEntityDetailsCaption();
-
-        this.masterAwareCaptionLayout = buildMasterAwareCaptionLayout();
     }
 
     private Label buildEntityDetailsCaption() {
@@ -68,32 +64,28 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
 
     protected abstract String getMasterEntityDetailsCaptionId();
 
-    private HorizontalLayout buildMasterAwareCaptionLayout() {
-        final HorizontalLayout layout = new HorizontalLayout();
-        layout.setMargin(false);
-        layout.setSpacing(true);
-        layout.setSizeFull();
-        layout.addStyleName("header-caption");
-
-        layout.addComponent(entityDetailsCaption);
-        layout.setComponentAlignment(entityDetailsCaption, Alignment.TOP_LEFT);
-        layout.setExpandRatio(entityDetailsCaption, 0.0F);
-
-        layout.addComponent(masterEntityDetailsCaption);
-        layout.setComponentAlignment(masterEntityDetailsCaption, Alignment.TOP_LEFT);
-        layout.setExpandRatio(masterEntityDetailsCaption, 1.0F);
-
-        return layout;
-    }
-
     @Override
     protected Component getHeaderCaption() {
+        final HorizontalLayout masterAwareCaptionLayout = new HorizontalLayout();
+        masterAwareCaptionLayout.setMargin(false);
+        masterAwareCaptionLayout.setSpacing(true);
+        masterAwareCaptionLayout.setSizeFull();
+        masterAwareCaptionLayout.addStyleName("header-caption");
+
+        masterAwareCaptionLayout.addComponent(entityDetailsCaption);
+        masterAwareCaptionLayout.setComponentAlignment(entityDetailsCaption, Alignment.TOP_LEFT);
+        masterAwareCaptionLayout.setExpandRatio(entityDetailsCaption, 0.0F);
+
+        masterAwareCaptionLayout.addComponent(masterEntityDetailsCaption);
+        masterAwareCaptionLayout.setComponentAlignment(masterEntityDetailsCaption, Alignment.TOP_LEFT);
+        masterAwareCaptionLayout.setExpandRatio(masterEntityDetailsCaption, 1.0F);
+
         return masterAwareCaptionLayout;
     }
 
     @Override
     public void masterEntityChanged(final T masterEntity) {
-        final String masterEntityName = getMasterEntityName(masterEntity);
+        final String masterEntityName = masterEntity != null ? getMasterEntityName(masterEntity) : "";
 
         if (StringUtils.hasText(masterEntityName)) {
             entityDetailsCaption.setValue(i18n.getMessage(getEntityDetailsCaptionOfMsgKey()));
