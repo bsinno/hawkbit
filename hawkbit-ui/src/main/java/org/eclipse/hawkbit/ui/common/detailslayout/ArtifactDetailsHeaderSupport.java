@@ -36,11 +36,10 @@ public class ArtifactDetailsHeaderSupport implements HeaderSupport {
     }
 
     private Button createArtifactDetailsIcon() {
-        final Button artifactDetailsIconButton = SPUIComponentProvider.getButton("", "",
+        final Button artifactDetailsIconButton = SPUIComponentProvider.getButton(artifactDetailsIconId, "",
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_ARTIFACT_ICON), null, false, VaadinIcons.FILE_O,
                 SPUIButtonStyleNoBorder.class);
 
-        artifactDetailsIconButton.setId(artifactDetailsIconId);
         artifactDetailsIconButton.addClickListener(event -> showArtifactDetailsCallback.run());
         artifactDetailsIconButton.setEnabled(false);
 

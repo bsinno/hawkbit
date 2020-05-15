@@ -106,7 +106,6 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
         final Label dropIcon = new Label(VaadinIcons.ARROW_DOWN.getHtml(), ContentMode.HTML);
         dropIcon.addStyleName("drop-icon");
         dropIcon.setWidth(null);
-        dropIcon.setCaptionAsHtml(true);
         dropAreaLayout.addComponent(dropIcon);
 
         final Label dropHereLabel = new Label(i18n.getMessage(UIMessageIdProvider.LABEL_DROP_AREA_UPLOAD));

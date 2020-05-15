@@ -120,7 +120,7 @@ public class GroupsLegendLayout extends VerticalLayout {
     }
 
     private String getTotalTargetMessage(final long totalTargetsCount) {
-        return i18n.getMessage("label.target.filter.count") + totalTargetsCount;
+        return i18n.getMessage("label.target.filter.count") + ": " + totalTargetsCount;
     }
 
     /**

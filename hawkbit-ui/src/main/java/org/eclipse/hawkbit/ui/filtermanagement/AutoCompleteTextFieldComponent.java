@@ -101,14 +101,11 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     }
 
     private static Label createStatusIcon() {
-        final Label statusIcon = new Label();
+        final Label statusIcon = new Label(VaadinIcons.CHECK_CIRCLE.getHtml(), ContentMode.HTML);
 
         statusIcon.setId(UIComponentIdProvider.VALIDATION_STATUS_ICON_ID);
-        statusIcon.setContentMode(ContentMode.HTML);
         statusIcon.setSizeFull();
         statusIcon.setVisible(false);
-
-        statusIcon.setValue(VaadinIcons.CHECK_CIRCLE.getHtml());
 
         return statusIcon;
     }

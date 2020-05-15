@@ -15,9 +15,9 @@ import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractDetailsHeader;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -141,14 +141,19 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         artifactDetailsGrid.getMasterEntitySupport().masterEntityChanged(selectedEntity);
 
         final Window artifactDtlsWindow = new Window();
-        artifactDtlsWindow.setCaptionAsHtml(true);
+        artifactDtlsWindow.setId(UIComponentIdProvider.SHOW_ARTIFACT_DETAILS_POPUP_ID);
+
         artifactDtlsWindow.setClosable(true);
         artifactDtlsWindow.setResizable(true);
         artifactDtlsWindow.setWindowMode(WindowMode.NORMAL);
         artifactDtlsWindow.setModal(true);
         artifactDtlsWindow.addStyleName(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
+
         artifactDtlsWindow
-                .setCaption(HawkbitCommonUtil.getArtifactoryDetailsLabelId(selectedEntity.getNameAndVersion(), i18n));
+                .setAssistivePrefix(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF) + " " + "<b>");
+        artifactDtlsWindow.setCaptionAsHtml(false);
+        artifactDtlsWindow.setCaption(selectedEntity.getNameAndVersion());
+        artifactDtlsWindow.setAssistivePostfix("</b>");
 
         artifactDtlsWindow.addWindowModeChangeListener(event -> {
             if (event.getWindowMode() == WindowMode.MAXIMIZED) {

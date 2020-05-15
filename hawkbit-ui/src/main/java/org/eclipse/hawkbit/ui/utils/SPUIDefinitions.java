@@ -199,35 +199,6 @@ public final class SPUIDefinitions {
      */
     public static final String ORDER_BY_DISTRIBUTION = "OrderByDistribution";
 
-    /** Artifact upload related entries - start **/
-    /**
-     * Artifact details by Base software module id.
-     */
-    public static final String BY_BASE_SOFTWARE_MODULE = "ByBaseSoftwareModule";
-
-    /**
-     * Software module type.
-     */
-    public static final String BY_SOFTWARE_MODULE_TYPE = "softwareModuleType";
-
-    /**
-     * Minimum width required to display ui without horizontal scroll. In case
-     * browser width is less than this width, the type layout will get hidden
-     * automatically and also horizontal scroll bars get displayed. Used for
-     * Responsive UI.
-     */
-    public static final int REQ_MIN_UPLOAD_BROWSER_WIDTH = 1250;
-
-    public static final int MIN_UPLOAD_CONFIRMATION_POPUP_WIDTH = 1000;
-
-    public static final int MIN_UPLOAD_CONFIRMATION_POPUP_HEIGHT = 310;
-
-    public static final int MAX_UPLOAD_CONFIRMATION_POPUP_WIDTH = 1050;
-
-    public static final int MAX_UPLOAD_CONFIRMATION_POPUP_HEIGHT = 360;
-
-    /** Artifact upload related entries - end. **/
-
     public static final int MIN_DASHBOARD_HEIGHT = 600;
 
     public static final int MIN_DASHBOARD_WIDTH = 1100;

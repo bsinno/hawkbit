@@ -102,6 +102,7 @@ public class CountMessageLabel extends AbstractFooterSupport {
 
     private StringBuilder getTotalTargetMessage() {
         final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.filter.count"));
+        message.append(": ");
         message.append(targetManagement.count());
 
         return message;

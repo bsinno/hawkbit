@@ -22,6 +22,7 @@ public class RolloutGroupToProxyRolloutGroupMapper
     public static ProxyRolloutGroup mapGroup(final RolloutGroup group) {
         return new RolloutGroupToProxyRolloutGroupMapper().map(group);
     }
+
     @Override
     public ProxyRolloutGroup map(final RolloutGroup rolloutGroup) {
         final ProxyRolloutGroup proxyRolloutGroup = new ProxyRolloutGroup();
@@ -35,12 +36,30 @@ public class RolloutGroupToProxyRolloutGroupMapper
         proxyRolloutGroup.setErrorConditionExp(rolloutGroup.getErrorConditionExp());
         proxyRolloutGroup.setSuccessCondition(rolloutGroup.getSuccessCondition());
         proxyRolloutGroup.setSuccessConditionExp(rolloutGroup.getSuccessConditionExp());
-        proxyRolloutGroup.setFinishedPercentage(HawkbitCommonUtil.formattingFinishedPercentage(rolloutGroup,
-                rolloutGroup.getTotalTargetCountStatus().getFinishedPercent()));
+        proxyRolloutGroup.setFinishedPercentage(formatFinishedPercentage(rolloutGroup));
         proxyRolloutGroup.setTotalTargetsCount(String.valueOf(rolloutGroup.getTotalTargets()));
         proxyRolloutGroup.setTotalTargetCountStatus(rolloutGroup.getTotalTargetCountStatus());
 
         return proxyRolloutGroup;
     }
 
+    private static String formatFinishedPercentage(final RolloutGroup rolloutGroup) {
+        float tmpFinishedPercentage = 0;
+        switch (rolloutGroup.getStatus()) {
+        case READY:
+        case SCHEDULED:
+        case ERROR:
+            tmpFinishedPercentage = 0.0F;
+            break;
+        case FINISHED:
+            tmpFinishedPercentage = 100.0F;
+            break;
+        case RUNNING:
+            tmpFinishedPercentage = rolloutGroup.getTotalTargetCountStatus().getFinishedPercent();
+            break;
+        default:
+            break;
+        }
+        return String.format(HawkbitCommonUtil.getCurrentLocale(), "%.1f", tmpFinishedPercentage);
+    }
 }

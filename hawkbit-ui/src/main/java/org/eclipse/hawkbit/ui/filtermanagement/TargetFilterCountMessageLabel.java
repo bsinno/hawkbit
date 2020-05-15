@@ -13,7 +13,6 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Label;
 
 /**
@@ -34,11 +33,9 @@ public class TargetFilterCountMessageLabel extends AbstractFooterSupport {
 
     private void init() {
         targetCountLabel.setId(UIComponentIdProvider.COUNT_LABEL);
-        targetCountLabel.setContentMode(ContentMode.HTML);
         targetCountLabel.addStyleName(SPUIStyleDefinitions.SP_LABEL_MESSAGE_STYLE);
 
-        targetCountLabel.setCaption(
-                new StringBuilder(i18n.getMessage("label.target.filtered.total")).append(" : ").append(0).toString());
+        updateTotalFilteredTargetsCount(0);
     }
 
     @Override
@@ -48,7 +45,7 @@ public class TargetFilterCountMessageLabel extends AbstractFooterSupport {
 
     public void updateTotalFilteredTargetsCount(final long count) {
         final StringBuilder targetMessage = new StringBuilder(i18n.getMessage("label.target.filtered.total"));
-        targetMessage.append(" : ");
+        targetMessage.append(": ");
         targetMessage.append(count);
         targetCountLabel.setCaption(targetMessage.toString());
     }

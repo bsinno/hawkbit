@@ -12,6 +12,7 @@ import java.io.Serializable;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
+import com.vaadin.server.Resource;
 import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
@@ -33,7 +34,7 @@ public class UINotification implements Serializable {
      *            is the message to displayed as success.
      */
     public void displaySuccess(final String message) {
-        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_SUCCESS_MESSAGE_STYLE, null, message);
+        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_SUCCESS_MESSAGE_STYLE, null, message, null);
     }
 
     /**
@@ -43,7 +44,7 @@ public class UINotification implements Serializable {
      *            is the message to displayed as warning.
      */
     public void displayWarning(final String message) {
-        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_WARNING_MESSAGE_STYLE, null, message);
+        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_WARNING_MESSAGE_STYLE, null, message, null);
     }
 
     /**
@@ -53,18 +54,17 @@ public class UINotification implements Serializable {
      *            as message.
      */
     public void displayValidationError(final String message) {
-        final StringBuilder updatedMsg = new StringBuilder(VaadinIcons.EXCLAMATION_CIRCLE.getHtml());
-        updatedMsg.append(' ');
-        updatedMsg.append(message);
-        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE, null, updatedMsg.toString());
+        showNotification(SPUIStyleDefinitions.SP_NOTIFICATION_ERROR_MESSAGE_STYLE, message, null,
+                VaadinIcons.EXCLAMATION_CIRCLE);
     }
 
     private void showNotification(final String styleName, final String caption, final String description,
-            final Boolean autoClose) {
+            final Resource icon, final Boolean autoClose) {
         final Notification notification = new Notification(caption, description);
 
+        notification.setIcon(icon);
         notification.setStyleName(styleName);
-        notification.setHtmlContentAllowed(true);
+        notification.setHtmlContentAllowed(false);
         notification.setPosition(Position.BOTTOM_RIGHT);
 
         if (autoClose) {
@@ -76,8 +76,9 @@ public class UINotification implements Serializable {
         notification.show(Page.getCurrent());
     }
 
-    private void showNotification(final String styleName, final String caption, final String description) {
-        showNotification(styleName, caption, description, true);
+    private void showNotification(final String styleName, final String caption, final String description,
+            final Resource icon) {
+        showNotification(styleName, caption, description, icon, true);
     }
 
 }

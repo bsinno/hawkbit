@@ -8,9 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
+import java.util.TimeZone;
+
+import org.eclipse.hawkbit.repository.model.PollStatus;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
+import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 /**
@@ -36,10 +40,21 @@ public class TargetToProxyTargetMapper extends AbstractNamedEntityToProxyNamedEn
         proxyTarget.setAddress(target.getAddress());
         proxyTarget.setLastTargetQuery(target.getLastTargetQuery());
         proxyTarget.setUpdateStatus(target.getUpdateStatus());
-        proxyTarget.setPollStatusToolTip(HawkbitCommonUtil.getPollStatusToolTip(target.getPollStatus(), i18n));
+        proxyTarget.setPollStatusToolTip(getPollStatusToolTip(target.getPollStatus()));
         proxyTarget.setSecurityToken(target.getSecurityToken());
         proxyTarget.setRequestAttributes(target.isRequestControllerAttributes());
 
         return proxyTarget;
+    }
+
+    private String getPollStatusToolTip(final PollStatus pollStatus) {
+        if (pollStatus != null && pollStatus.getLastPollDate() != null && pollStatus.isOverdue()) {
+            final TimeZone tz = SPDateTimeUtil.getBrowserTimeZone();
+            return i18n.getMessage(UIMessageIdProvider.TOOLTIP_OVERDUE, SPDateTimeUtil.getDurationFormattedString(
+                    pollStatus.getOverdueDate().atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant().toEpochMilli(),
+                    pollStatus.getCurrentDate().atZone(SPDateTimeUtil.getTimeZoneId(tz)).toInstant().toEpochMilli(),
+                    i18n));
+        }
+        return null;
     }
 }
