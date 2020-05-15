@@ -132,9 +132,8 @@ public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistr
         }
 
         final Window metaDataWindow = dsMetaDataWindowBuilder.getWindowForShowDsMetaData(binder.getBean().getId(),
-                metadata);
+                binder.getBean().getNameVersion(), metadata);
 
-        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + binder.getBean().getNameVersion());
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
     }

@@ -82,9 +82,8 @@ public class TargetDetailsHeader extends DetailsHeader<ProxyTarget> {
         }
 
         final Window metaDataWindow = targetMetaDataWindowBuilder
-                .getWindowForShowTargetMetaData(selectedEntity.getControllerId());
+                .getWindowForShowTargetMetaData(selectedEntity.getControllerId(), selectedEntity.getName());
 
-        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + selectedEntity.getName());
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
     }

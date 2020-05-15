@@ -109,9 +109,9 @@ public class SoftwareModuleDetailsHeader extends DetailsHeader<ProxySoftwareModu
             return;
         }
 
-        final Window metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(selectedEntity.getId());
+        final Window metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(selectedEntity.getId(),
+                selectedEntity.getNameAndVersion());
 
-        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + selectedEntity.getNameAndVersion());
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
     }

@@ -29,8 +29,13 @@ public abstract class AbstractMetaDataWindowBuilder<F> extends AbstractEntityWin
     }
 
     protected Window getWindowForShowMetaData(final AbstractMetaDataWindowLayout<F> metaDataWindowLayout,
-            final F selectedEntityFilter, final ProxyMetaData proxyMetaData) {
+            final F selectedEntityFilter, final String selectedEntityName, final ProxyMetaData proxyMetaData) {
         final CommonDialogWindow window = createWindow(metaDataWindowLayout, null);
+
+        window.setAssistivePrefix(i18n.getMessage("caption.metadata.popup") + " " + "<b>");
+        window.setCaptionAsHtml(false);
+        window.setCaption(selectedEntityName);
+        window.setAssistivePostfix("</b>");
 
         metaDataWindowLayout.addValidationListener(window::setSaveButtonEnabled);
         metaDataWindowLayout.setSaveCallback(window::setCloseListener);

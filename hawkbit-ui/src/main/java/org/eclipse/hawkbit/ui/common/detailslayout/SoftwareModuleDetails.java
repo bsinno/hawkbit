@@ -86,9 +86,8 @@ public class SoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwa
         }
 
         final Window metaDataWindow = smMetaDataWindowBuilder.getWindowForShowSmMetaData(binder.getBean().getId(),
-                metadata);
+                binder.getBean().getNameAndVersion(), metadata);
 
-        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + binder.getBean().getNameAndVersion());
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
     }

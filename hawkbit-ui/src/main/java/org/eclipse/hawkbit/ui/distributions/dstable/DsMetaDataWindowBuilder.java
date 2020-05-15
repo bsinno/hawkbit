@@ -40,15 +40,15 @@ public class DsMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
         this.dsManagement = dsManagement;
     }
 
-    public Window getWindowForShowDsMetaData(final Long dsId) {
+    public Window getWindowForShowDsMetaData(final Long dsId, final String name) {
         return getWindowForShowMetaData(
                 new DsMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification, entityFactory, dsManagement),
-                dsId, null);
+                dsId, name, null);
     }
 
-    public Window getWindowForShowDsMetaData(final Long dsId, final ProxyMetaData proxyMetaData) {
+    public Window getWindowForShowDsMetaData(final Long dsId, final String name, final ProxyMetaData proxyMetaData) {
         return getWindowForShowMetaData(
                 new DsMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification, entityFactory, dsManagement),
-                dsId, proxyMetaData);
+                dsId, name, proxyMetaData);
     }
 }

@@ -40,15 +40,15 @@ public class SmMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
         this.smManagement = smManagement;
     }
 
-    public Window getWindowForShowSmMetaData(final Long smId) {
+    public Window getWindowForShowSmMetaData(final Long smId, final String name) {
         return getWindowForShowMetaData(
                 new SmMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification, entityFactory, smManagement),
-                smId, null);
+                smId, name, null);
     }
 
-    public Window getWindowForShowSmMetaData(final Long smId, final ProxyMetaData proxyMetaData) {
+    public Window getWindowForShowSmMetaData(final Long smId, final String name, final ProxyMetaData proxyMetaData) {
         return getWindowForShowMetaData(
                 new SmMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification, entityFactory, smManagement),
-                smId, proxyMetaData);
+                smId, name, proxyMetaData);
     }
 }

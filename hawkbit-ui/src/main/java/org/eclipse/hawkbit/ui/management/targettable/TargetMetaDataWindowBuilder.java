@@ -40,13 +40,14 @@ public class TargetMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<S
         this.targetManagement = targetManagement;
     }
 
-    public Window getWindowForShowTargetMetaData(final String controllerId) {
+    public Window getWindowForShowTargetMetaData(final String controllerId, final String name) {
         return getWindowForShowMetaData(new TargetMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification,
-                entityFactory, targetManagement), controllerId, null);
+                entityFactory, targetManagement), controllerId, name, null);
     }
 
-    public Window getWindowForShowTargetMetaData(final String controllerId, final ProxyMetaData proxyMetaData) {
+    public Window getWindowForShowTargetMetaData(final String controllerId, final String name,
+            final ProxyMetaData proxyMetaData) {
         return getWindowForShowMetaData(new TargetMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification,
-                entityFactory, targetManagement), controllerId, proxyMetaData);
+                entityFactory, targetManagement), controllerId, name, proxyMetaData);
     }
 }

@@ -86,9 +86,9 @@ public class DistributionSetDetailsHeader extends DetailsHeader<ProxyDistributio
             return;
         }
 
-        final Window metaDataWindow = dsMetaDataWindowBuilder.getWindowForShowDsMetaData(selectedEntity.getId());
+        final Window metaDataWindow = dsMetaDataWindowBuilder.getWindowForShowDsMetaData(selectedEntity.getId(),
+                selectedEntity.getNameVersion());
 
-        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + selectedEntity.getNameVersion());
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
     }

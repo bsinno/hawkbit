@@ -189,10 +189,9 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
             return;
         }
 
-        final Window metaDataWindow = targetMetaDataWindowBuilder
-                .getWindowForShowTargetMetaData(binder.getBean().getControllerId(), metadata);
+        final Window metaDataWindow = targetMetaDataWindowBuilder.getWindowForShowTargetMetaData(
+                binder.getBean().getControllerId(), binder.getBean().getName(), metadata);
 
-        metaDataWindow.setCaption(i18n.getMessage("caption.metadata.popup") + binder.getBean().getName());
         UI.getCurrent().addWindow(metaDataWindow);
         metaDataWindow.setVisible(Boolean.TRUE);
     }
