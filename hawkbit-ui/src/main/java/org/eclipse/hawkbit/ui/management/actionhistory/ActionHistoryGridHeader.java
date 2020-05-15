@@ -14,30 +14,21 @@ import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
-import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractMasterAwareGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
-import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Header for ActionHistory with maximize-support.
  */
-public class ActionHistoryGridHeader extends AbstractGridHeader implements MasterEntityAwareComponent<ProxyTarget> {
+public class ActionHistoryGridHeader extends AbstractMasterAwareGridHeader<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
     private final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState;
-
-    private final Label headerCaption;
 
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
@@ -47,8 +38,6 @@ public class ActionHistoryGridHeader extends AbstractGridHeader implements Maste
 
         this.actionHistoryGridLayoutUiState = actionHistoryGridLayoutUiState;
 
-        this.headerCaption = buildHeaderCaption();
-
         this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, SPUIDefinitions.EXPAND_ACTION_HISTORY,
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
         addHeaderSupport(resizeHeaderSupport);
@@ -56,19 +45,24 @@ public class ActionHistoryGridHeader extends AbstractGridHeader implements Maste
         buildHeader();
     }
 
-    private Label buildHeaderCaption() {
-        final Label caption = new Label(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_HISTORY), ContentMode.HTML);
-
-        caption.addStyleName(ValoTheme.LABEL_SMALL);
-        caption.addStyleName(ValoTheme.LABEL_BOLD);
-        caption.addStyleName("header-caption");
-
-        return caption;
+    @Override
+    protected String getEntityDetailsCaptionMsgKey() {
+        return UIMessageIdProvider.CAPTION_ACTION_HISTORY;
     }
 
     @Override
-    protected Component getHeaderCaption() {
-        return headerCaption;
+    protected String getMasterEntityDetailsCaptionId() {
+        return UIComponentIdProvider.ACTION_HISTORY_DETAILS_HEADER_LABEL_ID;
+    }
+
+    @Override
+    protected String getMasterEntityName(final ProxyTarget masterEntity) {
+        return masterEntity != null ? masterEntity.getName() : "";
+    }
+
+    @Override
+    protected String getEntityDetailsCaptionOfMsgKey() {
+        return UIMessageIdProvider.CAPTION_ACTION_HISTORY_FOR;
     }
 
     private void maximizeTable() {
@@ -87,15 +81,5 @@ public class ActionHistoryGridHeader extends AbstractGridHeader implements Maste
 
     private Boolean onLoadIsTableMaximized() {
         return actionHistoryGridLayoutUiState.isMaximized();
-    }
-
-    @Override
-    public void masterEntityChanged(final ProxyTarget masterEntity) {
-        if (masterEntity != null && StringUtils.hasText(masterEntity.getName())) {
-            headerCaption.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_HISTORY_FOR) + " "
-                    + HawkbitCommonUtil.getBoldHTMLText(masterEntity.getName()));
-        } else {
-            headerCaption.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_HISTORY));
-        }
     }
 }

@@ -91,16 +91,8 @@ $generic-text-font-size: $generic-text-font-scale * $v-font-size;
     -webkit-text-overflow: ellipsis;
   }
 
-  .text-bold {
-    font-weight: bold !important;
-  }
-
   .v-Notification-error .v-icon {
     color: white;
-  }
-
-  .header-caption-right {
-    padding-right: 0.5em;
   }
 
   .avoid-tooltip {

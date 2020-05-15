@@ -14,32 +14,21 @@ import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload;
 import org.eclipse.hawkbit.ui.common.event.LayoutResizeEventPayload.ResizeType;
-import org.eclipse.hawkbit.ui.common.grid.header.AbstractGridHeader;
+import org.eclipse.hawkbit.ui.common.grid.header.AbstractMasterAwareGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.ResizeHeaderSupport;
-import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Header for ArtifactDetails with maximize-support.
  */
-// TODO: remove duplication with ActionHistoryGridHeader
-public class ArtifactDetailsGridHeader extends AbstractGridHeader
-        implements MasterEntityAwareComponent<ProxySoftwareModule> {
+public class ArtifactDetailsGridHeader extends AbstractMasterAwareGridHeader<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
     private final ArtifactDetailsGridLayoutUiState artifactDetailsGridLayoutUiState;
-
-    private final Label headerCaption;
 
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
@@ -49,8 +38,6 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader
 
         this.artifactDetailsGridLayoutUiState = artifactDetailsGridLayoutUiState;
 
-        this.headerCaption = buildHeaderCaption();
-
         this.resizeHeaderSupport = new ResizeHeaderSupport(i18n, SPUIDefinitions.EXPAND_ARTIFACT_DETAILS,
                 this::maximizeTable, this::minimizeTable, this::onLoadIsTableMaximized);
         addHeaderSupport(resizeHeaderSupport);
@@ -58,20 +45,24 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader
         buildHeader();
     }
 
-    private Label buildHeaderCaption() {
-        final Label caption = new Label(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS),
-                ContentMode.HTML);
-
-        caption.addStyleName(ValoTheme.LABEL_SMALL);
-        caption.addStyleName(ValoTheme.LABEL_BOLD);
-        caption.addStyleName("header-caption");
-
-        return caption;
+    @Override
+    protected String getEntityDetailsCaptionMsgKey() {
+        return UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS;
     }
 
     @Override
-    protected Component getHeaderCaption() {
-        return headerCaption;
+    protected String getMasterEntityDetailsCaptionId() {
+        return UIComponentIdProvider.ARTIFACT_DETAILS_HEADER_LABEL_ID;
+    }
+
+    @Override
+    protected String getMasterEntityName(final ProxySoftwareModule masterEntity) {
+        return masterEntity != null ? masterEntity.getNameAndVersion() : "";
+    }
+
+    @Override
+    protected String getEntityDetailsCaptionOfMsgKey() {
+        return UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF;
     }
 
     private void maximizeTable() {
@@ -90,17 +81,5 @@ public class ArtifactDetailsGridHeader extends AbstractGridHeader
 
     private Boolean onLoadIsTableMaximized() {
         return artifactDetailsGridLayoutUiState.isMaximized();
-    }
-
-    @Override
-    public void masterEntityChanged(final ProxySoftwareModule masterEntity) {
-        final String swModuleNameVersion = masterEntity != null ? masterEntity.getNameAndVersion() : "";
-
-        if (StringUtils.hasText(swModuleNameVersion)) {
-            headerCaption.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS_OF) + " "
-                    + HawkbitCommonUtil.getBoldHTMLText(swModuleNameVersion));
-        } else {
-            headerCaption.setValue(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_DETAILS));
-        }
     }
 }

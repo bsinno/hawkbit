@@ -268,7 +268,10 @@ public final class UIComponentIdProvider {
      * DROP filter icon id.
      */
     public static final String TARGET_DROP_FILTER_ICON = "target.drop.filter.icon";
-
+    /**
+     * Details header caption id of the Action History Grid
+     */
+    public static final String ACTION_HISTORY_DETAILS_HEADER_LABEL_ID = "action.history.details.header.caption";
     /**
      * Action history grid Id.
      */
@@ -429,7 +432,7 @@ public final class UIComponentIdProvider {
      * Artifact - file download button id
      */
     public static final String ARTIFACT_FILE_DOWNLOAD_ICON = "artifact.file.download.button";
-    
+
     /**
      * Upload result popup close button.
      */

@@ -73,8 +73,8 @@ public final class HawkbitCommonUtil {
      *
      * @param text
      *            text to be trimmed
-     * @return null if the text is null or if the text is blank, text.trim() if the
-     *         text is not empty.
+     * @return null if the text is null or if the text is blank, text.trim() if
+     *         the text is not empty.
      */
     public static String trimAndNullIfEmpty(final String text) {
         if (text != null && !text.trim().isEmpty()) {
@@ -84,16 +84,18 @@ public final class HawkbitCommonUtil {
     }
 
     /**
-     * Concatenate the given text all the string arguments with the given delimiter.
+     * Concatenate the given text all the string arguments with the given
+     * delimiter.
      *
      * @param delimiter
      *            the delimiter text to be used while concatenation.
      * @param texts
      *            all these string values will be concatenated with the given
      *            delimiter.
-     * @return null in case no text arguments to be compared. just concatenation of
-     *         all texts arguments if "delimiter" is null or empty. concatenation of
-     *         all texts arguments with "delimiter" if it not null.
+     * @return null in case no text arguments to be compared. just concatenation
+     *         of all texts arguments if "delimiter" is null or empty.
+     *         concatenation of all texts arguments with "delimiter" if it not
+     *         null.
      */
     public static String concatStrings(final String delimiter, final String... texts) {
         final String delim = delimiter == null ? "" : delimiter;
@@ -106,25 +108,6 @@ public final class HawkbitCommonUtil {
         }
         final String conCatedStr = conCatStrBldr.toString();
         return delim.length() > 0 && conCatedStr.startsWith(delim) ? conCatedStr.substring(1) : conCatedStr;
-    }
-
-    /**
-     * Returns the input text within html bold tag <b>..</b>.
-     *
-     * @param text
-     *            is the text to be converted in to Bold
-     * @return null if the input text param is null returns text with <b>...</b>
-     *         tags.
-     */
-    public static String getBoldHTMLText(final String text) {
-        String boldStr = null;
-        if (text != null) {
-            final StringBuilder updatedMsg = new StringBuilder("<b>");
-            updatedMsg.append(text);
-            updatedMsg.append("</b>");
-            boldStr = updatedMsg.toString();
-        }
-        return boldStr;
     }
 
     /**
