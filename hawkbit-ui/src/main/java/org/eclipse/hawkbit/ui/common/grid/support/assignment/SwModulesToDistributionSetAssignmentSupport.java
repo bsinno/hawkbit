@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -30,13 +29,10 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.util.CollectionUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -113,16 +109,8 @@ public class SwModulesToDistributionSetAssignmentSupport
     }
 
     private Collection<Long> getSmIdsByDsId(final Long dsId) {
-        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
-        Page<SoftwareModule> smPage;
-        final Collection<Long> smIds = new ArrayList<>();
-
-        do {
-            smPage = smManagement.findByAssignedTo(query, dsId);
-            smIds.addAll(smPage.getContent().stream().map(SoftwareModule::getId).collect(Collectors.toList()));
-        } while ((query = smPage.nextPageable()) != Pageable.unpaged());
-
-        return smIds;
+        return HawkbitCommonUtil.getEntitiesByPageableProvider(query -> smManagement.findByAssignedTo(query, dsId))
+                .stream().map(SoftwareModule::getId).collect(Collectors.toList());
     }
 
     private boolean checkDuplicateSmToDsAssignment(final ProxySoftwareModule sm, final ProxyDistributionSet ds,

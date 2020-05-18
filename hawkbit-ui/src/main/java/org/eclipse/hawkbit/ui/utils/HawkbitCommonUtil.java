@@ -8,13 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 
 import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.UiProperties.Localization;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import com.vaadin.ui.UI;
 
@@ -154,5 +159,18 @@ public final class HawkbitCommonUtil {
         ui.setLocale(HawkbitCommonUtil.getLocaleToBeUsed(localizationProperties, ui.getSession().getLocale()));
         ui.getReconnectDialogConfiguration()
                 .setDialogText(i18n.getMessage(UIMessageIdProvider.VAADIN_SYSTEM_TRYINGRECONNECT));
+    }
+
+    public static <T> List<T> getEntitiesByPageableProvider(final Function<Pageable, Slice<T>> provider) {
+        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
+        Slice<T> slice;
+        final List<T> entities = new ArrayList<>();
+
+        do {
+            slice = provider.apply(query);
+            entities.addAll(slice.getContent());
+        } while ((query = slice.nextPageable()) != Pageable.unpaged());
+
+        return entities;
     }
 }

@@ -49,19 +49,25 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
     }
 
     private void addKeyValueDetail(final ProxyKeyValueDetails keyValueDetail) {
+        final String id = keyValueDetail.getId();
+        final String key = keyValueDetail.getKey();
+        final String value = keyValueDetail.getValue();
+
+        final Label keyDetail = buildKeyDetail(key);
+        final Label valueDetail = buildValueDetail(id, value);
+
         final HorizontalLayout keyValueDetailLayout = new HorizontalLayout();
         keyValueDetailLayout.setSpacing(true);
         keyValueDetailLayout.setMargin(false);
         keyValueDetailLayout.setWidthUndefined();
-
-        final Label keyDetail = buildKeyDetail(keyValueDetail.getKey());
-        final Label valueDetail = buildValueDetail(keyValueDetail.getId(), keyValueDetail.getValue());
 
         keyValueDetailLayout.addComponent(keyDetail);
         keyValueDetailLayout.setExpandRatio(keyDetail, 0.0F);
 
         keyValueDetailLayout.addComponent(valueDetail);
         keyValueDetailLayout.setExpandRatio(valueDetail, 1.0F);
+
+        keyValueDetailLayout.setDescription(key.concat(": ") + value);
 
         keyValueDetailsLayout.addComponent(keyValueDetailLayout);
     }

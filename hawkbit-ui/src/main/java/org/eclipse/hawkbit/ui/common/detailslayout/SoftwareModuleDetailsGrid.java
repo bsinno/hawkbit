@@ -36,9 +36,6 @@ import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -287,16 +284,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
     }
 
     private Collection<SoftwareModule> getSoftwareModulesByDsId(final Long dsId) {
-        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
-        Page<SoftwareModule> smPage;
-        final Collection<SoftwareModule> softwareModules = new ArrayList<>();
-
-        do {
-            smPage = smManagement.findByAssignedTo(query, dsId);
-            softwareModules.addAll(smPage.getContent());
-        } while ((query = smPage.nextPageable()) != Pageable.unpaged());
-
-        return softwareModules;
+        return HawkbitCommonUtil.getEntitiesByPageableProvider(query -> smManagement.findByAssignedTo(query, dsId));
     }
 
     private List<ProxySoftwareModuleDetails> getSmDetailsByType(final Collection<SoftwareModule> softwareModules,

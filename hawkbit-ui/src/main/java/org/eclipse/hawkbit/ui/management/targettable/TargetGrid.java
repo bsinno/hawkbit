@@ -8,12 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -56,16 +54,14 @@ import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -223,16 +219,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         // loading targets that are relevant for data provider with filter,
         // offset and limit or alternatively only load the corresponding target
         // ids
-        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
-        Slice<Target> targetSlice;
-        final List<Target> targets = new ArrayList<>();
-
-        do {
-            targetSlice = findTargetsFunction.apply(query);
-            targets.addAll(targetSlice.getContent());
-        } while ((query = targetSlice.nextPageable()) != Pageable.unpaged());
-
-        return targets.stream().map(Target::getId).collect(Collectors.toList());
+        return HawkbitCommonUtil.getEntitiesByPageableProvider(findTargetsFunction::apply).stream().map(Target::getId)
+                .collect(Collectors.toList());
     }
 
     private Collection<Long> getInstalledToDsTargetIds(final Long pinnedDsId) {

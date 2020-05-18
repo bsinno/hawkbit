@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,12 +17,9 @@ import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 /**
  * Support for assigning target tags to distribution set.
@@ -87,18 +83,7 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
     }
 
     private List<Target> getTargetsAssignedToTag(final Long tagId) {
-        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
-        final List<Target> targetsAssignedToTag = new ArrayList<>();
-        Page<Target> targetsAssignedToTagPageable;
-
-        do {
-            targetsAssignedToTagPageable = targetManagement.findByTag(query, tagId);
-            if (targetsAssignedToTagPageable.hasContent()) {
-                targetsAssignedToTag.addAll(targetsAssignedToTagPageable.getContent());
-            }
-        } while ((query = targetsAssignedToTagPageable.nextPageable()) != Pageable.unpaged());
-
-        return targetsAssignedToTag;
+        return HawkbitCommonUtil.getEntitiesByPageableProvider(query -> targetManagement.findByTag(query, tagId));
     }
 
     private List<ProxyTarget> mapTargetsToProxyTargets(final List<Target> targetsToAssign) {

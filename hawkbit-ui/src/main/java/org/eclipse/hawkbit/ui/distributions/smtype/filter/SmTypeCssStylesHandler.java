@@ -1,6 +1,5 @@
 package org.eclipse.hawkbit.ui.distributions.smtype.filter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,11 +8,9 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.repository.model.Type;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 
 import com.vaadin.server.Page;
 
@@ -33,16 +30,7 @@ public class SmTypeCssStylesHandler {
     }
 
     private List<SoftwareModuleType> getAllSmTypes() {
-        Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
-        Slice<SoftwareModuleType> smTypeSlice;
-        final List<SoftwareModuleType> smTypes = new ArrayList<>();
-
-        do {
-            smTypeSlice = softwareModuleTypeManagement.findAll(query);
-            smTypes.addAll(smTypeSlice.getContent());
-        } while ((query = smTypeSlice.nextPageable()) != Pageable.unpaged());
-
-        return smTypes;
+        return HawkbitCommonUtil.getEntitiesByPageableProvider(softwareModuleTypeManagement::findAll);
     }
 
     private Map<Long, String> getSmTypeIdWithColor(final List<SoftwareModuleType> smTypes) {
