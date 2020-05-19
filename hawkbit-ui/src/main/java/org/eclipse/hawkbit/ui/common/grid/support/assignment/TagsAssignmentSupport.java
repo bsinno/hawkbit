@@ -38,14 +38,11 @@ public abstract class TagsAssignmentSupport<T, R extends NamedEntity> extends As
         return Collections.emptyList();
     }
 
-    // TODO: Implement multi-tag assignment
-    // (e.x. within TargetManagement(toggleTagAssignment),
-    // createAssignmentMessage, etc.)
     @Override
     protected void performAssignment(final List<ProxyTag> sourceItemsToAssign, final T targetItem) {
 
-        // TODO: fix (we are taking first tag because multi-tag assignment is
-        // not supported)
+        // we are taking first tag because multi-tag assignment is
+        // not supported
         final String tagName = sourceItemsToAssign.get(0).getName();
         final AbstractAssignmentResult<R> tagsAssignmentResult = toggleTagAssignment(tagName, targetItem);
 

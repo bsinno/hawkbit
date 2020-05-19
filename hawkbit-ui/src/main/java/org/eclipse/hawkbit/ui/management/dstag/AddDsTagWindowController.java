@@ -24,7 +24,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-//TODO: remove duplication with target tag
+//TODO: remove duplication with AddTargetTagWindowController
 public class AddDsTagWindowController extends AbstractEntityWindowController<ProxyTag, ProxyTag> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
@@ -57,11 +57,7 @@ public class AddDsTagWindowController extends AbstractEntityWindowController<Pro
     protected ProxyTag buildEntityFromProxy(final ProxyTag proxyEntity) {
         // We ignore the method parameter, because we are interested in the
         // empty object, that we can populate with defaults
-        final ProxyTag dsTag = new ProxyTag();
-        // TODO: either extract the constant, or define it as a default in model
-        dsTag.setColour("#2c9720");
-
-        return dsTag;
+        return new ProxyTag();
     }
 
     @Override

@@ -200,8 +200,6 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     public void masterEntityChanged(final ProxyTarget entity) {
         super.masterEntityChanged(entity);
 
-        // TODO: consider populating the grid only when metadata tab is/becomes
-        // active (lazy loading)
         targetMetadataGrid.masterEntityChanged(entity != null ? entity.getControllerId() : null);
         getTargetTagToken().masterEntityChanged(entity);
     }

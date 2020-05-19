@@ -142,8 +142,6 @@ public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistr
     public void masterEntityChanged(final ProxyDistributionSet entity) {
         super.masterEntityChanged(entity);
 
-        // TODO: consider populating the grid only when metadata tab is/becomes
-        // active (lazy loading)
         dsMetadataGrid.masterEntityChanged(entity != null ? entity.getId() : null);
         smDetailsGrid.masterEntityChanged(entity);
         distributionTagToken.masterEntityChanged(entity);

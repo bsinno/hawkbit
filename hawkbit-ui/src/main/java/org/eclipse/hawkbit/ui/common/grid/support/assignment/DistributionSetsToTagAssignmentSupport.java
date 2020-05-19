@@ -67,30 +67,17 @@ public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<Pr
         final DistributionSetTagAssignmentResult tagsAssignmentResult = distributionSetManagement
                 .toggleTagAssignment(dsIdsToAssign, tagName);
 
-        // TODO: check if it could be extracted from HawkbitCommonUtil
-        // TODO: fix the bug of displaying messages for Targets instead of
-        // Distribution Sets
+        // TODO: check if it could be extracted from HawkbitCommonUtil, fix the
+        // bug of displaying messages for Targets instead of Distribution Sets
         notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
 
-        publishTagAssignmentEvent(tagsAssignmentResult, sourceItemsToAssign, targetItem);
+        publishTagAssignmentEvent(sourceItemsToAssign);
     }
 
-    private void publishTagAssignmentEvent(final DistributionSetTagAssignmentResult tagsAssignmentResult,
-            final List<ProxyDistributionSet> sourceItemsToAssign, final ProxyTag targetItem) {
+    private void publishTagAssignmentEvent(final List<ProxyDistributionSet> sourceItemsToAssign) {
         final List<Long> assignedDsIds = sourceItemsToAssign.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, assignedDsIds));
-
-        // TODO: should we additionally send tag assignment event in order to
-        // refresh the grid?
-        // if ((tagsAssignmentResult.getUnassigned() > 0 &&
-        // !CollectionUtils.isEmpty(distributionTagLayoutUiState.getClickedDsTagIdsWithName()
-        // &&
-        // distributionTagLayoutUiState.getClickedDsTagIdsWithName().keySet().contains(targetItem.getId()))
-        // || (tagsAssignmentResult.getAssigned() > 0 &&
-        // distributionTagLayoutUiState.isNoTagClicked())) {
-        // eventBus.publish("tagAssignmentChanged", this, new
-        // TagAssignmentPayload(...);}
     }
 }

@@ -123,22 +123,22 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             getSelectionSupport().enableMultiSelection();
         }
 
-        this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent, this::refreshItem,
-                this::getAssignedToDsTargetIds, this::getInstalledToDsTargetIds);
-
         this.targetDeleteSupport = new DeleteSupport<>(this, i18n, notification,
                 i18n.getMessage("target.details.header"), ProxyTarget::getName, this::deleteTargets,
                 UIComponentIdProvider.TARGET_DELETE_CONFIRMATION_DIALOG);
 
+        this.pinSupport = new PinSupport<>(this::refreshItem, this::publishPinningChangedEvent,
+                this::updatePinnedUiState, this::getPinFilter, this::updatePinFilter, this::getAssignedToDsTargetIds,
+                this::getInstalledToDsTargetIds);
+
         final Map<String, AssignmentSupport<?, ProxyTarget>> sourceTargetAssignmentStrategies = new HashMap<>();
 
         final DeploymentAssignmentWindowController assignmentController = new DeploymentAssignmentWindowController(i18n,
-                uiProperties, eventBus, notification, deploymentManagement, targetGridLayoutUiState,
-                distributionGridLayoutUiState);
+                uiProperties, eventBus, notification, deploymentManagement);
         final DistributionSetsToTargetAssignmentSupport distributionsToTargetAssignment = new DistributionSetsToTargetAssignmentSupport(
                 notification, i18n, systemSecurityContext, configManagement, permChecker, assignmentController);
         final TargetTagsToTargetAssignmentSupport targetTagsToTargetAssignment = new TargetTagsToTargetAssignmentSupport(
-                notification, i18n, targetManagement, eventBus, targetTagFilterLayoutUiState);
+                notification, i18n, targetManagement, eventBus);
 
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.DIST_TABLE_ID, distributionsToTargetAssignment);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToTargetAssignment);
@@ -191,23 +191,24 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyTarget pinnedItem) {
-        if (isPinFilterActive()) {
-            getFilterSupport().updateFilter(TargetManagementFilterParams::setPinnedDistId, null);
-        }
-
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
                 new PinningChangedEventPayload<String>(
                         pinType == PinBehaviourType.PINNED ? PinningChangedEventType.ENTITY_PINNED
                                 : PinningChangedEventType.ENTITY_UNPINNED,
                         ProxyTarget.class, pinnedItem.getControllerId()));
-
-        targetGridLayoutUiState.setPinnedTargetId(pinType == PinBehaviourType.PINNED ? pinnedItem.getId() : null);
-        targetGridLayoutUiState
-                .setPinnedControllerId(pinType == PinBehaviourType.PINNED ? pinnedItem.getControllerId() : null);
     }
 
-    private boolean isPinFilterActive() {
-        return getFilter().map(TargetManagementFilterParams::getPinnedDistId).isPresent();
+    private void updatePinnedUiState(final ProxyTarget pinnedItem) {
+        targetGridLayoutUiState.setPinnedTargetId(pinnedItem != null ? pinnedItem.getId() : null);
+        targetGridLayoutUiState.setPinnedControllerId(pinnedItem != null ? pinnedItem.getControllerId() : null);
+    }
+
+    private Optional<Long> getPinFilter() {
+        return getFilter().map(TargetManagementFilterParams::getPinnedDistId);
+    }
+
+    private void updatePinFilter(final Long pinnedDsId) {
+        getFilterSupport().updateFilter(TargetManagementFilterParams::setPinnedDistId, pinnedDsId);
     }
 
     private Collection<Long> getAssignedToDsTargetIds(final Long pinnedDsId) {
@@ -247,13 +248,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private void initDsPinningStyleGenerator() {
-        setStyleGenerator(target -> {
-            if (isPinFilterActive() && pinSupport.assignedOrInstalledNotEmpty()) {
-                return pinSupport.getAssignedOrInstalledRowStyle(target.getId());
-            }
-
-            return null;
-        });
+        setStyleGenerator(target -> pinSupport.getAssignedOrInstalledRowStyle(target.getId()));
     }
 
     // TODO: check if icons are correct
@@ -279,20 +274,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     @Override
     public String getGridId() {
         return UIComponentIdProvider.TARGET_TABLE_ID;
-    }
-
-    public void updatePinnedDs(final Long pinnedDsId) {
-        if (pinSupport.clearPinning()) {
-            targetGridLayoutUiState.setPinnedTargetId(null);
-            targetGridLayoutUiState.setPinnedControllerId(null);
-        }
-
-        if (pinnedDsId == null && !isPinFilterActive()) {
-            return;
-        }
-
-        pinSupport.repopulateAssignedAndInstalled(pinnedDsId);
-        getFilterSupport().updateFilter(TargetManagementFilterParams::setPinnedDistId, pinnedDsId);
     }
 
     public void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {

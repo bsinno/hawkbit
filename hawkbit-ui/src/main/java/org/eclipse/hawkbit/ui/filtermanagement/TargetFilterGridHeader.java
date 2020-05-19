@@ -63,8 +63,7 @@ public class TargetFilterGridHeader extends AbstractGridHeader {
         this.searchHeaderSupport = new SearchHeaderSupport(i18n, UIComponentIdProvider.TARGET_FILTER_SEARCH_TEXT,
                 UIComponentIdProvider.TARGET_FILTER_TBL_SEARCH_RESET_ID, this::getSearchTextFromUiState,
                 this::searchBy);
-        // TODO: consider moving permission check to header support or parent
-        // header
+
         if (permChecker.hasCreateTargetPermission()) {
             this.addHeaderSupport = new AddHeaderSupport(i18n, UIComponentIdProvider.TARGET_FILTER_ADD_ICON_ID,
                     this::addNewItem, () -> false);

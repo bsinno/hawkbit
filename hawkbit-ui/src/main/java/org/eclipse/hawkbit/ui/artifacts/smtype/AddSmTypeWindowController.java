@@ -56,12 +56,7 @@ public class AddSmTypeWindowController extends AbstractEntityWindowController<Pr
     protected ProxyType buildEntityFromProxy(final ProxyType proxyEntity) {
         // We ignore the method parameter, because we are interested in the
         // empty object, that we can populate with defaults
-        final ProxyType smType = new ProxyType();
-        // TODO: either extract the constant, or define it as a default in model
-        smType.setColour("#2c9720");
-        smType.setSmTypeAssign(SmTypeAssign.SINGLE);
-
-        return smType;
+        return new ProxyType();
     }
 
     @Override

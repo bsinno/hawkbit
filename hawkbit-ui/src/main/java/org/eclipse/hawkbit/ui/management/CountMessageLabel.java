@@ -63,49 +63,57 @@ public class CountMessageLabel extends AbstractFooterSupport {
         if (targetFilterParams == null) {
             return;
         }
-        // TODO: adapt so we don't always get the total targets value from the
-        // database if it hasn't changed
-        final StringBuilder message = getTotalTargetMessage();
 
-        if (targetFilterParams.isAnyFilterSelected()) {
-            message.append(HawkbitCommonUtil.SP_STRING_PIPE);
-            message.append(i18n.getMessage("label.filter.targets"));
-            message.append(count);
-            message.append(HawkbitCommonUtil.SP_STRING_PIPE);
-            final String status = i18n.getMessage("label.filter.status");
-            final String overdue = i18n.getMessage("label.filter.overdue");
-            final String tags = i18n.getMessage("label.filter.tags");
-            final String text = i18n.getMessage("label.filter.text");
-            final String dists = i18n.getMessage("label.filter.dist");
-            final String custom = i18n.getMessage("label.filter.custom");
-            final StringBuilder filterMesgBuf = new StringBuilder(i18n.getMessage("label.filter"));
-            filterMesgBuf.append(" ");
-            filterMesgBuf.append(getStatusMsg(targetFilterParams.getTargetUpdateStatusList(), status));
-            filterMesgBuf.append(getOverdueStateMsg(targetFilterParams.isOverdueState(), overdue));
-            filterMesgBuf
-                    .append(getTagsMsg(targetFilterParams.isNoTagClicked(), targetFilterParams.getTargetTags(), tags));
-            filterMesgBuf.append(!StringUtils.isEmpty(targetFilterParams.getSearchText()) ? text : " ");
-            filterMesgBuf.append(targetFilterParams.getDistributionId() != null ? dists : " ");
-            filterMesgBuf.append(targetFilterParams.getTargetFilterQueryId() != null ? custom : " ");
-            final String filterMesageChk = filterMesgBuf.toString().trim();
-            String filterMesage = filterMesageChk;
-            if (filterMesage.endsWith(",")) {
-                filterMesage = filterMesageChk.substring(0, filterMesageChk.length() - 1);
-            }
-            message.append(filterMesage);
-        }
-
-        targetCountLabel.setCaption(message.toString());
+        targetCountLabel.setCaption(getTargetCountStatusMessage(count, targetFilterParams));
 
         updatePinningDetails(targetFilterParams.getPinnedDistId());
     }
 
-    private StringBuilder getTotalTargetMessage() {
+    private String getTargetCountStatusMessage(final long count,
+            final TargetManagementFilterParams targetFilterParams) {
+        if (!targetFilterParams.isAnyFilterSelected()) {
+            return getTotalTargetMessage(count).toString();
+        }
+
+        final StringBuilder message = getTotalTargetMessage();
+        message.append(HawkbitCommonUtil.SP_STRING_PIPE);
+        message.append(i18n.getMessage("label.filter.targets"));
+        message.append(count);
+        message.append(HawkbitCommonUtil.SP_STRING_PIPE);
+        final String status = i18n.getMessage("label.filter.status");
+        final String overdue = i18n.getMessage("label.filter.overdue");
+        final String tags = i18n.getMessage("label.filter.tags");
+        final String text = i18n.getMessage("label.filter.text");
+        final String dists = i18n.getMessage("label.filter.dist");
+        final String custom = i18n.getMessage("label.filter.custom");
+        final StringBuilder filterMesgBuf = new StringBuilder(i18n.getMessage("label.filter"));
+        filterMesgBuf.append(" ");
+        filterMesgBuf.append(getStatusMsg(targetFilterParams.getTargetUpdateStatusList(), status));
+        filterMesgBuf.append(getOverdueStateMsg(targetFilterParams.isOverdueState(), overdue));
+        filterMesgBuf.append(getTagsMsg(targetFilterParams.isNoTagClicked(), targetFilterParams.getTargetTags(), tags));
+        filterMesgBuf.append(!StringUtils.isEmpty(targetFilterParams.getSearchText()) ? text : " ");
+        filterMesgBuf.append(targetFilterParams.getDistributionId() != null ? dists : " ");
+        filterMesgBuf.append(targetFilterParams.getTargetFilterQueryId() != null ? custom : " ");
+        final String filterMesageChk = filterMesgBuf.toString().trim();
+        String filterMesage = filterMesageChk;
+        if (filterMesage.endsWith(",")) {
+            filterMesage = filterMesageChk.substring(0, filterMesageChk.length() - 1);
+        }
+        message.append(filterMesage);
+
+        return message.toString();
+    }
+
+    private StringBuilder getTotalTargetMessage(final long count) {
         final StringBuilder message = new StringBuilder(i18n.getMessage("label.target.filter.count"));
         message.append(": ");
-        message.append(targetManagement.count());
+        message.append(count);
 
         return message;
+    }
+
+    private StringBuilder getTotalTargetMessage() {
+        return getTotalTargetMessage(targetManagement.count());
     }
 
     private static String getStatusMsg(final Collection<TargetUpdateStatus> status, final String param) {

@@ -53,18 +53,21 @@ public class MaintenanceWindowLayout extends VerticalLayout {
     }
 
     private void buildLayout(final TextField duration, final ComboBox<String> timeZone) {
+        setMargin(false);
+        setSpacing(false);
         setStyleName("dist-window-maintenance-window-layout");
         setId(UIComponentIdProvider.MAINTENANCE_WINDOW_LAYOUT_ID);
 
         final HorizontalLayout maintenanceComponentsContainer = new HorizontalLayout();
+        maintenanceComponentsContainer.setMargin(false);
+        maintenanceComponentsContainer.setSpacing(false);
+
         maintenanceComponentsContainer.addComponent(schedule);
         maintenanceComponentsContainer.addComponent(duration);
         maintenanceComponentsContainer.addComponent(timeZone);
 
         addComponent(maintenanceComponentsContainer);
 
-        // TODO: check if we should init it with
-        // i18n.getMessage(UIMessageIdProvider.CRON_VALIDATION_ERROR
         addComponent(scheduleTranslator);
     }
 

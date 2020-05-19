@@ -75,7 +75,6 @@ public class UpdateMetaDataWindowController extends AbstractEntityWindowControll
             return;
         }
 
-        // TODO: check if could be substituted by the event
         saveMetaDataCallback.accept(entity);
 
         uiNotification.displaySuccess(i18n.getMessage("message.metadata.updated", updatedMetaData.getKey()));

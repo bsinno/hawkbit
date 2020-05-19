@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
-import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdNameVersion;
 import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 
@@ -16,20 +15,8 @@ public class TargetGridLayoutUiState extends GridLayoutUiState {
     private static final long serialVersionUID = 1L;
 
     private Long pinnedTargetId;
-    // TODO: check if we could only keep pinned targetId or controllerId
     private String pinnedControllerId;
     private ProxyIdNameVersion filterDsIdNameVersion;
-
-    // TODO: check if it is right, make sure to update it in TargetGrid
-    private TargetManagementFilterParams targetManagementFilterParams;
-
-    public TargetManagementFilterParams getTargetManagementFilterParams() {
-        return targetManagementFilterParams;
-    }
-
-    public void setTargetManagementFilterParams(final TargetManagementFilterParams targetManagementFilterParams) {
-        this.targetManagementFilterParams = targetManagementFilterParams;
-    }
 
     public String getPinnedControllerId() {
         return pinnedControllerId;

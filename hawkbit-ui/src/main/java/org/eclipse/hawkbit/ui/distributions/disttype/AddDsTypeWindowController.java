@@ -18,7 +18,6 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -60,12 +59,7 @@ public class AddDsTypeWindowController extends AbstractEntityWindowController<Pr
     protected ProxyType buildEntityFromProxy(final ProxyType proxyEntity) {
         // We ignore the method parameter, because we are interested in the
         // empty object, that we can populate with defaults
-        final ProxyType dsType = new ProxyType();
-        // TODO: either extract the constant, or define it as a default in model
-        dsType.setColour("#2c9720");
-        dsType.setSmTypeAssign(SmTypeAssign.SINGLE);
-
-        return dsType;
+        return new ProxyType();
     }
 
     @Override

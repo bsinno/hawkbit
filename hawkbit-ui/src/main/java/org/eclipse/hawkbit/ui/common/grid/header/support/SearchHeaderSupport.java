@@ -104,8 +104,6 @@ public class SearchHeaderSupport implements HeaderSupport {
         searchField.setValue("");
         searchField.setVisible(false);
 
-        // TODO: check if it does not lead to additional event being sent, e.g.
-        // onSimpleFilterTab reset. What about ui state?
         searchByCallback.accept(null);
     }
 

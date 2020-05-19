@@ -21,7 +21,6 @@ public class ProxyTag extends ProxyFilterButton {
 
     private static final long serialVersionUID = 1L;
 
-    // TODO: check if dummy 'ProxyNoTag extends ProxyTag' class is better
     private boolean isNoTag;
 
     public ProxyTag() {

@@ -51,10 +51,8 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
         return sourceItemsToAssign;
     }
 
-    // TODO: check if it is a valid check
     private boolean isNoTagAssigned(final List<ProxyTag> targetTagsToAssign) {
-        return targetTagsToAssign.stream()
-                .anyMatch(targetTag -> targetTag.getName().equals(i18n.getMessage("label.no.tag.assigned")));
+        return targetTagsToAssign.stream().anyMatch(ProxyTag::isNoTag);
     }
 
     @Override
@@ -64,8 +62,8 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
 
     @Override
     protected void performAssignment(final List<ProxyTag> sourceItemsToAssign, final ProxyDistributionSet targetItem) {
-        // TODO: fix (we are taking first tag because multi-tag assignment is
-        // not supported)
+        // we are taking first tag because multi-tag assignment is
+        // not supported
         final String tagName = sourceItemsToAssign.get(0).getName();
         final Long tagId = sourceItemsToAssign.get(0).getId();
 
@@ -76,10 +74,8 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
             return;
         }
 
-        // TODO: try not to map here if possible
-        final List<ProxyTarget> proxyTargetsToAssign = mapTargetsToProxyTargets(targetsToAssign);
-
-        targetsToDistributionSetAssignmentSupport.performAssignment(proxyTargetsToAssign, targetItem);
+        targetsToDistributionSetAssignmentSupport.performAssignment(mapTargetsToProxyTargets(targetsToAssign),
+                targetItem);
     }
 
     private List<Target> getTargetsAssignedToTag(final Long tagId) {
@@ -87,10 +83,12 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
     }
 
     private List<ProxyTarget> mapTargetsToProxyTargets(final List<Target> targetsToAssign) {
+        // it is redundant to use TargetToProxyTargetMapper here
         return targetsToAssign.stream().map(target -> {
             final ProxyTarget proxyTarget = new ProxyTarget();
 
             proxyTarget.setId(target.getId());
+            proxyTarget.setControllerId(target.getControllerId());
             proxyTarget.setName(target.getName());
 
             return proxyTarget;

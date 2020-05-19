@@ -63,8 +63,6 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
 
     public abstract AddMetaDataWindowController getAddMetaDataWindowController();
 
-    // TODO: check if could be substituted by read/write bean and binder has
-    // value changed validation
     private void resetSaveButton() {
         // used to disable save button after setting the initial bean values
         getMetaDataAddUpdateWindowLayout().getValidationCallback()

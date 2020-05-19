@@ -107,7 +107,7 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
         this.dsFilterListener = new FilterChangedListener<>(eventBus, ProxyDistributionSet.class,
                 new EventViewAware(EventView.DEPLOYMENT), distributionGrid.getFilterSupport());
         this.pinningChangedListener = new PinningChangedListener<>(eventBus, ProxyTarget.class,
-                distributionGrid::updatePinnedTarget);
+                distributionGrid.getPinSupport());
         this.masterDsChangedListener = new SelectionChangedListener<>(eventBus,
                 new EventLayoutViewAware(EventLayout.DS_LIST, EventView.DEPLOYMENT), getMasterDsAwareComponents());
         this.dsModifiedListener = new EntityModifiedListener.Builder<>(eventBus, ProxyDistributionSet.class)

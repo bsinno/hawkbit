@@ -174,7 +174,6 @@ public class DeploymentView extends VerticalLayout implements View, BrowserWindo
         addComponent(mainLayout);
         setExpandRatio(mainLayout, 1.0F);
 
-        // TODO: check if we can do better
         if (targetCountLayout != null) {
             addComponent(targetCountLayout);
         }

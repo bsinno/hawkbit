@@ -80,7 +80,7 @@ public class UpdateDsTypeWindowController extends AbstractEntityWindowController
         dsType.setId(proxyEntity.getId());
         dsType.setName(proxyEntity.getName());
         dsType.setDescription(proxyEntity.getDescription());
-        dsType.setColour(StringUtils.hasText(proxyEntity.getColour()) ? proxyEntity.getColour() : "#2c9720");
+        dsType.setColour(proxyEntity.getColour());
         dsType.setKey(proxyEntity.getKey());
         dsType.setSelectedSmTypes(getSmTypesByDsTypeId(proxyEntity.getId()));
 

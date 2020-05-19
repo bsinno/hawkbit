@@ -14,7 +14,13 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 public class ProxyFilterButton extends ProxyNamedEntity {
     private static final long serialVersionUID = 1L;
 
+    public static final String DEFAULT_COLOR = "#2c9720";
+
     private String colour;
+
+    public ProxyFilterButton() {
+        this.colour = DEFAULT_COLOR;
+    }
 
     public String getColour() {
         return colour;

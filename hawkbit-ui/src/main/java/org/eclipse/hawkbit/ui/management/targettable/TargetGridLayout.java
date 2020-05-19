@@ -116,7 +116,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         this.targetFilterListener = new FilterChangedListener<>(eventBus, ProxyTarget.class,
                 new EventViewAware(EventView.DEPLOYMENT), targetGrid.getFilterSupport());
         this.pinningChangedListener = new PinningChangedListener<>(eventBus, ProxyDistributionSet.class,
-                targetGrid::updatePinnedDs);
+                targetGrid.getPinSupport());
         this.targetChangedListener = new SelectionChangedListener<>(eventBus,
                 new EventLayoutViewAware(EventLayout.TARGET_LIST, EventView.DEPLOYMENT),
                 getMasterTargetAwareComponents());
@@ -143,9 +143,10 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
     private List<EntityModifiedAwareSupport> getTargetModifiedAwareSupports() {
         return Arrays.asList(
-                EntityModifiedGridRefreshAwareSupport.of(targetGrid::refreshAll), EntityModifiedSelectionAwareSupport
-                        .of(targetGrid.getSelectionSupport(), targetGrid::mapIdToProxyEntity),
-                EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport()));
+                EntityModifiedSelectionAwareSupport.of(targetGrid.getSelectionSupport(),
+                        targetGrid::mapIdToProxyEntity),
+                EntityModifiedPinAwareSupport.of(targetGrid.getPinSupport(), true, true),
+                EntityModifiedGridRefreshAwareSupport.of(targetGrid::refreshAll));
     }
 
     private List<EntityModifiedAwareSupport> getTagModifiedAwareSupports() {

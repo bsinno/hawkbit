@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
@@ -29,29 +30,40 @@ import org.springframework.util.CollectionUtils;
  *            The type of identifier assigned and installed ids are related to
  */
 public class PinSupport<T extends ProxyIdentifiableEntity, F> {
-    private final BiConsumer<PinBehaviourType, T> pinningChangedCallback;
-
-    private T pinnedItem;
-
     // used to change the pinning style
     private final Consumer<T> refreshItemCallback;
 
-    private final Collection<Long> assignedIds;
-    private final Collection<Long> installedIds;
+    private final BiConsumer<PinBehaviourType, T> publishPinningChangedCallback;
+    private final Consumer<T> updatePinnedUiStateCallback;
+
+    private final Supplier<Optional<F>> getPinFilterCallback;
+    private final Consumer<F> updatePinFilterCallback;
 
     private final Function<F, Collection<Long>> assignedIdsProvider;
     private final Function<F, Collection<Long>> installedIdsProvider;
+    private final Collection<Long> assignedIds;
+    private final Collection<Long> installedIds;
 
-    public PinSupport(final BiConsumer<PinBehaviourType, T> pinningChangedCallback,
-            final Consumer<T> refreshItemCallback, final Function<F, Collection<Long>> assignedIdsProvider,
+    private T pinnedItem;
+
+    public PinSupport(final Consumer<T> refreshItemCallback,
+            final BiConsumer<PinBehaviourType, T> publishPinningChangedCallback,
+            final Consumer<T> updatePinnedUiStateCallback, final Supplier<Optional<F>> getPinFilterCallback,
+            final Consumer<F> updatePinFilterCallback, final Function<F, Collection<Long>> assignedIdsProvider,
             final Function<F, Collection<Long>> installedIdsProvider) {
-        this.pinningChangedCallback = pinningChangedCallback;
         this.refreshItemCallback = refreshItemCallback;
+
+        this.publishPinningChangedCallback = publishPinningChangedCallback;
+        this.updatePinnedUiStateCallback = updatePinnedUiStateCallback;
+
+        this.getPinFilterCallback = getPinFilterCallback;
+        this.updatePinFilterCallback = updatePinFilterCallback;
+
         this.assignedIdsProvider = assignedIdsProvider;
         this.installedIdsProvider = installedIdsProvider;
-
         this.assignedIds = new ArrayList<>();
         this.installedIds = new ArrayList<>();
+
         this.pinnedItem = null;
     }
 
@@ -60,24 +72,49 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
             pinnedItem = null;
 
             refreshItemCallback.accept(item);
-            pinningChangedCallback.accept(PinBehaviourType.UNPINNED, item);
+            onPinningChanged(PinBehaviourType.UNPINNED, item);
         } else {
             // used to reset styling of pinned items' grid
-            clearAssignedAndInstalled();
+            if (isPinFilterActive()) {
+                clearAssignedAndInstalled();
+            }
 
             final T previouslyPinnedItem = pinnedItem;
             pinnedItem = item;
 
+            // used to change the icon of previously pinned item to unpinned
+            // state
             if (previouslyPinnedItem != null) {
                 refreshItemCallback.accept(previouslyPinnedItem);
             }
+
             refreshItemCallback.accept(item);
-            pinningChangedCallback.accept(PinBehaviourType.PINNED, item);
+            onPinningChanged(PinBehaviourType.PINNED, item);
         }
     }
 
     private boolean isPinned(final Long itemId) {
         return pinnedItem != null && pinnedItem.getId().equals(itemId);
+    }
+
+    private void onPinningChanged(final PinBehaviourType pinType, final T item) {
+        // used to remove pin filter when pinning the grids' item
+        if (isPinFilterActive()) {
+            updatePinFilterCallback.accept(null);
+        }
+
+        publishPinningChangedCallback.accept(pinType, item);
+
+        updatePinnedUiStateCallback.accept(pinType == PinBehaviourType.PINNED ? item : null);
+    }
+
+    private boolean isPinFilterActive() {
+        return getPinFilterCallback.get().isPresent();
+    }
+
+    private void clearAssignedAndInstalled() {
+        assignedIds.clear();
+        installedIds.clear();
     }
 
     public Optional<T> getPinnedItem() {
@@ -97,6 +134,10 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
     }
 
     public String getAssignedOrInstalledRowStyle(final Long itemId) {
+        if (!isPinFilterActive()) {
+            return null;
+        }
+
         if (!CollectionUtils.isEmpty(installedIds) && installedIds.contains(itemId)) {
             return SPUIDefinitions.HIGHLIGHT_GREEN;
         }
@@ -108,18 +149,25 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
         return null;
     }
 
-    public boolean assignedOrInstalledNotEmpty() {
-        return !CollectionUtils.isEmpty(assignedIds) || !CollectionUtils.isEmpty(installedIds);
+    public void restorePinning(final T itemToRestore) {
+        pinnedItem = itemToRestore;
     }
 
-    public void unPinItemIfInIds(final Collection<Long> itemIds) {
-        if (pinnedItem != null && !CollectionUtils.isEmpty(itemIds) && itemIds.contains(pinnedItem.getId())) {
-            pinningChangedCallback.accept(PinBehaviourType.UNPINNED, pinnedItem);
-            pinnedItem = null;
+    public void updatePinFilter(final F pinFilter) {
+        // used to remove grids' pinned item when applying the pin filter
+        if (clearPinning()) {
+            updatePinnedUiStateCallback.accept(null);
         }
+
+        if (pinFilter == null && !isPinFilterActive()) {
+            return;
+        }
+
+        repopulateAssignedAndInstalled(pinFilter);
+        updatePinFilterCallback.accept(pinFilter);
     }
 
-    public boolean clearPinning() {
+    private boolean clearPinning() {
         if (pinnedItem != null) {
             final T previouslyPinnedItem = pinnedItem;
             pinnedItem = null;
@@ -132,22 +180,30 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
         return false;
     }
 
-    public void restorePinning(final T itemToRestore) {
-        pinnedItem = itemToRestore;
-    }
-
-    public void repopulateAssignedAndInstalled(final F assignedOrInstalledToId) {
+    public void repopulateAssignedAndInstalled(final F pinFilter) {
         clearAssignedAndInstalled();
 
-        if (assignedOrInstalledToId != null) {
-            assignedIds.addAll(assignedIdsProvider.apply(assignedOrInstalledToId));
-            installedIds.addAll(installedIdsProvider.apply(assignedOrInstalledToId));
+        if (pinFilter != null) {
+            assignedIds.addAll(assignedIdsProvider.apply(pinFilter));
+            installedIds.addAll(installedIdsProvider.apply(pinFilter));
         }
     }
 
-    public void clearAssignedAndInstalled() {
-        assignedIds.clear();
-        installedIds.clear();
+    public void repopulateAssignedAndInstalled() {
+        getPinFilterCallback.get().ifPresent(this::repopulateAssignedAndInstalled);
+    }
+
+    public boolean isPinItemInIds(final Collection<Long> itemIds) {
+        return pinnedItem != null && !CollectionUtils.isEmpty(itemIds) && itemIds.contains(pinnedItem.getId());
+    }
+
+    public void removePinning() {
+        onPinningChanged(PinBehaviourType.UNPINNED, pinnedItem);
+        pinnedItem = null;
+    }
+
+    public void reApplyPinning() {
+        onPinningChanged(PinBehaviourType.PINNED, pinnedItem);
     }
 
     public enum PinBehaviourType {

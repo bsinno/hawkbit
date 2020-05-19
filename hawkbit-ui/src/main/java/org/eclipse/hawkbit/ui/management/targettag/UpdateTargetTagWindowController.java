@@ -64,7 +64,7 @@ public class UpdateTargetTagWindowController extends AbstractEntityWindowControl
         targetTag.setId(proxyEntity.getId());
         targetTag.setName(proxyEntity.getName());
         targetTag.setDescription(proxyEntity.getDescription());
-        targetTag.setColour(StringUtils.hasText(proxyEntity.getColour()) ? proxyEntity.getColour() : "#2c9720");
+        targetTag.setColour(proxyEntity.getColour());
 
         nameBeforeEdit = proxyEntity.getName();
 

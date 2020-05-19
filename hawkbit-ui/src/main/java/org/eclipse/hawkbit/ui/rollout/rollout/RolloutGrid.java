@@ -73,6 +73,8 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private static final long serialVersionUID = 1L;
 
+    private static final String ROLLOUT_CAPTION_MSG_KEY = "caption.rollout";
+
     private static final String ROLLOUT_LINK_ID = "rollout";
     private static final String DIST_NAME_VERSION_ID = "distNameVersion";
     private static final String STATUS_ID = "status";
@@ -131,8 +133,9 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                 this::mapIdToProxyEntity, this::getSelectedEntityIdFromUiState, this::setSelectedEntityIdToUiState));
         getSelectionSupport().disableSelection();
 
-        this.rolloutDeleteSupport = new DeleteSupport<>(this, i18n, uiNotification, i18n.getMessage("caption.rollout"),
-                ProxyRollout::getName, this::deleteRollout, UIComponentIdProvider.ROLLOUT_DELETE_CONFIRMATION_DIALOG);
+        this.rolloutDeleteSupport = new DeleteSupport<>(this, i18n, uiNotification,
+                i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY), ProxyRollout::getName, this::deleteRollout,
+                UIComponentIdProvider.ROLLOUT_DELETE_CONFIRMATION_DIALOG);
         this.rolloutDeleteSupport.setConfirmationQuestionDetailsGenerator(this::getDeletionDetails);
 
         setFilterSupport(new FilterSupport<>(new RolloutDataProvider(rolloutManagement, rolloutMapper)));
@@ -270,7 +273,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         return i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_STATUS_PREFIX + status.toString().toLowerCase());
     }
 
-    // TODO reuse code from else where
+    // TODO remove duplication with other grid classes by extracting to
+    // GridComponentBuilder/SPUIComponentProvider
     private void initActionTypeIconMap() {
         actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT,
                 SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
@@ -439,7 +443,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
         rolloutLink.addClickListener(clickEvent -> onClickOfRolloutName(rollout));
         rolloutLink.setId(new StringBuilder("rollout.link.").append(rollout.getId()).toString());
-        // TODO reuse link style code from elsewhere
+        // TODO remove duplication of defining the named link with other grid
+        // classes by extracting to GridComponentBuilder/SPUIComponentProvider
         rolloutLink.addStyleName("borderless");
         rolloutLink.addStyleName("small");
         rolloutLink.addStyleName("on-focus-no-border");
@@ -494,7 +499,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private void approveRollout(final ProxyRollout rollout) {
         final Window approveWindow = rolloutWindowBuilder.getWindowForApproveRollout(rollout);
 
-        approveWindow.setCaption(i18n.getMessage("caption.approve", i18n.getMessage("caption.rollout")));
+        approveWindow.setCaption(i18n.getMessage("caption.approve", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
         UI.getCurrent().addWindow(approveWindow);
         approveWindow.setVisible(Boolean.TRUE);
     }
@@ -502,7 +507,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private void updateRollout(final ProxyRollout rollout) {
         final Window updateWindow = rolloutWindowBuilder.getWindowForUpdate(rollout);
 
-        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage("caption.rollout")));
+        updateWindow.setCaption(i18n.getMessage("caption.update", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
         UI.getCurrent().addWindow(updateWindow);
         updateWindow.setVisible(Boolean.TRUE);
     }
@@ -510,7 +515,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private void copyRollout(final ProxyRollout rollout) {
         final Window copyWindow = rolloutWindowBuilder.getWindowForCopyRollout(rollout);
 
-        copyWindow.setCaption(i18n.getMessage("caption.copy", i18n.getMessage("caption.rollout")));
+        copyWindow.setCaption(i18n.getMessage("caption.copy", i18n.getMessage(ROLLOUT_CAPTION_MSG_KEY)));
         UI.getCurrent().addWindow(copyWindow);
         copyWindow.setVisible(Boolean.TRUE);
     }

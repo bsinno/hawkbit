@@ -30,8 +30,6 @@ public class MetadataWindowGridHeader extends AbstractGridHeader {
             final UIEventBus eventBus, final Runnable addNewItemCallback) {
         super(i18n, permChecker, eventBus);
 
-        // TODO: consider moving permission check to header support or parent
-        // header
         if (permChecker.hasCreateRepositoryPermission()) {
             this.addHeaderSupport = new AddHeaderSupport(i18n, UIComponentIdProvider.METADTA_ADD_ICON_ID,
                     addNewItemCallback, () -> false);

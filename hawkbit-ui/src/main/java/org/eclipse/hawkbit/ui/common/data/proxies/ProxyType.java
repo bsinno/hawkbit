@@ -31,11 +31,15 @@ public class ProxyType extends ProxyFilterButton {
 
     private int maxAssignments;
 
+    public ProxyType() {
+        this.smTypeAssign = SmTypeAssign.SINGLE;
+    }
+
     public String getKey() {
         return key;
     }
 
-    public String getKeyAndName(){
+    public String getKeyAndName() {
         return key + " (" + getName() + ")";
     }
 

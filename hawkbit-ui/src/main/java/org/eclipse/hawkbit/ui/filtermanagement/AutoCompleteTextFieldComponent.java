@@ -160,7 +160,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         } else {
             showValidationFailureIcon(message);
         }
-        // TODO is refirering event ok?
+
         fireEvent(createValueChange(newQuery, false));
         listeners.forEach(listener -> listener.validationChanged(valid, message));
     }

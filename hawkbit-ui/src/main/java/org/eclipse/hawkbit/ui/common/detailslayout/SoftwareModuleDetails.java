@@ -96,8 +96,6 @@ public class SoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwa
     public void masterEntityChanged(final ProxySoftwareModule entity) {
         super.masterEntityChanged(entity);
 
-        // TODO: consider populating the grid only when metadata tab is/becomes
-        // active (lazy loading)
         smMetadataGrid.masterEntityChanged(entity != null ? entity.getId() : null);
     }
 }

@@ -232,8 +232,6 @@ public class UploadProgressInfoWindow extends Window {
 
     private void closeWindow() {
         setWindowMode(WindowMode.NORMAL);
-        // TODO: do we need this?
-        // setColumnWidth();
         setPopupSizeInMinMode();
         close();
     }

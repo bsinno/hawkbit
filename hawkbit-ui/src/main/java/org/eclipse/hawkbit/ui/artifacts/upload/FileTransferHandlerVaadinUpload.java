@@ -59,6 +59,7 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
     FileTransferHandlerVaadinUpload(final long maxSize, final SoftwareModuleManagement softwareManagement,
             final ArtifactManagement artifactManagement, final VaadinMessageSource i18n, final Lock uploadLock) {
         super(artifactManagement, i18n, uploadLock);
+
         this.maxSize = maxSize;
         this.softwareModuleManagement = softwareManagement;
     }
@@ -102,11 +103,6 @@ public class FileTransferHandlerVaadinUpload extends AbstractFileTransferHandler
     private SoftwareModule getSelectedSoftwareModule() {
         final Long lastSelectedSmId = getUploadState().getSmGridLayoutUiState().getSelectedEntityId();
 
-        // TODO: check if needed
-        // if (getUploadState().isMoreThanOneSoftwareModulesSelected()) {
-        // throw new IllegalStateException("More than one SoftwareModul selected
-        // but only one is allowed");
-        // }
         return softwareModuleManagement.get(lastSelectedSmId)
                 .orElseThrow(() -> new IllegalStateException("SoftwareModul with unknown ID selected"));
     }

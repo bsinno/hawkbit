@@ -18,52 +18,76 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.Enti
 
 public class EntityModifiedPinAwareSupport<T extends ProxyIdentifiableEntity> implements EntityModifiedAwareSupport {
     private final PinSupport<T, ?> pinSupport;
+
+    private final boolean shouldUpdatePinStylingOnUpdate;
+    private final boolean shouldReApplyPinningOnUpdate;
+
     private final LongFunction<Optional<T>> getFromBackendCallback;
-    private final Predicate<T> shouldUnpinnCallback;
+    private final Predicate<T> shouldUnpinnOnUpdateCallback;
 
     public EntityModifiedPinAwareSupport(final PinSupport<T, ?> pinSupport,
-            final LongFunction<Optional<T>> getFromBackendCallback, final Predicate<T> shouldUnpinnCallback) {
+            final boolean shouldUpdatePinStylingOnUpdate, final boolean shouldReApplyPinningOnUpdate,
+            final LongFunction<Optional<T>> getFromBackendCallback, final Predicate<T> shouldUnpinnOnUpdateCallback) {
         this.pinSupport = pinSupport;
+
+        this.shouldUpdatePinStylingOnUpdate = shouldUpdatePinStylingOnUpdate;
+        this.shouldReApplyPinningOnUpdate = shouldReApplyPinningOnUpdate;
+
         this.getFromBackendCallback = getFromBackendCallback;
-        this.shouldUnpinnCallback = shouldUnpinnCallback;
+        this.shouldUnpinnOnUpdateCallback = shouldUnpinnOnUpdateCallback;
     }
 
     public static <E extends ProxyIdentifiableEntity> EntityModifiedPinAwareSupport<E> of(
-            final PinSupport<E, ?> pinSupport) {
-        return of(pinSupport, null, null);
+            final PinSupport<E, ?> pinSupport, final boolean shouldUpdatePinStylingOnUpdate,
+            final boolean shouldReApplyPinningOnUpdate) {
+        return new EntityModifiedPinAwareSupport<>(pinSupport, shouldUpdatePinStylingOnUpdate,
+                shouldReApplyPinningOnUpdate, null, null);
     }
 
     public static <E extends ProxyIdentifiableEntity> EntityModifiedPinAwareSupport<E> of(
             final PinSupport<E, ?> pinSupport, final LongFunction<Optional<E>> getFromBackendCallback,
-            final Predicate<E> shouldUnpinnCallback) {
-        return new EntityModifiedPinAwareSupport<>(pinSupport, getFromBackendCallback, shouldUnpinnCallback);
+            final Predicate<E> shouldUnpinnOnUpdateCallback) {
+        return new EntityModifiedPinAwareSupport<>(pinSupport, false, false, getFromBackendCallback,
+                shouldUnpinnOnUpdateCallback);
     }
 
     @Override
     public void onEntitiesUpdated(final Collection<Long> entityIds) {
-        if (pinSupport == null || getFromBackendCallback == null || shouldUnpinnCallback == null) {
+        if (pinSupport == null) {
             return;
         }
 
-        pinSupport.getPinnedItemId().ifPresent(pinnedItemId -> {
-            if (!entityIds.contains(pinnedItemId)) {
-                return;
+        if (shouldUpdatePinStylingOnUpdate) {
+            pinSupport.repopulateAssignedAndInstalled();
+        }
+
+        if (pinSupport.isPinItemInIds(entityIds)) {
+            if (shouldReApplyPinningOnUpdate) {
+                pinSupport.reApplyPinning();
             }
 
-            getFromBackendCallback.apply(pinnedItemId).ifPresent(updatedItem -> {
-                if (shouldUnpinnCallback.test(updatedItem)) {
-                    pinSupport.changeItemPinning(updatedItem);
-                }
-            });
+            if (getFromBackendCallback != null && shouldUnpinnOnUpdateCallback != null) {
+                unpinInvalidItem();
+            }
+        }
+    }
+
+    private void unpinInvalidItem() {
+        pinSupport.getPinnedItemId().flatMap(getFromBackendCallback::apply).ifPresent(updatedPinnedItem -> {
+            if (shouldUnpinnOnUpdateCallback.test(updatedPinnedItem)) {
+                pinSupport.removePinning();
+            }
         });
     }
 
     @Override
     public void onEntitiesDeleted(final Collection<Long> entityIds) {
-        if (pinSupport == null) {
+        if (pinSupport == null || !pinSupport.isPinItemInIds(entityIds)) {
             return;
         }
 
-        pinSupport.unPinItemIfInIds(entityIds);
+        if (pinSupport.isPinItemInIds(entityIds)) {
+            pinSupport.removePinning();
+        }
     }
 }

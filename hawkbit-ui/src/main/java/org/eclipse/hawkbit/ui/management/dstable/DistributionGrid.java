@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
@@ -82,20 +83,20 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
         this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.deploymentManagement = deploymentManagement;
 
-        this.pinSupport = new PinSupport<>(this::publishPinningChangedEvent, this::refreshItem,
-                this::getAssignedToTargetDsIds, this::getInstalledToTargetDsIds);
+        this.pinSupport = new PinSupport<>(this::refreshItem, this::publishPinningChangedEvent,
+                this::updatePinnedUiState, this::getPinFilter, this::updatePinFilter, this::getAssignedToTargetDsIds,
+                this::getInstalledToTargetDsIds);
 
         final Map<String, AssignmentSupport<?, ProxyDistributionSet>> sourceTargetAssignmentStrategies = new HashMap<>();
 
         final DeploymentAssignmentWindowController assignmentController = new DeploymentAssignmentWindowController(i18n,
-                uiProperties, eventBus, notification, deploymentManagement, targetGridLayoutUiState,
-                distributionGridLayoutUiState);
+                uiProperties, eventBus, notification, deploymentManagement);
         final TargetsToDistributionSetAssignmentSupport targetsToDsAssignment = new TargetsToDistributionSetAssignmentSupport(
                 notification, i18n, permissionChecker, assignmentController);
         final TargetTagsToDistributionSetAssignmentSupport targetTagsToDsAssignment = new TargetTagsToDistributionSetAssignmentSupport(
                 notification, i18n, targetManagement, targetsToDsAssignment);
         final DsTagsToDistributionSetAssignmentSupport dsTagsToDsAssignment = new DsTagsToDistributionSetAssignmentSupport(
-                notification, i18n, distributionSetManagement, distributionTagLayoutUiState, eventBus);
+                notification, i18n, distributionSetManagement, eventBus);
 
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TABLE_ID, targetsToDsAssignment);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToDsAssignment);
@@ -127,21 +128,23 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
     }
 
     private void publishPinningChangedEvent(final PinBehaviourType pinType, final ProxyDistributionSet pinnedItem) {
-        if (isPinFilterActive()) {
-            getFilterSupport().updateFilter(DsManagementFilterParams::setPinnedTargetControllerId, null);
-        }
-
         eventBus.publish(EventTopics.PINNING_CHANGED, this,
                 new PinningChangedEventPayload<Long>(
                         pinType == PinBehaviourType.PINNED ? PinningChangedEventType.ENTITY_PINNED
                                 : PinningChangedEventType.ENTITY_UNPINNED,
                         ProxyDistributionSet.class, pinnedItem.getId()));
-
-        distributionGridLayoutUiState.setPinnedDsId(pinType == PinBehaviourType.PINNED ? pinnedItem.getId() : null);
     }
 
-    private boolean isPinFilterActive() {
-        return getFilter().map(DsManagementFilterParams::getPinnedTargetControllerId).isPresent();
+    private void updatePinnedUiState(final ProxyDistributionSet pinnedItem) {
+        distributionGridLayoutUiState.setPinnedDsId(pinnedItem != null ? pinnedItem.getId() : null);
+    }
+
+    private Optional<String> getPinFilter() {
+        return getFilter().map(DsManagementFilterParams::getPinnedTargetControllerId);
+    }
+
+    private void updatePinFilter(final String pinnedControllerId) {
+        getFilterSupport().updateFilter(DsManagementFilterParams::setPinnedTargetControllerId, pinnedControllerId);
     }
 
     private Collection<Long> getAssignedToTargetDsIds(final String controllerId) {
@@ -150,11 +153,7 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
         final Long assignedDsId = deploymentManagement.getAssignedDistributionSet(controllerId)
                 .map(DistributionSet::getId).orElse(null);
 
-        if (assignedDsId != null) {
-            return Collections.singletonList(assignedDsId);
-        }
-
-        return Collections.emptyList();
+        return assignedDsId != null ? Collections.singletonList(assignedDsId) : Collections.emptyList();
     }
 
     private Collection<Long> getInstalledToTargetDsIds(final String controllerId) {
@@ -165,31 +164,12 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
     }
 
     private void initTargetPinningStyleGenerator() {
-        setStyleGenerator(ds -> {
-            if (isPinFilterActive() && pinSupport.assignedOrInstalledNotEmpty()) {
-                return pinSupport.getAssignedOrInstalledRowStyle(ds.getId());
-            }
-
-            return null;
-        });
+        setStyleGenerator(ds -> pinSupport.getAssignedOrInstalledRowStyle(ds.getId()));
     }
 
     @Override
     public String getGridId() {
         return UIComponentIdProvider.DIST_TABLE_ID;
-    }
-
-    public void updatePinnedTarget(final String pinnedControllerId) {
-        if (pinSupport.clearPinning()) {
-            distributionGridLayoutUiState.setPinnedDsId(null);
-        }
-
-        if (StringUtils.isEmpty(pinnedControllerId) && !isPinFilterActive()) {
-            return;
-        }
-
-        pinSupport.repopulateAssignedAndInstalled(pinnedControllerId);
-        getFilterSupport().updateFilter(DsManagementFilterParams::setPinnedTargetControllerId, pinnedControllerId);
     }
 
     @Override

@@ -27,7 +27,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-//TODO: remove duplication with target tag
+//TODO: remove duplication with UpdateTargetTagWindowController
 public class UpdateDsTagWindowController extends AbstractEntityWindowController<ProxyTag, ProxyTag> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
@@ -65,7 +65,7 @@ public class UpdateDsTagWindowController extends AbstractEntityWindowController<
         dsTag.setId(proxyEntity.getId());
         dsTag.setName(proxyEntity.getName());
         dsTag.setDescription(proxyEntity.getDescription());
-        dsTag.setColour(StringUtils.hasText(proxyEntity.getColour()) ? proxyEntity.getColour() : "#2c9720");
+        dsTag.setColour(proxyEntity.getColour());
 
         nameBeforeEdit = proxyEntity.getName();
 

@@ -90,7 +90,8 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         headerComponentsLayout.setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
         headerComponentsLayout.setExpandRatio(headerCaption, 0.4F);
 
-        // TODO: adapt Expand Ratios for header support components
+        // TODO: adapt Expand Ratios for header support components and header
+        // caption so that they do not overlap
         headerSupports.stream().filter(Objects::nonNull).forEach(headerSupport -> {
             final Component headerComponent = headerSupport.getHeaderComponent();
 

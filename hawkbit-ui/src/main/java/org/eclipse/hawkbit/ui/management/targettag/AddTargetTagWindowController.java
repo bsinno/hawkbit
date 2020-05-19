@@ -56,11 +56,7 @@ public class AddTargetTagWindowController extends AbstractEntityWindowController
     protected ProxyTag buildEntityFromProxy(final ProxyTag proxyEntity) {
         // We ignore the method parameter, because we are interested in the
         // empty object, that we can populate with defaults
-        final ProxyTag targetTag = new ProxyTag();
-        // TODO: either extract the constant, or define it as a default in model
-        targetTag.setColour("#2c9720");
-
-        return targetTag;
+        return new ProxyTag();
     }
 
     @Override

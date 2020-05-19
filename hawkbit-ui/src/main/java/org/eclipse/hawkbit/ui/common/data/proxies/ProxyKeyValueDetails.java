@@ -11,8 +11,6 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 /**
  * Proxy for key-value details.
  */
-// TODO: check if we need to implement Serializable and override equals and
-// hashcode
 public class ProxyKeyValueDetails {
 
     private final String id;

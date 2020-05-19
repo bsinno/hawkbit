@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -29,16 +28,13 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class DsTagsToDistributionSetAssignmentSupport
         extends TagsAssignmentSupport<ProxyDistributionSet, DistributionSet> {
     private final DistributionSetManagement distributionSetManagement;
-    private final TagFilterLayoutUiState distributionTagLayoutUiState;
     private final UIEventBus eventBus;
 
     public DsTagsToDistributionSetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final DistributionSetManagement distributionSetManagement,
-            final TagFilterLayoutUiState distributionTagLayoutUiState, final UIEventBus eventBus) {
+            final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus) {
         super(notification, i18n);
 
         this.distributionSetManagement = distributionSetManagement;
-        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.eventBus = eventBus;
     }
 
@@ -54,13 +50,5 @@ public class DsTagsToDistributionSetAssignmentSupport
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, targetItem.getId()));
 
-        // TODO: should we additionally send tag assignment event in order to
-        // refresh the grid?
-        // if ((tagsAssignmentResult.getUnassigned() > 0 &&
-        // !CollectionUtils.isEmpty(distributionTagLayoutUiState.getClickedDsTagIdsWithName()))
-        // || (tagsAssignmentResult.getAssigned() > 0 &&
-        // distributionTagLayoutUiState.isNoTagClicked())) {
-        // eventBus.publish("tagAssignmentChanged", this, new
-        // TagAssignmentPayload(...);
     }
 }

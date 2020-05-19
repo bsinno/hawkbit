@@ -13,8 +13,6 @@ import java.util.List;
 /**
  * Proxy for target attributes details.
  */
-// TODO: check if we need to implement Serializable and override equals and
-// hashcode
 public class ProxyTargetAttributesDetails {
 
     private final String controllerId;

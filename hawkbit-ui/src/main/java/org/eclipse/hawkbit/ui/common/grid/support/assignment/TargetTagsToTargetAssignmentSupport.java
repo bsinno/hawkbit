@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -29,16 +28,13 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<ProxyTarget, Target> {
     private final TargetManagement targetManagement;
     private final UIEventBus eventBus;
-    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
 
     public TargetTagsToTargetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final TargetManagement targetManagement, final UIEventBus eventBus,
-            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
+            final TargetManagement targetManagement, final UIEventBus eventBus) {
         super(notification, i18n);
 
         this.targetManagement = targetManagement;
         this.eventBus = eventBus;
-        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
     }
 
     @Override
@@ -51,14 +47,5 @@ public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<P
             final ProxyTarget targetItem) {
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, targetItem.getId()));
-
-        // TODO: should we additionally send tag assignment event in order to
-        // refresh the grid?
-        // if ((tagsAssignmentResult.getUnassigned() > 0 &&
-        // !CollectionUtils.isEmpty(targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName()))
-        // || (tagsAssignmentResult.getAssigned() > 0 &&
-        // targetTagFilterLayoutUiState.isNoTagClicked())) {
-        // eventBus.publish("tagAssignmentChanged", this, new
-        // TagAssignmentPayload(...);}
     }
 }

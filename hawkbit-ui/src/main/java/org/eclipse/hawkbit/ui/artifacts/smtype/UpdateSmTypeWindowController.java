@@ -65,7 +65,7 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
         smType.setId(proxyEntity.getId());
         smType.setName(proxyEntity.getName());
         smType.setDescription(proxyEntity.getDescription());
-        smType.setColour(StringUtils.hasText(proxyEntity.getColour()) ? proxyEntity.getColour() : "#2c9720");
+        smType.setColour(proxyEntity.getColour());
         smType.setKey(proxyEntity.getKey());
         smType.setSmTypeAssign(getSmTypeAssignById(proxyEntity.getId()));
 

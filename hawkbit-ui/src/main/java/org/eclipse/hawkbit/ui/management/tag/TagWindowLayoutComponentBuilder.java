@@ -73,7 +73,7 @@ public class TagWindowLayoutComponentBuilder {
                                     // TODO: use i18n
                                     uiNotification.displayValidationError(
                                             "There is no mapping for the provided colour: " + colorString);
-                                    return ColorUtil.stringToColor("#2c9720");
+                                    return ColorUtil.stringToColor(ProxyFilterButton.DEFAULT_COLOR);
                                 }
                             }
                         })

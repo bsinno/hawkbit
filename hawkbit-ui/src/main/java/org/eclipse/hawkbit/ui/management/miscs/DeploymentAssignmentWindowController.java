@@ -29,15 +29,12 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
-import org.eclipse.hawkbit.ui.management.targettable.TargetGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
@@ -52,24 +49,17 @@ public class DeploymentAssignmentWindowController {
     private final UINotification notification;
     private final DeploymentManagement deploymentManagement;
 
-    private final TargetGridLayoutUiState targetGridLayoutUiState;
-    private final DistributionGridLayoutUiState distributionGridLayoutUiState;
-
     private final AssignmentWindowLayout assignmentWindowLayout;
 
     private ProxyAssignmentWindow proxyAssignmentWindow;
 
     public DeploymentAssignmentWindowController(final VaadinMessageSource i18n, final UiProperties uiProperties,
             final UIEventBus eventBus, final UINotification notification,
-            final DeploymentManagement deploymentManagement, final TargetGridLayoutUiState targetGridLayoutUiState,
-            final DistributionGridLayoutUiState distributionGridLayoutUiState) {
+            final DeploymentManagement deploymentManagement) {
         this.i18n = i18n;
         this.eventBus = eventBus;
         this.notification = notification;
         this.deploymentManagement = deploymentManagement;
-
-        this.targetGridLayoutUiState = targetGridLayoutUiState;
-        this.distributionGridLayoutUiState = distributionGridLayoutUiState;
 
         this.assignmentWindowLayout = new AssignmentWindowLayout(i18n, uiProperties);
     }
@@ -81,7 +71,6 @@ public class DeploymentAssignmentWindowController {
     public void populateWithData() {
         proxyAssignmentWindow = new ProxyAssignmentWindow();
 
-        // TODO: remove duplication with AddRolloutWindowController
         proxyAssignmentWindow.setActionType(ActionType.FORCED);
         proxyAssignmentWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
         proxyAssignmentWindow.setMaintenanceTimeZone(SPDateTimeUtil.getClientTimeZoneOffsetId());
@@ -129,10 +118,6 @@ public class DeploymentAssignmentWindowController {
             // use the last one for the notification box
             showAssignmentResultNotifications(assignmentResults.get(assignmentResults.size() - 1));
 
-            final Set<String> assignedControllerIds = proxyTargets.stream().map(ProxyTarget::getControllerId)
-                    .collect(Collectors.toSet());
-            refreshPinnedDetails(dsIdsToAssign, assignedControllerIds);
-
             final Set<Long> assignedTargetIds = proxyTargets.stream().map(ProxyTarget::getId)
                     .collect(Collectors.toSet());
             eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
@@ -156,20 +141,6 @@ public class DeploymentAssignmentWindowController {
         if (assignmentResult.getAlreadyAssigned() > 0) {
             notification.displaySuccess(
                     i18n.getMessage("message.target.alreadyAssigned", assignmentResult.getAlreadyAssigned()));
-        }
-    }
-
-    // TODO: check if needed
-    private void refreshPinnedDetails(final Set<Long> assignedDsIds, final Set<String> assignedControllerIds) {
-        final Long pinnedDsId = distributionGridLayoutUiState.getPinnedDsId();
-        final String pinnedControllerId = targetGridLayoutUiState.getPinnedControllerId();
-
-        if (pinnedDsId != null && assignedDsIds.contains(pinnedDsId)) {
-            // eventBus.publish(this, PinUnpinEvent.PIN_DISTRIBUTION);
-        }
-
-        if (!StringUtils.isEmpty(pinnedControllerId) && assignedControllerIds.contains(pinnedControllerId)) {
-            // eventBus.publish(this, PinUnpinEvent.PIN_TARGET);
         }
     }
 

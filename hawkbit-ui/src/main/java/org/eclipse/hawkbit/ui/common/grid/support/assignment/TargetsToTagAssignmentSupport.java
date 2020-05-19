@@ -68,25 +68,13 @@ public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget
         // TODO: check if it could be extracted from HawkbitCommonUtil
         notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
 
-        publishTagAssignmentEvent(tagsAssignmentResult, sourceItemsToAssign, targetItem);
+        publishTagAssignmentEvent(sourceItemsToAssign);
     }
 
-    private void publishTagAssignmentEvent(final TargetTagAssignmentResult tagsAssignmentResult,
-            final List<ProxyTarget> sourceItemsToAssign, final ProxyTag targetItem) {
+    private void publishTagAssignmentEvent(final List<ProxyTarget> sourceItemsToAssign) {
         final List<Long> assignedTargetIds = sourceItemsToAssign.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, assignedTargetIds));
-
-        // TODO: should we additionally send tag assignment event in order to
-        // refresh the grid?
-        // if ((tagsAssignmentResult.getUnassigned() > 0 &&
-        // !CollectionUtils.isEmpty(targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName()
-        // &&
-        // targetTagFilterLayoutUiState.getClickedTargetTagIdsWithName().keySet().contains(targetItem.getId()))
-        // || (tagsAssignmentResult.getAssigned() > 0 &&
-        // targetTagFilterLayoutUiState.isNoTagClicked())) {
-        // eventBus.publish("tagAssignmentChanged", this, new
-        // TagAssignmentPayload(...);}
     }
 }

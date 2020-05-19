@@ -36,7 +36,6 @@ public abstract class AssignmentSupport<S, T> {
         if (sourceItemsToAssign instanceof List) {
             assignSourceItemsToTargetItem((List<S>) sourceItemsToAssign, targetItem);
         } else {
-            // TODO: consider providing more specific message
             showGenericErrorNotification();
         }
     }
@@ -46,10 +45,6 @@ public abstract class AssignmentSupport<S, T> {
             showGenericErrorNotification();
             return;
         }
-
-        // TODO: check if needed
-        // selectDraggedEntities(source, sourceItemsToAssign);
-        // selectDroppedEntities(targetItem);
 
         final List<S> filteredSourceItems = getFilteredSourceItems(sourceItemsToAssign, targetItem);
         if (filteredSourceItems.isEmpty()) {

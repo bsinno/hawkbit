@@ -63,7 +63,6 @@ public class AddMetaDataWindowController extends AbstractEntityWindowController<
     protected void persistEntity(final ProxyMetaData entity) {
         final MetaData newMetaData = createMetaDataCallback.apply(entity);
 
-        // TODO: check if could be substituted by the event
         saveMetaDataCallback.accept(entity);
 
         uiNotification.displaySuccess(i18n.getMessage("message.metadata.saved", newMetaData.getKey()));
