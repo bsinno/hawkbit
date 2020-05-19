@@ -49,9 +49,11 @@
 
   //Tag button wrapper style
   .filter-btn-wrapper {
-    width: 112px !important;
     background: none;
-    text-align: left;
+    
+    .font-icon {
+      margin-right: 6px;
+    }
   }
   
   .simple-tag-filter-header{

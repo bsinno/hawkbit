@@ -130,8 +130,8 @@ public class CommonDialogWindow extends Window {
         mainLayout.addComponent(buttonLayout);
         mainLayout.setComponentAlignment(buttonLayout, Alignment.TOP_CENTER);
 
+        setCaptionAsHtml(false);
         setCaption(caption);
-        setCaptionAsHtml(true);
         setContent(mainLayout);
         setResizable(false);
         center();

@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
@@ -27,7 +28,10 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -40,6 +44,9 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> extends AbstractGrid<T, F> {
     private static final long serialVersionUID = 1L;
+
+    protected static final double FILTER_FULL_WIDTH = 148d;
+    protected static final double FILTER_EDIT_WIDTH = 123d;
 
     protected static final String DEFAULT_GREEN = "rgb(44,151,32)";
 
@@ -77,7 +84,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildFilterButton).setId(FILTER_BUTTON_COLUMN_ID).setMinimumWidth(120d)
+        addComponentColumn(this::buildFilterButtonLayout).setId(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_FULL_WIDTH)
                 .setStyleGenerator(item -> {
                     if (getFilterButtonClickBehaviour().isFilterPreviouslyClicked(item)) {
                         return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
@@ -85,25 +92,50 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
                         return null;
                     }
                 });
-        addComponentColumn(this::buildEditFilterButton).setId(FILTER_BUTTON_EDIT_ID).setHidden(true);
-        addComponentColumn(this::buildDeleteFilterButton).setId(FILTER_BUTTON_DELETE_ID).setHidden(true);
+        addComponentColumn(this::buildEditFilterButton).setId(FILTER_BUTTON_EDIT_ID).setWidth(25d).setHidden(true);
+        addComponentColumn(this::buildDeleteFilterButton).setId(FILTER_BUTTON_DELETE_ID).setWidth(25d).setHidden(true);
     }
 
-    private Button buildFilterButton(final T clickedFilter) {
-        final Button filterButton = SPUIComponentProvider.getButton(
-                getFilterButtonIdPrefix() + "." + clickedFilter.getId(), clickedFilter.getName(),
+    private HorizontalLayout buildFilterButtonLayout(final T clickedFilter) {
+        final Label colourIcon = buildColourIcon(clickedFilter.getId(), Optional.ofNullable(clickedFilter.getColour()));
+        final Button filterName = buildFilterNameButton(clickedFilter);
+
+        final HorizontalLayout filterButtonLayout = new HorizontalLayout();
+        filterButtonLayout.setSpacing(false);
+        filterButtonLayout.setMargin(false);
+        filterButtonLayout.setSizeFull();
+        filterButtonLayout.addStyleName(SPUIStyleDefinitions.FILTER_BUTTON_WRAPPER);
+
+        filterButtonLayout.addComponent(colourIcon);
+        filterButtonLayout.setComponentAlignment(colourIcon, Alignment.TOP_LEFT);
+        filterButtonLayout.setExpandRatio(colourIcon, 0.0F);
+
+        filterButtonLayout.addComponent(filterName);
+        filterButtonLayout.setComponentAlignment(filterName, Alignment.TOP_LEFT);
+        filterButtonLayout.setExpandRatio(filterName, 1.0F);
+
+        return filterButtonLayout;
+    }
+
+    private final Label buildColourIcon(final Long clickedFilterId, final Optional<String> colour) {
+        final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcons.CIRCLE, ValoTheme.LABEL_TINY, "",
+                colour.orElse(DEFAULT_GREEN));
+        final String colourIconId = new StringBuilder(getFilterButtonIdPrefix()).append(".colour-icon.")
+                .append(clickedFilterId).toString();
+
+        return SPUIComponentProvider.getLabelIcon(colourFontIcon, colourIconId);
+    }
+
+    private Button buildFilterNameButton(final T clickedFilter) {
+        final String filterNameId = new StringBuilder(getFilterButtonIdPrefix()).append(".")
+                .append(clickedFilter.getId()).toString();
+
+        final Button filterNameButton = SPUIComponentProvider.getButton(filterNameId, clickedFilter.getName(),
                 clickedFilter.getName(), null, false, null, SPUITagButtonStyle.class);
-        filterButton.addStyleName(SPUIStyleDefinitions.FILTER_BUTTON_WRAPPER);
-        filterButton.addStyleName("text-cut");
 
-        final String colour = clickedFilter.getColour() != null ? clickedFilter.getColour() : DEFAULT_GREEN;
-        filterButton.setCaption(
-                new ProxyFontIcon(VaadinIcons.CIRCLE, "", "", colour).getHtml() + " " + clickedFilter.getName());
-        filterButton.setCaptionAsHtml(true);
+        filterNameButton.addClickListener(event -> getFilterButtonClickBehaviour().processFilterClick(clickedFilter));
 
-        filterButton.addClickListener(event -> getFilterButtonClickBehaviour().processFilterClick(clickedFilter));
-
-        return filterButton;
+        return filterNameButton;
     }
 
     /**
@@ -141,13 +173,21 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     public void hideActionColumns() {
         getColumn(FILTER_BUTTON_EDIT_ID).setHidden(true);
         getColumn(FILTER_BUTTON_DELETE_ID).setHidden(true);
+        getColumn(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_FULL_WIDTH);
+        recalculateColumnWidths();
     }
 
     public void showDeleteColumn() {
         getColumn(FILTER_BUTTON_DELETE_ID).setHidden(false);
+        getColumn(FILTER_BUTTON_EDIT_ID).setHidden(true);
+        getColumn(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_EDIT_WIDTH);
+        recalculateColumnWidths();
     }
 
     public void showEditColumn() {
         getColumn(FILTER_BUTTON_EDIT_ID).setHidden(false);
+        getColumn(FILTER_BUTTON_DELETE_ID).setHidden(true);
+        getColumn(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_EDIT_WIDTH);
+        recalculateColumnWidths();
     }
 }

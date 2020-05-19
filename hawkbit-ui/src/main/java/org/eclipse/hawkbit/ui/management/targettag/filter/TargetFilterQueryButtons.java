@@ -23,6 +23,8 @@ import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.filterlayout.AbstractFilterButtonClickBehaviour.ClickBehaviourType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
+import org.eclipse.hawkbit.ui.decorators.SPUITagButtonStyle;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -38,7 +40,9 @@ import com.vaadin.ui.themes.ValoTheme;
 public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuery, String> {
     private static final long serialVersionUID = 1L;
 
-    protected static final String FILTER_BUTTON_COLUMN_ID = "filterButton";
+    private static final double FILTER_FULL_WIDTH = 148d;
+
+    private static final String FILTER_BUTTON_COLUMN_ID = "filterButton";
 
     private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
 
@@ -84,26 +88,21 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildTfqButton).setId(FILTER_BUTTON_COLUMN_ID).setStyleGenerator(item -> {
-            if (customTargetTagFilterButtonClick.isFilterPreviouslyClicked(item)) {
-                return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
-            } else {
-                return null;
-            }
-        });
+        addComponentColumn(this::buildTfqButton).setId(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_FULL_WIDTH)
+                .setStyleGenerator(item -> {
+                    if (customTargetTagFilterButtonClick.isFilterPreviouslyClicked(item)) {
+                        return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
+                    } else {
+                        return null;
+                    }
+                });
     }
 
     private Button buildTfqButton(final ProxyTargetFilterQuery filterQuery) {
-        final Button tfqButton = new Button(filterQuery.getName());
-
         // TODO: use constant for Id
-        tfqButton.setId("customFilter." + filterQuery.getId());
-        tfqButton.setDescription(filterQuery.getName());
-        tfqButton.addStyleName("generatedColumnPadding");
-        tfqButton.addStyleName("button-no-border");
-        tfqButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
-        tfqButton.addStyleName("button-tag-no-border");
-        tfqButton.addStyleName("custom-filter-button");
+        final Button tfqButton = SPUIComponentProvider.getButton("customFilter." + filterQuery.getId(),
+                filterQuery.getName(), filterQuery.getName(), null, false, null, SPUITagButtonStyle.class);
+        tfqButton.setWidthFull();
 
         tfqButton.addClickListener(event -> customTargetTagFilterButtonClick.processFilterClick(filterQuery));
 

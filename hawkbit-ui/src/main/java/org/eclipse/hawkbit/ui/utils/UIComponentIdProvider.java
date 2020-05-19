@@ -1461,19 +1461,19 @@ public final class UIComponentIdProvider {
     /**
      * Target tag button id prefix.
      */
-    public static final String TARGET_TAG_ID_PREFIXS = "target.tag.";
+    public static final String TARGET_TAG_ID_PREFIXS = "target.tag";
     /**
      * Distribution tag button id prefix.
      */
-    public static final String DISTRIBUTION_TAG_ID_PREFIXS = "dist.tag.";
+    public static final String DISTRIBUTION_TAG_ID_PREFIXS = "dist.tag";
     /**
      * Software Module Type button id prefix.
      */
-    public static final String SOFTWARE_MODULE_TYPE_ID_PREFIXS = "swmodule.type.";
+    public static final String SOFTWARE_MODULE_TYPE_ID_PREFIXS = "swmodule.type";
     /**
      * DistributionSet Type button id prefix.
      */
-    public static final String DISTRIBUTION_SET_TYPE_ID_PREFIXS = "dist.set.type.";
+    public static final String DISTRIBUTION_SET_TYPE_ID_PREFIXS = "dist.set.type";
 
     /**
      * /* Private Constructor.

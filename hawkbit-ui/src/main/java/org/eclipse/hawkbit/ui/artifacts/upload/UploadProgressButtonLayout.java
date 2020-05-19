@@ -129,8 +129,6 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         uploadProgressButton = SPUIComponentProvider.getButton(UIComponentIdProvider.UPLOAD_STATUS_BUTTON, "", "", "",
                 false, null, SPUIButtonStyleNoBorder.class);
         uploadProgressButton.addStyleName(SPUIStyleDefinitions.UPLOAD_PROGRESS_INDICATOR_STYLE);
-        uploadProgressButton.setIcon(null);
-        uploadProgressButton.setCaptionAsHtml(true);
         uploadProgressButton.addClickListener(event -> showUploadInfoWindow());
     }
 
