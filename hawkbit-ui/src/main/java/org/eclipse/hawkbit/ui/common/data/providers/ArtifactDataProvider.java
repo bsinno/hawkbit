@@ -8,15 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.model.Artifact;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.common.data.mappers.ArtifactToProxyArtifactMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyArtifact;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
@@ -27,7 +25,6 @@ import org.springframework.data.domain.Sort.Direction;
  * relationship with {@link SoftwareModule}, using its id.
  */
 public class ArtifactDataProvider extends ProxyDataProvider<ProxyArtifact, Artifact, Long> {
-
     private static final long serialVersionUID = 1L;
 
     private final transient ArtifactManagement artifactManagement;
@@ -40,15 +37,20 @@ public class ArtifactDataProvider extends ProxyDataProvider<ProxyArtifact, Artif
     }
 
     @Override
-    protected Optional<Slice<Artifact>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Long> filter) {
-        return filter
-                .map(selectedSwModuleId -> artifactManagement.findBySoftwareModule(pageRequest, selectedSwModuleId));
+    protected Page<Artifact> loadBackendEntities(final PageRequest pageRequest, final Long smId) {
+        if (smId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return artifactManagement.findBySoftwareModule(pageRequest, smId);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> filter) {
-        return filter.map(selectedSwModuleId -> artifactManagement.findBySoftwareModule(pageRequest, selectedSwModuleId)
-                .getTotalElements()).orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Long smId) {
+        if (smId == null) {
+            return 0L;
+        }
+
+        return loadBackendEntities(pageRequest, smId).getTotalElements();
     }
 }

@@ -8,17 +8,17 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionToProxyActionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link Action}, which dynamically loads a batch of
@@ -40,14 +40,20 @@ public class ActionDataProvider extends ProxyDataProvider<ProxyAction, Action, S
     }
 
     @Override
-    protected Optional<Slice<Action>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> filter) {
-        return filter.map(
-                selectedControllerId -> deploymentManagement.findActionsByTarget(selectedControllerId, pageRequest));
+    protected Slice<Action> loadBackendEntities(final PageRequest pageRequest, final String controllerId) {
+        if (StringUtils.isEmpty(controllerId)) {
+            return Page.empty(pageRequest);
+        }
+
+        return deploymentManagement.findActionsByTarget(controllerId, pageRequest);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-        return filter.map(deploymentManagement::countActionsByTarget).orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String controllerId) {
+        if (StringUtils.isEmpty(controllerId)) {
+            return 0L;
+        }
+
+        return deploymentManagement.countActionsByTarget(controllerId);
     }
 }

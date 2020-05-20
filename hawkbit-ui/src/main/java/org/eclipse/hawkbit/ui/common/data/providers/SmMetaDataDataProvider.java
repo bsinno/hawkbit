@@ -25,17 +25,9 @@ public class SmMetaDataDataProvider extends AbstractMetaDataDataProvider<Softwar
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
     public SmMetaDataDataProvider(final SoftwareModuleManagement softwareModuleManagement) {
+        super();
+
         this.softwareModuleManagement = softwareModuleManagement;
-    }
-
-    @Override
-    protected Page<SoftwareModuleMetadata> loadBackendEntities(final PageRequest pageRequest,
-            final Long currentlySelectedSmId) {
-        if (currentlySelectedSmId == null) {
-            return Page.empty(pageRequest);
-        }
-
-        return softwareModuleManagement.findMetaDataBySoftwareModuleId(pageRequest, currentlySelectedSmId);
     }
 
     @Override
@@ -47,12 +39,20 @@ public class SmMetaDataDataProvider extends AbstractMetaDataDataProvider<Softwar
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Long currentlySelectedSmId) {
-        if (currentlySelectedSmId == null) {
+    protected Page<SoftwareModuleMetadata> loadBackendEntities(final PageRequest pageRequest, final Long smId) {
+        if (smId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return softwareModuleManagement.findMetaDataBySoftwareModuleId(pageRequest, smId);
+    }
+
+    @Override
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Long smId) {
+        if (smId == null) {
             return 0L;
         }
 
-        return softwareModuleManagement.findMetaDataBySoftwareModuleId(pageRequest, currentlySelectedSmId)
-                .getTotalElements();
+        return loadBackendEntities(pageRequest, smId).getTotalElements();
     }
 }

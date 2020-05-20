@@ -8,12 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.model.TargetWithActionStatus;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetWithActionStatusToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 
@@ -35,14 +34,21 @@ public class RolloutGroupTargetsDataProvider extends ProxyDataProvider<ProxyTarg
     }
 
     @Override
-    protected Optional<Slice<TargetWithActionStatus>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Long> filter) {
-        return filter.map(rolloutGroupId -> rolloutGroupManagement
-                .findAllTargetsOfRolloutGroupWithActionStatus(pageRequest, rolloutGroupId));
+    protected Slice<TargetWithActionStatus> loadBackendEntities(final PageRequest pageRequest,
+            final Long rolloutGroupId) {
+        if (rolloutGroupId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return rolloutGroupManagement.findAllTargetsOfRolloutGroupWithActionStatus(pageRequest, rolloutGroupId);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> filter) {
-        return filter.map(rolloutGroupManagement::countTargetsOfRolloutsGroup).orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Long rolloutGroupId) {
+        if (rolloutGroupId == null) {
+            return 0L;
+        }
+
+        return rolloutGroupManagement.countTargetsOfRolloutsGroup(rolloutGroupId);
     }
 }

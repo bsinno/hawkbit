@@ -15,7 +15,6 @@ import java.io.Serializable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.RegexCharacterCollection;
 import org.eclipse.hawkbit.repository.RegexCharacterCollection.RegexChar;
@@ -39,6 +38,7 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -187,7 +187,7 @@ public abstract class AbstractFileTransferHandler implements Serializable {
         LOG.info("Upload failed for file {} due to reason: {}", fileUploadId, failureReason);
         final FileUploadProgress fileUploadProgress = new FileUploadProgress(fileUploadId,
                 FileUploadStatus.UPLOAD_FAILED,
-                StringUtils.isBlank(failureReason) ? i18n.getMessage(MESSAGE_UPLOAD_FAILED) : failureReason);
+                StringUtils.hasText(failureReason) ? failureReason : i18n.getMessage(MESSAGE_UPLOAD_FAILED));
         artifactUploadState.updateFileUploadProgress(fileUploadId, fileUploadProgress);
         eventBus.publish(EventTopics.FILE_UPLOAD_CHANGED, this, fileUploadProgress);
     }

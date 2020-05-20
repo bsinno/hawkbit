@@ -25,26 +25,26 @@ public class DsMetaDataDataProvider extends AbstractMetaDataDataProvider<Distrib
     private final transient DistributionSetManagement distributionSetManagement;
 
     public DsMetaDataDataProvider(final DistributionSetManagement distributionSetManagement) {
+        super();
+
         this.distributionSetManagement = distributionSetManagement;
     }
 
     @Override
-    protected Page<DistributionSetMetadata> loadBackendEntities(final PageRequest pageRequest,
-            final Long currentlySelectedDsId) {
-        if (currentlySelectedDsId == null) {
+    protected Page<DistributionSetMetadata> loadBackendEntities(final PageRequest pageRequest, final Long dsId) {
+        if (dsId == null) {
             return Page.empty(pageRequest);
         }
 
-        return distributionSetManagement.findMetaDataByDistributionSetId(pageRequest, currentlySelectedDsId);
+        return distributionSetManagement.findMetaDataByDistributionSetId(pageRequest, dsId);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Long currentlySelectedDsId) {
-        if (currentlySelectedDsId == null) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Long dsId) {
+        if (dsId == null) {
             return 0L;
         }
 
-        return distributionSetManagement.findMetaDataByDistributionSetId(pageRequest, currentlySelectedDsId)
-                .getTotalElements();
+        return loadBackendEntities(pageRequest, dsId).getTotalElements();
     }
 }

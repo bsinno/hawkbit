@@ -8,19 +8,16 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
-import org.eclipse.hawkbit.repository.model.DistributionSetFilter;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter.DistributionSetFilterBuilder;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.filters.DsDistributionsFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 
 /**
  * Data provider for {@link DistributionSet}, which dynamically loads a batch of
@@ -45,26 +42,22 @@ public class DistributionSetDistributionsStateDataProvider
     }
 
     @Override
-    protected Optional<Slice<DistributionSet>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<DsDistributionsFilterParams> filter) {
-        return Optional.of(
-                distributionSetManagement.findByDistributionSetFilter(pageRequest, getDistributionSetFilter(filter)));
-    }
+    protected Page<DistributionSet> loadBackendEntities(final PageRequest pageRequest,
+            final DsDistributionsFilterParams filter) {
+        final DistributionSetFilterBuilder builder = new DistributionSetFilterBuilder().setIsDeleted(false);
 
-    private DistributionSetFilter getDistributionSetFilter(final Optional<DsDistributionsFilterParams> filter) {
-        return filter.map(filterParams -> {
-            final DistributionSetType type = filterParams.getDsTypeId() == null ? null
-                    : distributionSetTypeManagement.get(filterParams.getDsTypeId()).orElse(null);
+        if (filter != null) {
+            final DistributionSetType type = filter.getDsTypeId() == null ? null
+                    : distributionSetTypeManagement.get(filter.getDsTypeId()).orElse(null);
 
-            return new DistributionSetFilterBuilder().setIsDeleted(false).setSearchText(filterParams.getSearchText())
-                    .setSelectDSWithNoTag(false).setType(type);
-        }).orElse(new DistributionSetFilterBuilder().setIsDeleted(false)).build();
+            builder.setSearchText(filter.getSearchText()).setSelectDSWithNoTag(false).setType(type);
+        }
+
+        return distributionSetManagement.findByDistributionSetFilter(pageRequest, builder.build());
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<DsDistributionsFilterParams> filter) {
-        return distributionSetManagement.findByDistributionSetFilter(pageRequest, getDistributionSetFilter(filter))
-                .getTotalElements();
+    protected long sizeInBackEnd(final PageRequest pageRequest, final DsDistributionsFilterParams filter) {
+        return loadBackendEntities(pageRequest, filter).getTotalElements();
     }
-
 }

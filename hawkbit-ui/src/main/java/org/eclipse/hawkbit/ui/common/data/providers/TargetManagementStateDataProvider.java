@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.common.data.providers;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.FilterParams;
 import org.eclipse.hawkbit.repository.TargetManagement;
@@ -43,62 +42,62 @@ public class TargetManagementStateDataProvider
     }
 
     @Override
-    protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<TargetManagementFilterParams> filter) {
-        if (!filter.isPresent()) {
-            return Optional.of(targetManagement.findAll(pageRequest));
+    protected Slice<Target> loadBackendEntities(final PageRequest pageRequest,
+            final TargetManagementFilterParams filter) {
+        if (filter == null) {
+            return targetManagement.findAll(pageRequest);
         }
 
-        return filter.map(filterParams -> {
-            final Long pinnedDistId = filterParams.getPinnedDistId();
-            final String searchText = filterParams.getSearchText();
-            final Collection<TargetUpdateStatus> targetUpdateStatusList = filterParams.getTargetUpdateStatusList();
-            final boolean overdueState = filterParams.isOverdueState();
-            final Long distributionId = filterParams.getDistributionId();
-            final boolean noTagClicked = filterParams.isNoTagClicked();
-            final String[] targetTags = filterParams.getTargetTags().toArray(new String[0]);
-            final Long targetFilterQueryId = filterParams.getTargetFilterQueryId();
+        final Long pinnedDistId = filter.getPinnedDistId();
+        final String searchText = filter.getSearchText();
+        final Collection<TargetUpdateStatus> targetUpdateStatusList = filter.getTargetUpdateStatusList();
+        final boolean overdueState = filter.isOverdueState();
+        final Long distributionId = filter.getDistributionId();
+        final boolean noTagClicked = filter.isNoTagClicked();
+        final String[] targetTags = filter.getTargetTags().toArray(new String[0]);
+        final Long targetFilterQueryId = filter.getTargetFilterQueryId();
 
-            if (pinnedDistId != null) {
-                return targetManagement.findByFilterOrderByLinkedDistributionSet(pageRequest, pinnedDistId,
-                        new FilterParams(targetUpdateStatusList, overdueState, searchText, distributionId, noTagClicked,
-                                targetTags));
+        if (pinnedDistId != null) {
+            return targetManagement.findByFilterOrderByLinkedDistributionSet(pageRequest, pinnedDistId,
+                    new FilterParams(targetUpdateStatusList, overdueState, searchText, distributionId, noTagClicked,
+                            targetTags));
+        }
+
+        if (filter.isAnyFilterSelected()) {
+            if (targetFilterQueryId != null) {
+                return targetManagement.findByTargetFilterQuery(pageRequest, targetFilterQueryId);
             }
 
-            if (filterParams.isAnyFilterSelected()) {
-                if (targetFilterQueryId != null) {
-                    return targetManagement.findByTargetFilterQuery(pageRequest, targetFilterQueryId);
-                }
+            return targetManagement.findByFilters(pageRequest, new FilterParams(targetUpdateStatusList, overdueState,
+                    searchText, distributionId, noTagClicked, targetTags));
+        }
 
-                return targetManagement.findByFilters(pageRequest, new FilterParams(targetUpdateStatusList,
-                        overdueState, searchText, distributionId, noTagClicked, targetTags));
-            }
-
-            return targetManagement.findAll(pageRequest);
-        });
+        return targetManagement.findAll(pageRequest);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<TargetManagementFilterParams> filter) {
-        return filter.map(filterParams -> {
-            final String searchText = filterParams.getSearchText();
-            final Collection<TargetUpdateStatus> targetUpdateStatusList = filterParams.getTargetUpdateStatusList();
-            final boolean overdueState = filterParams.isOverdueState();
-            final Long distributionId = filterParams.getDistributionId();
-            final boolean noTagClicked = filterParams.isNoTagClicked();
-            final String[] targetTags = filterParams.getTargetTags().toArray(new String[0]);
-            final Long targetFilterQueryId = filterParams.getTargetFilterQueryId();
+    protected long sizeInBackEnd(final PageRequest pageRequest, final TargetManagementFilterParams filter) {
+        if (filter == null) {
+            return targetManagement.count();
+        }
 
-            if (filterParams.isAnyFilterSelected()) {
-                if (targetFilterQueryId != null) {
-                    return targetManagement.countByTargetFilterQuery(targetFilterQueryId);
-                }
+        final String searchText = filter.getSearchText();
+        final Collection<TargetUpdateStatus> targetUpdateStatusList = filter.getTargetUpdateStatusList();
+        final boolean overdueState = filter.isOverdueState();
+        final Long distributionId = filter.getDistributionId();
+        final boolean noTagClicked = filter.isNoTagClicked();
+        final String[] targetTags = filter.getTargetTags().toArray(new String[0]);
+        final Long targetFilterQueryId = filter.getTargetFilterQueryId();
 
-                return targetManagement.countByFilters(targetUpdateStatusList, overdueState, searchText, distributionId,
-                        noTagClicked, targetTags);
+        if (filter.isAnyFilterSelected()) {
+            if (targetFilterQueryId != null) {
+                return targetManagement.countByTargetFilterQuery(targetFilterQueryId);
             }
 
-            return targetManagement.count();
-        }).orElse(targetManagement.count());
+            return targetManagement.countByFilters(targetUpdateStatusList, overdueState, searchText, distributionId,
+                    noTagClicked, targetTags);
+        }
+
+        return targetManagement.count();
     }
 }

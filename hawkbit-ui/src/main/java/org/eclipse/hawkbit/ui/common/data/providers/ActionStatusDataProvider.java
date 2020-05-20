@@ -8,15 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.ActionStatus;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatusMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
@@ -40,18 +38,21 @@ public class ActionStatusDataProvider extends ProxyDataProvider<ProxyActionStatu
     }
 
     @Override
-    protected Optional<Slice<ActionStatus>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Long> filter) {
-        return filter.map(currentlySelectedActionId -> deploymentManagement.findActionStatusByAction(pageRequest,
-                currentlySelectedActionId));
+    protected Page<ActionStatus> loadBackendEntities(final PageRequest pageRequest, final Long actionId) {
+        if (actionId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return deploymentManagement.findActionStatusByAction(pageRequest, actionId);
 
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> filter) {
-        return filter
-                .map(currentlySelectedActionId -> deploymentManagement
-                        .findActionStatusByAction(pageRequest, currentlySelectedActionId).getTotalElements())
-                .orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Long actionId) {
+        if (actionId == null) {
+            return 0L;
+        }
+
+        return loadBackendEntities(pageRequest, actionId).getTotalElements();
     }
 }

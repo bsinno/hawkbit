@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
@@ -25,7 +23,6 @@ import org.springframework.data.domain.Sort.Direction;
  * corresponding {@link ProxyType} entities.
  */
 public class DistributionSetTypeDataProvider extends ProxyDataProvider<ProxyType, DistributionSetType, String> {
-
     private static final long serialVersionUID = 1L;
 
     private final transient DistributionSetTypeManagement distributionSetTypeManagement;
@@ -33,17 +30,17 @@ public class DistributionSetTypeDataProvider extends ProxyDataProvider<ProxyType
     public DistributionSetTypeDataProvider(final DistributionSetTypeManagement distributionSetTypeManagement,
             final TypeToProxyTypeMapper<DistributionSetType> mapper) {
         super(mapper, new Sort(Direction.ASC, "name"));
+
         this.distributionSetTypeManagement = distributionSetTypeManagement;
     }
 
     @Override
-    protected Optional<Slice<DistributionSetType>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> filter) {
-        return Optional.of(distributionSetTypeManagement.findAll(pageRequest));
+    protected Slice<DistributionSetType> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+        return distributionSetTypeManagement.findAll(pageRequest);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
         return distributionSetTypeManagement.count();
     }
 

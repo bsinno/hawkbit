@@ -8,16 +8,14 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter.DistributionSetFilterBuilder;
 import org.eclipse.hawkbit.ui.common.data.filters.DsManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.util.StringUtils;
 
 /**
@@ -40,48 +38,28 @@ public class DistributionSetManagementStateDataProvider
     }
 
     @Override
-    protected Optional<Slice<DistributionSet>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<DsManagementFilterParams> filter) {
-        if (!filter.isPresent()) {
-            return Optional.of(distributionSetManagement.findByCompleted(pageRequest, true));
+    protected Page<DistributionSet> loadBackendEntities(final PageRequest pageRequest,
+            final DsManagementFilterParams filter) {
+        if (filter == null) {
+            return distributionSetManagement.findByCompleted(pageRequest, true);
         }
 
-        return filter.map(filterParams -> {
-            final String pinnedTargetControllerId = filterParams.getPinnedTargetControllerId();
-            final DistributionSetFilterBuilder distributionSetFilterBuilder = getDistributionSetFilterBuilder(
-                    filterParams);
+        final String pinnedControllerId = filter.getPinnedTargetControllerId();
+        final DistributionSetFilterBuilder builder = new DistributionSetFilterBuilder().setIsDeleted(false)
+                .setIsComplete(true).setSearchText(filter.getSearchText()).setSelectDSWithNoTag(filter.isNoTagClicked())
+                .setTagNames(filter.getDistributionSetTags());
 
-            if (!StringUtils.isEmpty(pinnedTargetControllerId)) {
-                return distributionSetManagement.findByFilterAndAssignedInstalledDsOrderedByLinkTarget(pageRequest,
-                        distributionSetFilterBuilder, pinnedTargetControllerId);
-            }
+        if (!StringUtils.isEmpty(pinnedControllerId)) {
+            return distributionSetManagement.findByFilterAndAssignedInstalledDsOrderedByLinkTarget(pageRequest, builder,
+                    pinnedControllerId);
+        }
 
-            return distributionSetManagement.findByDistributionSetFilter(pageRequest,
-                    distributionSetFilterBuilder.build());
-        });
-    }
-
-    private DistributionSetFilterBuilder getDistributionSetFilterBuilder(final DsManagementFilterParams filterParams) {
-        return new DistributionSetFilterBuilder().setIsDeleted(false).setIsComplete(true)
-                .setSearchText(filterParams.getSearchText()).setSelectDSWithNoTag(filterParams.isNoTagClicked())
-                .setTagNames(filterParams.getDistributionSetTags());
+        return distributionSetManagement.findByDistributionSetFilter(pageRequest, builder.build());
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<DsManagementFilterParams> filter) {
-        return filter.map(filterParams -> {
-            final String pinnedTargetControllerId = filterParams.getPinnedTargetControllerId();
-            final DistributionSetFilterBuilder distributionSetFilterBuilder = getDistributionSetFilterBuilder(
-                    filterParams);
-
-            if (!StringUtils.isEmpty(pinnedTargetControllerId)) {
-                return distributionSetManagement.findByFilterAndAssignedInstalledDsOrderedByLinkTarget(pageRequest,
-                        distributionSetFilterBuilder, pinnedTargetControllerId).getTotalElements();
-            }
-
-            return distributionSetManagement
-                    .findByDistributionSetFilter(pageRequest, distributionSetFilterBuilder.build()).getTotalElements();
-        }).orElse(distributionSetManagement.findByCompleted(pageRequest, true).getTotalElements());
+    protected long sizeInBackEnd(final PageRequest pageRequest, final DsManagementFilterParams filter) {
+        return loadBackendEntities(pageRequest, filter).getTotalElements();
     }
 
 }

@@ -25,6 +25,8 @@ public class TargetMetaDataDataProvider extends AbstractMetaDataDataProvider<Tar
     private final transient TargetManagement targetManagement;
 
     public TargetMetaDataDataProvider(final TargetManagement targetManagement) {
+        super();
+
         this.targetManagement = targetManagement;
     }
 

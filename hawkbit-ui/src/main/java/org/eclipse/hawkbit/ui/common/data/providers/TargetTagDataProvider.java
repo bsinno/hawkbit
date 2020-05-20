@@ -8,14 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.model.TargetTag;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
@@ -25,7 +23,6 @@ import org.springframework.data.domain.Sort.Direction;
  * {@link ProxyTag} entities.
  */
 public class TargetTagDataProvider extends ProxyDataProvider<ProxyTag, TargetTag, Void> {
-
     private static final long serialVersionUID = 1L;
 
     private final transient TargetTagManagement tagManagementService;
@@ -33,18 +30,18 @@ public class TargetTagDataProvider extends ProxyDataProvider<ProxyTag, TargetTag
     public TargetTagDataProvider(final TargetTagManagement tagManagementService,
             final TagToProxyTagMapper<TargetTag> mapper) {
         super(mapper, new Sort(Direction.ASC, "name"));
+
         this.tagManagementService = tagManagementService;
     }
 
     @Override
-    protected Optional<Slice<TargetTag>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Void> filter) {
-        return Optional.of(tagManagementService.findAll(pageRequest));
+    protected Page<TargetTag> loadBackendEntities(final PageRequest pageRequest, final Void filter) {
+        return tagManagementService.findAll(pageRequest);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
-        return tagManagementService.findAll(pageRequest).getTotalElements();
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Void filter) {
+        return loadBackendEntities(pageRequest, filter).getTotalElements();
     }
 
 }

@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
@@ -18,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link TargetFilterQuery}, which dynamically loads a batch
@@ -38,19 +37,20 @@ public class TargetFilterQueryDataProvider
     }
 
     @Override
-    protected Optional<Slice<TargetFilterQuery>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> filter) {
-        if (!filter.isPresent()) {
-            return Optional.of(targetFilterQueryManagement.findAll(pageRequest));
+    protected Slice<TargetFilterQuery> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+        if (StringUtils.isEmpty(filter)) {
+            return targetFilterQueryManagement.findAll(pageRequest);
         }
 
-        return filter.map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText));
+        return targetFilterQueryManagement.findByName(pageRequest, filter);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-        return filter
-                .map(searchText -> targetFilterQueryManagement.findByName(pageRequest, searchText).getTotalElements())
-                .orElseGet(targetFilterQueryManagement::count);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+        if (StringUtils.isEmpty(filter)) {
+            return targetFilterQueryManagement.count();
+        }
+
+        return targetFilterQueryManagement.findByName(pageRequest, filter).getTotalElements();
     }
 }

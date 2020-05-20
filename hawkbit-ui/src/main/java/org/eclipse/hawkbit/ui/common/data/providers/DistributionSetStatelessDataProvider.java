@@ -8,16 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
-import org.eclipse.hawkbit.repository.model.DistributionSetFilter;
 import org.eclipse.hawkbit.repository.model.DistributionSetFilter.DistributionSetFilterBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.util.StringUtils;
@@ -37,28 +34,24 @@ public class DistributionSetStatelessDataProvider
     public DistributionSetStatelessDataProvider(final DistributionSetManagement distributionSetManagement,
             final DistributionSetToProxyDistributionMapper entityMapper) {
         super(entityMapper, new Sort(Direction.ASC, "name", "version"));
+
         this.distributionSetManagement = distributionSetManagement;
     }
 
     @Override
-    protected Optional<Slice<DistributionSet>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> filter) {
-        return Optional.ofNullable(distributionSetManagement.findByDistributionSetFilter(pageRequest,
-                getDistributionSetFilter(filter.orElse(null))));
-    }
+    protected Page<DistributionSet> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+        final DistributionSetFilterBuilder builder = new DistributionSetFilterBuilder().setIsDeleted(false)
+                .setIsComplete(true);
 
-    private DistributionSetFilter getDistributionSetFilter(final String filter) {
-        final DistributionSetFilterBuilder distributionSetFilterBuilder = new DistributionSetFilterBuilder()
-                .setIsDeleted(false).setIsComplete(true);
+        if (!StringUtils.isEmpty(filter)) {
+            builder.setFilterString(filter);
+        }
 
-        return StringUtils.isEmpty(filter) ? distributionSetFilterBuilder.build()
-                : distributionSetFilterBuilder.setFilterString(filter).build();
+        return distributionSetManagement.findByDistributionSetFilter(pageRequest, builder.build());
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-        return distributionSetManagement
-                .findByDistributionSetFilter(pageRequest, getDistributionSetFilter(filter.orElse(null)))
-                .getTotalElements();
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+        return loadBackendEntities(pageRequest, filter).getTotalElements();
     }
 }

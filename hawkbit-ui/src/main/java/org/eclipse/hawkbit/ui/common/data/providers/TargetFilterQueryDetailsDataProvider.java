@@ -8,14 +8,12 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
@@ -38,15 +36,20 @@ public class TargetFilterQueryDetailsDataProvider
     }
 
     @Override
-    protected Optional<Slice<TargetFilterQuery>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Long> filter) {
-        return filter
-                .map(masterId -> targetFilterQueryManagement.findByAutoAssignDSAndRsql(pageRequest, masterId, null));
+    protected Page<TargetFilterQuery> loadBackendEntities(final PageRequest pageRequest, final Long dsId) {
+        if (dsId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return targetFilterQueryManagement.findByAutoAssignDSAndRsql(pageRequest, dsId, null);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> filter) {
-        return filter.map(masterId -> targetFilterQueryManagement.findByAutoAssignDSAndRsql(pageRequest, masterId, null)
-                .getTotalElements()).orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Long dsId) {
+        if (dsId == null) {
+            return 0L;
+        }
+
+        return loadBackendEntities(pageRequest, dsId).getTotalElements();
     }
 }

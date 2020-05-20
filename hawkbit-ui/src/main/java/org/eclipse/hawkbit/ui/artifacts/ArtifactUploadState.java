@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.ui.artifacts.details.ArtifactDetailsGridLayoutUiState;
 import org.eclipse.hawkbit.ui.artifacts.upload.FileUploadId;
@@ -26,6 +25,7 @@ import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -160,7 +160,7 @@ public class ArtifactUploadState implements Serializable {
         LOG.debug("Cleaning up temp data...");
         // delete file system zombies
         for (final FileUploadProgress fileUploadProgress : getAllFileUploadProgressValuesFromOverallUploadProcessList()) {
-            if (!StringUtils.isBlank(fileUploadProgress.getFilePath())) {
+            if (StringUtils.hasText(fileUploadProgress.getFilePath())) {
                 final boolean deleted = FileUtils.deleteQuietly(new File(fileUploadProgress.getFilePath()));
                 if (!deleted) {
                     LOG.warn("TempFile was not deleted: {}", fileUploadProgress.getFilePath());

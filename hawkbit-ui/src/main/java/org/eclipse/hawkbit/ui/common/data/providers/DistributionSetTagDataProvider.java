@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetTag;
 import org.eclipse.hawkbit.ui.common.data.mappers.TagToProxyTagMapper;
@@ -37,13 +35,12 @@ public class DistributionSetTagDataProvider extends ProxyDataProvider<ProxyTag, 
     }
 
     @Override
-    protected Optional<Slice<DistributionSetTag>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Void> filter) {
-        return Optional.of(distributionSetTagManagement.findAll(pageRequest));
+    protected Slice<DistributionSetTag> loadBackendEntities(final PageRequest pageRequest, final Void filter) {
+        return distributionSetTagManagement.findAll(pageRequest);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Void> filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Void filter) {
         return distributionSetTagManagement.count();
     }
 

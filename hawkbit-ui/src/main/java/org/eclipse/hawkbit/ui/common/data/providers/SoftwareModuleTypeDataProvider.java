@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
@@ -37,13 +35,12 @@ public class SoftwareModuleTypeDataProvider extends ProxyDataProvider<ProxyType,
     }
 
     @Override
-    protected Optional<Slice<SoftwareModuleType>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> filter) {
-        return Optional.of(softwareModuleTypeManagement.findAll(pageRequest));
+    protected Slice<SoftwareModuleType> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+        return softwareModuleTypeManagement.findAll(pageRequest);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
         return softwareModuleTypeManagement.count();
     }
 

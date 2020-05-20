@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
@@ -18,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link Rollout}, which dynamically loads a batch of
@@ -46,17 +45,20 @@ public class RolloutDataProvider extends ProxyDataProvider<ProxyRollout, Rollout
     }
 
     @Override
-    protected Optional<Slice<Rollout>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> filter) {
-        return Optional.of(filter
-                .map(searchText -> rolloutManagement.findByFiltersWithDetailedStatus(pageRequest, searchText, false))
-                .orElseGet(() -> rolloutManagement.findAllWithDetailedStatus(pageRequest, false)));
+    protected Slice<Rollout> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+        if (StringUtils.isEmpty(filter)) {
+            return rolloutManagement.findAllWithDetailedStatus(pageRequest, false);
+        }
+
+        return rolloutManagement.findByFiltersWithDetailedStatus(pageRequest, filter, false);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-        return filter.map(rolloutManagement::countByFilters).orElseGet(rolloutManagement::count);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+        if (StringUtils.isEmpty(filter)) {
+            return rolloutManagement.count();
+        }
 
+        return rolloutManagement.countByFilters(filter);
     }
-
 }

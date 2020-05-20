@@ -8,17 +8,16 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.util.StringUtils;
 
 /**
  * Data provider for {@link Target}, which dynamically loads a batch of
@@ -39,25 +38,20 @@ public class TargetFilterStateDataProvider extends ProxyDataProvider<ProxyTarget
     }
 
     @Override
-    protected Optional<Slice<Target>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> filter) {
-        return filter.map(searchText -> {
-            if (StringUtils.isEmpty(searchText)) {
-                return null;
-            }
+    protected Slice<Target> loadBackendEntities(final PageRequest pageRequest, final String filter) {
+        if (StringUtils.isEmpty(filter)) {
+            return Page.empty(pageRequest);
+        }
 
-            return targetManagement.findByRsql(pageRequest, searchText);
-        });
+        return targetManagement.findByRsql(pageRequest, filter);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> filter) {
-        return filter.map(searchText -> {
-            if (StringUtils.isEmpty(searchText)) {
-                return 0L;
-            }
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String filter) {
+        if (StringUtils.isEmpty(filter)) {
+            return 0L;
+        }
 
-            return targetManagement.countByRsql(searchText);
-        }).orElse(0L);
+        return targetManagement.countByRsql(filter);
     }
 }

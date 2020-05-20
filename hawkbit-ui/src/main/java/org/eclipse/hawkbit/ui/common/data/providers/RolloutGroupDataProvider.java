@@ -8,12 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 
@@ -41,14 +40,21 @@ public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGrou
     }
 
     @Override
-    protected Optional<Slice<RolloutGroup>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Long> filter) {
-        return filter.map(rolloutId -> rolloutGroupManagement.findByRolloutWithDetailedStatus(pageRequest, rolloutId));
+    protected Slice<RolloutGroup> loadBackendEntities(final PageRequest pageRequest, final Long rolloutId) {
+        if (rolloutId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return rolloutGroupManagement.findByRolloutWithDetailedStatus(pageRequest, rolloutId);
 
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> filter) {
-        return filter.map(rolloutGroupManagement::countByRollout).orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Long rolloutId) {
+        if (rolloutId == null) {
+            return 0L;
+        }
+
+        return rolloutGroupManagement.countByRollout(rolloutId);
     }
 }

@@ -8,56 +8,37 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.eclipse.hawkbit.repository.OffsetBasedPageRequest;
-import org.eclipse.hawkbit.repository.model.ActionStatus;
 import org.eclipse.hawkbit.repository.model.MetaData;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-
-import com.vaadin.data.provider.AbstractBackEndDataProvider;
-import com.vaadin.data.provider.Query;
 
 /**
  * Abstract data provider for {@link MetaData}, which dynamically loads a batch
  * of {@link MetaData} entities from backend and maps them to corresponding
  * {@link ProxyMetaData} entities.
  */
-public abstract class AbstractMetaDataDataProvider<T extends MetaData, F>
-        extends AbstractBackEndDataProvider<ProxyMetaData, F> {
+public abstract class AbstractMetaDataDataProvider<U extends MetaData, F>
+        extends GenericDataProvider<ProxyMetaData, U, F> {
     private static final long serialVersionUID = 1L;
 
-    private final Sort defaultSortOrder = new Sort(Direction.DESC, "key");
+    protected AbstractMetaDataDataProvider() {
+        this(new Sort(Direction.DESC, "key"));
+    }
+
+    protected AbstractMetaDataDataProvider(final Sort defaultSortOrder) {
+        super(defaultSortOrder);
+    }
 
     @Override
-    protected Stream<ProxyMetaData> fetchFromBackEnd(final Query<ProxyMetaData, F> query) {
-        return loadBackendEntities(convertToPageRequest(query, defaultSortOrder), query.getFilter().orElse(null))
-                .stream().map(this::createProxyMetaData);
+    protected Stream<ProxyMetaData> getProxyEntities(final Slice<U> backendEntities) {
+        return backendEntities.stream().map(this::createProxyMetaData);
     }
 
-    protected abstract Page<T> loadBackendEntities(final PageRequest pageRequest,
-            final F currentlySelectedMasterEntityId);
-
-    // TODO: remove duplication with ProxyDataProvider
-    private PageRequest convertToPageRequest(final Query<ProxyMetaData, F> query, final Sort sort) {
-        return new OffsetBasedPageRequest(query.getOffset(), query.getLimit(), sort);
-    }
-
-    /**
-     * Creates a list of {@link ProxyActionStatus} for presentation layer from
-     * page of {@link ActionStatus}.
-     *
-     * @param actionBeans
-     *            page of {@link ActionStatus}
-     * @return list of {@link ProxyActionStatus}
-     */
-    protected ProxyMetaData createProxyMetaData(final T metadata) {
+    protected ProxyMetaData createProxyMetaData(final U metadata) {
         final ProxyMetaData proxyMetaData = new ProxyMetaData();
 
         proxyMetaData.setEntityId(metadata.getEntityId());
@@ -66,24 +47,4 @@ public abstract class AbstractMetaDataDataProvider<T extends MetaData, F>
 
         return proxyMetaData;
     }
-
-    @Override
-    protected int sizeInBackEnd(final Query<ProxyMetaData, F> query) {
-        final long size = sizeInBackEnd(convertToPageRequest(query, defaultSortOrder), query.getFilter().orElse(null));
-
-        if (size > Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE;
-        }
-
-        return (int) size;
-    }
-
-    protected abstract long sizeInBackEnd(final PageRequest pageRequest, final F currentlySelectedMasterEntityId);
-
-    @Override
-    public Object getId(final ProxyMetaData item) {
-        Objects.requireNonNull(item, "Cannot provide an id for a null item.");
-        return item.getKey();
-    }
-
 }
