@@ -201,10 +201,7 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
                 uiNotification.displayValidationError(i18n.getMessage("message.error.noSwModuleSelected"));
                 return false;
             }
-            // if (artifactUploadState.isMoreThanOneSoftwareModulesSelected()) {
-            // uiNotification.displayValidationError(i18n.getMessage("message.error.multiSwModuleSelected"));
-            // return false;
-            // }
+
             return true;
         }
     }

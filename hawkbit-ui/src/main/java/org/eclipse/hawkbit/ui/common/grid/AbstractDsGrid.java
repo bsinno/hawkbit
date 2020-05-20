@@ -80,12 +80,12 @@ public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSe
         return dsManagement.get(entityId).map(dsToProxyDistributionMapper::map);
     }
 
-    private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(distributionSetGridLayoutUiState.getSelectedEntityId());
+    private Long getSelectedEntityIdFromUiState() {
+        return distributionSetGridLayoutUiState.getSelectedEntityId();
     }
 
-    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        distributionSetGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
+    private void setSelectedEntityIdToUiState(final Long entityId) {
+        distributionSetGridLayoutUiState.setSelectedEntityId(entityId);
     }
 
     private boolean deleteDistributionSets(final Collection<ProxyDistributionSet> setsToBeDeleted) {

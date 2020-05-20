@@ -46,8 +46,8 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     private final EventView view;
 
     private final LongFunction<Optional<T>> mapIdToProxyEntityFunction;
-    private final Supplier<Optional<Long>> selectedEntityIdUiStateProvider;
-    private final Consumer<Optional<Long>> setSelectedEntityIdUiStateCallback;
+    private final Supplier<Long> selectedEntityIdUiStateProvider;
+    private final Consumer<Long> setSelectedEntityIdUiStateCallback;
 
     private Registration singleSelectListenerRegistration;
     private Registration multiSelectListenerRegistration;
@@ -59,8 +59,8 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
 
     public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final EventLayout layout,
             final EventView view, final LongFunction<Optional<T>> mapIdToProxyEntityFunction,
-            final Supplier<Optional<Long>> selectedEntityIdUiStateProvider,
-            final Consumer<Optional<Long>> setSelectedEntityIdUiStateCallback) {
+            final Supplier<Long> selectedEntityIdUiStateProvider,
+            final Consumer<Long> setSelectedEntityIdUiStateCallback) {
         this.grid = grid;
         this.eventBus = eventBus;
         this.layout = layout;
@@ -122,9 +122,8 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
             return;
         }
 
-        final Optional<Long> selectedItemId = SelectionChangedEventType.ENTITY_SELECTED == selectionType
-                ? Optional.of(itemToSend).map(ProxyIdentifiableEntity::getId)
-                : Optional.empty();
+        final Long selectedItemId = SelectionChangedEventType.ENTITY_SELECTED == selectionType ? itemToSend.getId()
+                : null;
         setSelectedEntityIdUiStateCallback.accept(selectedItemId);
     }
 
@@ -175,7 +174,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
 
     public Optional<Long> getSelectedEntityId() {
         if (isNoSelectionModel() && selectedEntityIdUiStateProvider != null) {
-            return selectedEntityIdUiStateProvider.get();
+            return Optional.ofNullable(selectedEntityIdUiStateProvider.get());
         }
 
         return getSelectedEntity().map(ProxyIdentifiableEntity::getId);
@@ -259,7 +258,7 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
             return;
         }
 
-        final Long lastSelectedEntityId = selectedEntityIdUiStateProvider.get().orElse(null);
+        final Long lastSelectedEntityId = selectedEntityIdUiStateProvider.get();
 
         if (lastSelectedEntityId != null) {
             selectEntityById(lastSelectedEntityId);

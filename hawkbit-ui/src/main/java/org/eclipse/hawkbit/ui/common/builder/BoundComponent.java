@@ -7,6 +7,8 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
+import java.io.Serializable;
+
 import com.vaadin.data.Binder.Binding;
 import com.vaadin.ui.Component;
 
@@ -16,9 +18,11 @@ import com.vaadin.ui.Component;
  * @param <T>
  *            Component type
  */
-public class BoundComponent<T extends Component> {
-    private T component;
-    private Binding<?, ?> binding;
+public class BoundComponent<T extends Component> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private final T component;
+    private final Binding<?, ?> binding;
 
     /**
      * Constructor
@@ -28,7 +32,7 @@ public class BoundComponent<T extends Component> {
      * @param binding
      *            binding of the component
      */
-    public BoundComponent(T component, Binding<?, ?> binding) {
+    public BoundComponent(final T component, final Binding<?, ?> binding) {
         this.component = component;
         this.binding = binding;
     }
@@ -37,7 +41,7 @@ public class BoundComponent<T extends Component> {
         return component;
     }
 
-    public void setRequired(boolean isRequired) {
+    public void setRequired(final boolean isRequired) {
         binding.setAsRequiredEnabled(isRequired);
     }
 }

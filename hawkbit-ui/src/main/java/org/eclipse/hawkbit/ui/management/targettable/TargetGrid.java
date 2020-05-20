@@ -171,12 +171,12 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         return targetManagement.get(entityId).map(targetToProxyTargetMapper::map);
     }
 
-    private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(targetGridLayoutUiState.getSelectedEntityId());
+    private Long getSelectedEntityIdFromUiState() {
+        return targetGridLayoutUiState.getSelectedEntityId();
     }
 
-    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        targetGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
+    private void setSelectedEntityIdToUiState(final Long entityId) {
+        targetGridLayoutUiState.setSelectedEntityId(entityId);
     }
 
     private boolean deleteTargets(final Collection<ProxyTarget> targetsToBeDeleted) {

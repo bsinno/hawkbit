@@ -131,12 +131,12 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         return softwareModuleManagement.get(entityId).map(softwareModuleToProxyMapper::map);
     }
 
-    private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(smGridLayoutUiState.getSelectedEntityId());
+    private Long getSelectedEntityIdFromUiState() {
+        return smGridLayoutUiState.getSelectedEntityId();
     }
 
-    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        smGridLayoutUiState.setSelectedEntityId(entityId.orElse(null));
+    private void setSelectedEntityIdToUiState(final Long entityId) {
+        smGridLayoutUiState.setSelectedEntityId(entityId);
     }
 
     private boolean deleteSoftwareModules(final Collection<ProxySoftwareModule> swModulesToBeDeleted) {

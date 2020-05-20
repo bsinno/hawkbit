@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 import org.eclipse.hawkbit.repository.OffsetBasedPageRequest;
 import org.eclipse.hawkbit.ui.common.data.mappers.IdentifiableEntityToProxyIdentifiableEntityMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -34,6 +36,8 @@ import com.vaadin.data.provider.Query;
 public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U extends Identifiable<Long>, F>
         extends AbstractBackEndDataProvider<T, F> {
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProxyDataProvider.class);
 
     private final Sort defaultSortOrder;
 
@@ -74,6 +78,8 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
         try {
             return Math.toIntExact(size);
         } catch (final ArithmeticException e) {
+            LOG.trace("Error converting size in backend from UI Dataprovider: {}", e.getMessage());
+
             return Integer.MAX_VALUE;
         }
     }

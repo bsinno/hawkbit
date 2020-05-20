@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.TargetMetadata;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
@@ -31,15 +29,22 @@ public class TargetMetaDataDataProvider extends AbstractMetaDataDataProvider<Tar
     }
 
     @Override
-    protected Optional<Page<TargetMetadata>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<String> currentlySelectedControllerId) {
-        return currentlySelectedControllerId
-                .map(controllerId -> targetManagement.findMetaDataByControllerId(pageRequest, controllerId));
+    protected Page<TargetMetadata> loadBackendEntities(final PageRequest pageRequest,
+            final String currentlySelectedControllerId) {
+        if (currentlySelectedControllerId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return targetManagement.findMetaDataByControllerId(pageRequest, currentlySelectedControllerId);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<String> currentlySelectedControllerId) {
-        return currentlySelectedControllerId.map(controllerId -> targetManagement
-                .findMetaDataByControllerId(pageRequest, controllerId).getTotalElements()).orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final String currentlySelectedControllerId) {
+        if (currentlySelectedControllerId == null) {
+            return 0L;
+        }
+
+        return targetManagement.findMetaDataByControllerId(pageRequest, currentlySelectedControllerId)
+                .getTotalElements();
     }
 }

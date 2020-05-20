@@ -92,12 +92,12 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         return rolloutGroupManagement.get(entityId).map(rolloutGroupMapper::map);
     }
 
-    private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(rolloutManagementUIState.getSelectedRolloutGroupId());
+    private Long getSelectedEntityIdFromUiState() {
+        return rolloutManagementUIState.getSelectedRolloutGroupId();
     }
 
-    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        rolloutManagementUIState.setSelectedRolloutGroupId(entityId.orElse(null));
+    private void setSelectedEntityIdToUiState(final Long entityId) {
+        rolloutManagementUIState.setSelectedRolloutGroupId(entityId);
     }
 
     private void initFilterMappings() {
@@ -242,6 +242,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         getDataProvider().refreshItem(proxyRolloutGroup);
     }
 
+    @Override
     public void restoreState() {
         final Long masterEntityId = rolloutManagementUIState.getSelectedRolloutId();
         if (masterEntityId != null) {

@@ -18,9 +18,13 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 public class UpdateMetaDataWindowController extends AbstractEntityWindowController<ProxyMetaData, ProxyMetaData> {
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateMetaDataWindowController.class);
+
     private final VaadinMessageSource i18n;
     private final UINotification uiNotification;
 
@@ -69,6 +73,7 @@ public class UpdateMetaDataWindowController extends AbstractEntityWindowControll
         try {
             updatedMetaData = updateMetaDataCallback.apply(entity);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
+            LOG.trace("Update of meta data failed in UI: {}", e.getMessage());
             // TODO: use i18n
             uiNotification.displayWarning(
                     "Metadata with key " + entity.getKey() + " was deleted or you are not allowed to update it");

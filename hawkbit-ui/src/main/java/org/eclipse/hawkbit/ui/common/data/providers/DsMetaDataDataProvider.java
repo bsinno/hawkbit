@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetMetadata;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
@@ -31,16 +29,22 @@ public class DsMetaDataDataProvider extends AbstractMetaDataDataProvider<Distrib
     }
 
     @Override
-    protected Optional<Page<DistributionSetMetadata>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Long> currentlySelectedDsId) {
-        return currentlySelectedDsId
-                .map(id -> distributionSetManagement.findMetaDataByDistributionSetId(pageRequest, id));
+    protected Page<DistributionSetMetadata> loadBackendEntities(final PageRequest pageRequest,
+            final Long currentlySelectedDsId) {
+        if (currentlySelectedDsId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return distributionSetManagement.findMetaDataByDistributionSetId(pageRequest, currentlySelectedDsId);
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> currentlySelectedDsId) {
-        return currentlySelectedDsId.map(
-                id -> distributionSetManagement.findMetaDataByDistributionSetId(pageRequest, id).getTotalElements())
-                .orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Long currentlySelectedDsId) {
+        if (currentlySelectedDsId == null) {
+            return 0L;
+        }
+
+        return distributionSetManagement.findMetaDataByDistributionSetId(pageRequest, currentlySelectedDsId)
+                .getTotalElements();
     }
 }

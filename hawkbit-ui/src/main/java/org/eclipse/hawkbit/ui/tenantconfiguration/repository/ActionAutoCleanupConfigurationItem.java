@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration.repository;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -137,7 +138,9 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         return ACTION_STATUS_OPTIONS;
     }
 
-    public static class ActionStatusOption {
+    public static class ActionStatusOption implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private static final CharSequence SEPARATOR = " + ";
         private final Set<Status> statusSet;
         private String name;

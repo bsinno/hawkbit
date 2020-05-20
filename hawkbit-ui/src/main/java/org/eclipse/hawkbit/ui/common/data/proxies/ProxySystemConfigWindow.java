@@ -19,9 +19,9 @@ public class ProxySystemConfigWindow implements Serializable {
     private String caRootAuthority;
     private String gatewaySecurityToken;
     private ActionStatusOption actionCleanupStatus;
-    private boolean  pollingOverdue;
+    private boolean pollingOverdue;
     private Duration pollingOverdueDuration;
-    private boolean  pollingTime;
+    private boolean pollingTime;
     private Duration pollingTimeDuration;
     private String actionExpiryDays;
     private boolean rolloutApproval;
@@ -39,7 +39,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 
@@ -47,7 +47,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -55,7 +55,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return caRootAuthority;
     }
 
-    public void setCaRootAuthority(String caRootAuthority) {
+    public void setCaRootAuthority(final String caRootAuthority) {
         this.caRootAuthority = caRootAuthority;
     }
 
@@ -63,7 +63,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return gatewaySecurityToken;
     }
 
-    public void setGatewaySecurityToken(String gatewaySecurityToken) {
+    public void setGatewaySecurityToken(final String gatewaySecurityToken) {
         this.gatewaySecurityToken = gatewaySecurityToken;
     }
 
@@ -71,7 +71,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return pollingTime;
     }
 
-    public void setPollingTime(boolean pollingTime) {
+    public void setPollingTime(final boolean pollingTime) {
         this.pollingTime = pollingTime;
     }
 
@@ -79,7 +79,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return pollingTimeDuration;
     }
 
-    public void setPollingTimeDuration(Duration pollingTimeDuration) {
+    public void setPollingTimeDuration(final Duration pollingTimeDuration) {
         this.pollingTimeDuration = pollingTimeDuration;
     }
 
@@ -87,7 +87,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return pollingOverdue;
     }
 
-    public void setPollingOverdue(boolean pollingOverdue) {
+    public void setPollingOverdue(final boolean pollingOverdue) {
         this.pollingOverdue = pollingOverdue;
     }
 
@@ -95,7 +95,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return pollingOverdueDuration;
     }
 
-    public void setPollingOverdueDuration(Duration pollingOverdueDuration) {
+    public void setPollingOverdueDuration(final Duration pollingOverdueDuration) {
         this.pollingOverdueDuration = pollingOverdueDuration;
     }
 
@@ -103,7 +103,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -115,7 +115,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return actionExpiryDays;
     }
 
-    public void setActionExpiryDays(String actionExpiryDays) {
+    public void setActionExpiryDays(final String actionExpiryDays) {
         this.actionExpiryDays = actionExpiryDays;
     }
 
@@ -123,14 +123,15 @@ public class ProxySystemConfigWindow implements Serializable {
         return actionCleanupStatus;
     }
 
-    public void setActionCleanupStatus(ActionStatusOption actionCleanupStatus) {
+    public void setActionCleanupStatus(final ActionStatusOption actionCleanupStatus) {
         this.actionCleanupStatus = actionCleanupStatus;
     }
+
     public Long getCaRootAuthorityId() {
         return caRootAuthorityId;
     }
 
-    public void setCaRootAuthorityId(Long caRootAuthorityId) {
+    public void setCaRootAuthorityId(final Long caRootAuthorityId) {
         this.caRootAuthorityId = caRootAuthorityId;
     }
 
@@ -138,7 +139,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return certificateAuth;
     }
 
-    public void setCertificateAuth(boolean certificateAuth) {
+    public void setCertificateAuth(final boolean certificateAuth) {
         this.certificateAuth = certificateAuth;
     }
 
@@ -146,7 +147,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return targetSecToken;
     }
 
-    public void setTargetSecToken(boolean targetSecToken) {
+    public void setTargetSecToken(final boolean targetSecToken) {
         this.targetSecToken = targetSecToken;
     }
 
@@ -154,7 +155,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return gatewaySecToken;
     }
 
-    public void setGatewaySecToken(boolean gatewaySecToken) {
+    public void setGatewaySecToken(final boolean gatewaySecToken) {
         this.gatewaySecToken = gatewaySecToken;
     }
 
@@ -162,7 +163,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return downloadAnonymous;
     }
 
-    public void setDownloadAnonymous(boolean downloadAnonymous) {
+    public void setDownloadAnonymous(final boolean downloadAnonymous) {
         this.downloadAnonymous = downloadAnonymous;
     }
 
@@ -170,7 +171,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return actionAutocleanup;
     }
 
-    public void setActionAutocleanup(boolean actionAutocleanup) {
+    public void setActionAutocleanup(final boolean actionAutocleanup) {
         this.actionAutocleanup = actionAutocleanup;
     }
 
@@ -178,7 +179,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return multiAssignments;
     }
 
-    public void setMultiAssignments(boolean multiAssignments) {
+    public void setMultiAssignments(final boolean multiAssignments) {
         this.multiAssignments = multiAssignments;
     }
 
@@ -186,7 +187,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return actionAutoclose;
     }
 
-    public void setActionAutoclose(boolean actionAutoclose) {
+    public void setActionAutoclose(final boolean actionAutoclose) {
         this.actionAutoclose = actionAutoclose;
     }
 
@@ -194,11 +195,11 @@ public class ProxySystemConfigWindow implements Serializable {
         return rolloutApproval;
     }
 
-    public void setRolloutApproval(boolean rolloutApproval) {
+    public void setRolloutApproval(final boolean rolloutApproval) {
         this.rolloutApproval = rolloutApproval;
     }
 
-    public void setDistributionSetTypeId(Long distributionSetTypeId) {
+    public void setDistributionSetTypeId(final Long distributionSetTypeId) {
         this.distributionSetTypeId = distributionSetTypeId;
     }
 
@@ -206,7 +207,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return repositoryConfigId;
     }
 
-    public void setRepositoryConfigId(Long repositoryConfigId) {
+    public void setRepositoryConfigId(final Long repositoryConfigId) {
         this.repositoryConfigId = repositoryConfigId;
     }
 
@@ -214,7 +215,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return rolloutConfigId;
     }
 
-    public void setRolloutConfigId(Long rolloutConfigId) {
+    public void setRolloutConfigId(final Long rolloutConfigId) {
         this.rolloutConfigId = rolloutConfigId;
     }
 
@@ -222,7 +223,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return authConfigId;
     }
 
-    public void setAuthConfigId(Long authConfigId) {
+    public void setAuthConfigId(final Long authConfigId) {
         this.authConfigId = authConfigId;
     }
 
@@ -230,7 +231,7 @@ public class ProxySystemConfigWindow implements Serializable {
         return pollingConfigId;
     }
 
-    public void setPollingConfigId(Long pollingConfigId) {
+    public void setPollingConfigId(final Long pollingConfigId) {
         this.pollingConfigId = pollingConfigId;
     }
 }

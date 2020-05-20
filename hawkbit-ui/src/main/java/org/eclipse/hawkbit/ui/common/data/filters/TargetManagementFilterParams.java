@@ -63,12 +63,23 @@ public class TargetManagementFilterParams implements Serializable {
     }
 
     public boolean isAnyFilterSelected() {
-        return isTagSelected() || overdueState || !CollectionUtils.isEmpty(targetUpdateStatusList)
-                || distributionId != null || !StringUtils.isEmpty(searchText) || targetFilterQueryId != null;
+        return isAnyTagSelected() || isAnyStatusFilterSelected() || isSearchActive() || isAnyComplexFilterSelected();
     }
 
-    private boolean isTagSelected() {
+    private boolean isAnyTagSelected() {
         return !CollectionUtils.isEmpty(targetTags) || noTagClicked;
+    }
+
+    private boolean isAnyStatusFilterSelected() {
+        return !CollectionUtils.isEmpty(targetUpdateStatusList) || overdueState;
+    }
+
+    private boolean isSearchActive() {
+        return !StringUtils.isEmpty(searchText);
+    }
+
+    private boolean isAnyComplexFilterSelected() {
+        return distributionId != null || targetFilterQueryId != null;
     }
 
     public Long getPinnedDistId() {

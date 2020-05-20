@@ -14,6 +14,8 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.cronutils.descriptor.CronDescriptor;
 import com.vaadin.ui.ComboBox;
@@ -28,6 +30,8 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class MaintenanceWindowLayout extends VerticalLayout {
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(MaintenanceWindowLayout.class);
 
     private final VaadinMessageSource i18n;
     private final TextField schedule;
@@ -80,6 +84,7 @@ public class MaintenanceWindowLayout extends VerticalLayout {
         try {
             return cronDescriptor.describe(MaintenanceScheduleHelper.getCronFromExpression(cronExpression));
         } catch (final IllegalArgumentException ex) {
+            LOG.trace("Error in Cron Expression of Maintenance Window in UI: {}", ex.getMessage());
             return i18n.getMessage(UIMessageIdProvider.CRON_VALIDATION_ERROR);
         }
     }

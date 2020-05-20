@@ -155,6 +155,7 @@ public class DeploymentAssignmentWindowController {
                 MaintenanceScheduleHelper.validateMaintenanceSchedule(proxyAssignmentWindow.getMaintenanceSchedule(),
                         proxyAssignmentWindow.getMaintenanceDuration(), proxyAssignmentWindow.getMaintenanceTimeZone());
             } catch (final InvalidMaintenanceScheduleException e) {
+                LOG.trace("Maintenance Window is invalid in UI: {}", e.getMessage());
                 notification.displayValidationError(
                         i18n.getMessage(UIMessageIdProvider.CRON_VALIDATION_ERROR) + ": " + e.getMessage());
                 return false;

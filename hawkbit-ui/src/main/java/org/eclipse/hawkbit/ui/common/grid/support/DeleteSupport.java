@@ -132,10 +132,10 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
         boolean isDeletionSuccessfull = false;
         try {
             isDeletionSuccessfull = itemsDeletionCallback.test(itemsToBeDeleted);
-        } catch (final Exception ex) {
+        } catch (final RuntimeException ex) {
             final String itemsToBeDeletedIds = itemsToBeDeleted.stream().map(ProxyIdentifiableEntity::getId)
                     .map(String::valueOf).collect(Collectors.joining(","));
-            LOG.warn("Deletion of {} with ids '{}' failed", entityType, itemsToBeDeletedIds);
+            LOG.warn("Deletion of {} with ids '{}' failed: {}", entityType, itemsToBeDeletedIds, ex.getMessage());
         }
 
         if (isDeletionSuccessfull) {

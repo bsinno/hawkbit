@@ -15,6 +15,7 @@ import org.springframework.hateoas.Identifiable;
  * Interface for mapping identifiable entities, fetched from backend, to the
  * proxy identifiable entities.
  */
+@FunctionalInterface
 public interface IdentifiableEntityToProxyIdentifiableEntityMapper<T extends ProxyIdentifiableEntity, U extends Identifiable<Long>> {
 
     /**

@@ -21,6 +21,8 @@ import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.Binder.Binding;
@@ -38,6 +40,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * Builder for Assignment window components.
  */
 public class AssignmentWindowLayoutComponentBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(AssignmentWindowLayoutComponentBuilder.class);
 
     private final VaadinMessageSource i18n;
 
@@ -90,6 +93,7 @@ public class AssignmentWindowLayoutComponentBuilder {
                         MaintenanceScheduleHelper.validateCronSchedule(cronSchedule);
                         return ValidationResult.ok();
                     } catch (final InvalidMaintenanceScheduleException e) {
+                        LOG.trace("Cron Schedule of Maintenance Window is invalid in UI: {}", e.getMessage());
                         return ValidationResult.error(
                                 i18n.getMessage(UIMessageIdProvider.CRON_VALIDATION_ERROR) + ": " + e.getMessage());
                     }
@@ -110,6 +114,7 @@ public class AssignmentWindowLayoutComponentBuilder {
                         MaintenanceScheduleHelper.validateDuration(duration);
                         return ValidationResult.ok();
                     } catch (final InvalidMaintenanceScheduleException e) {
+                        LOG.trace("Duration of Maintenance Window is invalid in UI: {}", e.getMessage());
                         return ValidationResult
                                 .error(i18n.getMessage("message.maintenancewindow.duration.validation.error") + ": "
                                         + e.getDurationErrorIndex());

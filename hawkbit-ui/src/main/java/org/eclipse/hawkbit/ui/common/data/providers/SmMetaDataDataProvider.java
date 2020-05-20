@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleMetadata;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
@@ -31,10 +29,13 @@ public class SmMetaDataDataProvider extends AbstractMetaDataDataProvider<Softwar
     }
 
     @Override
-    protected Optional<Page<SoftwareModuleMetadata>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Long> currentlySelectedSmId) {
-        return currentlySelectedSmId
-                .map(id -> softwareModuleManagement.findMetaDataBySoftwareModuleId(pageRequest, id));
+    protected Page<SoftwareModuleMetadata> loadBackendEntities(final PageRequest pageRequest,
+            final Long currentlySelectedSmId) {
+        if (currentlySelectedSmId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return softwareModuleManagement.findMetaDataBySoftwareModuleId(pageRequest, currentlySelectedSmId);
     }
 
     @Override
@@ -46,9 +47,12 @@ public class SmMetaDataDataProvider extends AbstractMetaDataDataProvider<Softwar
     }
 
     @Override
-    protected long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> currentlySelectedSmId) {
-        return currentlySelectedSmId
-                .map(id -> softwareModuleManagement.findMetaDataBySoftwareModuleId(pageRequest, id).getTotalElements())
-                .orElse(0L);
+    protected long sizeInBackEnd(final PageRequest pageRequest, final Long currentlySelectedSmId) {
+        if (currentlySelectedSmId == null) {
+            return 0L;
+        }
+
+        return softwareModuleManagement.findMetaDataBySoftwareModuleId(pageRequest, currentlySelectedSmId)
+                .getTotalElements();
     }
 }

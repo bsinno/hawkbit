@@ -28,7 +28,7 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
     private static final long serialVersionUID = 1L;
 
     protected final VaadinMessageSource i18n;
-    protected final UIEventBus eventBus;
+    protected final transient UIEventBus eventBus;
 
     private final MetadataWindowGridHeader metadataWindowGridHeader;
 

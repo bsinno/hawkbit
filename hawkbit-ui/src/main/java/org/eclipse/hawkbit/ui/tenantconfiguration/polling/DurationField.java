@@ -19,6 +19,8 @@ import java.util.Locale;
 import javax.validation.constraints.NotNull;
 
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.data.Result;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
@@ -35,6 +37,8 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public class DurationField extends DateTimeField {
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(DurationField.class);
 
     private static final String CSS_STYLE_NAME = "durationfield";
     private VaadinMessageSource i18n;
@@ -60,7 +64,7 @@ public class DurationField extends DateTimeField {
         this.setLocale(Locale.GERMANY);
     }
 
-    public void setI18n(VaadinMessageSource i18n) {
+    public void setI18n(final VaadinMessageSource i18n) {
         this.i18n = i18n;
     }
 
@@ -78,13 +82,15 @@ public class DurationField extends DateTimeField {
             return Result.ok(LocalTime.parse(value, DateTimeFormatter.ofPattern(DURATION_FORMAT_STIRNG))
                     .atDate(LocalDate.of(1, 1, 1)));
         } catch (final DateTimeParseException e) {
+            LOG.trace("Parsing date with format {} failed in UI: {}", DURATION_FORMAT_STIRNG, e.getMessage());
             try {
                 final String adaptedValue = "000000".substring(Math.min(value.length(), 6)) + value;
                 final LocalTime parsedTime = LocalTime.parse(adaptedValue,
                         DateTimeFormatter.ofPattern(ADDITIONAL_DURATION_STRING));
                 return Result.ok(parsedTime.atDate(LocalDate.of(1, 1, 1)));
             } catch (final DateTimeParseException ex) {
-                return Result.error(i18n.getMessage("Input is not in HH:MM:SS format."));
+                LOG.trace("Parsing date with format {} failed in UI: {}", ADDITIONAL_DURATION_STRING, ex.getMessage());
+                return Result.error(i18n.getMessage("configuration.datetime.format.invalid"));
             }
         }
     }
@@ -99,8 +105,8 @@ public class DurationField extends DateTimeField {
         if (value == null && minimumDuration != null) {
             return minimumDuration;
         }
-        if (value != null && minimumDuration != null && maximumDuration != null && minimumDuration.isBefore(
-                maximumDuration)) {
+        if (value != null && minimumDuration != null && maximumDuration != null
+                && minimumDuration.isBefore(maximumDuration)) {
 
             if (compareTimeOfDates(value, maximumDuration) > 0) {
                 return maximumDuration;
@@ -121,14 +127,14 @@ public class DurationField extends DateTimeField {
      * comparing the time and ignores the values for day, month and year.
      *
      * @param d1
-     *         date, which time will compared with the time of d2
+     *            date, which time will compared with the time of d2
      * @param d2
-     *         date, which time will compared with the time of d1
+     *            date, which time will compared with the time of d1
      *
      * @return the value 0 if the time represented d1 is equal to the time
-     * represented by d2; a value less than 0 if the time of d1 is
-     * before the time of d2; and a value greater than 0 if the time of
-     * d1 is after the time represented by d2.
+     *         represented by d2; a value less than 0 if the time of d1 is
+     *         before the time of d2; and a value greater than 0 if the time of
+     *         d1 is after the time represented by d2.
      */
     private static int compareTimeOfDates(final LocalDateTime d1, final LocalDateTime d2) {
         return d1.toLocalTime().compareTo(d2.toLocalTime());
@@ -138,12 +144,10 @@ public class DurationField extends DateTimeField {
      * Sets the duration value
      *
      * @param duration
-     *         duration, only values less then 23:59:59 are excepted
+     *            duration, only values less then 23:59:59 are excepted
      */
 
-    public void setDuration(
-            @NotNull
-            final Duration duration) {
+    public void setDuration(@NotNull final Duration duration) {
         if (duration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The duaration has to be smaller than 23:59:59.");
         }
@@ -154,11 +158,9 @@ public class DurationField extends DateTimeField {
      * Sets the minimal allowed duration value as a String
      *
      * @param minimumDuration
-     *         minimum Duration, only values smaller 23:59:59 are excepted
+     *            minimum Duration, only values smaller 23:59:59 are excepted
      */
-    public void setMinimumDuration(
-            @NotNull
-            final Duration minimumDuration) {
+    public void setMinimumDuration(@NotNull final Duration minimumDuration) {
         if (minimumDuration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The minimum duaration has to be smaller than 23:59:59.");
         }
@@ -169,11 +171,9 @@ public class DurationField extends DateTimeField {
      * Sets the maximum allowed duration value as a String
      *
      * @param maximumDuration
-     *         maximumDuration, only values smaller 23:59:59 are excepted
+     *            maximumDuration, only values smaller 23:59:59 are excepted
      */
-    public void setMaximumDuration(
-            @NotNull
-            final Duration maximumDuration) {
+    public void setMaximumDuration(@NotNull final Duration maximumDuration) {
         if (maximumDuration.compareTo(MAXIMUM_DURATION) > 0) {
             throw new IllegalArgumentException("The maximum duaration has to be smaller than 23:59:59.");
         }

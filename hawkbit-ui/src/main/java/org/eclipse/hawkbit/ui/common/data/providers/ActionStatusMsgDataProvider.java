@@ -9,16 +9,13 @@
 package org.eclipse.hawkbit.ui.common.data.providers;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.OffsetBasedPageRequest;
 import org.eclipse.hawkbit.repository.model.ActionStatus;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,14 +47,19 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
 
     @Override
     protected Stream<ProxyMessage> fetchFromBackEnd(final Query<ProxyMessage, Long> query) {
-        return loadBackendEntities(convertToPageRequest(query, defaultSortOrder), query.getFilter())
-                .map(this::createProxyMessages).orElse(Collections.emptyList()).stream();
+        return query.getFilter()
+                .map(filter -> createProxyMessages(
+                        loadBackendEntities(convertToPageRequest(query, defaultSortOrder), filter)).stream())
+                .orElse(Stream.empty());
     }
 
-    private Optional<Page<String>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<Long> currentlySelectedActionStatusId) {
-        return currentlySelectedActionStatusId
-                .map(id -> deploymentManagement.findMessagesByActionStatusId(pageRequest, id));
+    private Page<String> loadBackendEntities(final PageRequest pageRequest,
+            final Long currentlySelectedActionStatusId) {
+        if (currentlySelectedActionStatusId == null) {
+            return Page.empty(pageRequest);
+        }
+
+        return deploymentManagement.findMessagesByActionStatusId(pageRequest, currentlySelectedActionStatusId);
     }
 
     // TODO: remove duplication with ProxyDataProvider
@@ -65,14 +67,6 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
         return new OffsetBasedPageRequest(query.getOffset(), query.getLimit(), sort);
     }
 
-    /**
-     * Creates a list of {@link ProxyActionStatus} for presentation layer from
-     * page of {@link ActionStatus}.
-     *
-     * @param actionBeans
-     *            page of {@link ActionStatus}
-     * @return list of {@link ProxyActionStatus}
-     */
     private List<ProxyMessage> createProxyMessages(final Page<String> messages) {
         final List<ProxyMessage> proxyMsgs = new ArrayList<>(messages.getNumberOfElements());
 
@@ -95,7 +89,7 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
 
     @Override
     protected int sizeInBackEnd(final Query<ProxyMessage, Long> query) {
-        final long size = sizeInBackEnd(convertToPageRequest(query, defaultSortOrder), query.getFilter());
+        final long size = sizeInBackEnd(convertToPageRequest(query, defaultSortOrder), query.getFilter().orElse(null));
 
         if (size > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
@@ -104,10 +98,13 @@ public class ActionStatusMsgDataProvider extends AbstractBackEndDataProvider<Pro
         return (int) size;
     }
 
-    private long sizeInBackEnd(final PageRequest pageRequest, final Optional<Long> currentlySelectedActionStatusId) {
-        return currentlySelectedActionStatusId
-                .map(id -> deploymentManagement.findMessagesByActionStatusId(pageRequest, id).getTotalElements())
-                .orElse(0L);
+    private long sizeInBackEnd(final PageRequest pageRequest, final Long currentlySelectedActionStatusId) {
+        if (currentlySelectedActionStatusId == null) {
+            return 0L;
+        }
+
+        return deploymentManagement.findMessagesByActionStatusId(pageRequest, currentlySelectedActionStatusId)
+                .getTotalElements();
     }
 
     @Override

@@ -28,10 +28,14 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.SelectionChangedEventType;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 public class AddSmWindowController extends AbstractEntityWindowController<ProxySoftwareModule, ProxySoftwareModule> {
+    private static final Logger LOG = LoggerFactory.getLogger(AddSmWindowController.class);
+
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -80,6 +84,7 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
         try {
             newSoftwareModule = smManagement.create(smCreate);
         } catch (final ConstraintViolationException ex) {
+            LOG.trace("Create of software module failed in UI: {}", ex.getMessage());
             uiNotification.displayValidationError(
                     i18n.getMessage("message.save.fail", entity.getName() + ":" + entity.getVersion()));
             return;

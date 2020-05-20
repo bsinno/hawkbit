@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -256,7 +257,7 @@ public class ConfirmationDialog implements Button.ClickListener {
     }
 
     private static Label createConfirmationQuestion(final String question) {
-        final Label questionLbl = new Label(question);
+        final Label questionLbl = new Label(question, ContentMode.PREFORMATTED);
         questionLbl.addStyleName(SPUIStyleDefinitions.CONFIRMBOX_QUESTION_LABEL);
 
         return questionLbl;

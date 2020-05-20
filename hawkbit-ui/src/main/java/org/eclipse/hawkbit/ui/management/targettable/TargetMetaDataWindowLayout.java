@@ -40,14 +40,14 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
     private static final long serialVersionUID = 1L;
 
     private final UINotification uiNotification;
-    private final TargetManagement targetManagement;
-    private final EntityFactory entityFactory;
+    private final transient TargetManagement targetManagement;
+    private final transient EntityFactory entityFactory;
 
     private final MetaDataWindowGrid<String> targetMetaDataWindowGrid;
 
-    private final MetaDataAddUpdateWindowLayout metaDataAddUpdateWindowLayout;
-    private final AddMetaDataWindowController addTargetMetaDataWindowController;
-    private final UpdateMetaDataWindowController updateTargetMetaDataWindowController;
+    private final transient MetaDataAddUpdateWindowLayout metaDataAddUpdateWindowLayout;
+    private final transient AddMetaDataWindowController addTargetMetaDataWindowController;
+    private final transient UpdateMetaDataWindowController updateTargetMetaDataWindowController;
 
     /**
      * Constructor for AbstractTagWindowLayout

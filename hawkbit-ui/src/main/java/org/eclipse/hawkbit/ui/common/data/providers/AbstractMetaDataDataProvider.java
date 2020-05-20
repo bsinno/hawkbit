@@ -8,10 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.data.providers;
 
-import java.util.Collections;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.hawkbit.repository.OffsetBasedPageRequest;
@@ -40,13 +37,12 @@ public abstract class AbstractMetaDataDataProvider<T extends MetaData, F>
 
     @Override
     protected Stream<ProxyMetaData> fetchFromBackEnd(final Query<ProxyMetaData, F> query) {
-        return loadBackendEntities(convertToPageRequest(query, defaultSortOrder), query.getFilter()).map(
-                entities -> entities.getContent().stream().map(this::createProxyMetaData).collect(Collectors.toList()))
-                .orElse(Collections.emptyList()).stream();
+        return loadBackendEntities(convertToPageRequest(query, defaultSortOrder), query.getFilter().orElse(null))
+                .stream().map(this::createProxyMetaData);
     }
 
-    protected abstract Optional<Page<T>> loadBackendEntities(final PageRequest pageRequest,
-            final Optional<F> currentlySelectedMasterEntityId);
+    protected abstract Page<T> loadBackendEntities(final PageRequest pageRequest,
+            final F currentlySelectedMasterEntityId);
 
     // TODO: remove duplication with ProxyDataProvider
     private PageRequest convertToPageRequest(final Query<ProxyMetaData, F> query, final Sort sort) {
@@ -73,7 +69,7 @@ public abstract class AbstractMetaDataDataProvider<T extends MetaData, F>
 
     @Override
     protected int sizeInBackEnd(final Query<ProxyMetaData, F> query) {
-        final long size = sizeInBackEnd(convertToPageRequest(query, defaultSortOrder), query.getFilter());
+        final long size = sizeInBackEnd(convertToPageRequest(query, defaultSortOrder), query.getFilter().orElse(null));
 
         if (size > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
@@ -82,8 +78,7 @@ public abstract class AbstractMetaDataDataProvider<T extends MetaData, F>
         return (int) size;
     }
 
-    protected abstract long sizeInBackEnd(final PageRequest pageRequest,
-            final Optional<F> currentlySelectedMasterEntityId);
+    protected abstract long sizeInBackEnd(final PageRequest pageRequest, final F currentlySelectedMasterEntityId);
 
     @Override
     public Object getId(final ProxyMetaData item) {

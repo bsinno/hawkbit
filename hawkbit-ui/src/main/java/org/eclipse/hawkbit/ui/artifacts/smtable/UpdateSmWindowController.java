@@ -22,10 +22,14 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 public class UpdateSmWindowController extends AbstractEntityWindowController<ProxySoftwareModule, ProxySoftwareModule> {
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateSmWindowController.class);
+
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -83,6 +87,7 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
         try {
             updatedSm = smManagement.update(smUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
+            LOG.trace("Update of software module failed in UI: {}", e.getMessage());
             final String entityType = i18n.getMessage("caption.software.module");
             uiNotification
                     .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));

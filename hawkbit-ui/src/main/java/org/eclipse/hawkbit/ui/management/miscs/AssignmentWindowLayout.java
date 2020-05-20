@@ -32,7 +32,7 @@ public class AssignmentWindowLayout extends VerticalLayout {
     private static final long serialVersionUID = 1L;
 
     private final Binder<ProxyAssignmentWindow> proxyAssignmentBinder;
-    private final AssignmentWindowLayoutComponentBuilder componentBuilder;
+    private final transient AssignmentWindowLayoutComponentBuilder componentBuilder;
 
     private final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeLayout;
     private final CheckBox maintenanceWindowToggle;

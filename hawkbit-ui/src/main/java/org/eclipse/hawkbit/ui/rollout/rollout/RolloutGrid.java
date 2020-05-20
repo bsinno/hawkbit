@@ -159,12 +159,12 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         return rolloutManagement.get(entityId).map(rolloutMapper::map);
     }
 
-    private Optional<Long> getSelectedEntityIdFromUiState() {
-        return Optional.ofNullable(rolloutManagementUIState.getSelectedRolloutId());
+    private Long getSelectedEntityIdFromUiState() {
+        return rolloutManagementUIState.getSelectedRolloutId();
     }
 
-    private void setSelectedEntityIdToUiState(final Optional<Long> entityId) {
-        rolloutManagementUIState.setSelectedRolloutId(entityId.orElse(null));
+    private void setSelectedEntityIdToUiState(final Long entityId) {
+        rolloutManagementUIState.setSelectedRolloutId(entityId);
     }
 
     private boolean deleteRollout(final Collection<ProxyRollout> rolloutsToBeDeleted) {

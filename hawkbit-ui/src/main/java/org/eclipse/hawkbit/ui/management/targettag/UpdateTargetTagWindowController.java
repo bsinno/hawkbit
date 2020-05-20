@@ -24,10 +24,14 @@ import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 public class UpdateTargetTagWindowController extends AbstractEntityWindowController<ProxyTag, ProxyTag> {
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateTargetTagWindowController.class);
+
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -85,6 +89,7 @@ public class UpdateTargetTagWindowController extends AbstractEntityWindowControl
         try {
             updatedTag = targetTagManagement.update(tagUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
+            LOG.trace("Update of target tag failed in UI: {}", e.getMessage());
             // TODO: use i18n
             uiNotification.displayWarning(
                     "Tag with name " + entity.getName() + " was deleted or you are not allowed to update it");

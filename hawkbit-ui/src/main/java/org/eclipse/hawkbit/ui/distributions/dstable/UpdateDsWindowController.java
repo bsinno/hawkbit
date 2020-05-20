@@ -22,11 +22,15 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModi
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 public class UpdateDsWindowController
         extends AbstractEntityWindowController<ProxyDistributionSet, ProxyDistributionSet> {
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateDsWindowController.class);
+
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -83,6 +87,7 @@ public class UpdateDsWindowController
         try {
             updatedDs = dsManagement.update(dsUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
+            LOG.trace("Update of distribution set failed in UI: {}", e.getMessage());
             // TODO: use i18n
             uiNotification.displayWarning("Distribution set with name " + entity.getName()
                     + " was deleted or you are not allowed to update it");

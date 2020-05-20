@@ -32,6 +32,8 @@ import org.eclipse.hawkbit.ui.rollout.window.layouts.UpdateRolloutWindowLayout;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -40,6 +42,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * Controller for populating and editing/saving data in Update Rollout Window.
  */
 public class UpdateRolloutWindowController extends AbstractEntityWindowController<ProxyRollout, ProxyRolloutWindow> {
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateRolloutWindowController.class);
+
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -127,6 +131,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         try {
             updatedRollout = rolloutManagement.update(rolloutUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
+            LOG.trace("Update of rollout failed in UI: {}", e.getMessage());
             // TODO: use i18n
             uiNotification.displayWarning(
                     "Rollout with name " + entity.getName() + " was deleted or you are not allowed to update it");
