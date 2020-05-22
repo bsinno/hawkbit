@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.push.event;
 /**
  * Interface to indicate an entity event which contains parent entity id.
  */
+@FunctionalInterface
 public interface ParentIdAwareEvent {
 
     /**

@@ -89,8 +89,13 @@ public class AuthenticationConfigurationView extends CustomComponent {
 
         final CheckBox certificateAuthCheckbox = new CheckBox();
         certificateAuthCheckbox.setStyleName(DIST_CHECKBOX_STYLE);
-        certificateAuthCheckbox.addValueChangeListener(valueChangeEvent -> certificateAuthenticationConfigurationItem
-                .setDetailVisible(valueChangeEvent.getValue()));
+        certificateAuthCheckbox.addValueChangeListener(valueChangeEvent -> {
+            if (valueChangeEvent.getValue()) {
+                certificateAuthenticationConfigurationItem.showDetails();
+            } else {
+                certificateAuthenticationConfigurationItem.hideDetails();
+            }
+        });
         binder.bind(certificateAuthCheckbox, ProxySystemConfigWindow::isCertificateAuth,
                 ProxySystemConfigWindow::setCertificateAuth);
         gridLayout.addComponent(certificateAuthCheckbox, 0, 0);
@@ -107,9 +112,13 @@ public class AuthenticationConfigurationView extends CustomComponent {
         final CheckBox gatewaySecTokenCheckBox = new CheckBox();
         gatewaySecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         gatewaySecTokenCheckBox.setId("gatewaysecuritycheckbox");
-        gatewaySecTokenCheckBox
-                .addValueChangeListener(valueChangeEvent -> gatewaySecurityTokenAuthenticationConfigurationItem
-                        .setDetailVisible(valueChangeEvent.getValue()));
+        gatewaySecTokenCheckBox.addValueChangeListener(valueChangeEvent -> {
+            if (valueChangeEvent.getValue()) {
+                gatewaySecurityTokenAuthenticationConfigurationItem.showDetails();
+            } else {
+                gatewaySecurityTokenAuthenticationConfigurationItem.hideDetails();
+            }
+        });
         binder.bind(gatewaySecTokenCheckBox, ProxySystemConfigWindow::isGatewaySecToken,
                 ProxySystemConfigWindow::setGatewaySecToken);
         gridLayout.addComponent(gatewaySecTokenCheckBox, 0, 2);

@@ -109,7 +109,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
 
     private void addValueChangeListener() {
         autoStartOptionGroup.addValueChangeListener(
-                event -> startAtDateField.setEnabled(event.getValue().equals(AutoStartOption.SCHEDULED)));
+                event -> startAtDateField.setEnabled(AutoStartOption.SCHEDULED == event.getValue()));
     }
 
     /**

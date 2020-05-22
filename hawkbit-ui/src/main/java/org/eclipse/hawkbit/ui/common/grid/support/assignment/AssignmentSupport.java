@@ -62,7 +62,12 @@ public abstract class AssignmentSupport<S, T> {
         notification.displayValidationError(i18n.getMessage("message.action.did.not.work"));
     }
 
-    // can be overriden in child classes in order to filter source items list
+    /**
+     * Can be overriden in child classes in order to filter source items list.
+     * 
+     * @param targetItem
+     *            may be used for further filtering of source items
+     */
     protected List<S> getFilteredSourceItems(final List<S> sourceItemsToAssign, final T targetItem) {
         return sourceItemsToAssign;
     }

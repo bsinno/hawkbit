@@ -51,7 +51,6 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
         addStyleName(ValoTheme.TABLE_SMALL);
         // used to deactivate cell text selection by user
         addStyleName(AbstractGrid.MULTI_SELECT_STYLE);
-        // addStyleName("dist_type_twin-table");
 
         setId(SPUIDefinitions.TWIN_TABLE_SELECTED_ID);
         setSelectionModel(new RangeSelectionModel<>());

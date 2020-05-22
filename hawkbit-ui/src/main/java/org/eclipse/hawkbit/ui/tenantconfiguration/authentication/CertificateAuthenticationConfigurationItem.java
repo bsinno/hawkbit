@@ -59,15 +59,15 @@ public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
         caRootAuthorityLayout.setWidth("100%");
         detailLayout.addComponent(caRootAuthorityLayout);
         if (binder.getBean().isCertificateAuth()) {
-            setDetailVisible(true);
+            showDetails();
         }
     }
 
-    public void setDetailVisible(final boolean visible) {
-        if (visible) {
-            addComponent(detailLayout);
-        } else {
-            removeComponent(detailLayout);
-        }
+    public void showDetails() {
+        addComponent(detailLayout);
+    }
+
+    public void hideDetails() {
+        removeComponent(detailLayout);
     }
 }

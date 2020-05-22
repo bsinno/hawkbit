@@ -12,12 +12,14 @@ import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload;
+import org.eclipse.hawkbit.ui.common.event.BulkUploadEventPayload.BulkUploadState;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractEntityGridHeader;
 import org.eclipse.hawkbit.ui.common.grid.header.support.BulkUploadHeaderSupport;
 import org.eclipse.hawkbit.ui.common.grid.header.support.DistributionSetFilterDropAreaSupport;
 import org.eclipse.hawkbit.ui.management.bulkupload.BulkUploadWindowBuilder;
+import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUpdateWindowLayout;
 import org.eclipse.hawkbit.ui.management.bulkupload.TargetBulkUploadUiState;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -187,35 +189,40 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
     }
 
     public void onBulkUploadChanged(final BulkUploadEventPayload eventPayload) {
-        bulkUploadWindowBuilder.getLayout().ifPresent(layout -> {
-            switch (eventPayload.getBulkUploadState()) {
-            case UPLOAD_STARTED:
-                adaptbulkUploadHeaderAndUiState(true);
-                layout.onStartOfUpload();
-                break;
-            case UPLOAD_FAILED:
-                adaptbulkUploadHeaderAndUiState(false);
-                layout.onUploadFailure(eventPayload.getFailureReason());
-                break;
-            case TARGET_PROVISIONING_STARTED:
-                layout.onStartOfProvisioning();
-                break;
-            case TARGET_PROVISIONING_PROGRESS_UPDATED:
-                layout.setProgressBarValue(eventPayload.getBulkUploadProgress());
-                break;
-            case TAGS_AND_DS_ASSIGNMENT_STARTED:
-                layout.onStartOfAssignment();
-                break;
-            case TAGS_AND_DS_ASSIGNMENT_FAILED:
-                layout.onAssignmentFailure(eventPayload.getFailureReason());
-                break;
-            case BULK_UPLOAD_COMPLETED:
-                adaptbulkUploadHeaderAndUiState(false);
-                layout.onUploadCompletion(eventPayload.getSuccessBulkUploadCount(),
-                        eventPayload.getFailBulkUploadCount());
-                break;
-            }
-        });
+        bulkUploadWindowBuilder.getLayout()
+                .ifPresent(layout -> onBulkUploadStateChanged(layout, eventPayload.getBulkUploadState(),
+                        eventPayload.getFailureReason(), eventPayload.getBulkUploadProgress(),
+                        eventPayload.getSuccessBulkUploadCount(), eventPayload.getFailBulkUploadCount()));
+    }
+
+    private void onBulkUploadStateChanged(final TargetBulkUpdateWindowLayout layout, final BulkUploadState state,
+            final String failureReason, final float progress, final int successCount, final int failCount) {
+        switch (state) {
+        case UPLOAD_STARTED:
+            adaptbulkUploadHeaderAndUiState(true);
+            layout.onStartOfUpload();
+            break;
+        case UPLOAD_FAILED:
+            adaptbulkUploadHeaderAndUiState(false);
+            layout.onUploadFailure(failureReason);
+            break;
+        case TARGET_PROVISIONING_STARTED:
+            layout.onStartOfProvisioning();
+            break;
+        case TARGET_PROVISIONING_PROGRESS_UPDATED:
+            layout.setProgressBarValue(progress);
+            break;
+        case TAGS_AND_DS_ASSIGNMENT_STARTED:
+            layout.onStartOfAssignment();
+            break;
+        case TAGS_AND_DS_ASSIGNMENT_FAILED:
+            layout.onAssignmentFailure(failureReason);
+            break;
+        case BULK_UPLOAD_COMPLETED:
+            adaptbulkUploadHeaderAndUiState(false);
+            layout.onUploadCompletion(successCount, failCount);
+            break;
+        }
     }
 
     private void adaptbulkUploadHeaderAndUiState(final boolean isInProgress) {

@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import java.time.ZonedDateTime;
-import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
@@ -29,7 +28,7 @@ public class ProxyAction extends ProxyIdentifiableEntity {
     private Long lastModifiedAt;
     private String rolloutName;
     private String maintenanceWindow;
-    private transient Optional<ZonedDateTime> maintenanceWindowStartTime;
+    private transient ZonedDateTime maintenanceWindowStartTime;
     private long forcedTime;
 
     public String getMaintenanceWindow() {
@@ -167,11 +166,11 @@ public class ProxyAction extends ProxyIdentifiableEntity {
         this.actionType = actionType;
     }
 
-    public Optional<ZonedDateTime> getMaintenanceWindowStartTime() {
+    public ZonedDateTime getMaintenanceWindowStartTime() {
         return maintenanceWindowStartTime;
     }
 
-    public void setMaintenanceWindowStartTime(final Optional<ZonedDateTime> maintenanceWindowStartTime) {
+    public void setMaintenanceWindowStartTime(final ZonedDateTime maintenanceWindowStartTime) {
         this.maintenanceWindowStartTime = maintenanceWindowStartTime;
     }
 

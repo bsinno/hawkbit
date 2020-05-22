@@ -149,8 +149,8 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
                 .get(rolloutManagementUIState.getSelectedRolloutGroupId());
 
         final ProxyFontIcon statusFontIcon = target.getStatus() == null || statusIconMap.get(target.getStatus()) == null
-                ? buildDefaultStatusIcon(group)
-                : getFontIconFromStatusMap(target.getStatus(), group);
+                ? buildDefaultStatusIcon(group.orElse(null))
+                : getFontIconFromStatusMap(target.getStatus(), group.orElse(null));
 
         final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_STATUS_LABEL_ID)
                 .append(".").append(target.getId()).toString();
@@ -158,20 +158,26 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
         return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
     }
 
-    private ProxyFontIcon getFontIconFromStatusMap(final Status status, final Optional<RolloutGroup> group) {
-        final boolean isFinishedDownloadOnlyAssignment = Status.DOWNLOADED == status
-                && group.map(RolloutGroup::getRollout)
-                        .map(rollout -> ActionType.DOWNLOAD_ONLY == rollout.getActionType()).orElse(false);
+    private ProxyFontIcon getFontIconFromStatusMap(final Status status, final RolloutGroup group) {
+        if (Status.DOWNLOADED == status && isDownloadOnly(group)) {
+            return statusIconMap.get(Status.FINISHED);
+        }
 
-        return isFinishedDownloadOnlyAssignment ? statusIconMap.get(Status.FINISHED) : statusIconMap.get(status);
+        return statusIconMap.get(status);
+    }
+
+    private boolean isDownloadOnly(final RolloutGroup group) {
+        if (group == null) {
+            return false;
+        }
+
+        return ActionType.DOWNLOAD_ONLY == group.getRollout().getActionType();
     }
 
     // Actions are not created for targets when rollout's status is
     // READY and when duplicate assignment is done. In these cases
     // display a appropriate status with description
-    private ProxyFontIcon buildDefaultStatusIcon(final Optional<RolloutGroup> group) {
-        final RolloutGroup rolloutGroup = group.orElse(null);
-
+    private ProxyFontIcon buildDefaultStatusIcon(final RolloutGroup rolloutGroup) {
         if (rolloutGroup != null && rolloutGroup.getStatus() == RolloutGroupStatus.READY) {
             return new ProxyFontIcon(VaadinIcons.BULLSEYE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
                     i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX
@@ -188,6 +194,7 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
         }
     }
 
+    @Override
     public void restoreState() {
         final Long masterEntityId = rolloutManagementUIState.getSelectedRolloutGroupId();
         if (masterEntityId != null) {

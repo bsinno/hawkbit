@@ -15,6 +15,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
+import com.cronutils.utils.StringUtils;
 import com.vaadin.data.Binder;
 import com.vaadin.shared.ui.colorpicker.Color;
 import com.vaadin.ui.TextArea;
@@ -65,7 +66,9 @@ public class TagWindowLayoutComponentBuilder {
                 .withConverter(color -> "rgb(" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + ")",
                         colorString -> {
                             try {
-                                return ColorUtil.stringToColor(colorString);
+                                return StringUtils.isEmpty(colorString)
+                                        ? ColorUtil.stringToColor(ProxyFilterButton.DEFAULT_COLOR)
+                                        : ColorUtil.stringToColor(colorString);
                             } catch (final NumberFormatException e) {
                                 try {
                                     return BasicColor.valueOf(colorString.trim().toUpperCase()).getColor();

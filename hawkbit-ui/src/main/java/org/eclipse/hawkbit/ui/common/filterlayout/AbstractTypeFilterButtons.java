@@ -132,6 +132,7 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
 
     protected abstract Window getUpdateWindow(final ProxyType clickedFilter);
 
+    @Override
     public void restoreState() {
         final Long lastClickedTypeId = typeFilterLayoutUiState.getClickedTypeId();
 

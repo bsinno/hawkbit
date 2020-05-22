@@ -23,7 +23,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.common.state.TagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -37,17 +36,15 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 // TODO: remove duplication with TargetsToTagAssignmentSupport
 public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<ProxyDistributionSet, ProxyTag> {
     private final DistributionSetManagement distributionSetManagement;
-    private final TagFilterLayoutUiState distributionTagLayoutUiState;
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
 
     public DistributionSetsToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus,
-            final SpPermissionChecker permChecker, final TagFilterLayoutUiState distributionTagLayoutUiState) {
+            final SpPermissionChecker permChecker) {
         super(notification, i18n);
 
         this.distributionSetManagement = distributionSetManagement;
-        this.distributionTagLayoutUiState = distributionTagLayoutUiState;
         this.eventBus = eventBus;
         this.permChecker = permChecker;
     }

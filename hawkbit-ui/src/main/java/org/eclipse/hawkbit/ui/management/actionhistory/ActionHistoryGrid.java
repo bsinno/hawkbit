@@ -272,11 +272,15 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
     private Column<ProxyAction, String> addMaintenanceWindowColumn() {
         return addColumn(ProxyAction::getMaintenanceWindow).setId(MAINTENANCE_WINDOW_ID)
-                .setCaption(i18n.getMessage("header.maintenancewindow")).setDescriptionGenerator(action -> action
-                        .getMaintenanceWindowStartTime().map(this::getFormattedNextMaintenanceWindow).orElse(null));
+                .setCaption(i18n.getMessage("header.maintenancewindow")).setDescriptionGenerator(
+                        action -> getFormattedNextMaintenanceWindow(action.getMaintenanceWindowStartTime()));
     }
 
     private String getFormattedNextMaintenanceWindow(final ZonedDateTime nextAt) {
+        if (nextAt == null) {
+            return "";
+        }
+
         final long nextAtMilli = nextAt.toInstant().toEpochMilli();
         return i18n.getMessage(UIMessageIdProvider.TOOLTIP_NEXT_MAINTENANCE_WINDOW,
                 SPDateTimeUtil.getFormattedDate(nextAtMilli, SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT));

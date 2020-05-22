@@ -47,16 +47,16 @@ public class MultiAssignmentsConfigurationItem extends VerticalLayout {
         container.setMargin(false);
         container.addComponent(newLabel(MSG_KEY_NOTICE));
         if (binder.getBean().isMultiAssignments()) {
-            setSettingsVisible(true);
+            showSettings();
         }
     }
 
-    public void setSettingsVisible(final boolean visible) {
-        if (visible) {
-            addComponent(container);
-        } else {
-            removeComponent(container);
-        }
+    public void showSettings() {
+        addComponent(container);
+    }
+
+    public void hideSettings() {
+        removeComponent(container);
     }
 
     private Label newLabel(final String msgKey) {

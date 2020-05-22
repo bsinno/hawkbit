@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.common.filterlayout;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
@@ -25,6 +24,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
@@ -97,7 +97,7 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     }
 
     private HorizontalLayout buildFilterButtonLayout(final T clickedFilter) {
-        final Label colourIcon = buildColourIcon(clickedFilter.getId(), Optional.ofNullable(clickedFilter.getColour()));
+        final Label colourIcon = buildColourIcon(clickedFilter.getId(), clickedFilter.getColour());
         final Button filterName = buildFilterNameButton(clickedFilter);
 
         final HorizontalLayout filterButtonLayout = new HorizontalLayout();
@@ -117,9 +117,9 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         return filterButtonLayout;
     }
 
-    private final Label buildColourIcon(final Long clickedFilterId, final Optional<String> colour) {
+    private final Label buildColourIcon(final Long clickedFilterId, final String colour) {
         final ProxyFontIcon colourFontIcon = new ProxyFontIcon(VaadinIcons.CIRCLE, ValoTheme.LABEL_TINY, "",
-                colour.orElse(DEFAULT_GREEN));
+                !StringUtils.isEmpty(colour) ? colour : DEFAULT_GREEN);
         final String colourIconId = new StringBuilder(getFilterButtonIdPrefix()).append(".colour-icon.")
                 .append(clickedFilterId).toString();
 

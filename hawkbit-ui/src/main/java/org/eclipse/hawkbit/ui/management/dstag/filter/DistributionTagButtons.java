@@ -53,7 +53,7 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
         this.dsTagWindowBuilder = dsTagWindowBuilder;
 
         final DistributionSetsToTagAssignmentSupport distributionSetsToTagAssignment = new DistributionSetsToTagAssignmentSupport(
-                uiNotification, i18n, distributionSetManagement, eventBus, permChecker, distributionTagLayoutUiState);
+                uiNotification, i18n, distributionSetManagement, eventBus, permChecker);
 
         setDragAndDropSupportSupport(new DragAndDropSupport<>(this, i18n, uiNotification,
                 Collections.singletonMap(UIComponentIdProvider.DIST_TABLE_ID, distributionSetsToTagAssignment),

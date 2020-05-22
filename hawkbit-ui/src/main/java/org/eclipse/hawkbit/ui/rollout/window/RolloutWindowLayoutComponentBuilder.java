@@ -401,7 +401,8 @@ public final class RolloutWindowLayoutComponentBuilder {
                         final int errorThresholdCount = Integer.parseInt(errorThresholdPresentation);
                         final int groupSize = groupSizeProvider.getAsInt();
 
-                        return String.valueOf((int) Math.ceil(((float) errorThresholdCount / (float) groupSize) * 100));
+                        return String
+                                .valueOf((int) Math.ceil(((double) errorThresholdCount / (double) groupSize) * 100));
                     }
 
                     return errorThresholdPresentation;

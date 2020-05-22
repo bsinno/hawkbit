@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
@@ -37,8 +35,7 @@ public class ActionToProxyActionMapper
         proxyAction.setStatus(action.getStatus());
         proxyAction
                 .setMaintenanceWindow(action.hasMaintenanceSchedule() ? buildMaintenanceWindowDisplayText(action) : "");
-        proxyAction.setMaintenanceWindowStartTime(
-                action.hasMaintenanceSchedule() ? action.getMaintenanceWindowStartTime() : Optional.empty());
+        proxyAction.setMaintenanceWindowStartTime(action.getMaintenanceWindowStartTime().orElse(null));
         proxyAction.setForcedTime(action.getForcedTime());
 
         return proxyAction;

@@ -58,8 +58,9 @@ public class ActionStatusMsgDataProvider extends GenericDataProvider<ProxyMessag
         for (final String msg : messages.getContent()) {
             final ProxyMessage proxyMsg = new ProxyMessage();
 
+            ++idx;
+            proxyMsg.setId(idx);
             proxyMsg.setMessage(msg);
-            proxyMsg.setId(++idx);
 
             proxyMsgs.add(proxyMsg);
         }

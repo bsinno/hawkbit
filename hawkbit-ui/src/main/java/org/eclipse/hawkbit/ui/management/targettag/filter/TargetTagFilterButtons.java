@@ -50,7 +50,7 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
         this.targetTagWindowBuilder = targetTagWindowBuilder;
 
         final TargetsToTagAssignmentSupport targetsToTagAssignment = new TargetsToTagAssignmentSupport(notification,
-                i18n, eventBus, permChecker, targetManagement, targetTagFilterLayoutUiState);
+                i18n, eventBus, permChecker, targetManagement);
 
         setDragAndDropSupportSupport(new DragAndDropSupport<>(this, i18n, notification,
                 Collections.singletonMap(UIComponentIdProvider.TARGET_TABLE_ID, targetsToTagAssignment), eventBus));

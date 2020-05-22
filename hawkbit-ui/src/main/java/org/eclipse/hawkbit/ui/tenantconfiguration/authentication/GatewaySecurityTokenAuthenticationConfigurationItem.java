@@ -66,16 +66,16 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Vertica
         keyGenerationLayout.addComponent(gatewaytokenBtn);
         detailLayout.addComponent(keyGenerationLayout);
         if (binder.getBean().isGatewaySecToken()) {
-            setDetailVisible(true);
+            showDetails();
         }
     }
 
-    public void setDetailVisible(final boolean visible) {
-        if (visible) {
-            addComponent(detailLayout);
-        } else {
-            removeComponent(detailLayout);
-        }
+    public void showDetails() {
+        addComponent(detailLayout);
+    }
+
+    public void hideDetails() {
+        removeComponent(detailLayout);
     }
 
     private void refreshGatewayToken() {

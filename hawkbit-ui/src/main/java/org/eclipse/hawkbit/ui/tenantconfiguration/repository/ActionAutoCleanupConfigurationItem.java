@@ -110,7 +110,7 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         row2.addComponent(newLabel(MSG_KEY_NOTICE));
         container.addComponent(row2);
         if (binder.getBean().isActionAutocleanup()) {
-            setSettingsVisible(true);
+            showSettings();
         }
     }
 
@@ -126,12 +126,12 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         return layout;
     }
 
-    public void setSettingsVisible(final boolean visible) {
-        if (visible) {
-            addComponent(container);
-        } else {
-            removeComponent(container);
-        }
+    public void showSettings() {
+        addComponent(container);
+    }
+
+    public void hideSettings() {
+        removeComponent(container);
     }
 
     public static Collection<ActionStatusOption> getActionStatusOptions() {

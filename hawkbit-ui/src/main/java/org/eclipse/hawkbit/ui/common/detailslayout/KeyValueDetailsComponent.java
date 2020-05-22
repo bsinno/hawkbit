@@ -15,7 +15,7 @@ import com.vaadin.ui.VerticalLayout;
 public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDetails>> {
     private static final long serialVersionUID = 1L;
 
-    final VerticalLayout keyValueDetailsLayout;
+    private final VerticalLayout keyValueDetailsLayout;
 
     public KeyValueDetailsComponent() {
         keyValueDetailsLayout = new VerticalLayout();

@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.event;
 
-public class BulkUploadEventPayload {
+public final class BulkUploadEventPayload {
     private final BulkUploadState bulkUploadState;
     private final float bulkUploadProgress;
     private final int successBulkUploadCount;
@@ -67,7 +67,8 @@ public class BulkUploadEventPayload {
 
     public static BulkUploadEventPayload buildBulkUploadCompleted(final int successBulkUploadCount,
             final int failBulkUploadCount) {
-        return new BulkUploadEventPayload(BulkUploadState.BULK_UPLOAD_COMPLETED, 1, successBulkUploadCount, failBulkUploadCount);
+        return new BulkUploadEventPayload(BulkUploadState.BULK_UPLOAD_COMPLETED, 1, successBulkUploadCount,
+                failBulkUploadCount);
     }
 
     public BulkUploadState getBulkUploadState() {

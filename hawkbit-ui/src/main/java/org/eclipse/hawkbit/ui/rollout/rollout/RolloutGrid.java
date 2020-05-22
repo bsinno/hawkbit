@@ -472,7 +472,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private void pauseRollout(final Long rolloutId, final String rolloutName, final RolloutStatus rolloutStatus) {
-        if (!RolloutStatus.RUNNING.equals(rolloutStatus)) {
+        if (RolloutStatus.RUNNING != rolloutStatus) {
             return;
         }
 
@@ -520,6 +520,13 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         copyWindow.setVisible(Boolean.TRUE);
     }
 
+    /**
+     * Used to show the Rollouts List View in case the currently selected
+     * Rollout was deleted.
+     * 
+     * @param deletedSelectedRolloutId
+     *            id of the deleted Rollout that is currently selected
+     */
     public void onSelectedRolloutDeleted(final long deletedSelectedRolloutId) {
         uiNotification.displayWarning(
                 i18n.getMessage("rollout.not.exists", rolloutManagementUIState.getSelectedRolloutName()));

@@ -213,7 +213,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
          * is applying hyperlink style
          */
         final boolean isStatusCreating = rolloutGroup.getStatus() != null
-                && RolloutGroupStatus.CREATING.equals(rolloutGroup.getStatus());
+                && RolloutGroupStatus.CREATING == rolloutGroup.getStatus();
         if (isStatusCreating) {
             rolloutGroupLink.addStyleName("boldhide");
             rolloutGroupLink.setEnabled(false);

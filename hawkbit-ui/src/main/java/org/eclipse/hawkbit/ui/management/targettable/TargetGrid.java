@@ -276,21 +276,21 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         return UIComponentIdProvider.TARGET_TABLE_ID;
     }
 
-    public void onTargetFilterTabChanged(final boolean isCustomFilterTabSelected) {
+    public void onCustomTabSelected() {
         getFilter().ifPresent(filter -> {
-            if (isCustomFilterTabSelected) {
-                filter.setDistributionId(null);
-                filter.setNoTagClicked(false);
-                filter.setOverdueState(false);
-                filter.setSearchText(null);
-                filter.setTargetTags(Collections.emptyList());
-                filter.setTargetUpdateStatusList(Collections.emptyList());
-            } else {
-                filter.setTargetFilterQueryId(null);
-            }
+            filter.setDistributionId(null);
+            filter.setNoTagClicked(false);
+            filter.setOverdueState(false);
+            filter.setSearchText(null);
+            filter.setTargetTags(Collections.emptyList());
+            filter.setTargetUpdateStatusList(Collections.emptyList());
 
             getFilterSupport().refreshFilter();
         });
+    }
+
+    public void onSimpleTabSelected() {
+        getFilterSupport().updateFilter(TargetManagementFilterParams::setTargetFilterQueryId, null);
     }
 
     @Override

@@ -51,7 +51,6 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
 
         addStyleName(ValoTheme.TABLE_NO_STRIPES);
         addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        // addStyleName(SPUIStyleDefinitions.SW_MODULE_TABLE);
     }
 
     @Override

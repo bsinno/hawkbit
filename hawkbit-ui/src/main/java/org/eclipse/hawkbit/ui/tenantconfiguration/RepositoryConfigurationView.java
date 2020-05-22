@@ -102,7 +102,11 @@ public class RepositoryConfigurationView extends CustomComponent {
         multiAssignmentsCheckBox.addValueChangeListener(event -> {
             actionAutoCloseCheckBox.setEnabled(!event.getValue());
             actionAutocloseConfigurationItem.setEnabled(!event.getValue());
-            multiAssignmentsConfigurationItem.setSettingsVisible(event.getValue());
+            if (event.getValue()) {
+                multiAssignmentsConfigurationItem.showSettings();
+            } else {
+                multiAssignmentsConfigurationItem.hideSettings();
+            }
         });
         binder.bind(multiAssignmentsCheckBox, ProxySystemConfigWindow::isMultiAssignments,
                 ProxySystemConfigWindow::setMultiAssignments);
@@ -112,8 +116,13 @@ public class RepositoryConfigurationView extends CustomComponent {
         final CheckBox actionAutoCleanupCheckBox = new CheckBox();
         actionAutoCleanupCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         actionAutoCleanupCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX);
-        actionAutoCleanupCheckBox.addValueChangeListener(
-                event -> actionAutocleanupConfigurationItem.setSettingsVisible(event.getValue()));
+        actionAutoCleanupCheckBox.addValueChangeListener(event -> {
+            if (event.getValue()) {
+                actionAutocleanupConfigurationItem.showSettings();
+            } else {
+                actionAutocleanupConfigurationItem.hideSettings();
+            }
+        });
         binder.bind(actionAutoCleanupCheckBox, ProxySystemConfigWindow::isActionAutocleanup,
                 ProxySystemConfigWindow::setActionAutocleanup);
         gridLayout.addComponent(actionAutoCleanupCheckBox, 0, 2);

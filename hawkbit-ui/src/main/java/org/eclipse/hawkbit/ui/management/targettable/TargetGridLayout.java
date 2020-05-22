@@ -166,11 +166,11 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
 
         if (isCustomFilterTabSelected) {
             targetGridHeader.onSimpleFilterReset();
+            targetGrid.onCustomTabSelected();
         } else {
             targetGridHeader.enableSearchIcon();
+            targetGrid.onSimpleTabSelected();
         }
-
-        targetGrid.onTargetFilterTabChanged(isCustomFilterTabSelected);
     }
 
     public void maximize() {

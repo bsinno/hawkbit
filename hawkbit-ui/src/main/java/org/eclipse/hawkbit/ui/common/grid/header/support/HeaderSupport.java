@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.grid.header.support;
 
 import com.vaadin.ui.Component;
 
+@FunctionalInterface
 public interface HeaderSupport {
 
     Component getHeaderComponent();

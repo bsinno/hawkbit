@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,23 +35,6 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
 
         this.targetManagement = targetManagement;
         this.targetsToDistributionSetAssignmentSupport = targetsToDistributionSetAssignmentSupport;
-    }
-
-    // TODO: remove duplication with TargetTagsToTargetAssignmentSupport
-    @Override
-    protected List<ProxyTag> getFilteredSourceItems(final List<ProxyTag> sourceItemsToAssign,
-            final ProxyDistributionSet targetItem) {
-        if (isNoTagAssigned(sourceItemsToAssign)) {
-            notification.displayValidationError(
-                    i18n.getMessage("message.tag.cannot.be.assigned", i18n.getMessage("label.no.tag.assigned")));
-            return Collections.emptyList();
-        }
-
-        return sourceItemsToAssign;
-    }
-
-    private boolean isNoTagAssigned(final List<ProxyTag> targetTagsToAssign) {
-        return targetTagsToAssign.stream().anyMatch(ProxyTag::isNoTag);
     }
 
     @Override

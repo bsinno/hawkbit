@@ -28,7 +28,6 @@ import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.google.common.base.Strings;
 import com.vaadin.data.Binder.Binding;
 import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.ui.ComboBox;
@@ -207,8 +206,8 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     private void updateTargetsPerGroup(final String numberOfGroups) {
-        if (!Strings.isNullOrEmpty(numberOfGroups) && isNoOfGroupsValid() && getEntity().getTotalTargets() != null
-                && getEntity().getTotalTargets() > 0L && isNumberOfGroups()) {
+        if (isNumberOfGroups() && !StringUtils.isEmpty(numberOfGroups) && isNoOfGroupsValid()
+                && atLeastOneTargetPresent()) {
             groupSizeLabel.setValue(getTargetPerGroupMessage(
                     String.valueOf(getGroupSizeByGroupNumber(Integer.parseInt(numberOfGroups)))));
             groupSizeLabel.setVisible(true);
@@ -223,6 +222,10 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
     private boolean isNoOfGroupsValid() {
         return !noOfGroupsFieldBinding.validate(false).isError();
+    }
+
+    private boolean atLeastOneTargetPresent() {
+        return getEntity().getTotalTargets() != null && getEntity().getTotalTargets() > 0L;
     }
 
     private String getTargetPerGroupMessage(final String value) {
@@ -282,8 +285,8 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
             final List<Long> targetsPerGroup = new ArrayList<>(amountOfGroups);
             long leftTargets = getEntity().getTotalTargets();
             for (int i = 0; i < amountOfGroups; i++) {
-                final float percentage = 1.0F / (amountOfGroups - i);
-                final long targetsInGroup = Math.round(percentage * (double) leftTargets);
+                final double percentage = 1.0 / (amountOfGroups - i);
+                final long targetsInGroup = Math.round(percentage * leftTargets);
                 leftTargets -= targetsInGroup;
                 targetsPerGroup.add(targetsInGroup);
             }

@@ -23,7 +23,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -35,19 +34,16 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  */
 public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget, ProxyTag> {
     private final TargetManagement targetManagement;
-    private final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState;
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
 
     public TargetsToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final UIEventBus eventBus, final SpPermissionChecker permChecker, final TargetManagement targetManagement,
-            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
+            final UIEventBus eventBus, final SpPermissionChecker permChecker, final TargetManagement targetManagement) {
         super(notification, i18n);
 
         this.eventBus = eventBus;
         this.permChecker = permChecker;
         this.targetManagement = targetManagement;
-        this.targetTagFilterLayoutUiState = targetTagFilterLayoutUiState;
     }
 
     @Override
