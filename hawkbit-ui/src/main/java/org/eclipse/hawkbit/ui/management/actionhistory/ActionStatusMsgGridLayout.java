@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
@@ -54,7 +54,16 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
     }
 
     private List<MasterEntityAwareComponent<ProxyActionStatus>> getMasterEntityAwareComponents() {
-        return Collections.singletonList(actionStatusMsgGrid.getMasterEntitySupport());
+        return Arrays.asList(actionStatusMsgGrid.getMasterEntitySupport(), this::selectActionStatusMsg);
+    }
+
+    private void selectActionStatusMsg(final ProxyActionStatus masterAction) {
+        if (masterAction == null) {
+            actionStatusMsgGrid.getSelectionSupport().deselectAll();
+            return;
+        }
+
+        actionStatusMsgGrid.getSelectionSupport().selectFirstRow();
     }
 
     public void enableSelection() {
