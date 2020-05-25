@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,6 +16,7 @@ import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
@@ -62,7 +62,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
     private final transient RolloutGroupManagement rolloutGroupManagement;
     private final transient RolloutGroupToProxyRolloutGroupMapper rolloutGroupMapper;
 
-    private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
+    private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap;
 
     private final transient MasterEntitySupport<ProxyRollout> masterEntitySupport;
 
@@ -84,7 +84,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
         this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
-        initStatusIconMap();
+        statusIconMap = IconBuilder.generateRolloutGroupStatusIcons(i18n);
         init();
     }
 
@@ -103,24 +103,6 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
     private void initFilterMappings() {
         getFilterSupport().<Long> addMapping(FilterType.MASTER,
                 (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
-    }
-
-    private void initStatusIconMap() {
-        statusIconMap.put(RolloutGroupStatus.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(RolloutGroupStatus.FINISHED)));
-        statusIconMap.put(RolloutGroupStatus.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_START,
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(RolloutGroupStatus.SCHEDULED)));
-        statusIconMap.put(RolloutGroupStatus.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST,
-                SPUIStyleDefinitions.STATUS_ICON_YELLOW, getStatusDescription(RolloutGroupStatus.RUNNING)));
-        statusIconMap.put(RolloutGroupStatus.READY, new ProxyFontIcon(VaadinIcons.BULLSEYE,
-                SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE, getStatusDescription(RolloutGroupStatus.READY)));
-        statusIconMap.put(RolloutGroupStatus.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(RolloutGroupStatus.ERROR)));
-    }
-
-    private String getStatusDescription(final RolloutGroupStatus groupStatus) {
-        return i18n.getMessage(
-                UIMessageIdProvider.TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX + groupStatus.toString().toLowerCase());
     }
 
     @Override

@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,6 +18,7 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
+import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdNameVersion;
@@ -77,7 +77,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     private final transient AutoAssignmentWindowBuilder autoAssignmentWindowBuilder;
 
-    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
+    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap;
 
     private final transient DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
 
@@ -100,7 +100,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 new TargetFilterQueryToProxyTargetFilterMapper())));
         initFilterMappings();
 
-        initActionTypeIconMap();
+        actionTypeIconMap = IconBuilder.generateActionTypeIcons(i18n);
         init();
     }
 
@@ -191,20 +191,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
             notification.displayValidationError(
                     i18n.getMessage("message.permission.insufficient", SpPermission.READ_REPOSITORY));
         }
-    }
-
-    // TODO: remove duplication with ActionHistoryGrid
-    private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT,
-                SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
-        actionTypeIconMap.put(ActionType.TIMEFORCED,
-                new ProxyFontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
-        actionTypeIconMap.put(ActionType.SOFT, new ProxyFontIcon(VaadinIcons.STEP_FORWARD,
-                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
-        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
-                new ProxyFontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
     }
 
     // TODO: remove duplication with RolloutGrid and buildActionButton()

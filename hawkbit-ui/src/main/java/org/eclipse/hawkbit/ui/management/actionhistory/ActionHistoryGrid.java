@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.time.ZonedDateTime;
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,6 +20,7 @@ import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
+import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionToProxyActionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
@@ -80,9 +80,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private final transient DeploymentManagement deploymentManagement;
     private final transient ActionToProxyActionMapper actionToProxyActionMapper;
 
-    private final Map<Status, ProxyFontIcon> statusIconMap = new EnumMap<>(Status.class);
-    private final Map<IsActiveDecoration, ProxyFontIcon> activeStatusIconMap = new EnumMap<>(IsActiveDecoration.class);
-    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
+    private final Map<Status, ProxyFontIcon> statusIconMap;
+    private final Map<IsActiveDecoration, ProxyFontIcon> activeStatusIconMap;
+    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap;
 
     private final transient MasterEntitySupport<ProxyTarget> masterEntitySupport;
 
@@ -109,9 +109,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
         this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport(), ProxyTarget::getControllerId);
 
-        initStatusIconMap();
-        initActiveStatusIconMap();
-        initActionTypeIconMap();
+        statusIconMap = IconBuilder.generateActionStatusIcons(i18n);
+        activeStatusIconMap = IconBuilder.generateActiveStatusIcons(i18n);
+        actionTypeIconMap = IconBuilder.generateActionTypeIcons(i18n);
 
         init();
     }
@@ -123,62 +123,6 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private void initFilterMappings() {
         getFilterSupport().<String> addMapping(FilterType.MASTER,
                 (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
-    }
-
-    private void initStatusIconMap() {
-        statusIconMap.put(Status.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.FINISHED)));
-        statusIconMap.put(Status.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_EMPTY,
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.SCHEDULED)));
-        statusIconMap.put(Status.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST,
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RUNNING)));
-        statusIconMap.put(Status.RETRIEVED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE_O,
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.RETRIEVED)));
-        statusIconMap.put(Status.WARNING, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_ORANGE, getStatusDescription(Status.WARNING)));
-        statusIconMap.put(Status.DOWNLOAD, new ProxyFontIcon(VaadinIcons.CLOUD_DOWNLOAD,
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.DOWNLOAD)));
-        statusIconMap.put(Status.DOWNLOADED, new ProxyFontIcon(VaadinIcons.CLOUD_DOWNLOAD,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.DOWNLOADED)));
-        statusIconMap.put(Status.CANCELING, new ProxyFontIcon(VaadinIcons.CLOSE_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(Status.CANCELING)));
-        statusIconMap.put(Status.CANCELED, new ProxyFontIcon(VaadinIcons.CLOSE_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(Status.CANCELED)));
-        statusIconMap.put(Status.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(Status.ERROR)));
-    }
-
-    private String getStatusDescription(final Status actionStatus) {
-        return i18n
-                .getMessage(UIMessageIdProvider.TOOLTIP_ACTION_STATUS_PREFIX + actionStatus.toString().toLowerCase());
-    }
-
-    private void initActiveStatusIconMap() {
-        activeStatusIconMap.put(IsActiveDecoration.ACTIVE, new ProxyFontIcon(null,
-                SPUIStyleDefinitions.STATUS_ICON_ACTIVE, getActiveStatusDescription(IsActiveDecoration.ACTIVE)));
-        activeStatusIconMap.put(IsActiveDecoration.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_EMPTY,
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, getActiveStatusDescription(IsActiveDecoration.SCHEDULED)));
-        activeStatusIconMap.put(IsActiveDecoration.IN_ACTIVE, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL, getActiveStatusDescription(IsActiveDecoration.IN_ACTIVE)));
-        activeStatusIconMap.put(IsActiveDecoration.IN_ACTIVE_ERROR, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getActiveStatusDescription(IsActiveDecoration.IN_ACTIVE_ERROR)));
-    }
-
-    private String getActiveStatusDescription(final IsActiveDecoration activeActionStatus) {
-        return i18n
-                .getMessage(UIMessageIdProvider.TOOLTIP_ACTIVE_ACTION_STATUS_PREFIX + activeActionStatus.getMsgName());
-    }
-
-    private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT,
-                SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
-        actionTypeIconMap.put(ActionType.TIMEFORCED, new ProxyFontIcon(VaadinIcons.BOLT,
-                SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
-        actionTypeIconMap.put(ActionType.SOFT, new ProxyFontIcon(VaadinIcons.STEP_FORWARD,
-                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
-        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
-                new ProxyFontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
     }
 
     @Override

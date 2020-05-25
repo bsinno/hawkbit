@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.rollout.rollout;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +26,7 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
+import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
@@ -97,8 +97,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private static final String COPY_BUTTON_ID = "copy";
     private static final String DELETE_BUTTON_ID = "delete";
 
-    private final Map<RolloutStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutStatus.class);
-    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
+    private final Map<RolloutStatus, ProxyFontIcon> statusIconMap;
+    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap;
 
     private final RolloutManagementUIState rolloutManagementUIState;
 
@@ -141,8 +141,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         setFilterSupport(new FilterSupport<>(new RolloutDataProvider(rolloutManagement, rolloutMapper)));
         initFilterMappings();
 
-        initStatusIconMap();
-        initActionTypeIconMap();
+        statusIconMap = IconBuilder.generateRolloutStatusIcons(i18n);
+        actionTypeIconMap = IconBuilder.generateActionTypeIcons(i18n);
         init();
     }
 
@@ -244,48 +244,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         }
 
         getDataProvider().refreshItem(proxyRollout);
-    }
-
-    private void initStatusIconMap() {
-        statusIconMap.put(RolloutStatus.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(RolloutStatus.FINISHED)));
-        statusIconMap.put(RolloutStatus.PAUSED, new ProxyFontIcon(VaadinIcons.PAUSE,
-                SPUIStyleDefinitions.STATUS_ICON_BLUE, getStatusDescription(RolloutStatus.PAUSED)));
-        statusIconMap.put(RolloutStatus.RUNNING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_YELLOW,
-                getStatusDescription(RolloutStatus.RUNNING)));
-        statusIconMap.put(RolloutStatus.WAITING_FOR_APPROVAL, new ProxyFontIcon(VaadinIcons.HOURGLASS,
-                SPUIStyleDefinitions.STATUS_ICON_ORANGE, getStatusDescription(RolloutStatus.WAITING_FOR_APPROVAL)));
-        statusIconMap.put(RolloutStatus.APPROVAL_DENIED, new ProxyFontIcon(VaadinIcons.CLOSE_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(RolloutStatus.APPROVAL_DENIED)));
-        statusIconMap.put(RolloutStatus.READY, new ProxyFontIcon(VaadinIcons.BULLSEYE,
-                SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE, getStatusDescription(RolloutStatus.READY)));
-        statusIconMap.put(RolloutStatus.STOPPED, new ProxyFontIcon(VaadinIcons.STOP,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(RolloutStatus.STOPPED)));
-        statusIconMap.put(RolloutStatus.CREATING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_GREY,
-                getStatusDescription(RolloutStatus.CREATING)));
-        statusIconMap.put(RolloutStatus.STARTING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_BLUE,
-                getStatusDescription(RolloutStatus.STARTING)));
-        statusIconMap.put(RolloutStatus.DELETING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_RED,
-                getStatusDescription(RolloutStatus.DELETING)));
-    }
-
-    private String getStatusDescription(final RolloutStatus status) {
-        return i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_STATUS_PREFIX + status.toString().toLowerCase());
-    }
-
-    // TODO remove duplication with other grid classes by extracting to
-    // GridComponentBuilder/SPUIComponentProvider
-    private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT,
-                SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
-        actionTypeIconMap.put(ActionType.TIMEFORCED,
-                new ProxyFontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
-        actionTypeIconMap.put(ActionType.SOFT, new ProxyFontIcon(VaadinIcons.STEP_FORWARD,
-                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
-        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
-                new ProxyFontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
     }
 
     private final void hideColumnsDueToInsufficientPermissions() {
