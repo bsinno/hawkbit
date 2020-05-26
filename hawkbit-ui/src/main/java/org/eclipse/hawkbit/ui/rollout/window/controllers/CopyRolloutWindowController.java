@@ -59,7 +59,7 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
             proxyRolloutWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
         }
 
-        proxyRolloutWindow.setAutoStartOption(getStartAtOption(proxyRolloutWindow.getStartAt()));
+        proxyRolloutWindow.setAutoStartOption(layout.getStartAtOption(proxyRolloutWindow.getStartAt()));
         if (AutoStartOption.SCHEDULED != proxyRolloutWindow.getAutoStartOption()) {
             proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
         }
@@ -70,17 +70,6 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
         proxyRolloutWindow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
 
         return proxyRolloutWindow;
-    }
-
-    // TODO: remove duplication with UpdateRolloutWindowController
-    private AutoStartOption getStartAtOption(final Long startAtTime) {
-        if (startAtTime == null) {
-            return AutoStartOptionGroupLayout.AutoStartOption.MANUAL;
-        } else if (startAtTime < System.currentTimeMillis()) {
-            return AutoStartOptionGroupLayout.AutoStartOption.AUTO_START;
-        } else {
-            return AutoStartOptionGroupLayout.AutoStartOption.SCHEDULED;
-        }
     }
 
     @Override

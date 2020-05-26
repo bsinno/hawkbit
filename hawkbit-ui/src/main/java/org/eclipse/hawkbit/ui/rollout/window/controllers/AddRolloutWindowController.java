@@ -108,7 +108,7 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
                 .targetFilterQuery(entity.getTargetFilterQuery()).actionType(entity.getActionType())
                 .forcedTime(entity.getActionType() == ActionType.TIMEFORCED ? entity.getForcedTime()
                         : RepositoryModelConstants.NO_FORCE_TIME)
-                .startAt(getStartAtTime(entity));
+                .startAt(layout.getStartAtTime(entity));
 
         Rollout rolloutToCreate;
         if (layout.isNumberOfGroups()) {
@@ -123,18 +123,6 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", rolloutToCreate.getName()));
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_ADDED, ProxyRollout.class, rolloutToCreate.getId()));
-    }
-
-    private Long getStartAtTime(final ProxyRolloutWindow entity) {
-        switch (entity.getAutoStartOption()) {
-        case AUTO_START:
-            return System.currentTimeMillis();
-        case SCHEDULED:
-            return entity.getStartAt();
-        case MANUAL:
-        default:
-            return null;
-        }
     }
 
     @Override

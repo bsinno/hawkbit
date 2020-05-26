@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.server.Sizeable.Unit;
@@ -76,6 +77,28 @@ public abstract class AbstractRolloutWindowLayout extends AbstractEntityWindowLa
         }
 
         return (int) Math.ceil((double) totalTargets / (double) numberOfGroups);
+    }
+
+    public Long getStartAtTime(final ProxyRolloutWindow entity) {
+        switch (entity.getAutoStartOption()) {
+        case AUTO_START:
+            return System.currentTimeMillis();
+        case SCHEDULED:
+            return entity.getStartAt();
+        case MANUAL:
+        default:
+            return null;
+        }
+    }
+
+    public AutoStartOption getStartAtOption(final Long startAtTime) {
+        if (startAtTime == null) {
+            return AutoStartOption.MANUAL;
+        } else if (startAtTime < System.currentTimeMillis()) {
+            return AutoStartOption.AUTO_START;
+        } else {
+            return AutoStartOption.SCHEDULED;
+        }
     }
 
     protected abstract void addComponents(final GridLayout rootLayout);

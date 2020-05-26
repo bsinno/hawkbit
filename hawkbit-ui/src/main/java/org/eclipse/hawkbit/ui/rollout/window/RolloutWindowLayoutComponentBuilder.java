@@ -142,12 +142,11 @@ public final class RolloutWindowLayoutComponentBuilder {
         targetFilterQueryCombo.setItemCaptionGenerator(ProxyTargetFilterQuery::getName);
         targetFilterQueryCombo.setDataProvider(targetFilterQueryDataProvider);
 
-        // TODO: use i18n for all the required fields messages
         binder.forField(targetFilterQueryCombo).asRequired((filterQuery, context) -> {
             if (filterQuery == null) {
                 totalTargetsByQueryCallback.applyAsLong(null);
 
-                return ValidationResult.error("You must provide the target filter");
+                return ValidationResult.error(dependencies.getI18n().getMessage("You must provide the target filter"));
             }
 
             return ValidationResult.ok();
@@ -234,10 +233,9 @@ public final class RolloutWindowLayoutComponentBuilder {
         binder.forField(autoStartOptionGroupLayout.getAutoStartOptionGroup())
                 .bind(ProxyRolloutWindow::getAutoStartOption, ProxyRolloutWindow::setAutoStartOption);
 
-        // TODO: use i18n
         final Binding<ProxyRolloutWindow, Long> binding = binder
                 .forField(autoStartOptionGroupLayout.getStartAtDateField())
-                .asRequired("Scheduled time can not be empty").withConverter(localDateTime -> {
+                .asRequired(dependencies.getI18n().getMessage("Scheduled time can not be empty")).withConverter(localDateTime -> {
                     if (localDateTime == null) {
                         return null;
                     }
@@ -345,8 +343,7 @@ public final class RolloutWindowLayoutComponentBuilder {
                 .prompt(dependencies.getI18n().getMessage("prompt.tigger.threshold")).buildTextComponent();
         triggerThreshold.setSizeUndefined();
 
-        // TODO: use i18n
-        binder.forField(triggerThreshold).asRequired("Trigger threshold can not be empty")
+        binder.forField(triggerThreshold).asRequired(dependencies.getI18n().getMessage("Trigger threshold can not be empty"))
                 .withValidator((triggerThresholdText,
                         context) -> new IntegerRangeValidator(
                                 dependencies.getI18n().getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
@@ -371,8 +368,7 @@ public final class RolloutWindowLayoutComponentBuilder {
                 .prompt(dependencies.getI18n().getMessage("prompt.error.threshold")).buildTextComponent();
         errorThreshold.setSizeUndefined();
 
-        // TODO: use i18n
-        binder.forField(errorThreshold).asRequired("Error threshold can not be empty")
+        binder.forField(errorThreshold).asRequired(dependencies.getI18n().getMessage("Error threshold can not be empty"))
                 .withValidator((errorThresholdText, context) -> {
                     if (ERROR_THRESHOLD_OPTIONS.PERCENT == errorThresholdOptionProvider.get()) {
                         return new IntegerRangeValidator(
