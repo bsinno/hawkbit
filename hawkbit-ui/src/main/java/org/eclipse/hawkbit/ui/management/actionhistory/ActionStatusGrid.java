@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.util.Map;
-import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.model.Action.Status;
@@ -25,17 +24,13 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Label;
 
 /**
@@ -102,14 +97,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     }
 
     private Label buildStatusIcon(final ProxyActionStatus actionStatus) {
-        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(actionStatus.getStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String statusId = new StringBuilder(UIComponentIdProvider.ACTION_STATUS_GRID_STATUS_LABEL_ID).append(".")
-                .append(actionStatus.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
+        return IconBuilder.buildStatusIconLabel(i18n, statusIconMap, ProxyActionStatus::getStatus,
+                UIComponentIdProvider.ACTION_STATUS_GRID_STATUS_LABEL_ID, actionStatus);
     }
 
     public MasterEntitySupport<ProxyAction> getMasterEntitySupport() {

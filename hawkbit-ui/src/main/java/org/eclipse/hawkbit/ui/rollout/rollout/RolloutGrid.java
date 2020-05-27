@@ -45,7 +45,6 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
@@ -330,25 +329,13 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private Label buildStatusIcon(final ProxyRollout rollout) {
-        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rollout.getStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID).append(".")
-                .append(rollout.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
+        return IconBuilder.buildStatusIconLabel(i18n, statusIconMap, ProxyRollout::getStatus,
+                UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID, rollout);
     }
 
     private Label buildTypeIcon(final ProxyRollout rollout) {
-        final ProxyFontIcon actionTypeFontIcon = Optional.ofNullable(actionTypeIconMap.get(rollout.getActionType()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String actionTypeId = new StringBuilder(UIComponentIdProvider.ROLLOUT_ACTION_TYPE_LABEL_ID).append(".")
-                .append(rollout.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(actionTypeFontIcon, actionTypeId);
+        return IconBuilder.buildStatusIconLabel(i18n, actionTypeIconMap, ProxyRollout::getActionType,
+                UIComponentIdProvider.ROLLOUT_ACTION_TYPE_LABEL_ID, rollout);
     }
 
     private void addActionColumns() {

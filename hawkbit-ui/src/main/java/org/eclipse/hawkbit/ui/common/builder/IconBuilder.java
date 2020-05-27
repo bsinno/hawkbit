@@ -16,7 +16,11 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
+import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress.ProgressSatus;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -24,6 +28,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontIcon;
+import com.vaadin.ui.Label;
 
 /**
  * Class to create {@link ProxyFontIcon}s
@@ -44,7 +49,7 @@ public final class IconBuilder {
     public static Map<Status, ProxyFontIcon> generateActionStatusIcons(final VaadinMessageSource i18n) {
 
         final IconMapBuilderWithGeneratedDesc<Status> builder = new IconMapBuilderWithGeneratedDesc<>(Status.class,
-                i18n, status -> UIMessageIdProvider.TOOLTIP_ACTION_STATUS_PREFIX + status.toString());
+                i18n, status -> UIMessageIdProvider.TOOLTIP_ACTION_STATUS_PREFIX + status.toString().toLowerCase());
 
         builder.add(Status.FINISHED, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
         builder.add(Status.SCHEDULED, VaadinIcons.HOURGLASS_EMPTY, SPUIStyleDefinitions.STATUS_ICON_PENDING);
@@ -70,7 +75,7 @@ public final class IconBuilder {
 
         final IconMapBuilderWithGeneratedDesc<RolloutStatus> builder = new IconMapBuilderWithGeneratedDesc<>(
                 RolloutStatus.class, i18n,
-                status -> UIMessageIdProvider.TOOLTIP_ROLLOUT_STATUS_PREFIX + status.toString());
+                status -> UIMessageIdProvider.TOOLTIP_ROLLOUT_STATUS_PREFIX + status.toString().toLowerCase());
 
         builder.add(RolloutStatus.FINISHED, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
         builder.add(RolloutStatus.PAUSED, VaadinIcons.PAUSE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
@@ -98,7 +103,7 @@ public final class IconBuilder {
 
         final IconMapBuilderWithGeneratedDesc<RolloutGroupStatus> builder = new IconMapBuilderWithGeneratedDesc<>(
                 RolloutGroupStatus.class, i18n,
-                status -> UIMessageIdProvider.TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX + status.toString());
+                status -> UIMessageIdProvider.TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX + status.toString().toLowerCase());
 
         builder.add(RolloutGroupStatus.FINISHED, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
         builder.add(RolloutGroupStatus.RUNNING, VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW);
@@ -153,6 +158,47 @@ public final class IconBuilder {
         return builder.build();
     }
 
+    /**
+     * Generate {@link ProxyFontIcon}s mapped to their
+     * {@link TargetUpdateStatus}
+     * 
+     * @param i18n
+     *            message source for internationalization
+     * @return map of icons and their states
+     */
+    public static Map<TargetUpdateStatus, ProxyFontIcon> generateTargetStatusIcons(final VaadinMessageSource i18n) {
+
+        final IconMapBuilderWithGeneratedDesc<TargetUpdateStatus> builder = new IconMapBuilderWithGeneratedDesc<>(
+                TargetUpdateStatus.class, i18n,
+                status -> UIMessageIdProvider.TOOLTIP_TARGET_STATUS_PREFIX + status.toString().toLowerCase());
+
+        builder.add(TargetUpdateStatus.ERROR, VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
+        builder.add(TargetUpdateStatus.UNKNOWN, VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE);
+        builder.add(TargetUpdateStatus.IN_SYNC, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
+        builder.add(TargetUpdateStatus.PENDING, VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW);
+        builder.add(TargetUpdateStatus.REGISTERED, VaadinIcons.DOT_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE);
+        return builder.build();
+    }
+
+    /**
+     * Generate {@link ProxyFontIcon}s mapped to their {@link ProgressSatus}
+     * 
+     * @param i18n
+     *            message source for internationalization
+     * @return map of icons and their states
+     */
+    public static Map<ProgressSatus, ProxyFontIcon> generateProgressStatusIcons(final VaadinMessageSource i18n) {
+
+        final IconMapBuilderWithGeneratedDesc<ProgressSatus> builder = new IconMapBuilderWithGeneratedDesc<>(
+                ProgressSatus.class, i18n,
+                status -> UIMessageIdProvider.TOOLTIP_UPLOAD_STATUS_PREFIX + status.toString().toLowerCase());
+
+        builder.add(ProgressSatus.INPROGRESS, VaadinIcons.ADJUST, SPUIStyleDefinitions.STATUS_ICON_YELLOW);
+        builder.add(ProgressSatus.FINISHED, VaadinIcons.CHECK_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_GREEN);
+        builder.add(ProgressSatus.FAILED, VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_RED);
+        return builder.build();
+    }
+
     private static class IconMapBuilder<T extends Enum<T>> {
         private final Map<T, ProxyFontIcon> statusIconMap;
         private final VaadinMessageSource i18n;
@@ -185,6 +231,28 @@ public final class IconBuilder {
             add(status, icon, style, description);
         }
 
+    }
+
+    public static <T, E extends ProxyIdentifiableEntity> Label buildStatusIconLabel(final VaadinMessageSource i18n,
+            final Map<T, ProxyFontIcon> iconMap, final Function<E, T> getEntityStatus, final String labelIdPrefix,
+            final E entity) {
+        final T status = getEntityStatus.apply(entity);
+        final ProxyFontIcon fontIcon;
+
+        if (status != null) {
+            fontIcon = iconMap.getOrDefault(status, generateUnknwonStateIcon(i18n));
+        } else {
+            fontIcon = generateUnknwonStateIcon(i18n);
+        }
+
+        final String entityStatusId = new StringBuilder(labelIdPrefix).append(".").append(entity.getId()).toString();
+
+        return SPUIComponentProvider.getLabelIcon(fontIcon, entityStatusId);
+    }
+
+    private static ProxyFontIcon generateUnknwonStateIcon(final VaadinMessageSource i18n) {
+        return new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
+                i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN));
     }
 
 }

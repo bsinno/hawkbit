@@ -175,15 +175,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Label buildActiveStatusIcon(final ProxyAction action) {
-        final ProxyFontIcon activeStatusFontIcon = Optional
-                .ofNullable(activeStatusIconMap.get(action.getIsActiveDecoration()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String activeStatusId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_ACTIVESTATE_LABEL_ID)
-                .append(".").append(action.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(activeStatusFontIcon, activeStatusId);
+        return IconBuilder.buildStatusIconLabel(i18n, activeStatusIconMap, ProxyAction::getIsActiveDecoration,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_ACTIVESTATE_LABEL_ID, action);
     }
 
     private Column<ProxyAction, String> addDsColumn() {
@@ -204,14 +197,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Label buildStatusIcon(final ProxyAction action) {
-        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(action.getStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String statusId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_STATUS_LABEL_ID)
-                .append(".").append(action.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
+        return IconBuilder.buildStatusIconLabel(i18n, statusIconMap, ProxyAction::getStatus,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_STATUS_LABEL_ID, action);
     }
 
     private Column<ProxyAction, String> addMaintenanceWindowColumn() {
@@ -236,14 +223,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Label buildTypeIcon(final ProxyAction action) {
-        final ProxyFontIcon actionTypeFontIcon = Optional.ofNullable(actionTypeIconMap.get(action.getActionType()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String actionTypeId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID)
-                .append(".").append(action.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(actionTypeFontIcon, actionTypeId);
+        return IconBuilder.buildStatusIconLabel(i18n, actionTypeIconMap, ProxyAction::getActionType,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID, action);
     }
 
     private Column<ProxyAction, Label> addTimeforcedColumn() {

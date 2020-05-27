@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
@@ -35,7 +34,6 @@ import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -211,17 +209,10 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         return link;
     }
 
-    // TODO: remove duplication with ActionHistoryGrid
     private Label buildTypeIcon(final ProxyTargetFilterQuery targetFilter) {
-        final ProxyFontIcon actionTypeFontIcon = Optional
-                .ofNullable(actionTypeIconMap.get(targetFilter.getAutoAssignActionType()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String actionTypeId = new StringBuilder(UIComponentIdProvider.TARGET_FILTER_TABLE_TYPE_LABEL_ID)
-                .append(".").append(targetFilter.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(actionTypeFontIcon, actionTypeId);
+        return IconBuilder.buildStatusIconLabel(i18n, actionTypeIconMap,
+                ProxyTargetFilterQuery::getAutoAssignActionType,
+                UIComponentIdProvider.TARGET_FILTER_TABLE_TYPE_LABEL_ID, targetFilter);
     }
 
     // TODO: remove duplication

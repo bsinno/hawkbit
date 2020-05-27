@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +25,7 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
+import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
@@ -92,7 +92,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
     private final transient TargetManagement targetManagement;
 
-    private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
+    private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap;
 
     private final transient TargetToProxyTargetMapper targetToProxyTargetMapper;
 
@@ -156,7 +156,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         getFilterSupport().setFilter(new TargetManagementFilterParams());
 
         initDsPinningStyleGenerator();
-        initTargetStatusIconMap();
+        targetStatusIconMap = IconBuilder.generateTargetStatusIcons(i18n);
         init();
     }
 
@@ -251,26 +251,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         setStyleGenerator(target -> pinSupport.getAssignedOrInstalledRowStyle(target.getId()));
     }
 
-    // TODO: check if icons are correct
-    private void initTargetStatusIconMap() {
-        targetStatusIconMap.put(TargetUpdateStatus.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getTargetStatusDescription(TargetUpdateStatus.ERROR)));
-        targetStatusIconMap.put(TargetUpdateStatus.UNKNOWN, new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_BLUE, getTargetStatusDescription(TargetUpdateStatus.UNKNOWN)));
-        targetStatusIconMap.put(TargetUpdateStatus.IN_SYNC, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getTargetStatusDescription(TargetUpdateStatus.IN_SYNC)));
-        targetStatusIconMap.put(TargetUpdateStatus.PENDING, new ProxyFontIcon(VaadinIcons.DOT_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_YELLOW, getTargetStatusDescription(TargetUpdateStatus.PENDING)));
-        targetStatusIconMap.put(TargetUpdateStatus.REGISTERED,
-                new ProxyFontIcon(VaadinIcons.DOT_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
-                        getTargetStatusDescription(TargetUpdateStatus.REGISTERED)));
-    }
-
-    private String getTargetStatusDescription(final TargetUpdateStatus targetStatus) {
-        return i18n
-                .getMessage(UIMessageIdProvider.TOOLTIP_TARGET_STATUS_PREFIX + targetStatus.toString().toLowerCase());
-    }
-
     @Override
     public String getGridId() {
         return UIComponentIdProvider.TARGET_TABLE_ID;
@@ -338,15 +318,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private Label buildTargetStatusIcon(final ProxyTarget target) {
-        final ProxyFontIcon targetStatusFontIcon = Optional
-                .ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String targetStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID).append(".")
-                .append(target.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(targetStatusFontIcon, targetStatusId);
+        return IconBuilder.buildStatusIconLabel(i18n, targetStatusIconMap, ProxyTarget::getUpdateStatus,
+                UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID, target);
     }
 
     private Column<ProxyTarget, Button> addPinColumn() {
