@@ -13,10 +13,12 @@ import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
 import org.eclipse.hawkbit.ui.common.data.aware.NameAware;
+import org.eclipse.hawkbit.ui.common.data.aware.StartOptionAware;
 import org.eclipse.hawkbit.ui.common.data.aware.VersionAware;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -141,7 +143,6 @@ public final class FormComponentBuilder {
         binder.forField(actionTypeOptionGroupLayout.getActionTypeOptionGroup()).bind(ActionTypeAware::getActionType,
                 ActionTypeAware::setActionType);
 
-        // TODO: use i18n
         final Binding<T, Long> binding = binder.forField(actionTypeOptionGroupLayout.getForcedTimeDateField())
                 .asRequired(i18n.getMessage("message.forcedTime.cannotBeEmpty")).withConverter(localDateTime -> {
                     if (localDateTime == null) {
@@ -158,6 +159,44 @@ public final class FormComponentBuilder {
                 }).bind(ActionTypeAware::getForcedTime, ActionTypeAware::setForcedTime);
 
         return new BoundComponent<>(actionTypeOptionGroupLayout, binding);
+    }
+
+    /**
+     * Create a bound {@link AutoStartOptionGroupLayout}
+     * 
+     * @param <T>
+     *            type of the binder
+     * @param binder
+     *            that is bound to the layout
+     * @param i18n
+     *            message source
+     * @param componentId
+     *            id of the input layout
+     * @return a bound layout
+     */
+    public static <T extends StartOptionAware> BoundComponent<AutoStartOptionGroupLayout> createAutoStartOptionGroupLayout(
+            final Binder<T> binder, final VaadinMessageSource i18n, final String componentId) {
+        final AutoStartOptionGroupLayout autoStartOptionGroup = new AutoStartOptionGroupLayout(i18n, componentId);
+
+        binder.forField(autoStartOptionGroup.getAutoStartOptionGroup()).bind(StartOptionAware::getStartOption,
+                StartOptionAware::setStartOption);
+
+        final Binding<T, Long> binding = binder.forField(autoStartOptionGroup.getStartAtDateField())
+                .asRequired(i18n.getMessage("message.scheduledTime.cannotBeEmpty")).withConverter(localDateTime -> {
+                    if (localDateTime == null) {
+                        return null;
+                    }
+
+                    return SPDateTimeUtil.localDateTimeToEpochMilli(localDateTime);
+                }, startAtTime -> {
+                    if (startAtTime == null) {
+                        return null;
+                    }
+
+                    return SPDateTimeUtil.epochMilliToLocalDateTime(startAtTime);
+                }).bind(StartOptionAware::getStartAt, StartOptionAware::setStartAt);
+
+        return new BoundComponent<>(autoStartOptionGroup, binding);
     }
 
     /**

@@ -15,12 +15,14 @@ import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
 import org.eclipse.hawkbit.ui.common.data.aware.NameAware;
+import org.eclipse.hawkbit.ui.common.data.aware.StartOptionAware;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 
 /**
  * Proxy entity representing rollout form layout bean.
  */
-public class ProxyRolloutForm implements Serializable, NameAware, DsIdAware, DescriptionAware, ActionTypeAware {
+public class ProxyRolloutForm
+        implements Serializable, NameAware, DsIdAware, DescriptionAware, ActionTypeAware, StartOptionAware {
     private static final long serialVersionUID = 1L;
 
     private String name;
@@ -99,18 +101,22 @@ public class ProxyRolloutForm implements Serializable, NameAware, DsIdAware, Des
         this.forcedTime = forcedTime;
     }
 
-    public AutoStartOption getAutoStartOption() {
+    @Override
+    public AutoStartOption getStartOption() {
         return autoStartOption;
     }
 
-    public void setAutoStartOption(final AutoStartOption autoStartOption) {
+    @Override
+    public void setStartOption(final AutoStartOption autoStartOption) {
         this.autoStartOption = autoStartOption;
     }
 
+    @Override
     public Long getStartAt() {
         return startAt;
     }
 
+    @Override
     public void setStartAt(final Long startAt) {
         this.startAt = startAt;
     }

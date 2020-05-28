@@ -23,8 +23,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutForm;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
-import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -196,29 +194,11 @@ public class RolloutFormLayout {
     }
 
     private BoundComponent<AutoStartOptionGroupLayout> createAutoStartOptionGroupLayout() {
-        final AutoStartOptionGroupLayout autoStartOptionGroup = new AutoStartOptionGroupLayout(i18n);
-        autoStartOptionGroup.addStyleName(SPUIStyleDefinitions.ROLLOUT_ACTION_TYPE_LAYOUT);
+        final BoundComponent<AutoStartOptionGroupLayout> autoStartOptionGroup = FormComponentBuilder
+                .createAutoStartOptionGroupLayout(binder, i18n, UIComponentIdProvider.ROLLOUT_START_OPTIONS_ID);
+        autoStartOptionGroup.setRequired(false);
 
-        binder.forField(autoStartOptionGroup.getAutoStartOptionGroup()).bind(ProxyRolloutForm::getAutoStartOption,
-                ProxyRolloutForm::setAutoStartOption);
-
-        // TODO: use i18n
-        final Binding<ProxyRolloutForm, Long> binding = binder.forField(autoStartOptionGroup.getStartAtDateField())
-                .asRequired("Scheduled time can not be empty").withConverter(localDateTime -> {
-                    if (localDateTime == null) {
-                        return null;
-                    }
-
-                    return SPDateTimeUtil.localDateTimeToEpochMilli(localDateTime);
-                }, startAtTime -> {
-                    if (startAtTime == null) {
-                        return null;
-                    }
-
-                    return SPDateTimeUtil.epochMilliToLocalDateTime(startAtTime);
-                }).bind(ProxyRolloutForm::getStartAt, ProxyRolloutForm::setStartAt);
-
-        return new BoundComponent<>(autoStartOptionGroup, binding);
+        return autoStartOptionGroup;
     }
 
     private void addValueChangeListeners() {

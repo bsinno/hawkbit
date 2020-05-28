@@ -39,6 +39,7 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
             final String actionTypeOptionGroupId) {
         this.i18n = i18n;
         this.actionTypeOptionGroupId = actionTypeOptionGroupId;
+
         init();
     }
 
