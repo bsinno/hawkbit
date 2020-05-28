@@ -22,6 +22,7 @@ import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
@@ -30,6 +31,7 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
+import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -412,6 +414,51 @@ public final class StatusIconBuilder {
         }
     }
 
+    /**
+     * Generate labels with icons according to {@link ProxyAction}s' timeforced
+     * status and current time
+     */
+    public static class TimeforcedIconSupplier extends AbstractEntityStatusIconBuilder<ProxyAction> {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * constructor
+         * 
+         * @param i18n
+         *            message source for internationalization
+         * @param labelIdPrefix
+         *            to generate the label ID
+         */
+        public TimeforcedIconSupplier(final VaadinMessageSource i18n, final String labelIdPrefix) {
+            super(i18n, labelIdPrefix);
+        }
+
+        @Override
+        public Label getLabel(final ProxyAction action) {
+            if (ActionType.TIMEFORCED != action.getActionType()) {
+                return null;
+            }
+
+            final long currentTimeMillis = System.currentTimeMillis();
+            String style;
+            String description;
+            if (action.isHitAutoForceTime(currentTimeMillis)) {
+                style = SPUIStyleDefinitions.STATUS_ICON_GREEN;
+                final String duration = SPDateTimeUtil.getDurationFormattedString(action.getForcedTime(),
+                        currentTimeMillis, i18n);
+                description = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_SINCE, duration);
+            } else {
+                style = SPUIStyleDefinitions.STATUS_ICON_PENDING;
+                final String duration = SPDateTimeUtil.getDurationFormattedString(currentTimeMillis,
+                        action.getForcedTime(), i18n);
+                description = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_IN, duration);
+            }
+
+            final ProxyFontIcon icon = new ProxyFontIcon(VaadinIcons.TIMER, style, description);
+            return getLabel(action, icon);
+        }
+    }
+
     private static class EntityStatusIconBuilderWithGenetaredTooltip<T extends Enum<T>, E extends ProxyIdentifiableEntity>
             extends EntityStatusIconBuilder<T, E> {
         private static final long serialVersionUID = 1L;
@@ -483,7 +530,6 @@ public final class StatusIconBuilder {
         protected Label getLabel(final E entity, final ProxyFontIcon icon) {
             final String entityStatusId = new StringBuilder(labelIdPrefix).append(".").append(entity.getId())
                     .toString();
-
             return SPUIComponentProvider.getLabelIcon(icon, entityStatusId);
         }
 

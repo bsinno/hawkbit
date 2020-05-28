@@ -14,13 +14,13 @@ import java.util.Optional;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.exception.CancelActionNotAllowedException;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
-import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionTypeIconSupplier;
 import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActiveStatusIconSupplier;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.TimeforcedIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionToProxyActionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
@@ -35,8 +35,6 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -82,6 +80,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private final ActionStatusIconSupplier<ProxyAction> actionStatusIconSupplier;
     private final ActiveStatusIconSupplier<ProxyAction> activeStatusIconSupplier;
     private final ActionTypeIconSupplier<ProxyAction> actionTypeIconSupplier;
+    private final TimeforcedIconSupplier timeforcedIconSupplier;
 
     private final transient MasterEntitySupport<ProxyTarget> masterEntitySupport;
 
@@ -114,7 +113,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_ACTIVESTATE_LABEL_ID);
         actionTypeIconSupplier = new ActionTypeIconSupplier<>(i18n, ProxyAction::getActionType,
                 UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID);
-
+        timeforcedIconSupplier = new TimeforcedIconSupplier(i18n,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_TIMEFORCED_LABEL_ID);
         init();
     }
 
@@ -215,36 +215,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Column<ProxyAction, Label> addTimeforcedColumn() {
-        return addComponentColumn(this::buildTimeforcedIcon).setId(TIME_FORCED_ID)
+        return addComponentColumn(timeforcedIconSupplier::getLabel).setId(TIME_FORCED_ID)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildTimeforcedIcon(final ProxyAction action) {
-        if (ActionType.TIMEFORCED != action.getActionType()) {
-            return null;
-        }
-
-        final long currentTimeMillis = System.currentTimeMillis();
-        String style;
-        String description;
-        if (action.isHitAutoForceTime(currentTimeMillis)) {
-            style = SPUIStyleDefinitions.STATUS_ICON_GREEN;
-            final String duration = SPDateTimeUtil.getDurationFormattedString(action.getForcedTime(), currentTimeMillis,
-                    i18n);
-            description = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_SINCE, duration);
-        } else {
-            style = SPUIStyleDefinitions.STATUS_ICON_PENDING;
-            final String duration = SPDateTimeUtil.getDurationFormattedString(currentTimeMillis, action.getForcedTime(),
-                    i18n);
-            description = i18n.getMessage(UIMessageIdProvider.TOOLTIP_TIMEFORCED_FORCED_IN, duration);
-        }
-
-        final ProxyFontIcon timeforcedFontIcon = new ProxyFontIcon(VaadinIcons.TIMER, style, description);
-
-        final String actionTypeId = new StringBuilder(UIComponentIdProvider.ACTION_HISTORY_TABLE_TIMEFORCED_LABEL_ID)
-                .append(".").append(action.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(timeforcedFontIcon, actionTypeId);
     }
 
     private Column<ProxyAction, Button> addCancelColumn() {
