@@ -9,14 +9,13 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.RolloutGroupStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
@@ -33,7 +32,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -43,7 +41,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.google.common.base.Predicates;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 /**
@@ -58,7 +55,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
     private final transient RolloutGroupManagement rolloutGroupManagement;
     private final transient RolloutGroupToProxyRolloutGroupMapper rolloutGroupMapper;
 
-    private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap;
+    private final RolloutGroupStatusIconSupplier<ProxyRolloutGroup> rolloutGroupStatusIconSupplier;
 
     private final transient MasterEntitySupport<ProxyRollout> masterEntitySupport;
 
@@ -80,7 +77,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
         this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
-        statusIconMap = IconBuilder.generateRolloutGroupStatusIcons(i18n);
+        rolloutGroupStatusIconSupplier = new RolloutGroupStatusIconSupplier<>(i18n, ProxyRolloutGroup::getStatus,
+                UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID);
         init();
     }
 
@@ -111,7 +109,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         addComponentColumn(this::buildRolloutGroupLink).setId(ROLLOUT_GROUP_LINK_ID)
                 .setCaption(i18n.getMessage("header.name")).setMinimumWidth(40).setMaximumWidth(200).setHidable(true);
 
-        addComponentColumn(this::buildStatusIcon).setId(SPUILabelDefinitions.VAR_STATUS)
+        addComponentColumn(rolloutGroupStatusIconSupplier::getLabel).setId(SPUILabelDefinitions.VAR_STATUS)
                 .setCaption(i18n.getMessage("header.status")).setMinimumWidth(75).setMaximumWidth(75).setHidable(true)
                 .setStyleGenerator(item -> "v-align-center");
 
@@ -156,11 +154,6 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         addColumn(ProxyRolloutGroup::getTotalTargetsCount).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS)
                 .setCaption(i18n.getMessage("header.total.targets")).setMinimumWidth(40).setMaximumWidth(100)
                 .setHidable(true);
-    }
-
-    private Label buildStatusIcon(final ProxyRolloutGroup rolloutGroup) {
-        return IconBuilder.buildStatusIconLabel(i18n, statusIconMap, ProxyRolloutGroup::getStatus,
-                UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID, rolloutGroup);
     }
 
     private Button buildRolloutGroupLink(final ProxyRolloutGroup rolloutGroup) {

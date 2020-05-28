@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus.Status;
@@ -26,7 +25,8 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionTypeIconSupplier;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.RolloutStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
@@ -46,7 +46,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -61,7 +60,6 @@ import com.google.common.base.Predicates;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.renderers.HtmlRenderer;
@@ -96,8 +94,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private static final String COPY_BUTTON_ID = "copy";
     private static final String DELETE_BUTTON_ID = "delete";
 
-    private final Map<RolloutStatus, ProxyFontIcon> statusIconMap;
-    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap;
+    private final RolloutStatusIconSupplier<ProxyRollout> rolloutStatusIconSupplier;
+    private final ActionTypeIconSupplier<ProxyRollout> actionTypeIconSupplier;
 
     private final RolloutManagementUIState rolloutManagementUIState;
 
@@ -140,8 +138,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         setFilterSupport(new FilterSupport<>(new RolloutDataProvider(rolloutManagement, rolloutMapper)));
         initFilterMappings();
 
-        statusIconMap = IconBuilder.generateRolloutStatusIcons(i18n);
-        actionTypeIconMap = IconBuilder.generateActionTypeIcons(i18n);
+        rolloutStatusIconSupplier = new RolloutStatusIconSupplier<>(i18n, ProxyRollout::getStatus,
+                UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID);
+        actionTypeIconSupplier = new ActionTypeIconSupplier<>(i18n, ProxyRollout::getActionType,
+                UIComponentIdProvider.ROLLOUT_ACTION_TYPE_LABEL_ID);
         init();
     }
 
@@ -282,11 +282,11 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         addColumn(ProxyRollout::getDistributionSetNameVersion).setId(DIST_NAME_VERSION_ID)
                 .setCaption(i18n.getMessage("header.distributionset")).setHidable(true).setExpandRatio(12);
 
-        addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
-                .setHidable(true).setExpandRatio(2);
+        addComponentColumn(rolloutStatusIconSupplier::getLabel).setId(STATUS_ID)
+                .setCaption(i18n.getMessage("header.status")).setHidable(true).setExpandRatio(2);
 
-        addComponentColumn(this::buildTypeIcon).setId(ACTION_TYPE_ID).setCaption(i18n.getMessage("header.type"))
-                .setExpandRatio(2).setHidable(true).setHidden(true);
+        addComponentColumn(actionTypeIconSupplier::getLabel).setId(ACTION_TYPE_ID)
+                .setCaption(i18n.getMessage("header.type")).setExpandRatio(2).setHidable(true).setHidden(true);
 
         addColumn(rollout -> DistributionBarHelper.getDistributionBarAsHTMLString(rollout.getStatusTotalCountMap()),
                 new HtmlRenderer()).setId(TOTAL_TARGETS_COUNT_STATUS_ID)
@@ -326,16 +326,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                 .setHidable(true).setHidden(true);
 
         hideColumnsDueToInsufficientPermissions();
-    }
-
-    private Label buildStatusIcon(final ProxyRollout rollout) {
-        return IconBuilder.buildStatusIconLabel(i18n, statusIconMap, ProxyRollout::getStatus,
-                UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID, rollout);
-    }
-
-    private Label buildTypeIcon(final ProxyRollout rollout) {
-        return IconBuilder.buildStatusIconLabel(i18n, actionTypeIconMap, ProxyRollout::getActionType,
-                UIComponentIdProvider.ROLLOUT_ACTION_TYPE_LABEL_ID, rollout);
     }
 
     private void addActionColumns() {

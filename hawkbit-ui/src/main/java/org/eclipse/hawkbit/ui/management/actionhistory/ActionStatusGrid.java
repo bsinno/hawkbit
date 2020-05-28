@@ -8,11 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
-import java.util.Map;
-
 import org.eclipse.hawkbit.repository.DeploymentManagement;
-import org.eclipse.hawkbit.repository.model.Action.Status;
-import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatusMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
@@ -24,14 +21,11 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.ui.Label;
 
 /**
  * This grid presents the action states for a selected action.
@@ -42,7 +36,7 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
     private static final String STATUS_ID = "status";
     private static final String CREATED_AT_ID = "createdAt";
 
-    private final Map<Status, ProxyFontIcon> statusIconMap;
+    private final ActionStatusIconSupplier<ProxyActionStatus> actionStatusIconSupplier;
 
     private final transient MasterEntitySupport<ProxyAction> masterEntitySupport;
 
@@ -67,7 +61,8 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
 
         this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
-        statusIconMap = IconBuilder.generateActionStatusIcons(i18n);
+        actionStatusIconSupplier = new ActionStatusIconSupplier<>(i18n, ProxyActionStatus::getStatus,
+                UIComponentIdProvider.ACTION_STATUS_GRID_STATUS_LABEL_ID);
 
         init();
     }
@@ -84,9 +79,9 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
-                .setMinimumWidth(53d).setMaximumWidth(53d).setHidable(false).setHidden(false)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+        addComponentColumn(actionStatusIconSupplier::getLabel).setId(STATUS_ID)
+                .setCaption(i18n.getMessage("header.status")).setMinimumWidth(53d).setMaximumWidth(53d)
+                .setHidable(false).setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
 
         addColumn(actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt(),
                 SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT)).setId(CREATED_AT_ID)
@@ -94,11 +89,6 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
                         .setDescriptionGenerator(
                                 actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt()))
                         .setMinimumWidth(100d).setMaximumWidth(400d).setHidable(false).setHidden(false);
-    }
-
-    private Label buildStatusIcon(final ProxyActionStatus actionStatus) {
-        return IconBuilder.buildStatusIconLabel(i18n, statusIconMap, ProxyActionStatus::getStatus,
-                UIComponentIdProvider.ACTION_STATUS_GRID_STATUS_LABEL_ID, actionStatus);
     }
 
     public MasterEntitySupport<ProxyAction> getMasterEntitySupport() {

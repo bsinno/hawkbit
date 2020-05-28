@@ -9,15 +9,13 @@
 package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
-import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionTypeIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdNameVersion;
@@ -35,7 +33,6 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -49,7 +46,6 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -75,7 +71,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     private final transient AutoAssignmentWindowBuilder autoAssignmentWindowBuilder;
 
-    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap;
+    private final ActionTypeIconSupplier<ProxyTargetFilterQuery> actionTypeIconSupplier;
 
     private final transient DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
 
@@ -98,7 +94,8 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 new TargetFilterQueryToProxyTargetFilterMapper())));
         initFilterMappings();
 
-        actionTypeIconMap = IconBuilder.generateActionTypeIcons(i18n);
+        actionTypeIconSupplier = new ActionTypeIconSupplier<>(i18n, ProxyTargetFilterQuery::getAutoAssignActionType,
+                UIComponentIdProvider.TARGET_FILTER_TABLE_TYPE_LABEL_ID);
         init();
     }
 
@@ -144,7 +141,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         addColumn(ProxyTargetFilterQuery::getModifiedDate).setId(FILTER_MODIFIED_DATE_ID)
                 .setCaption(i18n.getMessage("header.modifiedDate")).setExpandRatio(4);
 
-        addComponentColumn(this::buildTypeIcon).setId(FILTER_AUTOASSIGNMENT_TYPE_ID)
+        addComponentColumn(actionTypeIconSupplier::getLabel).setId(FILTER_AUTOASSIGNMENT_TYPE_ID)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN).setExpandRatio(1);
 
         addComponentColumn(this::buildAutoAssignmentLink).setId(FILTER_AUTOASSIGNMENT_DS_ID)
@@ -207,12 +204,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         link.addStyleName("link");
 
         return link;
-    }
-
-    private Label buildTypeIcon(final ProxyTargetFilterQuery targetFilter) {
-        return IconBuilder.buildStatusIconLabel(i18n, actionTypeIconMap,
-                ProxyTargetFilterQuery::getAutoAssignActionType,
-                UIComponentIdProvider.TARGET_FILTER_TABLE_TYPE_LABEL_ID, targetFilter);
     }
 
     // TODO: remove duplication

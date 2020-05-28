@@ -9,22 +9,21 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.time.ZonedDateTime;
-import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.exception.CancelActionNotAllowedException;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
-import org.eclipse.hawkbit.repository.model.Action.Status;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionStatusIconSupplier;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionTypeIconSupplier;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActiveStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionToProxyActionMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
@@ -80,9 +79,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     private final transient DeploymentManagement deploymentManagement;
     private final transient ActionToProxyActionMapper actionToProxyActionMapper;
 
-    private final Map<Status, ProxyFontIcon> statusIconMap;
-    private final Map<IsActiveDecoration, ProxyFontIcon> activeStatusIconMap;
-    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap;
+    private final ActionStatusIconSupplier<ProxyAction> actionStatusIconSupplier;
+    private final ActiveStatusIconSupplier<ProxyAction> activeStatusIconSupplier;
+    private final ActionTypeIconSupplier<ProxyAction> actionTypeIconSupplier;
 
     private final transient MasterEntitySupport<ProxyTarget> masterEntitySupport;
 
@@ -109,9 +108,12 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
         this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport(), ProxyTarget::getControllerId);
 
-        statusIconMap = IconBuilder.generateActionStatusIcons(i18n);
-        activeStatusIconMap = IconBuilder.generateActiveStatusIcons(i18n);
-        actionTypeIconMap = IconBuilder.generateActionTypeIcons(i18n);
+        actionStatusIconSupplier = new ActionStatusIconSupplier<>(i18n, ProxyAction::getStatus,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_STATUS_LABEL_ID);
+        activeStatusIconSupplier = new ActiveStatusIconSupplier<>(i18n, ProxyAction::getIsActiveDecoration,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_ACTIVESTATE_LABEL_ID);
+        actionTypeIconSupplier = new ActionTypeIconSupplier<>(i18n, ProxyAction::getActionType,
+                UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID);
 
         init();
     }
@@ -170,13 +172,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Column<ProxyAction, Label> addActiveStatusColumn() {
-        return addComponentColumn(this::buildActiveStatusIcon).setId(ACTIVE_STATUS_ID)
+        return addComponentColumn(activeStatusIconSupplier::getLabel).setId(ACTIVE_STATUS_ID)
                 .setCaption(i18n.getMessage("label.active")).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildActiveStatusIcon(final ProxyAction action) {
-        return IconBuilder.buildStatusIconLabel(i18n, activeStatusIconMap, ProxyAction::getIsActiveDecoration,
-                UIComponentIdProvider.ACTION_HISTORY_TABLE_ACTIVESTATE_LABEL_ID, action);
     }
 
     private Column<ProxyAction, String> addDsColumn() {
@@ -192,13 +189,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Column<ProxyAction, Label> addStatusColumn() {
-        return addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildStatusIcon(final ProxyAction action) {
-        return IconBuilder.buildStatusIconLabel(i18n, statusIconMap, ProxyAction::getStatus,
-                UIComponentIdProvider.ACTION_HISTORY_TABLE_STATUS_LABEL_ID, action);
+        return addComponentColumn(actionStatusIconSupplier::getLabel).setId(STATUS_ID)
+                .setCaption(i18n.getMessage("header.status")).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
     }
 
     private Column<ProxyAction, String> addMaintenanceWindowColumn() {
@@ -218,13 +210,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Column<ProxyAction, Label> addTypeColumn() {
-        return addComponentColumn(this::buildTypeIcon).setId(TYPE_ID)
+        return addComponentColumn(actionTypeIconSupplier::getLabel).setId(TYPE_ID)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildTypeIcon(final ProxyAction action) {
-        return IconBuilder.buildStatusIconLabel(i18n, actionTypeIconMap, ProxyAction::getActionType,
-                UIComponentIdProvider.ACTION_HISTORY_TABLE_TYPE_LABEL_ID, action);
     }
 
     private Column<ProxyAction, Label> addTimeforcedColumn() {

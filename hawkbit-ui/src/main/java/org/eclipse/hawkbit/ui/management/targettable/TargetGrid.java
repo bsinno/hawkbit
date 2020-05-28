@@ -20,12 +20,11 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Target;
-import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.TargetStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
@@ -92,7 +91,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
     private final transient TargetManagement targetManagement;
 
-    private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap;
+    private final TargetStatusIconSupplier<ProxyTarget> targetStatusIconSupplier;
 
     private final transient TargetToProxyTargetMapper targetToProxyTargetMapper;
 
@@ -156,7 +155,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         getFilterSupport().setFilter(new TargetManagementFilterParams());
 
         initDsPinningStyleGenerator();
-        targetStatusIconMap = IconBuilder.generateTargetStatusIcons(i18n);
+        targetStatusIconSupplier = new TargetStatusIconSupplier<>(i18n, ProxyTarget::getUpdateStatus,
+                UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID);
         init();
     }
 
@@ -313,13 +313,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private Column<ProxyTarget, Label> addTargetStatusColumn() {
-        return addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID)
+        return addComponentColumn(targetStatusIconSupplier::getLabel).setId(TARGET_STATUS_ID)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildTargetStatusIcon(final ProxyTarget target) {
-        return IconBuilder.buildStatusIconLabel(i18n, targetStatusIconMap, ProxyTarget::getUpdateStatus,
-                UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID, target);
     }
 
     private Column<ProxyTarget, Button> addPinColumn() {

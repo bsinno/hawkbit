@@ -8,12 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
-import java.util.Map;
-
-import org.eclipse.hawkbit.ui.common.builder.IconBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ProgressStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress.ProgressSatus;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -21,7 +17,6 @@ import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.renderers.ProgressBarRenderer;
 
 /**
@@ -38,12 +33,13 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
     private static final String UPLOAD_PROGRESS_SM_ID = "uploadProgressSm";
     private static final String UPLOAD_PROGRESS_REASON_ID = "uploadProgressReason";
 
-    private final Map<ProgressSatus, ProxyFontIcon> progressStatusIconMap;
+    private final ProgressStatusIconSupplier<ProxyUploadProgress> progressStatusIconSupplier;
 
     public UploadProgressGrid(final VaadinMessageSource i18n) {
         this.i18n = i18n;
 
-        progressStatusIconMap = IconBuilder.generateProgressStatusIcons(i18n);
+        progressStatusIconSupplier = new ProgressStatusIconSupplier<>(i18n, ProxyUploadProgress::getStatus,
+                UIComponentIdProvider.UPLOAD_STATUS_LABEL_ID);
         init();
     }
 
@@ -57,7 +53,7 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
     }
 
     private void addColumns() {
-        addComponentColumn(this::buildProgressStatusIcon).setId(UPLOAD_PROGRESS_STATUS_ID)
+        addComponentColumn(progressStatusIconSupplier::getLabel).setId(UPLOAD_PROGRESS_STATUS_ID)
                 .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_STATUS)).setMinimumWidth(60d)
                 .setStyleGenerator(item -> "v-align-center");
 
@@ -77,10 +73,5 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
                 .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_REASON)).setMinimumWidth(290d);
 
         setFrozenColumnCount(5);
-    }
-
-    private Label buildProgressStatusIcon(final ProxyUploadProgress uploadProgress) {
-        return IconBuilder.buildStatusIconLabel(i18n, progressStatusIconMap, ProxyUploadProgress::getStatus,
-                UIComponentIdProvider.UPLOAD_STATUS_LABEL_ID, uploadProgress);
     }
 }
