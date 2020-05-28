@@ -92,7 +92,6 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
     @Override
     protected void adaptLayout() {
         layout.addAdvancedGroupRowAndValidate();
-        layout.resetGroupsLegendLayout();
     }
 
     @Override
@@ -111,9 +110,9 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
                 .startAt(getStartAtTime(entity));
 
         Rollout rolloutToCreate;
-        if (layout.isNumberOfGroups()) {
+        if (layout.isSimpleGroupsTabSelected()) {
             rolloutToCreate = rolloutManagement.create(rolloutCreate, entity.getNumberOfGroups(), conditions);
-        } else if (layout.isGroupsDefinition()) {
+        } else if (layout.isAdvancedGroupsTabSelected()) {
             final List<RolloutGroupCreate> groups = layout.getAdvancedRolloutGroups();
             rolloutToCreate = rolloutManagement.create(rolloutCreate, groups, conditions);
         } else {

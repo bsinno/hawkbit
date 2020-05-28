@@ -87,6 +87,6 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
     protected void adaptLayout() {
         layout.populateTotalTargetsLegend();
         layout.populateAdvancedRolloutGroups();
-        layout.selectAdvancedRolloutGroupsTab();
+        layout.selectAdvancedGroupsTab();
     }
 }

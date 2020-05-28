@@ -28,7 +28,6 @@ import com.vaadin.ui.VerticalLayout;
  */
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class GroupsLegendLayout extends VerticalLayout {
-
     private static final long serialVersionUID = 1L;
 
     private static final int MAX_GROUPS_TO_BE_DISPLAYED = 7;
@@ -36,9 +35,7 @@ public class GroupsLegendLayout extends VerticalLayout {
     private final VaadinMessageSource i18n;
 
     private Label totalTargetsLabel;
-
     private Label loadingLabel;
-
     private Label unassignedTargetsLabel;
 
     private VerticalLayout groupsLegend;
@@ -68,11 +65,12 @@ public class GroupsLegendLayout extends VerticalLayout {
         addComponent(loadingLabel);
         addComponent(unassignedTargetsLabel);
         addComponent(groupsLegend);
+
         for (int i = 0; i < MAX_GROUPS_TO_BE_DISPLAYED; i++) {
             groupsLegend.addComponent(createGroupTargetsLabel());
         }
-        groupsLegend.addComponent(createToBeContinuedLabel());
 
+        groupsLegend.addComponent(createToBeContinuedLabel());
     }
 
     /**
@@ -139,7 +137,7 @@ public class GroupsLegendLayout extends VerticalLayout {
      *            null to hide the label or a count to be displayed as total
      *            targets message
      */
-    public void populateTotalTargets(final Long totalTargets) {
+    public void setTotalTargets(final Long totalTargets) {
         if (totalTargets == null) {
             totalTargetsLabel.setVisible(false);
         } else {

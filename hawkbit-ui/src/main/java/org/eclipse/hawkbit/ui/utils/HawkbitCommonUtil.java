@@ -173,4 +173,8 @@ public final class HawkbitCommonUtil {
 
         return entities;
     }
+
+    public static boolean atLeastOnePresent(final Long count) {
+        return count != null && count > 0L;
+    }
 }

@@ -44,4 +44,12 @@ public class BoundComponent<T extends Component> implements Serializable {
     public void setRequired(final boolean isRequired) {
         binding.setAsRequiredEnabled(isRequired);
     }
+
+    public boolean isValid() {
+        return !binding.validate(false).isError();
+    }
+
+    public void validate() {
+        binding.validate();
+    }
 }

@@ -28,6 +28,7 @@ import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.util.StringUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import com.vaadin.icons.VaadinIcons;
@@ -39,7 +40,7 @@ import com.vaadin.ui.UI;
 /**
  * Define groups for a Rollout
  */
-public class DefineGroupsLayout extends GridLayout {
+public class AdvancedGroupsLayout extends GridLayout {
     private static final long serialVersionUID = 1L;
 
     private static final String MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED = "message.rollout.max.group.size.exceeded.advanced";
@@ -65,7 +66,7 @@ public class DefineGroupsLayout extends GridLayout {
     private final AtomicInteger runningValidationsCounter;
     private ValidationStatus validationStatus = ValidationStatus.VALID;
 
-    public DefineGroupsLayout(final VaadinMessageSource i18n, final EntityFactory entityFactory,
+    public AdvancedGroupsLayout(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final RolloutManagement rolloutManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
             final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
             final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
@@ -143,11 +144,8 @@ public class DefineGroupsLayout extends GridLayout {
         final int index = getRows() - 1;
         insertRow(index);
 
-        addComponent(groupRow.getGroupName(), 0, index);
-        addComponent(groupRow.getTargetFilterQueryCombo(), 1, index);
-        addComponent(groupRow.getTargetPercentage(), 2, index);
-        addComponent(groupRow.getTriggerThreshold(), 3, index);
-        addComponent(groupRow.getErrorThreshold(), 4, index);
+        groupRow.addRowToLayout(this, index);
+
         addComponent(createRemoveButton(groupRow, index), 5, index);
     }
 
@@ -204,7 +202,8 @@ public class DefineGroupsLayout extends GridLayout {
 
     private void validateRemainingTargets() {
         resetErrors();
-        if (targetFilter == null) {
+
+        if (StringUtils.isEmpty(targetFilter)) {
             return;
         }
 
@@ -312,7 +311,6 @@ public class DefineGroupsLayout extends GridLayout {
         }
 
         updateValidation();
-
     }
 
     private void removeAllRows() {

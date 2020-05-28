@@ -36,6 +36,7 @@ import com.vaadin.data.validator.FloatRangeValidator;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -169,6 +170,14 @@ public class AdvancedGroupRow {
         return errorThresholdField;
     }
 
+    public void addRowToLayout(final GridLayout layout, final int index) {
+        layout.addComponent(groupName, 0, index);
+        layout.addComponent(targetFilterQueryCombo, 1, index);
+        layout.addComponent(targetPercentage, 2, index);
+        layout.addComponent(triggerThreshold, 3, index);
+        layout.addComponent(errorThreshold, 4, index);
+    }
+
     /**
      * Populates the row with the default data.
      * 
@@ -244,30 +253,10 @@ public class AdvancedGroupRow {
     }
 
     public void setError(final String error) {
-        getTargetPercentage().setComponentError(new UserError(error));
+        targetPercentage.setComponentError(new UserError(error));
     }
 
     public void resetError() {
-        getTargetPercentage().setComponentError(null);
-    }
-
-    public TextField getGroupName() {
-        return groupName;
-    }
-
-    public ComboBox<ProxyTargetFilterQuery> getTargetFilterQueryCombo() {
-        return targetFilterQueryCombo;
-    }
-
-    public TextField getTargetPercentage() {
-        return targetPercentage;
-    }
-
-    public TextField getTriggerThreshold() {
-        return triggerThreshold;
-    }
-
-    public TextField getErrorThreshold() {
-        return errorThreshold;
+        targetPercentage.setComponentError(null);
     }
 }
