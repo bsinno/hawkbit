@@ -24,6 +24,7 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.TargetPollingStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.TargetStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
@@ -48,11 +49,9 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -61,7 +60,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
@@ -92,6 +90,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final transient TargetManagement targetManagement;
 
     private final TargetStatusIconSupplier<ProxyTarget> targetStatusIconSupplier;
+    private final TargetPollingStatusIconSupplier targetPollingStatusIconSupplier;
 
     private final transient TargetToProxyTargetMapper targetToProxyTargetMapper;
 
@@ -157,6 +156,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         initDsPinningStyleGenerator();
         targetStatusIconSupplier = new TargetStatusIconSupplier<>(i18n, ProxyTarget::getUpdateStatus,
                 UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID);
+        targetPollingStatusIconSupplier = new TargetPollingStatusIconSupplier(i18n,
+                UIComponentIdProvider.TARGET_TABLE_POLLING_STATUS_LABEL_ID);
         init();
     }
 
@@ -293,23 +294,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private Column<ProxyTarget, Label> addTargetPollingStatusColumn() {
-        return addComponentColumn(this::buildTargetPollingStatusIcon).setId(TARGET_POLLING_STATUS_ID)
+        return addComponentColumn(targetPollingStatusIconSupplier::getLabel).setId(TARGET_POLLING_STATUS_ID)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildTargetPollingStatusIcon(final ProxyTarget target) {
-        final String pollStatusToolTip = target.getPollStatusToolTip();
-
-        final ProxyFontIcon pollStatusFontIcon = StringUtils.hasText(pollStatusToolTip)
-                ? new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                        pollStatusToolTip)
-                : new ProxyFontIcon(VaadinIcons.CLOCK, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                        i18n.getMessage(UIMessageIdProvider.TOOLTIP_IN_TIME));
-
-        final String pollStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_POLLING_STATUS_LABEL_ID)
-                .append(".").append(target.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(pollStatusFontIcon, pollStatusId);
     }
 
     private Column<ProxyTarget, Label> addTargetStatusColumn() {

@@ -24,6 +24,7 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAction.IsActiveDecoration;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress.ProgressSatus;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
@@ -32,6 +33,7 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.StringUtils;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.FontIcon;
@@ -379,6 +381,37 @@ public final class StatusIconBuilder {
         }
     }
 
+    /**
+     * Generate labels with icons according to {@link ProxyTarget}s'
+     * PollStatusToolTip
+     */
+    public static class TargetPollingStatusIconSupplier extends AbstractEntityStatusIconBuilder<ProxyTarget> {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * constructor
+         * 
+         * @param i18n
+         *            message source for internationalization
+         * @param labelIdPrefix
+         *            to generate the label ID
+         */
+        public TargetPollingStatusIconSupplier(final VaadinMessageSource i18n, final String labelIdPrefix) {
+            super(i18n, labelIdPrefix);
+        }
+
+        @Override
+        public Label getLabel(final ProxyTarget entity) {
+            final String pollStatusToolTip = entity.getPollStatusToolTip();
+            final ProxyFontIcon icon = StringUtils.hasText(pollStatusToolTip)
+                    ? new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                            pollStatusToolTip)
+                    : new ProxyFontIcon(VaadinIcons.CLOCK, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                            i18n.getMessage(UIMessageIdProvider.TOOLTIP_IN_TIME));
+            return getLabel(entity, icon);
+        }
+    }
+
     private static class EntityStatusIconBuilderWithGenetaredTooltip<T extends Enum<T>, E extends ProxyIdentifiableEntity>
             extends EntityStatusIconBuilder<T, E> {
         private static final long serialVersionUID = 1L;
@@ -398,33 +431,24 @@ public final class StatusIconBuilder {
     }
 
     private static class EntityStatusIconBuilder<T extends Enum<T>, E extends ProxyIdentifiableEntity>
-            implements Serializable {
+            extends AbstractEntityStatusIconBuilder<E> {
         private static final long serialVersionUID = 1L;
 
         private final Map<T, ProxyFontIcon> iconMap;
-        protected final VaadinMessageSource i18n;
         protected final transient Function<E, T> getEntityStatus;
-        protected final String labelIdPrefix;
 
         protected EntityStatusIconBuilder(final VaadinMessageSource i18n, final Class<T> statusType,
                 final Function<E, T> getEntityStatus, final String labelIdPrefix) {
+            super(i18n, labelIdPrefix);
             this.iconMap = new EnumMap<>(statusType);
-            this.i18n = i18n;
             this.getEntityStatus = getEntityStatus;
-            this.labelIdPrefix = labelIdPrefix;
         }
 
         protected void addMapping(final T status, final FontIcon icon, final String style, final String tooltip) {
             iconMap.put(status, new ProxyFontIcon(icon, style, i18n.getMessage(tooltip)));
         }
 
-        /**
-         * Generate a label from the entity according to its state
-         * 
-         * @param entity
-         *            to read the state from
-         * @return the label
-         */
+        @Override
         public Label getLabel(final E entity) {
             final ProxyFontIcon icon = getIcon(entity).orElse(generateUnknwonStateIcon());
             return getLabel(entity, icon);
@@ -436,6 +460,24 @@ public final class StatusIconBuilder {
                 return Optional.ofNullable(iconMap.getOrDefault(status, null));
             }
             return Optional.empty();
+        }
+
+        protected Map<T, ProxyFontIcon> getIconMap() {
+            return iconMap;
+        }
+
+    }
+
+    private abstract static class AbstractEntityStatusIconBuilder<E extends ProxyIdentifiableEntity>
+            implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        protected final VaadinMessageSource i18n;
+        protected final String labelIdPrefix;
+
+        protected AbstractEntityStatusIconBuilder(final VaadinMessageSource i18n, final String labelIdPrefix) {
+            this.i18n = i18n;
+            this.labelIdPrefix = labelIdPrefix;
         }
 
         protected Label getLabel(final E entity, final ProxyFontIcon icon) {
@@ -450,10 +492,14 @@ public final class StatusIconBuilder {
                     i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN));
         }
 
-        protected Map<T, ProxyFontIcon> getIconMap() {
-            return iconMap;
-        }
-
+        /**
+         * Generate a label from the entity according to its state
+         * 
+         * @param entity
+         *            to read the state from
+         * @return the label
+         */
+        public abstract Label getLabel(final E entity);
     }
 
 }
