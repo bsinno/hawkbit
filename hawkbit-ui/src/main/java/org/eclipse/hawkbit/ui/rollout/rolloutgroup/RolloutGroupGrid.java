@@ -15,6 +15,7 @@ import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.RolloutGroupStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
@@ -41,6 +42,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.google.common.base.Predicates;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 /**
@@ -157,36 +159,16 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
     }
 
     private Button buildRolloutGroupLink(final ProxyRolloutGroup rolloutGroup) {
-        final Button rolloutGroupLink = new Button();
-
-        if (permissionChecker.hasRolloutTargetsReadPermission()) {
-            rolloutGroupLink.addClickListener(clickEvent -> onClickOfRolloutGroupName(rolloutGroup));
+        final boolean enableButton = RolloutGroupStatus.CREATING != rolloutGroup.getStatus();
+        final ClickListener listener = permissionChecker.hasRolloutTargetsReadPermission()
+                ? (clickEvent -> onClickOfRolloutGroupName(rolloutGroup))
+                : null;
+        final Button link = GridComponentBuilder.buildLink(rolloutGroup, "rolloutgroup.link.", rolloutGroup.getName(),
+                enableButton, listener);
+        if (!enableButton) {
+            link.addStyleName("boldhide");
         }
-
-        rolloutGroupLink.setId(new StringBuilder("rolloutgroup.link.").append(rolloutGroup.getId()).toString());
-        rolloutGroupLink.addStyleName("borderless");
-        rolloutGroupLink.addStyleName("small");
-        rolloutGroupLink.addStyleName("on-focus-no-border");
-        rolloutGroupLink.addStyleName("link");
-        rolloutGroupLink.setCaption(rolloutGroup.getName());
-        // this is to allow the button to disappear, if the text is null
-        rolloutGroupLink.setVisible(rolloutGroup.getName() != null);
-
-        /*
-         * checking RolloutGroup Status for applying button style. If
-         * RolloutGroup status is not "CREATING", then the RolloutGroup button
-         * is applying hyperlink style
-         */
-        final boolean isStatusCreating = rolloutGroup.getStatus() != null
-                && RolloutGroupStatus.CREATING == rolloutGroup.getStatus();
-        if (isStatusCreating) {
-            rolloutGroupLink.addStyleName("boldhide");
-            rolloutGroupLink.setEnabled(false);
-        } else {
-            rolloutGroupLink.setEnabled(true);
-        }
-
-        return rolloutGroupLink;
+        return link;
     }
 
     private void onClickOfRolloutGroupName(final ProxyRolloutGroup rolloutGroup) {

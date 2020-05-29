@@ -374,28 +374,14 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     }
 
     private Button buildRolloutLink(final ProxyRollout rollout) {
-        final Button rolloutLink = new Button();
+        final boolean enableButton = RolloutStatus.CREATING != rollout.getStatus();
 
-        rolloutLink.addClickListener(clickEvent -> onClickOfRolloutName(rollout));
-        rolloutLink.setId(new StringBuilder("rollout.link.").append(rollout.getId()).toString());
-        // TODO remove duplication of defining the named link with other grid
-        // classes by extracting to GridComponentBuilder/SPUIComponentProvider
-        rolloutLink.addStyleName("borderless");
-        rolloutLink.addStyleName("small");
-        rolloutLink.addStyleName("on-focus-no-border");
-        rolloutLink.addStyleName("link");
-        rolloutLink.setCaption(rollout.getName());
-        // this is to allow the button to disappear, if the text is null
-        rolloutLink.setVisible(!StringUtils.isEmpty(rollout.getName()));
-
-        if (RolloutStatus.CREATING == rollout.getStatus()) {
-            rolloutLink.addStyleName("boldhide");
-            rolloutLink.setEnabled(false);
-        } else {
-            rolloutLink.setEnabled(true);
+        final Button link = GridComponentBuilder.buildLink(rollout, "rollout.link.", rollout.getName(), enableButton,
+                clickEvent -> onClickOfRolloutName(rollout));
+        if (!enableButton) {
+            link.addStyleName("boldhide");
         }
-
-        return rolloutLink;
+        return link;
     }
 
     private void onClickOfRolloutName(final ProxyRollout rollout) {

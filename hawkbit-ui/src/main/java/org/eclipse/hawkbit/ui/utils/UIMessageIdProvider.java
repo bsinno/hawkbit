@@ -29,6 +29,8 @@ public final class UIMessageIdProvider {
 
     public static final String BUTTON_AUTO_ASSIGNMENT_DESCRIPTION = "button.auto.assignment.desc";
 
+    public static final String METADATA_LINK_DESCRIPTION = "metadata.link.desc";
+
     public static final String HEADER_DISTRIBUTION_SET = "header.distributionset";
 
     public static final String CAPTION_ACTION_FORCED = "label.action.forced";

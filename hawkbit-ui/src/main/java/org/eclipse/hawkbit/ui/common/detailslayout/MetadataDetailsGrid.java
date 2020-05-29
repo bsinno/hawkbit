@@ -10,16 +10,17 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.function.Consumer;
 
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.AbstractMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.cronutils.utils.StringUtils;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.themes.ValoTheme;
@@ -74,27 +75,17 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
                 .setExpandRatio(7);
     }
 
-    // TODO: remove duplication with RolloutListGrid
     private Button buildKeyLink(final ProxyMetaData metaData) {
         final String metaDataKey = metaData.getKey();
-        final String keyLinkId = new StringBuilder(typePrefix).append('.')
-                .append(UIComponentIdProvider.METADATA_DETAIL_LINK).append('.').append(metaDataKey).toString();
-        final Button metaDataKeyLink = new Button();
+        final String idPrefix = new StringBuilder(typePrefix).append('.')
+                .append(UIComponentIdProvider.METADATA_DETAIL_LINK).toString();
 
-        metaDataKeyLink.setId(keyLinkId);
-        metaDataKeyLink.addStyleName("borderless");
-        metaDataKeyLink.addStyleName("small");
-        metaDataKeyLink.addStyleName("on-focus-no-border");
-        metaDataKeyLink.addStyleName("link");
-        metaDataKeyLink.setCaption(metaDataKey);
-        // TODO: use i18n here
-        metaDataKeyLink.setDescription("View " + metaDataKey + "  Metadata details");
-        // this is to allow the button to disappear, if the text is null
-        metaDataKeyLink.setVisible(!StringUtils.isEmpty(metaDataKey));
+        final Button link = GridComponentBuilder.buildLink(metaDataKey, idPrefix, metaDataKey, true,
+                event -> showMetadataDetailsCallback.accept(metaData));
 
-        metaDataKeyLink.addClickListener(event -> showMetadataDetailsCallback.accept(metaData));
-
-        return metaDataKeyLink;
+        final String description = i18n.getMessage(UIMessageIdProvider.METADATA_LINK_DESCRIPTION, metaDataKey);
+        link.setDescription(description);
+        return link;
     }
 
     @Override

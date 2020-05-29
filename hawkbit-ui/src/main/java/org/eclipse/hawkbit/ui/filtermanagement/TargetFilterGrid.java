@@ -45,7 +45,6 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -159,13 +158,13 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     }
 
     private Button buildFilterLink(final ProxyTargetFilterQuery targetFilter) {
-        final String filterLinkCaption = targetFilter.getName();
-        final String filterLinkDescription = i18n.getMessage(UIMessageIdProvider.TOOLTIP_UPDATE_CUSTOM_FILTER);
-        final String filterLinkId = new StringBuilder(UIComponentIdProvider.CUSTOM_FILTER_DETAIL_LINK).append('.')
-                .append(targetFilter.getId()).toString();
-
-        return buildLink(clickEvent -> onClickOfFilterName(targetFilter), filterLinkCaption, filterLinkDescription,
-                filterLinkId, true);
+        final String caption = targetFilter.getName();
+        final String description = i18n.getMessage(UIMessageIdProvider.TOOLTIP_UPDATE_CUSTOM_FILTER);
+        final Button link = GridComponentBuilder.buildLink(targetFilter,
+                UIComponentIdProvider.CUSTOM_FILTER_DETAIL_LINK, caption, true,
+                clickEvent -> onClickOfFilterName(targetFilter));
+        link.setDescription(description);
+        return link;
     }
 
     private void onClickOfFilterName(final ProxyTargetFilterQuery targetFilter) {
@@ -188,41 +187,19 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         }
     }
 
-    // TODO: remove duplication with RolloutGrid and buildActionButton()
-    private static Button buildLink(final ClickListener clickListener, final String caption, final String description,
-            final String buttonId, final boolean enabled) {
-        final Button link = new Button();
-
-        link.addClickListener(clickListener);
-        link.setCaption(caption);
-        link.setDescription(description);
-        link.setEnabled(enabled);
-        link.setId(buttonId);
-        link.addStyleName("borderless");
-        link.addStyleName("small");
-        link.addStyleName("on-focus-no-border");
-        link.addStyleName("link");
-
-        return link;
-    }
-
-    // TODO: remove duplication
     private Button buildAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
         final ProxyIdNameVersion autoAssignDsIdNameVersion = targetFilter.getAutoAssignDsIdNameVersion();
 
-        final String autoAssignmenLinkCaption = autoAssignDsIdNameVersion != null
+        final String caption = autoAssignDsIdNameVersion != null
                 ? HawkbitCommonUtil.getFormattedNameVersion(autoAssignDsIdNameVersion.getName(),
                         autoAssignDsIdNameVersion.getVersion())
                 : i18n.getMessage(UIMessageIdProvider.BUTTON_NO_AUTO_ASSIGNMENT);
+        final String description = i18n.getMessage(UIMessageIdProvider.BUTTON_AUTO_ASSIGNMENT_DESCRIPTION);
 
-        final String autoAssignmenLinkDescription = i18n
-                .getMessage(UIMessageIdProvider.BUTTON_AUTO_ASSIGNMENT_DESCRIPTION);
+        final Button link = GridComponentBuilder.buildLink(targetFilter, "distSetButton", caption, true,
+                clickEvent -> onClickOfAutoAssignmentLink(targetFilter));
 
-        final String autoAssignmenLinkId = new StringBuilder("distSetButton").append('.').append(targetFilter.getId())
-                .toString();
-
-        return buildLink(clickEvent -> onClickOfAutoAssignmentLink(targetFilter), autoAssignmenLinkCaption,
-                autoAssignmenLinkDescription, autoAssignmenLinkId, true);
-
+        link.setDescription(description);
+        return link;
     }
 }
