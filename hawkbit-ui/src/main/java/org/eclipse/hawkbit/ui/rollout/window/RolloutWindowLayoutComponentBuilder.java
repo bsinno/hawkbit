@@ -19,10 +19,12 @@ import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessData
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AddRolloutWindowLayout.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AdvancedGroupsLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.GroupsLegendLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.RolloutFormLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.SimpleGroupsLayout;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.VisualGroupDefinitionLayout;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
@@ -147,6 +149,14 @@ public final class RolloutWindowLayoutComponentBuilder {
         approvalButtonsLayout.setExpandRatio(approvalRemarkField, 1.0F);
 
         return approvalButtonsLayout;
+    }
+
+    public VisualGroupDefinitionLayout createVisualGroupDefinitionLayout() {
+        final VisualGroupDefinitionLayout visualGroupDefinitionLayout = new VisualGroupDefinitionLayout(
+                createGroupsPieChart(), createGroupsLegendLayout());
+        visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.SIMPLE);
+
+        return visualGroupDefinitionLayout;
     }
 
     public GroupsPieChart createGroupsPieChart() {

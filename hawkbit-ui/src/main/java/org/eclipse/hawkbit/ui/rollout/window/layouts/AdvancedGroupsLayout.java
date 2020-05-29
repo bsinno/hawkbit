@@ -31,6 +31,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 
+import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
@@ -231,7 +232,6 @@ public class AdvancedGroupsLayout extends GridLayout {
      * 
      */
     private void setGroupsValidation(final RolloutGroupsValidation validation) {
-
         final int runningValidation = runningValidationsCounter.getAndSet(0);
         if (runningValidation > 1) {
             validateRemainingTargets();
@@ -239,31 +239,38 @@ public class AdvancedGroupsLayout extends GridLayout {
         }
         groupsValidation = validation;
 
-        final int lastIdx = groupRows.size() - 1;
-        final AdvancedGroupRow lastRow = groupRows.get(lastIdx);
         if (groupsValidation != null && groupsValidation.isValid() && validationStatus != ValidationStatus.INVALID) {
             setValidationStatus(ValidationStatus.VALID);
         } else {
+            final AdvancedGroupRow lastRow = groupRows.get(groupRows.size() - 1);
             lastRow.setError(i18n.getMessage("message.rollout.remaining.targets.error"));
             setValidationStatus(ValidationStatus.INVALID);
         }
 
-        // validate the single groups
+        validateSingleGroups();
+    }
+
+    private void validateSingleGroups() {
+        if (groupsValidation == null || CollectionUtils.isEmpty(groupsValidation.getTargetsPerGroup())) {
+            return;
+        }
+
         final int maxTargets = quotaManagement.getMaxTargetsPerRolloutGroup();
         final boolean hasRemainingTargetsError = validationStatus == ValidationStatus.INVALID;
+        final int lastIdx = groupRows.size() - 1;
         for (int i = 0; i < groupRows.size(); ++i) {
-            final AdvancedGroupRow row = groupRows.get(i);
             // do not mask the 'remaining targets' error
-            if (hasRemainingTargetsError && row.equals(lastRow)) {
+            if (hasRemainingTargetsError && (i == lastIdx)) {
                 continue;
             }
+
             final Long count = groupsValidation.getTargetsPerGroup().get(i);
             if (count != null && count > maxTargets) {
+                final AdvancedGroupRow row = groupRows.get(i);
                 row.setError(i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED, maxTargets));
                 setValidationStatus(ValidationStatus.INVALID);
             }
         }
-
     }
 
     /**

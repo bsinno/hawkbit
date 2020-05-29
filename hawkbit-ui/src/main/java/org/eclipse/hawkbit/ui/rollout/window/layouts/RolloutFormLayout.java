@@ -220,7 +220,7 @@ public class RolloutFormLayout {
                 event -> autoStartOptionGroupLayout.setRequired(event.getValue() == AutoStartOption.SCHEDULED));
     }
 
-    public void addRowToLayout(final GridLayout layout, final boolean isEditMode) {
+    public void addFormToLayout(final GridLayout layout, final boolean isEditMode) {
         layout.addComponent(getLabel(TEXTFIELD_NAME), CAPTION_COLUMN, 0);
         layout.addComponent(nameField, FIELD_COLUMN, 0);
         nameField.focus();

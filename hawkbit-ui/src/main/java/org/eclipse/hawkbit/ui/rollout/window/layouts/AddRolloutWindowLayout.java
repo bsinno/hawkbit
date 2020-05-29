@@ -8,17 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
-import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
-import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.ui.GridLayout;
@@ -37,8 +31,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private final SimpleGroupsLayout simpleGroupsLayout;
     private final AdvancedGroupsLayout advancedGroupsLayout;
     private final TabSheet groupsDefinitionTabs;
-    private final GroupsPieChart groupsPieChart;
-    private final GroupsLegendLayout groupsLegendLayout;
+    private final VisualGroupDefinitionLayout visualGroupDefinitionLayout;
 
     private String filterQuery;
     private Long totalTargets;
@@ -54,8 +47,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         this.advancedGroupsLayout = rolloutComponentBuilder.createAdvancedGroupDefinitionTab();
         this.groupsDefinitionTabs = rolloutComponentBuilder.createGroupDefinitionTabs(simpleGroupsLayout,
                 advancedGroupsLayout);
-        this.groupsPieChart = rolloutComponentBuilder.createGroupsPieChart();
-        this.groupsLegendLayout = rolloutComponentBuilder.createGroupsLegendLayout();
+        this.visualGroupDefinitionLayout = rolloutComponentBuilder.createVisualGroupDefinitionLayout();
 
         addValueChangeListeners();
     }
@@ -64,10 +56,12 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     protected void addComponents(final GridLayout rootLayout) {
         rootLayout.setRows(7);
 
-        rolloutFormLayout.addRowToLayout(rootLayout, false);
-        rootLayout.addComponent(groupsPieChart, 2, 0, 2, 3);
-        rootLayout.addComponent(groupsLegendLayout, 3, 0, 3, 3);
-        rootLayout.addComponent(groupsDefinitionTabs, 0, 6, 3, 6);
+        final int lastRowIdx = rootLayout.getRows() - 1;
+        final int lastColumnIdx = rootLayout.getColumns() - 1;
+
+        rolloutFormLayout.addFormToLayout(rootLayout, false);
+        visualGroupDefinitionLayout.addChartWithLegendToLayout(rootLayout, lastColumnIdx, 3);
+        rootLayout.addComponent(groupsDefinitionTabs, 0, lastRowIdx, lastColumnIdx, lastRowIdx);
     }
 
     private void addValueChangeListeners() {
@@ -90,36 +84,14 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
     private void updateTotalTargetsAwareComponents() {
         rolloutFormLayout.setTotalTargets(totalTargets);
-        groupsLegendLayout.setTotalTargets(totalTargets);
+        visualGroupDefinitionLayout.setTotalTargets(totalTargets);
         if (isSimpleGroupsTabSelected()) {
             simpleGroupsLayout.setTotalTargets(totalTargets);
         }
-
-        updateGroupsChart(totalTargets, noOfGroups);
     }
 
     public boolean isSimpleGroupsTabSelected() {
         return groupsDefinitionTabs.getSelectedTab().equals(simpleGroupsLayout);
-    }
-
-    private void updateGroupsChart(final Long totalTargets, final int noOfGroups) {
-        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || noOfGroups <= 0) {
-            groupsPieChart.setChartState(Collections.emptyList(), 0L);
-            groupsLegendLayout.populateGroupsLegendByTargetCounts(Collections.emptyList());
-            return;
-        }
-
-        final List<Long> targetsPerGroup = new ArrayList<>(noOfGroups);
-        long leftTargets = totalTargets;
-        for (int i = 0; i < noOfGroups; i++) {
-            final double percentage = 1.0 / (noOfGroups - i);
-            final long targetsInGroup = Math.round(percentage * leftTargets);
-            leftTargets -= targetsInGroup;
-            targetsPerGroup.add(targetsInGroup);
-        }
-
-        groupsPieChart.setChartState(targetsPerGroup, totalTargets);
-        groupsLegendLayout.populateGroupsLegendByTargetCounts(targetsPerGroup);
     }
 
     public boolean isAdvancedGroupsTabSelected() {
@@ -129,29 +101,18 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private void onGroupDefinitionTabChanged() {
         if (isSimpleGroupsTabSelected()) {
             simpleGroupsLayout.setTotalTargets(totalTargets);
-            updateGroupsChart(totalTargets, noOfGroups);
+
+            visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.SIMPLE);
+            visualGroupDefinitionLayout.setNoOfGroups(noOfGroups);
         }
 
         if (isAdvancedGroupsTabSelected()) {
             advancedGroupsLayout.setTargetFilter(filterQuery);
-            updateGroupsChart(totalTargets, advancedGroupsLayout.getGroupsValidation());
-        }
-    }
 
-    private void updateGroupsChart(final Long totalTargets, final RolloutGroupsValidation validation) {
-        if (validation == null) {
-            groupsPieChart.setChartState(Collections.emptyList(), 0L);
-            return;
+            visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
+            visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
+                    getAdvancedRolloutGroups());
         }
-
-        final List<Long> targetsPerGroup = validation.getTargetsPerGroup();
-        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || CollectionUtils.isEmpty(targetsPerGroup)) {
-            groupsPieChart.setChartState(Collections.emptyList(), 0L);
-        } else {
-            groupsPieChart.setChartState(targetsPerGroup, totalTargets);
-        }
-
-        groupsLegendLayout.populateGroupsLegendByValidation(validation, getAdvancedRolloutGroups());
     }
 
     public List<RolloutGroupCreate> getAdvancedRolloutGroups() {
@@ -165,7 +126,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
         this.noOfGroups = noOfGroups;
 
-        updateGroupsChart(totalTargets, noOfGroups);
+        visualGroupDefinitionLayout.setNoOfGroups(noOfGroups);
     }
 
     private void onAdvancedGroupsChanged(final AdvancedGroupsLayout.ValidationStatus status) {
@@ -174,9 +135,10 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         }
 
         if (status == AdvancedGroupsLayout.ValidationStatus.LOADING) {
-            groupsLegendLayout.displayLoading();
+            visualGroupDefinitionLayout.displayLoading();
         } else {
-            updateGroupsChart(totalTargets, advancedGroupsLayout.getGroupsValidation());
+            visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
+                    getAdvancedRolloutGroups());
         }
     }
 
@@ -195,6 +157,10 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     public void populateTotalTargetsLegend() {
-        groupsLegendLayout.setTotalTargets(getEntity().getTotalTargets());
+        visualGroupDefinitionLayout.setTotalTargets(getEntity().getTotalTargets());
+    }
+
+    public enum GroupDefinitionMode {
+        SIMPLE, ADVANCED;
     }
 }
