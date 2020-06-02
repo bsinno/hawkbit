@@ -304,17 +304,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
         addActionColumns();
 
-        addColumn(ProxyRollout::getCreatedDate).setId(CREATED_DATE_ID).setCaption(i18n.getMessage("header.createdDate"))
-                .setHidable(true).setHidden(true);
-
-        addColumn(ProxyRollout::getCreatedBy).setId(CREATED_USER_ID).setCaption(i18n.getMessage("header.createdBy"))
-                .setHidable(true).setHidden(true);
-
-        addColumn(ProxyRollout::getModifiedDate).setId(MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
-
-        addColumn(ProxyRollout::getLastModifiedBy).setId(MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, CREATED_USER_ID).setHidable(true).setHidden(true);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, CREATED_DATE_ID).setHidable(true).setHidden(true);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, MODIFIED_BY_ID).setHidable(true).setHidden(true);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, MODIFIED_DATE_ID).setHidable(true).setHidden(true);
 
         addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_DECIDED_BY_ID)
                 .setCaption(i18n.getMessage("header.approvalDecidedBy")).setHidable(true).setHidden(true);
@@ -322,8 +315,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_REMARK_ID)
                 .setCaption(i18n.getMessage("header.approvalRemark")).setHidable(true).setHidden(true);
 
-        addColumn(ProxyRollout::getDescription).setId(DESC_ID).setCaption(i18n.getMessage("header.description"))
-                .setHidable(true).setHidden(true);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true);
 
         hideColumnsDueToInsufficientPermissions();
     }
@@ -362,12 +354,9 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                         .setId(COPY_BUTTON_ID).setCaption(i18n.getMessage("header.action.copy")).setHidable(false)
                         .setExpandRatio(1);
 
-        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> rolloutDeleteSupport.openConfirmationWindowDeleteAction(rollout), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, isDeletionAllowed(rollout.getStatus())))
-                        .setId(DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete")).setHidable(false)
-                        .setExpandRatio(1);
+        GridComponentBuilder.addDeleteColumn(this, i18n, DELETE_BUTTON_ID, rolloutDeleteSupport,
+                UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, rollout -> isDeletionAllowed(rollout.getStatus()))
+                .setHidable(false).setExpandRatio(1);
 
         getDefaultHeaderRow().join(RUN_BUTTON_ID, APPROVE_BUTTON_ID, PAUSE_BUTTON_ID, UPDATE_BUTTON_ID, COPY_BUTTON_ID,
                 DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));

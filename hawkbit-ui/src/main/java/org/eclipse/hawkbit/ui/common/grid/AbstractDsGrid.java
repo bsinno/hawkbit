@@ -18,14 +18,11 @@ import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 
 public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSet, F> {
@@ -100,63 +97,37 @@ public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSe
     }
 
     protected Column<ProxyDistributionSet, String> addNameColumn() {
-        return addColumn(ProxyDistributionSet::getName).setId(DS_NAME_ID).setCaption(i18n.getMessage("header.name"));
+        return GridComponentBuilder.addNameColumn(this, i18n, DS_NAME_ID);
     }
 
     protected Column<ProxyDistributionSet, String> addVersionColumn() {
-        return addColumn(ProxyDistributionSet::getVersion).setId(DS_VERSION_ID)
-                .setCaption(i18n.getMessage("header.version"));
+        return GridComponentBuilder.addVersionColumn(this, i18n, ProxyDistributionSet::getVersion, DS_VERSION_ID);
     }
 
     protected Column<ProxyDistributionSet, Button> addDeleteColumn() {
-        return addComponentColumn(ds -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> distributionDeleteSupport.openConfirmationWindowDeleteAction(ds), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.DIST_DELET_ICON + "." + ds.getId(),
-                permissionChecker.hasDeleteRepositoryPermission())).setId(DS_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete"));
+        return GridComponentBuilder.addDeleteColumn(this, i18n, DS_DELETE_BUTTON_ID, distributionDeleteSupport,
+                UIComponentIdProvider.DIST_DELET_ICON, e -> permissionChecker.hasDeleteRepositoryPermission());
     }
 
     @Override
     protected void addMaxColumns() {
-        addNameColumn().setMinimumWidth(100d).setExpandRatio(7);
+        addNameColumn().setExpandRatio(7);
 
-        addCreatedByColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addCreatedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addModifiedByColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, DS_CREATED_BY_ID).setExpandRatio(1);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, DS_CREATED_DATE_ID).setExpandRatio(1);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, DS_MODIFIED_BY_ID).setExpandRatio(1);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, DS_MODIFIED_DATE_ID).setExpandRatio(1);
 
-        addDescriptionColumn().setMinimumWidth(100d).setExpandRatio(5);
+        addDescriptionColumn().setExpandRatio(5);
 
-        addVersionColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addVersionColumn().setExpandRatio(1);
 
-        addDeleteColumn().setWidth(75d);
+        addDeleteColumn();
 
         getColumns().forEach(column -> column.setHidable(true));
     }
 
-    protected Column<ProxyDistributionSet, String> addCreatedByColumn() {
-        return addColumn(ProxyDistributionSet::getCreatedBy).setId(DS_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy"));
-    }
-
-    protected Column<ProxyDistributionSet, String> addCreatedDateColumn() {
-        return addColumn(ProxyDistributionSet::getCreatedDate).setId(DS_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate"));
-    }
-
-    protected Column<ProxyDistributionSet, String> addModifiedByColumn() {
-        return addColumn(ProxyDistributionSet::getLastModifiedBy).setId(DS_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy"));
-    }
-
-    protected Column<ProxyDistributionSet, String> addModifiedDateColumn() {
-        return addColumn(ProxyDistributionSet::getModifiedDate).setId(DS_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate"));
-    }
-
     protected Column<ProxyDistributionSet, String> addDescriptionColumn() {
-        return addColumn(ProxyDistributionSet::getDescription).setId(DS_DESC_ID)
-                .setCaption(i18n.getMessage("header.description"));
+        return GridComponentBuilder.addDescriptionColumn(this, i18n, DS_DESC_ID);
     }
 }

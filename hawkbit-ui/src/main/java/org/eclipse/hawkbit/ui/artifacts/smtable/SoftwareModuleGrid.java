@@ -40,14 +40,11 @@ import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.state.GridLayoutUiState;
 import org.eclipse.hawkbit.ui.common.state.TypeFilterLayoutUiState;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 
 /**
@@ -215,74 +212,48 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     @Override
     public void addColumns() {
-        addNameColumn().setMinimumWidth(100d).setMaximumWidth(330d).setExpandRatio(2);
+        addNameColumn().setMaximumWidth(330d).setExpandRatio(2);
 
-        addVersionColumn().setMinimumWidth(100d).setMaximumWidth(150d).setExpandRatio(1);
+        addVersionColumn().setMaximumWidth(150d).setExpandRatio(1);
 
-        addDeleteColumn().setWidth(75d);
+        addDeleteColumn();
     }
 
     private Column<ProxySoftwareModule, String> addNameColumn() {
-        return addColumn(ProxySoftwareModule::getName).setId(SM_NAME_ID).setCaption(i18n.getMessage("header.name"));
+        return GridComponentBuilder.addNameColumn(this, i18n, SM_NAME_ID);
     }
 
     private Column<ProxySoftwareModule, String> addVersionColumn() {
-        return addColumn(ProxySoftwareModule::getVersion).setId(SM_VERSION_ID)
-                .setCaption(i18n.getMessage("header.version"));
+        return GridComponentBuilder.addVersionColumn(this, i18n, ProxySoftwareModule::getVersion, SM_VERSION_ID);
     }
 
     private Column<ProxySoftwareModule, Button> addDeleteColumn() {
-        return addComponentColumn(sm -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> swModuleDeleteSupport.openConfirmationWindowDeleteAction(sm), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.SM_DELET_ICON + "." + sm.getId(),
-                permissionChecker.hasDeleteRepositoryPermission())).setId(SM_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete"));
+        return GridComponentBuilder.addDeleteColumn(this, i18n, SM_DELETE_BUTTON_ID, swModuleDeleteSupport,
+                UIComponentIdProvider.SM_DELET_ICON, e -> permissionChecker.hasDeleteRepositoryPermission());
     }
 
     @Override
     protected void addMaxColumns() {
-        addNameColumn().setMinimumWidth(100d).setExpandRatio(7);
+        addNameColumn().setExpandRatio(7);
 
-        addCreatedByColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addCreatedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addModifiedByColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, SM_CREATED_BY_ID).setExpandRatio(1);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, SM_CREATED_DATE_ID).setExpandRatio(1);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, SM_MODIFIED_BY_ID).setExpandRatio(1);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, SM_MODIFIED_DATE_ID).setExpandRatio(1);
 
-        addDescriptionColumn().setMinimumWidth(100d).setExpandRatio(5);
+        addDescriptionColumn().setExpandRatio(5);
 
-        addVersionColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addVersionColumn().setExpandRatio(1);
 
         addVendorColumn().setMinimumWidth(100d).setExpandRatio(1);
 
-        addDeleteColumn().setWidth(75d);
+        addDeleteColumn();
 
         getColumns().forEach(column -> column.setHidable(true));
     }
 
-    private Column<ProxySoftwareModule, String> addCreatedByColumn() {
-        return addColumn(ProxySoftwareModule::getCreatedBy).setId(SM_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy"));
-    }
-
-    private Column<ProxySoftwareModule, String> addCreatedDateColumn() {
-        return addColumn(ProxySoftwareModule::getCreatedDate).setId(SM_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate"));
-    }
-
-    private Column<ProxySoftwareModule, String> addModifiedByColumn() {
-        return addColumn(ProxySoftwareModule::getLastModifiedBy).setId(SM_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy"));
-    }
-
-    private Column<ProxySoftwareModule, String> addModifiedDateColumn() {
-        return addColumn(ProxySoftwareModule::getModifiedDate).setId(SM_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate"));
-    }
-
     private Column<ProxySoftwareModule, String> addDescriptionColumn() {
-        return addColumn(ProxySoftwareModule::getDescription).setId(SM_DESC_ID)
-                .setCaption(i18n.getMessage("header.description"));
+        return GridComponentBuilder.addDescriptionColumn(this, i18n, SM_DESC_ID);
     }
 
     private Column<ProxySoftwareModule, String> addVendorColumn() {

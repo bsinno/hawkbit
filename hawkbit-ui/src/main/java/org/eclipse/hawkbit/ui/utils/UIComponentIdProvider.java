@@ -89,6 +89,11 @@ public final class UIComponentIdProvider {
     public static final String TARGET_FILTER_ADD_ICON_ID = "target.filter.add.id";
 
     /**
+     * ID prefix for custom target filter
+     */
+    public static final String CUSTOM_FILTER_BUTTON_PREFIX = "customFilter";
+
+    /**
      * ID for menubar for configuring target tags
      */
     public static final String TARGET_MENU_BAR_ID = "target.menu.bar.id";

@@ -34,7 +34,6 @@ import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -42,7 +41,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
@@ -128,17 +126,10 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         addComponentColumn(this::buildFilterLink).setId(FILTER_NAME_ID).setCaption(i18n.getMessage("header.name"))
                 .setExpandRatio(2);
 
-        addColumn(ProxyTargetFilterQuery::getCreatedBy).setId(FILTER_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy")).setExpandRatio(2);
-
-        addColumn(ProxyTargetFilterQuery::getCreatedDate).setId(FILTER_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setExpandRatio(4);
-
-        addColumn(ProxyTargetFilterQuery::getLastModifiedBy).setId(FILTER_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setExpandRatio(2);
-
-        addColumn(ProxyTargetFilterQuery::getModifiedDate).setId(FILTER_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setExpandRatio(4);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, FILTER_CREATED_BY_ID).setExpandRatio(2);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, FILTER_CREATED_DATE_ID).setExpandRatio(4);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, FILTER_MODIFIED_BY_ID).setExpandRatio(2);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, FILTER_MODIFIED_DATE_ID).setExpandRatio(4);
 
         addComponentColumn(actionTypeIconSupplier::getLabel).setId(FILTER_AUTOASSIGNMENT_TYPE_ID)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN).setExpandRatio(1);
@@ -149,12 +140,9 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         getDefaultHeaderRow().join(FILTER_AUTOASSIGNMENT_TYPE_ID, FILTER_AUTOASSIGNMENT_DS_ID)
                 .setText(i18n.getMessage("header.auto.assignment.ds"));
 
-        addComponentColumn(targetFilter -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> targetFilterDeleteSupport.openConfirmationWindowDeleteAction(targetFilter),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON + "." + targetFilter.getId(),
-                permissionChecker.hasDeleteTargetPermission())).setId(FILTER_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.delete")).setExpandRatio(1);
+        GridComponentBuilder.addDeleteColumn(this, i18n, FILTER_DELETE_BUTTON_ID, targetFilterDeleteSupport,
+                UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON, e -> permissionChecker.hasDeleteTargetPermission())
+                .setExpandRatio(1);
     }
 
     private Button buildFilterLink(final ProxyTargetFilterQuery targetFilter) {

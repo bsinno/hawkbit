@@ -276,7 +276,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     @Override
     public void addColumns() {
-        addNameColumn().setMinimumWidth(130d).setMaximumWidth(150d).setExpandRatio(1);
+        addNameColumn().setMaximumWidth(150d).setExpandRatio(1);
 
         addTargetPollingStatusColumn().setWidth(30d);
         addTargetStatusColumn().setWidth(30d);
@@ -284,13 +284,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 .setText(i18n.getMessage("header.status"));
 
         addPinColumn().setWidth(25d);
-        addDeleteColumn().setWidth(50d);
+        addDeleteColumn();
         getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
     }
 
     private Column<ProxyTarget, String> addNameColumn() {
-        return addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"));
+        return GridComponentBuilder.addNameColumn(this, i18n, TARGET_NAME_ID);
     }
 
     private Column<ProxyTarget, Label> addTargetPollingStatusColumn() {
@@ -312,53 +312,27 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private Column<ProxyTarget, Button> addDeleteColumn() {
-        return addComponentColumn(target -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(),
-                permissionChecker.hasDeleteTargetPermission())).setId(TARGET_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete"));
+        return GridComponentBuilder.addDeleteColumn(this, i18n, TARGET_DELETE_BUTTON_ID, targetDeleteSupport,
+                UIComponentIdProvider.TARGET_DELET_ICON, e -> permissionChecker.hasDeleteTargetPermission());
     }
 
     @Override
     protected void addMaxColumns() {
-        addNameColumn().setMinimumWidth(130d).setExpandRatio(7);
+        addNameColumn().setExpandRatio(7);
 
-        addCreatedByColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addCreatedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addModifiedByColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, TARGET_CREATED_BY_ID).setExpandRatio(1);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, TARGET_CREATED_DATE_ID).setExpandRatio(1);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, TARGET_MODIFIED_BY_ID).setExpandRatio(1);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, TARGET_MODIFIED_DATE_ID).setExpandRatio(1);
 
-        addDescriptionColumn().setMinimumWidth(100d).setExpandRatio(5);
-
-        addDeleteColumn().setWidth(75d);
+        addDescriptionColumn().setExpandRatio(5);
+        addDeleteColumn();
 
         getColumns().forEach(column -> column.setHidable(true));
     }
 
-    private Column<ProxyTarget, String> addCreatedByColumn() {
-        return addColumn(ProxyTarget::getCreatedBy).setId(TARGET_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy"));
-    }
-
-    private Column<ProxyTarget, String> addCreatedDateColumn() {
-        return addColumn(ProxyTarget::getCreatedDate).setId(TARGET_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate"));
-    }
-
-    private Column<ProxyTarget, String> addModifiedByColumn() {
-        return addColumn(ProxyTarget::getLastModifiedBy).setId(TARGET_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy"));
-    }
-
-    private Column<ProxyTarget, String> addModifiedDateColumn() {
-        return addColumn(ProxyTarget::getModifiedDate).setId(TARGET_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate"));
-    }
-
     private Column<ProxyTarget, String> addDescriptionColumn() {
-        return addColumn(ProxyTarget::getDescription).setId(TARGET_DESC_ID)
-                .setCaption(i18n.getMessage("header.description"));
+        return GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESC_ID);
     }
 
     @Override
