@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -28,7 +29,6 @@ import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
@@ -37,6 +37,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -116,17 +117,22 @@ public class DefineGroupsLayout extends GridLayout {
         setColumns(6);
         setStyleName("marginTop");
 
-        addComponent(getLabel("caption.rollout.group.definition.desc"), 0, 0, 5, 0);
+        addComponent(SPUIComponentProvider.generateLabel(i18n, "caption.rollout.group.definition.desc"), 0, 0, 5, 0);
 
         final int headerRow = 1;
-        addComponent(getLabel("header.name"), 0, headerRow);
-        addComponent(getLabel("header.target.filter.query"), 1, headerRow);
-        addComponent(getLabel("header.target.percentage"), 2, headerRow);
-        addComponent(getLabel("header.rolloutgroup.threshold"), 3, headerRow);
-        addComponent(getLabel("header.rolloutgroup.threshold.error"), 4, headerRow);
+        addHeaderRow(headerRow);
 
         addComponent(createAddButton(), 0, 2, 5, 2);
 
+    }
+
+    private void addHeaderRow(final int row) {
+        final List<String> headerColumns = Arrays.asList("header.name", "header.target.filter.query",
+                "header.target.percentage", "header.rolloutgroup.threshold", "header.rolloutgroup.threshold.error");
+        for (int i = 0; i < headerColumns.size(); i++) {
+            final Label label = SPUIComponentProvider.generateLabel(i18n, headerColumns.get(i));
+            addComponent(label, i, row);
+        }
     }
 
     /**
@@ -136,10 +142,6 @@ public class DefineGroupsLayout extends GridLayout {
     public void setTargetFilter(final String targetFilter) {
         this.targetFilter = targetFilter;
         updateValidation();
-    }
-
-    private Label getLabel(final String key) {
-        return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
     }
 
     private Button createAddButton() {
@@ -397,8 +399,11 @@ public class DefineGroupsLayout extends GridLayout {
                     .id(UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID).buildTextComponent();
             groupName.setSizeUndefined();
             groupName.setStyleName("rollout-group-name");
+            groupName.addStyleName(ValoTheme.TEXTAREA_SMALL);
+            groupName.setWidth(12, Unit.EM);
 
-            proxyGroupRowBinder.forField(groupName).asRequired("Group name can not be empty")
+            proxyGroupRowBinder.forField(groupName)
+                    .asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED))
                     .bind(ProxyAdvancedRolloutGroupRow::getGroupName, ProxyAdvancedRolloutGroupRow::setGroupName);
         }
 
@@ -443,7 +448,7 @@ public class DefineGroupsLayout extends GridLayout {
         private void createTargetPercentage() {
             targetPercentage = new TextFieldBuilder(32).prompt(i18n.getMessage("textfield.target.percentage"))
                     .id(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_PERC_ID).buildTextComponent();
-            targetPercentage.setWidth(80, Unit.PIXELS);
+            targetPercentage.setWidth(5, Unit.EM);
 
             proxyGroupRowBinder.forField(targetPercentage).asRequired()
                     .withConverter(new StringToFloatConverter("only float values are allowed"))
@@ -459,7 +464,7 @@ public class DefineGroupsLayout extends GridLayout {
         private void createTriggerThreshold() {
             triggerThreshold = new TextFieldBuilder(32).prompt(i18n.getMessage("prompt.tigger.threshold"))
                     .id(UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID).buildTextComponent();
-            triggerThreshold.setWidth(80, Unit.PIXELS);
+            triggerThreshold.setWidth(5, Unit.EM);
 
             proxyGroupRowBinder.forField(triggerThreshold).asRequired().bind(
                     ProxyAdvancedRolloutGroupRow::getTriggerThresholdPercentage,
@@ -469,7 +474,7 @@ public class DefineGroupsLayout extends GridLayout {
         private void createErrorThreshold() {
             errorThreshold = new TextFieldBuilder(32).prompt(i18n.getMessage("prompt.error.threshold"))
                     .id(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID).buildTextComponent();
-            errorThreshold.setWidth(80, Unit.PIXELS);
+            errorThreshold.setWidth(5, Unit.EM);
 
             proxyGroupRowBinder.forField(errorThreshold).asRequired().bind(
                     ProxyAdvancedRolloutGroupRow::getErrorThresholdPercentage,

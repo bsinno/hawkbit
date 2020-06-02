@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.components;
 
+import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonDecorator;
 import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -144,5 +145,18 @@ public final class SPUIComponentProvider {
         labelIcon.addStyleName(fontIcon.getStyle());
 
         return labelIcon;
+    }
+
+    /**
+     * Generate a label
+     * 
+     * @param i18n
+     *            message source for internationalization
+     * @param key
+     *            to generate the internationalized name from
+     * @return the label
+     */
+    public static Label generateLabel(final VaadinMessageSource i18n, final String key) {
+        return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
     }
 }
