@@ -118,12 +118,12 @@ public class ConfirmationDialog implements Serializable {
                 .saveDialogCloseListener(getSaveDialogCloseListener()).hideMandatoryExplanation()
                 .buttonDecorator(SPUIButtonStyleTiny.class).confirmStyle(ConfirmStyle.OK).i18n(i18n);
 
-        this.window = windowBuilder.buildCommonDialogWindow();
-        window.setSaveButtonEnabled(true);
-        this.callback = callback;
         if (!StringUtils.isEmpty(id)) {
             windowBuilder.id(id);
         }
+        this.window = windowBuilder.buildCommonDialogWindow();
+        window.setSaveButtonEnabled(true);
+        this.callback = callback;
 
         if (icon != null) {
             window.setIcon(icon);
