@@ -111,8 +111,7 @@ public class AutoAssignmentWindowController
     private void showConsequencesDialog(final String confirmationCaption, final String confirmationQuestion,
             final Long targetFilterId, final Long autoAssignDsId, final ActionType autoAssignActionType,
             final ProxyTargetFilterQuery entity) {
-        final ConfirmationDialog confirmDialog = new ConfirmationDialog(confirmationCaption, confirmationQuestion,
-                i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
+        final ConfirmationDialog confirmDialog = new ConfirmationDialog(i18n, confirmationCaption, confirmationQuestion,
                 ok -> {
                     if (ok) {
                         targetFilterQueryManagement.updateAutoAssignDS(entityFactory.targetFilterQuery()

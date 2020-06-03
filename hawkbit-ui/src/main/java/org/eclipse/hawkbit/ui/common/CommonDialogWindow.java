@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.common;
 
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
+import org.eclipse.hawkbit.ui.decorators.SPUIButtonDecorator;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -47,9 +48,12 @@ public class CommonDialogWindow extends Window {
     private final String caption;
     private final Component content;
     private final String helpLink;
-    private Button saveButton;
+    private final ConfirmStyle confirmStyle;
+    private final Class<? extends SPUIButtonDecorator> buttonDecorator;
+    private Button confirmButton;
     private Button cancelButton;
     private HorizontalLayout buttonsLayout;
+    private Label mandatoryLabel;
 
     private final ClickListener cancelButtonClickListener;
     private final ClickListener closeClickListener;
@@ -57,8 +61,15 @@ public class CommonDialogWindow extends Window {
     private transient SaveDialogCloseListener closeListener;
 
     /**
-     * Constructor.
-     *
+     * Different kinds of confirm buttons
+     */
+    public enum ConfirmStyle {
+        SAVE, OK
+    }
+
+    /**
+     * Constructor
+     * 
      * @param caption
      *            the caption
      * @param content
@@ -69,17 +80,24 @@ public class CommonDialogWindow extends Window {
      *            the saveDialogCloseListener
      * @param cancelButtonClickListener
      *            the cancelButtonClickListener
+     * @param confirmStyle
+     *            what kind of button is used
+     * @param buttonDecorator
+     *            to style the confirm and cancel buttons
      * @param i18n
-     *            the i18n service
+     *            internationalization
      */
     public CommonDialogWindow(final String caption, final Component content, final String helpLink,
             final SaveDialogCloseListener closeListener, final ClickListener cancelButtonClickListener,
+            final ConfirmStyle confirmStyle, final Class<? extends SPUIButtonDecorator> buttonDecorator,
             final VaadinMessageSource i18n) {
         this.caption = caption;
         this.content = content;
         this.helpLink = helpLink;
         this.closeListener = closeListener;
         this.cancelButtonClickListener = cancelButtonClickListener;
+        this.confirmStyle = confirmStyle;
+        this.buttonDecorator = buttonDecorator;
         this.i18n = i18n;
 
         this.mainLayout = new VerticalLayout();
@@ -89,7 +107,7 @@ public class CommonDialogWindow extends Window {
     }
 
     private void onCloseEvent(final ClickEvent clickEvent) {
-        if (!clickEvent.getButton().equals(saveButton)) {
+        if (!clickEvent.getButton().equals(confirmButton)) {
             close();
             return;
         }
@@ -108,7 +126,7 @@ public class CommonDialogWindow extends Window {
     @Override
     public void close() {
         super.close();
-        this.saveButton.setEnabled(false);
+        this.confirmButton.setEnabled(false);
     }
 
     private final void init() {
@@ -140,7 +158,7 @@ public class CommonDialogWindow extends Window {
     }
 
     protected void addCloseListenerForSaveButton() {
-        saveButton.addClickListener(closeClickListener);
+        confirmButton.addClickListener(closeClickListener);
     }
 
     protected void addCloseListenerForCancelButton() {
@@ -163,10 +181,20 @@ public class CommonDialogWindow extends Window {
 
     private void createMandatoryLabel() {
 
-        final Label mandatoryLabel = new Label(i18n.getMessage("label.mandatory.field"));
+        mandatoryLabel = new Label(i18n.getMessage("label.mandatory.field"));
         mandatoryLabel.addStyleName(SPUIStyleDefinitions.SP_TEXTFIELD_ERROR + " " + ValoTheme.LABEL_TINY);
 
         mainLayout.addComponent(mandatoryLabel);
+    }
+
+    /**
+     * Hide the line that explains the mandatory decorator
+     * 
+     */
+    public void hideMandatoryExplanation() {
+        if (mandatoryLabel != null) {
+            mainLayout.removeComponent(mandatoryLabel);
+        }
     }
 
     private void createCancelButton() {
@@ -186,17 +214,22 @@ public class CommonDialogWindow extends Window {
     }
 
     private void createSaveButton() {
-        saveButton = SPUIComponentProvider.getButton(UIComponentIdProvider.SAVE_BUTTON,
-                i18n.getMessage(UIMessageIdProvider.BUTTON_SAVE), "", "", true, VaadinIcons.SAFE,
-                SPUIButtonStyleNoBorderWithIcon.class);
-        saveButton.setSizeUndefined();
-        saveButton.addStyleName("default-color");
+        if (confirmStyle == ConfirmStyle.SAVE) {
+            confirmButton = SPUIComponentProvider.getButton(UIComponentIdProvider.SAVE_BUTTON,
+                    i18n.getMessage(UIMessageIdProvider.BUTTON_SAVE), "", "", true, VaadinIcons.SAFE, buttonDecorator);
+        } else {
+            confirmButton = SPUIComponentProvider.getButton(UIComponentIdProvider.OK_BUTTON,
+                    i18n.getMessage(UIMessageIdProvider.BUTTON_OK), "", ValoTheme.BUTTON_PRIMARY, false, null,
+                    buttonDecorator);
+        }
+        confirmButton.setSizeUndefined();
+        confirmButton.addStyleName("default-color");
         addCloseListenerForSaveButton();
-        saveButton.setEnabled(false);
-        saveButton.setClickShortcut(KeyCode.ENTER);
-        buttonsLayout.addComponent(saveButton);
-        buttonsLayout.setComponentAlignment(saveButton, Alignment.MIDDLE_RIGHT);
-        buttonsLayout.setExpandRatio(saveButton, 1.0F);
+        confirmButton.setEnabled(false);
+        confirmButton.setClickShortcut(KeyCode.ENTER);
+        buttonsLayout.addComponent(confirmButton);
+        buttonsLayout.setComponentAlignment(confirmButton, Alignment.MIDDLE_RIGHT);
+        buttonsLayout.setExpandRatio(confirmButton, 1.0F);
     }
 
     private void addHelpLink() {
@@ -218,7 +251,7 @@ public class CommonDialogWindow extends Window {
     }
 
     public void setSaveButtonEnabled(final boolean enabled) {
-        saveButton.setEnabled(enabled);
+        confirmButton.setEnabled(enabled);
     }
 
     public void setCancelButtonEnabled(final boolean enabled) {

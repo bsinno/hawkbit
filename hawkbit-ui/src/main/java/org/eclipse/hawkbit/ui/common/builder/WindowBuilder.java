@@ -9,7 +9,10 @@
 package org.eclipse.hawkbit.ui.common.builder;
 
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow.ConfirmStyle;
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.decorators.SPUIButtonDecorator;
+import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -30,6 +33,9 @@ public class WindowBuilder {
     private VaadinMessageSource i18n;
     private final String type;
     private String id;
+    private boolean showMandatoryExplanation = true;
+    private ConfirmStyle confirmStyle = ConfirmStyle.SAVE;
+    private Class<? extends SPUIButtonDecorator> buttonDecorator = SPUIButtonStyleNoBorderWithIcon.class;
 
     private SaveDialogCloseListener saveDialogCloseListener;
 
@@ -116,11 +122,48 @@ public class WindowBuilder {
     }
 
     /**
+     * Set the id.
+     * 
      * @param id
      *            the id to set * @return the window builder
+     * @return the window builder
      */
     public WindowBuilder id(final String id) {
         this.id = id;
+        return this;
+    }
+
+    /**
+     * Hide the line that explains the mandatory decorator
+     * 
+     * @return the window builder
+     */
+    public WindowBuilder hideMandatoryExplanation() {
+        showMandatoryExplanation = false;
+        return this;
+    }
+
+    /**
+     * Set buttonDecorator.
+     * 
+     * @param buttonDecorator
+     *            the to style the confirm and cancel buttons
+     * @return the window builder
+     */
+    public WindowBuilder buttonDecorator(final Class<? extends SPUIButtonDecorator> buttonDecorator) {
+        this.buttonDecorator = buttonDecorator;
+        return this;
+    }
+
+    /**
+     * Set buttonDecorator.
+     * 
+     * @param confirmStyle
+     *            what kind of button is used
+     * @return the window builder
+     */
+    public WindowBuilder confirmStyle(final ConfirmStyle confirmStyle) {
+        this.confirmStyle = confirmStyle;
         return this;
     }
 
@@ -130,8 +173,11 @@ public class WindowBuilder {
      * @return the window.
      */
     public CommonDialogWindow buildCommonDialogWindow() {
-        final CommonDialogWindow window = new CommonDialogWindow(caption, content, helpLink,
-                saveDialogCloseListener, cancelButtonClickListener, i18n);
+        final CommonDialogWindow window = new CommonDialogWindow(caption, content, helpLink, saveDialogCloseListener,
+                cancelButtonClickListener, confirmStyle, buttonDecorator, i18n);
+        if (!showMandatoryExplanation) {
+            window.hideMandatoryExplanation();
+        }
         decorateWindow(window);
         return window;
 

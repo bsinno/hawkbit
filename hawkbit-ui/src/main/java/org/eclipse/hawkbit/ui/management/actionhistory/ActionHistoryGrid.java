@@ -236,9 +236,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
      *            as Id if the action needs to be cancelled.
      */
     private void confirmAndCancelAction(final Long actionId) {
-        final ConfirmationDialog confirmDialog = new ConfirmationDialog(
+        final ConfirmationDialog confirmDialog = new ConfirmationDialog(i18n,
                 i18n.getMessage("caption.cancel.action.confirmbox"), i18n.getMessage("message.cancel.action.confirm"),
-                i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
                 ok -> {
                     if (ok) {
                         cancelActiveAction(actionId);
@@ -284,8 +283,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
      *            as Id if the action needs to be forced.
      */
     private void confirmAndForceAction(final Long actionId) {
-        final ConfirmationDialog confirmDialog = new ConfirmationDialog(
-                i18n.getMessage("caption.force.action.confirmbox"), i18n.getMessage("message.force.action.confirm"),
+        final ConfirmationDialog confirmDialog = new ConfirmationDialog(i18n,
                 i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
                 ok -> {
                     if (ok) {
@@ -325,10 +323,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
      *            as Id if the action needs to be forced.
      */
     private void confirmAndForceQuitAction(final Long actionId) {
-        final ConfirmationDialog confirmDialog = new ConfirmationDialog(
+        final ConfirmationDialog confirmDialog = new ConfirmationDialog(i18n,
                 i18n.getMessage("caption.forcequit.action.confirmbox"),
-                i18n.getMessage("message.forcequit.action.confirm"), i18n.getMessage(UIMessageIdProvider.BUTTON_OK),
-                i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL), ok -> {
+                i18n.getMessage("message.forcequit.action.confirm"), ok -> {
                     if (ok) {
                         forceQuitActiveAction(actionId);
                     }
