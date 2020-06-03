@@ -19,6 +19,8 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessCond
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
@@ -38,7 +40,6 @@ import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
 
 public class AdvancedGroupRow {
 
@@ -96,31 +97,12 @@ public class AdvancedGroupRow {
     }
 
     private ComboBox<ProxyTargetFilterQuery> createTargetFilterQueryCombo() {
-        final ComboBox<ProxyTargetFilterQuery> targetFilterQuerySelectField = new ComboBox<>();
+        final BoundComponent<ComboBox<ProxyTargetFilterQuery>> boundTfqCombo = FormComponentBuilder
+                .createTargetFilterQueryCombo(binder, null, targetFilterQueryDataProvider, i18n,
+                        UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID + "." + groupCount);
+        boundTfqCombo.setRequired(false);
 
-        targetFilterQuerySelectField.setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID);
-        targetFilterQuerySelectField.setPlaceholder(i18n.getMessage("prompt.target.filter"));
-        targetFilterQuerySelectField.addStyleName(ValoTheme.COMBOBOX_SMALL);
-
-        targetFilterQuerySelectField.setItemCaptionGenerator(ProxyTargetFilterQuery::getName);
-        targetFilterQuerySelectField.setDataProvider(targetFilterQueryDataProvider);
-
-        binder.forField(targetFilterQuerySelectField).bind(advancedGroupRowBean -> {
-            if (advancedGroupRowBean.getTargetFilterId() == null) {
-                return null;
-            }
-
-            final ProxyTargetFilterQuery filter = new ProxyTargetFilterQuery();
-            filter.setId(advancedGroupRowBean.getTargetFilterId());
-            filter.setQuery(advancedGroupRowBean.getTargetFilterQuery());
-
-            return filter;
-        }, (advancedGroupRowBean, filter) -> {
-            advancedGroupRowBean.setTargetFilterId(filter != null ? filter.getId() : null);
-            advancedGroupRowBean.setTargetFilterQuery(filter != null ? filter.getQuery() : null);
-        });
-
-        return targetFilterQuerySelectField;
+        return boundTfqCombo.getComponent();
     }
 
     private TextField createTargetPercentage() {

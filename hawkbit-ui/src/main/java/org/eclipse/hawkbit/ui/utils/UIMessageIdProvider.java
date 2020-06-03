@@ -117,6 +117,8 @@ public final class UIMessageIdProvider {
 
     public static final String MESSAGE_ERROR_DISTRIBUTIONSET_REQUIRED = "message.error.distributionSetRequired";
 
+    public static final String MESSAGE_ERROR_TFQ_REQUIRED = "message.error.tfqRequired";
+
     public static final String MESSAGE_FILTER_QUERY_ERROR_NOTVALIDE = "message.filter.query.error.notValide";
 
     public static final String MESSAGE_ERROR_ENTITY_DELETED = "message.entity.error.deleted";

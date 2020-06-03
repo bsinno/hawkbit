@@ -19,7 +19,6 @@ import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessData
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
-import org.eclipse.hawkbit.ui.rollout.window.layouts.AddRolloutWindowLayout.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AdvancedGroupsLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.GroupsLegendLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.RolloutFormLayout;
@@ -67,6 +66,30 @@ public final class RolloutWindowLayoutComponentBuilder {
                 dependencies.getTargetFilterQueryManagement(), new TargetFilterQueryToProxyTargetFilterMapper());
     }
 
+    public Label getLabel(final String key) {
+        return new LabelBuilder().name(dependencies.getI18n().getMessage(key)).buildLabel();
+    }
+
+    public RolloutFormLayout createRolloutFormLayout() {
+        return new RolloutFormLayout(dependencies.getI18n(), distributionSetDataProvider,
+                targetFilterQueryDataProvider);
+    }
+
+    public SimpleGroupsLayout createSimpleGroupsLayout() {
+        return new SimpleGroupsLayout(dependencies.getI18n(), dependencies.getQuotaManagement());
+    }
+
+    public AdvancedGroupsLayout createAdvancedGroupsLayout() {
+        final AdvancedGroupsLayout defineGroupsLayout = new AdvancedGroupsLayout(dependencies.getI18n(),
+                dependencies.getEntityFactory(), dependencies.getRolloutManagement(),
+                dependencies.getTargetFilterQueryManagement(), dependencies.getQuotaManagement(),
+                targetFilterQueryDataProvider);
+        defineGroupsLayout.setDefaultErrorThreshold(defaultRolloutGroupConditions.getErrorConditionExp());
+        defineGroupsLayout.setDefaultTriggerThreshold(defaultRolloutGroupConditions.getSuccessConditionExp());
+
+        return defineGroupsLayout;
+    }
+
     public TabSheet createGroupDefinitionTabs(final Component simpleGroupDefinitionTab,
             final Component advancedGroupDefinitionTab) {
         final TabSheet groupsDefinitionTabs = new TabSheet();
@@ -86,28 +109,21 @@ public final class RolloutWindowLayoutComponentBuilder {
         return groupsDefinitionTabs;
     }
 
-    public Label getLabel(final String key) {
-        return new LabelBuilder().name(dependencies.getI18n().getMessage(key)).buildLabel();
+    public VisualGroupDefinitionLayout createVisualGroupDefinitionLayout() {
+        return new VisualGroupDefinitionLayout(createGroupsPieChart(), createGroupsLegendLayout());
     }
 
-    public RolloutFormLayout createRolloutFormLayout() {
-        return new RolloutFormLayout(dependencies.getI18n(), distributionSetDataProvider,
-                targetFilterQueryDataProvider);
+    private GroupsPieChart createGroupsPieChart() {
+        final GroupsPieChart groupsPieChart = new GroupsPieChart();
+        groupsPieChart.setWidth(260, Unit.PIXELS);
+        groupsPieChart.setHeight(220, Unit.PIXELS);
+        groupsPieChart.setStyleName(SPUIStyleDefinitions.ROLLOUT_GROUPS_CHART);
+
+        return groupsPieChart;
     }
 
-    public SimpleGroupsLayout createSimpleGroupsLayout() {
-        return new SimpleGroupsLayout(dependencies.getI18n(), dependencies.getQuotaManagement());
-    }
-
-    public AdvancedGroupsLayout createAdvancedGroupDefinitionTab() {
-        final AdvancedGroupsLayout defineGroupsLayout = new AdvancedGroupsLayout(dependencies.getI18n(),
-                dependencies.getEntityFactory(), dependencies.getRolloutManagement(),
-                dependencies.getTargetFilterQueryManagement(), dependencies.getRolloutGroupManagement(),
-                dependencies.getQuotaManagement(), targetFilterQueryDataProvider);
-        defineGroupsLayout.setDefaultErrorThreshold(defaultRolloutGroupConditions.getErrorConditionExp());
-        defineGroupsLayout.setDefaultTriggerThreshold(defaultRolloutGroupConditions.getSuccessConditionExp());
-
-        return defineGroupsLayout;
+    private GroupsLegendLayout createGroupsLegendLayout() {
+        return new GroupsLegendLayout(dependencies.getI18n());
     }
 
     public HorizontalLayout createApprovalLayout(final Binder<ProxyRolloutWindow> binder) {
@@ -149,27 +165,6 @@ public final class RolloutWindowLayoutComponentBuilder {
         approvalButtonsLayout.setExpandRatio(approvalRemarkField, 1.0F);
 
         return approvalButtonsLayout;
-    }
-
-    public VisualGroupDefinitionLayout createVisualGroupDefinitionLayout() {
-        final VisualGroupDefinitionLayout visualGroupDefinitionLayout = new VisualGroupDefinitionLayout(
-                createGroupsPieChart(), createGroupsLegendLayout());
-        visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.SIMPLE);
-
-        return visualGroupDefinitionLayout;
-    }
-
-    public GroupsPieChart createGroupsPieChart() {
-        final GroupsPieChart groupsPieChart = new GroupsPieChart();
-        groupsPieChart.setWidth(260, Unit.PIXELS);
-        groupsPieChart.setHeight(220, Unit.PIXELS);
-        groupsPieChart.setStyleName(SPUIStyleDefinitions.ROLLOUT_GROUPS_CHART);
-
-        return groupsPieChart;
-    }
-
-    public GroupsLegendLayout createGroupsLegendLayout() {
-        return new GroupsLegendLayout(dependencies.getI18n());
     }
 
     public static RolloutGroupConditions getDefaultRolloutGroupConditions() {

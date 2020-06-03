@@ -19,7 +19,7 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
-import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
@@ -72,7 +72,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
     }
 
     @Override
-    public AbstractEntityWindowLayout<ProxyRolloutWindow> getLayout() {
+    public EntityWindowLayout<ProxyRolloutWindow> getLayout() {
         return layout;
     }
 
@@ -85,7 +85,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
             proxyRolloutWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
         }
 
-        proxyRolloutWindow.setAutoStartOption(getStartAtOption(proxyRolloutWindow.getStartAt()));
+        proxyRolloutWindow.setAutoStartOption(proxyRolloutWindow.getOptionByStartAt());
         if (AutoStartOption.SCHEDULED != proxyRolloutWindow.getAutoStartOption()) {
             proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
         }
@@ -93,16 +93,6 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         nameBeforeEdit = proxyRolloutWindow.getName();
 
         return proxyRolloutWindow;
-    }
-
-    private AutoStartOption getStartAtOption(final Long startAtTime) {
-        if (startAtTime == null) {
-            return AutoStartOption.MANUAL;
-        } else if (startAtTime < System.currentTimeMillis()) {
-            return AutoStartOption.AUTO_START;
-        } else {
-            return AutoStartOption.SCHEDULED;
-        }
     }
 
     @Override
@@ -125,7 +115,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
                 .actionType(entity.getActionType())
                 .forcedTime(entity.getActionType() == ActionType.TIMEFORCED ? entity.getForcedTime()
                         : RepositoryModelConstants.NO_FORCE_TIME)
-                .startAt(getStartAtTime(entity));
+                .startAt(entity.getStartAtByOption());
 
         Rollout updatedRollout;
         try {
@@ -147,19 +137,6 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedRollout.getName()));
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, updatedRollout.getId()));
-    }
-
-    // TODO: remove duplication with AddRolloutWindowController
-    private Long getStartAtTime(final ProxyRolloutWindow entity) {
-        switch (entity.getAutoStartOption()) {
-        case AUTO_START:
-            return System.currentTimeMillis();
-        case SCHEDULED:
-            return entity.getStartAt();
-        case MANUAL:
-        default:
-            return null;
-        }
     }
 
     @Override

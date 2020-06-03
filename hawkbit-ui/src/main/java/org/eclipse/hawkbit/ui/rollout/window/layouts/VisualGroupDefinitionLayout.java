@@ -13,8 +13,8 @@ import java.util.List;
 
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
-import org.eclipse.hawkbit.ui.rollout.window.layouts.AddRolloutWindowLayout.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.springframework.util.CollectionUtils;
 
@@ -49,6 +49,41 @@ public class VisualGroupDefinitionLayout {
         }
     }
 
+    private void updateBySimpleGroupsDefinition() {
+        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || noOfGroups <= 0) {
+            clearGroupChartAndLegend();
+            return;
+        }
+
+        final List<Long> targetsPerGroup = new ArrayList<>(noOfGroups);
+        long leftTargets = totalTargets;
+        for (int i = 0; i < noOfGroups; i++) {
+            final double percentage = 1.0 / (noOfGroups - i);
+            final long targetsInGroup = Math.round(percentage * leftTargets);
+            leftTargets -= targetsInGroup;
+            targetsPerGroup.add(targetsInGroup);
+        }
+
+        groupsPieChart.setChartState(targetsPerGroup, totalTargets);
+        groupsLegendLayout.populateGroupsLegendByTargetCounts(targetsPerGroup);
+    }
+
+    private void clearGroupChartAndLegend() {
+        groupsPieChart.setChartState(Collections.emptyList(), 0L);
+        groupsLegendLayout.populateGroupsLegendByTargetCounts(Collections.emptyList());
+    }
+
+    private void updateByAdvancedGroupsDefinition() {
+        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || validation == null
+                || CollectionUtils.isEmpty(validation.getTargetsPerGroup())) {
+            clearGroupChartAndLegend();
+            return;
+        }
+
+        groupsPieChart.setChartState(validation.getTargetsPerGroup(), totalTargets);
+        groupsLegendLayout.populateGroupsLegendByValidation(validation, advancedRolloutGroups);
+    }
+
     public void setNoOfGroups(final int noOfGroups) {
         this.noOfGroups = noOfGroups;
 
@@ -73,42 +108,6 @@ public class VisualGroupDefinitionLayout {
 
     public void setGroupDefinitionMode(final GroupDefinitionMode groupDefinitionMode) {
         this.groupDefinitionMode = groupDefinitionMode;
-    }
-
-    private void updateBySimpleGroupsDefinition() {
-        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || noOfGroups <= 0) {
-            groupsPieChart.setChartState(Collections.emptyList(), 0L);
-            groupsLegendLayout.populateGroupsLegendByTargetCounts(Collections.emptyList());
-            return;
-        }
-
-        final List<Long> targetsPerGroup = new ArrayList<>(noOfGroups);
-        long leftTargets = totalTargets;
-        for (int i = 0; i < noOfGroups; i++) {
-            final double percentage = 1.0 / (noOfGroups - i);
-            final long targetsInGroup = Math.round(percentage * leftTargets);
-            leftTargets -= targetsInGroup;
-            targetsPerGroup.add(targetsInGroup);
-        }
-
-        groupsPieChart.setChartState(targetsPerGroup, totalTargets);
-        groupsLegendLayout.populateGroupsLegendByTargetCounts(targetsPerGroup);
-    }
-
-    private void updateByAdvancedGroupsDefinition() {
-        if (validation == null) {
-            groupsPieChart.setChartState(Collections.emptyList(), 0L);
-            return;
-        }
-
-        final List<Long> targetsPerGroup = validation.getTargetsPerGroup();
-        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || CollectionUtils.isEmpty(targetsPerGroup)) {
-            groupsPieChart.setChartState(Collections.emptyList(), 0L);
-        } else {
-            groupsPieChart.setChartState(targetsPerGroup, totalTargets);
-        }
-
-        groupsLegendLayout.populateGroupsLegendByValidation(validation, advancedRolloutGroups);
     }
 
     public void addChartWithLegendToLayout(final GridLayout layout, final int lastColumnIdx, final int heightInRows) {

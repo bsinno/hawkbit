@@ -10,10 +10,12 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import java.io.Serializable;
 
+import org.eclipse.hawkbit.ui.common.data.aware.TargetFilterQueryAware;
+
 /**
  * Proxy for advanced rollout group row.
  */
-public class ProxyAdvancedRolloutGroupRow implements Serializable {
+public class ProxyAdvancedRolloutGroupRow implements Serializable, TargetFilterQueryAware {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,18 +34,22 @@ public class ProxyAdvancedRolloutGroupRow implements Serializable {
         this.groupName = groupName;
     }
 
+    @Override
     public String getTargetFilterQuery() {
         return targetFilterQuery;
     }
 
+    @Override
     public void setTargetFilterQuery(final String targetFilterQuery) {
         this.targetFilterQuery = targetFilterQuery;
     }
 
+    @Override
     public Long getTargetFilterId() {
         return targetFilterId;
     }
 
+    @Override
     public void setTargetFilterId(final Long targetFilterId) {
         this.targetFilterId = targetFilterId;
     }

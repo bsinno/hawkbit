@@ -9,9 +9,11 @@
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 
 import com.vaadin.ui.GridLayout;
@@ -53,6 +55,25 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     public void populateTotalTargetsLegend() {
-        visualGroupDefinitionLayout.setTotalTargets(getEntity().getTotalTargets());
+        // visualGroupDefinitionLayout.setTotalTargets(getEntity().getTotalTargets());
+    }
+
+    @Override
+    public void setEntity(final ProxyRolloutWindow proxyEntity) {
+        rolloutFormLayout.setBean(proxyEntity.getRolloutForm());
+    }
+
+    @Override
+    public ProxyRolloutWindow getEntity() {
+        final ProxyRolloutWindow proxyEntity = new ProxyRolloutWindow();
+        proxyEntity.setRolloutForm(rolloutFormLayout.getBean());
+
+        return proxyEntity;
+    }
+
+    @Override
+    public void addValidationListener(final Consumer<Boolean> validationCallback) {
+        // TODO
+        validationCallback.accept(true);
     }
 }

@@ -8,10 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.springframework.util.StringUtils;
 
@@ -44,7 +45,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
         this.rolloutFormLayout = rolloutComponentBuilder.createRolloutFormLayout();
         this.simpleGroupsLayout = rolloutComponentBuilder.createSimpleGroupsLayout();
-        this.advancedGroupsLayout = rolloutComponentBuilder.createAdvancedGroupDefinitionTab();
+        this.advancedGroupsLayout = rolloutComponentBuilder.createAdvancedGroupsLayout();
         this.groupsDefinitionTabs = rolloutComponentBuilder.createGroupDefinitionTabs(simpleGroupsLayout,
                 advancedGroupsLayout);
         this.visualGroupDefinitionLayout = rolloutComponentBuilder.createVisualGroupDefinitionLayout();
@@ -111,12 +112,8 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
             visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
             visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
-                    getAdvancedRolloutGroups());
+                    advancedGroupsLayout.getSavedRolloutGroupDefinitions());
         }
-    }
-
-    public List<RolloutGroupCreate> getAdvancedRolloutGroups() {
-        return advancedGroupsLayout.getSavedRolloutGroups();
     }
 
     private void onNoOfSimpleGroupsChanged(final int noOfGroups) {
@@ -138,7 +135,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
             visualGroupDefinitionLayout.displayLoading();
         } else {
             visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
-                    getAdvancedRolloutGroups());
+                    advancedGroupsLayout.getSavedRolloutGroupDefinitions());
         }
     }
 
@@ -150,17 +147,29 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         groupsDefinitionTabs.setSelectedTab(advancedGroupsLayout);
     }
 
-    // TODO: !!!
-    public void populateAdvancedRolloutGroups() {
-        advancedGroupsLayout.setTargetFilter(getEntity().getTargetFilterQuery());
-        advancedGroupsLayout.populateByRolloutId(getEntity().getId());
+    @Override
+    public void setEntity(final ProxyRolloutWindow proxyEntity) {
+        rolloutFormLayout.setBean(proxyEntity.getRolloutForm());
+        simpleGroupsLayout.setBean(proxyEntity.getSimpleGroupsDefinition());
+        advancedGroupsLayout.populateByRolloutGroups(proxyEntity.getAdvancedRolloutGroups());
+        visualGroupDefinitionLayout.setGroupDefinitionMode(proxyEntity.getGroupDefinitionMode());
     }
 
-    public void populateTotalTargetsLegend() {
-        visualGroupDefinitionLayout.setTotalTargets(getEntity().getTotalTargets());
+    @Override
+    public ProxyRolloutWindow getEntity() {
+        final ProxyRolloutWindow proxyEntity = new ProxyRolloutWindow();
+        proxyEntity.setRolloutForm(rolloutFormLayout.getBean());
+        proxyEntity.setSimpleGroupsDefinition(simpleGroupsLayout.getBean());
+        proxyEntity.setAdvancedRolloutGroupDefinitions(advancedGroupsLayout.getSavedRolloutGroupDefinitions());
+        proxyEntity.setGroupDefinitionMode(
+                isSimpleGroupsTabSelected() ? GroupDefinitionMode.SIMPLE : GroupDefinitionMode.ADVANCED);
+
+        return proxyEntity;
     }
 
-    public enum GroupDefinitionMode {
-        SIMPLE, ADVANCED;
+    @Override
+    public void addValidationListener(final Consumer<Boolean> validationCallback) {
+        // TODO
+        validationCallback.accept(true);
     }
 }

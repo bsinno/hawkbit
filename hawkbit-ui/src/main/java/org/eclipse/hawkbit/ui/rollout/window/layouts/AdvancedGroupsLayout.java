@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
-import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
@@ -27,7 +26,6 @@ import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.util.concurrent.ListenableFuture;
 
@@ -50,7 +48,6 @@ public class AdvancedGroupsLayout extends GridLayout {
     private final transient EntityFactory entityFactory;
     private final transient TargetFilterQueryManagement targetFilterQueryManagement;
     private final transient RolloutManagement rolloutManagement;
-    private final transient RolloutGroupManagement rolloutGroupManagement;
     private final transient QuotaManagement quotaManagement;
 
     private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
@@ -69,12 +66,10 @@ public class AdvancedGroupsLayout extends GridLayout {
 
     public AdvancedGroupsLayout(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final RolloutManagement rolloutManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
-            final RolloutGroupManagement rolloutGroupManagement, final QuotaManagement quotaManagement,
-            final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
+            final QuotaManagement quotaManagement, final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.rolloutManagement = rolloutManagement;
-        this.rolloutGroupManagement = rolloutGroupManagement;
         this.quotaManagement = quotaManagement;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.targetFilterQueryDataProvider = targetFilterQueryDataProvider;
@@ -296,21 +291,18 @@ public class AdvancedGroupsLayout extends GridLayout {
     }
 
     /**
-     * Populate groups by rollout Id
+     * Populate groups by rollout groups
      *
-     * @param rolloutId
-     *            the rollout Id
+     * @param groups
+     *            the rollout groups
      */
-    public void populateByRolloutId(final Long rolloutId) {
-        if (rolloutId == null) {
+    public void populateByRolloutGroups(final List<RolloutGroup> groups) {
+        if (CollectionUtils.isEmpty(groups)) {
             return;
         }
 
         removeAllRows();
 
-        final List<RolloutGroup> groups = rolloutGroupManagement
-                .findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()), rolloutId)
-                .getContent();
         for (final RolloutGroup group : groups) {
             final AdvancedGroupRow groupRow = addGroupRow();
             groupRow.populateByGroup(group);
@@ -328,7 +320,7 @@ public class AdvancedGroupsLayout extends GridLayout {
         groupRows.clear();
     }
 
-    public List<RolloutGroupCreate> getSavedRolloutGroups() {
+    public List<RolloutGroupCreate> getSavedRolloutGroupDefinitions() {
         return savedRolloutGroups;
     }
 

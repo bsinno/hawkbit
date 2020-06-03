@@ -16,15 +16,17 @@ import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
 import org.eclipse.hawkbit.ui.common.data.aware.NameAware;
 import org.eclipse.hawkbit.ui.common.data.aware.StartOptionAware;
+import org.eclipse.hawkbit.ui.common.data.aware.TargetFilterQueryAware;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 
 /**
  * Proxy entity representing rollout form layout bean.
  */
-public class ProxyRolloutForm
-        implements Serializable, NameAware, DsIdAware, DescriptionAware, ActionTypeAware, StartOptionAware {
+public class ProxyRolloutForm implements Serializable, NameAware, DsIdAware, TargetFilterQueryAware, DescriptionAware,
+        ActionTypeAware, StartOptionAware {
     private static final long serialVersionUID = 1L;
 
+    private Long id;
     private String name;
     private Long distributionSetId;
     private Long targetFilterId;
@@ -34,6 +36,14 @@ public class ProxyRolloutForm
     private Long forcedTime;
     private AutoStartOption autoStartOption;
     private Long startAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
     @Override
     public String getName() {
@@ -55,18 +65,22 @@ public class ProxyRolloutForm
         this.distributionSetId = distributionSetId;
     }
 
+    @Override
     public Long getTargetFilterId() {
         return targetFilterId;
     }
 
+    @Override
     public void setTargetFilterId(final Long targetFilterId) {
         this.targetFilterId = targetFilterId;
     }
 
+    @Override
     public String getTargetFilterQuery() {
         return targetFilterQuery;
     }
 
+    @Override
     public void setTargetFilterQuery(final String targetFilterQuery) {
         this.targetFilterQuery = targetFilterQuery;
     }

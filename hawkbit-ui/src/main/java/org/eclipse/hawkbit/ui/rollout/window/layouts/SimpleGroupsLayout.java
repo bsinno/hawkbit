@@ -294,6 +294,14 @@ public class SimpleGroupsLayout extends GridLayout {
         return new StringBuilder(i18n.getMessage("label.target.per.group")).append(targetsPerGroup).toString();
     }
 
+    public void setBean(final ProxySimpleRolloutGroupsDefinition bean) {
+        binder.setBean(bean);
+    }
+
+    public ProxySimpleRolloutGroupsDefinition getBean() {
+        return binder.getBean();
+    }
+
     public enum ERROR_THRESHOLD_OPTIONS {
         PERCENT("label.errorthreshold.option.percent"), COUNT("label.errorthreshold.option.count");
 

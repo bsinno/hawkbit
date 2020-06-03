@@ -22,12 +22,14 @@ public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
         super(dependencies);
     }
 
+    // TODO
     @Override
     protected void addComponents(final GridLayout rootLayout) {
         super.addComponents(rootLayout);
 
         rootLayout.insertRow(rootLayout.getRows());
         rootLayout.addComponent(rolloutComponentBuilder.getLabel("label.approval.decision"), 0, 6);
-        rootLayout.addComponent(rolloutComponentBuilder.createApprovalLayout(binder), 1, 6, 3, 6);
+        // rootLayout.addComponent(rolloutComponentBuilder.createApprovalLayout(binder),
+        // 1, 6, 3, 6);
     }
 }

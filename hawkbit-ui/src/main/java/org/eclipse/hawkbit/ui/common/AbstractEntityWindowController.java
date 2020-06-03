@@ -18,7 +18,7 @@ public abstract class AbstractEntityWindowController<T, E> {
         adaptLayout();
     }
 
-    public abstract AbstractEntityWindowLayout<E> getLayout();
+    public abstract EntityWindowLayout<E> getLayout();
 
     protected abstract E buildEntityFromProxy(final T proxyEntity);
 

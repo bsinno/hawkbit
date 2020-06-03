@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
@@ -21,12 +21,10 @@ import com.vaadin.ui.GridLayout;
  * Abstract Grid Rollout window layout.
  */
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
-public abstract class AbstractRolloutWindowLayout extends AbstractEntityWindowLayout<ProxyRolloutWindow> {
+public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<ProxyRolloutWindow> {
     protected final RolloutWindowLayoutComponentBuilder rolloutComponentBuilder;
 
     protected AbstractRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
-        super();
-
         this.rolloutComponentBuilder = new RolloutWindowLayoutComponentBuilder(dependencies);
     }
 

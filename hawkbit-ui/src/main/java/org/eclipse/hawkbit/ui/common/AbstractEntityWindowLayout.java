@@ -12,10 +12,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.vaadin.data.Binder;
-import com.vaadin.ui.ComponentContainer;
 
-public abstract class AbstractEntityWindowLayout<T> {
-    
+public abstract class AbstractEntityWindowLayout<T> implements EntityWindowLayout<T> {
+
     protected final Binder<T> binder;
 
     protected Consumer<Boolean> validationCallback;
@@ -24,16 +23,17 @@ public abstract class AbstractEntityWindowLayout<T> {
         this.binder = new Binder<>();
     }
 
-    public abstract ComponentContainer getRootComponent();
-
+    @Override
     public void setEntity(final T proxyEntity) {
         binder.setBean(proxyEntity);
     }
 
+    @Override
     public T getEntity() {
         return binder.getBean();
     }
 
+    @Override
     public void addValidationListener(final Consumer<Boolean> validationCallback) {
         binder.addStatusChangeListener(event -> validationCallback.accept(event.getBinder().isValid()));
         this.validationCallback = validationCallback;

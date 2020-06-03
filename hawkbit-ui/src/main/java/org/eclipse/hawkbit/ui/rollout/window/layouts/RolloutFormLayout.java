@@ -25,18 +25,15 @@ import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLa
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.util.StringUtils;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.Binder.Binding;
-import com.vaadin.data.ValidationResult;
+import com.vaadin.data.Validator;
 import com.vaadin.data.validator.LongRangeValidator;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.themes.ValoTheme;
 
 public class RolloutFormLayout {
 
@@ -108,51 +105,23 @@ public class RolloutFormLayout {
      * @return ComboBox
      */
     private ComboBox<ProxyDistributionSet> createDistributionSetCombo() {
-        final ComboBox<ProxyDistributionSet> comboBox = FormComponentBuilder.createDistributionSetComboBox(binder,
+        final ComboBox<ProxyDistributionSet> dsComboBox = FormComponentBuilder.createDistributionSetComboBox(binder,
                 distributionSetDataProvider, i18n, UIComponentIdProvider.ROLLOUT_DS_ID).getComponent();
-        comboBox.setCaption(null);
-        return comboBox;
+        dsComboBox.setCaption(null);
+
+        return dsComboBox;
     }
 
     private BoundComponent<ComboBox<ProxyTargetFilterQuery>> createTargetFilterQueryCombo() {
-        final ComboBox<ProxyTargetFilterQuery> tfqCombo = new ComboBox<>();
+        return FormComponentBuilder.createTargetFilterQueryCombo(binder, atLeastOneTargetPresentValidator(),
+                targetFilterQueryDataProvider, i18n, UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID);
 
-        tfqCombo.setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID);
-        tfqCombo.setPlaceholder(i18n.getMessage(PROMPT_TARGET_FILTER));
-        tfqCombo.addStyleName(ValoTheme.COMBOBOX_SMALL);
+    }
 
-        tfqCombo.setItemCaptionGenerator(ProxyTargetFilterQuery::getName);
-        tfqCombo.setDataProvider(targetFilterQueryDataProvider);
-
-        // TODO: use i18n for all the required fields messages
-        final Binding<ProxyRolloutForm, Long> binding = binder.forField(tfqCombo)
-                .asRequired("You must provide the target filter").withValidator((filterQuery, context) -> {
-                    // TODO: workaround for the value set with setBean (see copy
-                    // layout)
-                    if (StringUtils.isEmpty(filterQuery.getQuery())) {
-                        return ValidationResult.ok();
-                    }
-
-                    return new LongRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FILTER_TARGET_EXISTS), 1L, null)
-                            .apply(totalTargets, context);
-                }).withConverter(filter -> {
-                    if (filter == null) {
-                        return null;
-                    }
-
-                    return filter.getId();
-                }, filterId -> {
-                    if (filterId == null) {
-                        return null;
-                    }
-
-                    final ProxyTargetFilterQuery filter = new ProxyTargetFilterQuery();
-                    filter.setId(filterId);
-
-                    return filter;
-                }).bind(ProxyRolloutForm::getTargetFilterId, ProxyRolloutForm::setTargetFilterId);
-
-        return new BoundComponent<>(tfqCombo, binding);
+    private Validator<ProxyTargetFilterQuery> atLeastOneTargetPresentValidator() {
+        return (filterQuery,
+                context) -> new LongRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FILTER_TARGET_EXISTS), 1L, null)
+                        .apply(totalTargets, context);
     }
 
     private TextArea createTargetFilterQuery() {
@@ -203,12 +172,6 @@ public class RolloutFormLayout {
 
     private void addValueChangeListeners() {
         targetFilterQueryCombo.getComponent().addValueChangeListener(event -> {
-            // we do not want to call the value change listener while setting
-            // the bean via binder.setBean()
-            if (!event.isUserOriginated()) {
-                return;
-            }
-
             if (filterQueryChangedListener != null) {
                 filterQueryChangedListener.accept(event.getValue() != null ? event.getValue().getQuery() : null);
             }
@@ -262,5 +225,13 @@ public class RolloutFormLayout {
         this.totalTargets = totalTargets;
 
         targetFilterQueryCombo.validate();
+    }
+
+    public void setBean(final ProxyRolloutForm bean) {
+        binder.setBean(bean);
+    }
+
+    public ProxyRolloutForm getBean() {
+        return binder.getBean();
     }
 }

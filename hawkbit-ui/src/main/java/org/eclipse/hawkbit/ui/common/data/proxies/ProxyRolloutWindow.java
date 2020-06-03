@@ -9,76 +9,79 @@
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
 import java.io.Serializable;
+import java.util.List;
 
+import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Rollout.ApprovalDecision;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
-import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
-import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
-import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
-import org.eclipse.hawkbit.ui.common.data.aware.NameAware;
+import org.eclipse.hawkbit.repository.model.RolloutGroup;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 
 /**
  * Proxy entity representing rollout popup window bean.
  */
-public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionAware, ActionTypeAware, DsIdAware {
+public class ProxyRolloutWindow implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long id;
-    private String name;
-    private String description;
-    private ActionType actionType;
-    private AutoStartOption autoStartOption;
-    private Long startAt;
-    private Long forcedTime;
+    // TODO: Try to remove
     private Long totalTargets;
-    private Long distributionSetId;
-    private Long targetFilterId;
-    private String targetFilterQuery;
-    private Integer numberOfGroups;
-    private String triggerThresholdPercentage;
-    private String errorThresholdPercentage;
+    private ProxyRolloutForm rolloutForm;
+    private ProxySimpleRolloutGroupsDefinition simpleGroupsDefinition;
+    private transient List<RolloutGroupCreate> advancedRolloutGroupDefinitions;
+    private transient List<RolloutGroup> advancedRolloutGroups;
+    private GroupDefinitionMode groupDefinitionMode;
+    // TODO: check if could be moved to ProxyRolloutApproval
     private RolloutStatus status;
     private String approvalRemark;
     private ApprovalDecision approvalDecision;
 
     public ProxyRolloutWindow() {
+        this.rolloutForm = new ProxyRolloutForm();
+        this.simpleGroupsDefinition = new ProxySimpleRolloutGroupsDefinition();
     }
 
     public ProxyRolloutWindow(final ProxyRollout rollout) {
-        id = rollout.getId();
-        name = rollout.getName();
-        description = rollout.getDescription();
-        actionType = rollout.getActionType();
-        startAt = rollout.getStartAt();
-        forcedTime = rollout.getForcedTime();
-        totalTargets = rollout.getTotalTargets();
-        distributionSetId = rollout.getDistributionSetId();
-        targetFilterQuery = rollout.getTargetFilterQuery();
-        numberOfGroups = rollout.getNumberOfGroups();
-        status = rollout.getStatus();
-        approvalRemark = rollout.getApprovalRemark();
-        approvalDecision = RolloutStatus.APPROVAL_DENIED == rollout.getStatus() ? ApprovalDecision.DENIED
+        this();
+
+        this.totalTargets = rollout.getTotalTargets();
+        this.status = rollout.getStatus();
+        this.approvalRemark = rollout.getApprovalRemark();
+        this.approvalDecision = RolloutStatus.APPROVAL_DENIED == rollout.getStatus() ? ApprovalDecision.DENIED
                 : ApprovalDecision.APPROVED;
-        autoStartOption = AutoStartOption.MANUAL;
+        setId(rollout.getId());
+        setName(rollout.getName());
+        setDescription(rollout.getDescription());
+        setActionType(rollout.getActionType());
+        setStartAt(rollout.getStartAt());
+        setForcedTime(rollout.getForcedTime());
+        setDistributionSetId(rollout.getDistributionSetId());
+        setTargetFilterQuery(rollout.getTargetFilterQuery());
+        setNumberOfGroups(rollout.getNumberOfGroups());
     }
 
-    @Override
+    public Long getId() {
+        return rolloutForm.getId();
+    }
+
+    public void setId(final Long id) {
+        rolloutForm.setId(id);
+    }
+
     public ActionType getActionType() {
-        return actionType;
+        return rolloutForm.getActionType();
     }
 
-    @Override
     public void setActionType(final ActionType actionType) {
-        this.actionType = actionType;
+        rolloutForm.setActionType(actionType);
     }
 
     /**
      * @return the numberOfGroups
      */
     public Integer getNumberOfGroups() {
-        return numberOfGroups;
+        return simpleGroupsDefinition.getNumberOfGroups();
     }
 
     /**
@@ -86,45 +89,31 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
      *            the numberOfGroups to set
      */
     public void setNumberOfGroups(final Integer numberOfGroups) {
-        this.numberOfGroups = numberOfGroups;
+        simpleGroupsDefinition.setNumberOfGroups(numberOfGroups);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
-    }
-
-    @Override
     public String getName() {
-        return name;
+        return rolloutForm.getName();
     }
 
-    @Override
     public void setName(final String name) {
-        this.name = name;
+        rolloutForm.setName(name);
     }
 
-    @Override
     public String getDescription() {
-        return description;
+        return rolloutForm.getDescription();
     }
 
-    @Override
     public void setDescription(final String description) {
-        this.description = description;
+        rolloutForm.setDescription(description);
     }
 
-    @Override
     public Long getForcedTime() {
-        return forcedTime;
+        return rolloutForm.getForcedTime();
     }
 
-    @Override
     public void setForcedTime(final Long forcedTime) {
-        this.forcedTime = forcedTime;
+        rolloutForm.setForcedTime(forcedTime);
     }
 
     public RolloutStatus getStatus() {
@@ -144,11 +133,11 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
     }
 
     public String getTargetFilterQuery() {
-        return targetFilterQuery;
+        return rolloutForm.getTargetFilterQuery();
     }
 
     public void setTargetFilterQuery(final String targetFilterQuery) {
-        this.targetFilterQuery = targetFilterQuery;
+        rolloutForm.setTargetFilterQuery(targetFilterQuery);
     }
 
     public Long getTotalTargets() {
@@ -160,45 +149,43 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
     }
 
     public Long getStartAt() {
-        return startAt;
+        return rolloutForm.getStartAt();
     }
 
     public void setStartAt(final Long startAt) {
-        this.startAt = startAt;
+        rolloutForm.setStartAt(startAt);
     }
 
-    @Override
     public Long getDistributionSetId() {
-        return distributionSetId;
+        return rolloutForm.getDistributionSetId();
     }
 
-    @Override
     public void setDistributionSetId(final Long distributionSetId) {
-        this.distributionSetId = distributionSetId;
+        rolloutForm.setDistributionSetId(distributionSetId);
     }
 
     public Long getTargetFilterId() {
-        return targetFilterId;
+        return rolloutForm.getTargetFilterId();
     }
 
     public void setTargetFilterId(final Long targetFilterId) {
-        this.targetFilterId = targetFilterId;
+        rolloutForm.setTargetFilterId(targetFilterId);
     }
 
     public String getTriggerThresholdPercentage() {
-        return triggerThresholdPercentage;
+        return simpleGroupsDefinition.getTriggerThresholdPercentage();
     }
 
     public void setTriggerThresholdPercentage(final String triggerThresholdPercentage) {
-        this.triggerThresholdPercentage = triggerThresholdPercentage;
+        simpleGroupsDefinition.setTriggerThresholdPercentage(triggerThresholdPercentage);
     }
 
     public String getErrorThresholdPercentage() {
-        return errorThresholdPercentage;
+        return simpleGroupsDefinition.getErrorThresholdPercentage();
     }
 
     public void setErrorThresholdPercentage(final String errorThresholdPercentage) {
-        this.errorThresholdPercentage = errorThresholdPercentage;
+        simpleGroupsDefinition.setErrorThresholdPercentage(errorThresholdPercentage);
     }
 
     public ApprovalDecision getApprovalDecision() {
@@ -210,10 +197,76 @@ public class ProxyRolloutWindow implements Serializable, NameAware, DescriptionA
     }
 
     public AutoStartOption getAutoStartOption() {
-        return autoStartOption;
+        return rolloutForm.getStartOption();
     }
 
     public void setAutoStartOption(final AutoStartOption autoStartOption) {
-        this.autoStartOption = autoStartOption;
+        rolloutForm.setStartOption(autoStartOption);
+    }
+
+    public ProxyRolloutForm getRolloutForm() {
+        return rolloutForm;
+    }
+
+    public void setRolloutForm(final ProxyRolloutForm rolloutForm) {
+        this.rolloutForm = rolloutForm;
+    }
+
+    public ProxySimpleRolloutGroupsDefinition getSimpleGroupsDefinition() {
+        return simpleGroupsDefinition;
+    }
+
+    public void setSimpleGroupsDefinition(final ProxySimpleRolloutGroupsDefinition simpleGroupsDefinition) {
+        this.simpleGroupsDefinition = simpleGroupsDefinition;
+    }
+
+    public Long getStartAtByOption() {
+        switch (getAutoStartOption()) {
+        case AUTO_START:
+            return System.currentTimeMillis();
+        case SCHEDULED:
+            return getStartAt();
+        case MANUAL:
+        default:
+            return null;
+        }
+    }
+
+    public AutoStartOption getOptionByStartAt() {
+        if (getStartAt() == null) {
+            return AutoStartOptionGroupLayout.AutoStartOption.MANUAL;
+        } else if (getStartAt() < System.currentTimeMillis()) {
+            return AutoStartOptionGroupLayout.AutoStartOption.AUTO_START;
+        } else {
+            return AutoStartOptionGroupLayout.AutoStartOption.SCHEDULED;
+        }
+    }
+
+    public GroupDefinitionMode getGroupDefinitionMode() {
+        return groupDefinitionMode;
+    }
+
+    public void setGroupDefinitionMode(final GroupDefinitionMode groupDefinitionMode) {
+        this.groupDefinitionMode = groupDefinitionMode;
+    }
+
+    public List<RolloutGroupCreate> getAdvancedRolloutGroupDefinitions() {
+        return advancedRolloutGroupDefinitions;
+    }
+
+    public void setAdvancedRolloutGroupDefinitions(final List<RolloutGroupCreate> advancedRolloutGroupDefinitions) {
+        this.advancedRolloutGroupDefinitions = advancedRolloutGroupDefinitions;
+    }
+
+    public List<RolloutGroup> getAdvancedRolloutGroups() {
+        return advancedRolloutGroups;
+    }
+
+    public void setAdvancedRolloutGroups(List<RolloutGroup> advancedRolloutGroups) {
+        this.advancedRolloutGroups = advancedRolloutGroups;
+    }
+
+    public enum GroupDefinitionMode {
+        SIMPLE, ADVANCED;
     }
 }

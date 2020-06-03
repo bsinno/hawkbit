@@ -15,8 +15,6 @@ import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus.Status;
 
-import com.vaadin.icons.VaadinIcons;
-
 /**
  * Proxy for {@link Rollout} with custom properties.
  */
@@ -29,8 +27,6 @@ public class ProxyRollout extends ProxyNamedEntity {
     private Integer numberOfGroups;
 
     private long totalTargets;
-
-    private Boolean isActionRecieved = Boolean.FALSE;
 
     private String targetFilterQuery;
 
@@ -49,12 +45,6 @@ public class ProxyRollout extends ProxyNamedEntity {
     private ActionType actionType;
 
     private Long distributionSetId;
-
-    private Long targetFilterId;
-
-    private String triggerThresholdPercentage;
-
-    private String errorThresholdPercentage;
 
     public ProxyRollout() {
     }
@@ -85,25 +75,6 @@ public class ProxyRollout extends ProxyNamedEntity {
 
     public void setNumberOfGroups(final Integer numberOfGroups) {
         this.numberOfGroups = numberOfGroups;
-    }
-
-    /**
-     * @return the isActionRecieved
-     */
-    public Boolean getIsActionRecieved() {
-        return isActionRecieved;
-    }
-
-    /**
-     * @param isActionRecieved
-     *            the isActionRecieved to set
-     */
-    public void setIsActionRecieved(final Boolean isActionRecieved) {
-        this.isActionRecieved = isActionRecieved;
-    }
-
-    public String getAction() {
-        return VaadinIcons.SPINNER.getHtml();
     }
 
     public Long getForcedTime() {
@@ -168,30 +139,6 @@ public class ProxyRollout extends ProxyNamedEntity {
 
     public void setDistributionSetId(final Long distributionSetId) {
         this.distributionSetId = distributionSetId;
-    }
-
-    public Long getTargetFilterId() {
-        return targetFilterId;
-    }
-
-    public void setTargetFilterId(final Long targetFilterId) {
-        this.targetFilterId = targetFilterId;
-    }
-
-    public String getTriggerThresholdPercentage() {
-        return triggerThresholdPercentage;
-    }
-
-    public void setTriggerThresholdPercentage(final String triggerThresholdPercentage) {
-        this.triggerThresholdPercentage = triggerThresholdPercentage;
-    }
-
-    public String getErrorThresholdPercentage() {
-        return errorThresholdPercentage;
-    }
-
-    public void setErrorThresholdPercentage(final String errorThresholdPercentage) {
-        this.errorThresholdPercentage = errorThresholdPercentage;
     }
 
     public Map<Status, Long> getStatusTotalCountMap() {
