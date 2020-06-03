@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
@@ -33,7 +32,6 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 
 /**
@@ -52,8 +50,6 @@ public class AdvancedGroupsLayout extends GridLayout {
 
     private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
 
-    private String defaultTriggerThreshold;
-    private String defaultErrorThreshold;
     private String targetFilter;
 
     private final transient List<AdvancedGroupRow> groupRows;
@@ -88,21 +84,17 @@ public class AdvancedGroupsLayout extends GridLayout {
         setColumns(6);
         setStyleName("marginTop");
 
-        addComponent(getLabel("caption.rollout.group.definition.desc"), 0, 0, 5, 0);
+        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "caption.rollout.group.definition.desc"), 0, 0, 5, 0);
 
         final int headerRow = 1;
-        addComponent(getLabel("header.name"), 0, headerRow);
-        addComponent(getLabel("header.target.filter.query"), 1, headerRow);
-        addComponent(getLabel("header.target.percentage"), 2, headerRow);
-        addComponent(getLabel("header.rolloutgroup.threshold"), 3, headerRow);
-        addComponent(getLabel("header.rolloutgroup.threshold.error"), 4, headerRow);
+        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.name"), 0, headerRow);
+        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.target.filter.query"), 1, headerRow);
+        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.target.percentage"), 2, headerRow);
+        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.rolloutgroup.threshold"), 3, headerRow);
+        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.rolloutgroup.threshold.error"), 4, headerRow);
 
         addComponent(createAddButton(), 0, 2, 5, 2);
 
-    }
-
-    private Label getLabel(final String key) {
-        return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
     }
 
     private Button createAddButton() {
@@ -128,7 +120,7 @@ public class AdvancedGroupsLayout extends GridLayout {
 
     private AdvancedGroupRow addGroupRow() {
         final AdvancedGroupRow groupRow = new AdvancedGroupRow(i18n, entityFactory, targetFilterQueryManagement,
-                targetFilterQueryDataProvider, defaultTriggerThreshold, defaultErrorThreshold, groupRows.size() + 1);
+                targetFilterQueryDataProvider, groupRows.size() + 1);
         groupRows.add(groupRow);
 
         addRowToLayout(groupRow);
@@ -276,14 +268,6 @@ public class AdvancedGroupsLayout extends GridLayout {
         this.targetFilter = targetFilter;
 
         updateValidation();
-    }
-
-    public void setDefaultTriggerThreshold(final String defaultTriggerThreshold) {
-        this.defaultTriggerThreshold = defaultTriggerThreshold;
-    }
-
-    public void setDefaultErrorThreshold(final String defaultErrorThreshold) {
-        this.defaultErrorThreshold = defaultErrorThreshold;
     }
 
     public void setValidationListener(final ValidationListener validationListener) {

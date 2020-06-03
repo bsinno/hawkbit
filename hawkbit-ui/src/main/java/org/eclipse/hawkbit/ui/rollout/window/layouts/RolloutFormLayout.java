@@ -14,13 +14,13 @@ import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutForm;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -31,7 +31,6 @@ import com.vaadin.data.Validator;
 import com.vaadin.data.validator.LongRangeValidator;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
@@ -184,37 +183,39 @@ public class RolloutFormLayout {
     }
 
     public void addFormToLayout(final GridLayout layout, final boolean isEditMode) {
-        layout.addComponent(getLabel(TEXTFIELD_NAME), CAPTION_COLUMN, 0);
+        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, TEXTFIELD_NAME), CAPTION_COLUMN, 0);
         layout.addComponent(nameField, FIELD_COLUMN, 0);
         nameField.focus();
 
-        layout.addComponent(getLabel(PROMPT_DISTRIBUTION_SET), CAPTION_COLUMN, 1);
+        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, PROMPT_DISTRIBUTION_SET), CAPTION_COLUMN, 1);
         layout.addComponent(dsCombo, FIELD_COLUMN, 1);
 
-        layout.addComponent(getLabel(PROMPT_TARGET_FILTER), CAPTION_COLUMN, 2);
+        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, PROMPT_TARGET_FILTER), CAPTION_COLUMN, 2);
         layout.addComponent(isEditMode ? targetFilterQueryField : targetFilterQueryCombo.getComponent(), FIELD_COLUMN,
                 2);
 
-        layout.addComponent(getLabel(TEXTFIELD_DESCRIPTION), CAPTION_COLUMN, 3);
+        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, TEXTFIELD_DESCRIPTION), CAPTION_COLUMN, 3);
         layout.addComponent(descriptionField, FIELD_COLUMN, 3);
 
         final int lastColumn = layout.getColumns() - 1;
-        layout.addComponent(getLabel(CAPTION_ROLLOUT_ACTION_TYPE), CAPTION_COLUMN, 4);
+        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, CAPTION_ROLLOUT_ACTION_TYPE), CAPTION_COLUMN,
+                4);
         layout.addComponent(actionTypeLayout.getComponent(), FIELD_COLUMN, 4, lastColumn, 4);
 
-        layout.addComponent(getLabel(CAPTION_ROLLOUT_START_TYPE), CAPTION_COLUMN, 5);
+        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, CAPTION_ROLLOUT_START_TYPE), CAPTION_COLUMN,
+                5);
         layout.addComponent(autoStartOptionGroupLayout.getComponent(), FIELD_COLUMN, 5, lastColumn, 5);
     }
 
-    public void disableFieldsOnEdit() {
+    public void disableFieldsOnEditForInActive() {
+        targetFilterQueryField.setEnabled(false);
+    }
+
+    public void disableFieldsOnEditForActive() {
         dsCombo.setEnabled(false);
         targetFilterQueryField.setEnabled(false);
         actionTypeLayout.getComponent().setEnabled(false);
         autoStartOptionGroupLayout.getComponent().setEnabled(false);
-    }
-
-    private Label getLabel(final String key) {
-        return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
     }
 
     public void setFilterQueryChangedListener(final Consumer<String> filterQueryChangedListener) {

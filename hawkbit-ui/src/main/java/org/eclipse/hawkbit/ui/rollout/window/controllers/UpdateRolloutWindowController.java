@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
@@ -18,10 +20,12 @@ import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.Rollout;
+import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -90,22 +94,20 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
             proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
         }
 
+        proxyRolloutWindow.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
+        setRolloutGroups(proxyRolloutWindow);
+
         nameBeforeEdit = proxyRolloutWindow.getName();
 
         return proxyRolloutWindow;
     }
 
-    @Override
-    protected void adaptLayout() {
-        if (layout.getEntity().getStatus() != Rollout.RolloutStatus.READY) {
-            layout.disableRequiredFieldsOnEdit();
-        }
-
-        layout.populateTotalTargetsLegend();
-        layout.updateGroupsChart(
-                rolloutGroupManagement.findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()),
-                        layout.getEntity().getId()).getContent(),
-                layout.getEntity().getTotalTargets());
+    private void setRolloutGroups(final ProxyRolloutWindow proxyRolloutWindow) {
+        final List<RolloutGroup> advancedRolloutGroups = rolloutGroupManagement
+                .findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()),
+                        proxyRolloutWindow.getId())
+                .getContent();
+        proxyRolloutWindow.setAdvancedRolloutGroups(advancedRolloutGroups);
     }
 
     @Override

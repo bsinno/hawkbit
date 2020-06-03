@@ -48,8 +48,6 @@ public class AdvancedGroupRow {
     private final TargetFilterQueryManagement targetFilterQueryManagement;
     private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
 
-    private final String defaultTriggerThreshold;
-    private final String defaultErrorThreshold;
     private final int groupCount;
 
     private final Binder<ProxyAdvancedRolloutGroupRow> binder;
@@ -62,15 +60,12 @@ public class AdvancedGroupRow {
 
     public AdvancedGroupRow(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final TargetFilterQueryManagement targetFilterQueryManagement,
-            final TargetFilterQueryDataProvider targetFilterQueryDataProvider, final String defaultTriggerThreshold,
-            final String defaultErrorThreshold, final int groupCount) {
+            final TargetFilterQueryDataProvider targetFilterQueryDataProvider, final int groupCount) {
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.targetFilterQueryDataProvider = targetFilterQueryDataProvider;
 
-        this.defaultTriggerThreshold = defaultTriggerThreshold;
-        this.defaultErrorThreshold = defaultErrorThreshold;
         this.groupCount = groupCount;
 
         this.binder = new Binder<>();
@@ -168,10 +163,16 @@ public class AdvancedGroupRow {
         final ProxyAdvancedRolloutGroupRow advancedGroupRowBean = new ProxyAdvancedRolloutGroupRow();
         advancedGroupRowBean.setGroupName(i18n.getMessage("textfield.rollout.group.default.name", groupCount));
         advancedGroupRowBean.setTargetPercentage(100f);
-        advancedGroupRowBean.setTriggerThresholdPercentage(defaultTriggerThreshold);
-        advancedGroupRowBean.setErrorThresholdPercentage(defaultErrorThreshold);
+        setDefaultThresholds(advancedGroupRowBean);
 
         binder.setBean(advancedGroupRowBean);
+    }
+
+    private void setDefaultThresholds(final ProxyAdvancedRolloutGroupRow advancedGroupRow) {
+        final RolloutGroupConditions defaultRolloutGroupConditions = new RolloutGroupConditionBuilder().withDefaults()
+                .build();
+        advancedGroupRow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
+        advancedGroupRow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
     }
 
     /**

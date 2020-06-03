@@ -25,21 +25,19 @@ import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.
 public class ProxyRolloutWindow implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    // TODO: Try to remove
+    private RolloutStatus status;
     private Long totalTargets;
     private ProxyRolloutForm rolloutForm;
     private ProxySimpleRolloutGroupsDefinition simpleGroupsDefinition;
     private transient List<RolloutGroupCreate> advancedRolloutGroupDefinitions;
     private transient List<RolloutGroup> advancedRolloutGroups;
     private GroupDefinitionMode groupDefinitionMode;
-    // TODO: check if could be moved to ProxyRolloutApproval
-    private RolloutStatus status;
-    private String approvalRemark;
-    private ApprovalDecision approvalDecision;
+    private ProxyRolloutApproval rolloutApproval;
 
     public ProxyRolloutWindow() {
         this.rolloutForm = new ProxyRolloutForm();
         this.simpleGroupsDefinition = new ProxySimpleRolloutGroupsDefinition();
+        this.rolloutApproval = new ProxyRolloutApproval();
     }
 
     public ProxyRolloutWindow(final ProxyRollout rollout) {
@@ -47,9 +45,6 @@ public class ProxyRolloutWindow implements Serializable {
 
         this.totalTargets = rollout.getTotalTargets();
         this.status = rollout.getStatus();
-        this.approvalRemark = rollout.getApprovalRemark();
-        this.approvalDecision = RolloutStatus.APPROVAL_DENIED == rollout.getStatus() ? ApprovalDecision.DENIED
-                : ApprovalDecision.APPROVED;
         setId(rollout.getId());
         setName(rollout.getName());
         setDescription(rollout.getDescription());
@@ -59,6 +54,9 @@ public class ProxyRolloutWindow implements Serializable {
         setDistributionSetId(rollout.getDistributionSetId());
         setTargetFilterQuery(rollout.getTargetFilterQuery());
         setNumberOfGroups(rollout.getNumberOfGroups());
+        setApprovalRemark(rollout.getApprovalRemark());
+        setApprovalDecision(RolloutStatus.APPROVAL_DENIED == rollout.getStatus() ? ApprovalDecision.DENIED
+                : ApprovalDecision.APPROVED);
     }
 
     public Long getId() {
@@ -125,11 +123,11 @@ public class ProxyRolloutWindow implements Serializable {
     }
 
     public String getApprovalRemark() {
-        return approvalRemark;
+        return rolloutApproval.getApprovalRemark();
     }
 
     public void setApprovalRemark(final String approvalRemark) {
-        this.approvalRemark = approvalRemark;
+        rolloutApproval.setApprovalRemark(approvalRemark);
     }
 
     public String getTargetFilterQuery() {
@@ -189,11 +187,11 @@ public class ProxyRolloutWindow implements Serializable {
     }
 
     public ApprovalDecision getApprovalDecision() {
-        return approvalDecision;
+        return rolloutApproval.getApprovalDecision();
     }
 
     public void setApprovalDecision(final ApprovalDecision approvalDecision) {
-        this.approvalDecision = approvalDecision;
+        rolloutApproval.setApprovalDecision(approvalDecision);
     }
 
     public AutoStartOption getAutoStartOption() {
@@ -262,8 +260,16 @@ public class ProxyRolloutWindow implements Serializable {
         return advancedRolloutGroups;
     }
 
-    public void setAdvancedRolloutGroups(List<RolloutGroup> advancedRolloutGroups) {
+    public void setAdvancedRolloutGroups(final List<RolloutGroup> advancedRolloutGroups) {
         this.advancedRolloutGroups = advancedRolloutGroups;
+    }
+
+    public ProxyRolloutApproval getRolloutApproval() {
+        return rolloutApproval;
+    }
+
+    public void setRolloutApproval(final ProxyRolloutApproval rolloutApproval) {
+        this.rolloutApproval = rolloutApproval;
     }
 
     public enum GroupDefinitionMode {

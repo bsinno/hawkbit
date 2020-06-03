@@ -29,7 +29,6 @@ import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
-import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AddRolloutWindowLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -86,8 +85,8 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
     }
 
     protected void setDefaultThresholds(final ProxyRolloutWindow proxyRolloutWindow) {
-        final RolloutGroupConditions defaultRolloutGroupConditions = RolloutWindowLayoutComponentBuilder
-                .getDefaultRolloutGroupConditions();
+        final RolloutGroupConditions defaultRolloutGroupConditions = new RolloutGroupConditionBuilder().withDefaults()
+                .build();
         proxyRolloutWindow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
         proxyRolloutWindow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
     }

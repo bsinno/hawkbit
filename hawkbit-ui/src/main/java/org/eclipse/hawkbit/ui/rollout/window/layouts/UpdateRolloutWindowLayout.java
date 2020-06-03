@@ -8,11 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
+import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 
@@ -37,30 +35,23 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     protected void addComponents(final GridLayout rootLayout) {
         rootLayout.setRows(6);
 
+        final int lastColumnIdx = rootLayout.getColumns() - 1;
+
         rolloutFormLayout.addFormToLayout(rootLayout, true);
-        visualGroupDefinitionLayout.addChartWithLegendToLayout(rootLayout, rootLayout.getColumns() - 1, 3);
-    }
-
-    public void disableRequiredFieldsOnEdit() {
-        rolloutFormLayout.disableFieldsOnEdit();
-    }
-
-    // TODO
-    public void updateGroupsChart(final List<RolloutGroup> savedGroups, final long totalTargetsCount) {
-        final List<Long> targetsPerGroup = savedGroups.stream().map(group -> (long) group.getTotalTargets())
-                .collect(Collectors.toList());
-
-        // groupsPieChart.setChartState(targetsPerGroup, totalTargetsCount);
-        // groupsLegendLayout.populateGroupsLegendByGroups(savedGroups);
-    }
-
-    public void populateTotalTargetsLegend() {
-        // visualGroupDefinitionLayout.setTotalTargets(getEntity().getTotalTargets());
+        visualGroupDefinitionLayout.addChartWithLegendToLayout(rootLayout, lastColumnIdx, 3);
     }
 
     @Override
     public void setEntity(final ProxyRolloutWindow proxyEntity) {
         rolloutFormLayout.setBean(proxyEntity.getRolloutForm());
+        if (Rollout.RolloutStatus.READY == proxyEntity.getStatus()) {
+            rolloutFormLayout.disableFieldsOnEditForInActive();
+        } else {
+            rolloutFormLayout.disableFieldsOnEditForActive();
+        }
+        visualGroupDefinitionLayout.setGroupDefinitionMode(proxyEntity.getGroupDefinitionMode());
+        visualGroupDefinitionLayout.setTotalTargets(proxyEntity.getTotalTargets());
+        visualGroupDefinitionLayout.updateByRolloutGroups(proxyEntity.getAdvancedRolloutGroups());
     }
 
     @Override

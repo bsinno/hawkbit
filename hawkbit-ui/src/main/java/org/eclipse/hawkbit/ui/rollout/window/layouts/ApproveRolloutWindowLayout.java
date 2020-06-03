@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 
 import com.vaadin.ui.GridLayout;
@@ -18,18 +19,38 @@ import com.vaadin.ui.GridLayout;
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
 
+    private final ApprovalLayout approvalLayout;
+
     public ApproveRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         super(dependencies);
+
+        this.approvalLayout = rolloutComponentBuilder.createApprovalLayout();
     }
 
-    // TODO
     @Override
     protected void addComponents(final GridLayout rootLayout) {
         super.addComponents(rootLayout);
 
         rootLayout.insertRow(rootLayout.getRows());
-        rootLayout.addComponent(rolloutComponentBuilder.getLabel("label.approval.decision"), 0, 6);
-        // rootLayout.addComponent(rolloutComponentBuilder.createApprovalLayout(binder),
-        // 1, 6, 3, 6);
+
+        final int lastRowIdx = rootLayout.getRows() - 1;
+        final int lastColumnIdx = rootLayout.getColumns() - 1;
+
+        approvalLayout.addApprovalToLayout(rootLayout, lastColumnIdx, lastRowIdx);
+    }
+
+    @Override
+    public void setEntity(final ProxyRolloutWindow proxyEntity) {
+        super.setEntity(proxyEntity);
+
+        approvalLayout.setBean(proxyEntity.getRolloutApproval());
+    }
+
+    @Override
+    public ProxyRolloutWindow getEntity() {
+        final ProxyRolloutWindow proxyEntity = super.getEntity();
+        proxyEntity.setRolloutApproval(approvalLayout.getBean());
+
+        return proxyEntity;
     }
 }

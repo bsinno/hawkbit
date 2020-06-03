@@ -10,8 +10,10 @@ package org.eclipse.hawkbit.ui.rollout.window.layouts;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
+import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
@@ -28,7 +30,7 @@ public class VisualGroupDefinitionLayout {
     private Long totalTargets;
     private int noOfGroups;
     private RolloutGroupsValidation validation;
-    private List<RolloutGroupCreate> advancedRolloutGroups;
+    private List<RolloutGroupCreate> advancedRolloutGroupDefinitions;
     private GroupDefinitionMode groupDefinitionMode;
 
     public VisualGroupDefinitionLayout(final GroupsPieChart groupsPieChart,
@@ -81,7 +83,7 @@ public class VisualGroupDefinitionLayout {
         }
 
         groupsPieChart.setChartState(validation.getTargetsPerGroup(), totalTargets);
-        groupsLegendLayout.populateGroupsLegendByValidation(validation, advancedRolloutGroups);
+        groupsLegendLayout.populateGroupsLegendByValidation(validation, advancedRolloutGroupDefinitions);
     }
 
     public void setNoOfGroups(final int noOfGroups) {
@@ -93,13 +95,26 @@ public class VisualGroupDefinitionLayout {
     }
 
     public void setAdvancedRolloutGroupsValidation(final RolloutGroupsValidation validation,
-            final List<RolloutGroupCreate> advancedRolloutGroups) {
+            final List<RolloutGroupCreate> advancedRolloutGroupDefinitions) {
         this.validation = validation;
-        this.advancedRolloutGroups = advancedRolloutGroups;
+        this.advancedRolloutGroupDefinitions = advancedRolloutGroupDefinitions;
 
         if (groupDefinitionMode == GroupDefinitionMode.ADVANCED) {
             updateByAdvancedGroupsDefinition();
         }
+    }
+
+    public void updateByRolloutGroups(final List<RolloutGroup> rolloutGroups) {
+        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || CollectionUtils.isEmpty(rolloutGroups)) {
+            clearGroupChartAndLegend();
+            return;
+        }
+
+        final List<Long> targetsPerGroup = rolloutGroups.stream().map(group -> (long) group.getTotalTargets())
+                .collect(Collectors.toList());
+
+        groupsPieChart.setChartState(targetsPerGroup, totalTargets);
+        groupsLegendLayout.populateGroupsLegendByGroups(rolloutGroups);
     }
 
     public void displayLoading() {
