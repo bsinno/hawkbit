@@ -24,7 +24,7 @@ public class ProxyMetaData extends ProxyIdentifiableEntity {
     private boolean isTargetVisible;
 
     public ProxyMetaData() {
-        setId(new SecureRandom().nextLong());
+        super(new SecureRandom().nextLong());
     }
 
     public String getKey() {

@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
+import java.security.SecureRandom;
+
 import org.eclipse.hawkbit.repository.model.ActionStatus;
 
 /**
@@ -17,6 +19,10 @@ public class ProxyMessage extends ProxyIdentifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private String message;
+
+    public ProxyMessage() {
+        super(new SecureRandom().nextLong());
+    }
 
     /**
      * Get message value.
