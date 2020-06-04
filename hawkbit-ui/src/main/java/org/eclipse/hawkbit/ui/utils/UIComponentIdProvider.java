@@ -1324,6 +1324,18 @@ public final class UIComponentIdProvider {
      */
     public static final String DOWNLOAD_ANONYMOUS_CHECKBOX = "downloadanonymouscheckbox";
     /**
+     * ID for certificate auth checkbox
+     */
+    public static final String CERT_AUTH_ALLOWED_CHECKBOX = "certificateauthallowed";
+    /**
+     * ID for target security token checkbox
+     */
+    public static final String TARGET_SEC_TOKEN_ALLOWED_CHECKBOX = "targetsectokenallowed";
+    /**
+     * ID for gateway security token checkbox
+     */
+    public static final String GATEWAY_SEC_TOKEN_ALLOWED_CHECKBOX = "gatewaysecuritycheckbox";
+    /**
      * Id of custom filter query search Icon.
      */
     public static final String FILTER_SEARCH_ICON_ID = "filter.search.icon";

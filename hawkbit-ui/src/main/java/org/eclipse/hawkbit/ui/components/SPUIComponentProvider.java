@@ -14,12 +14,17 @@ import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
+import com.vaadin.server.Setter;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 
@@ -132,6 +137,15 @@ public final class SPUIComponentProvider {
 
     }
 
+    /**
+     * Generate a label containing an icon
+     * 
+     * @param fontIcon
+     *            icon to display in the label
+     * @param id
+     *            label ID
+     * @return the label
+     */
     public static Label getLabelIcon(final ProxyFontIcon fontIcon, final String id) {
         if (fontIcon == null) {
             return new Label("");
@@ -158,5 +172,55 @@ public final class SPUIComponentProvider {
      */
     public static Label generateLabel(final VaadinMessageSource i18n, final String key) {
         return new LabelBuilder().name(i18n.getMessage(key)).buildLabel();
+    }
+
+    /**
+     * Generate a check box
+     * 
+     * @param <T>
+     *            entity type the check box can be bound to
+     * @param id
+     *            id of the check box element
+     * @param binder
+     *            the box is bound to
+     * @param getter
+     *            getter for the binder
+     * @param setter
+     *            setter for the binder
+     * @return the bound box
+     */
+    public static <T> CheckBox getCheckBox(final String id, final Binder<T> binder,
+            final ValueProvider<T, Boolean> getter, final Setter<T, Boolean> setter) {
+        return getCheckBox(null, id, binder, getter, setter);
+    }
+
+    /**
+     * Generate a check box
+     * 
+     * @param <T>
+     *            entity type the check box can be bound to
+     * @param caption
+     *            check box caption
+     * @param id
+     *            id of the check box element
+     * @param binder
+     *            the box is bound to
+     * @param getter
+     *            getter for the binder
+     * @param setter
+     *            setter for the binder
+     * @return the bound box
+     */
+    public static <T> CheckBox getCheckBox(final String caption, final String id, final Binder<T> binder,
+            final ValueProvider<T, Boolean> getter, final Setter<T, Boolean> setter) {
+        final CheckBox checkBox;
+        if (StringUtils.isEmpty(caption)) {
+            checkBox = new CheckBox();
+        } else {
+            checkBox = new CheckBox(caption);
+        }
+        checkBox.setId(id);
+        binder.forField(checkBox).bind(getter, setter);
+        return checkBox;
     }
 }

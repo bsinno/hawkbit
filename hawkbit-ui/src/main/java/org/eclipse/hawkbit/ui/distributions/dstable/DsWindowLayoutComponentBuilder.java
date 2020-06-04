@@ -12,6 +12,7 @@ import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -93,16 +94,14 @@ public class DsWindowLayoutComponentBuilder {
     }
 
     public CheckBox createMigrationStepField(final Binder<ProxyDistributionSet> binder) {
-        final CheckBox dsMigrationStepRequired = new CheckBox(i18n.getMessage(MIGRATION_STEP));
-
-        dsMigrationStepRequired.setId(UIComponentIdProvider.DIST_ADD_MIGRATION_CHECK);
-        dsMigrationStepRequired.setDescription(i18n.getMessage(MIGRATION_STEP));
-        dsMigrationStepRequired.addStyleName("dist-checkbox-style");
-        dsMigrationStepRequired.addStyleName(ValoTheme.CHECKBOX_SMALL);
-
-        binder.forField(dsMigrationStepRequired).bind(ProxyDistributionSet::isRequiredMigrationStep,
+        final CheckBox migrationRequired = SPUIComponentProvider.getCheckBox(i18n.getMessage(MIGRATION_STEP),
+                UIComponentIdProvider.DIST_ADD_MIGRATION_CHECK, binder, ProxyDistributionSet::isRequiredMigrationStep,
                 ProxyDistributionSet::setRequiredMigrationStep);
 
-        return dsMigrationStepRequired;
+        migrationRequired.setDescription(i18n.getMessage(MIGRATION_STEP));
+        migrationRequired.addStyleName("dist-checkbox-style");
+        migrationRequired.addStyleName(ValoTheme.CHECKBOX_SMALL);
+
+        return migrationRequired;
     }
 }

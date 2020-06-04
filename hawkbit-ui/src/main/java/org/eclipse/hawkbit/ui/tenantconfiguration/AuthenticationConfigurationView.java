@@ -87,7 +87,9 @@ public class AuthenticationConfigurationView extends CustomComponent {
         gridLayout.setSizeFull();
         gridLayout.setColumnExpandRatio(1, 1.0F);
 
-        final CheckBox certificateAuthCheckbox = new CheckBox();
+        final CheckBox certificateAuthCheckbox = SPUIComponentProvider.getCheckBox(
+                UIComponentIdProvider.CERT_AUTH_ALLOWED_CHECKBOX, binder, ProxySystemConfigWindow::isCertificateAuth,
+                ProxySystemConfigWindow::setCertificateAuth);
         certificateAuthCheckbox.setStyleName(DIST_CHECKBOX_STYLE);
         certificateAuthCheckbox.addValueChangeListener(valueChangeEvent -> {
             if (valueChangeEvent.getValue()) {
@@ -96,22 +98,20 @@ public class AuthenticationConfigurationView extends CustomComponent {
                 certificateAuthenticationConfigurationItem.hideDetails();
             }
         });
-        binder.bind(certificateAuthCheckbox, ProxySystemConfigWindow::isCertificateAuth,
-                ProxySystemConfigWindow::setCertificateAuth);
         gridLayout.addComponent(certificateAuthCheckbox, 0, 0);
         gridLayout.addComponent(certificateAuthenticationConfigurationItem, 1, 0);
 
-        final CheckBox targetSecTokenCheckBox = new CheckBox();
+        final CheckBox targetSecTokenCheckBox = SPUIComponentProvider.getCheckBox(
+                UIComponentIdProvider.TARGET_SEC_TOKEN_ALLOWED_CHECKBOX, binder,
+                ProxySystemConfigWindow::isTargetSecToken, ProxySystemConfigWindow::setTargetSecToken);
         targetSecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        binder.bind(targetSecTokenCheckBox, ProxySystemConfigWindow::isTargetSecToken,
-                ProxySystemConfigWindow::setTargetSecToken);
-
         gridLayout.addComponent(targetSecTokenCheckBox, 0, 1);
         gridLayout.addComponent(targetSecurityTokenAuthenticationConfigurationItem, 1, 1);
 
-        final CheckBox gatewaySecTokenCheckBox = new CheckBox();
+        final CheckBox gatewaySecTokenCheckBox = SPUIComponentProvider.getCheckBox(
+                UIComponentIdProvider.GATEWAY_SEC_TOKEN_ALLOWED_CHECKBOX, binder,
+                ProxySystemConfigWindow::isGatewaySecToken, ProxySystemConfigWindow::setGatewaySecToken);
         gatewaySecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        gatewaySecTokenCheckBox.setId("gatewaysecuritycheckbox");
         gatewaySecTokenCheckBox.addValueChangeListener(valueChangeEvent -> {
             if (valueChangeEvent.getValue()) {
                 gatewaySecurityTokenAuthenticationConfigurationItem.showDetails();
@@ -119,17 +119,13 @@ public class AuthenticationConfigurationView extends CustomComponent {
                 gatewaySecurityTokenAuthenticationConfigurationItem.hideDetails();
             }
         });
-        binder.bind(gatewaySecTokenCheckBox, ProxySystemConfigWindow::isGatewaySecToken,
-                ProxySystemConfigWindow::setGatewaySecToken);
         gridLayout.addComponent(gatewaySecTokenCheckBox, 0, 2);
         gridLayout.addComponent(gatewaySecurityTokenAuthenticationConfigurationItem, 1, 2);
 
-        final CheckBox downloadAnonymousCheckBox = new CheckBox();
-        downloadAnonymousCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        downloadAnonymousCheckBox.setId(UIComponentIdProvider.DOWNLOAD_ANONYMOUS_CHECKBOX);
-        binder.bind(downloadAnonymousCheckBox, ProxySystemConfigWindow::isDownloadAnonymous,
+        final CheckBox downloadAnonymousCheckBox = SPUIComponentProvider.getCheckBox(
+                UIComponentIdProvider.DOWNLOAD_ANONYMOUS_CHECKBOX, binder, ProxySystemConfigWindow::isDownloadAnonymous,
                 ProxySystemConfigWindow::setDownloadAnonymous);
-
+        downloadAnonymousCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         gridLayout.addComponent(downloadAnonymousCheckBox, 0, 3);
         gridLayout.addComponent(anonymousDownloadAuthenticationConfigurationItem, 1, 3);
 

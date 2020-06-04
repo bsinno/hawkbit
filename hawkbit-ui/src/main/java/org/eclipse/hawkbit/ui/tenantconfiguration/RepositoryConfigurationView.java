@@ -84,19 +84,19 @@ public class RepositoryConfigurationView extends CustomComponent {
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 
-        final CheckBox actionAutoCloseCheckBox = new CheckBox();
+        final CheckBox actionAutoCloseCheckBox = SPUIComponentProvider.getCheckBox(
+                UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLOSE_CHECKBOX, binder,
+                ProxySystemConfigWindow::isActionAutoclose, ProxySystemConfigWindow::setActionAutoclose);
         actionAutoCloseCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        actionAutoCloseCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLOSE_CHECKBOX);
         actionAutoCloseCheckBox.setEnabled(!binder.getBean().isMultiAssignments());
         actionAutocloseConfigurationItem.setEnabled(!binder.getBean().isMultiAssignments());
-        binder.bind(actionAutoCloseCheckBox, ProxySystemConfigWindow::isActionAutoclose,
-                ProxySystemConfigWindow::setActionAutoclose);
         gridLayout.addComponent(actionAutoCloseCheckBox, 0, 0);
         gridLayout.addComponent(actionAutocloseConfigurationItem, 1, 0);
 
-        multiAssignmentsCheckBox = new CheckBox();
+        multiAssignmentsCheckBox = SPUIComponentProvider.getCheckBox(
+                UIComponentIdProvider.REPOSITORY_MULTI_ASSIGNMENTS_CHECKBOX, binder,
+                ProxySystemConfigWindow::isMultiAssignments, ProxySystemConfigWindow::setMultiAssignments);
         multiAssignmentsCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        multiAssignmentsCheckBox.setId(UIComponentIdProvider.REPOSITORY_MULTI_ASSIGNMENTS_CHECKBOX);
         multiAssignmentsCheckBox.setEnabled(!binder.getBean().isMultiAssignments());
         multiAssignmentsConfigurationItem.setEnabled(!binder.getBean().isMultiAssignments());
         multiAssignmentsCheckBox.addValueChangeListener(event -> {
@@ -108,14 +108,13 @@ public class RepositoryConfigurationView extends CustomComponent {
                 multiAssignmentsConfigurationItem.hideSettings();
             }
         });
-        binder.bind(multiAssignmentsCheckBox, ProxySystemConfigWindow::isMultiAssignments,
-                ProxySystemConfigWindow::setMultiAssignments);
         gridLayout.addComponent(multiAssignmentsCheckBox, 0, 1);
         gridLayout.addComponent(multiAssignmentsConfigurationItem, 1, 1);
 
-        final CheckBox actionAutoCleanupCheckBox = new CheckBox();
+        final CheckBox actionAutoCleanupCheckBox = SPUIComponentProvider.getCheckBox(
+                UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX, binder,
+                ProxySystemConfigWindow::isActionAutocleanup, ProxySystemConfigWindow::setActionAutocleanup);
         actionAutoCleanupCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
-        actionAutoCleanupCheckBox.setId(UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX);
         actionAutoCleanupCheckBox.addValueChangeListener(event -> {
             if (event.getValue()) {
                 actionAutocleanupConfigurationItem.showSettings();
@@ -123,8 +122,6 @@ public class RepositoryConfigurationView extends CustomComponent {
                 actionAutocleanupConfigurationItem.hideSettings();
             }
         });
-        binder.bind(actionAutoCleanupCheckBox, ProxySystemConfigWindow::isActionAutocleanup,
-                ProxySystemConfigWindow::setActionAutocleanup);
         gridLayout.addComponent(actionAutoCleanupCheckBox, 0, 2);
         gridLayout.addComponent(actionAutocleanupConfigurationItem, 1, 2);
 
