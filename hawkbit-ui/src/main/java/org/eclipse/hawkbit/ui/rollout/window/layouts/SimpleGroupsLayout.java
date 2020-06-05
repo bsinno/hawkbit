@@ -48,7 +48,7 @@ public class SimpleGroupsLayout extends GridLayout {
     private final Label groupSizeLabel;
     private final TextField triggerThreshold;
     private final Label percentHintLabel;
-    private final TextField errorThreshold;
+    private final BoundComponent<TextField> errorThreshold;
     private final RadioButtonGroup<ERROR_THRESHOLD_OPTIONS> errorThresholdOptionGroup;
 
     private Long totalTargets;
@@ -142,15 +142,15 @@ public class SimpleGroupsLayout extends GridLayout {
         return percentSymbol;
     }
 
-    private TextField createErrorThreshold() {
+    private BoundComponent<TextField> createErrorThreshold() {
         final TextField errorThresholdField = new TextFieldBuilder(3)
                 .id(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID).prompt(i18n.getMessage("prompt.error.threshold"))
                 .buildTextComponent();
         errorThresholdField.setSizeUndefined();
 
         // TODO: use i18n
-        binder.forField(errorThresholdField).asRequired("Error threshold can not be empty")
-                .withValidator((errorThresholdText, context) -> {
+        final Binding<ProxySimpleRolloutGroupsDefinition, String> binding = binder.forField(errorThresholdField)
+                .asRequired("Error threshold can not be empty").withValidator((errorThresholdText, context) -> {
                     if (ERROR_THRESHOLD_OPTIONS.PERCENT == errorThresholdOptionGroup.getValue()) {
                         return new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0,
                                 100).apply(Integer.valueOf(errorThresholdText), context);
@@ -190,7 +190,7 @@ public class SimpleGroupsLayout extends GridLayout {
                 }).bind(ProxySimpleRolloutGroupsDefinition::getErrorThresholdPercentage,
                         ProxySimpleRolloutGroupsDefinition::setErrorThresholdPercentage);
 
-        return errorThresholdField;
+        return new BoundComponent<>(errorThresholdField, binding);
     }
 
     private int getTargetsPerGroup() {
@@ -243,12 +243,14 @@ public class SimpleGroupsLayout extends GridLayout {
         addComponent(percentHintLabel, 2, 2);
 
         addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "prompt.error.threshold"), 0, 3);
-        addComponent(errorThreshold, 1, 3);
+        addComponent(errorThreshold.getComponent(), 1, 3);
         addComponent(errorThresholdOptionGroup, 2, 3);
     }
 
     private void addValueChangeListeners() {
         noOfGroupsWithBinding.getComponent().addValueChangeListener(event -> {
+            errorThreshold.validate();
+
             updateGroupSizeLabel();
 
             if (noOfGroupsChangedListener != null) {
@@ -258,10 +260,10 @@ public class SimpleGroupsLayout extends GridLayout {
 
         errorThresholdOptionGroup.addValueChangeListener(event -> {
             if (event.isUserOriginated()) {
-                errorThreshold.clear();
+                errorThreshold.getComponent().clear();
             }
 
-            errorThreshold.setMaxLength(ERROR_THRESHOLD_OPTIONS.PERCENT == event.getValue() ? 3 : 7);
+            errorThreshold.getComponent().setMaxLength(ERROR_THRESHOLD_OPTIONS.PERCENT == event.getValue() ? 3 : 7);
         });
     }
 
@@ -272,12 +274,14 @@ public class SimpleGroupsLayout extends GridLayout {
     public void setTotalTargets(final Long totalTargets) {
         this.totalTargets = totalTargets;
 
-        updateGroupSizeLabel();
         noOfGroupsWithBinding.validate();
+        errorThreshold.validate();
+
+        updateGroupSizeLabel();
     }
 
     private void updateGroupSizeLabel() {
-        if (HawkbitCommonUtil.atLeastOnePresent(totalTargets) && noOfGroupsWithBinding.isValid()) {
+        if (HawkbitCommonUtil.atLeastOnePresent(totalTargets)) {
             groupSizeLabel.setValue(getTargetPerGroupMessage(getTargetsPerGroup()));
             groupSizeLabel.setVisible(true);
         } else {
