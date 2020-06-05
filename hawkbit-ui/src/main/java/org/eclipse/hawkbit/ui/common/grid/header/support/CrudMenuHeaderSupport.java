@@ -18,9 +18,6 @@ import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class CrudMenuHeaderSupport implements HeaderSupport {
-    private static final String MODE_EDIT = "mode-edit";
-    private static final String MODE_DELETE = "mode-delete";
-
     private final VaadinMessageSource i18n;
 
     private final String crudMenuBarId;
@@ -34,6 +31,8 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
 
     private final MenuBar crudMenuBar;
     private final MenuItem crudMenuItem;
+
+    private Mode currentMode;
 
     public CrudMenuHeaderSupport(final VaadinMessageSource i18n, final String crudMenuBarId,
             final boolean hasCreatePermission, final boolean hasUpdatePermission, final boolean hasDeletePermission,
@@ -75,14 +74,14 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         if (hasUpdatePermission) {
             crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_EDIT), VaadinIcons.EDIT,
                     menuItem -> {
-                        activateEditMode(MODE_EDIT);
+                        activateModifyMode(Mode.EDIT);
                         editCallback.run();
                     });
         }
         if (hasDeletePermission) {
             crudMenuItem.addItem(i18n.getMessage(UIMessageIdProvider.CAPTION_CONFIG_DELETE), VaadinIcons.TRASH,
                     menuItem -> {
-                        activateEditMode(MODE_DELETE);
+                        activateModifyMode(Mode.DELETE);
                         deleteCallback.run();
                     });
         }
@@ -93,18 +92,28 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE));
         crudMenuItem.setCommand(null);
 
-        crudMenuBar.removeStyleNames(MODE_EDIT, MODE_DELETE);
+        currentMode = Mode.SELECT;
+        crudMenuBar.removeStyleNames(Mode.EDIT.getStyle(), Mode.DELETE.getStyle());
     }
 
-    private void activateEditMode(final String mode) {
+    private void activateModifyMode(final Mode mode) {
         crudMenuItem.setIcon(VaadinIcons.CLOSE_CIRCLE);
         crudMenuItem.setDescription(i18n.getMessage(UIMessageIdProvider.TOOLTIP_CONFIGURE_CLOSE));
-        crudMenuItem.setCommand(menuItem -> {
+        crudMenuItem.setCommand(menuItem -> resetModifyMode());
+
+        currentMode = mode;
+        crudMenuBar.addStyleName(mode.getStyle());
+    }
+
+    private void resetModifyMode() {
+        if (isModifyModeActive()) {
             activateSelectMode();
             closeCallback.run();
-        });
+        }
+    }
 
-        crudMenuBar.addStyleName(mode);
+    private boolean isModifyModeActive() {
+        return Mode.EDIT == currentMode || Mode.DELETE == currentMode;
     }
 
     @Override
@@ -117,6 +126,21 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
     }
 
     public void disableCrudMenu() {
+        resetModifyMode();
         crudMenuBar.setEnabled(false);
+    }
+
+    private enum Mode {
+        SELECT(""), EDIT("mode-edit"), DELETE("mode-delete");
+
+        private String style;
+
+        private Mode(final String style) {
+            this.style = style;
+        }
+
+        private String getStyle() {
+            return style;
+        }
     }
 }
