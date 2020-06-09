@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -67,15 +68,12 @@ public class AssignmentWindowLayoutComponentBuilder {
     }
 
     public CheckBox createEnableMaintenanceWindowToggle(final Binder<ProxyAssignmentWindow> binder) {
-        final CheckBox maintenanceWindowToggle = new CheckBox(i18n.getMessage("caption.maintenancewindow.enabled"),
-                false);
-        maintenanceWindowToggle.setId(UIComponentIdProvider.MAINTENANCE_WINDOW_ENABLED_ID);
+        final CheckBox maintenanceWindowToggle = SPUIComponentProvider.getCheckBox(
+                i18n.getMessage("caption.maintenancewindow.enabled"),
+                UIComponentIdProvider.MAINTENANCE_WINDOW_ENABLED_ID, binder,
+                ProxyAssignmentWindow::isMaintenanceWindowEnabled, ProxyAssignmentWindow::setMaintenanceWindowEnabled);
         maintenanceWindowToggle.addStyleName(ValoTheme.CHECKBOX_SMALL);
-        // TODO: check if it is needed
         maintenanceWindowToggle.addStyleName("dist-window-maintenance-window-enable");
-
-        binder.forField(maintenanceWindowToggle).bind(ProxyAssignmentWindow::isMaintenanceWindowEnabled,
-                ProxyAssignmentWindow::setMaintenanceWindowEnabled);
 
         return maintenanceWindowToggle;
     }

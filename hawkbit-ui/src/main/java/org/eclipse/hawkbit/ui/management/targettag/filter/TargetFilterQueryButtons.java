@@ -99,9 +99,9 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
     }
 
     private Button buildTfqButton(final ProxyTargetFilterQuery filterQuery) {
-        // TODO: use constant for Id
-        final Button tfqButton = SPUIComponentProvider.getButton("customFilter." + filterQuery.getId(),
-                filterQuery.getName(), filterQuery.getName(), null, false, null, SPUITagButtonStyle.class);
+        final Button tfqButton = SPUIComponentProvider.getButton(
+                UIComponentIdProvider.CUSTOM_FILTER_BUTTON_PREFIX + "." + filterQuery.getId(), filterQuery.getName(),
+                filterQuery.getName(), null, false, null, SPUITagButtonStyle.class);
         tfqButton.setWidthFull();
 
         tfqButton.addClickListener(event -> customTargetTagFilterButtonClick.processFilterClick(filterQuery));

@@ -8,29 +8,18 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Optional;
-
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.TargetStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterStateDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.FilterType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterDetailsLayoutUiState;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.ui.Label;
 
 /**
  * Shows the targets as a result of the executed filter query.
@@ -46,7 +35,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     private static final String TARGET_DESCRIPTION_ID = "targetDescription";
     private static final String TARGET_STATUS_ID = "targetStatus";
 
-    private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
+    private final TargetStatusIconSupplier<ProxyTarget> targetStatusIconSupplier;
 
     private final TargetFilterDetailsLayoutUiState uiState;
 
@@ -60,7 +49,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
                 new TargetFilterStateDataProvider(targetManagement, new TargetToProxyTargetMapper(i18n))));
         initFilterMappings();
 
-        initTargetStatusIconMap();
+        targetStatusIconSupplier = new TargetStatusIconSupplier<>(i18n, ProxyTarget::getUpdateStatus, TARGET_STATUS_ID);
         init();
     }
 
@@ -85,27 +74,6 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         return UIComponentIdProvider.CUSTOM_FILTER_TARGET_TABLE_ID;
     }
 
-    // TODO: reuse code with TargetGrid
-    private void initTargetStatusIconMap() {
-        targetStatusIconMap.put(TargetUpdateStatus.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getTargetStatusDescription(TargetUpdateStatus.ERROR)));
-        targetStatusIconMap.put(TargetUpdateStatus.UNKNOWN, new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_BLUE, getTargetStatusDescription(TargetUpdateStatus.UNKNOWN)));
-        targetStatusIconMap.put(TargetUpdateStatus.IN_SYNC, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getTargetStatusDescription(TargetUpdateStatus.IN_SYNC)));
-        targetStatusIconMap.put(TargetUpdateStatus.PENDING, new ProxyFontIcon(VaadinIcons.DOT_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_YELLOW, getTargetStatusDescription(TargetUpdateStatus.PENDING)));
-        targetStatusIconMap.put(TargetUpdateStatus.REGISTERED,
-                new ProxyFontIcon(VaadinIcons.DOT_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
-                        getTargetStatusDescription(TargetUpdateStatus.REGISTERED)));
-    }
-
-    // TODO: reuse code with TargetGrid
-    private String getTargetStatusDescription(final TargetUpdateStatus targetStatus) {
-        return i18n
-                .getMessage(UIMessageIdProvider.TOOLTIP_TARGET_STATUS_PREFIX + targetStatus.toString().toLowerCase());
-    }
-
     @Override
     public void addColumns() {
         addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"))
@@ -126,19 +94,8 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
         addColumn(ProxyTarget::getDescription).setId(TARGET_DESCRIPTION_ID)
                 .setCaption(i18n.getMessage("header.description")).setExpandRatio(1);
 
-        addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID)
+        addComponentColumn(targetStatusIconSupplier::getLabel).setId(TARGET_STATUS_ID)
                 .setCaption(i18n.getMessage("header.status")).setMinimumWidth(50D).setMaximumWidth(50D)
                 .setHidable(false).setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildTargetStatusIcon(final ProxyTarget target) {
-        final ProxyFontIcon targetStatusFontIcon = Optional
-                .ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String targetStatusId = new StringBuilder(TARGET_STATUS_ID).append(".").append(target.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(targetStatusFontIcon, targetStatusId);
     }
 }

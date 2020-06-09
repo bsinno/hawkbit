@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window;
 
-import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
@@ -25,7 +24,6 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 
 /**
@@ -45,10 +43,6 @@ public final class RolloutWindowLayoutComponentBuilder {
                 dependencies.getDistributionSetManagement(), new DistributionSetToProxyDistributionMapper());
         this.targetFilterQueryDataProvider = new TargetFilterQueryDataProvider(
                 dependencies.getTargetFilterQueryManagement(), new TargetFilterQueryToProxyTargetFilterMapper());
-    }
-
-    public Label getLabel(final String key) {
-        return new LabelBuilder().name(dependencies.getI18n().getMessage(key)).buildLabel();
     }
 
     public RolloutFormLayout createRolloutFormLayout() {

@@ -9,14 +9,14 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgroup;
 
 import java.util.Collection;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupStatus;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.RolloutGroupStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToProxyRolloutGroupMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
@@ -32,22 +32,17 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.MasterEntitySupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.google.common.base.Predicates;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 /**
@@ -62,7 +57,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
     private final transient RolloutGroupManagement rolloutGroupManagement;
     private final transient RolloutGroupToProxyRolloutGroupMapper rolloutGroupMapper;
 
-    private final Map<RolloutGroupStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutGroupStatus.class);
+    private final RolloutGroupStatusIconSupplier<ProxyRolloutGroup> rolloutGroupStatusIconSupplier;
 
     private final transient MasterEntitySupport<ProxyRollout> masterEntitySupport;
 
@@ -84,7 +79,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
         this.masterEntitySupport = new MasterEntitySupport<>(getFilterSupport());
 
-        initStatusIconMap();
+        rolloutGroupStatusIconSupplier = new RolloutGroupStatusIconSupplier<>(i18n, ProxyRolloutGroup::getStatus,
+                UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID);
         init();
     }
 
@@ -105,24 +101,6 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
                 (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
     }
 
-    private void initStatusIconMap() {
-        statusIconMap.put(RolloutGroupStatus.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(RolloutGroupStatus.FINISHED)));
-        statusIconMap.put(RolloutGroupStatus.SCHEDULED, new ProxyFontIcon(VaadinIcons.HOURGLASS_START,
-                SPUIStyleDefinitions.STATUS_ICON_PENDING, getStatusDescription(RolloutGroupStatus.SCHEDULED)));
-        statusIconMap.put(RolloutGroupStatus.RUNNING, new ProxyFontIcon(VaadinIcons.ADJUST,
-                SPUIStyleDefinitions.STATUS_ICON_YELLOW, getStatusDescription(RolloutGroupStatus.RUNNING)));
-        statusIconMap.put(RolloutGroupStatus.READY, new ProxyFontIcon(VaadinIcons.BULLSEYE,
-                SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE, getStatusDescription(RolloutGroupStatus.READY)));
-        statusIconMap.put(RolloutGroupStatus.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(RolloutGroupStatus.ERROR)));
-    }
-
-    private String getStatusDescription(final RolloutGroupStatus groupStatus) {
-        return i18n.getMessage(
-                UIMessageIdProvider.TOOLTIP_ROLLOUT_GROUP_STATUS_PREFIX + groupStatus.toString().toLowerCase());
-    }
-
     @Override
     public String getGridId() {
         return UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID;
@@ -133,7 +111,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         addComponentColumn(this::buildRolloutGroupLink).setId(ROLLOUT_GROUP_LINK_ID)
                 .setCaption(i18n.getMessage("header.name")).setMinimumWidth(40).setMaximumWidth(200).setHidable(true);
 
-        addComponentColumn(this::buildStatusIcon).setId(SPUILabelDefinitions.VAR_STATUS)
+        addComponentColumn(rolloutGroupStatusIconSupplier::getLabel).setId(SPUILabelDefinitions.VAR_STATUS)
                 .setCaption(i18n.getMessage("header.status")).setMinimumWidth(75).setMaximumWidth(75).setHidable(true)
                 .setStyleGenerator(item -> "v-align-center");
 
@@ -180,48 +158,17 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
                 .setHidable(true);
     }
 
-    private Label buildStatusIcon(final ProxyRolloutGroup rolloutGroup) {
-        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rolloutGroup.getStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_GROUP_STATUS_LABEL_ID).append(".")
-                .append(rolloutGroup.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
-    }
-
     private Button buildRolloutGroupLink(final ProxyRolloutGroup rolloutGroup) {
-        final Button rolloutGroupLink = new Button();
-
-        if (permissionChecker.hasRolloutTargetsReadPermission()) {
-            rolloutGroupLink.addClickListener(clickEvent -> onClickOfRolloutGroupName(rolloutGroup));
+        final boolean enableButton = RolloutGroupStatus.CREATING != rolloutGroup.getStatus();
+        final ClickListener listener = permissionChecker.hasRolloutTargetsReadPermission()
+                ? (clickEvent -> onClickOfRolloutGroupName(rolloutGroup))
+                : null;
+        final Button link = GridComponentBuilder.buildLink(rolloutGroup, "rolloutgroup.link.", rolloutGroup.getName(),
+                enableButton, listener);
+        if (!enableButton) {
+            link.addStyleName("boldhide");
         }
-
-        rolloutGroupLink.setId(new StringBuilder("rolloutgroup.link.").append(rolloutGroup.getId()).toString());
-        rolloutGroupLink.addStyleName("borderless");
-        rolloutGroupLink.addStyleName("small");
-        rolloutGroupLink.addStyleName("on-focus-no-border");
-        rolloutGroupLink.addStyleName("link");
-        rolloutGroupLink.setCaption(rolloutGroup.getName());
-        // this is to allow the button to disappear, if the text is null
-        rolloutGroupLink.setVisible(rolloutGroup.getName() != null);
-
-        /*
-         * checking RolloutGroup Status for applying button style. If
-         * RolloutGroup status is not "CREATING", then the RolloutGroup button
-         * is applying hyperlink style
-         */
-        final boolean isStatusCreating = rolloutGroup.getStatus() != null
-                && RolloutGroupStatus.CREATING == rolloutGroup.getStatus();
-        if (isStatusCreating) {
-            rolloutGroupLink.addStyleName("boldhide");
-            rolloutGroupLink.setEnabled(false);
-        } else {
-            rolloutGroupLink.setEnabled(true);
-        }
-
-        return rolloutGroupLink;
+        return link;
     }
 
     private void onClickOfRolloutGroupName(final ProxyRolloutGroup rolloutGroup) {

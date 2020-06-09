@@ -8,23 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Optional;
-
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ProgressStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress.ProgressSatus;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.renderers.ProgressBarRenderer;
 
 /**
@@ -41,27 +33,14 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
     private static final String UPLOAD_PROGRESS_SM_ID = "uploadProgressSm";
     private static final String UPLOAD_PROGRESS_REASON_ID = "uploadProgressReason";
 
-    private final Map<ProgressSatus, ProxyFontIcon> progressStatusIconMap = new EnumMap<>(ProgressSatus.class);
+    private final ProgressStatusIconSupplier<ProxyUploadProgress> progressStatusIconSupplier;
 
     public UploadProgressGrid(final VaadinMessageSource i18n) {
         this.i18n = i18n;
 
-        initProgressStatusIconMap();
+        progressStatusIconSupplier = new ProgressStatusIconSupplier<>(i18n, ProxyUploadProgress::getStatus,
+                UIComponentIdProvider.UPLOAD_STATUS_LABEL_ID);
         init();
-    }
-
-    private void initProgressStatusIconMap() {
-        progressStatusIconMap.put(ProgressSatus.INPROGRESS, new ProxyFontIcon(VaadinIcons.ADJUST,
-                SPUIStyleDefinitions.STATUS_ICON_YELLOW, getProgressStatusDescription(ProgressSatus.INPROGRESS)));
-        progressStatusIconMap.put(ProgressSatus.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getProgressStatusDescription(ProgressSatus.FINISHED)));
-        progressStatusIconMap.put(ProgressSatus.FAILED, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getProgressStatusDescription(ProgressSatus.FAILED)));
-    }
-
-    private String getProgressStatusDescription(final ProgressSatus progressStatus) {
-        return i18n
-                .getMessage(UIMessageIdProvider.TOOLTIP_UPLOAD_STATUS_PREFIX + progressStatus.toString().toLowerCase());
     }
 
     private void init() {
@@ -74,7 +53,7 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
     }
 
     private void addColumns() {
-        addComponentColumn(this::buildProgressStatusIcon).setId(UPLOAD_PROGRESS_STATUS_ID)
+        addComponentColumn(progressStatusIconSupplier::getLabel).setId(UPLOAD_PROGRESS_STATUS_ID)
                 .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_STATUS)).setMinimumWidth(60d)
                 .setStyleGenerator(item -> "v-align-center");
 
@@ -94,17 +73,5 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
                 .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_REASON)).setMinimumWidth(290d);
 
         setFrozenColumnCount(5);
-    }
-
-    private Label buildProgressStatusIcon(final ProxyUploadProgress uploadProgress) {
-        final ProxyFontIcon progressStatusFontIcon = Optional
-                .ofNullable(progressStatusIconMap.get(uploadProgress.getStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String progressStatusId = new StringBuilder(UIComponentIdProvider.UPLOAD_STATUS_LABEL_ID).append(".")
-                .append(uploadProgress.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(progressStatusFontIcon, progressStatusId);
     }
 }

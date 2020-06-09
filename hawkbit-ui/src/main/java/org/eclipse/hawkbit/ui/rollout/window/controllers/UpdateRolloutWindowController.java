@@ -124,7 +124,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
             updatedRollout = rolloutManagement.update(rolloutUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of rollout failed in UI: {}", e.getMessage());
-            // TODO: use i18n
+            // TODO: add 18n
             uiNotification.displayWarning(
                     "Rollout with name " + entity.getName() + " was deleted or you are not allowed to update it");
             eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
@@ -156,7 +156,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         }
 
         if (Rollout.RolloutStatus.WAITING_FOR_APPROVAL == entity.getStatus() && entity.getApprovalDecision() == null) {
-            // TODO: use i18n
+            // TODO: add 18n
             uiNotification.displayValidationError("You should approve or reject the Rollout");
             return false;
         }

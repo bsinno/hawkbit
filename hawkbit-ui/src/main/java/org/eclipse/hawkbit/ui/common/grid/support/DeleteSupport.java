@@ -116,13 +116,11 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
     private ConfirmationDialog createConfirmationWindowForDeletion(final Set<T> itemsToBeDeleted,
             final String confirmationCaption, final String confirmationQuestion, final String successNotificationText,
             final String failureNotificationText) {
-        return new ConfirmationDialog(confirmationCaption, confirmationQuestion,
-                i18n.getMessage(UIMessageIdProvider.BUTTON_OK), i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL),
-                ok -> {
-                    if (ok) {
-                        handleOkDelete(itemsToBeDeleted, successNotificationText, failureNotificationText);
-                    }
-                }, deletionWindowId);
+        return new ConfirmationDialog(i18n, confirmationCaption, confirmationQuestion, ok -> {
+            if (ok) {
+                handleOkDelete(itemsToBeDeleted, successNotificationText, failureNotificationText);
+            }
+        }, deletionWindowId);
     }
 
     private void handleOkDelete(final Set<T> itemsToBeDeleted, final String successNotificationText,

@@ -87,7 +87,7 @@ public class ApprovalLayout {
     }
 
     public void addApprovalToLayout(final GridLayout layout, final int lastColumnIdx, final int lastRowIdx) {
-        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, APPROVAL_CAPTION), 0, lastRowIdx);
+        layout.addComponent(SPUIComponentProvider.generateLabel(i18n, APPROVAL_CAPTION), 0, lastRowIdx);
 
         final HorizontalLayout approvalButtonsLayout = new HorizontalLayout(approveButtonsGroup, approvalRemark);
         approvalButtonsLayout.setSpacing(false);

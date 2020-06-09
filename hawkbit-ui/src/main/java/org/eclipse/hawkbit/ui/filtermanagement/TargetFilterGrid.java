@@ -9,16 +9,13 @@
 package org.eclipse.hawkbit.ui.filtermanagement;
 
 import java.util.Collection;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
-import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionTypeIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdNameVersion;
@@ -35,11 +32,8 @@ import org.eclipse.hawkbit.ui.common.event.ShowFormEventPayload.FormType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.filtermanagement.state.TargetFilterGridLayoutUiState;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -47,11 +41,8 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -77,7 +68,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     private final transient AutoAssignmentWindowBuilder autoAssignmentWindowBuilder;
 
-    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
+    private final ActionTypeIconSupplier<ProxyTargetFilterQuery> actionTypeIconSupplier;
 
     private final transient DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
 
@@ -100,7 +91,8 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
                 new TargetFilterQueryToProxyTargetFilterMapper())));
         initFilterMappings();
 
-        initActionTypeIconMap();
+        actionTypeIconSupplier = new ActionTypeIconSupplier<>(i18n, ProxyTargetFilterQuery::getAutoAssignActionType,
+                UIComponentIdProvider.TARGET_FILTER_TABLE_TYPE_LABEL_ID);
         init();
     }
 
@@ -134,19 +126,12 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         addComponentColumn(this::buildFilterLink).setId(FILTER_NAME_ID).setCaption(i18n.getMessage("header.name"))
                 .setExpandRatio(2);
 
-        addColumn(ProxyTargetFilterQuery::getCreatedBy).setId(FILTER_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy")).setExpandRatio(2);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, FILTER_CREATED_BY_ID).setExpandRatio(2);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, FILTER_CREATED_DATE_ID).setExpandRatio(4);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, FILTER_MODIFIED_BY_ID).setExpandRatio(2);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, FILTER_MODIFIED_DATE_ID).setExpandRatio(4);
 
-        addColumn(ProxyTargetFilterQuery::getCreatedDate).setId(FILTER_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setExpandRatio(4);
-
-        addColumn(ProxyTargetFilterQuery::getLastModifiedBy).setId(FILTER_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setExpandRatio(2);
-
-        addColumn(ProxyTargetFilterQuery::getModifiedDate).setId(FILTER_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setExpandRatio(4);
-
-        addComponentColumn(this::buildTypeIcon).setId(FILTER_AUTOASSIGNMENT_TYPE_ID)
+        addComponentColumn(actionTypeIconSupplier::getLabel).setId(FILTER_AUTOASSIGNMENT_TYPE_ID)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN).setExpandRatio(1);
 
         addComponentColumn(this::buildAutoAssignmentLink).setId(FILTER_AUTOASSIGNMENT_DS_ID)
@@ -155,22 +140,19 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         getDefaultHeaderRow().join(FILTER_AUTOASSIGNMENT_TYPE_ID, FILTER_AUTOASSIGNMENT_DS_ID)
                 .setText(i18n.getMessage("header.auto.assignment.ds"));
 
-        addComponentColumn(targetFilter -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> targetFilterDeleteSupport.openConfirmationWindowDeleteAction(targetFilter),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON + "." + targetFilter.getId(),
-                permissionChecker.hasDeleteTargetPermission())).setId(FILTER_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.delete")).setExpandRatio(1);
+        GridComponentBuilder.addDeleteColumn(this, i18n, FILTER_DELETE_BUTTON_ID, targetFilterDeleteSupport,
+                UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON, e -> permissionChecker.hasDeleteTargetPermission())
+                .setExpandRatio(1);
     }
 
     private Button buildFilterLink(final ProxyTargetFilterQuery targetFilter) {
-        final String filterLinkCaption = targetFilter.getName();
-        final String filterLinkDescription = i18n.getMessage(UIMessageIdProvider.TOOLTIP_UPDATE_CUSTOM_FILTER);
-        final String filterLinkId = new StringBuilder(UIComponentIdProvider.CUSTOM_FILTER_DETAIL_LINK).append('.')
-                .append(targetFilter.getId()).toString();
-
-        return buildLink(clickEvent -> onClickOfFilterName(targetFilter), filterLinkCaption, filterLinkDescription,
-                filterLinkId, true);
+        final String caption = targetFilter.getName();
+        final String description = i18n.getMessage(UIMessageIdProvider.TOOLTIP_UPDATE_CUSTOM_FILTER);
+        final Button link = GridComponentBuilder.buildLink(targetFilter,
+                UIComponentIdProvider.CUSTOM_FILTER_DETAIL_LINK, caption, true,
+                clickEvent -> onClickOfFilterName(targetFilter));
+        link.setDescription(description);
+        return link;
     }
 
     private void onClickOfFilterName(final ProxyTargetFilterQuery targetFilter) {
@@ -193,68 +175,19 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         }
     }
 
-    // TODO: remove duplication with ActionHistoryGrid
-    private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT,
-                SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
-        actionTypeIconMap.put(ActionType.TIMEFORCED,
-                new ProxyFontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
-        actionTypeIconMap.put(ActionType.SOFT, new ProxyFontIcon(VaadinIcons.STEP_FORWARD,
-                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
-        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
-                new ProxyFontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
-    }
-
-    // TODO: remove duplication with RolloutGrid and buildActionButton()
-    private static Button buildLink(final ClickListener clickListener, final String caption, final String description,
-            final String buttonId, final boolean enabled) {
-        final Button link = new Button();
-
-        link.addClickListener(clickListener);
-        link.setCaption(caption);
-        link.setDescription(description);
-        link.setEnabled(enabled);
-        link.setId(buttonId);
-        link.addStyleName("borderless");
-        link.addStyleName("small");
-        link.addStyleName("on-focus-no-border");
-        link.addStyleName("link");
-
-        return link;
-    }
-
-    // TODO: remove duplication with ActionHistoryGrid
-    private Label buildTypeIcon(final ProxyTargetFilterQuery targetFilter) {
-        final ProxyFontIcon actionTypeFontIcon = Optional
-                .ofNullable(actionTypeIconMap.get(targetFilter.getAutoAssignActionType()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String actionTypeId = new StringBuilder(UIComponentIdProvider.TARGET_FILTER_TABLE_TYPE_LABEL_ID)
-                .append(".").append(targetFilter.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(actionTypeFontIcon, actionTypeId);
-    }
-
-    // TODO: remove duplication
     private Button buildAutoAssignmentLink(final ProxyTargetFilterQuery targetFilter) {
         final ProxyIdNameVersion autoAssignDsIdNameVersion = targetFilter.getAutoAssignDsIdNameVersion();
 
-        final String autoAssignmenLinkCaption = autoAssignDsIdNameVersion != null
+        final String caption = autoAssignDsIdNameVersion != null
                 ? HawkbitCommonUtil.getFormattedNameVersion(autoAssignDsIdNameVersion.getName(),
                         autoAssignDsIdNameVersion.getVersion())
                 : i18n.getMessage(UIMessageIdProvider.BUTTON_NO_AUTO_ASSIGNMENT);
+        final String description = i18n.getMessage(UIMessageIdProvider.BUTTON_AUTO_ASSIGNMENT_DESCRIPTION);
 
-        final String autoAssignmenLinkDescription = i18n
-                .getMessage(UIMessageIdProvider.BUTTON_AUTO_ASSIGNMENT_DESCRIPTION);
+        final Button link = GridComponentBuilder.buildLink(targetFilter, "distSetButton", caption, true,
+                clickEvent -> onClickOfAutoAssignmentLink(targetFilter));
 
-        final String autoAssignmenLinkId = new StringBuilder("distSetButton").append('.').append(targetFilter.getId())
-                .toString();
-
-        return buildLink(clickEvent -> onClickOfAutoAssignmentLink(targetFilter), autoAssignmenLinkCaption,
-                autoAssignmenLinkDescription, autoAssignmenLinkId, true);
-
+        link.setDescription(description);
+        return link;
     }
 }

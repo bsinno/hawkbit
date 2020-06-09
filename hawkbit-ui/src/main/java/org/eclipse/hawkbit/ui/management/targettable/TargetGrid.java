@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.management.targettable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -21,11 +20,12 @@ import org.eclipse.hawkbit.repository.DeploymentManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.model.Target;
-import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.TargetPollingStatusIconSupplier;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.TargetStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetManagementStateDataProvider;
@@ -49,11 +49,9 @@ import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.AssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.DistributionSetsToTargetAssignmentSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.assignment.TargetTagsToTargetAssignmentSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.management.dstable.DistributionGridLayoutUiState;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
 import org.eclipse.hawkbit.ui.management.targettag.filter.TargetTagFilterLayoutUiState;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -62,7 +60,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.icons.VaadinIcons;
@@ -92,7 +89,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final DistributionGridLayoutUiState distributionGridLayoutUiState;
     private final transient TargetManagement targetManagement;
 
-    private final Map<TargetUpdateStatus, ProxyFontIcon> targetStatusIconMap = new EnumMap<>(TargetUpdateStatus.class);
+    private final TargetStatusIconSupplier<ProxyTarget> targetStatusIconSupplier;
+    private final TargetPollingStatusIconSupplier targetPollingStatusIconSupplier;
 
     private final transient TargetToProxyTargetMapper targetToProxyTargetMapper;
 
@@ -156,7 +154,10 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         getFilterSupport().setFilter(new TargetManagementFilterParams());
 
         initDsPinningStyleGenerator();
-        initTargetStatusIconMap();
+        targetStatusIconSupplier = new TargetStatusIconSupplier<>(i18n, ProxyTarget::getUpdateStatus,
+                UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID);
+        targetPollingStatusIconSupplier = new TargetPollingStatusIconSupplier(i18n,
+                UIComponentIdProvider.TARGET_TABLE_POLLING_STATUS_LABEL_ID);
         init();
     }
 
@@ -251,26 +252,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         setStyleGenerator(target -> pinSupport.getAssignedOrInstalledRowStyle(target.getId()));
     }
 
-    // TODO: check if icons are correct
-    private void initTargetStatusIconMap() {
-        targetStatusIconMap.put(TargetUpdateStatus.ERROR, new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getTargetStatusDescription(TargetUpdateStatus.ERROR)));
-        targetStatusIconMap.put(TargetUpdateStatus.UNKNOWN, new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_BLUE, getTargetStatusDescription(TargetUpdateStatus.UNKNOWN)));
-        targetStatusIconMap.put(TargetUpdateStatus.IN_SYNC, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getTargetStatusDescription(TargetUpdateStatus.IN_SYNC)));
-        targetStatusIconMap.put(TargetUpdateStatus.PENDING, new ProxyFontIcon(VaadinIcons.DOT_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_YELLOW, getTargetStatusDescription(TargetUpdateStatus.PENDING)));
-        targetStatusIconMap.put(TargetUpdateStatus.REGISTERED,
-                new ProxyFontIcon(VaadinIcons.DOT_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE,
-                        getTargetStatusDescription(TargetUpdateStatus.REGISTERED)));
-    }
-
-    private String getTargetStatusDescription(final TargetUpdateStatus targetStatus) {
-        return i18n
-                .getMessage(UIMessageIdProvider.TOOLTIP_TARGET_STATUS_PREFIX + targetStatus.toString().toLowerCase());
-    }
-
     @Override
     public String getGridId() {
         return UIComponentIdProvider.TARGET_TABLE_ID;
@@ -295,7 +276,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     @Override
     public void addColumns() {
-        addNameColumn().setMinimumWidth(130d).setMaximumWidth(150d).setExpandRatio(1);
+        addNameColumn().setMaximumWidth(150d).setExpandRatio(1);
 
         addTargetPollingStatusColumn().setWidth(30d);
         addTargetStatusColumn().setWidth(30d);
@@ -303,50 +284,23 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 .setText(i18n.getMessage("header.status"));
 
         addPinColumn().setWidth(25d);
-        addDeleteColumn().setWidth(50d);
+        addDeleteColumn();
         getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
     }
 
     private Column<ProxyTarget, String> addNameColumn() {
-        return addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"));
+        return GridComponentBuilder.addNameColumn(this, i18n, TARGET_NAME_ID);
     }
 
     private Column<ProxyTarget, Label> addTargetPollingStatusColumn() {
-        return addComponentColumn(this::buildTargetPollingStatusIcon).setId(TARGET_POLLING_STATUS_ID)
+        return addComponentColumn(targetPollingStatusIconSupplier::getLabel).setId(TARGET_POLLING_STATUS_ID)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildTargetPollingStatusIcon(final ProxyTarget target) {
-        final String pollStatusToolTip = target.getPollStatusToolTip();
-
-        final ProxyFontIcon pollStatusFontIcon = StringUtils.hasText(pollStatusToolTip)
-                ? new ProxyFontIcon(VaadinIcons.EXCLAMATION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                        pollStatusToolTip)
-                : new ProxyFontIcon(VaadinIcons.CLOCK, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                        i18n.getMessage(UIMessageIdProvider.TOOLTIP_IN_TIME));
-
-        final String pollStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_POLLING_STATUS_LABEL_ID)
-                .append(".").append(target.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(pollStatusFontIcon, pollStatusId);
     }
 
     private Column<ProxyTarget, Label> addTargetStatusColumn() {
-        return addComponentColumn(this::buildTargetStatusIcon).setId(TARGET_STATUS_ID)
+        return addComponentColumn(targetStatusIconSupplier::getLabel).setId(TARGET_STATUS_ID)
                 .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
-    }
-
-    private Label buildTargetStatusIcon(final ProxyTarget target) {
-        final ProxyFontIcon targetStatusFontIcon = Optional
-                .ofNullable(targetStatusIconMap.get(target.getUpdateStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String targetStatusId = new StringBuilder(UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID).append(".")
-                .append(target.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(targetStatusFontIcon, targetStatusId);
     }
 
     private Column<ProxyTarget, Button> addPinColumn() {
@@ -358,53 +312,27 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private Column<ProxyTarget, Button> addDeleteColumn() {
-        return addComponentColumn(target -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> targetDeleteSupport.openConfirmationWindowDeleteAction(target), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.TARGET_DELET_ICON + "." + target.getId(),
-                permissionChecker.hasDeleteTargetPermission())).setId(TARGET_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete"));
+        return GridComponentBuilder.addDeleteColumn(this, i18n, TARGET_DELETE_BUTTON_ID, targetDeleteSupport,
+                UIComponentIdProvider.TARGET_DELET_ICON, e -> permissionChecker.hasDeleteTargetPermission());
     }
 
     @Override
     protected void addMaxColumns() {
-        addNameColumn().setMinimumWidth(130d).setExpandRatio(7);
+        addNameColumn().setExpandRatio(7);
 
-        addCreatedByColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addCreatedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addModifiedByColumn().setMinimumWidth(100d).setExpandRatio(1);
-        addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, TARGET_CREATED_BY_ID).setExpandRatio(1);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, TARGET_CREATED_DATE_ID).setExpandRatio(1);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, TARGET_MODIFIED_BY_ID).setExpandRatio(1);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, TARGET_MODIFIED_DATE_ID).setExpandRatio(1);
 
-        addDescriptionColumn().setMinimumWidth(100d).setExpandRatio(5);
-
-        addDeleteColumn().setWidth(75d);
+        addDescriptionColumn().setExpandRatio(5);
+        addDeleteColumn();
 
         getColumns().forEach(column -> column.setHidable(true));
     }
 
-    private Column<ProxyTarget, String> addCreatedByColumn() {
-        return addColumn(ProxyTarget::getCreatedBy).setId(TARGET_CREATED_BY_ID)
-                .setCaption(i18n.getMessage("header.createdBy"));
-    }
-
-    private Column<ProxyTarget, String> addCreatedDateColumn() {
-        return addColumn(ProxyTarget::getCreatedDate).setId(TARGET_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate"));
-    }
-
-    private Column<ProxyTarget, String> addModifiedByColumn() {
-        return addColumn(ProxyTarget::getLastModifiedBy).setId(TARGET_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy"));
-    }
-
-    private Column<ProxyTarget, String> addModifiedDateColumn() {
-        return addColumn(ProxyTarget::getModifiedDate).setId(TARGET_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate"));
-    }
-
     private Column<ProxyTarget, String> addDescriptionColumn() {
-        return addColumn(ProxyTarget::getDescription).setId(TARGET_DESC_ID)
-                .setCaption(i18n.getMessage("header.description"));
+        return GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESC_ID);
     }
 
     @Override

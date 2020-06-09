@@ -8,55 +8,47 @@
  */
 package org.eclipse.hawkbit.ui.common;
 
+import java.io.Serializable;
 import java.util.function.Consumer;
 
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow.ConfirmStyle;
+import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
+import org.eclipse.hawkbit.ui.common.builder.WindowBuilder;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleTiny;
+import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
-import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
-import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Class for the confirmation dialog which pops up when deleting, assigning...
  * entities.
  */
-public class ConfirmationDialog implements Button.ClickListener {
+public class ConfirmationDialog implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private transient Consumer<Boolean> callback;
+    private final transient Consumer<Boolean> callback;
 
-    private final Button okButton;
-
-    private final Window window;
-
-    private boolean isImplicitClose;
+    private final CommonDialogWindow window;
 
     /**
      * Constructor for configuring confirmation dialog.
      * 
+     * @param i18n
+     *            internationalization
      * @param caption
      *            the dialog caption.
      * @param question
      *            the question.
-     * @param okLabel
-     *            the Ok button label.
-     * @param cancelLabel
-     *            the cancel button label.
      * @param callback
      *            the callback.
      * @param tab
@@ -65,108 +57,39 @@ public class ConfirmationDialog implements Button.ClickListener {
      * @param id
      *            the id of the confirmation window
      */
-    public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final Consumer<Boolean> callback, final Component tab, final String id) {
-        this(caption, question, okLabel, cancelLabel, callback, null, id, tab);
+    public ConfirmationDialog(final VaadinMessageSource i18n, final String caption, final String question,
+            final Consumer<Boolean> callback, final Component tab, final String id) {
+        this(i18n, caption, question, callback, null, id, tab);
     }
 
     /**
      * Constructor for configuring confirmation dialog.
      *
+     * @param i18n
+     *            internationalization
      * @param caption
      *            the dialog caption.
      * @param question
      *            the question.
-     * @param okLabel
-     *            the Ok button label.
-     * @param cancelLabel
-     *            the cancel button label.
-     * @param callback
-     *            the callback.
-     */
-    public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final Consumer<Boolean> callback) {
-        this(caption, question, okLabel, cancelLabel, callback, null, null, null);
-    }
-
-    /**
-     * Constructor for configuring confirmation dialog.
-     *
-     * @param caption
-     *            the dialog caption.
-     * @param question
-     *            the question.
-     * @param okLabel
-     *            the Ok button label.
-     * @param cancelLabel
-     *            the cancel button label.
      * @param callback
      *            the callback.
      * @param id
      *            the id of the confirmation dialog
      */
-    public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final Consumer<Boolean> callback, final String id) {
-        this(caption, question, okLabel, cancelLabel, callback, null, id, null);
+    public ConfirmationDialog(final VaadinMessageSource i18n, final String caption, final String question,
+            final Consumer<Boolean> callback, final String id) {
+        this(i18n, caption, question, callback, null, id, null);
     }
 
     /**
      * Constructor for configuring confirmation dialog.
      *
+     * @param i18n
+     *            internationalization
      * @param caption
      *            the dialog caption.
      * @param question
      *            the question.
-     * @param okLabel
-     *            the Ok button label.
-     * @param cancelLabel
-     *            the cancel button label.
-     * @param callback
-     *            the callback.
-     * @param id
-     *            the id of the confirmation dialog
-     * @param mapCloseToCancel
-     *            Flag indicating whether or not the close event on the
-     *            enclosing window should be mapped to a cancel event.
-     */
-    public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final Consumer<Boolean> callback, final String id,
-            final boolean mapCloseToCancel) {
-        this(caption, question, okLabel, cancelLabel, callback, null, id, null, mapCloseToCancel);
-    }
-
-    /**
-     * Constructor for configuring confirmation dialog.
-     *
-     * @param caption
-     *            the dialog caption.
-     * @param question
-     *            the question.
-     * @param okLabel
-     *            the Ok button label.
-     * @param cancelLabel
-     *            the cancel button label.
-     * @param callback
-     *            the callback.
-     * @param icon
-     *            the icon of the dialog
-     */
-    public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final Consumer<Boolean> callback, final Resource icon) {
-        this(caption, question, okLabel, cancelLabel, callback, icon, null, null);
-    }
-
-    /**
-     * Constructor for configuring confirmation dialog.
-     *
-     * @param caption
-     *            the dialog caption.
-     * @param question
-     *            the question.
-     * @param okLabel
-     *            the Ok button label.
-     * @param cancelLabel
-     *            the cancel button label.
      * @param callback
      *            the callback.
      * @param icon
@@ -177,83 +100,53 @@ public class ConfirmationDialog implements Button.ClickListener {
      *            ConfirmationTab which contains more information about the
      *            action which has to be confirmed, e.g. maintenance window
      */
-    public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final Consumer<Boolean> callback, final Resource icon, final String id,
-            final Component tab) {
-        this(caption, question, okLabel, cancelLabel, callback, icon, id, tab, false);
+    public ConfirmationDialog(final VaadinMessageSource i18n, final String caption, final String question,
+            final Consumer<Boolean> callback, final Resource icon, final String id, final Component tab) {
 
-    }
+        final VerticalLayout content = new VerticalLayout();
+        content.setMargin(false);
+        content.setSpacing(false);
 
-    /**
-     * Constructor for configuring confirmation dialog.
-     *
-     * @param caption
-     *            the dialog caption.
-     * @param question
-     *            the question.
-     * @param okLabel
-     *            the Ok button label.
-     * @param cancelLabel
-     *            the cancel button label.
-     * @param callback
-     *            the callback.
-     * @param icon
-     *            the icon of the dialog
-     * @param id
-     *            the id of the confirmation dialog
-     * @param tab
-     *            ConfirmationTab which contains more information about the
-     *            action which has to be confirmed, e.g. maintenance window
-     * @param mapCloseToCancel
-     *            Flag indicating whether or not the close event on the
-     *            enclosing window should be mapped to a cancel event.
-     */
-    public ConfirmationDialog(final String caption, final String question, final String okLabel,
-            final String cancelLabel, final Consumer<Boolean> callback, final Resource icon, final String id,
-            final Component tab, final boolean mapCloseToCancel) {
-        window = new Window(caption);
-        if (!StringUtils.isEmpty(id)) {
-            window.setId(id);
+        if (question != null) {
+            content.addComponent(createConfirmationQuestion(question));
         }
-        window.addStyleName(SPUIStyleDefinitions.CONFIRMATION_WINDOW_CAPTION);
+        if (tab != null) {
+            content.addComponent(tab);
+        }
+        final WindowBuilder windowBuilder = new WindowBuilder(SPUIDefinitions.CONFIRMATION_WINDOW).caption(caption)
+                .content(content).cancelButtonClickListener(e -> callback.accept(false))
+                .saveDialogCloseListener(getSaveDialogCloseListener()).hideMandatoryExplanation()
+                .buttonDecorator(SPUIButtonStyleTiny.class).confirmStyle(ConfirmStyle.OK).i18n(i18n);
+
+        if (!StringUtils.isEmpty(id)) {
+            windowBuilder.id(id);
+        }
+        this.window = windowBuilder.buildCommonDialogWindow();
+        window.setSaveButtonEnabled(true);
+        this.callback = callback;
 
         if (icon != null) {
             window.setIcon(icon);
         }
 
-        okButton = createOkButton(okLabel);
-
-        final Button cancelButton = createCancelButton(cancelLabel);
-        if (mapCloseToCancel) {
-            window.addCloseListener(e -> {
-                if (!isImplicitClose) {
-                    cancelButton.click();
-                }
-            });
-        }
-        window.setModal(true);
         window.addStyleName(SPUIStyleDefinitions.CONFIRMBOX_WINDOW_STYLE);
-        if (this.callback == null) {
-            this.callback = callback;
-        }
-        final VerticalLayout vLayout = new VerticalLayout();
-        vLayout.setMargin(false);
-        vLayout.setSpacing(false);
+    }
 
-        if (question != null) {
-            vLayout.addComponent(createConfirmationQuestion(question));
-        }
-        if (tab != null) {
-            vLayout.addComponent(tab);
-        }
+    private SaveDialogCloseListener getSaveDialogCloseListener() {
+        return new SaveDialogCloseListener() {
+            @Override
+            public void saveOrUpdate() {
+                if (window.getParent() != null) {
+                    UI.getCurrent().removeWindow(window);
+                }
+                callback.accept(true);
+            }
 
-        final HorizontalLayout hButtonLayout = createButtonLayout(cancelButton);
-        hButtonLayout.addStyleName("marginTop");
-        vLayout.addComponent(hButtonLayout);
-        vLayout.setComponentAlignment(hButtonLayout, Alignment.BOTTOM_CENTER);
-
-        window.setContent(vLayout);
-        window.setResizable(false);
+            @Override
+            public boolean canWindowSaveOrUpdate() {
+                return true;
+            }
+        };
     }
 
     private static Label createConfirmationQuestion(final String question) {
@@ -263,60 +156,12 @@ public class ConfirmationDialog implements Button.ClickListener {
         return questionLbl;
     }
 
-    private HorizontalLayout createButtonLayout(final Button cancelButton) {
-        final HorizontalLayout hButtonLayout = new HorizontalLayout();
-        hButtonLayout.setSpacing(true);
-        hButtonLayout.setMargin(false);
-
-        hButtonLayout.addComponent(okButton);
-        hButtonLayout.addComponent(cancelButton);
-        hButtonLayout.setSizeUndefined();
-        hButtonLayout.setComponentAlignment(okButton, Alignment.TOP_CENTER);
-        hButtonLayout.setComponentAlignment(cancelButton, Alignment.TOP_CENTER);
-        return hButtonLayout;
-    }
-
-    private Button createCancelButton(final String cancelLabel) {
-        final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.CANCEL_BUTTON, cancelLabel, "",
-                null, false, null, SPUIButtonStyleTiny.class);
-        button.addClickListener(this);
-        button.setClickShortcut(KeyCode.ESCAPE);
-        return button;
-    }
-
-    private Button createOkButton(final String okLabel) {
-        final Button button = SPUIComponentProvider.getButton(UIComponentIdProvider.OK_BUTTON, okLabel, "",
-                ValoTheme.BUTTON_PRIMARY, false, null, SPUIButtonStyleTiny.class);
-        button.addClickListener(this);
-        button.setClickShortcut(KeyCode.ENTER);
-        return button;
-    }
-
-    /**
-     * TenantAwareEvent handler for button clicks.
-     * 
-     * @param event
-     *            the click event.
-     */
-    @Override
-    public void buttonClick(final ClickEvent event) {
-        if (window.getParent() != null) {
-            isImplicitClose = true;
-            UI.getCurrent().removeWindow(window);
-        }
-        callback.accept(event.getSource().equals(okButton));
-    }
-
     public void setOkButtonEnabled(final boolean enabled) {
-        okButton.setEnabled(enabled);
+        window.setSaveButtonEnabled(enabled);
     }
 
     public Window getWindow() {
         return window;
-    }
-
-    public Button getOkButton() {
-        return okButton;
     }
 
 }

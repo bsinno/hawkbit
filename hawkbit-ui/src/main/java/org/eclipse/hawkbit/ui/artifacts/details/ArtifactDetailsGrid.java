@@ -120,7 +120,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         addModifiedDateColumn().setMinimumWidth(100d).setMaximumWidth(130d).setExpandRatio(1);
 
         addDownloadColumn().setWidth(25d);
-        addDeleteColumn().setWidth(50d);
+        addDeleteColumn();
         getDefaultHeaderRow().join(ARTIFACT_DOWNLOAD_BUTTON_ID, ARTIFACT_DELETE_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
     }
@@ -170,12 +170,8 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     }
 
     private Column<ProxyArtifact, Button> addDeleteColumn() {
-        return addComponentColumn(artifact -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> artifactDeleteSupport.openConfirmationWindowDeleteAction(artifact), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ARTIFACT_DELET_ICON + "." + artifact.getId(),
-                permissionChecker.hasDeleteRepositoryPermission())).setId(ARTIFACT_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete"));
+        return GridComponentBuilder.addDeleteColumn(this, i18n, ARTIFACT_DELETE_BUTTON_ID, artifactDeleteSupport,
+                UIComponentIdProvider.ARTIFACT_DELET_ICON, e -> permissionChecker.hasDeleteRepositoryPermission());
     }
 
     @Override
@@ -193,7 +189,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
 
         addDownloadColumn().setWidth(25d);
-        addDeleteColumn().setWidth(50d);
+        addDeleteColumn();
         getDefaultHeaderRow().join(ARTIFACT_DOWNLOAD_BUTTON_ID, ARTIFACT_DELETE_BUTTON_ID)
                 .setText(i18n.getMessage("header.action"));
 

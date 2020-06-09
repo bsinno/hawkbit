@@ -12,6 +12,7 @@ import org.eclipse.hawkbit.repository.model.MetaData;
 import org.eclipse.hawkbit.ui.common.builder.TextAreaBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMetaData;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -67,11 +68,8 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
     }
 
     public CheckBox createVisibleForTargetsField(final Binder<ProxyMetaData> binder) {
-        final CheckBox visibleForTargetsField = new CheckBox(i18n.getMessage(TARGET_VISIBLE));
-        visibleForTargetsField.setId(UIComponentIdProvider.METADATA_TARGET_VISIBLE_ID);
-
-        binder.forField(visibleForTargetsField).bind(ProxyMetaData::isTargetVisible, ProxyMetaData::setTargetVisible);
-
-        return visibleForTargetsField;
+        return SPUIComponentProvider.getCheckBox(i18n.getMessage(TARGET_VISIBLE),
+                UIComponentIdProvider.METADATA_TARGET_VISIBLE_ID, binder, ProxyMetaData::isTargetVisible,
+                ProxyMetaData::setTargetVisible);
     }
 }

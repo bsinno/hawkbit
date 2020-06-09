@@ -89,6 +89,11 @@ public final class UIComponentIdProvider {
     public static final String TARGET_FILTER_ADD_ICON_ID = "target.filter.add.id";
 
     /**
+     * ID prefix for custom target filter
+     */
+    public static final String CUSTOM_FILTER_BUTTON_PREFIX = "customFilter";
+
+    /**
      * ID for menubar for configuring target tags
      */
     public static final String TARGET_MENU_BAR_ID = "target.menu.bar.id";
@@ -1318,6 +1323,18 @@ public final class UIComponentIdProvider {
      * ID for download anonymous checkbox
      */
     public static final String DOWNLOAD_ANONYMOUS_CHECKBOX = "downloadanonymouscheckbox";
+    /**
+     * ID for certificate auth checkbox
+     */
+    public static final String CERT_AUTH_ALLOWED_CHECKBOX = "certificateauthallowed";
+    /**
+     * ID for target security token checkbox
+     */
+    public static final String TARGET_SEC_TOKEN_ALLOWED_CHECKBOX = "targetsectokenallowed";
+    /**
+     * ID for gateway security token checkbox
+     */
+    public static final String GATEWAY_SEC_TOKEN_ALLOWED_CHECKBOX = "gatewaysecuritycheckbox";
     /**
      * Id of custom filter query search Icon.
      */

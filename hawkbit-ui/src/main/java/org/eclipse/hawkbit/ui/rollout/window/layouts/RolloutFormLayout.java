@@ -183,27 +183,25 @@ public class RolloutFormLayout {
     }
 
     public void addFormToLayout(final GridLayout layout, final boolean isEditMode) {
-        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, TEXTFIELD_NAME), CAPTION_COLUMN, 0);
+        layout.addComponent(SPUIComponentProvider.generateLabel(i18n, TEXTFIELD_NAME), CAPTION_COLUMN, 0);
         layout.addComponent(nameField, FIELD_COLUMN, 0);
         nameField.focus();
 
-        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, PROMPT_DISTRIBUTION_SET), CAPTION_COLUMN, 1);
+        layout.addComponent(SPUIComponentProvider.generateLabel(i18n, PROMPT_DISTRIBUTION_SET), CAPTION_COLUMN, 1);
         layout.addComponent(dsCombo, FIELD_COLUMN, 1);
 
-        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, PROMPT_TARGET_FILTER), CAPTION_COLUMN, 2);
+        layout.addComponent(SPUIComponentProvider.generateLabel(i18n, PROMPT_TARGET_FILTER), CAPTION_COLUMN, 2);
         layout.addComponent(isEditMode ? targetFilterQueryField : targetFilterQueryCombo.getComponent(), FIELD_COLUMN,
                 2);
 
-        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, TEXTFIELD_DESCRIPTION), CAPTION_COLUMN, 3);
+        layout.addComponent(SPUIComponentProvider.generateLabel(i18n, TEXTFIELD_DESCRIPTION), CAPTION_COLUMN, 3);
         layout.addComponent(descriptionField, FIELD_COLUMN, 3);
 
         final int lastColumn = layout.getColumns() - 1;
-        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, CAPTION_ROLLOUT_ACTION_TYPE), CAPTION_COLUMN,
-                4);
+        layout.addComponent(SPUIComponentProvider.generateLabel(i18n, CAPTION_ROLLOUT_ACTION_TYPE), CAPTION_COLUMN, 4);
         layout.addComponent(actionTypeLayout.getComponent(), FIELD_COLUMN, 4, lastColumn, 4);
 
-        layout.addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, CAPTION_ROLLOUT_START_TYPE), CAPTION_COLUMN,
-                5);
+        layout.addComponent(SPUIComponentProvider.generateLabel(i18n, CAPTION_ROLLOUT_START_TYPE), CAPTION_COLUMN, 5);
         layout.addComponent(autoStartOptionGroupLayout.getComponent(), FIELD_COLUMN, 5, lastColumn, 5);
     }
 

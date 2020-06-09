@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.disttype;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
+import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -69,14 +70,11 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
     }
 
     private CheckBox buildMandatoryTypeCheckBox(final ProxyType smType) {
-        final CheckBox mandatoryTypeCheckBox = new CheckBox();
-        mandatoryTypeCheckBox.setId("selected.sm.type." + smType.getId());
-
         final Binder<ProxyType> binder = new Binder<>();
-        binder.forField(mandatoryTypeCheckBox).bind(ProxyType::isMandatory, ProxyType::setMandatory);
         binder.setBean(smType);
         binder.addValueChangeListener(event -> mandatoryPropertyChangedCallback.run());
 
-        return mandatoryTypeCheckBox;
+        final String id = "selected.sm.type." + smType.getId();
+        return SPUIComponentProvider.getCheckBox(id, binder, ProxyType::isMandatory, ProxyType::setMandatory);
     }
 }

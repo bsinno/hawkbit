@@ -65,10 +65,8 @@ public abstract class DeploymentAssignmentSupport<S extends ProxyNamedEntity, T 
     private ConfirmationDialog createConfirmationWindow(final String confirmationMessage, final Component content,
             final BooleanSupplier canWindowSave, final Runnable assignmentExecutor) {
         final String caption = i18n.getMessage(UIMessageIdProvider.CAPTION_ENTITY_ASSIGN_ACTION_CONFIRMBOX);
-        final String okLabelCaption = i18n.getMessage(UIMessageIdProvider.BUTTON_OK);
-        final String cancelLabelCaption = i18n.getMessage(UIMessageIdProvider.BUTTON_CANCEL);
 
-        return new ConfirmationDialog(caption, confirmationMessage, okLabelCaption, cancelLabelCaption, ok -> {
+        return new ConfirmationDialog(i18n, caption, confirmationMessage, ok -> {
             if (ok && canWindowSave.getAsBoolean()) {
                 assignmentExecutor.run();
             }

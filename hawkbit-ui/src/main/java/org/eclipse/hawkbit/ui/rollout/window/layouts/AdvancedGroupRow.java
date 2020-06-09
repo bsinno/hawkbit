@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvide
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +41,7 @@ import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.themes.ValoTheme;
 
 public class AdvancedGroupRow {
 
@@ -83,9 +85,10 @@ public class AdvancedGroupRow {
                 .buildTextComponent();
         nameField.setSizeUndefined();
         nameField.setStyleName("rollout-group-name");
+        nameField.addStyleName(ValoTheme.TEXTAREA_SMALL);
+        nameField.setWidth(12, Unit.EM);
 
-        // TODO: use i18n
-        binder.forField(nameField).asRequired("Group name can not be empty")
+        binder.forField(nameField).asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED))
                 .bind(ProxyAdvancedRolloutGroupRow::getGroupName, ProxyAdvancedRolloutGroupRow::setGroupName);
 
         return nameField;
@@ -104,7 +107,7 @@ public class AdvancedGroupRow {
         final TextField targetPercentageField = new TextFieldBuilder(32)
                 .prompt(i18n.getMessage("textfield.target.percentage"))
                 .id(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_PERC_ID).buildTextComponent();
-        targetPercentageField.setWidth(80, Unit.PIXELS);
+        targetPercentageField.setWidth(5, Unit.EM);
 
         binder.forField(targetPercentageField).asRequired()
                 // TODO: use i18n
@@ -124,7 +127,7 @@ public class AdvancedGroupRow {
         final TextField triggerThresholdField = new TextFieldBuilder(32)
                 .prompt(i18n.getMessage("prompt.tigger.threshold"))
                 .id(UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID).buildTextComponent();
-        triggerThresholdField.setWidth(80, Unit.PIXELS);
+        triggerThresholdField.setWidth(5, Unit.EM);
 
         // TODO: add as required description
         binder.forField(triggerThresholdField).asRequired().bind(
@@ -137,7 +140,7 @@ public class AdvancedGroupRow {
     private TextField createErrorThreshold() {
         final TextField errorThresholdField = new TextFieldBuilder(32).prompt(i18n.getMessage("prompt.error.threshold"))
                 .id(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID).buildTextComponent();
-        errorThresholdField.setWidth(80, Unit.PIXELS);
+        errorThresholdField.setWidth(5, Unit.EM);
 
         // TODO: add as required description
         binder.forField(errorThresholdField).asRequired().bind(

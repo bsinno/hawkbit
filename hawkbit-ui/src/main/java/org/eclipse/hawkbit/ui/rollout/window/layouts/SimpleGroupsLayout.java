@@ -232,17 +232,17 @@ public class SimpleGroupsLayout extends GridLayout {
         setColumns(3);
         setStyleName("marginTop");
 
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "caption.rollout.generate.groups"), 0, 0, 2, 0);
+        addComponent(SPUIComponentProvider.generateLabel(i18n, "caption.rollout.generate.groups"), 0, 0, 2, 0);
 
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "prompt.number.of.groups"), 0, 1);
+        addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.number.of.groups"), 0, 1);
         addComponent(noOfGroupsWithBinding.getComponent(), 1, 1);
         addComponent(groupSizeLabel, 2, 1);
 
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "prompt.tigger.threshold"), 0, 2);
+        addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.tigger.threshold"), 0, 2);
         addComponent(triggerThreshold, 1, 2);
         addComponent(percentHintLabel, 2, 2);
 
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "prompt.error.threshold"), 0, 3);
+        addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.error.threshold"), 0, 3);
         addComponent(errorThreshold.getComponent(), 1, 3);
         addComponent(errorThresholdOptionGroup, 2, 3);
     }

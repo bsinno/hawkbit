@@ -67,10 +67,9 @@ public class RolloutConfigurationView extends CustomComponent {
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 
-        final CheckBox approvalCheckbox = new CheckBox();
-        approvalCheckbox.setId(UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX);
-        binder.bind(approvalCheckbox, ProxySystemConfigWindow::isRolloutApproval,
-                ProxySystemConfigWindow::setRolloutApproval);
+        final CheckBox approvalCheckbox = SPUIComponentProvider.getCheckBox(
+                UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX, binder,
+                ProxySystemConfigWindow::isRolloutApproval, ProxySystemConfigWindow::setRolloutApproval);
 
         gridLayout.addComponent(approvalCheckbox, 0, 0);
         gridLayout.addComponent(approvalConfigurationItem, 1, 0);

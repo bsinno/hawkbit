@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ import com.nimbusds.oauth2.sdk.util.CollectionUtils;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 
 /**
@@ -84,17 +86,22 @@ public class AdvancedGroupsLayout extends GridLayout {
         setColumns(6);
         setStyleName("marginTop");
 
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "caption.rollout.group.definition.desc"), 0, 0, 5, 0);
+        addComponent(SPUIComponentProvider.generateLabel(i18n, "caption.rollout.group.definition.desc"), 0, 0, 5, 0);
 
         final int headerRow = 1;
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.name"), 0, headerRow);
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.target.filter.query"), 1, headerRow);
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.target.percentage"), 2, headerRow);
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.rolloutgroup.threshold"), 3, headerRow);
-        addComponent(SPUIComponentProvider.getLabelByMsgKey(i18n, "header.rolloutgroup.threshold.error"), 4, headerRow);
+        addHeaderRow(headerRow);
 
         addComponent(createAddButton(), 0, 2, 5, 2);
 
+    }
+
+    private void addHeaderRow(final int row) {
+        final List<String> headerColumns = Arrays.asList("header.name", "header.target.filter.query",
+                "header.target.percentage", "header.rolloutgroup.threshold", "header.rolloutgroup.threshold.error");
+        for (int i = 0; i < headerColumns.size(); i++) {
+            final Label label = SPUIComponentProvider.generateLabel(i18n, headerColumns.get(i));
+            addComponent(label, i, row);
+        }
     }
 
     private Button createAddButton() {

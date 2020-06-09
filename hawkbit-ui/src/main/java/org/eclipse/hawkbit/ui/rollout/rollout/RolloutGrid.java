@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.rollout.rollout;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
-import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.TotalTargetCountStatus.Status;
@@ -27,6 +25,8 @@ import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionTypeIconSupplier;
+import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.RolloutStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutToProxyRolloutMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
@@ -45,9 +45,7 @@ import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.rollout.DistributionBarHelper;
-import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.rollout.RolloutManagementUIState;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
@@ -62,7 +60,6 @@ import com.google.common.base.Predicates;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.renderers.HtmlRenderer;
@@ -97,8 +94,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private static final String COPY_BUTTON_ID = "copy";
     private static final String DELETE_BUTTON_ID = "delete";
 
-    private final Map<RolloutStatus, ProxyFontIcon> statusIconMap = new EnumMap<>(RolloutStatus.class);
-    private final Map<ActionType, ProxyFontIcon> actionTypeIconMap = new EnumMap<>(ActionType.class);
+    private final RolloutStatusIconSupplier<ProxyRollout> rolloutStatusIconSupplier;
+    private final ActionTypeIconSupplier<ProxyRollout> actionTypeIconSupplier;
 
     private final RolloutManagementUIState rolloutManagementUIState;
 
@@ -141,8 +138,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         setFilterSupport(new FilterSupport<>(new RolloutDataProvider(rolloutManagement, rolloutMapper)));
         initFilterMappings();
 
-        initStatusIconMap();
-        initActionTypeIconMap();
+        rolloutStatusIconSupplier = new RolloutStatusIconSupplier<>(i18n, ProxyRollout::getStatus,
+                UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID);
+        actionTypeIconSupplier = new ActionTypeIconSupplier<>(i18n, ProxyRollout::getActionType,
+                UIComponentIdProvider.ROLLOUT_ACTION_TYPE_LABEL_ID);
         init();
     }
 
@@ -246,48 +245,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         getDataProvider().refreshItem(proxyRollout);
     }
 
-    private void initStatusIconMap() {
-        statusIconMap.put(RolloutStatus.FINISHED, new ProxyFontIcon(VaadinIcons.CHECK_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_GREEN, getStatusDescription(RolloutStatus.FINISHED)));
-        statusIconMap.put(RolloutStatus.PAUSED, new ProxyFontIcon(VaadinIcons.PAUSE,
-                SPUIStyleDefinitions.STATUS_ICON_BLUE, getStatusDescription(RolloutStatus.PAUSED)));
-        statusIconMap.put(RolloutStatus.RUNNING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_YELLOW,
-                getStatusDescription(RolloutStatus.RUNNING)));
-        statusIconMap.put(RolloutStatus.WAITING_FOR_APPROVAL, new ProxyFontIcon(VaadinIcons.HOURGLASS,
-                SPUIStyleDefinitions.STATUS_ICON_ORANGE, getStatusDescription(RolloutStatus.WAITING_FOR_APPROVAL)));
-        statusIconMap.put(RolloutStatus.APPROVAL_DENIED, new ProxyFontIcon(VaadinIcons.CLOSE_CIRCLE,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(RolloutStatus.APPROVAL_DENIED)));
-        statusIconMap.put(RolloutStatus.READY, new ProxyFontIcon(VaadinIcons.BULLSEYE,
-                SPUIStyleDefinitions.STATUS_ICON_LIGHT_BLUE, getStatusDescription(RolloutStatus.READY)));
-        statusIconMap.put(RolloutStatus.STOPPED, new ProxyFontIcon(VaadinIcons.STOP,
-                SPUIStyleDefinitions.STATUS_ICON_RED, getStatusDescription(RolloutStatus.STOPPED)));
-        statusIconMap.put(RolloutStatus.CREATING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_GREY,
-                getStatusDescription(RolloutStatus.CREATING)));
-        statusIconMap.put(RolloutStatus.STARTING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_BLUE,
-                getStatusDescription(RolloutStatus.STARTING)));
-        statusIconMap.put(RolloutStatus.DELETING, new ProxyFontIcon(null, SPUIStyleDefinitions.STATUS_SPINNER_RED,
-                getStatusDescription(RolloutStatus.DELETING)));
-    }
-
-    private String getStatusDescription(final RolloutStatus status) {
-        return i18n.getMessage(UIMessageIdProvider.TOOLTIP_ROLLOUT_STATUS_PREFIX + status.toString().toLowerCase());
-    }
-
-    // TODO remove duplication with other grid classes by extracting to
-    // GridComponentBuilder/SPUIComponentProvider
-    private void initActionTypeIconMap() {
-        actionTypeIconMap.put(ActionType.FORCED, new ProxyFontIcon(VaadinIcons.BOLT,
-                SPUIStyleDefinitions.STATUS_ICON_FORCED, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_FORCED)));
-        actionTypeIconMap.put(ActionType.TIMEFORCED,
-                new ProxyFontIcon(VaadinIcons.TIMER, SPUIStyleDefinitions.STATUS_ICON_TIME_FORCED,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_TIME_FORCED)));
-        actionTypeIconMap.put(ActionType.SOFT, new ProxyFontIcon(VaadinIcons.STEP_FORWARD,
-                SPUIStyleDefinitions.STATUS_ICON_SOFT, i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_SOFT)));
-        actionTypeIconMap.put(ActionType.DOWNLOAD_ONLY,
-                new ProxyFontIcon(VaadinIcons.DOWNLOAD, SPUIStyleDefinitions.STATUS_ICON_DOWNLOAD_ONLY,
-                        i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_DOWNLOAD_ONLY)));
-    }
-
     private final void hideColumnsDueToInsufficientPermissions() {
         if (!permissionChecker.hasRolloutUpdatePermission()) {
             removeColumn(UPDATE_BUTTON_ID);
@@ -325,11 +282,11 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         addColumn(ProxyRollout::getDistributionSetNameVersion).setId(DIST_NAME_VERSION_ID)
                 .setCaption(i18n.getMessage("header.distributionset")).setHidable(true).setExpandRatio(12);
 
-        addComponentColumn(this::buildStatusIcon).setId(STATUS_ID).setCaption(i18n.getMessage("header.status"))
-                .setHidable(true).setExpandRatio(2);
+        addComponentColumn(rolloutStatusIconSupplier::getLabel).setId(STATUS_ID)
+                .setCaption(i18n.getMessage("header.status")).setHidable(true).setExpandRatio(2);
 
-        addComponentColumn(this::buildTypeIcon).setId(ACTION_TYPE_ID).setCaption(i18n.getMessage("header.type"))
-                .setExpandRatio(2).setHidable(true).setHidden(true);
+        addComponentColumn(actionTypeIconSupplier::getLabel).setId(ACTION_TYPE_ID)
+                .setCaption(i18n.getMessage("header.type")).setExpandRatio(2).setHidable(true).setHidden(true);
 
         addColumn(rollout -> DistributionBarHelper.getDistributionBarAsHTMLString(rollout.getStatusTotalCountMap()),
                 new HtmlRenderer()).setId(TOTAL_TARGETS_COUNT_STATUS_ID)
@@ -347,17 +304,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
         addActionColumns();
 
-        addColumn(ProxyRollout::getCreatedDate).setId(CREATED_DATE_ID).setCaption(i18n.getMessage("header.createdDate"))
-                .setHidable(true).setHidden(true);
-
-        addColumn(ProxyRollout::getCreatedBy).setId(CREATED_USER_ID).setCaption(i18n.getMessage("header.createdBy"))
-                .setHidable(true).setHidden(true);
-
-        addColumn(ProxyRollout::getModifiedDate).setId(MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
-
-        addColumn(ProxyRollout::getLastModifiedBy).setId(MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, CREATED_USER_ID).setHidable(true).setHidden(true);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, CREATED_DATE_ID).setHidable(true).setHidden(true);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, MODIFIED_BY_ID).setHidable(true).setHidden(true);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, MODIFIED_DATE_ID).setHidable(true).setHidden(true);
 
         addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_DECIDED_BY_ID)
                 .setCaption(i18n.getMessage("header.approvalDecidedBy")).setHidable(true).setHidden(true);
@@ -365,32 +315,9 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_REMARK_ID)
                 .setCaption(i18n.getMessage("header.approvalRemark")).setHidable(true).setHidden(true);
 
-        addColumn(ProxyRollout::getDescription).setId(DESC_ID).setCaption(i18n.getMessage("header.description"))
-                .setHidable(true).setHidden(true);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true);
 
         hideColumnsDueToInsufficientPermissions();
-    }
-
-    private Label buildStatusIcon(final ProxyRollout rollout) {
-        final ProxyFontIcon statusFontIcon = Optional.ofNullable(statusIconMap.get(rollout.getStatus()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String statusId = new StringBuilder(UIComponentIdProvider.ROLLOUT_STATUS_LABEL_ID).append(".")
-                .append(rollout.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(statusFontIcon, statusId);
-    }
-
-    private Label buildTypeIcon(final ProxyRollout rollout) {
-        final ProxyFontIcon actionTypeFontIcon = Optional.ofNullable(actionTypeIconMap.get(rollout.getActionType()))
-                .orElse(new ProxyFontIcon(VaadinIcons.QUESTION_CIRCLE, SPUIStyleDefinitions.STATUS_ICON_BLUE,
-                        i18n.getMessage(UIMessageIdProvider.LABEL_UNKNOWN)));
-
-        final String actionTypeId = new StringBuilder(UIComponentIdProvider.ROLLOUT_ACTION_TYPE_LABEL_ID).append(".")
-                .append(rollout.getId()).toString();
-
-        return SPUIComponentProvider.getLabelIcon(actionTypeFontIcon, actionTypeId);
     }
 
     private void addActionColumns() {
@@ -427,40 +354,23 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                         .setId(COPY_BUTTON_ID).setCaption(i18n.getMessage("header.action.copy")).setHidable(false)
                         .setExpandRatio(1);
 
-        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> rolloutDeleteSupport.openConfirmationWindowDeleteAction(rollout), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, isDeletionAllowed(rollout.getStatus())))
-                        .setId(DELETE_BUTTON_ID).setCaption(i18n.getMessage("header.action.delete")).setHidable(false)
-                        .setExpandRatio(1);
+        GridComponentBuilder.addDeleteColumn(this, i18n, DELETE_BUTTON_ID, rolloutDeleteSupport,
+                UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, rollout -> isDeletionAllowed(rollout.getStatus()))
+                .setHidable(false).setExpandRatio(1);
 
         getDefaultHeaderRow().join(RUN_BUTTON_ID, APPROVE_BUTTON_ID, PAUSE_BUTTON_ID, UPDATE_BUTTON_ID, COPY_BUTTON_ID,
                 DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
     }
 
     private Button buildRolloutLink(final ProxyRollout rollout) {
-        final Button rolloutLink = new Button();
+        final boolean enableButton = RolloutStatus.CREATING != rollout.getStatus();
 
-        rolloutLink.addClickListener(clickEvent -> onClickOfRolloutName(rollout));
-        rolloutLink.setId(new StringBuilder("rollout.link.").append(rollout.getId()).toString());
-        // TODO remove duplication of defining the named link with other grid
-        // classes by extracting to GridComponentBuilder/SPUIComponentProvider
-        rolloutLink.addStyleName("borderless");
-        rolloutLink.addStyleName("small");
-        rolloutLink.addStyleName("on-focus-no-border");
-        rolloutLink.addStyleName("link");
-        rolloutLink.setCaption(rollout.getName());
-        // this is to allow the button to disappear, if the text is null
-        rolloutLink.setVisible(!StringUtils.isEmpty(rollout.getName()));
-
-        if (RolloutStatus.CREATING == rollout.getStatus()) {
-            rolloutLink.addStyleName("boldhide");
-            rolloutLink.setEnabled(false);
-        } else {
-            rolloutLink.setEnabled(true);
+        final Button link = GridComponentBuilder.buildLink(rollout, "rollout.link.", rollout.getName(), enableButton,
+                clickEvent -> onClickOfRolloutName(rollout));
+        if (!enableButton) {
+            link.addStyleName("boldhide");
         }
-
-        return rolloutLink;
+        return link;
     }
 
     private void onClickOfRolloutName(final ProxyRollout rollout) {
