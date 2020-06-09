@@ -274,7 +274,10 @@ public final class SPUIStyleDefinitions {
      * Grid style.
      */
     public static final String METADATA_GRID = "metadata-grid";
-
+    /**
+     * Grid style.
+     */
+    public static final String ICON_CELL = "icon-cell";
     /**
      * Tag combo style.
      */

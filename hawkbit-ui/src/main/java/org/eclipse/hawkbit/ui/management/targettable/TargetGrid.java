@@ -8,9 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.management.targettable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -62,9 +64,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.components.grid.ColumnResizeListener;
 
 /**
  * Concrete implementation of Target grid which is displayed on the Deployment
@@ -97,6 +101,39 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final transient PinSupport<ProxyTarget, Long> pinSupport;
     private final transient DeleteSupport<ProxyTarget> targetDeleteSupport;
 
+    // TODO: remove, use server rpc to get actual col widths
+    // (https://vaadin.com/docs/v8/framework/gwt/gwt-rpc.html)
+    private final ColumnResizeListener resizeListener = event -> {
+        final float gridWidth = this.getWidth();
+
+        System.out.println("gridWidth: " + gridWidth + this.getWidthUnits());
+        final List<Column<?, ?>> variablCols = this.getColumns().stream().filter(col -> col.getExpandRatio() > 0)
+                .collect(Collectors.toList());
+        final Double fixColsWidth = this.getColumns().stream().filter(col -> col.getExpandRatio() <= 0)
+                .map(Column::getWidth).reduce(0D, Double::sum);
+        System.out.println("fixColsWidth: " + fixColsWidth);
+
+        final Double currentColWidth = fixColsWidth
+                + variablCols.stream().map(Column::getWidth).reduce(0D, Double::sum);
+
+        if (currentColWidth > gridWidth) {
+            final Double leftoverWidth = gridWidth - fixColsWidth
+                    - variablCols.stream().map(Column::getMinimumWidth).reduce(0D, Double::sum);
+            System.out.println("leftoverWidth: " + leftoverWidth);
+            if (leftoverWidth <= 0) {
+                variablCols.forEach(c -> c.setWidth(c.getMinimumWidth()));
+                System.out.println("getMinimumWidth");
+            } else {
+                variablCols.forEach(c -> c.setWidth(c.getMinimumWidth() + leftoverWidth / variablCols.size()));
+                System.out.println("getMinimumWidth + " + leftoverWidth);
+            }
+            System.out.println("enlarge");
+        } else {
+            System.out.println("setWidthUndefined");
+            variablCols.forEach(c -> c.setWidthUndefined());
+        }
+    };
+
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final SpPermissionChecker permChecker,
             final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,
@@ -105,6 +142,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             final DistributionGridLayoutUiState distributionGridLayoutUiState,
             final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
         super(i18n, eventBus, permChecker);
+        addColumnResizeListener(resizeListener);
 
         this.targetManagement = targetManagement;
         this.targetGridLayoutUiState = targetGridLayoutUiState;
@@ -276,17 +314,18 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     @Override
     public void addColumns() {
-        addNameColumn().setMaximumWidth(150d).setExpandRatio(1);
+        addNameColumn().setExpandRatio(1);
 
-        addTargetPollingStatusColumn().setWidth(30d);
-        addTargetStatusColumn().setWidth(30d);
-        getDefaultHeaderRow().join(TARGET_POLLING_STATUS_ID, TARGET_STATUS_ID)
-                .setText(i18n.getMessage("header.status"));
+        final Column<?, ?> pollingStatusColumn = addTargetPollingStatusColumn();
+        final Column<?, ?> targetStatusColumn = addTargetStatusColumn();
 
-        addPinColumn().setWidth(25d);
-        addDeleteColumn();
-        getDefaultHeaderRow().join(TARGET_PIN_BUTTON_ID, TARGET_DELETE_BUTTON_ID)
-                .setText(i18n.getMessage("header.action"));
+        GridComponentBuilder.joinToIconColumn(getDefaultHeaderRow(), i18n.getMessage("header.status"),
+                Arrays.asList(pollingStatusColumn, targetStatusColumn));
+
+        final Column<?, ?> pinColumn = addPinColumn();
+        final Column<?, ?> deleteColumn = addDeleteColumn();
+
+        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(), Arrays.asList(pinColumn, deleteColumn));
     }
 
     private Column<ProxyTarget, String> addNameColumn() {
@@ -294,21 +333,21 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     private Column<ProxyTarget, Label> addTargetPollingStatusColumn() {
-        return addComponentColumn(targetPollingStatusIconSupplier::getLabel).setId(TARGET_POLLING_STATUS_ID)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+        return GridComponentBuilder.addIconColumn(this, targetPollingStatusIconSupplier::getLabel,
+                TARGET_POLLING_STATUS_ID, null);
     }
 
     private Column<ProxyTarget, Label> addTargetStatusColumn() {
-        return addComponentColumn(targetStatusIconSupplier::getLabel).setId(TARGET_STATUS_ID)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+        return GridComponentBuilder.addIconColumn(this, targetStatusIconSupplier::getLabel, TARGET_STATUS_ID, null);
     }
 
     private Column<ProxyTarget, Button> addPinColumn() {
-        return addComponentColumn(target -> GridComponentBuilder.buildActionButton(i18n,
+        final ValueProvider<ProxyTarget, Button> buttonProvider = target -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> pinSupport.changeItemPinning(target), VaadinIcons.PIN,
                 UIMessageIdProvider.TOOLTIP_TARGET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true)).setId(TARGET_PIN_BUTTON_ID)
-                        .setStyleGenerator(pinSupport::getPinningStyle);
+                UIComponentIdProvider.TARGET_PIN_ICON + "." + target.getId(), true);
+        return GridComponentBuilder.addIconColumn(this, buttonProvider, TARGET_PIN_BUTTON_ID, null,
+                pinSupport::getPinningStyle);
     }
 
     private Column<ProxyTarget, Button> addDeleteColumn() {
@@ -318,21 +357,17 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     @Override
     protected void addMaxColumns() {
-        addNameColumn().setExpandRatio(7);
+        addNameColumn().setExpandRatio(2);
 
         GridComponentBuilder.addCreatedByColumn(this, i18n, TARGET_CREATED_BY_ID).setExpandRatio(1);
         GridComponentBuilder.addCreatedAtColumn(this, i18n, TARGET_CREATED_DATE_ID).setExpandRatio(1);
         GridComponentBuilder.addModifiedByColumn(this, i18n, TARGET_MODIFIED_BY_ID).setExpandRatio(1);
         GridComponentBuilder.addModifiedAtColumn(this, i18n, TARGET_MODIFIED_DATE_ID).setExpandRatio(1);
 
-        addDescriptionColumn().setExpandRatio(5);
         addDeleteColumn();
+        GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESC_ID).setExpandRatio(2);
 
         getColumns().forEach(column -> column.setHidable(true));
-    }
-
-    private Column<ProxyTarget, String> addDescriptionColumn() {
-        return GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESC_ID);
     }
 
     @Override

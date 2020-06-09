@@ -7,6 +7,7 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
@@ -22,8 +23,11 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.Column;
+import com.vaadin.ui.StyleGenerator;
+import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -248,8 +252,96 @@ public final class GridComponentBuilder {
                 clickEvent -> deleteSupport.openConfirmationWindowDeleteAction(entity), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 buttonIdPrefix + "." + entity.getId(), buttonEnabled.test(entity));
-        return grid.addComponentColumn(getDelButton).setId(columnId).setCaption(i18n.getMessage("header.action.delete"))
-                .setWidth(50D);
+        return addIconColumn(grid, getDelButton, columnId, null).setWidth(60D)
+                .setHidingToggleCaption(i18n.getMessage("header.action.delete"));
+    }
+
+    /**
+     * Add an action button column to a grid
+     * 
+     * @param <T>
+     *            type of the entity displayed by the grid
+     * @param grid
+     *            to add the column to
+     * @param iconProvider
+     *            to get the icon from
+     * @param columnId
+     *            column ID
+     * @param caption
+     *            caption of the column
+     * @return the created column
+     */
+    public static <T, V extends Component> Column<T, V> addIconColumn(final Grid<T> grid,
+            final ValueProvider<T, V> iconProvider, final String columnId, final String caption) {
+        return addIconColumn(grid, iconProvider, columnId, caption, null);
+    }
+
+    /**
+     * Add an action button column to a grid
+     * 
+     * @param <T>
+     *            type of the entity displayed by the grid
+     * @param grid
+     *            to add the column to
+     * @param iconProvider
+     *            to get the icon from
+     * @param columnId
+     *            column ID
+     * @param caption
+     *            caption of the column
+     * @param styleGenerator
+     *            caption of the column
+     * @return the created column
+     */
+    public static <T, V extends Component> Column<T, V> addIconColumn(final Grid<T> grid,
+            final ValueProvider<T, V> iconProvider, final String columnId, final String caption,
+            final StyleGenerator<T> styleGenerator) {
+        final StyleGenerator<T> finalStyleGenerator = entity -> {
+            final String additionalClasses = styleGenerator == null ? "" : (" " + styleGenerator.apply(entity));
+            return SPUIStyleDefinitions.ICON_CELL + additionalClasses;
+        };
+
+        final Column<T, V> column = grid.addComponentColumn(iconProvider).setId(columnId)
+                .setStyleGenerator(finalStyleGenerator).setWidth(60D).setResizable(false);
+        if (!StringUtils.isEmpty(caption)) {
+            column.setCaption(caption);
+        }
+        return column;
+    }
+
+    /**
+     * Join columns to form an action column
+     * 
+     * @param i18n
+     *            message source for internationalization
+     * @param headerRow
+     *            header row
+     * @param columns
+     *            columns to join
+     */
+    public static void joinToActionColumn(final VaadinMessageSource i18n, final HeaderRow headerRow,
+            final List<Column<?, ?>> columns) {
+        joinToIconColumn(headerRow, i18n.getMessage("header.action"), columns);
+    }
+
+    /**
+     * Join columns to form an icon column
+     * 
+     * @param headerRow
+     *            header row
+     * @param headerCaption
+     *            header caption
+     * @param columns
+     *            columns to join
+     */
+    public static void joinToIconColumn(final HeaderRow headerRow, final String headerCaption,
+            final List<Column<?, ?>> columns) {
+        columns.forEach(column -> {
+            column.setWidth(30D);
+            column.setResizable(false);
+        });
+        final Column<?, ?>[] columnArray = columns.toArray(new Column<?, ?>[columns.size()]);
+        headerRow.join(columnArray).setText(headerCaption);
     }
 
     /**
