@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -61,6 +61,20 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     private final transient DeleteSupport<ProxyArtifact> artifactDeleteSupport;
     private final transient MasterEntitySupport<ProxySoftwareModule> masterEntitySupport;
 
+    /**
+     * Constructor
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param notification
+     *          UINotification
+     * @param artifactManagement
+     *          ArtifactManagement
+     */
     public ArtifactDetailsGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final ArtifactManagement artifactManagement) {
@@ -87,6 +101,9 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
                 (filter, masterFilter) -> getFilterSupport().setFilter(masterFilter));
     }
 
+    /**
+     * call initial method of grid and set style name
+     */
     @Override
     public void init() {
         super.init();
@@ -106,11 +123,17 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         return true;
     }
 
+    /**
+     * @return ID for artifact details table
+     */
     @Override
     public String getGridId() {
         return UIComponentIdProvider.UPLOAD_ARTIFACT_DETAILS_TABLE;
     }
 
+    /**
+     * setting up the columns with their required definition
+     */
     @Override
     public void addColumns() {
         addFilenameColumn().setMinimumWidth(100d).setMaximumWidth(210d).setExpandRatio(2);
@@ -209,6 +232,9 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
                 .setCaption(i18n.getMessage("upload.sha256"));
     }
 
+    /**
+     * @return software module entity
+     */
     public MasterEntitySupport<ProxySoftwareModule> getMasterEntitySupport() {
         return masterEntitySupport;
     }

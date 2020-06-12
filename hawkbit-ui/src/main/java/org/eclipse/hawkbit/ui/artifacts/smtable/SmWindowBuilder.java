@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,6 +21,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Window;
 
+/**
+ * Builder for Software module windows
+ */
 public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareModule> {
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -31,6 +34,24 @@ public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareMo
 
     private final EventView view;
 
+    /**
+     * Constructor for SmWindowBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param smManagement
+     *          SoftwareModuleManagement
+     * @param smTypeManagement
+     *          SoftwareModuleTypeManagement
+     * @param view
+     *          EventView
+     */
     public SmWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory, final UIEventBus eventBus,
             final UINotification uiNotification, final SoftwareModuleManagement smManagement,
             final SoftwareModuleTypeManagement smTypeManagement, final EventView view) {
@@ -51,6 +72,9 @@ public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareMo
         return UIComponentIdProvider.CREATE_POPUP_ID;
     }
 
+    /**
+     * @return add window for software module
+     */
     @Override
     public Window getWindowForAdd() {
         return getWindowForNewEntity(new AddSmWindowController(i18n, entityFactory, eventBus, uiNotification,
@@ -58,6 +82,12 @@ public class SmWindowBuilder extends AbstractEntityWindowBuilder<ProxySoftwareMo
 
     }
 
+    /**
+     * @param proxySm
+     *          ProxySoftwareModule
+     *
+     * @return update window for software module
+     */
     @Override
     public Window getWindowForUpdate(final ProxySoftwareModule proxySm) {
         return getWindowForEntity(proxySm, new UpdateSmWindowController(i18n, entityFactory, eventBus, uiNotification,
