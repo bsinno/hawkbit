@@ -57,6 +57,28 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     private final transient EntityModifiedListener<ProxySoftwareModule> smModifiedListener;
     private final transient GenericEventListener<FileUploadProgress> fileUploadChangedListener;
 
+    /**
+     * Constructor for SoftwareModuleGridLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param uiNotification
+     *          UINotification
+     * @param eventBus
+     *          UIEventBus
+     * @param softwareModuleManagement
+     *          SoftwareModuleManagement
+     * @param softwareModuleTypeManagement
+     *          SoftwareModuleTypeManagement
+     * @param entityFactory
+     *          EntityFactory
+     * @param smTypeFilterLayoutUiState
+     *          TypeFilterLayoutUiState
+     * @param smGridLayoutUiState
+     *          GridLayoutUiState
+     */
     public SoftwareModuleGridLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UINotification uiNotification, final UIEventBus eventBus,
             final SoftwareModuleManagement softwareModuleManagement,
@@ -108,33 +130,56 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
                         softwareModuleGrid::mapIdToProxyEntity));
     }
 
+    /**
+     * Verifies when file upload is in progress
+     *
+     * @param fileUploadProgress
+     */
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         softwareModuleGrid.onUploadChanged(fileUploadProgress);
     }
 
+    /**
+     * Show software module grid header
+     */
     public void showSmTypeHeaderIcon() {
         softwareModuleGridHeader.showFilterIcon();
     }
 
+    /**
+     * Hide software module grid header
+     */
     public void hideSmTypeHeaderIcon() {
         softwareModuleGridHeader.hideFilterIcon();
     }
 
+    /**
+     * Maximize the software module grid
+     */
     public void maximize() {
         softwareModuleGrid.createMaximizedContent();
         hideDetailsLayout();
     }
 
+    /**
+     * Minimize the software module grid
+     */
     public void minimize() {
         softwareModuleGrid.createMinimizedContent();
         showDetailsLayout();
     }
 
+    /**
+     * Restore the state of software module grid and header
+     */
     public void restoreState() {
         softwareModuleGridHeader.restoreState();
         softwareModuleGrid.restoreState();
     }
 
+    /**
+     * Unsubscribe all the events listeners
+     */
     public void unsubscribeListener() {
         smFilterListener.unsubscribe();
         masterSmChangedListener.unsubscribe();

@@ -102,7 +102,7 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
     }
 
     /**
-     * call initial method of grid and set style name
+     * Initial method of grid and set style name
      */
     @Override
     public void init() {
