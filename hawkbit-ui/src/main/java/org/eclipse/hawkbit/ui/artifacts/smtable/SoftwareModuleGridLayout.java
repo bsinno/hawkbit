@@ -170,7 +170,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
     }
 
     /**
-     * Restore the state of software module grid and header
+     * Is called when view is shown to the user
      */
     public void restoreState() {
         softwareModuleGridHeader.restoreState();

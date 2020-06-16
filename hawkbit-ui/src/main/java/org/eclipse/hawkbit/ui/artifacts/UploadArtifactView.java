@@ -209,6 +209,12 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
         }
     }
 
+    /**
+     * Show or hide the filter button based on the event width
+     *
+     * @param event
+     *          BrowserWindowResizeEvent
+     */
     @Override
     public void browserWindowResized(final BrowserWindowResizeEvent event) {
         showOrHideFilterButtons(event.getWidth());

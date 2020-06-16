@@ -54,36 +54,76 @@ public class ArtifactUploadState implements Serializable {
      */
     private Map<FileUploadId, FileUploadProgress> overallFilesInUploadProcess;
 
+    /**
+     * Constructor for ArtifactUploadState
+     */
     public ArtifactUploadState() {
         this.smTypeFilterLayoutUiState = new TypeFilterLayoutUiState();
         this.smGridLayoutUiState = new GridLayoutUiState();
         this.artifactDetailsGridLayoutUiState = new ArtifactDetailsGridLayoutUiState();
     }
 
+    /**
+     * Minimize or maximize the status popup view
+     *
+     * @param statusPopupMinimized
+     *          boolean
+     */
     public void setStatusPopupMinimized(final boolean statusPopupMinimized) {
         this.statusPopupMinimized = statusPopupMinimized;
     }
 
+    /**
+     * Checks if the status popup view is in minimized state
+     *
+     * @return boolean
+     */
     public boolean isStatusPopupMinimized() {
         return statusPopupMinimized;
     }
 
+    /**
+     * Get the Software module type filter UI state
+     *
+     * @return TypeFilterLayoutUiState
+     */
     public TypeFilterLayoutUiState getSmTypeFilterLayoutUiState() {
         return smTypeFilterLayoutUiState;
     }
 
+    /**
+     *  Get the Software module grid UI state
+     *
+     * @return GridLayoutUiState
+     */
     public GridLayoutUiState getSmGridLayoutUiState() {
         return smGridLayoutUiState;
     }
 
+    /**
+     * Get the Artifact details grid UI state
+     *
+     * @return ArtifactDetailsGridLayoutUiState
+     */
     public ArtifactDetailsGridLayoutUiState getArtifactDetailsGridLayoutUiState() {
         return artifactDetailsGridLayoutUiState;
     }
 
+    /**
+     * Remove all the files from the upload process list
+     *
+     * @param filesToRemove
+     *          Collection of fie upload ID
+     */
     public void removeFilesFromOverallUploadProcessList(final Collection<FileUploadId> filesToRemove) {
         getOverallFilesInUploadProcessMap().keySet().removeAll(filesToRemove);
     }
 
+    /**
+     * Get all the IDs of uploaded files from the upload process
+     *
+     * @return List of IDs of  uploaded files
+     */
     public Set<FileUploadId> getAllFileUploadIdsFromOverallUploadProcessList() {
         return Collections.unmodifiableSet(getOverallFilesInUploadProcessMap().keySet());
     }

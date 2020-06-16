@@ -33,6 +33,22 @@ public class SMTypeFilterHeader extends AbstractFilterHeader {
 
     private final EventView view;
 
+    /**
+     * Constructor for SMTypeFilterHeader
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param smTypeWindowBuilder
+     *          SmTypeWindowBuilder
+     * @param smTypeFilterLayoutUiState
+     *          TypeFilterLayoutUiState
+     * @param view
+     *          EventView
+     */
     public SMTypeFilterHeader(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final SmTypeWindowBuilder smTypeWindowBuilder,
             final TypeFilterLayoutUiState smTypeFilterLayoutUiState, final EventView view) {

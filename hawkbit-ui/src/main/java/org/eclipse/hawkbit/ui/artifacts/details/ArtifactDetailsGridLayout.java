@@ -94,9 +94,10 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     }
 
     /**
-     * Verifies when file upload is in progress
+     * Checks progress on file upload
      *
      * @param fileUploadProgress
+     *          FileUploadProgress
      */
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         if (uploadDropAreaLayout != null) {
@@ -121,7 +122,7 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
     }
 
     /**
-     * Restore the artifact state
+     * Is called when view is shown to the user
      */
     public void restoreState() {
         artifactDetailsHeader.restoreState();

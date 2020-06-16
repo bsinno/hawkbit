@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -35,6 +35,12 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
 
     private final ProgressStatusIconSupplier<ProxyUploadProgress> progressStatusIconSupplier;
 
+    /**
+     * Constructor for UploadProgressGrid
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public UploadProgressGrid(final VaadinMessageSource i18n) {
         this.i18n = i18n;
 
