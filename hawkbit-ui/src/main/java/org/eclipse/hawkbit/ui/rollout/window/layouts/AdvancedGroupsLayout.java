@@ -39,32 +39,32 @@ import com.vaadin.ui.UI;
 /**
  * Define groups for a Rollout
  */
-public class AdvancedGroupsLayout extends GridLayout {
-    private static final long serialVersionUID = 1L;
-
+public class AdvancedGroupsLayout extends ValidatableLayout {
     private static final String MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED = "message.rollout.max.group.size.exceeded.advanced";
 
     private final VaadinMessageSource i18n;
-    private final transient EntityFactory entityFactory;
-    private final transient TargetFilterQueryManagement targetFilterQueryManagement;
-    private final transient RolloutManagement rolloutManagement;
-    private final transient QuotaManagement quotaManagement;
+    private final EntityFactory entityFactory;
+    private final TargetFilterQueryManagement targetFilterQueryManagement;
+    private final RolloutManagement rolloutManagement;
+    private final QuotaManagement quotaManagement;
 
     private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
 
+    private final GridLayout layout;
+
     private String targetFilter;
 
-    private final transient List<AdvancedGroupRow> groupRows;
-    private transient List<RolloutGroupCreate> savedRolloutGroups;
+    private final List<AdvancedGroupRow> groupRows;
+    private List<RolloutGroupCreate> savedRolloutGroups;
 
-    private transient ValidationListener validationListener;
-    private transient RolloutGroupsValidation groupsValidation;
+    private RolloutGroupsValidation groupsValidation;
     private final AtomicInteger runningValidationsCounter;
-    private ValidationStatus validationStatus = ValidationStatus.VALID;
 
     public AdvancedGroupsLayout(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final RolloutManagement rolloutManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
             final QuotaManagement quotaManagement, final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
+        super();
+
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.rolloutManagement = rolloutManagement;
@@ -72,35 +72,35 @@ public class AdvancedGroupsLayout extends GridLayout {
         this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.targetFilterQueryDataProvider = targetFilterQueryDataProvider;
 
+        this.layout = buildLayout();
+
         this.groupRows = new ArrayList<>(10);
         this.runningValidationsCounter = new AtomicInteger(0);
-
-        buildLayout();
     }
 
-    private void buildLayout() {
-        setMargin(false);
-        setSpacing(true);
-        setSizeUndefined();
-        setRows(3);
-        setColumns(6);
-        setStyleName("marginTop");
+    private GridLayout buildLayout() {
+        final GridLayout gridLayout = new GridLayout();
+        gridLayout.setMargin(false);
+        gridLayout.setSpacing(true);
+        gridLayout.setSizeUndefined();
+        gridLayout.setRows(3);
+        gridLayout.setColumns(6);
+        gridLayout.setStyleName("marginTop");
 
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "caption.rollout.group.definition.desc"), 0, 0, 5, 0);
+        gridLayout.addComponent(SPUIComponentProvider.generateLabel(i18n, "caption.rollout.group.definition.desc"), 0,
+                0, 5, 0);
+        addHeaderRow(gridLayout, 1);
+        gridLayout.addComponent(createAddButton(), 0, 2, 5, 2);
 
-        final int headerRow = 1;
-        addHeaderRow(headerRow);
-
-        addComponent(createAddButton(), 0, 2, 5, 2);
-
+        return gridLayout;
     }
 
-    private void addHeaderRow(final int row) {
+    private void addHeaderRow(final GridLayout gridLayout, final int headerRow) {
         final List<String> headerColumns = Arrays.asList("header.name", "header.target.filter.query",
                 "header.target.percentage", "header.rolloutgroup.threshold", "header.rolloutgroup.threshold.error");
         for (int i = 0; i < headerColumns.size(); i++) {
             final Label label = SPUIComponentProvider.generateLabel(i18n, headerColumns.get(i));
-            addComponent(label, i, row);
+            gridLayout.addComponent(label, i, headerRow);
         }
     }
 
@@ -136,12 +136,12 @@ public class AdvancedGroupsLayout extends GridLayout {
     }
 
     private void addRowToLayout(final AdvancedGroupRow groupRow) {
-        final int index = getRows() - 1;
-        insertRow(index);
+        final int index = layout.getRows() - 1;
+        layout.insertRow(index);
 
-        groupRow.addRowToLayout(this, index);
+        groupRow.addRowToLayout(layout, index);
 
-        addComponent(createRemoveButton(groupRow, index), 5, index);
+        layout.addComponent(createRemoveButton(groupRow, index), 5, index);
     }
 
     private Button createRemoveButton(final AdvancedGroupRow groupRow, final int index) {
@@ -157,7 +157,7 @@ public class AdvancedGroupsLayout extends GridLayout {
     }
 
     private void removeGroupRow(final AdvancedGroupRow groupRow, final int index) {
-        removeRow(index);
+        layout.removeRow(index);
         groupRows.remove(groupRow);
 
         updateValidation();
@@ -165,7 +165,7 @@ public class AdvancedGroupsLayout extends GridLayout {
 
     private void updateValidation() {
         validationStatus = ValidationStatus.VALID;
-        if (isValid()) {
+        if (allGroupRowsValid()) {
             setValidationStatus(ValidationStatus.LOADING);
             savedRolloutGroups = getGroupsFromRows();
             validateRemainingTargets();
@@ -174,21 +174,12 @@ public class AdvancedGroupsLayout extends GridLayout {
         }
     }
 
-    /**
-     * @return whether the groups definition form is valid
-     */
-    public boolean isValid() {
-        if (groupRows.isEmpty() || validationStatus != ValidationStatus.VALID) {
+    private boolean allGroupRowsValid() {
+        if (groupRows.isEmpty()) {
             return false;
         }
-        return groupRows.stream().allMatch(AdvancedGroupRow::isValid);
-    }
 
-    private void setValidationStatus(final ValidationStatus status) {
-        validationStatus = status;
-        if (validationListener != null) {
-            validationListener.validation(status);
-        }
+        return groupRows.stream().allMatch(AdvancedGroupRow::isValid);
     }
 
     private List<RolloutGroupCreate> getGroupsFromRows() {
@@ -277,10 +268,6 @@ public class AdvancedGroupsLayout extends GridLayout {
         updateValidation();
     }
 
-    public void setValidationListener(final ValidationListener validationListener) {
-        this.validationListener = validationListener;
-    }
-
     /**
      * Populate groups by rollout groups
      *
@@ -304,8 +291,8 @@ public class AdvancedGroupsLayout extends GridLayout {
     }
 
     private void removeAllRows() {
-        for (int i = getRows() - 2; i > 1; i--) {
-            removeRow(i);
+        for (int i = layout.getRows() - 2; i > 1; i--) {
+            layout.removeRow(i);
         }
 
         groupRows.clear();
@@ -322,25 +309,7 @@ public class AdvancedGroupsLayout extends GridLayout {
         return groupsValidation;
     }
 
-    /**
-     * Status of the groups validation
-     */
-    public enum ValidationStatus {
-        VALID, INVALID, LOADING
-    }
-
-    /**
-     * Implement the interface and set the instance with setValidationListener
-     * to receive updates for any changes within the group rows.
-     */
-    @FunctionalInterface
-    public interface ValidationListener {
-        /**
-         * Is called after user input
-         * 
-         * @param isValid
-         *            whether the input of the group rows is valid
-         */
-        void validation(ValidationStatus isValid);
+    public GridLayout getLayout() {
+        return layout;
     }
 }

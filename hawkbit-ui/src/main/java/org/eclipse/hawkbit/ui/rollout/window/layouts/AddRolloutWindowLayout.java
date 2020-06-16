@@ -8,12 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import java.util.function.Consumer;
-
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.ValidatableLayout.ValidationStatus;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.ui.GridLayout;
@@ -46,11 +45,12 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         this.rolloutFormLayout = rolloutComponentBuilder.createRolloutFormLayout();
         this.simpleGroupsLayout = rolloutComponentBuilder.createSimpleGroupsLayout();
         this.advancedGroupsLayout = rolloutComponentBuilder.createAdvancedGroupsLayout();
-        this.groupsDefinitionTabs = rolloutComponentBuilder.createGroupDefinitionTabs(simpleGroupsLayout,
-                advancedGroupsLayout);
+        this.groupsDefinitionTabs = rolloutComponentBuilder.createGroupDefinitionTabs(simpleGroupsLayout.getLayout(),
+                advancedGroupsLayout.getLayout());
         this.visualGroupDefinitionLayout = rolloutComponentBuilder.createVisualGroupDefinitionLayout();
 
         addValueChangeListeners();
+        addValidationStatusListeners();
     }
 
     @Override
@@ -60,7 +60,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         final int lastRowIdx = rootLayout.getRows() - 1;
         final int lastColumnIdx = rootLayout.getColumns() - 1;
 
-        rolloutFormLayout.addFormToLayout(rootLayout, false);
+        rolloutFormLayout.addFormToAddLayout(rootLayout);
         visualGroupDefinitionLayout.addChartWithLegendToLayout(rootLayout, lastColumnIdx, 3);
         rootLayout.addComponent(groupsDefinitionTabs, 0, lastRowIdx, lastColumnIdx, lastRowIdx);
     }
@@ -69,7 +69,6 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         rolloutFormLayout.setFilterQueryChangedListener(this::onTargetFilterQueryChange);
         groupsDefinitionTabs.addSelectedTabChangeListener(event -> onGroupDefinitionTabChanged());
         simpleGroupsLayout.setNoOfGroupsChangedListener(this::onNoOfSimpleGroupsChanged);
-        advancedGroupsLayout.setValidationListener(this::onAdvancedGroupsChanged);
     }
 
     private void onTargetFilterQueryChange(final String filterQuery) {
@@ -92,11 +91,11 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     public boolean isSimpleGroupsTabSelected() {
-        return groupsDefinitionTabs.getSelectedTab().equals(simpleGroupsLayout);
+        return groupsDefinitionTabs.getSelectedTab().equals(simpleGroupsLayout.getLayout());
     }
 
     public boolean isAdvancedGroupsTabSelected() {
-        return groupsDefinitionTabs.getSelectedTab().equals(advancedGroupsLayout);
+        return groupsDefinitionTabs.getSelectedTab().equals(advancedGroupsLayout.getLayout());
     }
 
     private void onGroupDefinitionTabChanged() {
@@ -126,17 +125,67 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         visualGroupDefinitionLayout.setNoOfGroups(noOfGroups);
     }
 
-    private void onAdvancedGroupsChanged(final AdvancedGroupsLayout.ValidationStatus status) {
+    private void addValidationStatusListeners() {
+        // TODO: rethink the concept to remove duplication between listeners
+        rolloutFormLayout.setValidationListener(this::onRolloutFormValidationChanged);
+        simpleGroupsLayout.setValidationListener(this::onSimpleGroupsValidationChanged);
+        advancedGroupsLayout.setValidationListener(this::onAdvancedGroupsValidationChanged);
+    }
+
+    private void onRolloutFormValidationChanged(final ValidationStatus status) {
+        if (validationCallback == null) {
+            return;
+        }
+
+        if (ValidationStatus.VALID != status) {
+            validationCallback.accept(false);
+            return;
+        }
+
+        validationCallback
+                .accept(isSimpleGroupsTabSelected() ? simpleGroupsLayout.isValid() : advancedGroupsLayout.isValid());
+    }
+
+    private void onSimpleGroupsValidationChanged(final ValidationStatus status) {
+        if (!isSimpleGroupsTabSelected()) {
+            return;
+        }
+
+        if (validationCallback == null) {
+            return;
+        }
+
+        if (ValidationStatus.VALID != status) {
+            validationCallback.accept(false);
+            return;
+        }
+
+        validationCallback.accept(rolloutFormLayout.isValid());
+    }
+
+    private void onAdvancedGroupsValidationChanged(final ValidationStatus status) {
         if (!isAdvancedGroupsTabSelected()) {
             return;
         }
 
+        // TODO: try extracting to value change listener
         if (status == AdvancedGroupsLayout.ValidationStatus.LOADING) {
             visualGroupDefinitionLayout.displayLoading();
         } else {
             visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
                     advancedGroupsLayout.getSavedRolloutGroupDefinitions());
         }
+
+        if (validationCallback == null) {
+            return;
+        }
+
+        if (ValidationStatus.VALID != status) {
+            validationCallback.accept(false);
+            return;
+        }
+
+        validationCallback.accept(rolloutFormLayout.isValid());
     }
 
     public void addAdvancedGroupRowAndValidate() {
@@ -144,7 +193,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     public void selectAdvancedGroupsTab() {
-        groupsDefinitionTabs.setSelectedTab(advancedGroupsLayout);
+        groupsDefinitionTabs.setSelectedTab(advancedGroupsLayout.getLayout());
     }
 
     @Override
@@ -165,11 +214,5 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
                 isSimpleGroupsTabSelected() ? GroupDefinitionMode.SIMPLE : GroupDefinitionMode.ADVANCED);
 
         return proxyEntity;
-    }
-
-    @Override
-    public void addValidationListener(final Consumer<Boolean> validationCallback) {
-        // TODO
-        validationCallback.accept(true);
     }
 }

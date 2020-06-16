@@ -32,15 +32,15 @@ import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
-public class SimpleGroupsLayout extends GridLayout {
-    private static final long serialVersionUID = 1L;
-
+public class SimpleGroupsLayout extends ValidatableLayout {
     private static final String MESSAGE_ENTER_NUMBER = "message.enter.number";
     private static final String MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED = "message.rollout.max.group.size.exceeded";
     private static final String MESSAGE_ROLLOUT_FIELD_VALUE_RANGE = "message.rollout.field.value.range";
 
     private final VaadinMessageSource i18n;
-    private final transient QuotaManagement quotaManagement;
+    private final QuotaManagement quotaManagement;
+
+    private final GridLayout layout;
 
     private final Binder<ProxySimpleRolloutGroupsDefinition> binder;
 
@@ -53,9 +53,11 @@ public class SimpleGroupsLayout extends GridLayout {
 
     private Long totalTargets;
 
-    private transient IntConsumer noOfGroupsChangedListener;
+    private IntConsumer noOfGroupsChangedListener;
 
     public SimpleGroupsLayout(final VaadinMessageSource i18n, final QuotaManagement quotaManagement) {
+        super();
+
         this.i18n = i18n;
         this.quotaManagement = quotaManagement;
 
@@ -68,8 +70,10 @@ public class SimpleGroupsLayout extends GridLayout {
         this.errorThreshold = createErrorThreshold();
         this.errorThresholdOptionGroup = createErrorThresholdOptionGroup();
 
-        buildLayout();
+        this.layout = buildLayout();
+
         addValueChangeListeners();
+        setValidationStatusByBinder(binder);
     }
 
     private BoundComponent<TextField> createNoOfGroupsField() {
@@ -224,27 +228,31 @@ public class SimpleGroupsLayout extends GridLayout {
         return errorThresholdOptions;
     }
 
-    private void buildLayout() {
-        setMargin(false);
-        setSpacing(true);
-        setSizeUndefined();
-        setRows(4);
-        setColumns(3);
-        setStyleName("marginTop");
+    private GridLayout buildLayout() {
+        final GridLayout gridLayout = new GridLayout();
+        gridLayout.setMargin(false);
+        gridLayout.setSpacing(true);
+        gridLayout.setSizeUndefined();
+        gridLayout.setRows(4);
+        gridLayout.setColumns(3);
+        gridLayout.setStyleName("marginTop");
 
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "caption.rollout.generate.groups"), 0, 0, 2, 0);
+        gridLayout.addComponent(SPUIComponentProvider.generateLabel(i18n, "caption.rollout.generate.groups"), 0, 0, 2,
+                0);
 
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.number.of.groups"), 0, 1);
-        addComponent(noOfGroupsWithBinding.getComponent(), 1, 1);
-        addComponent(groupSizeLabel, 2, 1);
+        gridLayout.addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.number.of.groups"), 0, 1);
+        gridLayout.addComponent(noOfGroupsWithBinding.getComponent(), 1, 1);
+        gridLayout.addComponent(groupSizeLabel, 2, 1);
 
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.tigger.threshold"), 0, 2);
-        addComponent(triggerThreshold, 1, 2);
-        addComponent(percentHintLabel, 2, 2);
+        gridLayout.addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.tigger.threshold"), 0, 2);
+        gridLayout.addComponent(triggerThreshold, 1, 2);
+        gridLayout.addComponent(percentHintLabel, 2, 2);
 
-        addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.error.threshold"), 0, 3);
-        addComponent(errorThreshold.getComponent(), 1, 3);
-        addComponent(errorThresholdOptionGroup, 2, 3);
+        gridLayout.addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.error.threshold"), 0, 3);
+        gridLayout.addComponent(errorThreshold.getComponent(), 1, 3);
+        gridLayout.addComponent(errorThresholdOptionGroup, 2, 3);
+
+        return gridLayout;
     }
 
     private void addValueChangeListeners() {
@@ -299,6 +307,10 @@ public class SimpleGroupsLayout extends GridLayout {
 
     public ProxySimpleRolloutGroupsDefinition getBean() {
         return binder.getBean();
+    }
+
+    public GridLayout getLayout() {
+        return layout;
     }
 
     public enum ERROR_THRESHOLD_OPTIONS {

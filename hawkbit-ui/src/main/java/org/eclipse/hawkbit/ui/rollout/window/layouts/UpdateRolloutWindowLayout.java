@@ -8,11 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import java.util.function.Consumer;
-
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.ValidatableLayout.ValidationStatus;
 
 import com.vaadin.ui.GridLayout;
 
@@ -21,7 +20,7 @@ import com.vaadin.ui.GridLayout;
  */
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
-    private final RolloutFormLayout rolloutFormLayout;
+    protected final RolloutFormLayout rolloutFormLayout;
     private final VisualGroupDefinitionLayout visualGroupDefinitionLayout;
 
     public UpdateRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
@@ -29,6 +28,8 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
         this.rolloutFormLayout = rolloutComponentBuilder.createRolloutFormLayout();
         this.visualGroupDefinitionLayout = rolloutComponentBuilder.createVisualGroupDefinitionLayout();
+
+        addValidationStatusListeners();
     }
 
     @Override
@@ -37,8 +38,26 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
         final int lastColumnIdx = rootLayout.getColumns() - 1;
 
-        rolloutFormLayout.addFormToLayout(rootLayout, true);
+        rolloutFormLayout.addFormToEditLayout(rootLayout);
         visualGroupDefinitionLayout.addChartWithLegendToLayout(rootLayout, lastColumnIdx, 3);
+    }
+
+    private void addValidationStatusListeners() {
+        // TODO: rethink the concept to remove duplication between listeners
+        rolloutFormLayout.setValidationListener(this::onRolloutFormValidationChanged);
+    }
+
+    protected void onRolloutFormValidationChanged(final ValidationStatus status) {
+        if (validationCallback == null) {
+            return;
+        }
+
+        if (ValidationStatus.VALID != status) {
+            validationCallback.accept(false);
+            return;
+        }
+
+        validationCallback.accept(rolloutFormLayout.isValid());
     }
 
     @Override
@@ -60,11 +79,5 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         proxyEntity.setRolloutForm(rolloutFormLayout.getBean());
 
         return proxyEntity;
-    }
-
-    @Override
-    public void addValidationListener(final Consumer<Boolean> validationCallback) {
-        // TODO
-        validationCallback.accept(true);
     }
 }

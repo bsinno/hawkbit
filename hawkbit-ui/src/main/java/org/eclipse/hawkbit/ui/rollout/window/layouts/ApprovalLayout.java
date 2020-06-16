@@ -24,7 +24,7 @@ import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
-public class ApprovalLayout {
+public class ApprovalLayout extends ValidatableLayout {
     private static final String APPROVAL_CAPTION = "label.approval.decision";
     private static final String APPROVAL_BUTTON_LABEL = "button.approve";
     private static final String DENY_BUTTON_LABEL = "button.deny";
@@ -43,6 +43,8 @@ public class ApprovalLayout {
 
         this.approveButtonsGroup = createApproveButtonsGroupField();
         this.approvalRemark = createApprovalRemarkField();
+
+        setValidationStatusByBinder(binder);
     }
 
     private RadioButtonGroup<ApprovalDecision> createApproveButtonsGroupField() {

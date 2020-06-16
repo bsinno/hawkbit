@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
+import java.util.function.Consumer;
+
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
@@ -23,6 +25,8 @@ import com.vaadin.ui.GridLayout;
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<ProxyRolloutWindow> {
     protected final RolloutWindowLayoutComponentBuilder rolloutComponentBuilder;
+
+    protected Consumer<Boolean> validationCallback;
 
     protected AbstractRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         this.rolloutComponentBuilder = new RolloutWindowLayoutComponentBuilder(dependencies);
@@ -42,6 +46,11 @@ public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<
         addComponents(rootLayout);
 
         return rootLayout;
+    }
+
+    @Override
+    public void addValidationListener(final Consumer<Boolean> validationCallback) {
+        this.validationCallback = validationCallback;
     }
 
     protected abstract void addComponents(final GridLayout rootLayout);

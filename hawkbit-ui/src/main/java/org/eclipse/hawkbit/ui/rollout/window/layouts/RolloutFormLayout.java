@@ -30,11 +30,12 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.LongRangeValidator;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
-public class RolloutFormLayout {
+public class RolloutFormLayout extends ValidatableLayout {
 
     private static final String PROMPT_TARGET_FILTER = "prompt.target.filter";
     private static final String MESSAGE_ROLLOUT_FILTER_TARGET_EXISTS = "message.rollout.filter.target.exists";
@@ -69,6 +70,8 @@ public class RolloutFormLayout {
     public RolloutFormLayout(final VaadinMessageSource i18n,
             final DistributionSetStatelessDataProvider distributionSetDataProvider,
             final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
+        super();
+
         this.i18n = i18n;
         this.distributionSetDataProvider = distributionSetDataProvider;
         this.targetFilterQueryDataProvider = targetFilterQueryDataProvider;
@@ -84,6 +87,7 @@ public class RolloutFormLayout {
         this.autoStartOptionGroupLayout = createAutoStartOptionGroupLayout();
 
         addValueChangeListeners();
+        setValidationStatusByBinder(binder);
     }
 
     /**
@@ -182,7 +186,16 @@ public class RolloutFormLayout {
                 event -> autoStartOptionGroupLayout.setRequired(event.getValue() == AutoStartOption.SCHEDULED));
     }
 
-    public void addFormToLayout(final GridLayout layout, final boolean isEditMode) {
+    public void addFormToAddLayout(final GridLayout layout) {
+        addFormToLayout(layout, targetFilterQueryCombo.getComponent());
+
+    }
+
+    public void addFormToEditLayout(final GridLayout layout) {
+        addFormToLayout(layout, targetFilterQueryField);
+    }
+
+    private void addFormToLayout(final GridLayout layout, final Component targetFilterQueryComponent) {
         layout.addComponent(SPUIComponentProvider.generateLabel(i18n, TEXTFIELD_NAME), CAPTION_COLUMN, 0);
         layout.addComponent(nameField, FIELD_COLUMN, 0);
         nameField.focus();
@@ -191,8 +204,7 @@ public class RolloutFormLayout {
         layout.addComponent(dsCombo, FIELD_COLUMN, 1);
 
         layout.addComponent(SPUIComponentProvider.generateLabel(i18n, PROMPT_TARGET_FILTER), CAPTION_COLUMN, 2);
-        layout.addComponent(isEditMode ? targetFilterQueryField : targetFilterQueryCombo.getComponent(), FIELD_COLUMN,
-                2);
+        layout.addComponent(targetFilterQueryComponent, FIELD_COLUMN, 2);
 
         layout.addComponent(SPUIComponentProvider.generateLabel(i18n, TEXTFIELD_DESCRIPTION), CAPTION_COLUMN, 3);
         layout.addComponent(descriptionField, FIELD_COLUMN, 3);
