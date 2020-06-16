@@ -25,7 +25,7 @@ import com.vaadin.ui.TextField;
 //TODO: remove duplication with other builders
 public class SmTypeWindowLayoutComponentBuilder {
 
-    private static final String TEXTFIELD_KEY = "textfield.key";
+    public static final String TEXTFIELD_KEY = "textfield.key";
 
     private final VaadinMessageSource i18n;
 
