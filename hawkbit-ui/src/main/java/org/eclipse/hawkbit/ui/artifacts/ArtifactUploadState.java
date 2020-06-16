@@ -128,34 +128,89 @@ public class ArtifactUploadState implements Serializable {
         return Collections.unmodifiableSet(getOverallFilesInUploadProcessMap().keySet());
     }
 
+    /**
+     * Get file upload progress values from process list
+     *
+     * @return List of FileUploadProgress
+     */
     public Collection<FileUploadProgress> getAllFileUploadProgressValuesFromOverallUploadProcessList() {
         return Collections.unmodifiableCollection(getOverallFilesInUploadProcessMap().values());
     }
 
+    /**
+     * Get all the IDs of files from the failed upload
+     *
+     * @return List of IDs of  uploaded files
+     */
     public Set<FileUploadId> getFilesInFailedState() {
         return Collections.unmodifiableSet(getFailedUploads());
     }
 
+    /**
+     * Get upload progress of the file
+     *
+     * @param fileUploadId
+     *          FileUploadId
+     *
+     * @return FileUploadProgress
+     */
     public FileUploadProgress getFileUploadProgress(final FileUploadId fileUploadId) {
         return getOverallFilesInUploadProcessMap().get(fileUploadId);
     }
 
+    /**
+     * Get all files that were selected for upload
+     *
+     * @param fileUploadId
+     *          FileUploadId
+     * @param fileUploadProgress
+     *          FileUploadProgress
+     */
     public void updateFileUploadProgress(final FileUploadId fileUploadId, final FileUploadProgress fileUploadProgress) {
         getOverallFilesInUploadProcessMap().put(fileUploadId, fileUploadProgress);
     }
 
+    /**
+     * Check upload state of the file
+     *
+     * @param fileUploadId
+     *          FileUploadId
+     *
+     * @return boolean
+     */
     public boolean isFileInUploadState(final FileUploadId fileUploadId) {
         return getOverallFilesInUploadProcessMap().containsKey(fileUploadId);
     }
 
+    /**
+     * Check upload state of the file link to the related software module
+     *
+     * @param filename
+     *          Name of the file
+     *
+     * @param softwareModule
+     *          the {@link SoftwareModule} for which the file is uploaded
+     *
+     * @return boolean
+     */
     public boolean isFileInUploadState(final String filename, final SoftwareModule softwareModule) {
         return isFileInUploadState(new FileUploadId(filename, softwareModule));
     }
 
+    /**
+     * Check if at least one file upload is in progress
+     *
+     * @return boolean
+     */
     public boolean isAtLeastOneUploadInProgress() {
         return getInProgressCount() > 0;
     }
 
+    /**
+     * Check if all file uploads are finished
+     *
+     * @return boolean
+     */
     public boolean areAllUploadsFinished() {
         return getInProgressCount() == 0;
     }
@@ -189,6 +244,9 @@ public class ArtifactUploadState implements Serializable {
         return buffer.toString();
     }
 
+    /**
+     * Removes all of the data from this Upload process collection
+     */
     public void clearFileStates() {
         getOverallFilesInUploadProcessMap().clear();
     }
@@ -215,6 +273,7 @@ public class ArtifactUploadState implements Serializable {
      * 
      * @param softwareModuleId
      *            id of the software module
+     *
      * @return boolean
      */
     public boolean isUploadInProgressForSelectedSoftwareModule(final Long softwareModuleId) {
