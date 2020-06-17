@@ -180,15 +180,17 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Column<ProxyAction, String> addDsColumn() {
-        return addColumn(ProxyAction::getDsNameVersion).setId(DS_NAME_VERSION_ID)
+        return GridComponentBuilder.addColumn(this, ProxyAction::getDsNameVersion).setId(DS_NAME_VERSION_ID)
                 .setCaption(i18n.getMessage("distribution.details.header"));
     }
 
     private Column<ProxyAction, String> addDateAndTimeColumn() {
-        return addColumn(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt(),
-                SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT)).setId(LAST_MODIFIED_AT_ID)
-                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
-                        .setDescriptionGenerator(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt()));
+        return GridComponentBuilder
+                .addColumn(this,
+                        action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt(),
+                                SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT))
+                .setId(LAST_MODIFIED_AT_ID).setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
+                .setDescriptionGenerator(action -> SPDateTimeUtil.getFormattedDate(action.getLastModifiedAt()));
     }
 
     private Column<ProxyAction, Label> addStatusColumn() {
@@ -197,7 +199,7 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Column<ProxyAction, String> addMaintenanceWindowColumn() {
-        return addColumn(ProxyAction::getMaintenanceWindow).setId(MAINTENANCE_WINDOW_ID)
+        return GridComponentBuilder.addColumn(this, ProxyAction::getMaintenanceWindow).setId(MAINTENANCE_WINDOW_ID)
                 .setCaption(i18n.getMessage("header.maintenancewindow")).setDescriptionGenerator(
                         action -> getFormattedNextMaintenanceWindow(action.getMaintenanceWindowStartTime()));
     }
@@ -352,17 +354,17 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     protected void addMaxColumns() {
         addActiveStatusColumn().setHidable(true);
 
-        addActionIdColumn().setMinimumWidth(50d).setExpandRatio(1).setHidable(true);
+        addActionIdColumn().setExpandRatio(0).setHidable(true);
 
-        addDsColumn().setMinimumWidth(80d).setExpandRatio(1).setHidable(true);
+        addDsColumn().setExpandRatio(1).setHidable(true);
 
-        addDateAndTimeColumn().setMinimumWidth(80d).setExpandRatio(1).setHidable(true);
+        addDateAndTimeColumn().setExpandRatio(1).setHidable(true);
 
-        addStatusColumn().setMinimumWidth(30d).setExpandRatio(1).setHidable(true);
+        addStatusColumn().setHidable(true);
 
-        addMaintenanceWindowColumn().setMinimumWidth(150d).setExpandRatio(1).setHidable(true).setHidden(true);
+        addMaintenanceWindowColumn().setExpandRatio(1).setHidable(true).setHidden(true);
 
-        addRolloutNameColumn().setMinimumWidth(50d).setExpandRatio(1).setHidable(true);
+        addRolloutNameColumn().setExpandRatio(1).setHidable(true);
 
         final Column<?, ?> typeColumn = addTypeColumn();
         final Column<?, ?> timeforcedColumn = addTimeforcedColumn();
@@ -377,12 +379,12 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     private Column<ProxyAction, Long> addActionIdColumn() {
-        return addColumn(ProxyAction::getId).setId(ACTION_ID).setCaption(i18n.getMessage("label.action.id"))
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+        return GridComponentBuilder.addColumn(this, ProxyAction::getId).setId(ACTION_ID)
+                .setCaption(i18n.getMessage("label.action.id")).setMinimumWidthFromContent(true);
     }
 
     private Column<ProxyAction, String> addRolloutNameColumn() {
-        return addColumn(ProxyAction::getRolloutName).setId(ROLLOUT_NAME_ID)
+        return GridComponentBuilder.addColumn(this, ProxyAction::getRolloutName).setId(ROLLOUT_NAME_ID)
                 .setCaption(i18n.getMessage("caption.rollout.name"));
     }
 

@@ -219,11 +219,26 @@ public final class GridComponentBuilder {
         return addColumn(i18n, grid, valueProvider, "header.version", columnId, 100D);
     }
 
-    private static <E> Column<E, String> addColumn(final VaadinMessageSource i18n, final Grid<E> grid,
-            final ValueProvider<E, String> valueProvider, final String caption, final String columnID,
+    private static <E, T> Column<E, T> addColumn(final VaadinMessageSource i18n, final Grid<E> grid,
+            final ValueProvider<E, T> valueProvider, final String caption, final String columnID,
             final double minWidth) {
-        return grid.addColumn(valueProvider).setId(columnID).setCaption(i18n.getMessage(caption))
-                .setMinimumWidth(minWidth).setMinimumWidthFromContent(false);
+        return addColumn(grid, valueProvider).setId(columnID).setCaption(i18n.getMessage(caption))
+                .setMinimumWidth(minWidth);
+    }
+
+    /**
+     * Add column to grid with the standard settings
+     * 
+     * @param <E>
+     *            entity type of the grid
+     * @param grid
+     *            to add the column to
+     * @param valueProvider
+     *            providing the content
+     * @return the created column
+     */
+    public static <E, T> Column<E, T> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider) {
+        return grid.addColumn(valueProvider).setMinimumWidthFromContent(false);
     }
 
     /**

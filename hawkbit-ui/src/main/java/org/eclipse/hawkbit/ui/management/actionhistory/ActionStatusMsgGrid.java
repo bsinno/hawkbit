@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 import javax.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusMsgDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyActionStatus;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyMessage;
@@ -108,10 +109,10 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
 
     @Override
     public void addColumns() {
-        addColumn(ProxyMessage::getId).setId(MSG_ID).setCaption("##").setExpandRatio(0).setHidable(false)
-                .setHidden(false).setStyleGenerator(item -> "v-align-right");
+        GridComponentBuilder.addColumn(this, ProxyMessage::getId).setId(MSG_ID).setCaption("##").setExpandRatio(0)
+                .setHidable(false).setHidden(false).setMinimumWidthFromContent(true);
 
-        addColumn(ProxyMessage::getMessage).setId(VALUE_ID)
+        GridComponentBuilder.addColumn(this, ProxyMessage::getMessage).setId(VALUE_ID)
                 .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_MESSAGES)).setExpandRatio(1)
                 .setHidable(false).setHidden(false);
 
