@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ui.rollout.window.layouts;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
-import org.eclipse.hawkbit.ui.rollout.window.layouts.ValidatableLayout.ValidationStatus;
 
 import com.vaadin.ui.GridLayout;
 
@@ -29,7 +28,9 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         this.rolloutFormLayout = rolloutComponentBuilder.createRolloutFormLayout();
         this.visualGroupDefinitionLayout = rolloutComponentBuilder.createVisualGroupDefinitionLayout();
 
-        addValidationStatusListeners();
+        // TODO: save button does not become enabled after we change values
+        // because form was VALID before
+        addValidatableLayout(rolloutFormLayout);
     }
 
     @Override
@@ -40,24 +41,6 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
         rolloutFormLayout.addFormToEditLayout(rootLayout);
         visualGroupDefinitionLayout.addChartWithLegendToLayout(rootLayout, lastColumnIdx, 3);
-    }
-
-    private void addValidationStatusListeners() {
-        // TODO: rethink the concept to remove duplication between listeners
-        rolloutFormLayout.setValidationListener(this::onRolloutFormValidationChanged);
-    }
-
-    protected void onRolloutFormValidationChanged(final ValidationStatus status) {
-        if (validationCallback == null) {
-            return;
-        }
-
-        if (ValidationStatus.VALID != status) {
-            validationCallback.accept(false);
-            return;
-        }
-
-        validationCallback.accept(rolloutFormLayout.isValid());
     }
 
     @Override

@@ -52,4 +52,8 @@ public class BoundComponent<T extends Component> implements Serializable {
     public void validate() {
         binding.validate();
     }
+
+    public void unbind() {
+        binding.unbind();
+    }
 }

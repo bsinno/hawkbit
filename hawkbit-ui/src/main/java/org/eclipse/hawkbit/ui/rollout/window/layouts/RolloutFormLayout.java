@@ -27,6 +27,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.Binder.Binding;
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.LongRangeValidator;
 import com.vaadin.ui.ComboBox;
@@ -58,7 +59,7 @@ public class RolloutFormLayout extends ValidatableLayout {
     private final TextField nameField;
     private final ComboBox<ProxyDistributionSet> dsCombo;
     private final BoundComponent<ComboBox<ProxyTargetFilterQuery>> targetFilterQueryCombo;
-    private final TextArea targetFilterQueryField;
+    private final BoundComponent<TextArea> targetFilterQueryField;
     private final TextArea descriptionField;
     private final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeLayout;
     private final BoundComponent<AutoStartOptionGroupLayout> autoStartOptionGroupLayout;
@@ -127,16 +128,16 @@ public class RolloutFormLayout extends ValidatableLayout {
                         .apply(totalTargets, context);
     }
 
-    private TextArea createTargetFilterQuery() {
+    private BoundComponent<TextArea> createTargetFilterQuery() {
         final TextArea targetFilterQuery = new TextAreaBuilder(TargetFilterQuery.QUERY_MAX_SIZE)
                 .style("text-area-style").id(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_QUERY_FIELD)
                 .buildTextComponent();
         targetFilterQuery.setSizeUndefined();
 
-        binder.forField(targetFilterQuery).bind(ProxyRolloutForm::getTargetFilterQuery,
-                ProxyRolloutForm::setTargetFilterQuery);
+        final Binding<ProxyRolloutForm, String> binding = binder.forField(targetFilterQuery)
+                .bind(ProxyRolloutForm::getTargetFilterQuery, ProxyRolloutForm::setTargetFilterQuery);
 
-        return targetFilterQuery;
+        return new BoundComponent<>(targetFilterQuery, binding);
     }
 
     /**
@@ -187,12 +188,14 @@ public class RolloutFormLayout extends ValidatableLayout {
     }
 
     public void addFormToAddLayout(final GridLayout layout) {
+        targetFilterQueryField.unbind();
         addFormToLayout(layout, targetFilterQueryCombo.getComponent());
 
     }
 
     public void addFormToEditLayout(final GridLayout layout) {
-        addFormToLayout(layout, targetFilterQueryField);
+        targetFilterQueryCombo.unbind();
+        addFormToLayout(layout, targetFilterQueryField.getComponent());
     }
 
     private void addFormToLayout(final GridLayout layout, final Component targetFilterQueryComponent) {
@@ -218,12 +221,12 @@ public class RolloutFormLayout extends ValidatableLayout {
     }
 
     public void disableFieldsOnEditForInActive() {
-        targetFilterQueryField.setEnabled(false);
+        targetFilterQueryField.getComponent().setEnabled(false);
     }
 
     public void disableFieldsOnEditForActive() {
         dsCombo.setEnabled(false);
-        targetFilterQueryField.setEnabled(false);
+        targetFilterQueryField.getComponent().setEnabled(false);
         actionTypeLayout.getComponent().setEnabled(false);
         autoStartOptionGroupLayout.getComponent().setEnabled(false);
     }

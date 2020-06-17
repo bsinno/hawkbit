@@ -8,12 +8,16 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.ValidatableLayout.ValidationStatus;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.ComponentContainer;
@@ -26,10 +30,12 @@ import com.vaadin.ui.GridLayout;
 public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<ProxyRolloutWindow> {
     protected final RolloutWindowLayoutComponentBuilder rolloutComponentBuilder;
 
-    protected Consumer<Boolean> validationCallback;
+    private final List<ValidatableLayout> validatableLayouts;
+    private Consumer<Boolean> validationCallback;
 
     protected AbstractRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         this.rolloutComponentBuilder = new RolloutWindowLayoutComponentBuilder(dependencies);
+        this.validatableLayouts = new ArrayList<>();
     }
 
     @Override
@@ -46,6 +52,52 @@ public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<
         addComponents(rootLayout);
 
         return rootLayout;
+    }
+
+    protected void addValidatableLayouts(final Collection<ValidatableLayout> validatableLayouts) {
+        validatableLayouts.forEach(this::addValidatableLayout);
+    }
+
+    protected void addValidatableLayout(final ValidatableLayout validatableLayout) {
+        if (validatableLayout != null) {
+            validatableLayout.setValidationListener(this::onValidationChanged);
+            validatableLayouts.add(validatableLayout);
+        }
+    }
+
+    // TODO: consider removing after refactoring Advanced Groups Layout to use
+    // value change listener instead of validation listener
+    protected void addValidatableLayout(final ValidatableLayout validatableLayout,
+            final Consumer<ValidationStatus> onValidationChangedCallback) {
+        if (validatableLayout != null) {
+            validatableLayout.setValidationListener(status -> {
+                onValidationChanged(status);
+                onValidationChangedCallback.accept(status);
+            });
+            validatableLayouts.add(validatableLayout);
+        }
+    }
+
+    protected void removeValidatableLayout(final ValidatableLayout validatableLayout) {
+        if (validatableLayout != null) {
+            validatableLayout.setValidationListener(null);
+            validatableLayouts.remove(validatableLayout);
+        }
+    }
+
+    private void onValidationChanged(final ValidationStatus status) {
+        if (validationCallback == null) {
+            return;
+        }
+
+        // shortcut for setting the whole layout as invalid if at least one
+        // validatable sub-layout becomes invalid
+        if (ValidationStatus.VALID != status) {
+            validationCallback.accept(false);
+            return;
+        }
+
+        validationCallback.accept(validatableLayouts.stream().allMatch(ValidatableLayout::isValid));
     }
 
     @Override

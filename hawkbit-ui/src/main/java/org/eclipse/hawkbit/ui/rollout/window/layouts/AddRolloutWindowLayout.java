@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
+import java.util.Arrays;
+
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
@@ -50,7 +52,8 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         this.visualGroupDefinitionLayout = rolloutComponentBuilder.createVisualGroupDefinitionLayout();
 
         addValueChangeListeners();
-        addValidationStatusListeners();
+
+        addValidatableLayouts(Arrays.asList(rolloutFormLayout, simpleGroupsLayout));
     }
 
     @Override
@@ -100,6 +103,13 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
     private void onGroupDefinitionTabChanged() {
         if (isSimpleGroupsTabSelected()) {
+            removeValidatableLayout(advancedGroupsLayout);
+            // TODO: save button is not disabled after tab switch if simple
+            // group definition is INVALID and was INVALID before. We need some
+            // flag to reset the Validation Status (e.g. UNKNOWN or INACTIVE),
+            // etc.
+            addValidatableLayout(simpleGroupsLayout);
+
             simpleGroupsLayout.setTotalTargets(totalTargets);
 
             visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.SIMPLE);
@@ -107,6 +117,10 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         }
 
         if (isAdvancedGroupsTabSelected()) {
+            removeValidatableLayout(simpleGroupsLayout);
+            // TODO: extract onAdvancedGroupsChanged to value change listener
+            addValidatableLayout(advancedGroupsLayout, this::onAdvancedGroupsChanged);
+
             advancedGroupsLayout.setTargetFilter(filterQuery);
 
             visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
@@ -125,67 +139,17 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         visualGroupDefinitionLayout.setNoOfGroups(noOfGroups);
     }
 
-    private void addValidationStatusListeners() {
-        // TODO: rethink the concept to remove duplication between listeners
-        rolloutFormLayout.setValidationListener(this::onRolloutFormValidationChanged);
-        simpleGroupsLayout.setValidationListener(this::onSimpleGroupsValidationChanged);
-        advancedGroupsLayout.setValidationListener(this::onAdvancedGroupsValidationChanged);
-    }
-
-    private void onRolloutFormValidationChanged(final ValidationStatus status) {
-        if (validationCallback == null) {
-            return;
-        }
-
-        if (ValidationStatus.VALID != status) {
-            validationCallback.accept(false);
-            return;
-        }
-
-        validationCallback
-                .accept(isSimpleGroupsTabSelected() ? simpleGroupsLayout.isValid() : advancedGroupsLayout.isValid());
-    }
-
-    private void onSimpleGroupsValidationChanged(final ValidationStatus status) {
-        if (!isSimpleGroupsTabSelected()) {
-            return;
-        }
-
-        if (validationCallback == null) {
-            return;
-        }
-
-        if (ValidationStatus.VALID != status) {
-            validationCallback.accept(false);
-            return;
-        }
-
-        validationCallback.accept(rolloutFormLayout.isValid());
-    }
-
-    private void onAdvancedGroupsValidationChanged(final ValidationStatus status) {
+    private void onAdvancedGroupsChanged(final ValidationStatus status) {
         if (!isAdvancedGroupsTabSelected()) {
             return;
         }
 
-        // TODO: try extracting to value change listener
         if (status == AdvancedGroupsLayout.ValidationStatus.LOADING) {
             visualGroupDefinitionLayout.displayLoading();
         } else {
             visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
                     advancedGroupsLayout.getSavedRolloutGroupDefinitions());
         }
-
-        if (validationCallback == null) {
-            return;
-        }
-
-        if (ValidationStatus.VALID != status) {
-            validationCallback.accept(false);
-            return;
-        }
-
-        validationCallback.accept(rolloutFormLayout.isValid());
     }
 
     public void addAdvancedGroupRowAndValidate() {
