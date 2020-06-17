@@ -238,7 +238,23 @@ public final class GridComponentBuilder {
      * @return the created column
      */
     public static <E, T> Column<E, T> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider) {
-        return grid.addColumn(valueProvider).setMinimumWidthFromContent(false);
+        return grid.addColumn(valueProvider).setMinimumWidthFromContent(false).setExpandRatio(1);
+    }
+
+    /**
+     * Add column to grid with the standard settings
+     * 
+     * @param <E>
+     *            entity type of the grid
+     * @param grid
+     *            to add the column to
+     * @param componentProvider
+     *            providing the content
+     * @return the created column
+     */
+    public static <E, T extends Component> Column<E, T> addComponentColumn(final Grid<E> grid,
+            final ValueProvider<E, T> componentProvider) {
+        return grid.addComponentColumn(componentProvider).setMinimumWidthFromContent(false).setExpandRatio(1);
     }
 
     /**

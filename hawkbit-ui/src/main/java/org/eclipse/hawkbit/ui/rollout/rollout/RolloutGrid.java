@@ -276,12 +276,11 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildRolloutLink).setId(ROLLOUT_LINK_ID).setCaption(i18n.getMessage("header.name"))
-                .setMinimumWidthFromContent(false).setHidable(false).setExpandRatio(3);
+        GridComponentBuilder.addComponentColumn(this, this::buildRolloutLink).setId(ROLLOUT_LINK_ID)
+                .setCaption(i18n.getMessage("header.name")).setHidable(false).setExpandRatio(3);
 
-        addColumn(ProxyRollout::getDistributionSetNameVersion).setId(DIST_NAME_VERSION_ID)
-                .setCaption(i18n.getMessage("header.distributionset")).setMinimumWidthFromContent(false)
-                .setHidable(true).setExpandRatio(2);
+        GridComponentBuilder.addColumn(this, ProxyRollout::getDistributionSetNameVersion).setId(DIST_NAME_VERSION_ID)
+                .setCaption(i18n.getMessage("header.distributionset")).setHidable(true).setExpandRatio(2);
 
         GridComponentBuilder
                 .addIconColumn(this, rolloutStatusIconSupplier::getLabel, STATUS_ID, i18n.getMessage("header.status"))
@@ -299,11 +298,11 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                                 ContentMode.HTML)
                         .setHidable(true).setExpandRatio(8);
 
-        addColumn(ProxyRollout::getNumberOfGroups).setId(NUMBER_OF_GROUPS_ID)
-                .setCaption(i18n.getMessage("header.numberofgroups")).setHidable(true).setExpandRatio(1);
+        GridComponentBuilder.addColumn(this, ProxyRollout::getNumberOfGroups).setId(NUMBER_OF_GROUPS_ID)
+                .setCaption(i18n.getMessage("header.numberofgroups")).setHidable(true);
 
-        addColumn(ProxyRollout::getTotalTargets).setId(TOTAL_TARGETS_ID)
-                .setCaption(i18n.getMessage("header.total.targets")).setHidable(true).setExpandRatio(1);
+        GridComponentBuilder.addColumn(this, ProxyRollout::getTotalTargets).setId(TOTAL_TARGETS_ID)
+                .setCaption(i18n.getMessage("header.total.targets")).setHidable(true);
 
         addActionColumns();
 
@@ -312,12 +311,10 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         GridComponentBuilder.addModifiedByColumn(this, i18n, MODIFIED_BY_ID).setHidable(true).setHidden(true);
         GridComponentBuilder.addModifiedAtColumn(this, i18n, MODIFIED_DATE_ID).setHidable(true).setHidden(true);
 
-        addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_DECIDED_BY_ID)
-                .setCaption(i18n.getMessage("header.approvalDecidedBy")).setHidable(true).setHidden(true)
-                .setExpandRatio(1).setMinimumWidthFromContent(false);
-        addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_REMARK_ID)
-                .setCaption(i18n.getMessage("header.approvalRemark")).setHidable(true).setHidden(true).setExpandRatio(1)
-                .setMinimumWidthFromContent(false);
+        GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_DECIDED_BY_ID)
+                .setCaption(i18n.getMessage("header.approvalDecidedBy")).setHidable(true).setHidden(true);
+        GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_REMARK_ID)
+                .setCaption(i18n.getMessage("header.approvalRemark")).setHidable(true).setHidden(true);
 
         GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true)
                 .setExpandRatio(1);

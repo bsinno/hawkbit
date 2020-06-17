@@ -356,15 +356,15 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
         addActionIdColumn().setExpandRatio(0).setHidable(true);
 
-        addDsColumn().setExpandRatio(1).setHidable(true);
+        addDsColumn().setHidable(true);
 
-        addDateAndTimeColumn().setExpandRatio(1).setHidable(true);
+        addDateAndTimeColumn().setHidable(true);
 
         addStatusColumn().setHidable(true);
 
-        addMaintenanceWindowColumn().setExpandRatio(1).setHidable(true).setHidden(true);
+        addMaintenanceWindowColumn().setHidable(true).setHidden(true);
 
-        addRolloutNameColumn().setExpandRatio(1).setHidable(true);
+        addRolloutNameColumn().setHidable(true);
 
         final Column<?, ?> typeColumn = addTypeColumn();
         final Column<?, ?> timeforcedColumn = addTimeforcedColumn();

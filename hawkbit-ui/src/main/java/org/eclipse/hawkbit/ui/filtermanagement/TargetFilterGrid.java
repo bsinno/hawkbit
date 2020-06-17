@@ -41,8 +41,12 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Sizeable;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
@@ -58,8 +62,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     private static final String FILTER_CREATED_DATE_ID = "filterCreatedDate";
     private static final String FILTER_MODIFIED_BY_ID = "filterModifiedBy";
     private static final String FILTER_MODIFIED_DATE_ID = "filterModifiedDate";
-    private static final String FILTER_AUTOASSIGNMENT_TYPE_ID = "filterAutoAssignmentType";
-    private static final String FILTER_AUTOASSIGNMENT_DS_ID = "filterAutoAssignmentDs";
     private static final String FILTER_DELETE_BUTTON_ID = "filterDeleteButton";
 
     private final UINotification notification;
@@ -123,26 +125,33 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildFilterLink).setId(FILTER_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setExpandRatio(2);
+        GridComponentBuilder.addComponentColumn(this, this::buildFilterLink).setId(FILTER_NAME_ID)
+                .setCaption(i18n.getMessage("header.name"));
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, FILTER_CREATED_BY_ID).setExpandRatio(2);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, FILTER_CREATED_DATE_ID).setExpandRatio(4);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, FILTER_MODIFIED_BY_ID).setExpandRatio(2);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, FILTER_MODIFIED_DATE_ID).setExpandRatio(4);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, FILTER_CREATED_BY_ID);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, FILTER_CREATED_DATE_ID);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, FILTER_MODIFIED_BY_ID);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, FILTER_MODIFIED_DATE_ID);
 
-        addComponentColumn(actionTypeIconSupplier::getLabel).setId(FILTER_AUTOASSIGNMENT_TYPE_ID)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN).setExpandRatio(1);
-
-        addComponentColumn(this::buildAutoAssignmentLink).setId(FILTER_AUTOASSIGNMENT_DS_ID)
-                .setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN).setExpandRatio(1);
-
-        getDefaultHeaderRow().join(FILTER_AUTOASSIGNMENT_TYPE_ID, FILTER_AUTOASSIGNMENT_DS_ID)
-                .setText(i18n.getMessage("header.auto.assignment.ds"));
+        addAutoAssignmentColumns();
 
         GridComponentBuilder.addDeleteColumn(this, i18n, FILTER_DELETE_BUTTON_ID, targetFilterDeleteSupport,
-                UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON, e -> permissionChecker.hasDeleteTargetPermission())
-                .setExpandRatio(1);
+                UIComponentIdProvider.CUSTOM_FILTER_DELETE_ICON, e -> permissionChecker.hasDeleteTargetPermission());
+    }
+
+    private void addAutoAssignmentColumns() {
+        final ValueProvider<ProxyTargetFilterQuery, HorizontalLayout> autoAssignmentProvider = filter -> {
+            final HorizontalLayout horizontalLayout = new HorizontalLayout();
+            horizontalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+            final Label icon = actionTypeIconSupplier.getLabel(filter);
+            final Button link = buildAutoAssignmentLink(filter);
+            horizontalLayout.addComponent(icon);
+            horizontalLayout.addComponent(link);
+            horizontalLayout.setWidthUndefined();
+            return horizontalLayout;
+        };
+        GridComponentBuilder.addComponentColumn(this, autoAssignmentProvider)
+                .setCaption(i18n.getMessage("header.auto.assignment.ds")).setWidthUndefined();
     }
 
     private Button buildFilterLink(final ProxyTargetFilterQuery targetFilter) {

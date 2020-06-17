@@ -113,8 +113,8 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
                 .setHidable(false).setHidden(false).setMinimumWidthFromContent(true);
 
         GridComponentBuilder.addColumn(this, ProxyMessage::getMessage).setId(VALUE_ID)
-                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_MESSAGES)).setExpandRatio(1)
-                .setHidable(false).setHidden(false);
+                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ACTION_MESSAGES)).setHidable(false)
+                .setHidden(false);
 
         setFrozenColumnCount(2);
     }

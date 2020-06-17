@@ -108,9 +108,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildRolloutGroupLink).setId(ROLLOUT_GROUP_LINK_ID)
-                .setCaption(i18n.getMessage("header.name")).setMinimumWidthFromContent(false).setHidable(false)
-                .setExpandRatio(3);
+        GridComponentBuilder.addComponentColumn(this, this::buildRolloutGroupLink).setId(ROLLOUT_GROUP_LINK_ID)
+                .setCaption(i18n.getMessage("header.name")).setHidable(false).setExpandRatio(3);
 
         GridComponentBuilder.addIconColumn(this, rolloutGroupStatusIconSupplier::getLabel,
                 SPUILabelDefinitions.VAR_STATUS, i18n.getMessage("header.status")).setHidable(true);
@@ -125,16 +124,17 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
                                 ContentMode.HTML)
                         .setExpandRatio(8).setHidable(true);
 
-        addColumn(group -> group.getFinishedPercentage() + "%")
+        GridComponentBuilder.addColumn(this, group -> group.getFinishedPercentage() + "%")
                 .setId(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE)
-                .setCaption(i18n.getMessage("header.rolloutgroup.installed.percentage")).setExpandRatio(1)
-                .setHidable(true);
+                .setCaption(i18n.getMessage("header.rolloutgroup.installed.percentage")).setHidable(true);
 
-        addColumn(group -> group.getErrorConditionExp() + "%").setId(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
-                .setCaption(i18n.getMessage("header.rolloutgroup.threshold.error")).setExpandRatio(1).setHidable(true);
+        GridComponentBuilder.addColumn(this, group -> group.getErrorConditionExp() + "%")
+                .setId(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold.error")).setHidable(true);
 
-        addColumn(group -> group.getSuccessConditionExp() + "%").setId(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
-                .setCaption(i18n.getMessage("header.rolloutgroup.threshold")).setExpandRatio(1).setHidable(true);
+        GridComponentBuilder.addColumn(this, group -> group.getSuccessConditionExp() + "%")
+                .setId(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold")).setHidable(true);
 
         GridComponentBuilder.addCreatedByColumn(this, i18n, SPUILabelDefinitions.VAR_CREATED_USER).setHidable(true)
                 .setHidden(true);
@@ -148,8 +148,9 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         GridComponentBuilder.addDescriptionColumn(this, i18n, SPUILabelDefinitions.VAR_DESC).setHidable(true)
                 .setHidden(true).setExpandRatio(1);
 
-        addColumn(ProxyRolloutGroup::getTotalTargetsCount).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS)
-                .setCaption(i18n.getMessage("header.total.targets")).setExpandRatio(1).setHidable(true);
+        GridComponentBuilder.addColumn(this, ProxyRolloutGroup::getTotalTargetsCount)
+                .setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"))
+                .setHidable(true);
     }
 
     private Button buildRolloutGroupLink(final ProxyRolloutGroup rolloutGroup) {
