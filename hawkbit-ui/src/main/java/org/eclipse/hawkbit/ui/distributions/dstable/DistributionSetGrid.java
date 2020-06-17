@@ -94,10 +94,8 @@ public class DistributionSetGrid extends AbstractDsGrid<DsDistributionsFilterPar
 
     @Override
     public void addColumns() {
-        addNameColumn().setMaximumWidth(330d).setExpandRatio(1);
-
-        addVersionColumn().setMaximumWidth(150d);
-
+        addNameColumn().setExpandRatio(2);
+        addVersionColumn();
         addDeleteColumn();
     }
 }

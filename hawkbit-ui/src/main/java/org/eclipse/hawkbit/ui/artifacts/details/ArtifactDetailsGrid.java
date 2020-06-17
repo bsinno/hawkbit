@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.details;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -113,36 +114,35 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
 
     @Override
     public void addColumns() {
-        addFilenameColumn().setMinimumWidth(100d).setMaximumWidth(210d).setExpandRatio(2);
+        addFilenameColumn().setExpandRatio(2);
 
-        addSizeColumn().setMinimumWidth(100d).setMaximumWidth(100d).setExpandRatio(1);
+        addSizeColumn();
 
-        addModifiedDateColumn().setMinimumWidth(100d).setMaximumWidth(130d).setExpandRatio(1);
-
-        addDownloadColumn().setWidth(25d);
-        addDeleteColumn();
-        getDefaultHeaderRow().join(ARTIFACT_DOWNLOAD_BUTTON_ID, ARTIFACT_DELETE_BUTTON_ID)
-                .setText(i18n.getMessage("header.action"));
+        addModifiedDateColumn();
+        final Column<?, ?> downloadColumn = addDownloadColumn();
+        final Column<?, ?> deleteColumn = addDeleteColumn();
+        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+                Arrays.asList(downloadColumn, deleteColumn));
     }
 
     private Column<ProxyArtifact, String> addFilenameColumn() {
-        return addColumn(ProxyArtifact::getFilename).setId(ARTIFACT_NAME_ID)
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getFilename).setId(ARTIFACT_NAME_ID)
                 .setCaption(i18n.getMessage("artifact.filename.caption"));
     }
 
     private Column<ProxyArtifact, Long> addSizeColumn() {
-        return addColumn(ProxyArtifact::getSize).setId(ARTIFACT_SIZE_ID)
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getSize).setId(ARTIFACT_SIZE_ID)
                 .setCaption(i18n.getMessage("artifact.filesize.bytes.caption"));
     }
 
     protected Column<ProxyArtifact, String> addModifiedDateColumn() {
-        return addColumn(ProxyArtifact::getModifiedDate).setId(ARTIFACT_MODIFIED_DATE_ID)
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getModifiedDate).setId(ARTIFACT_MODIFIED_DATE_ID)
                 .setCaption(i18n.getMessage("upload.last.modified.date"));
     }
 
     private Column<ProxyArtifact, Button> addDownloadColumn() {
-        return addComponentColumn(this::buildDownloadButton).setId(ARTIFACT_DOWNLOAD_BUTTON_ID)
-                .setCaption(i18n.getMessage("header.action.delete"));
+        return GridComponentBuilder.addIconColumn(this, this::buildDownloadButton, ARTIFACT_DOWNLOAD_BUTTON_ID,
+                i18n.getMessage("header.action.delete"));
     }
 
     private Button buildDownloadButton(final ProxyArtifact artifact) {
@@ -176,36 +176,36 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
 
     @Override
     protected void addMaxColumns() {
-        addFilenameColumn().setMinimumWidth(100d).setExpandRatio(2);
+        addFilenameColumn().setExpandRatio(2);
 
-        addSizeColumn().setMinimumWidth(100d).setExpandRatio(1);
+        addSizeColumn();
 
-        addSha1Column().setMinimumWidth(100d).setExpandRatio(1);
+        addSha1Column();
+        addMd5Column();
+        addSha256Column();
 
-        addMd5Column().setMinimumWidth(100d).setExpandRatio(1);
+        addModifiedDateColumn();
 
-        addSha256Column().setMinimumWidth(100d).setExpandRatio(1);
-
-        addModifiedDateColumn().setMinimumWidth(100d).setExpandRatio(1);
-
-        addDownloadColumn().setWidth(25d);
-        addDeleteColumn();
-        getDefaultHeaderRow().join(ARTIFACT_DOWNLOAD_BUTTON_ID, ARTIFACT_DELETE_BUTTON_ID)
-                .setText(i18n.getMessage("header.action"));
+        final Column<?, ?> downloadColumn = addDownloadColumn();
+        final Column<?, ?> deleteColumn = addDeleteColumn();
+        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+                Arrays.asList(downloadColumn, deleteColumn));
 
         getColumns().forEach(column -> column.setHidable(true));
     }
 
     private Column<ProxyArtifact, String> addSha1Column() {
-        return addColumn(ProxyArtifact::getSha1Hash).setId(ARTIFACT_SHA1_ID).setCaption(i18n.getMessage("upload.sha1"));
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getSha1Hash).setId(ARTIFACT_SHA1_ID)
+                .setCaption(i18n.getMessage("upload.sha1"));
     }
 
     private Column<ProxyArtifact, String> addMd5Column() {
-        return addColumn(ProxyArtifact::getMd5Hash).setId(ARTIFACT_MD5_ID).setCaption(i18n.getMessage("upload.md5"));
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getMd5Hash).setId(ARTIFACT_MD5_ID)
+                .setCaption(i18n.getMessage("upload.md5"));
     }
 
     private Column<ProxyArtifact, String> addSha256Column() {
-        return addColumn(ProxyArtifact::getSha256Hash).setId(ARTIFACT_SHA256_ID)
+        return GridComponentBuilder.addColumn(this, ProxyArtifact::getSha256Hash).setId(ARTIFACT_SHA256_ID)
                 .setCaption(i18n.getMessage("upload.sha256"));
     }
 
