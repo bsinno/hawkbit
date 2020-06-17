@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -33,6 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for populating and saving data in Add Software Module Window.
+ */
 public class AddSmWindowController extends AbstractEntityWindowController<ProxySoftwareModule, ProxySoftwareModule> {
     private static final Logger LOG = LoggerFactory.getLogger(AddSmWindowController.class);
 
@@ -47,6 +50,24 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
 
     private final EventView view;
 
+    /**
+     * Constructor
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param smManagement
+     *          SoftwareModuleManagement
+     * @param layout
+     *          SoftwareModuleWindowLayout
+     * @param view
+     *          EventView
+     */
     public AddSmWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SoftwareModuleManagement smManagement,
             final SmWindowLayout layout, final EventView view) {
@@ -62,6 +83,9 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
         this.view = view;
     }
 
+    /**
+     * @return software module layout
+     */
     @Override
     public AbstractEntityWindowLayout<ProxySoftwareModule> getLayout() {
         return layout;

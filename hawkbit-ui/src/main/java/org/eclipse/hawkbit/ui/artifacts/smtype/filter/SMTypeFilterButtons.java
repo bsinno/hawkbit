@@ -70,6 +70,11 @@ public class SMTypeFilterButtons extends AbstractTypeFilterButtons {
                 new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, new TypeToProxyTypeMapper<>()));
     }
 
+    /**
+     * Gets id of the software module type grid.
+     *
+     * @return id of the grid
+     */
     @Override
     public String getGridId() {
         return UIComponentIdProvider.SW_MODULE_TYPE_TABLE_ID;

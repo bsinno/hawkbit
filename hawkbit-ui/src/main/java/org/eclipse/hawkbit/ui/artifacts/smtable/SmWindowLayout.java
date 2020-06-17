@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -39,7 +39,9 @@ public class SmWindowLayout extends AbstractEntityWindowLayout<ProxySoftwareModu
      * Constructor for AbstractTagWindowLayout
      * 
      * @param i18n
-     *            I18N
+     *          VaadinMessageSource
+     * @param smTypeManagement
+     *          SoftwareModuleTypeManagement
      */
     public SmWindowLayout(final VaadinMessageSource i18n, final SoftwareModuleTypeManagement smTypeManagement) {
         super();
@@ -55,6 +57,9 @@ public class SmWindowLayout extends AbstractEntityWindowLayout<ProxySoftwareModu
         this.smDescription = smComponentBuilder.createDescription(binder);
     }
 
+    /**
+     * @return software module window layout
+     */
     @Override
     public ComponentContainer getRootComponent() {
         final FormLayout smWindowLayout = new FormLayout();
@@ -77,14 +82,23 @@ public class SmWindowLayout extends AbstractEntityWindowLayout<ProxySoftwareModu
         return smWindowLayout;
     }
 
+    /**
+     * Disable the software module type
+     */
     public void disableSmTypeSelect() {
         smTypeSelect.setEnabled(false);
     }
 
+    /**
+     * Disable the software module name
+     */
     public void disableNameField() {
         smName.setEnabled(false);
     }
 
+    /**
+     * Disable the software module version
+     */
     public void disableVersionField() {
         smVersion.setEnabled(false);
     }

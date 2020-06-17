@@ -101,10 +101,16 @@ public class SMTypeFilterLayout extends AbstractFilterLayout {
         return wrapFilterContent(smTypeFilterButtons);
     }
 
+    /**
+     * Is called when view is shown to the user
+     */
     public void restoreState() {
         smTypeFilterButtons.restoreState();
     }
 
+    /**
+     * Unsubscribe the events listeners
+     */
     public void unsubscribeListener() {
         gridActionsVisibilityListener.unsubscribe();
         entityModifiedListener.unsubscribe();

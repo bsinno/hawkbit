@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -76,6 +76,26 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     private final Map<Long, Integer> numberOfArtifactUploadsForSm;
 
+    /**
+     * Constructor for SoftwareModuleGrid
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param notification
+     *          UINotification
+     * @param smTypeFilterLayoutUiState
+     *          TypeFilterLayoutUiState
+     * @param smGridLayoutUiState
+     *          GridLayoutUiState
+     * @param softwareModuleManagement
+     *          SoftwareModuleManagement
+     * @param view
+     *          EventView
+     */
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final TypeFilterLayoutUiState smTypeFilterLayoutUiState, final GridLayoutUiState smGridLayoutUiState,
@@ -117,6 +137,9 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 smTypeFilterLayoutUiState.getClickedTypeId());
     }
 
+    /**
+     * Initial method of grid and set style name
+     */
     @Override
     public void init() {
         super.init();
@@ -124,6 +147,14 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         addStyleName("grid-row-border");
     }
 
+    /**
+     * Map SoftwareModule to Proxy type
+     *
+     * @param entityId
+     *          EntityId Long type
+     *
+     * @return ProxySoftwareModule
+     */
     public Optional<ProxySoftwareModule> mapIdToProxyEntity(final long entityId) {
         return softwareModuleManagement.get(entityId).map(softwareModuleToProxyMapper::map);
     }
@@ -158,6 +189,12 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 smId -> numberOfArtifactUploadsForSm.containsKey(smId) && numberOfArtifactUploadsForSm.get(smId) > 0);
     }
 
+    /**
+     * Artifacts upload process
+     *
+     * @param fileUploadProgress
+     *          FileUploadProgress
+     */
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         final FileUploadProgress.FileUploadStatus uploadProgressEventType = fileUploadProgress.getFileUploadStatus();
         final Long fileUploadSmId = fileUploadProgress.getFileUploadId().getSoftwareModuleId();
@@ -178,6 +215,9 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
     }
 
+    /**
+     * Drag and drop for grid elements
+     */
     public void addDragAndDropSupport() {
         setDragAndDropSupportSupport(
                 new DragAndDropSupport<>(this, i18n, notification, Collections.emptyMap(), eventBus));
@@ -186,6 +226,9 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         }
     }
 
+    /**
+     * Add master filter type
+     */
     public void addMasterSupport() {
         getFilterSupport().addMapping(FilterType.MASTER, SwFilterParams::setLastSelectedDistributionId);
 
@@ -205,11 +248,17 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
         });
     }
 
+    /**
+     * @return gridId of software module grid
+     */
     @Override
     public String getGridId() {
         return UIComponentIdProvider.SOFTWARE_MODULE_TABLE;
     }
 
+    /**
+     * Add columns to Grid
+     */
     @Override
     public void addColumns() {
         addNameColumn().setMaximumWidth(330d).setExpandRatio(2);
@@ -261,6 +310,9 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
                 .setCaption(i18n.getMessage("header.vendor"));
     }
 
+    /**
+     * @return ProxyDistributionSet of master entity type
+     */
     public MasterEntitySupport<ProxyDistributionSet> getMasterEntitySupport() {
         return masterEntitySupport;
     }
