@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.management.dstable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 
@@ -174,21 +176,21 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
 
     @Override
     public void addColumns() {
-        addNameColumn().setMaximumWidth(330d).setExpandRatio(1);
+        addNameColumn().setExpandRatio(1);
+        addVersionColumn().setExpandRatio(1);
 
-        addVersionColumn().setMaximumWidth(150d);
-
-        addPinColumn().setWidth(25d);
-        addDeleteColumn();
-        getDefaultHeaderRow().join(DS_PIN_BUTTON_ID, DS_DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
+        final Column<?, ?> pinColumn = addPinColumn();
+        final Column<?, ?> deleteColumn = addDeleteColumn();
+        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(), Arrays.asList(pinColumn, deleteColumn));
     }
 
     private Column<ProxyDistributionSet, Button> addPinColumn() {
-        return addComponentColumn(ds -> GridComponentBuilder.buildActionButton(i18n,
-                event -> pinSupport.changeItemPinning(ds), VaadinIcons.PIN,
+        final ValueProvider<ProxyDistributionSet, Button> buttonProvider = ds -> GridComponentBuilder.buildActionButton(
+                i18n, clickEvent -> pinSupport.changeItemPinning(ds), VaadinIcons.PIN,
                 UIMessageIdProvider.TOOLTIP_DISTRIBUTION_SET_PIN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(), true)).setId(DS_PIN_BUTTON_ID)
-                        .setStyleGenerator(pinSupport::getPinningStyle);
+                UIComponentIdProvider.DIST_PIN_ICON + "." + ds.getId(), true);
+        return GridComponentBuilder.addIconColumn(this, buttonProvider, DS_PIN_BUTTON_ID, null,
+                pinSupport::getPinningStyle);
     }
 
     @Override

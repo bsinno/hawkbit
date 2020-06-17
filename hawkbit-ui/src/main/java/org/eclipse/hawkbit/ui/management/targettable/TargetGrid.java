@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -68,7 +67,6 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.components.grid.ColumnResizeListener;
 
 /**
  * Concrete implementation of Target grid which is displayed on the Deployment
@@ -101,39 +99,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final transient PinSupport<ProxyTarget, Long> pinSupport;
     private final transient DeleteSupport<ProxyTarget> targetDeleteSupport;
 
-    // TODO: remove, use server rpc to get actual col widths
-    // (https://vaadin.com/docs/v8/framework/gwt/gwt-rpc.html)
-    private final ColumnResizeListener resizeListener = event -> {
-        final float gridWidth = this.getWidth();
-
-        System.out.println("gridWidth: " + gridWidth + this.getWidthUnits());
-        final List<Column<?, ?>> variablCols = this.getColumns().stream().filter(col -> col.getExpandRatio() > 0)
-                .collect(Collectors.toList());
-        final Double fixColsWidth = this.getColumns().stream().filter(col -> col.getExpandRatio() <= 0)
-                .map(Column::getWidth).reduce(0D, Double::sum);
-        System.out.println("fixColsWidth: " + fixColsWidth);
-
-        final Double currentColWidth = fixColsWidth
-                + variablCols.stream().map(Column::getWidth).reduce(0D, Double::sum);
-
-        if (currentColWidth > gridWidth) {
-            final Double leftoverWidth = gridWidth - fixColsWidth
-                    - variablCols.stream().map(Column::getMinimumWidth).reduce(0D, Double::sum);
-            System.out.println("leftoverWidth: " + leftoverWidth);
-            if (leftoverWidth <= 0) {
-                variablCols.forEach(c -> c.setWidth(c.getMinimumWidth()));
-                System.out.println("getMinimumWidth");
-            } else {
-                variablCols.forEach(c -> c.setWidth(c.getMinimumWidth() + leftoverWidth / variablCols.size()));
-                System.out.println("getMinimumWidth + " + leftoverWidth);
-            }
-            System.out.println("enlarge");
-        } else {
-            System.out.println("setWidthUndefined");
-            variablCols.forEach(c -> c.setWidthUndefined());
-        }
-    };
-
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final SpPermissionChecker permChecker,
             final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,
@@ -142,7 +107,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             final DistributionGridLayoutUiState distributionGridLayoutUiState,
             final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
         super(i18n, eventBus, permChecker);
-        addColumnResizeListener(resizeListener);
 
         this.targetManagement = targetManagement;
         this.targetGridLayoutUiState = targetGridLayoutUiState;

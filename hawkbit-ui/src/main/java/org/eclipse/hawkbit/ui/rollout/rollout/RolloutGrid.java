@@ -57,6 +57,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.cronutils.utils.StringUtils;
 import com.google.common.base.Predicates;
+import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
@@ -69,7 +70,6 @@ import com.vaadin.ui.renderers.HtmlRenderer;
  */
 public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private static final long serialVersionUID = 1L;
-
     private static final String ROLLOUT_CAPTION_MSG_KEY = "caption.rollout";
 
     private static final String ROLLOUT_LINK_ID = "rollout";
@@ -277,16 +277,19 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     @Override
     public void addColumns() {
         addComponentColumn(this::buildRolloutLink).setId(ROLLOUT_LINK_ID).setCaption(i18n.getMessage("header.name"))
-                .setHidable(true).setExpandRatio(12);
+                .setMinimumWidthFromContent(false).setHidable(false).setExpandRatio(3);
 
         addColumn(ProxyRollout::getDistributionSetNameVersion).setId(DIST_NAME_VERSION_ID)
-                .setCaption(i18n.getMessage("header.distributionset")).setHidable(true).setExpandRatio(12);
+                .setCaption(i18n.getMessage("header.distributionset")).setMinimumWidthFromContent(false)
+                .setHidable(true).setExpandRatio(2);
 
-        addComponentColumn(rolloutStatusIconSupplier::getLabel).setId(STATUS_ID)
-                .setCaption(i18n.getMessage("header.status")).setHidable(true).setExpandRatio(2);
+        GridComponentBuilder
+                .addIconColumn(this, rolloutStatusIconSupplier::getLabel, STATUS_ID, i18n.getMessage("header.status"))
+                .setHidable(true);
 
-        addComponentColumn(actionTypeIconSupplier::getLabel).setId(ACTION_TYPE_ID)
-                .setCaption(i18n.getMessage("header.type")).setExpandRatio(2).setHidable(true).setHidden(true);
+        GridComponentBuilder
+                .addIconColumn(this, actionTypeIconSupplier::getLabel, ACTION_TYPE_ID, i18n.getMessage("header.type"))
+                .setHidable(true).setHidden(true);
 
         addColumn(rollout -> DistributionBarHelper.getDistributionBarAsHTMLString(rollout.getStatusTotalCountMap()),
                 new HtmlRenderer()).setId(TOTAL_TARGETS_COUNT_STATUS_ID)
@@ -294,13 +297,13 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
                         .setDescriptionGenerator(
                                 rollout -> DistributionBarHelper.getTooltip(rollout.getStatusTotalCountMap(), i18n),
                                 ContentMode.HTML)
-                        .setHidable(true).setExpandRatio(60);
+                        .setHidable(true).setExpandRatio(8);
 
         addColumn(ProxyRollout::getNumberOfGroups).setId(NUMBER_OF_GROUPS_ID)
-                .setCaption(i18n.getMessage("header.numberofgroups")).setHidable(true).setExpandRatio(2);
+                .setCaption(i18n.getMessage("header.numberofgroups")).setHidable(true).setExpandRatio(1);
 
         addColumn(ProxyRollout::getTotalTargets).setId(TOTAL_TARGETS_ID)
-                .setCaption(i18n.getMessage("header.total.targets")).setHidable(true).setExpandRatio(2);
+                .setCaption(i18n.getMessage("header.total.targets")).setHidable(true).setExpandRatio(1);
 
         addActionColumns();
 
@@ -310,56 +313,61 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         GridComponentBuilder.addModifiedAtColumn(this, i18n, MODIFIED_DATE_ID).setHidable(true).setHidden(true);
 
         addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_DECIDED_BY_ID)
-                .setCaption(i18n.getMessage("header.approvalDecidedBy")).setHidable(true).setHidden(true);
-
+                .setCaption(i18n.getMessage("header.approvalDecidedBy")).setHidable(true).setHidden(true)
+                .setExpandRatio(1).setMinimumWidthFromContent(false);
         addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_REMARK_ID)
-                .setCaption(i18n.getMessage("header.approvalRemark")).setHidable(true).setHidden(true);
+                .setCaption(i18n.getMessage("header.approvalRemark")).setHidable(true).setHidden(true).setExpandRatio(1)
+                .setMinimumWidthFromContent(false);
 
-        GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true)
+                .setExpandRatio(1);
 
         hideColumnsDueToInsufficientPermissions();
     }
 
     private void addActionColumns() {
-        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
+
+        final ValueProvider<ProxyRollout, Button> startButton = rollout -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> startOrResumeRollout(rollout.getId(), rollout.getName(), rollout.getStatus()),
                 VaadinIcons.PLAY, UIMessageIdProvider.TOOLTIP_ROLLOUT_RUN, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID, isStartingAndResumingAllowed(rollout.getStatus())))
-                        .setId(RUN_BUTTON_ID).setCaption(i18n.getMessage("header.action.run")).setHidable(false)
-                        .setExpandRatio(1);
+                UIComponentIdProvider.ROLLOUT_RUN_BUTTON_ID + "." + rollout.getId(),
+                isStartingAndResumingAllowed(rollout.getStatus()));
+        final Column<?, ?> start = GridComponentBuilder.addIconColumn(this, startButton, RUN_BUTTON_ID, null);
 
-        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> approveRollout(rollout), VaadinIcons.HANDSHAKE,
+        final ValueProvider<ProxyRollout, Button> approveButton = rollout -> GridComponentBuilder.buildActionButton(
+                i18n, clickEvent -> approveRollout(rollout), VaadinIcons.HANDSHAKE,
                 UIMessageIdProvider.TOOLTIP_ROLLOUT_APPROVE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID, isApprovingAllowed(rollout.getStatus())))
-                        .setId(APPROVE_BUTTON_ID).setCaption(i18n.getMessage("header.action.approve")).setHidable(false)
-                        .setExpandRatio(1);
+                UIComponentIdProvider.ROLLOUT_APPROVAL_BUTTON_ID + "." + rollout.getId(),
+                isApprovingAllowed(rollout.getStatus()));
+        final Column<?, ?> approve = GridComponentBuilder.addIconColumn(this, approveButton, APPROVE_BUTTON_ID, null);
 
-        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n,
+        final ValueProvider<ProxyRollout, Button> pauseButton = rollout -> GridComponentBuilder.buildActionButton(i18n,
                 clickEvent -> pauseRollout(rollout.getId(), rollout.getName(), rollout.getStatus()), VaadinIcons.PAUSE,
                 UIMessageIdProvider.TOOLTIP_ROLLOUT_PAUSE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID, isPausingAllowed(rollout.getStatus())))
-                        .setId(PAUSE_BUTTON_ID).setCaption(i18n.getMessage("header.action.pause")).setHidable(false)
-                        .setExpandRatio(1);
+                UIComponentIdProvider.ROLLOUT_PAUSE_BUTTON_ID + "." + rollout.getId(),
+                isPausingAllowed(rollout.getStatus()));
+        final Column<?, ?> pause = GridComponentBuilder.addIconColumn(this, pauseButton, PAUSE_BUTTON_ID, null);
 
-        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n, clickEvent -> updateRollout(rollout),
-                VaadinIcons.EDIT, UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID, isEditingAllowed(rollout.getStatus())))
-                        .setId(UPDATE_BUTTON_ID).setCaption(i18n.getMessage("header.action.update")).setHidable(false)
-                        .setExpandRatio(1);
+        final ValueProvider<ProxyRollout, Button> updateButton = rollout -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> updateRollout(rollout), VaadinIcons.EDIT, UIMessageIdProvider.TOOLTIP_ROLLOUT_UPDATE,
+                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ROLLOUT_UPDATE_BUTTON_ID + "." + rollout.getId(),
+                isEditingAllowed(rollout.getStatus()));
+        final Column<?, ?> update = GridComponentBuilder.addIconColumn(this, updateButton, UPDATE_BUTTON_ID, null);
 
-        addComponentColumn(rollout -> GridComponentBuilder.buildActionButton(i18n, clickEvent -> copyRollout(rollout),
-                VaadinIcons.COPY, UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID, isCopyingAllowed(rollout.getStatus())))
-                        .setId(COPY_BUTTON_ID).setCaption(i18n.getMessage("header.action.copy")).setHidable(false)
-                        .setExpandRatio(1);
+        final ValueProvider<ProxyRollout, Button> copyButton = rollout -> GridComponentBuilder.buildActionButton(i18n,
+                clickEvent -> copyRollout(rollout), VaadinIcons.COPY, UIMessageIdProvider.TOOLTIP_ROLLOUT_COPY,
+                SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
+                UIComponentIdProvider.ROLLOUT_COPY_BUTTON_ID + "." + rollout.getId(),
+                isCopyingAllowed(rollout.getStatus()));
+        final Column<?, ?> copy = GridComponentBuilder.addIconColumn(this, copyButton, COPY_BUTTON_ID, null);
 
-        GridComponentBuilder.addDeleteColumn(this, i18n, DELETE_BUTTON_ID, rolloutDeleteSupport,
-                UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID, rollout -> isDeletionAllowed(rollout.getStatus()))
-                .setHidable(false).setExpandRatio(1);
+        final Column<?, ?> delete = GridComponentBuilder.addDeleteColumn(this, i18n, DELETE_BUTTON_ID,
+                rolloutDeleteSupport, UIComponentIdProvider.ROLLOUT_DELETE_BUTTON_ID,
+                rollout -> isDeletionAllowed(rollout.getStatus()));
 
-        getDefaultHeaderRow().join(RUN_BUTTON_ID, APPROVE_BUTTON_ID, PAUSE_BUTTON_ID, UPDATE_BUTTON_ID, COPY_BUTTON_ID,
-                DELETE_BUTTON_ID).setText(i18n.getMessage("header.action"));
+        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+                Arrays.asList(start, approve, pause, update, copy, delete));
     }
 
     private Button buildRolloutLink(final ProxyRollout rollout) {

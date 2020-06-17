@@ -223,7 +223,7 @@ public final class GridComponentBuilder {
             final ValueProvider<E, String> valueProvider, final String caption, final String columnID,
             final double minWidth) {
         return grid.addColumn(valueProvider).setId(columnID).setCaption(i18n.getMessage(caption))
-                .setMinimumWidth(minWidth);
+                .setMinimumWidth(minWidth).setMinimumWidthFromContent(false);
     }
 
     /**
