@@ -76,7 +76,7 @@ public class UpdateTargetTagWindowController extends AbstractEntityWindowControl
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyTag proxyEntity) {
         layout.disableTagName();
     }
 

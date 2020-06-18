@@ -55,7 +55,7 @@ public class AddMetaDataWindowController extends AbstractEntityWindowController<
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyMetaData proxyEntity) {
         layout.enableMetadataKey();
     }
 

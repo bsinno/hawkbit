@@ -12,6 +12,7 @@ import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 
+import com.vaadin.data.ValidationException;
 import com.vaadin.ui.GridLayout;
 
 /**
@@ -55,7 +56,7 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     @Override
-    public ProxyRolloutWindow getEntity() {
+    public ProxyRolloutWindow getValidatableEntity() throws ValidationException {
         final ProxyRolloutWindow proxyEntity = new ProxyRolloutWindow();
         proxyEntity.setRolloutForm(rolloutFormLayout.getBean());
 

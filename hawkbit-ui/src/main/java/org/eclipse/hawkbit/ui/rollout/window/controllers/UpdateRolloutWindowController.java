@@ -143,6 +143,12 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
 
     @Override
     protected boolean isEntityValid(final ProxyRolloutWindow entity) {
+        if (entity == null) {
+            uiNotification
+                    .displayValidationError(i18n.getMessage("message.save.fail", i18n.getMessage("caption.rollout")));
+            return false;
+        }
+
         if (!StringUtils.hasText(entity.getName())) {
             uiNotification.displayValidationError(i18n.getMessage("message.rollout.name.empty"));
             return false;

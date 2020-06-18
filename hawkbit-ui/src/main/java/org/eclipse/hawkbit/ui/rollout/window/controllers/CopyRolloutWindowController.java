@@ -49,8 +49,6 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
     protected ProxyRolloutWindow buildEntityFromProxy(final ProxyRollout proxyEntity) {
         final ProxyRolloutWindow proxyRolloutWindow = new ProxyRolloutWindow(proxyEntity);
 
-        proxyRolloutWindow.setName(i18n.getMessage("textfield.rollout.copied.name", proxyRolloutWindow.getName()));
-
         setTargetFilterId(proxyRolloutWindow);
 
         if (proxyRolloutWindow.getForcedTime() == null
@@ -98,7 +96,8 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyRollout proxyEntity) {
+        layout.setRolloutName(i18n.getMessage("textfield.rollout.copied.name", proxyEntity.getName()));
         layout.selectAdvancedGroupsTab();
     }
 }

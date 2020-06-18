@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationException;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -101,10 +102,13 @@ public class ApprovalLayout extends ValidatableLayout {
     }
 
     public void setBean(final ProxyRolloutApproval bean) {
-        binder.setBean(bean);
+        binder.readBean(bean);
     }
 
-    public ProxyRolloutApproval getBean() {
-        return binder.getBean();
+    public ProxyRolloutApproval getBean() throws ValidationException {
+        final ProxyRolloutApproval bean = new ProxyRolloutApproval();
+        binder.writeBean(bean);
+
+        return bean;
     }
 }

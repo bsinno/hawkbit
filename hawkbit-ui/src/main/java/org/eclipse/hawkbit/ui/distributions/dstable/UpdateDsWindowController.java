@@ -73,7 +73,7 @@ public class UpdateDsWindowController
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyDistributionSet proxyEntity) {
         layout.disableDsTypeSelect();
     }
 

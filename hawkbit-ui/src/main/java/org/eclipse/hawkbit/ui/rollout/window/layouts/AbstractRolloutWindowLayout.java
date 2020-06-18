@@ -12,13 +12,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.ValidatableLayout.ValidationStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.vaadin.data.ValidationException;
+import com.vaadin.data.ValidationResult;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
@@ -28,6 +33,8 @@ import com.vaadin.ui.GridLayout;
  */
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
 public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<ProxyRolloutWindow> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRolloutWindowLayout.class);
+
     protected final RolloutWindowLayoutComponentBuilder rolloutComponentBuilder;
 
     private final List<ValidatableLayout> validatableLayouts;
@@ -114,6 +121,22 @@ public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<
 
         validationCallback.accept(allLayoutsValid());
     }
+
+    @Override
+    public ProxyRolloutWindow getEntity() {
+        try {
+            return getValidatableEntity();
+        } catch (final ValidationException e) {
+            final String validationErrors = e.getValidationErrors().stream().map(ValidationResult::getErrorMessage)
+                    .collect(Collectors.joining(";"));
+            LOGGER.trace("There was a validation error while trying to get the rollouts window bean: {}",
+                    validationErrors);
+
+            return null;
+        }
+    }
+
+    protected abstract ProxyRolloutWindow getValidatableEntity() throws ValidationException;
 
     protected abstract void addComponents(final GridLayout rootLayout);
 }

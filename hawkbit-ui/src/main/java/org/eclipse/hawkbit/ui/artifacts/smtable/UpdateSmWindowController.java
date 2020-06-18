@@ -72,7 +72,7 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxySoftwareModule proxyEntity) {
         layout.disableSmTypeSelect();
         layout.disableNameField();
         layout.disableVersionField();

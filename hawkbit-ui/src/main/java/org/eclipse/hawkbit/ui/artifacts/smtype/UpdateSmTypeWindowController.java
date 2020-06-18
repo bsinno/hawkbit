@@ -86,7 +86,7 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyType proxyEntity) {
         layout.disableTagName();
         layout.disableTypeKey();
         layout.disableTypeAssignOptionGroup();

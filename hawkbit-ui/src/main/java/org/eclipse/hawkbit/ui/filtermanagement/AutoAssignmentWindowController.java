@@ -81,7 +81,7 @@ public class AutoAssignmentWindowController
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyTargetFilterQuery proxyEntity) {
         layout.switchAutoAssignmentInputsVisibility(layout.getEntity().isAutoAssignmentEnabled());
     }
 

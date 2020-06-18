@@ -23,6 +23,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.Binder.Binding;
+import com.vaadin.data.ValidationException;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
@@ -302,11 +303,14 @@ public class SimpleGroupsLayout extends ValidatableLayout {
     }
 
     public void setBean(final ProxySimpleRolloutGroupsDefinition bean) {
-        binder.setBean(bean);
+        binder.readBean(bean);
     }
 
-    public ProxySimpleRolloutGroupsDefinition getBean() {
-        return binder.getBean();
+    public ProxySimpleRolloutGroupsDefinition getBean() throws ValidationException {
+        final ProxySimpleRolloutGroupsDefinition bean = new ProxySimpleRolloutGroupsDefinition();
+        binder.writeBean(bean);
+
+        return bean;
     }
 
     public GridLayout getLayout() {

@@ -118,7 +118,7 @@ public class UpdateDsTypeWindowController extends AbstractEntityWindowController
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyType proxyEntity) {
         layout.disableTagName();
         layout.disableTypeKey();
 

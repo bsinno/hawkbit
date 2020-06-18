@@ -28,6 +28,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.Binder.Binding;
+import com.vaadin.data.ValidationException;
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.LongRangeValidator;
 import com.vaadin.ui.ComboBox;
@@ -241,11 +242,18 @@ public class RolloutFormLayout extends ValidatableLayout {
         targetFilterQueryCombo.validate();
     }
 
-    public void setBean(final ProxyRolloutForm bean) {
-        binder.setBean(bean);
+    public void setName(final String name) {
+        nameField.setValue(name);
     }
 
-    public ProxyRolloutForm getBean() {
-        return binder.getBean();
+    public void setBean(final ProxyRolloutForm bean) {
+        binder.readBean(bean);
+    }
+
+    public ProxyRolloutForm getBean() throws ValidationException {
+        final ProxyRolloutForm bean = new ProxyRolloutForm();
+        binder.writeBean(bean);
+
+        return bean;
     }
 }

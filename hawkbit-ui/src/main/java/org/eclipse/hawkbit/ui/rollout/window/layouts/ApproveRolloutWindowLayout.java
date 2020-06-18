@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.rollout.window.layouts;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 
+import com.vaadin.data.ValidationException;
 import com.vaadin.ui.GridLayout;
 
 /**
@@ -49,8 +50,8 @@ public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
     }
 
     @Override
-    public ProxyRolloutWindow getEntity() {
-        final ProxyRolloutWindow proxyEntity = super.getEntity();
+    public ProxyRolloutWindow getValidatableEntity() throws ValidationException {
+        final ProxyRolloutWindow proxyEntity = super.getValidatableEntity();
         proxyEntity.setRolloutApproval(approvalLayout.getBean());
 
         return proxyEntity;

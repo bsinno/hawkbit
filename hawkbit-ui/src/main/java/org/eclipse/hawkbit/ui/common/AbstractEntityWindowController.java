@@ -15,14 +15,14 @@ public abstract class AbstractEntityWindowController<T, E> {
     public void populateWithData(final T proxyEntity) {
         getLayout().setEntity(buildEntityFromProxy(proxyEntity));
 
-        adaptLayout();
+        adaptLayout(proxyEntity);
     }
 
     public abstract EntityWindowLayout<E> getLayout();
 
     protected abstract E buildEntityFromProxy(final T proxyEntity);
 
-    protected void adaptLayout() {
+    protected void adaptLayout(final T proxyEntity) {
         // can be overriden to adapt layout components (e.g. disable/enable
         // fields, adapt bindings, etc.)
     }

@@ -17,6 +17,7 @@ import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.ValidatableLayout.ValidationStatus;
 import org.springframework.util.StringUtils;
 
+import com.vaadin.data.ValidationException;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TabSheet;
 
@@ -93,11 +94,11 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         }
     }
 
-    public boolean isSimpleGroupsTabSelected() {
+    private boolean isSimpleGroupsTabSelected() {
         return groupsDefinitionTabs.getSelectedTab().equals(simpleGroupsLayout.getLayout());
     }
 
-    public boolean isAdvancedGroupsTabSelected() {
+    private boolean isAdvancedGroupsTabSelected() {
         return groupsDefinitionTabs.getSelectedTab().equals(advancedGroupsLayout.getLayout());
     }
 
@@ -169,6 +170,10 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         groupsDefinitionTabs.setSelectedTab(advancedGroupsLayout.getLayout());
     }
 
+    public void setRolloutName(final String rolloutName) {
+        rolloutFormLayout.setName(rolloutName);
+    }
+
     @Override
     public void setEntity(final ProxyRolloutWindow proxyEntity) {
         rolloutFormLayout.setBean(proxyEntity.getRolloutForm());
@@ -178,7 +183,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     }
 
     @Override
-    public ProxyRolloutWindow getEntity() {
+    public ProxyRolloutWindow getValidatableEntity() throws ValidationException {
         final ProxyRolloutWindow proxyEntity = new ProxyRolloutWindow();
         proxyEntity.setRolloutForm(rolloutFormLayout.getBean());
         proxyEntity.setSimpleGroupsDefinition(simpleGroupsLayout.getBean());
