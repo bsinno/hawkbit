@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Window;
 
+/**
+ * Builder for Software module meta data windows
+ */
 public class SmMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long> {
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -27,6 +30,20 @@ public class SmMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
 
     private final SoftwareModuleManagement smManagement;
 
+    /**
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param smManagement
+     *          SoftwareModuleManagement
+     */
     public SmMetaDataWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SpPermissionChecker permChecker,
             final SoftwareModuleManagement smManagement) {
@@ -40,12 +57,34 @@ public class SmMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
         this.smManagement = smManagement;
     }
 
+    /**
+     * Get software module window without proxy meta data
+     *
+     * @param smId
+     *          software module ID
+     * @param name
+     *          Selected entity name
+     *
+     * @return software module window
+     */
     public Window getWindowForShowSmMetaData(final Long smId, final String name) {
         return getWindowForShowMetaData(
                 new SmMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification, entityFactory, smManagement),
                 smId, name, null);
     }
 
+    /**
+     * Get software module window with proxy meta data
+     *
+     * @param smId
+     *          software module ID
+     * @param name
+     *          Selected entity name
+     * @param proxyMetaData
+     *          ProxyMetaData
+     *
+     * @return software module window
+     */
     public Window getWindowForShowSmMetaData(final Long smId, final String name, final ProxyMetaData proxyMetaData) {
         return getWindowForShowMetaData(
                 new SmMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification, entityFactory, smManagement),

@@ -94,6 +94,12 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         buildLayout();
     }
 
+    /**
+     * Perform specific tasks based on the file upload status
+     *
+     * @param fileUploadProgress
+     *          FileUploadProgress
+     */
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         final FileUploadProgress.FileUploadStatus uploadProgressEventType = fileUploadProgress.getFileUploadStatus();
 
@@ -121,6 +127,12 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         }
     }
 
+    /**
+     * Enable the upload view after upload is finished
+     *
+     * @param masterEntityId
+     *          Long
+     */
     public void updateMasterEntityFilter(final Long masterEntityId) {
         upload.setEnabled(masterEntityId != null && artifactUploadState.areAllUploadsFinished());
     }
@@ -178,6 +190,9 @@ public class UploadProgressButtonLayout extends VerticalLayout {
         }
     }
 
+    /**
+     * Maximize the file upload view
+     */
     public void showUploadInfoWindow() {
         uploadInfoWindow.maximizeWindow();
     }

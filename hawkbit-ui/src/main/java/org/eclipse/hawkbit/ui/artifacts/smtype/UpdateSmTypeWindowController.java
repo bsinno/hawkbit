@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for update software module type window
+ */
 public class UpdateSmTypeWindowController extends AbstractEntityWindowController<ProxyType, ProxyType> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateSmTypeWindowController.class);
 
@@ -44,6 +47,22 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
     private String nameBeforeEdit;
     private String keyBeforeEdit;
 
+    /**
+     * Constructor for UpdateSmTypeWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param smTypeManagement
+     *          SoftwareModuleTypeManagement
+     * @param layout
+     *          SmTypeWindowLayout
+     */
     public UpdateSmTypeWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final SoftwareModuleTypeManagement smTypeManagement, final SmTypeWindowLayout layout) {
@@ -57,6 +76,11 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
         this.layout = layout;
     }
 
+    /**
+     * Getter for Software module type Window Layout
+     *
+     * @return  AbstractEntityWindowLayout
+     */
     @Override
     public AbstractEntityWindowLayout<ProxyType> getLayout() {
         return layout;

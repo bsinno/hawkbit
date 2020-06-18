@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,6 +24,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for Add software module type window
+ */
 public class AddSmTypeWindowController extends AbstractEntityWindowController<ProxyType, ProxyType> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
@@ -34,6 +37,22 @@ public class AddSmTypeWindowController extends AbstractEntityWindowController<Pr
 
     private final SmTypeWindowLayout layout;
 
+    /**
+     * Constructor for AddSmTypeWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param smTypeManagement
+     *          SoftwareModuleTypeManagement
+     * @param layout
+     *          SmTypeWindowLayout
+     */
     public AddSmTypeWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final SoftwareModuleTypeManagement smTypeManagement, final SmTypeWindowLayout layout) {
@@ -47,6 +66,11 @@ public class AddSmTypeWindowController extends AbstractEntityWindowController<Pr
         this.layout = layout;
     }
 
+    /**
+     * Getter for Software module type Window Layout
+     *
+     * @return  AbstractEntityWindowLayout
+     */
     @Override
     public AbstractEntityWindowLayout<ProxyType> getLayout() {
         return layout;

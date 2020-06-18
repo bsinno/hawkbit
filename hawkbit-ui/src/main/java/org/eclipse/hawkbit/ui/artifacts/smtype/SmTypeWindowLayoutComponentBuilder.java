@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,9 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 
+/**
+ * Builder for software module type window layout component
+ */
 //TODO: remove duplication with other builders
 public class SmTypeWindowLayoutComponentBuilder {
 
@@ -26,10 +29,24 @@ public class SmTypeWindowLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
 
+    /**
+     * Constructor for SmTypeWindowLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public SmTypeWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
     }
 
+    /**
+     * Create software module type key text field
+     *
+     * @param binder
+     *          Vaadin binder of ProxyType
+     *
+     * @return Textfield
+     */
     public TextField createKeyField(final Binder<ProxyType> binder) {
         final TextField typeKey = new TextFieldBuilder(Type.KEY_MAX_SIZE).id(UIComponentIdProvider.TYPE_POPUP_KEY)
                 .caption(i18n.getMessage(TEXTFIELD_KEY)).prompt(i18n.getMessage(TEXTFIELD_KEY)).buildTextComponent();
@@ -41,6 +58,14 @@ public class SmTypeWindowLayoutComponentBuilder {
         return typeKey;
     }
 
+    /**
+     * Create software module type assignment group
+     *
+     * @param binder
+     *          Vaadin binder of ProxyType
+     *
+     * @return RadioButtonGroup of software module type assignment
+     */
     public RadioButtonGroup<SmTypeAssign> createSmTypeAssignOptionGroup(final Binder<ProxyType> binder) {
         final RadioButtonGroup<SmTypeAssign> smTypeAssignOptionGroup = new RadioButtonGroup<>();
         smTypeAssignOptionGroup.setId(UIComponentIdProvider.ASSIGN_OPTION_GROUP_SOFTWARE_MODULE_TYPE_ID);

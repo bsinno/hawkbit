@@ -29,6 +29,24 @@ public class SoftwareModuleGridHeader extends AbstractEntityGridHeader {
     private static final String SWM_TABLE_HEADER = "upload.swModuleTable.header";
     private static final String SWM_CAPTION = "caption.software.module";
 
+    /**
+     * Constructor for SoftwareModuleGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     * @param smTypeFilterLayoutUiState
+     *          HidableLayoutUiState
+     * @param smGridLayoutUiState
+     *          GridLayoutUiState
+     * @param smWindowBuilder
+     *          SmWindowBuilder
+     * @param view
+     *          EventView
+     */
     public SoftwareModuleGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final HidableLayoutUiState smTypeFilterLayoutUiState,
             final GridLayoutUiState smGridLayoutUiState, final SmWindowBuilder smWindowBuilder, final EventView view) {

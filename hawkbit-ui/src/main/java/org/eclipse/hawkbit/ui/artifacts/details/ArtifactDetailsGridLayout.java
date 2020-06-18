@@ -93,22 +93,37 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         return Arrays.asList(artifactDetailsHeader, artifactDetailsGrid.getMasterEntitySupport(), uploadDropAreaLayout);
     }
 
+    /**
+     * Checks progress on file upload
+     *
+     * @param fileUploadProgress
+     *          FileUploadProgress
+     */
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         if (uploadDropAreaLayout != null) {
             uploadDropAreaLayout.onUploadChanged(fileUploadProgress);
         }
     }
 
+    /**
+     * Maximize the artifact grid
+     */
     public void maximize() {
         artifactDetailsGrid.createMaximizedContent();
         hideDetailsLayout();
     }
 
+    /**
+     * Minimize the artifact grid
+     */
     public void minimize() {
         artifactDetailsGrid.createMinimizedContent();
         showDetailsLayout();
     }
 
+    /**
+     * Is called when view is shown to the user
+     */
     public void restoreState() {
         artifactDetailsHeader.restoreState();
 
@@ -117,6 +132,9 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
         }
     }
 
+    /**
+     * Unsubscribe the even listeners for selection change and fileupload
+     */
     public void unsubscribeListener() {
         selectionChangedListener.unsubscribe();
         fileUploadChangedListener.unsubscribe();

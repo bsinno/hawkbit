@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -25,6 +25,9 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * Builder for software module window layout
+ */
 //TODO: remove duplication with other builders
 public class SmWindowLayoutComponentBuilder {
 
@@ -36,12 +39,28 @@ public class SmWindowLayoutComponentBuilder {
     private final VaadinMessageSource i18n;
     private final SoftwareModuleTypeDataProvider smTypeDataProvider;
 
+    /**
+     * Constructor for SmWindowLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param smTypeDataProvider
+     *          SoftwareModuleTypeDataProvider
+     */
     public SmWindowLayoutComponentBuilder(final VaadinMessageSource i18n,
             final SoftwareModuleTypeDataProvider smTypeDataProvider) {
         this.i18n = i18n;
         this.smTypeDataProvider = smTypeDataProvider;
     }
 
+    /**
+     * Create combo box options for software module types
+     *
+     * @param binder
+     *          binder the input will be bound to
+     *
+     * @return input component
+     */
     public ComboBox<ProxyType> createSoftwareModuleTypeCombo(final Binder<ProxySoftwareModule> binder) {
         final ComboBox<ProxyType> smTypeSelect = new ComboBox<>(
                 i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_SOFTWARE_MODULE_TYPE));
@@ -84,6 +103,14 @@ public class SmWindowLayoutComponentBuilder {
                 .getComponent();
     }
 
+    /**
+     * Create vendor field
+     *
+     * @param binder
+     *          binder the input will be bound to
+     *
+     * @return input component
+     */
     public TextField createVendorField(final Binder<ProxySoftwareModule> binder) {
         final TextField smVendor = new TextFieldBuilder(SoftwareModule.VENDOR_MAX_SIZE)
                 .id(UIComponentIdProvider.SOFT_MODULE_VENDOR).caption(i18n.getMessage(TEXTFIELD_VENDOR))

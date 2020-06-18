@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -50,7 +50,17 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
      * Constructor for AbstractTagWindowLayout
      * 
      * @param i18n
-     *            I18N
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param uiNotification
+     *          UINotification
+     * @param entityFactory
+     *          EntityFactory
+     * @param smManagement
+     *          SoftwareModuleManagement
      */
     public SmMetaDataWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permChecker, final UINotification uiNotification,
@@ -112,16 +122,25 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
         return smMetaDataWindowGrid;
     }
 
+    /**
+     * @return add widow controller for software module
+     */
     @Override
     public AddMetaDataWindowController getAddMetaDataWindowController() {
         return addSmMetaDataWindowController;
     }
 
+    /**
+     * @return update widow controller for software module
+     */
     @Override
     public UpdateMetaDataWindowController getUpdateMetaDataWindowController() {
         return updateSmMetaDataWindowController;
     }
 
+    /**
+     * @return add and update widow layout for software module
+     */
     @Override
     public MetaDataAddUpdateWindowLayout getMetaDataAddUpdateWindowLayout() {
         return smMetaDataAddUpdateWindowLayout;
