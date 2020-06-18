@@ -8,7 +8,7 @@ public abstract class ValidatableLayout {
     protected ValidationListener validationListener;
 
     protected ValidatableLayout() {
-        this.validationStatus = ValidationStatus.VALID;
+        this.validationStatus = ValidationStatus.UNKNOWN;
     }
 
     public void setValidationListener(final ValidationListener validationListener) {
@@ -40,6 +40,10 @@ public abstract class ValidatableLayout {
         return ValidationStatus.VALID == validationStatus;
     }
 
+    public void resetValidationStatus() {
+        validationStatus = ValidationStatus.UNKNOWN;
+    }
+
     /**
      * Implement the interface and set the instance with setValidationListener
      * to receive updates for any validation status changes of the layout.
@@ -59,6 +63,6 @@ public abstract class ValidatableLayout {
      * Status of the validation
      */
     public enum ValidationStatus {
-        VALID, INVALID, LOADING
+        UNKNOWN, LOADING, VALID, INVALID
     }
 }

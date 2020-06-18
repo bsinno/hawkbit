@@ -97,12 +97,22 @@ public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<
             return;
         }
 
-        validationCallback.accept(validatableLayouts.stream().allMatch(ValidatableLayout::isValid));
+        validationCallback.accept(allLayoutsValid());
+    }
+
+    private boolean allLayoutsValid() {
+        if (validatableLayouts.isEmpty()) {
+            return false;
+        }
+
+        return validatableLayouts.stream().allMatch(ValidatableLayout::isValid);
     }
 
     @Override
     public void addValidationListener(final Consumer<Boolean> validationCallback) {
         this.validationCallback = validationCallback;
+
+        validationCallback.accept(allLayoutsValid());
     }
 
     protected abstract void addComponents(final GridLayout rootLayout);

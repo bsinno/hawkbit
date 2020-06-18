@@ -28,8 +28,6 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         this.rolloutFormLayout = rolloutComponentBuilder.createRolloutFormLayout();
         this.visualGroupDefinitionLayout = rolloutComponentBuilder.createVisualGroupDefinitionLayout();
 
-        // TODO: save button does not become enabled after we change values
-        // because form was VALID before
         addValidatableLayout(rolloutFormLayout);
     }
 

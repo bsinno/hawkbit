@@ -103,12 +103,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
     private void onGroupDefinitionTabChanged() {
         if (isSimpleGroupsTabSelected()) {
-            removeValidatableLayout(advancedGroupsLayout);
-            // TODO: save button is not disabled after tab switch if simple
-            // group definition is INVALID and was INVALID before. We need some
-            // flag to reset the Validation Status (e.g. UNKNOWN or INACTIVE),
-            // etc.
-            addValidatableLayout(simpleGroupsLayout);
+            adaptSimpleGroupsValidation();
 
             simpleGroupsLayout.setTotalTargets(totalTargets);
 
@@ -117,9 +112,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         }
 
         if (isAdvancedGroupsTabSelected()) {
-            removeValidatableLayout(simpleGroupsLayout);
-            // TODO: extract onAdvancedGroupsChanged to value change listener
-            addValidatableLayout(advancedGroupsLayout, this::onAdvancedGroupsChanged);
+            adaptAdvancedGroupsValidation();
 
             advancedGroupsLayout.setTargetFilter(filterQuery);
 
@@ -127,6 +120,22 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
             visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
                     advancedGroupsLayout.getSavedRolloutGroupDefinitions());
         }
+    }
+
+    private void adaptSimpleGroupsValidation() {
+        advancedGroupsLayout.resetValidationStatus();
+        removeValidatableLayout(advancedGroupsLayout);
+
+        addValidatableLayout(simpleGroupsLayout);
+    }
+
+    private void adaptAdvancedGroupsValidation() {
+        simpleGroupsLayout.resetValidationStatus();
+        removeValidatableLayout(simpleGroupsLayout);
+
+        // TODO: extract onAdvancedGroupsChanged to value change listener,
+        // because pie chart is not updated if the layout is not valid
+        addValidatableLayout(advancedGroupsLayout, this::onAdvancedGroupsChanged);
     }
 
     private void onNoOfSimpleGroupsChanged(final int noOfGroups) {
