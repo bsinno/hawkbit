@@ -11,11 +11,9 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 import java.io.Serializable;
 import java.util.List;
 
-import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Rollout.ApprovalDecision;
 import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 
@@ -29,8 +27,7 @@ public class ProxyRolloutWindow implements Serializable {
     private Long totalTargets;
     private ProxyRolloutForm rolloutForm;
     private ProxySimpleRolloutGroupsDefinition simpleGroupsDefinition;
-    private transient List<RolloutGroupCreate> advancedRolloutGroupDefinitions;
-    private transient List<RolloutGroup> advancedRolloutGroups;
+    private transient List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions;
     private GroupDefinitionMode groupDefinitionMode;
     private ProxyRolloutApproval rolloutApproval;
 
@@ -248,20 +245,13 @@ public class ProxyRolloutWindow implements Serializable {
         this.groupDefinitionMode = groupDefinitionMode;
     }
 
-    public List<RolloutGroupCreate> getAdvancedRolloutGroupDefinitions() {
+    public List<ProxyAdvancedRolloutGroupRow> getAdvancedRolloutGroupDefinitions() {
         return advancedRolloutGroupDefinitions;
     }
 
-    public void setAdvancedRolloutGroupDefinitions(final List<RolloutGroupCreate> advancedRolloutGroupDefinitions) {
+    public void setAdvancedRolloutGroupDefinitions(
+            final List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions) {
         this.advancedRolloutGroupDefinitions = advancedRolloutGroupDefinitions;
-    }
-
-    public List<RolloutGroup> getAdvancedRolloutGroups() {
-        return advancedRolloutGroups;
-    }
-
-    public void setAdvancedRolloutGroups(final List<RolloutGroup> advancedRolloutGroups) {
-        this.advancedRolloutGroups = advancedRolloutGroups;
     }
 
     public ProxyRolloutApproval getRolloutApproval() {

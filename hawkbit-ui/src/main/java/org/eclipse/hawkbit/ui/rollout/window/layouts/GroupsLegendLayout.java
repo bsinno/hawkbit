@@ -11,10 +11,9 @@ package org.eclipse.hawkbit.ui.rollout.window.layouts;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.Component;
@@ -213,7 +212,7 @@ public class GroupsLegendLayout extends VerticalLayout {
      *            List of groups with their name
      */
     public void populateGroupsLegendByValidation(final RolloutGroupsValidation validation,
-            final List<RolloutGroupCreate> groups) {
+            final List<ProxyAdvancedRolloutGroupRow> groups) {
         loadingLabel.setVisible(false);
         if (validation == null) {
             return;
@@ -227,7 +226,7 @@ public class GroupsLegendLayout extends VerticalLayout {
             final Label label = (Label) component;
             if (targetsPerGroup.size() > i && groups.size() > i && labelsToUpdate > i) {
                 final Long targetCount = targetsPerGroup.get(i);
-                final String groupName = groups.get(i).build().getName();
+                final String groupName = groups.get(i).getGroupName();
 
                 label.setValue(getTargetsInGroupMessage(targetCount, groupName));
                 label.setVisible(true);
@@ -255,7 +254,7 @@ public class GroupsLegendLayout extends VerticalLayout {
      * @param groups
      *            List of groups with their name
      */
-    public void populateGroupsLegendByGroups(final List<RolloutGroup> groups) {
+    public void populateGroupsLegendByGroups(final List<ProxyAdvancedRolloutGroupRow> groups) {
         loadingLabel.setVisible(false);
 
         for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(groups.size()); i++) {
@@ -263,7 +262,7 @@ public class GroupsLegendLayout extends VerticalLayout {
             final Label label = (Label) component;
             if (groups.size() > i) {
                 final int targetCount = groups.get(i).getTotalTargets();
-                final String groupName = groups.get(i).getName();
+                final String groupName = groups.get(i).getGroupName();
 
                 label.setValue(getTargetsInGroupMessage((long) targetCount, groupName));
                 label.setVisible(true);

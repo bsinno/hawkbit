@@ -119,7 +119,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
 
             visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
             visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
-                    advancedGroupsLayout.getSavedRolloutGroupDefinitions());
+                    advancedGroupsLayout.getAdvancedRolloutGroupDefinitions());
         }
     }
 
@@ -154,11 +154,11 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
             return;
         }
 
-        if (status == AdvancedGroupsLayout.ValidationStatus.LOADING) {
+        if (status == ValidationStatus.LOADING) {
             visualGroupDefinitionLayout.displayLoading();
         } else {
             visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
-                    advancedGroupsLayout.getSavedRolloutGroupDefinitions());
+                    advancedGroupsLayout.getAdvancedRolloutGroupDefinitions());
         }
     }
 
@@ -178,7 +178,8 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     public void setEntity(final ProxyRolloutWindow proxyEntity) {
         rolloutFormLayout.setBean(proxyEntity.getRolloutForm());
         simpleGroupsLayout.setBean(proxyEntity.getSimpleGroupsDefinition());
-        advancedGroupsLayout.populateByRolloutGroups(proxyEntity.getAdvancedRolloutGroups());
+        advancedGroupsLayout
+                .populateByAdvancedRolloutGroupDefinitions(proxyEntity.getAdvancedRolloutGroupDefinitions());
         visualGroupDefinitionLayout.setGroupDefinitionMode(proxyEntity.getGroupDefinitionMode());
     }
 
@@ -187,7 +188,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         final ProxyRolloutWindow proxyEntity = new ProxyRolloutWindow();
         proxyEntity.setRolloutForm(rolloutFormLayout.getBean());
         proxyEntity.setSimpleGroupsDefinition(simpleGroupsLayout.getBean());
-        proxyEntity.setAdvancedRolloutGroupDefinitions(advancedGroupsLayout.getSavedRolloutGroupDefinitions());
+        proxyEntity.setAdvancedRolloutGroupDefinitions(advancedGroupsLayout.getAdvancedRolloutGroupDefinitions());
         proxyEntity.setGroupDefinitionMode(
                 isSimpleGroupsTabSelected() ? GroupDefinitionMode.SIMPLE : GroupDefinitionMode.ADVANCED);
 

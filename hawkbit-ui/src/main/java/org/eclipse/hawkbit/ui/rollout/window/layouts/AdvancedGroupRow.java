@@ -8,17 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import org.eclipse.hawkbit.repository.EntityFactory;
-import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
-import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
-import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupErrorAction;
-import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupErrorCondition;
-import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessAction;
-import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessCondition;
-import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
-import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
-import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
@@ -28,9 +18,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.StringUtils;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.StatusChangeListener;
@@ -46,11 +33,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public class AdvancedGroupRow {
 
     private final VaadinMessageSource i18n;
-    private final EntityFactory entityFactory;
-    private final TargetFilterQueryManagement targetFilterQueryManagement;
     private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
-
-    private final int groupCount;
 
     private final Binder<ProxyAdvancedRolloutGroupRow> binder;
 
@@ -60,15 +43,10 @@ public class AdvancedGroupRow {
     private final TextField triggerThreshold;
     private final TextField errorThreshold;
 
-    public AdvancedGroupRow(final VaadinMessageSource i18n, final EntityFactory entityFactory,
-            final TargetFilterQueryManagement targetFilterQueryManagement,
-            final TargetFilterQueryDataProvider targetFilterQueryDataProvider, final int groupCount) {
+    public AdvancedGroupRow(final VaadinMessageSource i18n,
+            final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
         this.i18n = i18n;
-        this.entityFactory = entityFactory;
-        this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.targetFilterQueryDataProvider = targetFilterQueryDataProvider;
-
-        this.groupCount = groupCount;
 
         this.binder = new Binder<>();
 
@@ -97,7 +75,7 @@ public class AdvancedGroupRow {
     private ComboBox<ProxyTargetFilterQuery> createTargetFilterQueryCombo() {
         final BoundComponent<ComboBox<ProxyTargetFilterQuery>> boundTfqCombo = FormComponentBuilder
                 .createTargetFilterQueryCombo(binder, null, targetFilterQueryDataProvider, i18n,
-                        UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID + "." + groupCount);
+                        UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID);
         boundTfqCombo.setRequired(false);
 
         return boundTfqCombo.getComponent();
@@ -151,6 +129,8 @@ public class AdvancedGroupRow {
     }
 
     public void addRowToLayout(final GridLayout layout, final int index) {
+        updateComponentIds(index);
+
         layout.addComponent(groupName, 0, index);
         layout.addComponent(targetFilterQueryCombo, 1, index);
         layout.addComponent(targetPercentage, 2, index);
@@ -158,73 +138,20 @@ public class AdvancedGroupRow {
         layout.addComponent(errorThreshold, 4, index);
     }
 
-    /**
-     * Populates the row with the default data.
-     * 
-     */
-    public void populateWithDefaults() {
-        final ProxyAdvancedRolloutGroupRow advancedGroupRowBean = new ProxyAdvancedRolloutGroupRow();
-        advancedGroupRowBean.setGroupName(i18n.getMessage("textfield.rollout.group.default.name", groupCount));
-        advancedGroupRowBean.setTargetPercentage(100f);
-        setDefaultThresholds(advancedGroupRowBean);
-
-        binder.setBean(advancedGroupRowBean);
+    private void updateComponentIds(final int index) {
+        groupName.setId(groupName.getId() + "." + index);
+        targetFilterQueryCombo.setId(targetFilterQueryCombo.getId() + "." + index);
+        targetPercentage.setId(targetPercentage.getId() + "." + index);
+        triggerThreshold.setId(triggerThreshold.getId() + "." + index);
+        errorThreshold.setId(errorThreshold.getId() + "." + index);
     }
 
-    private void setDefaultThresholds(final ProxyAdvancedRolloutGroupRow advancedGroupRow) {
-        final RolloutGroupConditions defaultRolloutGroupConditions = new RolloutGroupConditionBuilder().withDefaults()
-                .build();
-        advancedGroupRow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
-        advancedGroupRow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
+    public void setBean(final ProxyAdvancedRolloutGroupRow bean) {
+        binder.setBean(bean);
     }
 
-    /**
-     * Populates the row with the data from the provided groups.
-     * 
-     * @param group
-     *            the data source
-     */
-    public void populateByGroup(final RolloutGroup group) {
-        final ProxyAdvancedRolloutGroupRow advancedGroupRowBean = new ProxyAdvancedRolloutGroupRow();
-        advancedGroupRowBean.setGroupName(group.getName());
-
-        final String groupTargetFilterQuery = group.getTargetFilterQuery();
-        if (!StringUtils.isEmpty(groupTargetFilterQuery)) {
-            advancedGroupRowBean.setTargetFilterQuery(groupTargetFilterQuery);
-            final Page<TargetFilterQuery> filterQueries = targetFilterQueryManagement.findByQuery(PageRequest.of(0, 1),
-                    groupTargetFilterQuery);
-            if (filterQueries.getTotalElements() == 1) {
-                advancedGroupRowBean.setTargetFilterId(filterQueries.getContent().get(0).getId());
-            }
-        }
-
-        advancedGroupRowBean.setTargetPercentage(group.getTargetPercentage());
-        advancedGroupRowBean.setTriggerThresholdPercentage(group.getSuccessConditionExp());
-        advancedGroupRowBean.setErrorThresholdPercentage(group.getErrorConditionExp());
-
-        binder.setBean(advancedGroupRowBean);
-    }
-
-    /**
-     * Builds a group definition from this group row
-     * 
-     * @return the RolloutGroupCreate definition
-     */
-    public RolloutGroupCreate getGroupEntity() {
-        final ProxyAdvancedRolloutGroupRow advancedGroupRowBean = binder.getBean();
-
-        final RolloutGroupConditions conditions = new RolloutGroupConditionBuilder()
-                .successAction(RolloutGroupSuccessAction.NEXTGROUP, null)
-                .successCondition(RolloutGroupSuccessCondition.THRESHOLD,
-                        advancedGroupRowBean.getTriggerThresholdPercentage())
-                .errorCondition(RolloutGroupErrorCondition.THRESHOLD,
-                        advancedGroupRowBean.getErrorThresholdPercentage())
-                .errorAction(RolloutGroupErrorAction.PAUSE, null).build();
-
-        return entityFactory.rolloutGroup().create().name(advancedGroupRowBean.getGroupName())
-                .description(advancedGroupRowBean.getGroupName())
-                .targetFilterQuery(advancedGroupRowBean.getTargetFilterQuery())
-                .targetPercentage(advancedGroupRowBean.getTargetPercentage()).conditions(conditions);
+    public ProxyAdvancedRolloutGroupRow getBean() {
+        return binder.getBean();
     }
 
     public void addStatusChangeListener(final StatusChangeListener listener) {

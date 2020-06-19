@@ -12,9 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -30,7 +29,7 @@ public class VisualGroupDefinitionLayout {
     private Long totalTargets;
     private int noOfGroups;
     private RolloutGroupsValidation validation;
-    private List<RolloutGroupCreate> advancedRolloutGroupDefinitions;
+    private List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions;
     private GroupDefinitionMode groupDefinitionMode;
 
     public VisualGroupDefinitionLayout(final GroupsPieChart groupsPieChart,
@@ -95,7 +94,7 @@ public class VisualGroupDefinitionLayout {
     }
 
     public void setAdvancedRolloutGroupsValidation(final RolloutGroupsValidation validation,
-            final List<RolloutGroupCreate> advancedRolloutGroupDefinitions) {
+            final List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions) {
         this.validation = validation;
         this.advancedRolloutGroupDefinitions = advancedRolloutGroupDefinitions;
 
@@ -104,7 +103,7 @@ public class VisualGroupDefinitionLayout {
         }
     }
 
-    public void updateByRolloutGroups(final List<RolloutGroup> rolloutGroups) {
+    public void updateByRolloutGroups(final List<ProxyAdvancedRolloutGroupRow> rolloutGroups) {
         if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || CollectionUtils.isEmpty(rolloutGroups)) {
             clearGroupChartAndLegend();
             return;

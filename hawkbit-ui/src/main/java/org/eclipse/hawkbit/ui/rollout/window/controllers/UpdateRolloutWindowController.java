@@ -9,11 +9,13 @@
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutUpdate;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
@@ -23,6 +25,8 @@ import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToAdvancedDefinitionMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
@@ -53,6 +57,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
     private final UIEventBus eventBus;
     private final UINotification uiNotification;
 
+    private final TargetFilterQueryManagement targetFilterQueryManagement;
     private final RolloutManagement rolloutManagement;
     private final RolloutGroupManagement rolloutGroupManagement;
     private final QuotaManagement quotaManagement;
@@ -68,6 +73,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         this.eventBus = dependencies.getEventBus();
         this.uiNotification = dependencies.getUiNotification();
 
+        this.targetFilterQueryManagement = dependencies.getTargetFilterQueryManagement();
         this.rolloutManagement = dependencies.getRolloutManagement();
         this.rolloutGroupManagement = dependencies.getRolloutGroupManagement();
         this.quotaManagement = dependencies.getQuotaManagement();
@@ -102,12 +108,19 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         return proxyRolloutWindow;
     }
 
+    // TODO: try to remove duplication with CopyRolloutWindowController
     private void setRolloutGroups(final ProxyRolloutWindow proxyRolloutWindow) {
-        final List<RolloutGroup> advancedRolloutGroups = rolloutGroupManagement
+        final List<RolloutGroup> rolloutGroups = rolloutGroupManagement
                 .findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()),
                         proxyRolloutWindow.getId())
                 .getContent();
-        proxyRolloutWindow.setAdvancedRolloutGroups(advancedRolloutGroups);
+
+        final RolloutGroupToAdvancedDefinitionMapper mapper = new RolloutGroupToAdvancedDefinitionMapper(
+                targetFilterQueryManagement);
+        final List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions = rolloutGroups.stream()
+                .map(mapper::map).collect(Collectors.toList());
+
+        proxyRolloutWindow.setAdvancedRolloutGroupDefinitions(advancedRolloutGroupDefinitions);
     }
 
     @Override

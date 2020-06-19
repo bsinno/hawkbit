@@ -17,11 +17,13 @@ import java.util.stream.Collectors;
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
-import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
+import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
+import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
+import org.eclipse.hawkbit.ui.common.data.mappers.AdvancedRolloutGroupDefinitionToCreateMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -44,7 +46,6 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
-    private final TargetFilterQueryManagement targetFilterQueryManagement;
     private final RolloutManagement rolloutManagement;
     private final QuotaManagement quotaManagement;
 
@@ -55,21 +56,19 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
     private String targetFilter;
 
     private final List<AdvancedGroupRow> groupRows;
-    private List<RolloutGroupCreate> savedRolloutGroups;
 
     private RolloutGroupsValidation groupsValidation;
     private final AtomicInteger runningValidationsCounter;
 
     public AdvancedGroupsLayout(final VaadinMessageSource i18n, final EntityFactory entityFactory,
-            final RolloutManagement rolloutManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
-            final QuotaManagement quotaManagement, final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
+            final RolloutManagement rolloutManagement, final QuotaManagement quotaManagement,
+            final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
         super();
 
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.rolloutManagement = rolloutManagement;
         this.quotaManagement = quotaManagement;
-        this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.targetFilterQueryDataProvider = targetFilterQueryDataProvider;
 
         this.layout = buildLayout();
@@ -118,19 +117,41 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
     }
 
     public void addGroupRowAndValidate() {
-        final AdvancedGroupRow groupRow = addGroupRow();
-        groupRow.populateWithDefaults();
-        groupRow.addStatusChangeListener(event -> updateValidation());
+        final int groupIndex = groupRows.size() + 1;
+
+        addGroupRow(getDefaultAdvancedRolloutGroupDefinition(groupIndex));
 
         updateValidation();
     }
 
+    private ProxyAdvancedRolloutGroupRow getDefaultAdvancedRolloutGroupDefinition(final int groupIndex) {
+        final ProxyAdvancedRolloutGroupRow advancedGroupRowBean = new ProxyAdvancedRolloutGroupRow();
+        advancedGroupRowBean.setGroupName(i18n.getMessage("textfield.rollout.group.default.name", groupIndex));
+        advancedGroupRowBean.setTargetPercentage(100f);
+        setDefaultThresholds(advancedGroupRowBean);
+
+        return advancedGroupRowBean;
+    }
+
+    private void setDefaultThresholds(final ProxyAdvancedRolloutGroupRow advancedGroupRow) {
+        final RolloutGroupConditions defaultRolloutGroupConditions = new RolloutGroupConditionBuilder().withDefaults()
+                .build();
+        advancedGroupRow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
+        advancedGroupRow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
+    }
+
+    private void addGroupRow(final ProxyAdvancedRolloutGroupRow advancedRolloutGroupDefinition) {
+        final AdvancedGroupRow groupRow = addGroupRow();
+        groupRow.setBean(advancedRolloutGroupDefinition);
+
+        groupRow.addStatusChangeListener(event -> updateValidation());
+    }
+
     private AdvancedGroupRow addGroupRow() {
-        final AdvancedGroupRow groupRow = new AdvancedGroupRow(i18n, entityFactory, targetFilterQueryManagement,
-                targetFilterQueryDataProvider, groupRows.size() + 1);
-        groupRows.add(groupRow);
+        final AdvancedGroupRow groupRow = new AdvancedGroupRow(i18n, targetFilterQueryDataProvider);
 
         addRowToLayout(groupRow);
+        groupRows.add(groupRow);
 
         return groupRow;
     }
@@ -167,7 +188,6 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         validationStatus = ValidationStatus.VALID;
         if (allGroupRowsValid()) {
             setValidationStatus(ValidationStatus.LOADING);
-            savedRolloutGroups = getGroupsFromRows();
             validateRemainingTargets();
         } else {
             setValidationStatus(ValidationStatus.INVALID);
@@ -182,10 +202,6 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         return groupRows.stream().allMatch(AdvancedGroupRow::isValid);
     }
 
-    private List<RolloutGroupCreate> getGroupsFromRows() {
-        return groupRows.stream().map(AdvancedGroupRow::getGroupEntity).collect(Collectors.toList());
-    }
-
     private void validateRemainingTargets() {
         resetErrors();
 
@@ -194,8 +210,10 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         }
 
         if (runningValidationsCounter.incrementAndGet() == 1) {
+            final List<RolloutGroupCreate> groupsCreate = getRolloutGroupsCreateFromDefinitions(
+                    getAdvancedRolloutGroupDefinitions());
             final ListenableFuture<RolloutGroupsValidation> validateTargetsInGroups = rolloutManagement
-                    .validateTargetsInGroups(savedRolloutGroups, targetFilter, System.currentTimeMillis());
+                    .validateTargetsInGroups(groupsCreate, targetFilter, System.currentTimeMillis());
             final UI ui = UI.getCurrent();
             validateTargetsInGroups.addCallback(validation -> ui.access(() -> setGroupsValidation(validation)),
                     throwable -> ui.access(() -> setGroupsValidation(null)));
@@ -207,6 +225,18 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
     private void resetErrors() {
         groupRows.forEach(AdvancedGroupRow::resetError);
+    }
+
+    public List<ProxyAdvancedRolloutGroupRow> getAdvancedRolloutGroupDefinitions() {
+        return groupRows.stream().map(AdvancedGroupRow::getBean).collect(Collectors.toList());
+    }
+
+    private List<RolloutGroupCreate> getRolloutGroupsCreateFromDefinitions(
+            final List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions) {
+        final AdvancedRolloutGroupDefinitionToCreateMapper mapper = new AdvancedRolloutGroupDefinitionToCreateMapper(
+                entityFactory);
+
+        return advancedRolloutGroupDefinitions.stream().map(mapper::map).collect(Collectors.toList());
     }
 
     /**
@@ -274,18 +304,13 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
      * @param groups
      *            the rollout groups
      */
-    public void populateByRolloutGroups(final List<RolloutGroup> groups) {
+    public void populateByAdvancedRolloutGroupDefinitions(final List<ProxyAdvancedRolloutGroupRow> groups) {
         if (CollectionUtils.isEmpty(groups)) {
             return;
         }
 
         removeAllRows();
-
-        for (final RolloutGroup group : groups) {
-            final AdvancedGroupRow groupRow = addGroupRow();
-            groupRow.populateByGroup(group);
-            groupRow.addStatusChangeListener(event -> updateValidation());
-        }
+        groups.forEach(this::addGroupRow);
 
         updateValidation();
     }
@@ -296,10 +321,6 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         }
 
         groupRows.clear();
-    }
-
-    public List<RolloutGroupCreate> getSavedRolloutGroupDefinitions() {
-        return savedRolloutGroups;
     }
 
     /**

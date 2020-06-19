@@ -52,7 +52,7 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         }
         visualGroupDefinitionLayout.setGroupDefinitionMode(proxyEntity.getGroupDefinitionMode());
         visualGroupDefinitionLayout.setTotalTargets(proxyEntity.getTotalTargets());
-        visualGroupDefinitionLayout.updateByRolloutGroups(proxyEntity.getAdvancedRolloutGroups());
+        visualGroupDefinitionLayout.updateByRolloutGroups(proxyEntity.getAdvancedRolloutGroupDefinitions());
     }
 
     @Override

@@ -25,6 +25,7 @@ public class ProxyAdvancedRolloutGroupRow implements Serializable, TargetFilterQ
     private Float targetPercentage;
     private String triggerThresholdPercentage;
     private String errorThresholdPercentage;
+    private Integer totalTargets;
 
     public String getGroupName() {
         return groupName;
@@ -76,5 +77,13 @@ public class ProxyAdvancedRolloutGroupRow implements Serializable, TargetFilterQ
 
     public void setErrorThresholdPercentage(final String errorThresholdPercentage) {
         this.errorThresholdPercentage = errorThresholdPercentage;
+    }
+
+    public Integer getTotalTargets() {
+        return totalTargets;
+    }
+
+    public void setTotalTargets(final Integer totalTargets) {
+        this.totalTargets = totalTargets;
     }
 }
