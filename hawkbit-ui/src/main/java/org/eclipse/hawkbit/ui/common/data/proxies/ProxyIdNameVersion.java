@@ -35,18 +35,40 @@ public class ProxyIdNameVersion extends ProxyIdentifiableEntity {
         this.version = version;
     }
 
+    /**
+     * Gets the name
+     *
+     * @return name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the name
+     *
+     * @param name
+     *          Name of entity
+     */
     public void setName(final String name) {
         this.name = name;
     }
 
+    /**
+     * Gets the version
+     *
+     * @return version
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * Sets the version
+     *
+     * @param version
+     *          Version of entity
+     */
     public void setVersion(final String version) {
         this.version = version;
     }

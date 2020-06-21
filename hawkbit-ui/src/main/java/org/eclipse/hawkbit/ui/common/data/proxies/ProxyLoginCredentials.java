@@ -20,26 +20,59 @@ public class ProxyLoginCredentials implements Serializable {
     private String username;
     private String password;
 
+    /**
+     * Gets the tenant
+     *
+     * @return tenant
+     */
     public String getTenant() {
         return tenant;
     }
 
+    /**
+     * Sets the tenant
+     *
+     * @param tenant
+     *          Tenant of corresponding user
+     */
     public void setTenant(final String tenant) {
         this.tenant = tenant;
     }
 
+    /**
+     * Gets the username
+     *
+     * @return username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Sets the username
+     *
+     * @param username
+     *          Username for login
+     */
     public void setUsername(final String username) {
         this.username = username;
     }
 
+    /**
+     * Gets the password
+     *
+     * @return password
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Sets the password
+     *
+     * @param password
+     *          password for login
+     */
     public void setPassword(final String password) {
         this.password = password;
     }

@@ -31,6 +31,11 @@ public class ProxyAction extends ProxyIdentifiableEntity {
     private transient ZonedDateTime maintenanceWindowStartTime;
     private long forcedTime;
 
+    /**
+     * Gets the maintenanceWindow
+     *
+     * @return maintenanceWindow
+     */
     public String getMaintenanceWindow() {
         return maintenanceWindow;
     }
@@ -158,30 +163,72 @@ public class ProxyAction extends ProxyIdentifiableEntity {
         this.rolloutName = rolloutName;
     }
 
+    /**
+     * Gets the actionType
+     *
+     * @return actionType
+     */
     public ActionType getActionType() {
         return actionType;
     }
 
+    /**
+     * Sets the actionType
+     *
+     * @param actionType
+     *          ActionType
+     */
     public void setActionType(final ActionType actionType) {
         this.actionType = actionType;
     }
 
+    /**
+     * Gets the maintenanceWindowStartTime
+     *
+     * @return maintenanceWindowStartTime
+     */
     public ZonedDateTime getMaintenanceWindowStartTime() {
         return maintenanceWindowStartTime;
     }
 
+    /**
+     * Sets the maintenanceWindowStartTime
+     *
+     * @param maintenanceWindowStartTime
+     *          ZonedDateTime
+     */
     public void setMaintenanceWindowStartTime(final ZonedDateTime maintenanceWindowStartTime) {
         this.maintenanceWindowStartTime = maintenanceWindowStartTime;
     }
 
+    /**
+     * Gets the forcedTime
+     *
+     * @return forcedTime
+     */
     public long getForcedTime() {
         return forcedTime;
     }
 
+    /**
+     * Sets the forcedTime
+     *
+     * @param forcedTime
+     *          forced time in Milli seconds
+     */
     public void setForcedTime(final long forcedTime) {
         this.forcedTime = forcedTime;
     }
 
+    /**
+     * Flag that indicates if the action type is ForceTime
+     *
+     * @param hitTimeMillis
+     *          time in Milli seconds
+     *
+     * @return <code>true</code> if the hitAutoForceTime is active, otherwise
+     *         <code>false</code>
+     */
     public boolean isHitAutoForceTime(final long hitTimeMillis) {
         if (ActionType.TIMEFORCED == getActionType()) {
             return hitTimeMillis >= getForcedTime();
@@ -189,10 +236,22 @@ public class ProxyAction extends ProxyIdentifiableEntity {
         return false;
     }
 
+    /**
+     * Flag that indicates if the status is Canceling or canceled
+     *
+     * @return <code>true</code> if the status is canceling or canceled, otherwise
+     *         <code>false</code>
+     */
     public boolean isCancelingOrCanceled() {
         return Status.CANCELING == getStatus() || Status.CANCELED == getStatus();
     }
 
+    /**
+     * Flag that indicates if the action is force type
+     *
+     * @return <code>true</code> if the selection is forced, otherwise
+     *         <code>false</code>
+     */
     public boolean isForce() {
         switch (getActionType()) {
         case FORCED:
@@ -239,6 +298,11 @@ public class ProxyAction extends ProxyIdentifiableEntity {
             this.msgName = msgName;
         }
 
+        /**
+         * Gets the name of the message
+         *
+         * @return msgName
+         */
         public String getMsgName() {
             return msgName;
         }

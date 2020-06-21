@@ -18,14 +18,28 @@ public class ProxyFilterButton extends ProxyNamedEntity {
 
     private String colour;
 
+    /**
+     * Constructor to set default colour of button
+     */
     public ProxyFilterButton() {
         this.colour = DEFAULT_COLOR;
     }
 
+    /**
+     * Gets the button colour
+     *
+     * @return colour
+     */
     public String getColour() {
         return colour;
     }
 
+    /**
+     * Sets the colour
+     *
+     * @param colour
+     *          Button color
+     */
     public void setColour(final String colour) {
         this.colour = colour;
     }

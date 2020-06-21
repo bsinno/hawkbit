@@ -29,25 +29,56 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity implement
     private Long createdAt;
     private Long lastModifiedAt;
 
+    /**
+     * Constructor
+     */
     public ProxyNamedEntity() {
     }
 
+    /**
+     * Constructor for ProxyNamedEntity
+     *
+     * @param id
+     *          Id of named entity
+     */
     public ProxyNamedEntity(final Long id) {
         super(id);
     }
 
+    /**
+     * Gets the createdDate
+     *
+     * @return createdDate
+     */
     public String getCreatedDate() {
         return createdDate;
     }
 
+    /**
+     * Sets the createdDate
+     *
+     * @param createdDate
+     *          Date the entity is created
+     */
     public void setCreatedDate(final String createdDate) {
         this.createdDate = createdDate;
     }
 
+    /**
+     * Gets the modifiedDate
+     *
+     * @return modifiedDate
+     */
     public String getModifiedDate() {
         return modifiedDate;
     }
 
+    /**
+     * Sets the modifiedDate
+     *
+     * @param modifiedDate
+     *          Date the entity is modified or updated
+     */
     public void setModifiedDate(final String modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
@@ -72,34 +103,78 @@ public abstract class ProxyNamedEntity extends ProxyIdentifiableEntity implement
         this.description = description;
     }
 
+    /**
+     * Gets the user info who created the entity
+     *
+     * @return createdBy
+     */
     public String getCreatedBy() {
         return createdBy;
     }
 
+    /**
+     * Sets the createdBy
+     *
+     * @param createdBy
+     *          user info who created the entity
+     */
     public void setCreatedBy(final String createdBy) {
         this.createdBy = createdBy;
     }
 
+    /**
+     * Gets the most recent user info who modified the entity
+     *
+     * @return lastModifiedBy
+     */
     public String getLastModifiedBy() {
         return lastModifiedBy;
     }
 
+    /**
+     * Sets the lastModifiedBy
+     *
+     * @param lastModifiedBy
+     *          most recent user info who modified the entity
+     */
     public void setLastModifiedBy(final String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 
+    /**
+     * Gets the createdAt
+     *
+     * @return time when entity is created
+     */
     public Long getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     * Sets the createdAt
+     *
+     * @param createdAt
+     *          time when entity is created
+     */
     public void setCreatedAt(final Long createdAt) {
         this.createdAt = createdAt;
     }
 
+    /**
+     * Gets the lastModifiedAt
+     *
+     * @return time when entity is lastModified
+     */
     public Long getLastModifiedAt() {
         return lastModifiedAt;
     }
 
+    /**
+     * Sets the lastModifiedAt
+     *
+     * @param lastModifiedAt
+     *          time when entity is lastModified
+     */
     public void setLastModifiedAt(final Long lastModifiedAt) {
         this.lastModifiedAt = lastModifiedAt;
     }

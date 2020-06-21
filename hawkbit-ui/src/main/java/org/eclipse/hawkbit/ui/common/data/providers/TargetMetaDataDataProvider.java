@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,6 +24,12 @@ public class TargetMetaDataDataProvider extends AbstractMetaDataDataProvider<Tar
 
     private final transient TargetManagement targetManagement;
 
+    /**
+     * Constructor for TargetManagement
+     *
+     * @param targetManagement
+     *          TargetManagement
+     */
     public TargetMetaDataDataProvider(final TargetManagement targetManagement) {
         super();
 

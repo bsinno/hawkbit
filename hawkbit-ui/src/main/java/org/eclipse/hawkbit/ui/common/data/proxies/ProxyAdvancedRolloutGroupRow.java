@@ -26,10 +26,21 @@ public class ProxyAdvancedRolloutGroupRow implements Serializable, TargetFilterQ
     private String triggerThresholdPercentage;
     private String errorThresholdPercentage;
 
+    /**
+     * Gets the name of the group
+     *
+     * @return groupName
+     */
     public String getGroupName() {
         return groupName;
     }
 
+    /**
+     * Sets the groupName
+     *
+     * @param groupName
+     *          name of the group
+     */
     public void setGroupName(final String groupName) {
         this.groupName = groupName;
     }
@@ -54,26 +65,59 @@ public class ProxyAdvancedRolloutGroupRow implements Serializable, TargetFilterQ
         this.targetFilterId = targetFilterId;
     }
 
+    /**
+     * Gets the percentage of the target
+     *
+     * @return targetPercentage
+     */
     public Float getTargetPercentage() {
         return targetPercentage;
     }
 
+    /**
+     * Sets the targetPercentage
+     *
+     * @param targetPercentage
+     *          percentage of the target
+     */
     public void setTargetPercentage(final Float targetPercentage) {
         this.targetPercentage = targetPercentage;
     }
 
+    /**
+     * Gets the percentage of the TriggerThreshold
+     *
+     * @return triggerThresholdPercentage
+     */
     public String getTriggerThresholdPercentage() {
         return triggerThresholdPercentage;
     }
 
+    /**
+     * Sets the triggerThresholdPercentage
+     *
+     * @param triggerThresholdPercentage
+     *          percentage of the triggerThreshold
+     */
     public void setTriggerThresholdPercentage(final String triggerThresholdPercentage) {
         this.triggerThresholdPercentage = triggerThresholdPercentage;
     }
 
+    /**
+     * Gets the percentage of the errorThreshold
+     *
+     * @return errorThresholdPercentage
+     */
     public String getErrorThresholdPercentage() {
         return errorThresholdPercentage;
     }
 
+    /**
+     * Sets the errorThresholdPercentage
+     *
+     * @param errorThresholdPercentage
+     *          percentage of the errorThreshold
+     */
     public void setErrorThresholdPercentage(final String errorThresholdPercentage) {
         this.errorThresholdPercentage = errorThresholdPercentage;
     }

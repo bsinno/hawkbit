@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,6 +27,14 @@ public class TargetTagDataProvider extends ProxyDataProvider<ProxyTag, TargetTag
 
     private final transient TargetTagManagement tagManagementService;
 
+    /**
+     * Constructor for TargetTagDataProvider
+     *
+     * @param tagManagementService
+     *          TargetTagManagement
+     * @param mapper
+     *          TagToProxyTagMapper of TargetTag
+     */
     public TargetTagDataProvider(final TargetTagManagement tagManagementService,
             final TagToProxyTagMapper<TargetTag> mapper) {
         super(mapper, new Sort(Direction.ASC, "name"));
