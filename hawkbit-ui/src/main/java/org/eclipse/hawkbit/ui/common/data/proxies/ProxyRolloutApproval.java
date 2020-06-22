@@ -22,18 +22,40 @@ public class ProxyRolloutApproval implements Serializable {
     private String approvalRemark;
     private ApprovalDecision approvalDecision;
 
+    /**
+     * Gets the approvalRemark
+     *
+     * @return approvalRemark
+     */
     public String getApprovalRemark() {
         return approvalRemark;
     }
 
+    /**
+     * Sets the approvalRemark
+     *
+     * @param approvalRemark
+     *          Remark for approval
+     */
     public void setApprovalRemark(final String approvalRemark) {
         this.approvalRemark = approvalRemark;
     }
 
+    /**
+     * Gets the approvalDecision
+     *
+     * @return approvalDecision
+     */
     public ApprovalDecision getApprovalDecision() {
         return approvalDecision;
     }
 
+    /**
+     * Sets the approvalDecision
+     *
+     * @param approvalDecision
+     *           Approve or deny Decision
+     */
     public void setApprovalDecision(final ApprovalDecision approvalDecision) {
         this.approvalDecision = approvalDecision;
     }

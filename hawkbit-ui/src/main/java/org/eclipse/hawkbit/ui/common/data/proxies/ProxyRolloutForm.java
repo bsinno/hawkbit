@@ -37,10 +37,20 @@ public class ProxyRolloutForm implements Serializable, NameAware, DsIdAware, Tar
     private AutoStartOption autoStartOption;
     private Long startAt;
 
+    /**
+     * Gets the rollout form id
+     * @return id
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Sets the form id
+     *
+     * @param id
+     *         rollout form id
+     */
     public void setId(final Long id) {
         this.id = id;
     }
