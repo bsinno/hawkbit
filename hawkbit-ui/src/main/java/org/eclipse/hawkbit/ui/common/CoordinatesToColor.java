@@ -49,7 +49,7 @@ public class CoordinatesToColor implements Coordinates2Color {
         if (hsv[1] < 1F) {
             y = (int) Math.round(hsv[1] * 110.0);
         } else {
-            y = (int) Math.round(110.0 - (hsv[1] + hsv[2]) * 110.0);
+            y = (int) Math.round(110.0 - ((double) hsv[1] + (double) hsv[2]) * 110.0);
         }
         return y;
     }

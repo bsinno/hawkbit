@@ -8,14 +8,22 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
-import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
-import org.springframework.util.StringUtils;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.ValidatableLayout.ValidationStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.vaadin.data.ValidationException;
+import com.vaadin.data.ValidationResult;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.GridLayout;
@@ -24,17 +32,17 @@ import com.vaadin.ui.GridLayout;
  * Abstract Grid Rollout window layout.
  */
 @SuppressWarnings({ "squid:MaximumInheritanceDepth", "squid:S2160" })
-public abstract class AbstractRolloutWindowLayout extends AbstractEntityWindowLayout<ProxyRolloutWindow> {
-    private final TargetManagement targetManagement;
+public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<ProxyRolloutWindow> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRolloutWindowLayout.class);
 
     protected final RolloutWindowLayoutComponentBuilder rolloutComponentBuilder;
 
+    private final List<ValidatableLayout> validatableLayouts;
+    private Consumer<Boolean> validationCallback;
+
     protected AbstractRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
-        super();
-
-        this.targetManagement = dependencies.getTargetManagement();
-
         this.rolloutComponentBuilder = new RolloutWindowLayoutComponentBuilder(dependencies);
+        this.validatableLayouts = new ArrayList<>();
     }
 
     @Override
@@ -53,53 +61,82 @@ public abstract class AbstractRolloutWindowLayout extends AbstractEntityWindowLa
         return rootLayout;
     }
 
-    protected long updateTotalTargetsByQuery(final String targetFilterQuery) {
-        if (StringUtils.isEmpty(targetFilterQuery)) {
-            getEntity().setTotalTargets(0L);
-            getEntity().setTargetFilterQuery(null);
-
-            return 0L;
-        }
-
-        if (!targetFilterQuery.equals(getEntity().getTargetFilterQuery())) {
-            getEntity().setTotalTargets(targetManagement.countByRsql(targetFilterQuery));
-            getEntity().setTargetFilterQuery(targetFilterQuery);
-        }
-
-        return getEntity().getTotalTargets();
+    protected void addValidatableLayouts(final Collection<ValidatableLayout> validatableLayouts) {
+        validatableLayouts.forEach(this::addValidatableLayout);
     }
 
-    protected int getGroupSizeByGroupNumber(final Integer numberOfGroups) {
-        final Long totalTargets = getEntity().getTotalTargets();
-
-        if (totalTargets == null || totalTargets <= 0L || numberOfGroups == null || numberOfGroups <= 0L) {
-            return 0;
+    protected void addValidatableLayout(final ValidatableLayout validatableLayout) {
+        if (validatableLayout != null) {
+            validatableLayout.setValidationListener(this::onValidationChanged);
+            validatableLayouts.add(validatableLayout);
         }
-
-        return (int) Math.ceil((double) totalTargets / (double) numberOfGroups);
     }
 
-    public Long getStartAtTime(final ProxyRolloutWindow entity) {
-        switch (entity.getAutoStartOption()) {
-        case AUTO_START:
-            return System.currentTimeMillis();
-        case SCHEDULED:
-            return entity.getStartAt();
-        case MANUAL:
-        default:
+    // TODO: consider removing after refactoring Advanced Groups Layout to use
+    // value change listener instead of validation listener
+    protected void addValidatableLayout(final ValidatableLayout validatableLayout,
+            final Consumer<ValidationStatus> onValidationChangedCallback) {
+        if (validatableLayout != null) {
+            validatableLayout.setValidationListener(status -> {
+                onValidationChanged(status);
+                onValidationChangedCallback.accept(status);
+            });
+            validatableLayouts.add(validatableLayout);
+        }
+    }
+
+    protected void removeValidatableLayout(final ValidatableLayout validatableLayout) {
+        if (validatableLayout != null) {
+            validatableLayout.setValidationListener(null);
+            validatableLayouts.remove(validatableLayout);
+        }
+    }
+
+    private void onValidationChanged(final ValidationStatus status) {
+        if (validationCallback == null) {
+            return;
+        }
+
+        // shortcut for setting the whole layout as invalid if at least one
+        // validatable sub-layout becomes invalid
+        if (ValidationStatus.VALID != status) {
+            validationCallback.accept(false);
+            return;
+        }
+
+        validationCallback.accept(allLayoutsValid());
+    }
+
+    private boolean allLayoutsValid() {
+        if (validatableLayouts.isEmpty()) {
+            return false;
+        }
+
+        return validatableLayouts.stream().allMatch(ValidatableLayout::isValid);
+    }
+
+    @Override
+    public void addValidationListener(final Consumer<Boolean> validationCallback) {
+        this.validationCallback = validationCallback;
+
+        validationCallback.accept(allLayoutsValid());
+    }
+
+    @Override
+    public ProxyRolloutWindow getEntity() {
+        try {
+            return getValidatableEntity();
+        } catch (final ValidationException e) {
+            final String validationErrors = e.getValidationErrors().stream().map(ValidationResult::getErrorMessage)
+                    .collect(Collectors.joining(";"));
+            LOGGER.trace("There was a validation error while trying to get the rollouts window bean: {}",
+                    validationErrors);
+
             return null;
         }
     }
 
-    public AutoStartOption getStartAtOption(final Long startAtTime) {
-        if (startAtTime == null) {
-            return AutoStartOption.MANUAL;
-        } else if (startAtTime < System.currentTimeMillis()) {
-            return AutoStartOption.AUTO_START;
-        } else {
-            return AutoStartOption.SCHEDULED;
-        }
-    }
+    protected abstract ProxyRolloutWindow getValidatableEntity() throws ValidationException;
 
     protected abstract void addComponents(final GridLayout rootLayout);
 }

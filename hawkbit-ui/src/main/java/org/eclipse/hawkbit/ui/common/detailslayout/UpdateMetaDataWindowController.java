@@ -63,7 +63,7 @@ public class UpdateMetaDataWindowController extends AbstractEntityWindowControll
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyMetaData proxyEntity) {
         layout.disableMetadataKey();
     }
 

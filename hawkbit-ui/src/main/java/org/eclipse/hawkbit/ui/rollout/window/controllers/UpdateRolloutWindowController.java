@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
+import java.util.List;
+
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
@@ -18,10 +20,12 @@ import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.Rollout;
+import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
-import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
@@ -72,7 +76,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
     }
 
     @Override
-    public AbstractEntityWindowLayout<ProxyRolloutWindow> getLayout() {
+    public EntityWindowLayout<ProxyRolloutWindow> getLayout() {
         return layout;
     }
 
@@ -85,27 +89,25 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
             proxyRolloutWindow.setForcedTime(SPDateTimeUtil.twoWeeksFromNowEpochMilli());
         }
 
-        proxyRolloutWindow.setAutoStartOption(layout.getStartAtOption(proxyRolloutWindow.getStartAt()));
+        proxyRolloutWindow.setAutoStartOption(proxyRolloutWindow.getOptionByStartAt());
         if (AutoStartOption.SCHEDULED != proxyRolloutWindow.getAutoStartOption()) {
             proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
         }
+
+        proxyRolloutWindow.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
+        setRolloutGroups(proxyRolloutWindow);
 
         nameBeforeEdit = proxyRolloutWindow.getName();
 
         return proxyRolloutWindow;
     }
 
-    @Override
-    protected void adaptLayout() {
-        if (layout.getEntity().getStatus() != Rollout.RolloutStatus.READY) {
-            layout.disableRequiredFieldsOnEdit();
-        }
-
-        layout.populateTotalTargetsLegend();
-        layout.updateGroupsChart(
-                rolloutGroupManagement.findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()),
-                        layout.getEntity().getId()).getContent(),
-                layout.getEntity().getTotalTargets());
+    private void setRolloutGroups(final ProxyRolloutWindow proxyRolloutWindow) {
+        final List<RolloutGroup> advancedRolloutGroups = rolloutGroupManagement
+                .findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()),
+                        proxyRolloutWindow.getId())
+                .getContent();
+        proxyRolloutWindow.setAdvancedRolloutGroups(advancedRolloutGroups);
     }
 
     @Override
@@ -115,15 +117,16 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
                 .actionType(entity.getActionType())
                 .forcedTime(entity.getActionType() == ActionType.TIMEFORCED ? entity.getForcedTime()
                         : RepositoryModelConstants.NO_FORCE_TIME)
-                .startAt(layout.getStartAtTime(entity));
+                .startAt(entity.getStartAtByOption());
 
         Rollout updatedRollout;
         try {
             updatedRollout = rolloutManagement.update(rolloutUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of rollout failed in UI: {}", e.getMessage());
-            uiNotification.displayWarning(i18n.getMessage(
-                    "Rollout with name " + entity.getName() + " was deleted or you are not allowed to update it"));
+            // TODO: add 18n
+            uiNotification.displayWarning(
+                    "Rollout with name " + entity.getName() + " was deleted or you are not allowed to update it");
             eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
             return;
         }
@@ -140,6 +143,12 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
 
     @Override
     protected boolean isEntityValid(final ProxyRolloutWindow entity) {
+        if (entity == null) {
+            uiNotification
+                    .displayValidationError(i18n.getMessage("message.save.fail", i18n.getMessage("caption.rollout")));
+            return false;
+        }
+
         if (!StringUtils.hasText(entity.getName())) {
             uiNotification.displayValidationError(i18n.getMessage("message.rollout.name.empty"));
             return false;
@@ -153,7 +162,8 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         }
 
         if (Rollout.RolloutStatus.WAITING_FOR_APPROVAL == entity.getStatus() && entity.getApprovalDecision() == null) {
-            uiNotification.displayValidationError(i18n.getMessage("You should approve or reject the Rollout"));
+            // TODO: add 18n
+            uiNotification.displayValidationError("You should approve or reject the Rollout");
             return false;
         }
 

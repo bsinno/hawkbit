@@ -237,6 +237,20 @@ public abstract class AbstractFileTransferHandler implements Serializable {
         private final UI vaadinUi;
         private final Lock uploadLock;
 
+        /**
+         * Constructor for TransferArtifactToRepositoryRunnable
+         *
+         * @param inputStream
+         *          InputStream
+         * @param fileUploadId
+         *          FileUploadId
+         * @param mimeType
+         *          String
+         * @param vaadinUi
+         *          UI
+         * @param uploadLock
+         *          Lock
+         */
         public TransferArtifactToRepositoryRunnable(final InputStream inputStream, final FileUploadId fileUploadId,
                 final String mimeType, final UI vaadinUi, final Lock uploadLock) {
             this.inputStream = inputStream;

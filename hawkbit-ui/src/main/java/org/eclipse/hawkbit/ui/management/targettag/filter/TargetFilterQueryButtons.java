@@ -136,10 +136,20 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         }
     }
 
-    public void resetFilterOnTfqDeleted(final Collection<Long> deletedTargetFilterQueryIds) {
+    public void reselectFilterOnTfqUpdated(final Collection<Long> updatedTargetFilterQueryIds) {
+        if (isClickedTfqInIds(updatedTargetFilterQueryIds)) {
+            publishFilterChangedEvent(customTargetTagFilterButtonClick.getPreviouslyClickedFilterId());
+        }
+    }
+
+    private boolean isClickedTfqInIds(final Collection<Long> tfqIds) {
         final Long clickedTargetFilterQueryId = customTargetTagFilterButtonClick.getPreviouslyClickedFilterId();
 
-        if (clickedTargetFilterQueryId != null && deletedTargetFilterQueryIds.contains(clickedTargetFilterQueryId)) {
+        return clickedTargetFilterQueryId != null && tfqIds.contains(clickedTargetFilterQueryId);
+    }
+
+    public void resetFilterOnTfqDeleted(final Collection<Long> deletedTargetFilterQueryIds) {
+        if (isClickedTfqInIds(deletedTargetFilterQueryIds)) {
             customTargetTagFilterButtonClick.setPreviouslyClickedFilterId(null);
             publishFilterChangedEvent(null);
         }

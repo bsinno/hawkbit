@@ -77,7 +77,7 @@ public class UpdateDsTagWindowController extends AbstractEntityWindowController<
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyTag proxyEntity) {
         layout.disableTagName();
     }
 

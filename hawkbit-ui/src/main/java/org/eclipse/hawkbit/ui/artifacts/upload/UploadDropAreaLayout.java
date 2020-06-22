@@ -121,6 +121,12 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
         setCompositionRoot(dropAreaLayout);
     }
 
+    /**
+     * Update the upload view on file drop
+     *
+     * @param masterEntity
+     *          ProxySoftwareModule
+     */
     @Override
     public void masterEntityChanged(final ProxySoftwareModule masterEntity) {
         final Long masterEntityId = masterEntity != null ? masterEntity.getId() : null;
@@ -129,18 +135,37 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
         uploadButtonLayout.updateMasterEntityFilter(masterEntityId);
     }
 
+    /**
+     * Checks progress on file upload
+     *
+     * @param fileUploadProgress
+     *          FileUploadProgress
+     */
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         uploadButtonLayout.onUploadChanged(fileUploadProgress);
     }
 
+    /**
+     * Is called when view is shown to the user
+     */
     public void restoreState() {
         uploadButtonLayout.restoreState();
     }
 
+    /**
+     * Get file drop area layout
+     *
+     * @return VerticalLayout
+     */
     public VerticalLayout getDropAreaLayout() {
         return dropAreaLayout;
     }
 
+    /**
+     * Get File upload button layout
+     *
+     * @return UploadProgressButtonLayout
+     */
     public UploadProgressButtonLayout getUploadButtonLayout() {
         return uploadButtonLayout;
     }
@@ -149,6 +174,12 @@ public class UploadDropAreaLayout extends CustomComponent implements MasterEntit
 
         private static final long serialVersionUID = 1L;
 
+        /**
+         * Validates the file drop events and triggers the upload
+         *
+         * @param event
+         *          FileDropEvent
+         */
         @Override
         public void drop(final FileDropEvent<VerticalLayout> event) {
             if (validate(event)) {

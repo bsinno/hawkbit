@@ -13,16 +13,23 @@ import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
 import org.eclipse.hawkbit.ui.common.data.aware.NameAware;
+import org.eclipse.hawkbit.ui.common.data.aware.StartOptionAware;
+import org.eclipse.hawkbit.ui.common.data.aware.TargetFilterQueryAware;
 import org.eclipse.hawkbit.ui.common.data.aware.VersionAware;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
+import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
+import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.Binder.Binding;
+import com.vaadin.data.Binder.BindingBuilder;
+import com.vaadin.data.Validator;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -37,6 +44,7 @@ public final class FormComponentBuilder {
     public static final String TEXTFIELD_DESCRIPTION = "textfield.description";
 
     public static final String PROMPT_DISTRIBUTION_SET = "prompt.distribution.set";
+    public static final String PROMPT_TARGET_FILTER = "prompt.target.filter";
 
     private FormComponentBuilder() {
     }
@@ -141,7 +149,6 @@ public final class FormComponentBuilder {
         binder.forField(actionTypeOptionGroupLayout.getActionTypeOptionGroup()).bind(ActionTypeAware::getActionType,
                 ActionTypeAware::setActionType);
 
-        // TODO: use i18n
         final Binding<T, Long> binding = binder.forField(actionTypeOptionGroupLayout.getForcedTimeDateField())
                 .asRequired(i18n.getMessage("message.forcedTime.cannotBeEmpty")).withConverter(localDateTime -> {
                     if (localDateTime == null) {
@@ -158,6 +165,44 @@ public final class FormComponentBuilder {
                 }).bind(ActionTypeAware::getForcedTime, ActionTypeAware::setForcedTime);
 
         return new BoundComponent<>(actionTypeOptionGroupLayout, binding);
+    }
+
+    /**
+     * Create a bound {@link AutoStartOptionGroupLayout}
+     * 
+     * @param <T>
+     *            type of the binder
+     * @param binder
+     *            that is bound to the layout
+     * @param i18n
+     *            message source
+     * @param componentId
+     *            id of the input layout
+     * @return a bound layout
+     */
+    public static <T extends StartOptionAware> BoundComponent<AutoStartOptionGroupLayout> createAutoStartOptionGroupLayout(
+            final Binder<T> binder, final VaadinMessageSource i18n, final String componentId) {
+        final AutoStartOptionGroupLayout autoStartOptionGroup = new AutoStartOptionGroupLayout(i18n, componentId);
+
+        binder.forField(autoStartOptionGroup.getAutoStartOptionGroup()).bind(StartOptionAware::getStartOption,
+                StartOptionAware::setStartOption);
+
+        final Binding<T, Long> binding = binder.forField(autoStartOptionGroup.getStartAtDateField())
+                .asRequired(i18n.getMessage("message.scheduledTime.cannotBeEmpty")).withConverter(localDateTime -> {
+                    if (localDateTime == null) {
+                        return null;
+                    }
+
+                    return SPDateTimeUtil.localDateTimeToEpochMilli(localDateTime);
+                }, startAtTime -> {
+                    if (startAtTime == null) {
+                        return null;
+                    }
+
+                    return SPDateTimeUtil.epochMilliToLocalDateTime(startAtTime);
+                }).bind(StartOptionAware::getStartAt, StartOptionAware::setStartAt);
+
+        return new BoundComponent<>(autoStartOptionGroup, binding);
     }
 
     /**
@@ -227,5 +272,76 @@ public final class FormComponentBuilder {
         comboBox.setDataProvider(dataProvider);
 
         return comboBox;
+    }
+
+    /**
+     * create a bound input for target filter queries.
+     * 
+     * @param <T>
+     *            type of the binder
+     * @param binder
+     *            that is bound to the input
+     * @param dataProvider
+     *            provides target filter queries
+     * @param i18n
+     *            i18n
+     * @param componentId
+     *            id of the input layout
+     * @return bound ComboBox of target filter queries
+     */
+    public static <T extends TargetFilterQueryAware> BoundComponent<ComboBox<ProxyTargetFilterQuery>> createTargetFilterQueryCombo(
+            final Binder<T> binder, final Validator<ProxyTargetFilterQuery> validator,
+            final TargetFilterQueryDataProvider dataProvider, final VaadinMessageSource i18n,
+            final String componentId) {
+        final ComboBox<ProxyTargetFilterQuery> tfqCombo = createTargetFilterQueryCombo(dataProvider, i18n, componentId);
+
+        final BindingBuilder<T, ProxyTargetFilterQuery> bindingBuilder = binder.forField(tfqCombo)
+                .asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_TFQ_REQUIRED));
+        if (validator != null) {
+            bindingBuilder.withValidator(validator);
+        }
+
+        final Binding<T, ProxyTargetFilterQuery> binding = bindingBuilder.bind(tfqAwareBean -> {
+            if (tfqAwareBean.getTargetFilterId() == null) {
+                return null;
+            }
+
+            final ProxyTargetFilterQuery filter = new ProxyTargetFilterQuery();
+            filter.setId(tfqAwareBean.getTargetFilterId());
+            filter.setQuery(tfqAwareBean.getTargetFilterQuery());
+
+            return filter;
+        }, (tfqAwareBean, filter) -> {
+            tfqAwareBean.setTargetFilterId(filter != null ? filter.getId() : null);
+            tfqAwareBean.setTargetFilterQuery(filter != null ? filter.getQuery() : null);
+        });
+
+        return new BoundComponent<>(tfqCombo, binding);
+    }
+
+    /**
+     * create an unbound input for target filter queries
+     * 
+     * @param dataProvider
+     *            provides target filter queries
+     * @param i18n
+     *            i18n
+     * @param componentId
+     *            id of the input layout
+     * @return ComboBox of target filter queries
+     */
+    private static ComboBox<ProxyTargetFilterQuery> createTargetFilterQueryCombo(
+            final TargetFilterQueryDataProvider dataProvider, final VaadinMessageSource i18n,
+            final String componentId) {
+        final ComboBox<ProxyTargetFilterQuery> tfqCombo = new ComboBox<>();
+
+        tfqCombo.setId(componentId);
+        tfqCombo.setPlaceholder(i18n.getMessage(PROMPT_TARGET_FILTER));
+        tfqCombo.addStyleName(ValoTheme.COMBOBOX_SMALL);
+
+        tfqCombo.setItemCaptionGenerator(ProxyTargetFilterQuery::getName);
+        tfqCombo.setDataProvider(dataProvider);
+
+        return tfqCombo;
     }
 }

@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.common.data.proxies;
 
+import java.security.SecureRandom;
+
 /**
  * Proxy to display details for Software Modules.
  */
@@ -22,6 +24,8 @@ public class ProxySoftwareModuleDetails extends ProxyIdentifiableEntity {
 
     public ProxySoftwareModuleDetails(final boolean isMandatory, final Long typeId, final String typeName,
             final Long smId, final String smNameAndVersion) {
+        super(new SecureRandom().nextLong());
+
         this.isMandatory = isMandatory;
         this.typeId = typeId;
         this.typeName = typeName;

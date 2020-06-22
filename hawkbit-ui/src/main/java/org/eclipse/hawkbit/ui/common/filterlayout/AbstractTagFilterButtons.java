@@ -146,14 +146,16 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
     protected abstract void deleteTag(final ProxyTag tagToDelete);
 
     public void resetFilterOnTagsDeleted(final Collection<Long> deletedTagIds) {
+        if (isAtLeastOneClickedTagInIds(deletedTagIds)) {
+            deletedTagIds.forEach(getFilterButtonClickBehaviour()::removePreviouslyClickedFilter);
+            publishFilterChangedEvent(getFilterButtonClickBehaviour().getPreviouslyClickedFilterIdsWithName());
+        }
+    }
+
+    private boolean isAtLeastOneClickedTagInIds(final Collection<Long> tagIds) {
         final Set<Long> clickedTagIds = getFilterButtonClickBehaviour().getPreviouslyClickedFilterIds();
 
-        if (CollectionUtils.isEmpty(clickedTagIds) || Collections.disjoint(clickedTagIds, deletedTagIds)) {
-            return;
-        }
-
-        deletedTagIds.forEach(getFilterButtonClickBehaviour()::removePreviouslyClickedFilter);
-        publishFilterChangedEvent(getFilterButtonClickBehaviour().getPreviouslyClickedFilterIdsWithName());
+        return !CollectionUtils.isEmpty(clickedTagIds) && !Collections.disjoint(clickedTagIds, tagIds);
     }
 
     @Override

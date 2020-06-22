@@ -35,14 +35,18 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
 
     private DateTimeField startAtDateField;
 
+    private final String autoStartOptionGroupId;
+
     /**
      * Instantiates the auto start options layout
      * 
      * @param i18n
      *            the internationalization helper
      */
-    public AutoStartOptionGroupLayout(final VaadinMessageSource i18n) {
+    public AutoStartOptionGroupLayout(final VaadinMessageSource i18n, final String autoStartOptionGroupId) {
         this.i18n = i18n;
+        this.autoStartOptionGroupId = autoStartOptionGroupId;
+
         setSizeUndefined();
 
         createOptionGroup();
@@ -51,6 +55,7 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
 
     private void createOptionGroup() {
         autoStartOptionGroup = new RadioButtonGroup<>();
+        autoStartOptionGroup.setId(autoStartOptionGroupId);
         autoStartOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
         autoStartOptionGroup.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
         autoStartOptionGroup.setItemIconGenerator(item -> {

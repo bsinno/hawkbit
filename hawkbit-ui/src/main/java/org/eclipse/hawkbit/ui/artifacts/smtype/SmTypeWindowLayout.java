@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,12 +18,21 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 
+/**
+ * Software module type Window Layout view
+ */
 public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
     private final SmTypeWindowLayoutComponentBuilder smTypeComponentBuilder;
 
     private final TextField typeKey;
     private final RadioButtonGroup<SmTypeAssign> smTypeAssignOptionGroup;
 
+    /**
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     */
     public SmTypeWindowLayout(final VaadinMessageSource i18n, final UINotification uiNotification) {
         super(i18n, uiNotification);
 
@@ -45,10 +54,16 @@ public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
         return formLayout;
     }
 
+    /**
+     * Disable the software module type key text field
+     */
     public void disableTypeKey() {
         typeKey.setEnabled(false);
     }
 
+    /**
+     * Disable the software module type assign option
+     */
     public void disableTypeAssignOptionGroup() {
         smTypeAssignOptionGroup.setEnabled(false);
     }

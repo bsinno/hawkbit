@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for update software module window
+ */
 public class UpdateSmWindowController extends AbstractEntityWindowController<ProxySoftwareModule, ProxySoftwareModule> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateSmWindowController.class);
 
@@ -39,6 +42,22 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
 
     private final SmWindowLayout layout;
 
+    /**
+     * Constructor for UpdateSmWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param smManagement
+     *          SoftwareModuleManagement
+     * @param layout
+ *              SmWindowLayout
+     */
     public UpdateSmWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SoftwareModuleManagement smManagement,
             final SmWindowLayout layout) {
@@ -52,6 +71,9 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
         this.layout = layout;
     }
 
+    /**
+     * @return Software module layout
+     */
     @Override
     public AbstractEntityWindowLayout<ProxySoftwareModule> getLayout() {
         return layout;
@@ -72,7 +94,7 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
     }
 
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxySoftwareModule proxyEntity) {
         layout.disableSmTypeSelect();
         layout.disableNameField();
         layout.disableVersionField();
@@ -104,8 +126,7 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
     protected boolean isEntityValid(final ProxySoftwareModule entity) {
         if (!StringUtils.hasText(entity.getName()) || !StringUtils.hasText(entity.getVersion())
                 || entity.getProxyType() == null) {
-            // TODO: should we adapt message to include type?
-            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.nameorversion"));
+            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.nameorversionortype"));
             return false;
         }
 

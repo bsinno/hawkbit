@@ -8,12 +8,9 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
-import java.util.List;
-
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutCreate;
-import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.Rollout;
@@ -24,14 +21,14 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessCond
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
-import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
-import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowLayoutComponentBuilder;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AddRolloutWindowLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
@@ -66,7 +63,7 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
     }
 
     @Override
-    public AbstractEntityWindowLayout<ProxyRolloutWindow> getLayout() {
+    public EntityWindowLayout<ProxyRolloutWindow> getLayout() {
         return layout;
     }
 
@@ -81,18 +78,22 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
         proxyRolloutWindow.setAutoStartOption(AutoStartOption.MANUAL);
         proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
 
-        final RolloutGroupConditions defaultRolloutGroupConditions = RolloutWindowLayoutComponentBuilder
-                .getDefaultRolloutGroupConditions();
-        proxyRolloutWindow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
-        proxyRolloutWindow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
+        proxyRolloutWindow.setGroupDefinitionMode(GroupDefinitionMode.SIMPLE);
+        setDefaultThresholds(proxyRolloutWindow);
 
         return proxyRolloutWindow;
     }
 
+    protected void setDefaultThresholds(final ProxyRolloutWindow proxyRolloutWindow) {
+        final RolloutGroupConditions defaultRolloutGroupConditions = new RolloutGroupConditionBuilder().withDefaults()
+                .build();
+        proxyRolloutWindow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
+        proxyRolloutWindow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
+    }
+
     @Override
-    protected void adaptLayout() {
+    protected void adaptLayout(final ProxyRollout proxyEntity) {
         layout.addAdvancedGroupRowAndValidate();
-        layout.resetGroupsLegendLayout();
     }
 
     @Override
@@ -108,16 +109,14 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
                 .targetFilterQuery(entity.getTargetFilterQuery()).actionType(entity.getActionType())
                 .forcedTime(entity.getActionType() == ActionType.TIMEFORCED ? entity.getForcedTime()
                         : RepositoryModelConstants.NO_FORCE_TIME)
-                .startAt(layout.getStartAtTime(entity));
+                .startAt(entity.getStartAtByOption());
 
         Rollout rolloutToCreate;
-        if (layout.isNumberOfGroups()) {
+        if (GroupDefinitionMode.SIMPLE == entity.getGroupDefinitionMode()) {
             rolloutToCreate = rolloutManagement.create(rolloutCreate, entity.getNumberOfGroups(), conditions);
-        } else if (layout.isGroupsDefinition()) {
-            final List<RolloutGroupCreate> groups = layout.getAdvancedRolloutGroups();
-            rolloutToCreate = rolloutManagement.create(rolloutCreate, groups, conditions);
         } else {
-            throw new IllegalStateException("Either of the Tabs must be selected");
+            rolloutToCreate = rolloutManagement.create(rolloutCreate, entity.getAdvancedRolloutGroupDefinitions(),
+                    conditions);
         }
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", rolloutToCreate.getName()));
@@ -127,6 +126,12 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
 
     @Override
     protected boolean isEntityValid(final ProxyRolloutWindow entity) {
+        if (entity == null) {
+            uiNotification
+                    .displayValidationError(i18n.getMessage("message.save.fail", i18n.getMessage("caption.rollout")));
+            return false;
+        }
+
         if (!StringUtils.hasText(entity.getName())) {
             uiNotification.displayValidationError(i18n.getMessage("message.rollout.name.empty"));
             return false;
