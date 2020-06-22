@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype;
 
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
@@ -51,8 +52,8 @@ public class SmTypeSourceGrid extends Grid<ProxyType> {
     }
 
     private void addColumns() {
-        addColumn(ProxyType::getName).setId(SM_TYPE_SOURCE_NAME_ID)
+        GridComponentBuilder.addColumn(this, ProxyType::getName).setId(SM_TYPE_SOURCE_NAME_ID)
                 .setCaption(i18n.getMessage("header.dist.twintable.available"))
-                .setDescriptionGenerator(ProxyType::getDescription).setExpandRatio(1);
+                .setDescriptionGenerator(ProxyType::getDescription);
     }
 }

@@ -176,8 +176,8 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
 
     @Override
     public void addColumns() {
-        addNameColumn().setExpandRatio(1);
-        addVersionColumn().setExpandRatio(1);
+        addNameColumn();
+        addVersionColumn();
 
         final Column<?, ?> pinColumn = addPinColumn();
         final Column<?, ?> deleteColumn = addDeleteColumn();

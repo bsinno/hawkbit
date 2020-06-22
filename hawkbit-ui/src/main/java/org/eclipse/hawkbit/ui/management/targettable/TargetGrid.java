@@ -278,7 +278,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     @Override
     public void addColumns() {
-        addNameColumn().setExpandRatio(1);
+        addNameColumn();
 
         final Column<?, ?> pollingStatusColumn = addTargetPollingStatusColumn();
         final Column<?, ?> targetStatusColumn = addTargetStatusColumn();
@@ -323,10 +323,10 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     protected void addMaxColumns() {
         addNameColumn().setExpandRatio(2);
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, TARGET_CREATED_BY_ID).setExpandRatio(1);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, TARGET_CREATED_DATE_ID).setExpandRatio(1);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, TARGET_MODIFIED_BY_ID).setExpandRatio(1);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, TARGET_MODIFIED_DATE_ID).setExpandRatio(1);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, TARGET_CREATED_BY_ID);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, TARGET_CREATED_DATE_ID);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, TARGET_MODIFIED_BY_ID);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, TARGET_MODIFIED_DATE_ID);
 
         addDeleteColumn();
         GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESC_ID).setExpandRatio(2);

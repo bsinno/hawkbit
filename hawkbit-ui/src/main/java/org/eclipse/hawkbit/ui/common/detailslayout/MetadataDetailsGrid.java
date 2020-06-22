@@ -71,8 +71,8 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildKeyLink).setId(METADATA_KEY_ID).setCaption(i18n.getMessage("header.key"))
-                .setExpandRatio(7);
+        GridComponentBuilder.addComponentColumn(this, this::buildKeyLink).setId(METADATA_KEY_ID)
+                .setCaption(i18n.getMessage("header.key"));
     }
 
     private Button buildKeyLink(final ProxyMetaData metaData) {

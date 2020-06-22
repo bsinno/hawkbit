@@ -84,10 +84,9 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
         GridComponentBuilder.addIconColumn(this, actionStatusIconSupplier::getLabel, SPUILabelDefinitions.VAR_STATUS,
                 i18n.getMessage("header.status"));
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, SPUILabelDefinitions.VAR_CREATED_BY).setExpandRatio(1);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, SPUILabelDefinitions.VAR_CREATED_BY);
         GridComponentBuilder.addCreatedAtColumn(this, i18n, SPUILabelDefinitions.VAR_CREATED_DATE).setExpandRatio(2);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, SPUILabelDefinitions.VAR_LAST_MODIFIED_BY)
-                .setExpandRatio(1);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, SPUILabelDefinitions.VAR_LAST_MODIFIED_BY);
         GridComponentBuilder.addModifiedAtColumn(this, i18n, SPUILabelDefinitions.VAR_LAST_MODIFIED_DATE)
                 .setExpandRatio(2);
 

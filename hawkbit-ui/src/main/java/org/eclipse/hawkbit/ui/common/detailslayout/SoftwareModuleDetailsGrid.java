@@ -24,6 +24,7 @@ import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModuleDetails;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
@@ -134,11 +135,12 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
     }
 
     private void addColumns() {
-        addComponentColumn(this::buildIsMandatoryLabel).setId(SOFT_TYPE_MANDATORY_ID);
+        GridComponentBuilder.addIconColumn(this, this::buildIsMandatoryLabel, SOFT_TYPE_MANDATORY_ID, null);
 
-        addColumn(this::buildTypeName).setId(SOFT_TYPE_NAME_ID).setCaption(i18n.getMessage("header.caption.typename"));
+        GridComponentBuilder.addColumn(this, this::buildTypeName).setId(SOFT_TYPE_NAME_ID)
+                .setCaption(i18n.getMessage("header.caption.typename"));
 
-        addComponentColumn(this::buildSoftwareModulesLayout).setId(SOFT_MODULES_ID)
+        GridComponentBuilder.addComponentColumn(this, this::buildSoftwareModulesLayout).setId(SOFT_MODULES_ID)
                 .setCaption(i18n.getMessage("header.caption.softwaremodule"));
     }
 

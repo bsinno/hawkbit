@@ -113,14 +113,14 @@ public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSe
     protected void addMaxColumns() {
         addNameColumn().setExpandRatio(7);
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, DS_CREATED_BY_ID).setExpandRatio(1);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, DS_CREATED_DATE_ID).setExpandRatio(1);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, DS_MODIFIED_BY_ID).setExpandRatio(1);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, DS_MODIFIED_DATE_ID).setExpandRatio(1);
+        GridComponentBuilder.addCreatedByColumn(this, i18n, DS_CREATED_BY_ID);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, DS_CREATED_DATE_ID);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, DS_MODIFIED_BY_ID);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, DS_MODIFIED_DATE_ID);
 
         addDescriptionColumn().setExpandRatio(5);
 
-        addVersionColumn().setExpandRatio(1);
+        addVersionColumn();
 
         addDeleteColumn();
 

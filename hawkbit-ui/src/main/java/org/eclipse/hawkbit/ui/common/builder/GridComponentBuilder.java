@@ -7,8 +7,12 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
@@ -238,7 +242,29 @@ public final class GridComponentBuilder {
      * @return the created column
      */
     public static <E, T> Column<E, T> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider) {
-        return grid.addColumn(valueProvider).setMinimumWidthFromContent(false).setExpandRatio(1);
+        return addColumn(grid, valueProvider, null);
+    }
+
+    /**
+     * Add column to grid with the standard settings
+     * 
+     * @param <E>
+     *            entity type of the grid
+     * @param grid
+     *            to add the column to
+     * @param valueProvider
+     *            providing the content
+     * @param styleGenerator
+     *            providing additional styles
+     * @return the created column
+     */
+    public static <E, T> Column<E, T> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider,
+            final StyleGenerator<E> styleGenerator) {
+        final Column<E, T> column = grid.addColumn(valueProvider).setMinimumWidthFromContent(false).setExpandRatio(1);
+        if (styleGenerator != null) {
+            column.setStyleGenerator(styleGenerator);
+        }
+        return column;
     }
 
     /**
@@ -254,7 +280,30 @@ public final class GridComponentBuilder {
      */
     public static <E, T extends Component> Column<E, T> addComponentColumn(final Grid<E> grid,
             final ValueProvider<E, T> componentProvider) {
-        return grid.addComponentColumn(componentProvider).setMinimumWidthFromContent(false).setExpandRatio(1);
+        return addComponentColumn(grid, componentProvider, null);
+    }
+
+    /**
+     * Add column to grid with the standard settings
+     * 
+     * @param <E>
+     *            entity type of the grid
+     * @param grid
+     *            to add the column to
+     * @param componentProvider
+     *            providing the content
+     * @param styleGenerator
+     *            providing additional styles
+     * @return the created column
+     */
+    public static <E, T extends Component> Column<E, T> addComponentColumn(final Grid<E> grid,
+            final ValueProvider<E, T> componentProvider, final StyleGenerator<E> styleGenerator) {
+        final Column<E, T> column = grid.addComponentColumn(componentProvider).setMinimumWidthFromContent(false)
+                .setExpandRatio(1);
+        if (styleGenerator != null) {
+            column.setStyleGenerator(styleGenerator);
+        }
+        return column;
     }
 
     /**
@@ -327,10 +376,9 @@ public final class GridComponentBuilder {
     public static <T, V extends Component> Column<T, V> addIconColumn(final Grid<T> grid,
             final ValueProvider<T, V> iconProvider, final String columnId, final String caption,
             final StyleGenerator<T> styleGenerator) {
-        final StyleGenerator<T> finalStyleGenerator = entity -> {
-            final String additionalClasses = styleGenerator == null ? "" : (" " + styleGenerator.apply(entity));
-            return SPUIStyleDefinitions.ICON_CELL + additionalClasses;
-        };
+        final StyleGenerator<T> additionalStyleGenerator = entity -> SPUIStyleDefinitions.ICON_CELL;
+
+        final StyleGenerator<T> finalStyleGenerator = merge(Arrays.asList(styleGenerator, additionalStyleGenerator));
 
         final Column<T, V> column = grid.addComponentColumn(iconProvider).setId(columnId)
                 .setStyleGenerator(finalStyleGenerator).setWidth(60D).setResizable(false);
@@ -338,6 +386,11 @@ public final class GridComponentBuilder {
             column.setCaption(caption);
         }
         return column;
+    }
+
+    private static <T> StyleGenerator<T> merge(final Collection<StyleGenerator<T>> generators) {
+        return item -> generators.stream().filter(Objects::nonNull).map(gen -> gen.apply(item)).filter(Objects::nonNull)
+                .collect(Collectors.joining(" "));
     }
 
     /**

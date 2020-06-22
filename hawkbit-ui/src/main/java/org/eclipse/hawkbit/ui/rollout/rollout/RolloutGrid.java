@@ -316,8 +316,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_REMARK_ID)
                 .setCaption(i18n.getMessage("header.approvalRemark")).setHidable(true).setHidden(true);
 
-        GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true)
-                .setExpandRatio(1);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true);
 
         hideColumnsDueToInsufficientPermissions();
     }

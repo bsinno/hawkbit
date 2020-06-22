@@ -146,7 +146,7 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
                 .setHidden(true);
 
         GridComponentBuilder.addDescriptionColumn(this, i18n, SPUILabelDefinitions.VAR_DESC).setHidable(true)
-                .setHidden(true).setExpandRatio(1);
+                .setHidden(true);
 
         GridComponentBuilder.addColumn(this, ProxyRolloutGroup::getTotalTargetsCount)
                 .setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"))
