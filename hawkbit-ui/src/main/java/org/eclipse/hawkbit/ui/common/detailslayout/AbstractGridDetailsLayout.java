@@ -49,6 +49,12 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
 
     private final transient Collection<Entry<String, Component>> detailsComponents;
 
+    /**
+     * Constructor for AbstractGridDetailsLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public AbstractGridDetailsLayout(final VaadinMessageSource i18n) {
         this.i18n = i18n;
 
@@ -135,6 +141,9 @@ public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> exte
         this.detailsComponents.addAll(detailsComponents);
     }
 
+    /**
+     * Build grid details
+     */
     public void buildDetails() {
         detailsComponents.forEach(detailsComponentEntry -> {
             final String detailsComponentCaption = detailsComponentEntry.getKey();

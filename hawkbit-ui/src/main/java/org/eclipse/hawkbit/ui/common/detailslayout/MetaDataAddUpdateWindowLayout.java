@@ -57,10 +57,16 @@ public class MetaDataAddUpdateWindowLayout extends AbstractEntityWindowLayout<Pr
         return addUpdateLayout;
     }
 
+    /**
+     * Enable meta data key
+     */
     public void enableMetadataKey() {
         metadataKey.setEnabled(true);
     }
 
+    /**
+     * Disable meta data key
+     */
     public void disableMetadataKey() {
         metadataKey.setEnabled(false);
     }

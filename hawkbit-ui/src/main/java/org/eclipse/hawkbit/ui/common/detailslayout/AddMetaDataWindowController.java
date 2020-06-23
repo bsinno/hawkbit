@@ -19,6 +19,9 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
+/**
+ * Controller to add meta data window
+ */
 public class AddMetaDataWindowController extends AbstractEntityWindowController<ProxyMetaData, ProxyMetaData> {
     private final VaadinMessageSource i18n;
     private final UINotification uiNotification;
