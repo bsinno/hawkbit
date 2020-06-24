@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ActionStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.ActionStatusToProxyActionStatusMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.ActionStatusDataProvider;
@@ -79,16 +80,17 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
 
     @Override
     public void addColumns() {
-        addComponentColumn(actionStatusIconSupplier::getLabel).setId(STATUS_ID)
-                .setCaption(i18n.getMessage("header.status")).setMinimumWidth(53d).setMaximumWidth(53d)
-                .setHidable(false).setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+        GridComponentBuilder
+                .addIconColumn(this, actionStatusIconSupplier::getLabel, STATUS_ID, i18n.getMessage("header.status"))
+                .setHidable(false).setHidden(false);
 
-        addColumn(actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt(),
-                SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT)).setId(CREATED_AT_ID)
-                        .setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
-                        .setDescriptionGenerator(
-                                actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt()))
-                        .setMinimumWidth(100d).setMaximumWidth(400d).setHidable(false).setHidden(false);
+        GridComponentBuilder
+                .addColumn(this,
+                        actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt(),
+                                SPUIDefinitions.LAST_QUERY_DATE_FORMAT_SHORT))
+                .setId(CREATED_AT_ID).setCaption(i18n.getMessage("header.rolloutgroup.target.date"))
+                .setDescriptionGenerator(actionStatus -> SPDateTimeUtil.getFormattedDate(actionStatus.getCreatedAt()))
+                .setHidable(false).setHidden(false);
     }
 
     public MasterEntitySupport<ProxyAction> getMasterEntitySupport() {

@@ -101,6 +101,11 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
     }
 
     @Override
+    protected boolean isEditAllowed() {
+        return permissionChecker.hasUpdateRepositoryPermission();
+    }
+
+    @Override
     protected Window getUpdateWindow(final ProxyTag clickedFilter) {
         return dsTagWindowBuilder.getWindowForUpdate(clickedFilter);
     }

@@ -7,7 +7,12 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
@@ -22,8 +27,11 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.Column;
+import com.vaadin.ui.StyleGenerator;
+import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -215,11 +223,87 @@ public final class GridComponentBuilder {
         return addColumn(i18n, grid, valueProvider, "header.version", columnId, 100D);
     }
 
-    private static <E> Column<E, String> addColumn(final VaadinMessageSource i18n, final Grid<E> grid,
-            final ValueProvider<E, String> valueProvider, final String caption, final String columnID,
+    private static <E, T> Column<E, T> addColumn(final VaadinMessageSource i18n, final Grid<E> grid,
+            final ValueProvider<E, T> valueProvider, final String caption, final String columnID,
             final double minWidth) {
-        return grid.addColumn(valueProvider).setId(columnID).setCaption(i18n.getMessage(caption))
+        return addColumn(grid, valueProvider).setId(columnID).setCaption(i18n.getMessage(caption))
                 .setMinimumWidth(minWidth);
+    }
+
+    /**
+     * Add column to grid with the standard settings
+     * 
+     * @param <E>
+     *            entity type of the grid
+     * @param grid
+     *            to add the column to
+     * @param valueProvider
+     *            providing the content
+     * @return the created column
+     */
+    public static <E, T> Column<E, T> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider) {
+        return addColumn(grid, valueProvider, null);
+    }
+
+    /**
+     * Add column to grid with the standard settings
+     * 
+     * @param <E>
+     *            entity type of the grid
+     * @param grid
+     *            to add the column to
+     * @param valueProvider
+     *            providing the content
+     * @param styleGenerator
+     *            providing additional styles
+     * @return the created column
+     */
+    public static <E, T> Column<E, T> addColumn(final Grid<E> grid, final ValueProvider<E, T> valueProvider,
+            final StyleGenerator<E> styleGenerator) {
+        final Column<E, T> column = grid.addColumn(valueProvider).setMinimumWidthFromContent(false).setExpandRatio(1);
+        if (styleGenerator != null) {
+            column.setStyleGenerator(styleGenerator);
+        }
+        return column;
+    }
+
+    /**
+     * Add column to grid with the standard settings
+     * 
+     * @param <E>
+     *            entity type of the grid
+     * @param grid
+     *            to add the column to
+     * @param componentProvider
+     *            providing the content
+     * @return the created column
+     */
+    public static <E, T extends Component> Column<E, T> addComponentColumn(final Grid<E> grid,
+            final ValueProvider<E, T> componentProvider) {
+        return addComponentColumn(grid, componentProvider, null);
+    }
+
+    /**
+     * Add column to grid with the standard settings
+     * 
+     * @param <E>
+     *            entity type of the grid
+     * @param grid
+     *            to add the column to
+     * @param componentProvider
+     *            providing the content
+     * @param styleGenerator
+     *            providing additional styles
+     * @return the created column
+     */
+    public static <E, T extends Component> Column<E, T> addComponentColumn(final Grid<E> grid,
+            final ValueProvider<E, T> componentProvider, final StyleGenerator<E> styleGenerator) {
+        final Column<E, T> column = grid.addComponentColumn(componentProvider).setMinimumWidthFromContent(false)
+                .setExpandRatio(1);
+        if (styleGenerator != null) {
+            column.setStyleGenerator(styleGenerator);
+        }
+        return column;
     }
 
     /**
@@ -248,8 +332,100 @@ public final class GridComponentBuilder {
                 clickEvent -> deleteSupport.openConfirmationWindowDeleteAction(entity), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
                 buttonIdPrefix + "." + entity.getId(), buttonEnabled.test(entity));
-        return grid.addComponentColumn(getDelButton).setId(columnId).setCaption(i18n.getMessage("header.action.delete"))
-                .setWidth(50D);
+        return addIconColumn(grid, getDelButton, columnId, null).setWidth(60D)
+                .setHidingToggleCaption(i18n.getMessage("header.action.delete"));
+    }
+
+    /**
+     * Add an action button column to a grid
+     * 
+     * @param <T>
+     *            type of the entity displayed by the grid
+     * @param grid
+     *            to add the column to
+     * @param iconProvider
+     *            to get the icon from
+     * @param columnId
+     *            column ID
+     * @param caption
+     *            caption of the column
+     * @return the created column
+     */
+    public static <T, V extends Component> Column<T, V> addIconColumn(final Grid<T> grid,
+            final ValueProvider<T, V> iconProvider, final String columnId, final String caption) {
+        return addIconColumn(grid, iconProvider, columnId, caption, null);
+    }
+
+    /**
+     * Add an action button column to a grid
+     * 
+     * @param <T>
+     *            type of the entity displayed by the grid
+     * @param grid
+     *            to add the column to
+     * @param iconProvider
+     *            to get the icon from
+     * @param columnId
+     *            column ID
+     * @param caption
+     *            caption of the column
+     * @param styleGenerator
+     *            caption of the column
+     * @return the created column
+     */
+    public static <T, V extends Component> Column<T, V> addIconColumn(final Grid<T> grid,
+            final ValueProvider<T, V> iconProvider, final String columnId, final String caption,
+            final StyleGenerator<T> styleGenerator) {
+        final StyleGenerator<T> additionalStyleGenerator = entity -> SPUIStyleDefinitions.ICON_CELL;
+
+        final StyleGenerator<T> finalStyleGenerator = merge(Arrays.asList(styleGenerator, additionalStyleGenerator));
+
+        final Column<T, V> column = grid.addComponentColumn(iconProvider).setId(columnId)
+                .setStyleGenerator(finalStyleGenerator).setWidth(60D).setResizable(false);
+        if (!StringUtils.isEmpty(caption)) {
+            column.setCaption(caption);
+        }
+        return column;
+    }
+
+    private static <T> StyleGenerator<T> merge(final Collection<StyleGenerator<T>> generators) {
+        return item -> generators.stream().filter(Objects::nonNull).map(gen -> gen.apply(item)).filter(Objects::nonNull)
+                .collect(Collectors.joining(" "));
+    }
+
+    /**
+     * Join columns to form an action column
+     * 
+     * @param i18n
+     *            message source for internationalization
+     * @param headerRow
+     *            header row
+     * @param columns
+     *            columns to join
+     */
+    public static void joinToActionColumn(final VaadinMessageSource i18n, final HeaderRow headerRow,
+            final List<Column<?, ?>> columns) {
+        joinToIconColumn(headerRow, i18n.getMessage("header.action"), columns);
+    }
+
+    /**
+     * Join columns to form an icon column
+     * 
+     * @param headerRow
+     *            header row
+     * @param headerCaption
+     *            header caption
+     * @param columns
+     *            columns to join
+     */
+    public static void joinToIconColumn(final HeaderRow headerRow, final String headerCaption,
+            final List<Column<?, ?>> columns) {
+        columns.forEach(column -> {
+            column.setWidth(30D);
+            column.setResizable(false);
+        });
+        final Column<?, ?>[] columnArray = columns.toArray(new Column<?, ?>[columns.size()]);
+        headerRow.join(columnArray).setText(headerCaption);
     }
 
     /**

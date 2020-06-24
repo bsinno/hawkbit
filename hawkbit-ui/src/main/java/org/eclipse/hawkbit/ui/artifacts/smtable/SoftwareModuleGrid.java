@@ -261,10 +261,8 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
      */
     @Override
     public void addColumns() {
-        addNameColumn().setMaximumWidth(330d).setExpandRatio(2);
-
-        addVersionColumn().setMaximumWidth(150d).setExpandRatio(1);
-
+        addNameColumn().setExpandRatio(2);
+        addVersionColumn();
         addDeleteColumn();
     }
 
@@ -284,20 +282,14 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     @Override
     protected void addMaxColumns() {
         addNameColumn().setExpandRatio(7);
-
-        GridComponentBuilder.addCreatedByColumn(this, i18n, SM_CREATED_BY_ID).setExpandRatio(1);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, SM_CREATED_DATE_ID).setExpandRatio(1);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, SM_MODIFIED_BY_ID).setExpandRatio(1);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, SM_MODIFIED_DATE_ID).setExpandRatio(1);
-
+        GridComponentBuilder.addCreatedByColumn(this, i18n, SM_CREATED_BY_ID);
+        GridComponentBuilder.addCreatedAtColumn(this, i18n, SM_CREATED_DATE_ID);
+        GridComponentBuilder.addModifiedByColumn(this, i18n, SM_MODIFIED_BY_ID);
+        GridComponentBuilder.addModifiedAtColumn(this, i18n, SM_MODIFIED_DATE_ID);
         addDescriptionColumn().setExpandRatio(5);
-
-        addVersionColumn().setExpandRatio(1);
-
-        addVendorColumn().setMinimumWidth(100d).setExpandRatio(1);
-
+        addVersionColumn();
+        addVendorColumn();
         addDeleteColumn();
-
         getColumns().forEach(column -> column.setHidable(true));
     }
 
@@ -306,7 +298,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     }
 
     private Column<ProxySoftwareModule, String> addVendorColumn() {
-        return addColumn(ProxySoftwareModule::getVendor).setId(SM_VENDOR_ID)
+        return GridComponentBuilder.addColumn(this, ProxySoftwareModule::getVendor).setId(SM_VENDOR_ID)
                 .setCaption(i18n.getMessage("header.vendor"));
     }
 

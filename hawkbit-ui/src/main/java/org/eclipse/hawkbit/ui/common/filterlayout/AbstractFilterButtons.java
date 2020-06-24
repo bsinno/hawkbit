@@ -21,7 +21,6 @@ import org.eclipse.hawkbit.ui.rollout.ProxyFontIcon;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
@@ -32,6 +31,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -44,9 +44,6 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> extends AbstractGrid<T, F> {
     private static final long serialVersionUID = 1L;
-
-    protected static final double FILTER_FULL_WIDTH = 148d;
-    protected static final double FILTER_EDIT_WIDTH = 123d;
 
     protected static final String DEFAULT_GREEN = "rgb(44,151,32)";
 
@@ -84,16 +81,20 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildFilterButtonLayout).setId(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_FULL_WIDTH)
-                .setStyleGenerator(item -> {
-                    if (getFilterButtonClickBehaviour().isFilterPreviouslyClicked(item)) {
-                        return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
-                    } else {
-                        return null;
-                    }
-                });
-        addComponentColumn(this::buildEditFilterButton).setId(FILTER_BUTTON_EDIT_ID).setWidth(25d).setHidden(true);
-        addComponentColumn(this::buildDeleteFilterButton).setId(FILTER_BUTTON_DELETE_ID).setWidth(25d).setHidden(true);
+        final StyleGenerator<T> filterStyleGenerator = item -> {
+            if (getFilterButtonClickBehaviour().isFilterPreviouslyClicked(item)) {
+                return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
+            } else {
+                return null;
+            }
+        };
+        GridComponentBuilder.addComponentColumn(this, this::buildFilterButtonLayout, filterStyleGenerator)
+                .setId(FILTER_BUTTON_COLUMN_ID);
+        GridComponentBuilder.addIconColumn(this, this::buildEditFilterButton, FILTER_BUTTON_EDIT_ID, null)
+                .setHidden(true).setWidth(25D);
+
+        GridComponentBuilder.addDeleteColumn(this, i18n, FILTER_BUTTON_DELETE_ID, filterButtonDeleteSupport,
+                getFilterButtonIdPrefix() + ".delete.", e -> isDeletionAllowed()).setHidden(true).setWidth(25D);
     }
 
     private HorizontalLayout buildFilterButtonLayout(final T clickedFilter) {
@@ -149,22 +150,16 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     protected abstract AbstractFilterButtonClickBehaviour<T> getFilterButtonClickBehaviour();
 
     private Button buildEditFilterButton(final T clickedFilter) {
-        // TODO: check permissions for enable/disable
         return GridComponentBuilder.buildActionButton(i18n, clickEvent -> editButtonClickListener(clickedFilter),
                 VaadinIcons.EDIT, SPUIDefinitions.EDIT, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                getFilterButtonIdPrefix() + ".edit." + clickedFilter.getId(), true);
+                getFilterButtonIdPrefix() + ".edit." + clickedFilter.getId(), isEditAllowed());
     }
 
     protected abstract void editButtonClickListener(final T clickedFilter);
 
-    private Button buildDeleteFilterButton(final T clickedFilter) {
-        return GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> filterButtonDeleteSupport.openConfirmationWindowDeleteAction(clickedFilter),
-                VaadinIcons.TRASH, UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                getFilterButtonIdPrefix() + ".delete." + clickedFilter.getId(), isDeletionAllowed());
-    }
-
     protected abstract boolean isDeletionAllowed();
+
+    protected abstract boolean isEditAllowed();
 
     /**
      * Hides the edit and delete icon next to the filter tags in target,
@@ -173,21 +168,18 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
     public void hideActionColumns() {
         getColumn(FILTER_BUTTON_EDIT_ID).setHidden(true);
         getColumn(FILTER_BUTTON_DELETE_ID).setHidden(true);
-        getColumn(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_FULL_WIDTH);
         recalculateColumnWidths();
     }
 
     public void showDeleteColumn() {
         getColumn(FILTER_BUTTON_DELETE_ID).setHidden(false);
         getColumn(FILTER_BUTTON_EDIT_ID).setHidden(true);
-        getColumn(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_EDIT_WIDTH);
         recalculateColumnWidths();
     }
 
     public void showEditColumn() {
         getColumn(FILTER_BUTTON_EDIT_ID).setHidden(false);
         getColumn(FILTER_BUTTON_DELETE_ID).setHidden(true);
-        getColumn(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_EDIT_WIDTH);
         recalculateColumnWidths();
     }
 }
