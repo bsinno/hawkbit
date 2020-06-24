@@ -54,6 +54,7 @@ public class ApprovalLayout extends ValidatableLayout {
         approveButtonsGroupField.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
         approveButtonsGroupField.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
         approveButtonsGroupField.addStyleName("custom-option-group");
+
         approveButtonsGroupField.setItems(Rollout.ApprovalDecision.values());
 
         approveButtonsGroupField.setItemCaptionGenerator(item -> {
@@ -71,8 +72,10 @@ public class ApprovalLayout extends ValidatableLayout {
             }
         });
 
-        binder.forField(approveButtonsGroupField).bind(ProxyRolloutApproval::getApprovalDecision,
+        // TODO: add required description
+        binder.forField(approveButtonsGroupField).asRequired().bind(ProxyRolloutApproval::getApprovalDecision,
                 ProxyRolloutApproval::setApprovalDecision);
+        approveButtonsGroupField.setRequiredIndicatorVisible(false);
 
         return approveButtonsGroupField;
     }

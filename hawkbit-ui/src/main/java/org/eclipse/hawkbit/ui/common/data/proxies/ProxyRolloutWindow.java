@@ -51,9 +51,6 @@ public class ProxyRolloutWindow implements Serializable {
         setDistributionSetId(rollout.getDistributionSetId());
         setTargetFilterQuery(rollout.getTargetFilterQuery());
         setNumberOfGroups(rollout.getNumberOfGroups());
-        setApprovalRemark(rollout.getApprovalRemark());
-        setApprovalDecision(RolloutStatus.APPROVAL_DENIED == rollout.getStatus() ? ApprovalDecision.DENIED
-                : ApprovalDecision.APPROVED);
     }
 
     public Long getId() {

@@ -65,6 +65,7 @@ public class RolloutFormLayout extends ValidatableLayout {
     private final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeLayout;
     private final BoundComponent<AutoStartOptionGroupLayout> autoStartOptionGroupLayout;
 
+    private Long rolloutId;
     private Long totalTargets;
 
     private Consumer<String> filterQueryChangedListener;
@@ -243,11 +244,13 @@ public class RolloutFormLayout extends ValidatableLayout {
     }
 
     public void setBean(final ProxyRolloutForm bean) {
+        rolloutId = bean.getId();
         binder.readBean(bean);
     }
 
     public ProxyRolloutForm getBean() throws ValidationException {
         final ProxyRolloutForm bean = new ProxyRolloutForm();
+        bean.setId(rolloutId);
         binder.writeBean(bean);
 
         return bean;

@@ -22,6 +22,8 @@ import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.Rollout;
+import org.eclipse.hawkbit.repository.model.Rollout.ApprovalDecision;
+import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
@@ -103,6 +105,13 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         proxyRolloutWindow.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
         setRolloutGroups(proxyRolloutWindow);
 
+        if (!StringUtils.isEmpty(proxyEntity.getApprovalDecidedBy())) {
+            proxyRolloutWindow.setApprovalDecision(
+                    RolloutStatus.APPROVAL_DENIED == proxyEntity.getStatus() ? ApprovalDecision.DENIED
+                            : ApprovalDecision.APPROVED);
+            proxyRolloutWindow.setApprovalRemark(proxyEntity.getApprovalRemark());
+        }
+
         nameBeforeEdit = proxyRolloutWindow.getName();
 
         return proxyRolloutWindow;
@@ -125,8 +134,9 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
 
     @Override
     protected void adaptLayout(final ProxyRollout proxyEntity) {
-        if (Rollout.RolloutStatus.READY == proxyEntity.getStatus()) {
-            layout.adaptForReadyStatus();
+        if (Rollout.RolloutStatus.READY == proxyEntity.getStatus()
+                || Rollout.RolloutStatus.WAITING_FOR_APPROVAL == proxyEntity.getStatus()) {
+            layout.adaptForPendingStatus();
         } else {
             layout.adaptForStartedStatus();
         }

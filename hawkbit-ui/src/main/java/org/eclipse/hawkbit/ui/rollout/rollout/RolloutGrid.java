@@ -312,7 +312,7 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_DECIDED_BY_ID)
                 .setCaption(i18n.getMessage("header.approvalDecidedBy")).setHidable(true).setHidden(true);
 
-        addColumn(ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_REMARK_ID)
+        addColumn(ProxyRollout::getApprovalRemark).setId(APPROVAL_REMARK_ID)
                 .setCaption(i18n.getMessage("header.approvalRemark")).setHidable(true).setHidden(true);
 
         GridComponentBuilder.addDescriptionColumn(this, i18n, DESC_ID).setHidable(true).setHidden(true);

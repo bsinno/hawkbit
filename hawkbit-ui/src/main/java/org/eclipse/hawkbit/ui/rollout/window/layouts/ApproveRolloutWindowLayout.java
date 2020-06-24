@@ -56,4 +56,9 @@ public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
 
         return proxyEntity;
     }
+
+    @Override
+    public void resetValidation() {
+        approvalLayout.resetValidationStatus();
+    }
 }

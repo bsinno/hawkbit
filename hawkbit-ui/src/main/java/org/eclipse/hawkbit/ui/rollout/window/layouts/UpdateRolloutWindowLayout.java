@@ -62,7 +62,7 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         rolloutFormLayout.resetValidationStatus();
     }
 
-    public void adaptForReadyStatus() {
+    public void adaptForPendingStatus() {
         rolloutFormLayout.disableFieldsOnEditForInActive();
     }
 
