@@ -127,8 +127,6 @@ public class AdvancedGroupRow {
     }
 
     public void addRowToLayout(final GridLayout layout, final int index) {
-        updateComponentIds(index);
-
         layout.addComponent(groupName, 0, index);
         layout.addComponent(targetFilterQueryCombo, 1, index);
         layout.addComponent(targetPercentage, 2, index);
@@ -136,7 +134,7 @@ public class AdvancedGroupRow {
         layout.addComponent(errorThreshold, 4, index);
     }
 
-    private void updateComponentIds(final int index) {
+    public void updateComponentIds(final int index) {
         groupName.setId(groupName.getId() + "." + index);
         targetFilterQueryCombo.setId(targetFilterQueryCombo.getId() + "." + index);
         targetPercentage.setId(targetPercentage.getId() + "." + index);

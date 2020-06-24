@@ -22,8 +22,6 @@ import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.Rollout;
-import org.eclipse.hawkbit.repository.model.Rollout.ApprovalDecision;
-import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
@@ -54,13 +52,13 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class UpdateRolloutWindowController extends AbstractEntityWindowController<ProxyRollout, ProxyRolloutWindow> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateRolloutWindowController.class);
 
-    private final VaadinMessageSource i18n;
+    protected final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
-    private final UIEventBus eventBus;
-    private final UINotification uiNotification;
+    protected final UIEventBus eventBus;
+    protected final UINotification uiNotification;
 
     private final TargetFilterQueryManagement targetFilterQueryManagement;
-    private final RolloutManagement rolloutManagement;
+    protected final RolloutManagement rolloutManagement;
     private final RolloutGroupManagement rolloutGroupManagement;
     private final QuotaManagement quotaManagement;
 
@@ -105,13 +103,6 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         proxyRolloutWindow.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
         setRolloutGroups(proxyRolloutWindow);
 
-        if (!StringUtils.isEmpty(proxyEntity.getApprovalDecidedBy())) {
-            proxyRolloutWindow.setApprovalDecision(
-                    RolloutStatus.APPROVAL_DENIED == proxyEntity.getStatus() ? ApprovalDecision.DENIED
-                            : ApprovalDecision.APPROVED);
-            proxyRolloutWindow.setApprovalRemark(proxyEntity.getApprovalRemark());
-        }
-
         nameBeforeEdit = proxyRolloutWindow.getName();
 
         return proxyRolloutWindow;
@@ -134,12 +125,13 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
 
     @Override
     protected void adaptLayout(final ProxyRollout proxyEntity) {
-        if (Rollout.RolloutStatus.READY == proxyEntity.getStatus()
-                || Rollout.RolloutStatus.WAITING_FOR_APPROVAL == proxyEntity.getStatus()) {
+        if (Rollout.RolloutStatus.READY == proxyEntity.getStatus()) {
             layout.adaptForPendingStatus();
         } else {
             layout.adaptForStartedStatus();
         }
+
+        layout.setTotalTargets(proxyEntity.getTotalTargets());
 
         layout.resetValidation();
     }
@@ -165,11 +157,6 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
             return;
         }
 
-        if (Rollout.RolloutStatus.WAITING_FOR_APPROVAL == updatedRollout.getStatus()) {
-            rolloutManagement.approveOrDeny(updatedRollout.getId(), entity.getApprovalDecision(),
-                    entity.getApprovalRemark());
-        }
-
         uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedRollout.getName()));
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, updatedRollout.getId()));
@@ -192,12 +179,6 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         if (!nameBeforeEdit.equals(trimmedName) && rolloutManagement.getByName(trimmedName).isPresent()) {
             // TODO: is the notification right here?
             uiNotification.displayValidationError(i18n.getMessage("message.rollout.duplicate.check", trimmedName));
-            return false;
-        }
-
-        if (Rollout.RolloutStatus.WAITING_FOR_APPROVAL == entity.getStatus() && entity.getApprovalDecision() == null) {
-            // TODO: add 18n
-            uiNotification.displayValidationError("You should approve or reject the Rollout");
             return false;
         }
 

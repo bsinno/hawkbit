@@ -289,6 +289,10 @@
   }
   .custom-option-group {
     font-weight: 400;
+    
+    > :last-child {
+    	margin-right: 0;
+    }
   }
   .links {
     padding-left: 22px;

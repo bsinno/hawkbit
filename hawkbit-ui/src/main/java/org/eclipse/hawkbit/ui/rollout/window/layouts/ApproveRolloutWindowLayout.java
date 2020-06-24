@@ -61,4 +61,8 @@ public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
     public void resetValidation() {
         approvalLayout.resetValidationStatus();
     }
+
+    public void disableRolloutFormLayout() {
+        rolloutFormLayout.disableAllFields();
+    }
 }

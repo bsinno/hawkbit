@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.Rollout.ApprovalDecision;
-import org.eclipse.hawkbit.repository.model.Rollout.RolloutStatus;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.AutoStartOption;
 
@@ -23,8 +22,6 @@ import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout.
 public class ProxyRolloutWindow implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private RolloutStatus status;
-    private Long totalTargets;
     private ProxyRolloutForm rolloutForm;
     private ProxySimpleRolloutGroupsDefinition simpleGroupsDefinition;
     private transient List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions;
@@ -40,8 +37,6 @@ public class ProxyRolloutWindow implements Serializable {
     public ProxyRolloutWindow(final ProxyRollout rollout) {
         this();
 
-        this.totalTargets = rollout.getTotalTargets();
-        this.status = rollout.getStatus();
         setId(rollout.getId());
         setName(rollout.getName());
         setDescription(rollout.getDescription());
@@ -108,14 +103,6 @@ public class ProxyRolloutWindow implements Serializable {
         rolloutForm.setForcedTime(forcedTime);
     }
 
-    public RolloutStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(final RolloutStatus status) {
-        this.status = status;
-    }
-
     public String getApprovalRemark() {
         return rolloutApproval.getApprovalRemark();
     }
@@ -130,14 +117,6 @@ public class ProxyRolloutWindow implements Serializable {
 
     public void setTargetFilterQuery(final String targetFilterQuery) {
         rolloutForm.setTargetFilterQuery(targetFilterQuery);
-    }
-
-    public Long getTotalTargets() {
-        return totalTargets;
-    }
-
-    public void setTotalTargets(final Long totalTargets) {
-        this.totalTargets = totalTargets;
     }
 
     public Long getStartAt() {

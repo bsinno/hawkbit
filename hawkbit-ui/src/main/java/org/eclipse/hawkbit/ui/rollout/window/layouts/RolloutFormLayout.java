@@ -227,10 +227,18 @@ public class RolloutFormLayout extends ValidatableLayout {
     }
 
     public void disableFieldsOnEditForActive() {
+        disableFieldsOnEditForInActive();
+
         dsCombo.setEnabled(false);
-        targetFilterQueryField.getComponent().setEnabled(false);
         actionTypeLayout.getComponent().setEnabled(false);
         autoStartOptionGroupLayout.getComponent().setEnabled(false);
+    }
+
+    public void disableAllFields() {
+        disableFieldsOnEditForActive();
+
+        nameField.setEnabled(false);
+        descriptionField.setEnabled(false);
     }
 
     public void setFilterQueryChangedListener(final Consumer<String> filterQueryChangedListener) {

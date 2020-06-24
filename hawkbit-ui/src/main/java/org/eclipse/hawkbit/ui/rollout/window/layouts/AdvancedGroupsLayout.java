@@ -153,6 +153,7 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
         addRowToLayout(groupRow);
         groupRows.add(groupRow);
+        groupRow.updateComponentIds(groupRows.size());
 
         return groupRow;
     }
