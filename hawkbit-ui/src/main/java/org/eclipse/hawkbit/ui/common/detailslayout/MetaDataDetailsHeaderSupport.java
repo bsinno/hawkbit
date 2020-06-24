@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,6 +18,9 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
+/**
+ * Meta data Detail header support
+ */
 public class MetaDataDetailsHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
@@ -26,6 +29,16 @@ public class MetaDataDetailsHeaderSupport implements HeaderSupport {
 
     private final Button metaDataIcon;
 
+    /**
+     * Constructor for MetaDataDetailsHeaderSupport
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param metaDataIconId
+     *          Id for meta data icon
+     * @param showItemMetaDataCallback
+     *          Runnable
+     */
     public MetaDataDetailsHeaderSupport(final VaadinMessageSource i18n, final String metaDataIconId,
             final Runnable showItemMetaDataCallback) {
         this.i18n = i18n;
@@ -52,10 +65,16 @@ public class MetaDataDetailsHeaderSupport implements HeaderSupport {
         return metaDataIcon;
     }
 
+    /**
+     * Enable meta data icon
+     */
     public void enableMetaDataIcon() {
         metaDataIcon.setEnabled(true);
     }
 
+    /**
+     * Disable meta data icon
+     */
     public void disableMetaDataIcon() {
         metaDataIcon.setEnabled(false);
     }

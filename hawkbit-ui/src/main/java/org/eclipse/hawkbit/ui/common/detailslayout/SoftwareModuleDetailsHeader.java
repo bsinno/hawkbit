@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,6 +26,9 @@ import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
+/**
+ * Software module details header
+ */
 public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
@@ -36,6 +39,22 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
     private transient ArtifactManagement artifactManagement;
     private ArtifactDetailsGrid artifactDetailsGrid;
 
+    /**
+     * Constructor for SoftwareModuleDetailsHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param smWindowBuilder
+     *          SmWindowBuilder
+     * @param smMetaDataWindowBuilder
+     *          SmMetaDataWindowBuilder
+     */
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification, final SmWindowBuilder smWindowBuilder,
             final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
@@ -117,6 +136,12 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         metaDataWindow.setVisible(Boolean.TRUE);
     }
 
+    /**
+     * Add artifact details header support
+     *
+     * @param artifactManagement
+     *          ArtifactManagement
+     */
     public void addArtifactDetailsHeaderSupport(final ArtifactManagement artifactManagement) {
         if (artifactDetailsHeaderSupport == null) {
             this.artifactManagement = artifactManagement;
@@ -127,6 +152,9 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
         }
     }
 
+    /**
+     * Show artifact detail window layout
+     */
     // TODO: use Common*Window?
     private void showArtifactDetailsWindow() {
         if (selectedEntity == null) {

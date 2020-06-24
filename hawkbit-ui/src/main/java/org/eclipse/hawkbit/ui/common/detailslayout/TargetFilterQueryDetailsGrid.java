@@ -32,6 +32,14 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
     private static final String TFQ_NAME_ID = "tfqName";
     private static final String TFQ_QUERY_ID = "tfqQuery";
 
+    /**
+     * Constructor for TargetFilterQueryDetailsGrid
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param targetFilterQueryManagement
+     *          TargetFilterQueryManagement
+     */
     public TargetFilterQueryDetailsGrid(final VaadinMessageSource i18n,
             final TargetFilterQueryManagement targetFilterQueryManagement) {
         super(i18n, null);

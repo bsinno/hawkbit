@@ -36,6 +36,18 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
     private final String typePrefix;
     private final transient Consumer<ProxyMetaData> showMetadataDetailsCallback;
 
+    /**
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param typePrefix
+     *          Type prefix
+     * @param showMetadataDetailsCallback
+     *          Meta data details call back for event listener
+     * @param metaDataDataProvider
+     *          AbstractMetaDataDataProvider for filter support
+     */
     public MetadataDetailsGrid(final VaadinMessageSource i18n, final UIEventBus eventBus, final String typePrefix,
             final Consumer<ProxyMetaData> showMetadataDetailsCallback,
             final AbstractMetaDataDataProvider<?, F> metaDataDataProvider) {
