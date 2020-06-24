@@ -16,10 +16,10 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessActi
 import org.eclipse.hawkbit.repository.model.RolloutGroup.RolloutGroupSuccessCondition;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 
 /**
- * Maps {@link ProxyAdvancedRolloutGroupRow} entities, fetched from advanced
+ * Maps {@link ProxyAdvancedRolloutGroup} entities, fetched from advanced
  * group rows, to the {@link RolloutGroupCreate} entities.
  */
 public class AdvancedRolloutGroupDefinitionToCreateMapper {
@@ -29,7 +29,7 @@ public class AdvancedRolloutGroupDefinitionToCreateMapper {
         this.entityFactory = entityFactory;
     }
 
-    public RolloutGroupCreate map(final ProxyAdvancedRolloutGroupRow advancedRolloutGroupDefinition) {
+    public RolloutGroupCreate map(final ProxyAdvancedRolloutGroup advancedRolloutGroupDefinition) {
         final RolloutGroupConditions conditions = new RolloutGroupConditionBuilder()
                 .successAction(RolloutGroupSuccessAction.NEXTGROUP, null)
                 .successCondition(RolloutGroupSuccessCondition.THRESHOLD,

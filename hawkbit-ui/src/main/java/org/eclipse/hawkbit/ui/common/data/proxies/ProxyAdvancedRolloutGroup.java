@@ -15,7 +15,7 @@ import org.eclipse.hawkbit.ui.common.data.aware.TargetFilterQueryAware;
 /**
  * Proxy for advanced rollout group row.
  */
-public class ProxyAdvancedRolloutGroupRow implements Serializable, TargetFilterQueryAware {
+public class ProxyAdvancedRolloutGroup implements Serializable, TargetFilterQueryAware {
 
     private static final long serialVersionUID = 1L;
 
@@ -25,7 +25,7 @@ public class ProxyAdvancedRolloutGroupRow implements Serializable, TargetFilterQ
     private Float targetPercentage;
     private String triggerThresholdPercentage;
     private String errorThresholdPercentage;
-    private Integer totalTargets;
+    private Long targetsCount;
 
     public String getGroupName() {
         return groupName;
@@ -79,11 +79,11 @@ public class ProxyAdvancedRolloutGroupRow implements Serializable, TargetFilterQ
         this.errorThresholdPercentage = errorThresholdPercentage;
     }
 
-    public Integer getTotalTargets() {
-        return totalTargets;
+    public Long getTargetsCount() {
+        return targetsCount;
     }
 
-    public void setTotalTargets(final Integer totalTargets) {
-        this.totalTargets = totalTargets;
+    public void setTargetsCount(final Long targetsCount) {
+        this.targetsCount = targetsCount;
     }
 }

@@ -26,7 +26,7 @@ import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToAdvancedDefinitionMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
@@ -117,10 +117,21 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
 
         final RolloutGroupToAdvancedDefinitionMapper mapper = new RolloutGroupToAdvancedDefinitionMapper(
                 targetFilterQueryManagement);
-        final List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions = rolloutGroups.stream()
-                .map(mapper::map).collect(Collectors.toList());
+        final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions = rolloutGroups.stream().map(mapper::map)
+                .collect(Collectors.toList());
 
         proxyRolloutWindow.setAdvancedRolloutGroupDefinitions(advancedRolloutGroupDefinitions);
+    }
+
+    @Override
+    protected void adaptLayout(final ProxyRollout proxyEntity) {
+        if (Rollout.RolloutStatus.READY == proxyEntity.getStatus()) {
+            layout.adaptForReadyStatus();
+        } else {
+            layout.adaptForStartedStatus();
+        }
+
+        layout.resetValidation();
     }
 
     @Override

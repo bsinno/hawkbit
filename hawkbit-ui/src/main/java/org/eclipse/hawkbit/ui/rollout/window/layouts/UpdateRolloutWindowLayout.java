@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 
@@ -45,14 +44,10 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     @Override
     public void setEntity(final ProxyRolloutWindow proxyEntity) {
         rolloutFormLayout.setBean(proxyEntity.getRolloutForm());
-        if (Rollout.RolloutStatus.READY == proxyEntity.getStatus()) {
-            rolloutFormLayout.disableFieldsOnEditForInActive();
-        } else {
-            rolloutFormLayout.disableFieldsOnEditForActive();
-        }
         visualGroupDefinitionLayout.setGroupDefinitionMode(proxyEntity.getGroupDefinitionMode());
         visualGroupDefinitionLayout.setTotalTargets(proxyEntity.getTotalTargets());
-        visualGroupDefinitionLayout.updateByRolloutGroups(proxyEntity.getAdvancedRolloutGroupDefinitions());
+        visualGroupDefinitionLayout
+                .setAdvancedRolloutGroupDefinitions(proxyEntity.getAdvancedRolloutGroupDefinitions());
     }
 
     @Override
@@ -61,5 +56,17 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         proxyEntity.setRolloutForm(rolloutFormLayout.getBean());
 
         return proxyEntity;
+    }
+
+    public void resetValidation() {
+        rolloutFormLayout.resetValidationStatus();
+    }
+
+    public void adaptForReadyStatus() {
+        rolloutFormLayout.disableFieldsOnEditForInActive();
+    }
+
+    public void adaptForStartedStatus() {
+        rolloutFormLayout.disableFieldsOnEditForActive();
     }
 }

@@ -27,7 +27,7 @@ public class ProxyRolloutWindow implements Serializable {
     private Long totalTargets;
     private ProxyRolloutForm rolloutForm;
     private ProxySimpleRolloutGroupsDefinition simpleGroupsDefinition;
-    private transient List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions;
+    private transient List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions;
     private GroupDefinitionMode groupDefinitionMode;
     private ProxyRolloutApproval rolloutApproval;
 
@@ -245,12 +245,12 @@ public class ProxyRolloutWindow implements Serializable {
         this.groupDefinitionMode = groupDefinitionMode;
     }
 
-    public List<ProxyAdvancedRolloutGroupRow> getAdvancedRolloutGroupDefinitions() {
+    public List<ProxyAdvancedRolloutGroup> getAdvancedRolloutGroupDefinitions() {
         return advancedRolloutGroupDefinitions;
     }
 
     public void setAdvancedRolloutGroupDefinitions(
-            final List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions) {
+            final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions) {
         this.advancedRolloutGroupDefinitions = advancedRolloutGroupDefinitions;
     }
 

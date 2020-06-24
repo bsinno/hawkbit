@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.ui.common.builder.BoundComponent;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -35,7 +35,7 @@ public class AdvancedGroupRow {
     private final VaadinMessageSource i18n;
     private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
 
-    private final Binder<ProxyAdvancedRolloutGroupRow> binder;
+    private final Binder<ProxyAdvancedRolloutGroup> binder;
 
     private final TextField groupName;
     private final ComboBox<ProxyTargetFilterQuery> targetFilterQueryCombo;
@@ -67,7 +67,7 @@ public class AdvancedGroupRow {
         nameField.setWidth(12, Unit.EM);
 
         binder.forField(nameField).asRequired(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_NAMEREQUIRED))
-                .bind(ProxyAdvancedRolloutGroupRow::getGroupName, ProxyAdvancedRolloutGroupRow::setGroupName);
+                .bind(ProxyAdvancedRolloutGroup::getGroupName, ProxyAdvancedRolloutGroup::setGroupName);
 
         return nameField;
     }
@@ -95,8 +95,7 @@ public class AdvancedGroupRow {
                             i18n.getMessage("message.rollout.field.value.range", 0, 100), 0F, 100F);
                     validator.setMinValueIncluded(false);
                     return validator.apply(value, context);
-                }).bind(ProxyAdvancedRolloutGroupRow::getTargetPercentage,
-                        ProxyAdvancedRolloutGroupRow::setTargetPercentage);
+                }).bind(ProxyAdvancedRolloutGroup::getTargetPercentage, ProxyAdvancedRolloutGroup::setTargetPercentage);
 
         return targetPercentageField;
     }
@@ -109,8 +108,8 @@ public class AdvancedGroupRow {
 
         // TODO: add as required description
         binder.forField(triggerThresholdField).asRequired().bind(
-                ProxyAdvancedRolloutGroupRow::getTriggerThresholdPercentage,
-                ProxyAdvancedRolloutGroupRow::setTriggerThresholdPercentage);
+                ProxyAdvancedRolloutGroup::getTriggerThresholdPercentage,
+                ProxyAdvancedRolloutGroup::setTriggerThresholdPercentage);
 
         return triggerThresholdField;
     }
@@ -121,9 +120,8 @@ public class AdvancedGroupRow {
         errorThresholdField.setWidth(5, Unit.EM);
 
         // TODO: add as required description
-        binder.forField(errorThresholdField).asRequired().bind(
-                ProxyAdvancedRolloutGroupRow::getErrorThresholdPercentage,
-                ProxyAdvancedRolloutGroupRow::setErrorThresholdPercentage);
+        binder.forField(errorThresholdField).asRequired().bind(ProxyAdvancedRolloutGroup::getErrorThresholdPercentage,
+                ProxyAdvancedRolloutGroup::setErrorThresholdPercentage);
 
         return errorThresholdField;
     }
@@ -146,11 +144,11 @@ public class AdvancedGroupRow {
         errorThreshold.setId(errorThreshold.getId() + "." + index);
     }
 
-    public void setBean(final ProxyAdvancedRolloutGroupRow bean) {
+    public void setBean(final ProxyAdvancedRolloutGroup bean) {
         binder.setBean(bean);
     }
 
-    public ProxyAdvancedRolloutGroupRow getBean() {
+    public ProxyAdvancedRolloutGroup getBean() {
         return binder.getBean();
     }
 

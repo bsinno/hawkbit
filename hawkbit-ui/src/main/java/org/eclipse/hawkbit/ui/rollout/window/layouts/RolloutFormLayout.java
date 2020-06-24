@@ -242,10 +242,6 @@ public class RolloutFormLayout extends ValidatableLayout {
         targetFilterQueryCombo.validate();
     }
 
-    public void setName(final String name) {
-        nameField.setValue(name);
-    }
-
     public void setBean(final ProxyRolloutForm bean) {
         binder.readBean(bean);
     }

@@ -27,7 +27,7 @@ import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.AdvancedRolloutGroupDefinitionToCreateMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
@@ -132,7 +132,7 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
 
     // TODO: try to remove duplication with AdvancedGroupsLayout
     private List<RolloutGroupCreate> getRolloutGroupsCreateFromDefinitions(
-            final List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions) {
+            final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions) {
         final AdvancedRolloutGroupDefinitionToCreateMapper mapper = new AdvancedRolloutGroupDefinitionToCreateMapper(
                 entityFactory);
 

@@ -18,7 +18,7 @@ import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToAdvancedDefinitionMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
@@ -51,6 +51,8 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
     @Override
     protected ProxyRolloutWindow buildEntityFromProxy(final ProxyRollout proxyEntity) {
         final ProxyRolloutWindow proxyRolloutWindow = new ProxyRolloutWindow(proxyEntity);
+
+        proxyRolloutWindow.setName(i18n.getMessage("textfield.rollout.copied.name", proxyRolloutWindow.getName()));
 
         setTargetFilterId(proxyRolloutWindow);
 
@@ -92,14 +94,14 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
 
         final RolloutGroupToAdvancedDefinitionMapper mapper = new RolloutGroupToAdvancedDefinitionMapper(
                 targetFilterQueryManagement);
-        final List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions = rolloutGroups.stream()
-                .map(mapper::map).collect(Collectors.toList());
+        final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions = rolloutGroups.stream().map(mapper::map)
+                .collect(Collectors.toList());
 
         proxyRolloutWindow.setAdvancedRolloutGroupDefinitions(advancedRolloutGroupDefinitions);
     }
 
     private void setThresholdsOfFirstGroup(final ProxyRolloutWindow proxyRolloutWindow) {
-        final ProxyAdvancedRolloutGroupRow firstAdvancedRolloutGroup = proxyRolloutWindow
+        final ProxyAdvancedRolloutGroup firstAdvancedRolloutGroup = proxyRolloutWindow
                 .getAdvancedRolloutGroupDefinitions().get(0);
         proxyRolloutWindow.setTriggerThresholdPercentage(firstAdvancedRolloutGroup.getTriggerThresholdPercentage());
         proxyRolloutWindow.setErrorThresholdPercentage(firstAdvancedRolloutGroup.getErrorThresholdPercentage());
@@ -107,7 +109,6 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
 
     @Override
     protected void adaptLayout(final ProxyRollout proxyEntity) {
-        layout.setRolloutName(i18n.getMessage("textfield.rollout.copied.name", proxyEntity.getName()));
         layout.selectAdvancedGroupsTab();
     }
 }

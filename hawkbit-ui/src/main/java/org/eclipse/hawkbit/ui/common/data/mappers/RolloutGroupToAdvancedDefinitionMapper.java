@@ -11,14 +11,14 @@ package org.eclipse.hawkbit.ui.common.data.mappers;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 
 /**
  * Maps {@link RolloutGroup} entities, fetched from backend, to the
- * {@link ProxyAdvancedRolloutGroupRow} entities.
+ * {@link ProxyAdvancedRolloutGroup} entities.
  */
 public class RolloutGroupToAdvancedDefinitionMapper {
 
@@ -28,10 +28,10 @@ public class RolloutGroupToAdvancedDefinitionMapper {
         this.targetFilterQueryManagement = targetFilterQueryManagement;
     }
 
-    public ProxyAdvancedRolloutGroupRow map(final RolloutGroup rolloutGroup) {
-        final ProxyAdvancedRolloutGroupRow advancedGroupRow = new ProxyAdvancedRolloutGroupRow();
+    public ProxyAdvancedRolloutGroup map(final RolloutGroup rolloutGroup) {
+        final ProxyAdvancedRolloutGroup advancedGroupRow = new ProxyAdvancedRolloutGroup();
         advancedGroupRow.setGroupName(rolloutGroup.getName());
-        advancedGroupRow.setTotalTargets(rolloutGroup.getTotalTargets());
+        advancedGroupRow.setTargetsCount((long) rolloutGroup.getTotalTargets());
 
         final String groupTargetFilterQuery = rolloutGroup.getTargetFilterQuery();
         if (!StringUtils.isEmpty(groupTargetFilterQuery)) {

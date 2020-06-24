@@ -12,8 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroupRow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.groupschart.GroupsPieChart;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -28,8 +27,7 @@ public class VisualGroupDefinitionLayout {
 
     private Long totalTargets;
     private int noOfGroups;
-    private RolloutGroupsValidation validation;
-    private List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions;
+    private List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions;
     private GroupDefinitionMode groupDefinitionMode;
 
     public VisualGroupDefinitionLayout(final GroupsPieChart groupsPieChart,
@@ -65,24 +63,37 @@ public class VisualGroupDefinitionLayout {
             targetsPerGroup.add(targetsInGroup);
         }
 
-        groupsPieChart.setChartState(targetsPerGroup, totalTargets);
-        groupsLegendLayout.populateGroupsLegendByTargetCounts(targetsPerGroup);
+        groupsPieChart.setChartState(totalTargets, targetsPerGroup);
+        groupsLegendLayout.populateGroupsLegend(targetsPerGroup);
     }
 
     private void clearGroupChartAndLegend() {
-        groupsPieChart.setChartState(Collections.emptyList(), 0L);
-        groupsLegendLayout.populateGroupsLegendByTargetCounts(Collections.emptyList());
+        groupsPieChart.setChartState(0L, Collections.emptyList());
+        groupsLegendLayout.populateGroupsLegend(Collections.emptyList());
     }
 
     private void updateByAdvancedGroupsDefinition() {
-        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || validation == null
-                || CollectionUtils.isEmpty(validation.getTargetsPerGroup())) {
+        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets)
+                || CollectionUtils.isEmpty(advancedRolloutGroupDefinitions)) {
             clearGroupChartAndLegend();
             return;
         }
 
-        groupsPieChart.setChartState(validation.getTargetsPerGroup(), totalTargets);
-        groupsLegendLayout.populateGroupsLegendByValidation(validation, advancedRolloutGroupDefinitions);
+        final List<Long> targetsPerGroup = getTargetsPerGroupByDefinitions();
+        final List<String> groupNames = getGroupNamesByDefinitions();
+
+        groupsPieChart.setChartState(totalTargets, targetsPerGroup);
+        groupsLegendLayout.populateGroupsLegend(totalTargets, targetsPerGroup, groupNames);
+    }
+
+    private List<Long> getTargetsPerGroupByDefinitions() {
+        return advancedRolloutGroupDefinitions.stream().map(ProxyAdvancedRolloutGroup::getTargetsCount)
+                .collect(Collectors.toList());
+    }
+
+    private List<String> getGroupNamesByDefinitions() {
+        return advancedRolloutGroupDefinitions.stream().map(ProxyAdvancedRolloutGroup::getGroupName)
+                .collect(Collectors.toList());
     }
 
     public void setNoOfGroups(final int noOfGroups) {
@@ -93,27 +104,13 @@ public class VisualGroupDefinitionLayout {
         }
     }
 
-    public void setAdvancedRolloutGroupsValidation(final RolloutGroupsValidation validation,
-            final List<ProxyAdvancedRolloutGroupRow> advancedRolloutGroupDefinitions) {
-        this.validation = validation;
+    public void setAdvancedRolloutGroupDefinitions(
+            final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions) {
         this.advancedRolloutGroupDefinitions = advancedRolloutGroupDefinitions;
 
         if (groupDefinitionMode == GroupDefinitionMode.ADVANCED) {
             updateByAdvancedGroupsDefinition();
         }
-    }
-
-    public void updateByRolloutGroups(final List<ProxyAdvancedRolloutGroupRow> rolloutGroups) {
-        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || CollectionUtils.isEmpty(rolloutGroups)) {
-            clearGroupChartAndLegend();
-            return;
-        }
-
-        final List<Long> targetsPerGroup = rolloutGroups.stream().map(group -> (long) group.getTotalTargets())
-                .collect(Collectors.toList());
-
-        groupsPieChart.setChartState(targetsPerGroup, totalTargets);
-        groupsLegendLayout.populateGroupsLegendByGroups(rolloutGroups);
     }
 
     public void displayLoading() {
