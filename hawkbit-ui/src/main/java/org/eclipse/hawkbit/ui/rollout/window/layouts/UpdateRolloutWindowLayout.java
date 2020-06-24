@@ -8,8 +8,8 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
-import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
 
 import com.vaadin.data.ValidationException;
@@ -45,14 +45,9 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     @Override
     public void setEntity(final ProxyRolloutWindow proxyEntity) {
         rolloutFormLayout.setBean(proxyEntity.getRolloutForm());
-        if (Rollout.RolloutStatus.READY == proxyEntity.getStatus()) {
-            rolloutFormLayout.disableFieldsOnEditForInActive();
-        } else {
-            rolloutFormLayout.disableFieldsOnEditForActive();
-        }
-        visualGroupDefinitionLayout.setGroupDefinitionMode(proxyEntity.getGroupDefinitionMode());
-        visualGroupDefinitionLayout.setTotalTargets(proxyEntity.getTotalTargets());
-        visualGroupDefinitionLayout.updateByRolloutGroups(proxyEntity.getAdvancedRolloutGroups());
+        visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
+        visualGroupDefinitionLayout
+                .setAdvancedRolloutGroupDefinitions(proxyEntity.getAdvancedRolloutGroupDefinitions());
     }
 
     @Override
@@ -61,5 +56,21 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         proxyEntity.setRolloutForm(rolloutFormLayout.getBean());
 
         return proxyEntity;
+    }
+
+    public void setTotalTargets(final Long totalTargets) {
+        visualGroupDefinitionLayout.setTotalTargets(totalTargets);
+    }
+
+    public void resetValidation() {
+        rolloutFormLayout.resetValidationStatus();
+    }
+
+    public void adaptForPendingStatus() {
+        rolloutFormLayout.disableFieldsOnEditForInActive();
+    }
+
+    public void adaptForStartedStatus() {
+        rolloutFormLayout.disableFieldsOnEditForActive();
     }
 }

@@ -9,11 +9,13 @@
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
+import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutUpdate;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
@@ -23,6 +25,8 @@ import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToAdvancedDefinitionMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
@@ -48,12 +52,13 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class UpdateRolloutWindowController extends AbstractEntityWindowController<ProxyRollout, ProxyRolloutWindow> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateRolloutWindowController.class);
 
-    private final VaadinMessageSource i18n;
+    protected final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
-    private final UIEventBus eventBus;
-    private final UINotification uiNotification;
+    protected final UIEventBus eventBus;
+    protected final UINotification uiNotification;
 
-    private final RolloutManagement rolloutManagement;
+    private final TargetFilterQueryManagement targetFilterQueryManagement;
+    protected final RolloutManagement rolloutManagement;
     private final RolloutGroupManagement rolloutGroupManagement;
     private final QuotaManagement quotaManagement;
 
@@ -68,6 +73,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         this.eventBus = dependencies.getEventBus();
         this.uiNotification = dependencies.getUiNotification();
 
+        this.targetFilterQueryManagement = dependencies.getTargetFilterQueryManagement();
         this.rolloutManagement = dependencies.getRolloutManagement();
         this.rolloutGroupManagement = dependencies.getRolloutGroupManagement();
         this.quotaManagement = dependencies.getQuotaManagement();
@@ -102,12 +108,32 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         return proxyRolloutWindow;
     }
 
+    // TODO: try to remove duplication with CopyRolloutWindowController
     private void setRolloutGroups(final ProxyRolloutWindow proxyRolloutWindow) {
-        final List<RolloutGroup> advancedRolloutGroups = rolloutGroupManagement
+        final List<RolloutGroup> rolloutGroups = rolloutGroupManagement
                 .findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()),
                         proxyRolloutWindow.getId())
                 .getContent();
-        proxyRolloutWindow.setAdvancedRolloutGroups(advancedRolloutGroups);
+
+        final RolloutGroupToAdvancedDefinitionMapper mapper = new RolloutGroupToAdvancedDefinitionMapper(
+                targetFilterQueryManagement);
+        final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions = rolloutGroups.stream().map(mapper::map)
+                .collect(Collectors.toList());
+
+        proxyRolloutWindow.setAdvancedRolloutGroupDefinitions(advancedRolloutGroupDefinitions);
+    }
+
+    @Override
+    protected void adaptLayout(final ProxyRollout proxyEntity) {
+        if (Rollout.RolloutStatus.READY == proxyEntity.getStatus()) {
+            layout.adaptForPendingStatus();
+        } else {
+            layout.adaptForStartedStatus();
+        }
+
+        layout.setTotalTargets(proxyEntity.getTotalTargets());
+
+        layout.resetValidation();
     }
 
     @Override
@@ -129,11 +155,6 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
                     "Rollout with name " + entity.getName() + " was deleted or you are not allowed to update it");
             eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
             return;
-        }
-
-        if (Rollout.RolloutStatus.WAITING_FOR_APPROVAL == updatedRollout.getStatus()) {
-            rolloutManagement.approveOrDeny(updatedRollout.getId(), entity.getApprovalDecision(),
-                    entity.getApprovalRemark());
         }
 
         uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedRollout.getName()));
@@ -158,12 +179,6 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
         if (!nameBeforeEdit.equals(trimmedName) && rolloutManagement.getByName(trimmedName).isPresent()) {
             // TODO: is the notification right here?
             uiNotification.displayValidationError(i18n.getMessage("message.rollout.duplicate.check", trimmedName));
-            return false;
-        }
-
-        if (Rollout.RolloutStatus.WAITING_FOR_APPROVAL == entity.getStatus() && entity.getApprovalDecision() == null) {
-            // TODO: add 18n
-            uiNotification.displayValidationError("You should approve or reject the Rollout");
             return false;
         }
 

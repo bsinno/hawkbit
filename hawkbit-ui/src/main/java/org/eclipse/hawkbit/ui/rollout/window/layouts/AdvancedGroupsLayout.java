@@ -10,18 +10,22 @@ package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
-import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
+import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
+import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
+import org.eclipse.hawkbit.ui.common.data.mappers.AdvancedRolloutGroupDefinitionToCreateMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.decorators.SPUIButtonStyleNoBorderWithIcon;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -44,7 +48,6 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
-    private final TargetFilterQueryManagement targetFilterQueryManagement;
     private final RolloutManagement rolloutManagement;
     private final QuotaManagement quotaManagement;
 
@@ -53,23 +56,20 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
     private final GridLayout layout;
 
     private String targetFilter;
-
     private final List<AdvancedGroupRow> groupRows;
-    private List<RolloutGroupCreate> savedRolloutGroups;
-
-    private RolloutGroupsValidation groupsValidation;
     private final AtomicInteger runningValidationsCounter;
 
+    private BiConsumer<List<ProxyAdvancedRolloutGroup>, Boolean> advancedGroupDefinitionsChangedListener;
+
     public AdvancedGroupsLayout(final VaadinMessageSource i18n, final EntityFactory entityFactory,
-            final RolloutManagement rolloutManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
-            final QuotaManagement quotaManagement, final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
+            final RolloutManagement rolloutManagement, final QuotaManagement quotaManagement,
+            final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
         super();
 
         this.i18n = i18n;
         this.entityFactory = entityFactory;
         this.rolloutManagement = rolloutManagement;
         this.quotaManagement = quotaManagement;
-        this.targetFilterQueryManagement = targetFilterQueryManagement;
         this.targetFilterQueryDataProvider = targetFilterQueryDataProvider;
 
         this.layout = buildLayout();
@@ -118,19 +118,42 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
     }
 
     public void addGroupRowAndValidate() {
-        final AdvancedGroupRow groupRow = addGroupRow();
-        groupRow.populateWithDefaults();
-        groupRow.addStatusChangeListener(event -> updateValidation());
+        final int groupIndex = groupRows.size() + 1;
+
+        addGroupRow(getDefaultAdvancedRolloutGroupDefinition(groupIndex));
 
         updateValidation();
     }
 
+    private ProxyAdvancedRolloutGroup getDefaultAdvancedRolloutGroupDefinition(final int groupIndex) {
+        final ProxyAdvancedRolloutGroup advancedGroupRowBean = new ProxyAdvancedRolloutGroup();
+        advancedGroupRowBean.setGroupName(i18n.getMessage("textfield.rollout.group.default.name", groupIndex));
+        advancedGroupRowBean.setTargetPercentage(100f);
+        setDefaultThresholds(advancedGroupRowBean);
+
+        return advancedGroupRowBean;
+    }
+
+    private void setDefaultThresholds(final ProxyAdvancedRolloutGroup advancedGroupRow) {
+        final RolloutGroupConditions defaultRolloutGroupConditions = new RolloutGroupConditionBuilder().withDefaults()
+                .build();
+        advancedGroupRow.setTriggerThresholdPercentage(defaultRolloutGroupConditions.getSuccessConditionExp());
+        advancedGroupRow.setErrorThresholdPercentage(defaultRolloutGroupConditions.getErrorConditionExp());
+    }
+
+    private void addGroupRow(final ProxyAdvancedRolloutGroup advancedRolloutGroupDefinition) {
+        final AdvancedGroupRow groupRow = addGroupRow();
+        groupRow.setBean(advancedRolloutGroupDefinition);
+
+        groupRow.addStatusChangeListener(event -> updateValidation());
+    }
+
     private AdvancedGroupRow addGroupRow() {
-        final AdvancedGroupRow groupRow = new AdvancedGroupRow(i18n, entityFactory, targetFilterQueryManagement,
-                targetFilterQueryDataProvider, groupRows.size() + 1);
-        groupRows.add(groupRow);
+        final AdvancedGroupRow groupRow = new AdvancedGroupRow(i18n, targetFilterQueryDataProvider);
 
         addRowToLayout(groupRow);
+        groupRows.add(groupRow);
+        groupRow.updateComponentIds(groupRows.size());
 
         return groupRow;
     }
@@ -164,14 +187,21 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
     }
 
     private void updateValidation() {
-        validationStatus = ValidationStatus.VALID;
-        if (allGroupRowsValid()) {
-            setValidationStatus(ValidationStatus.LOADING);
-            savedRolloutGroups = getGroupsFromRows();
-            validateRemainingTargets();
-        } else {
+        if (!allGroupRowsValid()) {
             setValidationStatus(ValidationStatus.INVALID);
+            if (advancedGroupDefinitionsChangedListener != null) {
+                advancedGroupDefinitionsChangedListener.accept(Collections.emptyList(), false);
+            }
+
+            return;
         }
+
+        setValidationStatus(ValidationStatus.UNKNOWN);
+        if (advancedGroupDefinitionsChangedListener != null) {
+            advancedGroupDefinitionsChangedListener.accept(Collections.emptyList(), true);
+        }
+
+        validateTargetsPerGroup();
     }
 
     private boolean allGroupRowsValid() {
@@ -182,11 +212,7 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         return groupRows.stream().allMatch(AdvancedGroupRow::isValid);
     }
 
-    private List<RolloutGroupCreate> getGroupsFromRows() {
-        return groupRows.stream().map(AdvancedGroupRow::getGroupEntity).collect(Collectors.toList());
-    }
-
-    private void validateRemainingTargets() {
+    private void validateTargetsPerGroup() {
         resetErrors();
 
         if (StringUtils.isEmpty(targetFilter)) {
@@ -194,19 +220,31 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         }
 
         if (runningValidationsCounter.incrementAndGet() == 1) {
+            final List<RolloutGroupCreate> groupsCreate = getRolloutGroupsCreateFromDefinitions(
+                    getAdvancedRolloutGroupDefinitions());
             final ListenableFuture<RolloutGroupsValidation> validateTargetsInGroups = rolloutManagement
-                    .validateTargetsInGroups(savedRolloutGroups, targetFilter, System.currentTimeMillis());
-            final UI ui = UI.getCurrent();
-            validateTargetsInGroups.addCallback(validation -> ui.access(() -> setGroupsValidation(validation)),
-                    throwable -> ui.access(() -> setGroupsValidation(null)));
-            return;
-        }
+                    .validateTargetsInGroups(groupsCreate, targetFilter, System.currentTimeMillis());
 
-        runningValidationsCounter.incrementAndGet();
+            final UI ui = UI.getCurrent();
+            validateTargetsInGroups.addCallback(validation -> ui.access(() -> updateGroupsByValidation(validation)),
+                    throwable -> ui.access(() -> updateGroupsByValidation(null)));
+        }
     }
 
     private void resetErrors() {
         groupRows.forEach(AdvancedGroupRow::resetError);
+    }
+
+    public List<ProxyAdvancedRolloutGroup> getAdvancedRolloutGroupDefinitions() {
+        return groupRows.stream().map(AdvancedGroupRow::getBean).collect(Collectors.toList());
+    }
+
+    private List<RolloutGroupCreate> getRolloutGroupsCreateFromDefinitions(
+            final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions) {
+        final AdvancedRolloutGroupDefinitionToCreateMapper mapper = new AdvancedRolloutGroupDefinitionToCreateMapper(
+                entityFactory);
+
+        return advancedRolloutGroupDefinitions.stream().map(mapper::map).collect(Collectors.toList());
     }
 
     /**
@@ -216,46 +254,57 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
      * executed.
      * 
      */
-    private void setGroupsValidation(final RolloutGroupsValidation validation) {
+    private void updateGroupsByValidation(final RolloutGroupsValidation validation) {
         final int runningValidation = runningValidationsCounter.getAndSet(0);
         if (runningValidation > 1) {
-            validateRemainingTargets();
+            validateTargetsPerGroup();
             return;
         }
-        groupsValidation = validation;
 
-        if (groupsValidation != null && groupsValidation.isValid() && validationStatus != ValidationStatus.INVALID) {
-            setValidationStatus(ValidationStatus.VALID);
-        } else {
-            final AdvancedGroupRow lastRow = groupRows.get(groupRows.size() - 1);
-            lastRow.setError(i18n.getMessage("message.rollout.remaining.targets.error"));
+        if (validation == null || CollectionUtils.isEmpty(validation.getTargetsPerGroup())) {
             setValidationStatus(ValidationStatus.INVALID);
+            return;
         }
 
-        validateSingleGroups();
+        final List<Long> targetsPerGroup = validation.getTargetsPerGroup();
+        updateGroupsTargetCount(targetsPerGroup);
+
+        final boolean isTargetsPerGroupQuotaExceeded = targetsPerGroup.stream()
+                .anyMatch(this::isGroupTargetQuotaExceeded);
+        final boolean hasRemainingTargets = !validation.isValid();
+
+        if (isTargetsPerGroupQuotaExceeded || hasRemainingTargets) {
+            if (hasRemainingTargets) {
+                final AdvancedGroupRow lastRow = groupRows.get(groupRows.size() - 1);
+                lastRow.setError(i18n.getMessage("message.rollout.remaining.targets.error"));
+            }
+
+            setValidationStatus(ValidationStatus.INVALID);
+            return;
+        }
+
+        setValidationStatus(ValidationStatus.VALID);
     }
 
-    private void validateSingleGroups() {
-        if (groupsValidation == null || CollectionUtils.isEmpty(groupsValidation.getTargetsPerGroup())) {
-            return;
-        }
-
-        final int maxTargets = quotaManagement.getMaxTargetsPerRolloutGroup();
-        final boolean hasRemainingTargetsError = validationStatus == ValidationStatus.INVALID;
-        final int lastIdx = groupRows.size() - 1;
+    private void updateGroupsTargetCount(final List<Long> targetsPerGroup) {
         for (int i = 0; i < groupRows.size(); ++i) {
-            // do not mask the 'remaining targets' error
-            if (hasRemainingTargetsError && (i == lastIdx)) {
-                continue;
-            }
+            final AdvancedGroupRow row = groupRows.get(i);
+            final Long targetsCount = targetsPerGroup.get(i);
 
-            final Long count = groupsValidation.getTargetsPerGroup().get(i);
-            if (count != null && count > maxTargets) {
-                final AdvancedGroupRow row = groupRows.get(i);
-                row.setError(i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED, maxTargets));
-                setValidationStatus(ValidationStatus.INVALID);
+            row.getBean().setTargetsCount(targetsCount);
+            if (isGroupTargetQuotaExceeded(targetsCount)) {
+                row.setError(i18n.getMessage(MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED,
+                        quotaManagement.getMaxTargetsPerRolloutGroup()));
             }
         }
+
+        if (advancedGroupDefinitionsChangedListener != null) {
+            advancedGroupDefinitionsChangedListener.accept(getAdvancedRolloutGroupDefinitions(), false);
+        }
+    }
+
+    private boolean isGroupTargetQuotaExceeded(final Long targetsCount) {
+        return targetsCount != null && targetsCount > quotaManagement.getMaxTargetsPerRolloutGroup();
     }
 
     /**
@@ -274,18 +323,13 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
      * @param groups
      *            the rollout groups
      */
-    public void populateByRolloutGroups(final List<RolloutGroup> groups) {
+    public void populateByAdvancedRolloutGroupDefinitions(final List<ProxyAdvancedRolloutGroup> groups) {
         if (CollectionUtils.isEmpty(groups)) {
             return;
         }
 
         removeAllRows();
-
-        for (final RolloutGroup group : groups) {
-            final AdvancedGroupRow groupRow = addGroupRow();
-            groupRow.populateByGroup(group);
-            groupRow.addStatusChangeListener(event -> updateValidation());
-        }
+        groups.forEach(this::addGroupRow);
 
         updateValidation();
     }
@@ -298,18 +342,12 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         groupRows.clear();
     }
 
-    public List<RolloutGroupCreate> getSavedRolloutGroupDefinitions() {
-        return savedRolloutGroups;
-    }
-
-    /**
-     * @return the validation instance if was already validated
-     */
-    public RolloutGroupsValidation getGroupsValidation() {
-        return groupsValidation;
-    }
-
     public GridLayout getLayout() {
         return layout;
+    }
+
+    public void setAdvancedGroupDefinitionsChangedListener(
+            final BiConsumer<List<ProxyAdvancedRolloutGroup>, Boolean> advancedGroupDefinitionsChangedListener) {
+        this.advancedGroupDefinitionsChangedListener = advancedGroupDefinitionsChangedListener;
     }
 }

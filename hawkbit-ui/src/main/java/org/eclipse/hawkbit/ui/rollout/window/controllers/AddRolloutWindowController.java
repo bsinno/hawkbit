@@ -8,9 +8,13 @@
  */
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.builder.RolloutCreate;
+import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.Rollout;
@@ -22,6 +26,8 @@ import org.eclipse.hawkbit.repository.model.RolloutGroupConditionBuilder;
 import org.eclipse.hawkbit.repository.model.RolloutGroupConditions;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
+import org.eclipse.hawkbit.ui.common.data.mappers.AdvancedRolloutGroupDefinitionToCreateMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
@@ -115,13 +121,22 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
         if (GroupDefinitionMode.SIMPLE == entity.getGroupDefinitionMode()) {
             rolloutToCreate = rolloutManagement.create(rolloutCreate, entity.getNumberOfGroups(), conditions);
         } else {
-            rolloutToCreate = rolloutManagement.create(rolloutCreate, entity.getAdvancedRolloutGroupDefinitions(),
-                    conditions);
+            rolloutToCreate = rolloutManagement.create(rolloutCreate,
+                    getRolloutGroupsCreateFromDefinitions(entity.getAdvancedRolloutGroupDefinitions()), conditions);
         }
 
         uiNotification.displaySuccess(i18n.getMessage("message.save.success", rolloutToCreate.getName()));
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_ADDED, ProxyRollout.class, rolloutToCreate.getId()));
+    }
+
+    // TODO: try to remove duplication with AdvancedGroupsLayout
+    private List<RolloutGroupCreate> getRolloutGroupsCreateFromDefinitions(
+            final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions) {
+        final AdvancedRolloutGroupDefinitionToCreateMapper mapper = new AdvancedRolloutGroupDefinitionToCreateMapper(
+                entityFactory);
+
+        return advancedRolloutGroupDefinitions.stream().map(mapper::map).collect(Collectors.toList());
     }
 
     @Override

@@ -20,7 +20,6 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationException;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
@@ -54,6 +53,7 @@ public class ApprovalLayout extends ValidatableLayout {
         approveButtonsGroupField.addStyleName(ValoTheme.OPTIONGROUP_SMALL);
         approveButtonsGroupField.addStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
         approveButtonsGroupField.addStyleName("custom-option-group");
+
         approveButtonsGroupField.setItems(Rollout.ApprovalDecision.values());
 
         approveButtonsGroupField.setItemCaptionGenerator(item -> {
@@ -71,7 +71,7 @@ public class ApprovalLayout extends ValidatableLayout {
             }
         });
 
-        binder.forField(approveButtonsGroupField).bind(ProxyRolloutApproval::getApprovalDecision,
+        binder.forField(approveButtonsGroupField).asRequired().bind(ProxyRolloutApproval::getApprovalDecision,
                 ProxyRolloutApproval::setApprovalDecision);
 
         return approveButtonsGroupField;
@@ -92,13 +92,8 @@ public class ApprovalLayout extends ValidatableLayout {
     public void addApprovalToLayout(final GridLayout layout, final int lastColumnIdx, final int lastRowIdx) {
         layout.addComponent(SPUIComponentProvider.generateLabel(i18n, APPROVAL_CAPTION), 0, lastRowIdx);
 
-        final HorizontalLayout approvalButtonsLayout = new HorizontalLayout(approveButtonsGroup, approvalRemark);
-        approvalButtonsLayout.setSpacing(false);
-        approvalButtonsLayout.setMargin(false);
-        approvalButtonsLayout.setWidthFull();
-        approvalButtonsLayout.setExpandRatio(approvalRemark, 1.0F);
-
-        layout.addComponent(approvalButtonsLayout, 1, lastRowIdx, lastColumnIdx, lastRowIdx);
+        layout.addComponent(approveButtonsGroup, 1, lastRowIdx);
+        layout.addComponent(approvalRemark, 2, lastRowIdx, lastColumnIdx, lastRowIdx);
     }
 
     public void setBean(final ProxyRolloutApproval bean) {

@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.rollout.window;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRollout;
 import org.eclipse.hawkbit.ui.rollout.window.controllers.AddRolloutWindowController;
+import org.eclipse.hawkbit.ui.rollout.window.controllers.ApproveRolloutWindowController;
 import org.eclipse.hawkbit.ui.rollout.window.controllers.CopyRolloutWindowController;
 import org.eclipse.hawkbit.ui.rollout.window.controllers.UpdateRolloutWindowController;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AddRolloutWindowLayout;
@@ -62,6 +63,6 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
 
     public Window getWindowForApproveRollout(final ProxyRollout proxyRollout) {
         return getWindowForEntity(proxyRollout,
-                new UpdateRolloutWindowController(dependencies, new ApproveRolloutWindowLayout(dependencies)));
+                new ApproveRolloutWindowController(dependencies, new ApproveRolloutWindowLayout(dependencies)));
     }
 }

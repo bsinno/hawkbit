@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
@@ -176,5 +177,9 @@ public final class HawkbitCommonUtil {
 
     public static boolean atLeastOnePresent(final Long count) {
         return count != null && count > 0L;
+    }
+
+    public static Long getSumOf(final Collection<Long> countList) {
+        return countList.stream().mapToLong(Long::longValue).sum();
     }
 }
