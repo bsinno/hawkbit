@@ -32,6 +32,18 @@ public class TargetsToDistributionSetAssignmentSupport
 
     private final DeploymentAssignmentWindowController assignmentController;
 
+    /**
+     * Constructor for TargetsToDistributionSetAssignmentSupport
+     *
+     * @param notification
+     *          UINotification
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param assignmentController
+     *          DeploymentAssignmentWindowController
+     */
     public TargetsToDistributionSetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final DeploymentAssignmentWindowController assignmentController) {
         super(notification, i18n);

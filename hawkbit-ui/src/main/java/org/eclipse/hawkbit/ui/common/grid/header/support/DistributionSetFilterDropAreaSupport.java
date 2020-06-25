@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -161,6 +161,9 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
                 FilterType.DISTRIBUTION, null, EventView.DEPLOYMENT));
     }
 
+    /**
+     * Remove the components from current distribution set filter info
+     */
     public void reset() {
         currentDsFilterInfo.removeAllComponents();
         currentDsFilterInfo.setSizeUndefined();

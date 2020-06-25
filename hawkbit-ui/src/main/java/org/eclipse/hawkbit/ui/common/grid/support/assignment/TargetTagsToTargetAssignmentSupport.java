@@ -29,6 +29,18 @@ public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<P
     private final TargetManagement targetManagement;
     private final UIEventBus eventBus;
 
+    /**
+     * Constructor for TargetTagsToTargetAssignmentSupport
+     *
+     * @param notification
+     *          UINotification
+     * @param i18n
+     *          VaadinMessageSource
+     * @param targetManagement
+     *          TargetManagement
+     * @param eventBus
+     *          UIEventBus
+     */
     public TargetTagsToTargetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final TargetManagement targetManagement, final UIEventBus eventBus) {
         super(notification, i18n);

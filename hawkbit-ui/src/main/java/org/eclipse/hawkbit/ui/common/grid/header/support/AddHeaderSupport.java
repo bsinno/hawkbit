@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,9 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
+/**
+ * Add header support for Grid component
+ */
 public class AddHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
@@ -28,6 +31,18 @@ public class AddHeaderSupport implements HeaderSupport {
 
     private final Button addIcon;
 
+    /**
+     * Constructor for AddHeaderSupport
+     *
+     * @param i18n
+     *          AddHeaderSupport
+     * @param addIconId
+     *          Add icon id
+     * @param addItemCallback
+     *          Runnable
+     * @param maximizedStateSupplier
+     *          BooleanSupplier
+     */
     public AddHeaderSupport(final VaadinMessageSource i18n, final String addIconId, final Runnable addItemCallback,
             final BooleanSupplier maximizedStateSupplier) {
         this.i18n = i18n;
@@ -49,10 +64,16 @@ public class AddHeaderSupport implements HeaderSupport {
         return addButton;
     }
 
+    /**
+     * Hide add icon
+     */
     public void hideAddIcon() {
         addIcon.setVisible(false);
     }
 
+    /**
+     * Show add icon
+     */
     public void showAddIcon() {
         addIcon.setVisible(true);
     }

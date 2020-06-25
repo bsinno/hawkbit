@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,6 +21,9 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
+/**
+ * Class for bulk upload
+ */
 public class BulkUploadHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
@@ -29,6 +32,18 @@ public class BulkUploadHeaderSupport implements HeaderSupport {
     private final BooleanSupplier bulkUploadInProgressStateSupplier;
     private final BooleanSupplier maximizedStateSupplier;
 
+    /**
+     * Constructor for BulkUploadHeaderSupport
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param bulkUploadCallback
+     *          Runnable
+     * @param bulkUploadInProgressStateSupplier
+     *          BooleanSupplier
+     * @param maximizedStateSupplier
+     *          BooleanSupplier
+     */
     public BulkUploadHeaderSupport(final VaadinMessageSource i18n, final Runnable bulkUploadCallback,
             final BooleanSupplier bulkUploadInProgressStateSupplier, final BooleanSupplier maximizedStateSupplier) {
         this.i18n = i18n;
@@ -59,19 +74,31 @@ public class BulkUploadHeaderSupport implements HeaderSupport {
         bulkUploadIcon.setEnabled(true);
     }
 
+    /**
+     * Hide bulk upload
+     */
     public void hideBulkUpload() {
         bulkUploadIcon.setVisible(false);
     }
 
+    /**
+     * Show bulk upload
+     */
     public void showBulkUpload() {
         bulkUploadIcon.setVisible(true);
     }
 
+    /**
+     * Show upload progress indicator
+     */
     public void showProgressIndicator() {
         bulkUploadIcon.addStyleName(SPUIStyleDefinitions.BULK_UPLOAD_PROGRESS_INDICATOR_STYLE);
         bulkUploadIcon.setIcon(null);
     }
 
+    /**
+     * Hide upload progress indicator
+     */
     public void hideProgressIndicator() {
         bulkUploadIcon.removeStyleName(SPUIStyleDefinitions.BULK_UPLOAD_PROGRESS_INDICATOR_STYLE);
         bulkUploadIcon.setIcon(VaadinIcons.UPLOAD);

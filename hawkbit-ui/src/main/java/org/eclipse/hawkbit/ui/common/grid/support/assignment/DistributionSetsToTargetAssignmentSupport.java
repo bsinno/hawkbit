@@ -37,6 +37,22 @@ public class DistributionSetsToTargetAssignmentSupport
 
     private final DeploymentAssignmentWindowController assignmentController;
 
+    /**
+     * Constructor for DistributionSetsToTargetAssignmentSupport
+     *
+     * @param notification
+     *          UINotification
+     * @param i18n
+     *          VaadinMessageSource
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     * @param configManagement
+     *          TenantConfigurationManagement
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param assignmentController
+     *          DeploymentAssignmentWindowController
+     */
     public DistributionSetsToTargetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final SystemSecurityContext systemSecurityContext, final TenantConfigurationManagement configManagement,
             final SpPermissionChecker permChecker, final DeploymentAssignmentWindowController assignmentController) {

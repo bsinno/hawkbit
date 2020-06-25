@@ -28,6 +28,18 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
     private final TargetsToDistributionSetAssignmentSupport targetsToDistributionSetAssignmentSupport;
     private final TargetManagement targetManagement;
 
+    /**
+     * Constructor for TargetTagsToDistributionSetAssignmentSupport
+     *
+     * @param notification
+     *          UINotification
+     * @param i18n
+     *          VaadinMessageSource
+     * @param targetManagement
+     *          TargetManagement
+     * @param targetsToDistributionSetAssignmentSupport
+     *          TargetsToDistributionSetAssignmentSupport
+     */
     public TargetTagsToDistributionSetAssignmentSupport(final UINotification notification,
             final VaadinMessageSource i18n, final TargetManagement targetManagement,
             final TargetsToDistributionSetAssignmentSupport targetsToDistributionSetAssignmentSupport) {

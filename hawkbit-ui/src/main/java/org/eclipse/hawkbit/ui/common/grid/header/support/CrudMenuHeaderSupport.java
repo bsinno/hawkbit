@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,6 +17,9 @@ import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * Header support for CRUD menu
+ */
 public class CrudMenuHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
@@ -34,6 +37,28 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
 
     private Mode currentMode;
 
+    /**
+     * Constructor for CrudMenuHeaderSupport
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param crudMenuBarId
+     *          Crud menu bar id
+     * @param hasCreatePermission
+     *          boolean value based on create permission
+     * @param hasUpdatePermission
+     *          boolean value based on update permission
+     * @param hasDeletePermission
+     *          boolean value based on delete permission
+     * @param addCallback
+     *          Runnable
+     * @param editCallback
+     *          Runnable
+     * @param deleteCallback
+     *          Runnable
+     * @param closeCallback
+     *          Runnable
+     */
     public CrudMenuHeaderSupport(final VaadinMessageSource i18n, final String crudMenuBarId,
             final boolean hasCreatePermission, final boolean hasUpdatePermission, final boolean hasDeletePermission,
             final Runnable addCallback, final Runnable editCallback, final Runnable deleteCallback,
@@ -121,10 +146,16 @@ public class CrudMenuHeaderSupport implements HeaderSupport {
         return crudMenuBar;
     }
 
+    /**
+     * Enable crud menu option
+     */
     public void enableCrudMenu() {
         crudMenuBar.setEnabled(true);
     }
 
+    /**
+     * Disable crud menu option
+     */
     public void disableCrudMenu() {
         resetModifyMode();
         crudMenuBar.setEnabled(false);

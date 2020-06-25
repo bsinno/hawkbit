@@ -37,6 +37,20 @@ public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
 
+    /**
+     * Constructor for TargetsToTagAssignmentSupport
+     *
+     * @param notification
+     *          UINotification
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param targetManagement
+     *          TargetManagement
+     */
     public TargetsToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final UIEventBus eventBus, final SpPermissionChecker permChecker, final TargetManagement targetManagement) {
         super(notification, i18n);

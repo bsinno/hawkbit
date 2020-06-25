@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -36,6 +36,16 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
     private final transient List<HeaderSupport> headerSupports;
 
+    /**
+     * Constructor for AbstractGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     */
     public AbstractGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus) {
         this.i18n = i18n;
@@ -77,6 +87,9 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         setHeight("50px");
     }
 
+    /**
+     * Build header component for grid
+     */
     public void buildHeader() {
         final HorizontalLayout headerComponentsLayout = new HorizontalLayout();
 
@@ -104,6 +117,9 @@ public abstract class AbstractGridHeader extends VerticalLayout {
 
     protected abstract Component getHeaderCaption();
 
+    /**
+     * Restore to the default header state
+     */
     public void restoreState() {
         restoreCaption();
         headerSupports.stream().filter(Objects::nonNull).forEach(HeaderSupport::restoreState);

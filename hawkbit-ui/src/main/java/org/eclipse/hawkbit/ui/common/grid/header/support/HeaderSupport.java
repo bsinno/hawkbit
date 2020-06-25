@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,6 +10,9 @@ package org.eclipse.hawkbit.ui.common.grid.header.support;
 
 import com.vaadin.ui.Component;
 
+/**
+ * Interface for header support component
+ */
 @FunctionalInterface
 public interface HeaderSupport {
 

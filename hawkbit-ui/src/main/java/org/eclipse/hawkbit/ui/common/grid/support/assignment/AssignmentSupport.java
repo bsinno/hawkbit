@@ -40,6 +40,14 @@ public abstract class AssignmentSupport<S, T> {
         }
     }
 
+    /**
+     * Assign source items to target item
+     *
+     * @param sourceItemsToAssign
+     *          List of selectd source items
+     * @param targetItem
+     *          Target item
+     */
     public void assignSourceItemsToTargetItem(final List<S> sourceItemsToAssign, final T targetItem) {
         if (sourceItemsToAssign.isEmpty()) {
             showGenericErrorNotification();
@@ -76,6 +84,9 @@ public abstract class AssignmentSupport<S, T> {
         return getFilteredSourceItems(sourceItemsToAssign, null);
     }
 
+    /**
+     * @return List of missing required permission to drop the item
+     */
     public abstract List<String> getMissingPermissionsForDrop();
 
     protected abstract void performAssignment(final List<S> sourceItemsToAssign, final T targetItem);

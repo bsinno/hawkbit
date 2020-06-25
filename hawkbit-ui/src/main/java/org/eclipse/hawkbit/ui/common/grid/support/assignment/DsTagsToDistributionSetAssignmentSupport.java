@@ -30,6 +30,18 @@ public class DsTagsToDistributionSetAssignmentSupport
     private final DistributionSetManagement distributionSetManagement;
     private final UIEventBus eventBus;
 
+    /**
+     * Constructor for DsTagsToDistributionSetAssignmentSupport
+     *
+     * @param notification
+     *          UINotification
+     * @param i18n
+     *          VaadinMessageSource
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param eventBus
+     *          UIEventBus
+     */
     public DsTagsToDistributionSetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus) {
         super(notification, i18n);
