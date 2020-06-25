@@ -177,6 +177,9 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         recalculateColumnWidths();
     }
 
+    /**
+     * Show delete column in the grid
+     */
     public void showDeleteColumn() {
         getColumn(FILTER_BUTTON_DELETE_ID).setHidden(false);
         getColumn(FILTER_BUTTON_EDIT_ID).setHidden(true);
@@ -184,6 +187,9 @@ public abstract class AbstractFilterButtons<T extends ProxyFilterButton, F> exte
         recalculateColumnWidths();
     }
 
+    /**
+     * Show edit column in the grid
+     */
     public void showEditColumn() {
         getColumn(FILTER_BUTTON_EDIT_ID).setHidden(false);
         getColumn(FILTER_BUTTON_DELETE_ID).setHidden(true);

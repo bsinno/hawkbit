@@ -50,6 +50,20 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
     private final Button noTagButton;
     private final transient TagFilterButtonClick tagFilterButtonClick;
 
+    /**
+     * Constructor for AbstractTagFilterButtons
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param tagFilterLayoutUiState
+     *          TagFilterLayoutUiState
+     */
     public AbstractTagFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final UINotification uiNotification, final SpPermissionChecker permChecker,
             final TagFilterLayoutUiState tagFilterLayoutUiState) {
@@ -145,6 +159,12 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
 
     protected abstract void deleteTag(final ProxyTag tagToDelete);
 
+    /**
+     * Reset the filter by removing the deleted tags
+     *
+     * @param deletedTagIds
+     *          List of deleted tags Id
+     */
     public void resetFilterOnTagsDeleted(final Collection<Long> deletedTagIds) {
         if (isAtLeastOneClickedTagInIds(deletedTagIds)) {
             deletedTagIds.forEach(getFilterButtonClickBehaviour()::removePreviouslyClickedFilter);
@@ -152,6 +172,12 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
         }
     }
 
+    /**
+     * @param tagIds
+     *          List of tags Id
+     *
+     * @return true if at least one tag found in list of clicked tag Ids else false
+     */
     private boolean isAtLeastOneClickedTagInIds(final Collection<Long> tagIds) {
         final Set<Long> clickedTagIds = getFilterButtonClickBehaviour().getPreviouslyClickedFilterIds();
 
@@ -169,10 +195,16 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
 
     protected abstract Window getUpdateWindow(final ProxyTag clickedFilter);
 
+    /**
+     * @return Button component of no tag
+     */
     public Button getNoTagButton() {
         return noTagButton;
     }
 
+    /**
+     * Remove the tag filters
+     */
     public void clearTargetTagFilters() {
         if (getFilterButtonClickBehaviour().getPreviouslyClickedFiltersSize() > 0) {
             if (tagFilterLayoutUiState.isNoTagClicked()) {

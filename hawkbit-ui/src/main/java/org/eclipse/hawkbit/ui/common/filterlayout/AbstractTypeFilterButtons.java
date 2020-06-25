@@ -39,6 +39,20 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
     private final UINotification uiNotification;
     private final transient TypeFilterButtonClick typeFilterButtonClick;
 
+    /**
+     * Constructor for AbstractTypeFilterButtons
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param typeFilterLayoutUiState
+     *          TypeFilterLayoutUiState
+     */
     public AbstractTypeFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final UINotification uiNotification, final SpPermissionChecker permChecker,
             final TypeFilterLayoutUiState typeFilterLayoutUiState) {
@@ -107,6 +121,12 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
 
     protected abstract void deleteType(final ProxyType typeToDelete);
 
+    /**
+     * Reset the filter after types deleted
+     *
+     * @param deletedTypeIds
+     *          List of deleted type Ids
+     */
     public void resetFilterOnTypesDeleted(final Collection<Long> deletedTypeIds) {
         final Long clickedTypeId = getFilterButtonClickBehaviour().getPreviouslyClickedFilterId();
 
