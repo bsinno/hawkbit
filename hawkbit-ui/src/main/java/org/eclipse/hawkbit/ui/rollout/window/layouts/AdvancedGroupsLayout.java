@@ -56,7 +56,10 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
     private final GridLayout layout;
 
     private String targetFilter;
+
     private final List<AdvancedGroupRow> groupRows;
+    private int lastGroupIndex;
+
     private final AtomicInteger runningValidationsCounter;
 
     private BiConsumer<List<ProxyAdvancedRolloutGroup>, Boolean> advancedGroupDefinitionsChangedListener;
@@ -118,16 +121,14 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
     }
 
     public void addGroupRowAndValidate() {
-        final int groupIndex = groupRows.size() + 1;
-
-        addGroupRow(getDefaultAdvancedRolloutGroupDefinition(groupIndex));
+        addGroupRow(getDefaultAdvancedRolloutGroupDefinition());
 
         updateValidation();
     }
 
-    private ProxyAdvancedRolloutGroup getDefaultAdvancedRolloutGroupDefinition(final int groupIndex) {
+    private ProxyAdvancedRolloutGroup getDefaultAdvancedRolloutGroupDefinition() {
         final ProxyAdvancedRolloutGroup advancedGroupRowBean = new ProxyAdvancedRolloutGroup();
-        advancedGroupRowBean.setGroupName(i18n.getMessage("textfield.rollout.group.default.name", groupIndex));
+        advancedGroupRowBean.setGroupName(i18n.getMessage("textfield.rollout.group.default.name", lastGroupIndex + 1));
         advancedGroupRowBean.setTargetPercentage(100f);
         setDefaultThresholds(advancedGroupRowBean);
 
@@ -153,7 +154,7 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
         addRowToLayout(groupRow);
         groupRows.add(groupRow);
-        groupRow.updateComponentIds(groupRows.size());
+        groupRow.updateComponentIds(++lastGroupIndex);
 
         return groupRow;
     }
@@ -340,6 +341,7 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         }
 
         groupRows.clear();
+        lastGroupIndex = 0;
     }
 
     public GridLayout getLayout() {

@@ -59,8 +59,7 @@ public class AdvancedGroupRow {
 
     private TextField createGroupName() {
         final TextField nameField = new TextFieldBuilder(RolloutGroup.NAME_MAX_SIZE)
-                .prompt(i18n.getMessage("textfield.name")).id(UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID)
-                .buildTextComponent();
+                .prompt(i18n.getMessage("textfield.name")).buildTextComponent();
         nameField.setSizeUndefined();
         nameField.setStyleName("rollout-group-name");
         nameField.addStyleName(ValoTheme.TEXTAREA_SMALL);
@@ -74,8 +73,7 @@ public class AdvancedGroupRow {
 
     private ComboBox<ProxyTargetFilterQuery> createTargetFilterQueryCombo() {
         final BoundComponent<ComboBox<ProxyTargetFilterQuery>> boundTfqCombo = FormComponentBuilder
-                .createTargetFilterQueryCombo(binder, null, targetFilterQueryDataProvider, i18n,
-                        UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID);
+                .createTargetFilterQueryCombo(binder, null, targetFilterQueryDataProvider, i18n, null);
         boundTfqCombo.setRequired(false);
 
         return boundTfqCombo.getComponent();
@@ -83,8 +81,7 @@ public class AdvancedGroupRow {
 
     private TextField createTargetPercentage() {
         final TextField targetPercentageField = new TextFieldBuilder(32)
-                .prompt(i18n.getMessage("textfield.target.percentage"))
-                .id(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_PERC_ID).buildTextComponent();
+                .prompt(i18n.getMessage("textfield.target.percentage")).buildTextComponent();
         targetPercentageField.setWidth(5, Unit.EM);
 
         binder.forField(targetPercentageField).asRequired()
@@ -102,8 +99,7 @@ public class AdvancedGroupRow {
 
     private TextField createTriggerThreshold() {
         final TextField triggerThresholdField = new TextFieldBuilder(32)
-                .prompt(i18n.getMessage("prompt.tigger.threshold"))
-                .id(UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID).buildTextComponent();
+                .prompt(i18n.getMessage("prompt.tigger.threshold")).buildTextComponent();
         triggerThresholdField.setWidth(5, Unit.EM);
 
         // TODO: add as required description
@@ -116,7 +112,7 @@ public class AdvancedGroupRow {
 
     private TextField createErrorThreshold() {
         final TextField errorThresholdField = new TextFieldBuilder(32).prompt(i18n.getMessage("prompt.error.threshold"))
-                .id(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID).buildTextComponent();
+                .buildTextComponent();
         errorThresholdField.setWidth(5, Unit.EM);
 
         // TODO: add as required description
@@ -135,11 +131,11 @@ public class AdvancedGroupRow {
     }
 
     public void updateComponentIds(final int index) {
-        groupName.setId(groupName.getId() + "." + index);
-        targetFilterQueryCombo.setId(targetFilterQueryCombo.getId() + "." + index);
-        targetPercentage.setId(targetPercentage.getId() + "." + index);
-        triggerThreshold.setId(triggerThreshold.getId() + "." + index);
-        errorThreshold.setId(errorThreshold.getId() + "." + index);
+        groupName.setId(UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID + "." + index);
+        targetFilterQueryCombo.setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID + "." + index);
+        targetPercentage.setId(UIComponentIdProvider.ROLLOUT_GROUP_TARGET_PERC_ID + "." + index);
+        triggerThreshold.setId(UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID + "." + index);
+        errorThreshold.setId(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID + "." + index);
     }
 
     public void setBean(final ProxyAdvancedRolloutGroup bean) {
