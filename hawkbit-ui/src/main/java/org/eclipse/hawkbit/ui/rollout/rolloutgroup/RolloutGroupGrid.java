@@ -136,14 +136,8 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
                 .setId(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
                 .setCaption(i18n.getMessage("header.rolloutgroup.threshold")).setHidable(true);
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, SPUILabelDefinitions.VAR_CREATED_USER).setHidable(true)
-                .setHidden(true);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, SPUILabelDefinitions.VAR_CREATED_DATE).setHidable(true)
-                .setHidden(true);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, SPUILabelDefinitions.VAR_MODIFIED_BY).setHidable(true)
-                .setHidden(true);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, SPUILabelDefinitions.VAR_MODIFIED_DATE).setHidable(true)
-                .setHidden(true);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n)
+                .forEach(col -> col.setHidable(true).setHidden(true));
 
         GridComponentBuilder.addDescriptionColumn(this, i18n, SPUILabelDefinitions.VAR_DESC).setHidable(true)
                 .setHidden(true);

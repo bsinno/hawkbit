@@ -78,10 +78,6 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private static final String TARGET_STATUS_ID = "targetStatus";
     private static final String TARGET_NAME_ID = "targetName";
     private static final String TARGET_POLLING_STATUS_ID = "targetPolling";
-    private static final String TARGET_CREATED_BY_ID = "targetCreatedBy";
-    private static final String TARGET_CREATED_DATE_ID = "targetCreatedDate";
-    private static final String TARGET_MODIFIED_BY_ID = "targetModifiedBy";
-    private static final String TARGET_MODIFIED_DATE_ID = "targetModifiedDate";
     private static final String TARGET_DESC_ID = "targetDescription";
     private static final String TARGET_PIN_BUTTON_ID = "targetPinButton";
     private static final String TARGET_DELETE_BUTTON_ID = "targetDeleteButton";
@@ -318,10 +314,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     protected void addMaxColumns() {
         addNameColumn().setExpandRatio(2);
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, TARGET_CREATED_BY_ID);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, TARGET_CREATED_DATE_ID);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, TARGET_MODIFIED_BY_ID);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, TARGET_MODIFIED_DATE_ID);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
         addDeleteColumn();
         GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESC_ID).setExpandRatio(2);

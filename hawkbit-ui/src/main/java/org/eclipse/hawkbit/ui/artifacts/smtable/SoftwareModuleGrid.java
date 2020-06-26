@@ -55,10 +55,6 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
 
     private static final String SM_NAME_ID = "smName";
     private static final String SM_VERSION_ID = "smVersion";
-    private static final String SM_CREATED_BY_ID = "smCreatedBy";
-    private static final String SM_CREATED_DATE_ID = "smCreatedDate";
-    private static final String SM_MODIFIED_BY_ID = "smModifiedBy";
-    private static final String SM_MODIFIED_DATE_ID = "smModifiedDate";
     private static final String SM_DESC_ID = "smDescription";
     private static final String SM_VENDOR_ID = "smVendor";
     private static final String SM_DELETE_BUTTON_ID = "smDeleteButton";
@@ -80,21 +76,21 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
      * Constructor for SoftwareModuleGrid
      *
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param permissionChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param smTypeFilterLayoutUiState
-     *          TypeFilterLayoutUiState
+     *            TypeFilterLayoutUiState
      * @param smGridLayoutUiState
-     *          GridLayoutUiState
+     *            GridLayoutUiState
      * @param softwareModuleManagement
-     *          SoftwareModuleManagement
+     *            SoftwareModuleManagement
      * @param view
-     *          EventView
+     *            EventView
      */
     public SoftwareModuleGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -151,7 +147,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
      * Map SoftwareModule to Proxy type
      *
      * @param entityId
-     *          EntityId Long type
+     *            EntityId Long type
      *
      * @return ProxySoftwareModule
      */
@@ -193,7 +189,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
      * Artifacts upload process
      *
      * @param fileUploadProgress
-     *          FileUploadProgress
+     *            FileUploadProgress
      */
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         final FileUploadProgress.FileUploadStatus uploadProgressEventType = fileUploadProgress.getFileUploadStatus();
@@ -282,10 +278,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
     @Override
     protected void addMaxColumns() {
         addNameColumn().setExpandRatio(7);
-        GridComponentBuilder.addCreatedByColumn(this, i18n, SM_CREATED_BY_ID);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, SM_CREATED_DATE_ID);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, SM_MODIFIED_BY_ID);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, SM_MODIFIED_DATE_ID);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
         addDescriptionColumn().setExpandRatio(5);
         addVersionColumn();
         addVendorColumn();

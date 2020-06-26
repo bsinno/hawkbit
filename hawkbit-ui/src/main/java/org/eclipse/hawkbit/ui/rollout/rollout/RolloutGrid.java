@@ -79,10 +79,6 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
     private static final String TOTAL_TARGETS_COUNT_STATUS_ID = "totalTargetsCountStatus";
     private static final String NUMBER_OF_GROUPS_ID = "numberOfGroups";
     private static final String TOTAL_TARGETS_ID = "totalTargets";
-    private static final String CREATED_DATE_ID = "createdDate";
-    private static final String CREATED_USER_ID = "createdUser";
-    private static final String MODIFIED_DATE_ID = "modifiedDate";
-    private static final String MODIFIED_BY_ID = "modifiedBy";
     private static final String APPROVAL_DECIDED_BY_ID = "approvalDecidedBy";
     private static final String APPROVAL_REMARK_ID = "approvalRemark";
     private static final String DESC_ID = "description";
@@ -307,10 +303,8 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
 
         addActionColumns();
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, CREATED_USER_ID).setHidable(true).setHidden(true);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, CREATED_DATE_ID).setHidable(true).setHidden(true);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, MODIFIED_BY_ID).setHidable(true).setHidden(true);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, MODIFIED_DATE_ID).setHidable(true).setHidden(true);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n)
+                .forEach(col -> col.setHidable(true).setHidden(true));
 
         GridComponentBuilder.addColumn(this, ProxyRollout::getApprovalDecidedBy).setId(APPROVAL_DECIDED_BY_ID)
                 .setCaption(i18n.getMessage("header.approvalDecidedBy")).setHidable(true).setHidden(true);

@@ -7,6 +7,7 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +39,11 @@ import com.vaadin.ui.themes.ValoTheme;
  * Builder class for grid components
  */
 public final class GridComponentBuilder {
+    public static final String CREATED_BY_ID = "createdBy";
+    public static final String CREATED_DATE_ID = "createdDate";
+    public static final String MODIFIED_BY_ID = "modifiedBy";
+    public static final String MODIFIED_DATE_ID = "modifiedDate";
+
     private GridComponentBuilder() {
     }
 
@@ -132,75 +138,24 @@ public final class GridComponentBuilder {
     }
 
     /**
-     * Add CreatedBy column to grid
+     * Add "created by", "created at", "modified by" and "modified at" column
      * 
      * @param <E>
      *            entity type of the grid
      * @param grid
-     *            to add the column to
+     *            to add the columns to
      * @param i18n
      *            message source for internationalization
-     * @param columnId
-     *            column ID
-     * @return the created column
+     * @return the created columns
      */
-    public static <E extends ProxyNamedEntity> Column<E, String> addCreatedByColumn(final Grid<E> grid,
-            final VaadinMessageSource i18n, final String columnId) {
-        return addColumn(i18n, grid, E::getCreatedBy, "header.createdBy", columnId, 100D);
-    }
-
-    /**
-     * Add CreatedAt column to grid
-     * 
-     * @param <E>
-     *            entity type of the grid
-     * @param grid
-     *            to add the column to
-     * @param i18n
-     *            message source for internationalization
-     * @param columnId
-     *            column ID
-     * @return the created column
-     */
-    public static <E extends ProxyNamedEntity> Column<E, String> addCreatedAtColumn(final Grid<E> grid,
-            final VaadinMessageSource i18n, final String columnId) {
-        return addColumn(i18n, grid, E::getCreatedDate, "header.createdDate", columnId, 100D);
-    }
-
-    /**
-     * Add ModifiedBy column to grid
-     * 
-     * @param <E>
-     *            entity type of the grid
-     * @param grid
-     *            to add the column to
-     * @param i18n
-     *            message source for internationalization
-     * @param columnId
-     *            column ID
-     * @return the created column
-     */
-    public static <E extends ProxyNamedEntity> Column<E, String> addModifiedByColumn(final Grid<E> grid,
-            final VaadinMessageSource i18n, final String columnId) {
-        return addColumn(i18n, grid, E::getLastModifiedBy, "header.modifiedBy", columnId, 100D);
-    }
-
-    /**
-     * Add ModifiedAt column to grid
-     * 
-     * @param <E>
-     *            entity type of the grid
-     * @param grid
-     *            to add the column to
-     * @param i18n
-     *            message source for internationalization
-     * @param columnId
-     *            column ID
-     * @return the created column
-     */
-    public static <E extends ProxyNamedEntity> Column<E, String> addModifiedAtColumn(final Grid<E> grid,
-            final VaadinMessageSource i18n, final String columnId) {
-        return addColumn(i18n, grid, E::getModifiedDate, "header.modifiedDate", columnId, 100D);
+    public static <E extends ProxyNamedEntity> List<Column<E, String>> addCreatedAndModifiedColumns(final Grid<E> grid,
+            final VaadinMessageSource i18n) {
+        final List<Column<E, String>> columns = new ArrayList<>();
+        columns.add(addColumn(i18n, grid, E::getCreatedBy, "header.createdBy", CREATED_BY_ID, 100D));
+        columns.add(addColumn(i18n, grid, E::getCreatedDate, "header.createdDate", CREATED_DATE_ID, 100D));
+        columns.add(addColumn(i18n, grid, E::getLastModifiedBy, "header.modifiedBy", MODIFIED_BY_ID, 100D));
+        columns.add(addColumn(i18n, grid, E::getModifiedDate, "header.modifiedDate", MODIFIED_DATE_ID, 100D));
+        return columns;
     }
 
     /**
@@ -226,8 +181,13 @@ public final class GridComponentBuilder {
     private static <E, T> Column<E, T> addColumn(final VaadinMessageSource i18n, final Grid<E> grid,
             final ValueProvider<E, T> valueProvider, final String caption, final String columnID,
             final double minWidth) {
-        return addColumn(grid, valueProvider).setId(columnID).setCaption(i18n.getMessage(caption))
+        final Column<E, T> col = addColumn(grid, valueProvider).setCaption(i18n.getMessage(caption))
                 .setMinimumWidth(minWidth);
+        if (columnID != null) {
+            col.setId(columnID);
+        }
+        return col;
+
     }
 
     /**
@@ -331,7 +291,7 @@ public final class GridComponentBuilder {
         final ValueProvider<E, Button> getDelButton = entity -> buildActionButton(i18n,
                 clickEvent -> deleteSupport.openConfirmationWindowDeleteAction(entity), VaadinIcons.TRASH,
                 UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                buttonIdPrefix + "." + entity.getId(), buttonEnabled.test(entity));
+                buttonIdPrefix + ".icon.delete." + entity.getId(), buttonEnabled.test(entity));
         return addIconColumn(grid, getDelButton, columnId, null).setWidth(60D)
                 .setHidingToggleCaption(i18n.getMessage("header.action.delete"));
     }
