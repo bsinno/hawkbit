@@ -162,16 +162,11 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
         addMaintenanceWindowColumn().setHidable(true).setHidden(true);
 
-        final Column<?, ?> typeColumn = addTypeColumn();
-        final Column<?, ?> timeforcedColumn = addTimeforcedColumn();
         GridComponentBuilder.joinToIconColumn(getDefaultHeaderRow(), i18n.getMessage("label.action.type"),
-                Arrays.asList(typeColumn, timeforcedColumn));
+                Arrays.asList(addTypeColumn(), addTimeforcedColumn()));
 
-        final Column<?, ?> cancelColumn = addCancelColumn();
-        final Column<?, ?> forceColumn = addForceColumn();
-        final Column<?, ?> forceQuitColumn = addForceQuitColumn();
         GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
-                Arrays.asList(cancelColumn, forceColumn, forceQuitColumn));
+                Arrays.asList(addCancelColumn(), addForceColumn(), addForceQuitColumn()));
     }
 
     private Column<ProxyAction, Label> addActiveStatusColumn() {
@@ -366,16 +361,11 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
 
         addRolloutNameColumn().setHidable(true);
 
-        final Column<?, ?> typeColumn = addTypeColumn();
-        final Column<?, ?> timeforcedColumn = addTimeforcedColumn();
         GridComponentBuilder.joinToIconColumn(getDefaultHeaderRow(), i18n.getMessage("label.action.type"),
-                Arrays.asList(typeColumn, timeforcedColumn));
+                Arrays.asList(addTypeColumn(), addTimeforcedColumn()));
 
-        final Column<?, ?> cancelColumn = addCancelColumn();
-        final Column<?, ?> forceColumn = addForceColumn();
-        final Column<?, ?> forceQuitColumn = addForceQuitColumn();
         GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
-                Arrays.asList(cancelColumn, forceColumn, forceQuitColumn));
+                Arrays.asList(addCancelColumn(), addForceColumn(), addForceQuitColumn()));
     }
 
     private Column<ProxyAction, Long> addActionIdColumn() {

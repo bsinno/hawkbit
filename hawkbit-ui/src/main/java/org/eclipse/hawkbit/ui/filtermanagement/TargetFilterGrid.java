@@ -58,10 +58,6 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
     private static final long serialVersionUID = 1L;
 
     private static final String FILTER_NAME_ID = "filterName";
-    private static final String FILTER_CREATED_BY_ID = "filterCreatedBy";
-    private static final String FILTER_CREATED_DATE_ID = "filterCreatedDate";
-    private static final String FILTER_MODIFIED_BY_ID = "filterModifiedBy";
-    private static final String FILTER_MODIFIED_DATE_ID = "filterModifiedDate";
     private static final String FILTER_DELETE_BUTTON_ID = "filterDeleteButton";
 
     private final UINotification notification;
@@ -128,10 +124,7 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
         GridComponentBuilder.addComponentColumn(this, this::buildFilterLink).setId(FILTER_NAME_ID)
                 .setCaption(i18n.getMessage("header.name"));
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, FILTER_CREATED_BY_ID);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, FILTER_CREATED_DATE_ID);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, FILTER_MODIFIED_BY_ID);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, FILTER_MODIFIED_DATE_ID);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
         addAutoAssignmentColumns();
 

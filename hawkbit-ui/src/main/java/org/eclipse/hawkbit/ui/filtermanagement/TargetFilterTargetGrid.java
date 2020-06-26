@@ -29,10 +29,6 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     private static final long serialVersionUID = 1L;
 
     private static final String TARGET_NAME_ID = "targetName";
-    private static final String TARGET_CREATED_BY_ID = "targetCreatedBy";
-    private static final String TARGET_CREATED_DATE_ID = "targetCreatedDate";
-    private static final String TARGET_MODIFIED_BY_ID = "targetModifiedBy";
-    private static final String TARGET_MODIFIED_DATE_ID = "targetModifiedDate";
     private static final String TARGET_DESCRIPTION_ID = "targetDescription";
     private static final String TARGET_STATUS_ID = "targetStatus";
 
@@ -79,10 +75,7 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     public void addColumns() {
         GridComponentBuilder.addNameColumn(this, i18n, TARGET_NAME_ID);
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, TARGET_CREATED_BY_ID);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, TARGET_CREATED_DATE_ID);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, TARGET_MODIFIED_BY_ID);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, TARGET_MODIFIED_DATE_ID);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
         GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESCRIPTION_ID);
 

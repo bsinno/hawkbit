@@ -30,10 +30,6 @@ public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSe
 
     protected static final String DS_NAME_ID = "dsName";
     protected static final String DS_VERSION_ID = "dsVersion";
-    protected static final String DS_CREATED_BY_ID = "dsCreatedBy";
-    protected static final String DS_CREATED_DATE_ID = "dsCreatedDate";
-    protected static final String DS_MODIFIED_BY_ID = "dsModifiedBy";
-    protected static final String DS_MODIFIED_DATE_ID = "dsModifiedDate";
     protected static final String DS_DESC_ID = "dsDescription";
     protected static final String DS_DELETE_BUTTON_ID = "dsDeleteButton";
 
@@ -113,10 +109,7 @@ public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSe
     protected void addMaxColumns() {
         addNameColumn().setExpandRatio(7);
 
-        GridComponentBuilder.addCreatedByColumn(this, i18n, DS_CREATED_BY_ID);
-        GridComponentBuilder.addCreatedAtColumn(this, i18n, DS_CREATED_DATE_ID);
-        GridComponentBuilder.addModifiedByColumn(this, i18n, DS_MODIFIED_BY_ID);
-        GridComponentBuilder.addModifiedAtColumn(this, i18n, DS_MODIFIED_DATE_ID);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
         addDescriptionColumn().setExpandRatio(5);
 

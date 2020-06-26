@@ -179,9 +179,8 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
         addNameColumn();
         addVersionColumn();
 
-        final Column<?, ?> pinColumn = addPinColumn();
-        final Column<?, ?> deleteColumn = addDeleteColumn();
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(), Arrays.asList(pinColumn, deleteColumn));
+        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+                Arrays.asList(addPinColumn(), addDeleteColumn()));
     }
 
     private Column<ProxyDistributionSet, Button> addPinColumn() {

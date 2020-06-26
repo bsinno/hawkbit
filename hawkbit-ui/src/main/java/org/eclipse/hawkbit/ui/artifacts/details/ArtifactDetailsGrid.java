@@ -66,15 +66,15 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
      * Constructor
      *
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param permissionChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param artifactManagement
-     *          ArtifactManagement
+     *            ArtifactManagement
      */
     public ArtifactDetailsGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -142,10 +142,9 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
         addSizeColumn();
 
         addModifiedDateColumn();
-        final Column<?, ?> downloadColumn = addDownloadColumn();
-        final Column<?, ?> deleteColumn = addDeleteColumn();
+
         GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
-                Arrays.asList(downloadColumn, deleteColumn));
+                Arrays.asList(addDownloadColumn(), addDeleteColumn()));
     }
 
     private Column<ProxyArtifact, String> addFilenameColumn() {
@@ -209,10 +208,8 @@ public class ArtifactDetailsGrid extends AbstractGrid<ProxyArtifact, Long> {
 
         addModifiedDateColumn();
 
-        final Column<?, ?> downloadColumn = addDownloadColumn();
-        final Column<?, ?> deleteColumn = addDeleteColumn();
         GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
-                Arrays.asList(downloadColumn, deleteColumn));
+                Arrays.asList(addDownloadColumn(), addDeleteColumn()));
 
         getColumns().forEach(column -> column.setHidable(true));
     }
