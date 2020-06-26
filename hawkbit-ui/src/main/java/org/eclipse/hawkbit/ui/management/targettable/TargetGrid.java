@@ -280,16 +280,11 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     public void addColumns() {
         addNameColumn();
 
-        final Column<?, ?> pollingStatusColumn = addTargetPollingStatusColumn();
-        final Column<?, ?> targetStatusColumn = addTargetStatusColumn();
-
         GridComponentBuilder.joinToIconColumn(getDefaultHeaderRow(), i18n.getMessage("header.status"),
-                Arrays.asList(pollingStatusColumn, targetStatusColumn));
+                Arrays.asList(addTargetPollingStatusColumn(), addTargetStatusColumn()));
 
-        final Column<?, ?> pinColumn = addPinColumn();
-        final Column<?, ?> deleteColumn = addDeleteColumn();
-
-        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(), Arrays.asList(pinColumn, deleteColumn));
+        GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
+                Arrays.asList(addPinColumn(), addDeleteColumn()));
     }
 
     private Column<ProxyTarget, String> addNameColumn() {
