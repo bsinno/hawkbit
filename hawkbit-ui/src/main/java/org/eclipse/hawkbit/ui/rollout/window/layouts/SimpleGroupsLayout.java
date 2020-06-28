@@ -124,7 +124,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
     private TextField createTriggerThreshold() {
         final TextField triggerThresholdField = new TextFieldBuilder(3)
                 .id(UIComponentIdProvider.ROLLOUT_TRIGGER_THRESOLD_ID)
-                .prompt(i18n.getMessage("prompt.tigger.threshold")).buildTextComponent();
+                .prompt(i18n.getMessage("prompt.trigger.threshold")).buildTextComponent();
         triggerThresholdField.setSizeUndefined();
 
         // TODO: use i18n
@@ -245,7 +245,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         gridLayout.addComponent(noOfGroupsWithBinding.getComponent(), 1, 1);
         gridLayout.addComponent(groupSizeLabel, 2, 1);
 
-        gridLayout.addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.tigger.threshold"), 0, 2);
+        gridLayout.addComponent(SPUIComponentProvider.generateLabel(i18n, "prompt.trigger.threshold"), 0, 2);
         gridLayout.addComponent(triggerThreshold, 1, 2);
         gridLayout.addComponent(percentHintLabel, 2, 2);
 

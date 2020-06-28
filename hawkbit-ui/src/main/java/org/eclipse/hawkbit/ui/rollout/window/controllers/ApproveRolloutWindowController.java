@@ -48,8 +48,7 @@ public class ApproveRolloutWindowController extends UpdateRolloutWindowControlle
     @Override
     protected boolean isEntityValid(final ProxyRolloutWindow entity) {
         if (entity.getApprovalDecision() == null) {
-            // TODO: add 18n
-            uiNotification.displayValidationError("You should approve or reject the Rollout");
+            uiNotification.displayValidationError(i18n.getMessage("message.rollout.approval.required"));
             return false;
         }
 

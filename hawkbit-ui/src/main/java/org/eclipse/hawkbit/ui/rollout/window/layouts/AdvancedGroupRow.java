@@ -84,9 +84,8 @@ public class AdvancedGroupRow {
                 .prompt(i18n.getMessage("textfield.target.percentage")).buildTextComponent();
         targetPercentageField.setWidth(5, Unit.EM);
 
-        binder.forField(targetPercentageField).asRequired()
-                // TODO: use i18n
-                .withConverter(new StringToFloatConverter("only float values are allowed"))
+        binder.forField(targetPercentageField).asRequired(i18n.getMessage("textfield.target.percentage.required"))
+                .withConverter(new StringToFloatConverter(i18n.getMessage("textfield.target.percentage.format.error")))
                 .withValidator((value, context) -> {
                     final FloatRangeValidator validator = new FloatRangeValidator(
                             i18n.getMessage("message.rollout.field.value.range", 0, 100), 0F, 100F);
@@ -99,11 +98,10 @@ public class AdvancedGroupRow {
 
     private TextField createTriggerThreshold() {
         final TextField triggerThresholdField = new TextFieldBuilder(32)
-                .prompt(i18n.getMessage("prompt.tigger.threshold")).buildTextComponent();
+                .prompt(i18n.getMessage("prompt.trigger.threshold")).buildTextComponent();
         triggerThresholdField.setWidth(5, Unit.EM);
 
-        // TODO: add as required description
-        binder.forField(triggerThresholdField).asRequired().bind(
+        binder.forField(triggerThresholdField).asRequired(i18n.getMessage("prompt.trigger.threshold.required")).bind(
                 ProxyAdvancedRolloutGroup::getTriggerThresholdPercentage,
                 ProxyAdvancedRolloutGroup::setTriggerThresholdPercentage);
 
@@ -115,8 +113,8 @@ public class AdvancedGroupRow {
                 .buildTextComponent();
         errorThresholdField.setWidth(5, Unit.EM);
 
-        // TODO: add as required description
-        binder.forField(errorThresholdField).asRequired().bind(ProxyAdvancedRolloutGroup::getErrorThresholdPercentage,
+        binder.forField(errorThresholdField).asRequired(i18n.getMessage("prompt.error.threshold.required")).bind(
+                ProxyAdvancedRolloutGroup::getErrorThresholdPercentage,
                 ProxyAdvancedRolloutGroup::setErrorThresholdPercentage);
 
         return errorThresholdField;

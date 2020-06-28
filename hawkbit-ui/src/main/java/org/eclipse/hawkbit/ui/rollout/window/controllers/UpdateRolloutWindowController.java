@@ -150,9 +150,10 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
             updatedRollout = rolloutManagement.update(rolloutUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of rollout failed in UI: {}", e.getMessage());
-            // TODO: add 18n
-            uiNotification.displayWarning(
-                    "Rollout with name " + entity.getName() + " was deleted or you are not allowed to update it");
+            final String entityType = i18n.getMessage("caption.rollout");
+            uiNotification
+                    .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
+
             eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
             return;
         }

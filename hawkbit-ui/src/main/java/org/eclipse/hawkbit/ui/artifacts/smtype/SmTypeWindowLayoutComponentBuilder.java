@@ -22,7 +22,7 @@ import com.vaadin.ui.TextField;
 /**
  * Builder for software module type window layout component
  */
-//TODO: remove duplication with other builders
+// TODO: remove duplication with other builders
 public class SmTypeWindowLayoutComponentBuilder {
 
     public static final String TEXTFIELD_KEY = "textfield.key";
@@ -33,7 +33,7 @@ public class SmTypeWindowLayoutComponentBuilder {
      * Constructor for SmTypeWindowLayoutComponentBuilder
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      */
     public SmTypeWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
@@ -43,7 +43,7 @@ public class SmTypeWindowLayoutComponentBuilder {
      * Create software module type key text field
      *
      * @param binder
-     *          Vaadin binder of ProxyType
+     *            Vaadin binder of ProxyType
      *
      * @return Textfield
      */
@@ -62,7 +62,7 @@ public class SmTypeWindowLayoutComponentBuilder {
      * Create software module type assignment group
      *
      * @param binder
-     *          Vaadin binder of ProxyType
+     *            Vaadin binder of ProxyType
      *
      * @return RadioButtonGroup of software module type assignment
      */
@@ -80,13 +80,12 @@ public class SmTypeWindowLayoutComponentBuilder {
                 return null;
             }
         });
-        // TODO: adapt tooltips to describe single/multi assignment
         smTypeAssignOptionGroup.setItemDescriptionGenerator(item -> {
             switch (item) {
             case SINGLE:
-                return i18n.getMessage("label.singleAssign.type");
+                return i18n.getMessage("label.singleAssign.type.desc");
             case MULTI:
-                return i18n.getMessage("label.multiAssign.type");
+                return i18n.getMessage("label.multiAssign.type.desc");
             default:
                 return null;
             }

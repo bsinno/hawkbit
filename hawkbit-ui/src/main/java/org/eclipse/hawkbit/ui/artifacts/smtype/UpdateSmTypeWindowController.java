@@ -51,17 +51,17 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
      * Constructor for UpdateSmTypeWindowController
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param entityFactory
-     *          EntityFactory
+     *            EntityFactory
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param smTypeManagement
-     *          SoftwareModuleTypeManagement
+     *            SoftwareModuleTypeManagement
      * @param layout
-     *          SmTypeWindowLayout
+     *            SmTypeWindowLayout
      */
     public UpdateSmTypeWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
@@ -79,7 +79,7 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
     /**
      * Getter for Software module type Window Layout
      *
-     * @return  AbstractEntityWindowLayout
+     * @return AbstractEntityWindowLayout
      */
     @Override
     public AbstractEntityWindowLayout<ProxyType> getLayout() {
@@ -141,8 +141,9 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
 
     @Override
     protected boolean isEntityValid(final ProxyType entity) {
-        if (!StringUtils.hasText(entity.getName()) || !StringUtils.hasText(entity.getKey())) {
-            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.typenameorkey"));
+        if (!StringUtils.hasText(entity.getName()) || !StringUtils.hasText(entity.getKey())
+                || entity.getSmTypeAssign() == null) {
+            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.typenameorkeyorsmtype"));
             return false;
         }
 
