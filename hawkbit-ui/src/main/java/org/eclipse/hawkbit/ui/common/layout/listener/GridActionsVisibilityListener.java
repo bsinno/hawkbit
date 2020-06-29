@@ -15,11 +15,28 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+/**
+ * Event listener for grid actions visibility
+ */
 public class GridActionsVisibilityListener extends LayoutViewAwareListener {
     private final Runnable hideAllCallback;
     private final Runnable showEditCallback;
     private final Runnable showDeleteCallback;
 
+    /**
+     * Constructor for GridActionsVisibilityListener
+     *
+     * @param eventBus
+     *          GridActionsVisibilityListener
+     * @param layoutViewAware
+     *          EventLayoutViewAware
+     * @param hideAllCallback
+     *          Runnable
+     * @param showEditCallback
+     *          Runnable
+     * @param showDeleteCallback
+     *          Runnable
+     */
     public GridActionsVisibilityListener(final UIEventBus eventBus, final EventLayoutViewAware layoutViewAware,
             final Runnable hideAllCallback, final Runnable showEditCallback, final Runnable showDeleteCallback) {
         super(eventBus, CommandTopics.CHANGE_GRID_ACTIONS_VISIBILITY, layoutViewAware);

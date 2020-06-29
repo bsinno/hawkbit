@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -46,6 +46,24 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
 
     private Function<T, String> confirmationQuestionDetailsGenerator;
 
+    /**
+     * Constructor for DeleteSupport
+     *
+     * @param grid
+     *          Vaadin Grid
+     * @param i18n
+     *          VaadinMessageSource
+     * @param notification
+     *          UINotification
+     * @param entityType
+     *          Entity type
+     * @param entityNameGenerator
+     *          Entity name generator
+     * @param itemsDeletionCallback
+     *          Callback for delete event
+     * @param deletionWindowId
+     *          Id of deletion Grid window
+     */
     public DeleteSupport(final Grid<T> grid, final VaadinMessageSource i18n, final UINotification notification,
             final String entityType, final Function<T, String> entityNameGenerator,
             final Predicate<Collection<T>> itemsDeletionCallback, final String deletionWindowId) {
@@ -58,6 +76,12 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
         this.deletionWindowId = deletionWindowId;
     }
 
+    /**
+     * Open confirmation pop up window for delete action
+     *
+     * @param clickedItem
+     *          Item selected for deletion
+     */
     public void openConfirmationWindowDeleteAction(final T clickedItem) {
         final Set<T> itemsToBeDeleted = getItemsForDeletion(clickedItem);
         final int itemsToBeDeletedSize = itemsToBeDeleted.size();
@@ -143,6 +167,12 @@ public class DeleteSupport<T extends ProxyIdentifiableEntity> {
         }
     }
 
+    /**
+     * Sets the question to confirm the delete action
+     *
+     * @param confirmationQuestionDetailsGenerator
+     *          Confirmation detail for delete action
+     */
     public void setConfirmationQuestionDetailsGenerator(
             final Function<T, String> confirmationQuestionDetailsGenerator) {
         this.confirmationQuestionDetailsGenerator = confirmationQuestionDetailsGenerator;

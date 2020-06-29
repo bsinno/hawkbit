@@ -20,18 +20,53 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+/**
+ * Event listener for show entity form layout
+ *
+ * @param <T>
+ */
 public class ShowEntityFormLayoutListener<T extends ProxyIdentifiableEntity> extends LayoutViewAwareListener {
     private final Class<T> entityType;
     private final Class<? extends ProxyIdentifiableEntity> parentEntityType;
     private final Runnable addFormCallback;
     private final Consumer<T> updateFormCallback;
 
+    /**
+     * Constructor for ShowEntityFormLayoutListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param entityType
+     *          Generic entity type
+     * @param layoutViewAware
+     *          EventLayoutViewAware
+     * @param addFormCallback
+     *          Runnable
+     * @param updateFormCallback
+     *          Update form callback event
+     */
     public ShowEntityFormLayoutListener(final UIEventBus eventBus, final Class<T> entityType,
             final EventLayoutViewAware layoutViewAware, final Runnable addFormCallback,
             final Consumer<T> updateFormCallback) {
         this(eventBus, entityType, null, layoutViewAware, addFormCallback, updateFormCallback);
     }
 
+    /**
+     * Constructor for ShowEntityFormLayoutListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param entityType
+     *          Generic entity type
+     * @param parentEntityType
+     *          Identifiable Entity type
+     * @param layoutViewAware
+     *          EventLayoutViewAware
+     * @param addFormCallback
+     *          Runnable
+     * @param updateFormCallback
+     *          Update form callback event
+     */
     public ShowEntityFormLayoutListener(final UIEventBus eventBus, final Class<T> entityType,
             final Class<? extends ProxyIdentifiableEntity> parentEntityType, final EventLayoutViewAware layoutViewAware,
             final Runnable addFormCallback, final Consumer<T> updateFormCallback) {

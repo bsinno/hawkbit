@@ -13,9 +13,24 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+/**
+ * Event listener for generic type
+ *
+ * @param <T>
+ */
 public class GenericEventListener<T> extends EventListener {
     private final Consumer<T> eventCallback;
 
+    /**
+     * Constructor for GenericEventListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param topic
+     *          Topic
+     * @param eventCallback
+ *              Event callback
+     */
     public GenericEventListener(final UIEventBus eventBus, final String topic, final Consumer<T> eventCallback) {
         super(eventBus, topic);
 

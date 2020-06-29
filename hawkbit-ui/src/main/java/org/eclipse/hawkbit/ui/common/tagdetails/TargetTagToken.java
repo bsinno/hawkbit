@@ -41,6 +41,22 @@ public class TargetTagToken extends AbstractTagToken<ProxyTarget> {
 
     private final TagToProxyTagMapper<TargetTag> tagMapper;
 
+    /**
+     * Constructor for TargetTagToken
+     *
+     * @param checker
+     *          SpPermissionChecker
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uinotification
+     *          UINotification
+     * @param eventBus
+     *          UIEventBus
+     * @param targetTagManagement
+     *          TargetTagManagement
+     * @param targetManagement
+     *          TargetManagement
+     */
     public TargetTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
             final UINotification uinotification, final UIEventBus eventBus,
             final TargetTagManagement targetTagManagement, final TargetManagement targetManagement) {

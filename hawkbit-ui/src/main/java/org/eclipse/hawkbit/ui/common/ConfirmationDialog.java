@@ -156,10 +156,19 @@ public class ConfirmationDialog implements Serializable {
         return questionLbl;
     }
 
+    /**
+     * Enables the ok save button
+     *
+     * @param enabled
+     *          boolean
+     */
     public void setOkButtonEnabled(final boolean enabled) {
         window.setSaveButtonEnabled(enabled);
     }
 
+    /**
+     * @return confirmation window
+     */
     public Window getWindow() {
         return window;
     }

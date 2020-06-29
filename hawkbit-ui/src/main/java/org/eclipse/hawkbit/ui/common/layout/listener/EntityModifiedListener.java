@@ -24,12 +24,30 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.UI;
 
+/**
+ * Event listener for entity modified
+ *
+ * @param <T>
+ */
 public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends EventListener {
     private final Class<T> entityType;
     private final Class<? extends ProxyIdentifiableEntity> parentEntityType;
     private final Supplier<Optional<Long>> parentEntityIdProvider;
     private final List<EntityModifiedAwareSupport> entityModifiedAwareSupports;
 
+    /**
+     * Constructor for EntityModifiedListener
+     * @param eventBus
+     *          UIEventBus
+     * @param entityType
+     *          Generic tpe entity
+     * @param parentEntityType
+     *          Identifiable entity
+     * @param parentEntityIdProvider
+     *          Parent entity id provider
+     * @param entityModifiedAwareSupports
+     *          List of entity modified aware support
+     */
     public EntityModifiedListener(final UIEventBus eventBus, final Class<T> entityType,
             final Class<? extends ProxyIdentifiableEntity> parentEntityType,
             final Supplier<Optional<Long>> parentEntityIdProvider,
@@ -93,6 +111,9 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends E
         UI.getCurrent().access(() -> entityModifiedAwareSupports.forEach(handler::accept));
     }
 
+    /**
+     * Interface for entity modified aware support
+     */
     public interface EntityModifiedAwareSupport {
         default void onEntitiesAdded(final Collection<Long> entityIds) {
             // do nothing by default
@@ -107,6 +128,11 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends E
         }
     }
 
+    /**
+     * Builder for entity
+     *
+     * @param <T>
+     */
     public static class Builder<T extends ProxyIdentifiableEntity> {
         private final UIEventBus eventBus;
         private final Class<T> entityType;
@@ -114,27 +140,55 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends E
         private Supplier<Optional<Long>> parentEntityIdProvider;
         private List<EntityModifiedAwareSupport> entityModifiedAwareSupports;
 
+        /**
+         * Constructor for builder
+         *
+         * @param eventBus
+         *          UIEventBus
+         * @param entityType
+         *          Generic type entity
+         */
         public Builder(final UIEventBus eventBus, final Class<T> entityType) {
             this.eventBus = eventBus;
             this.entityType = entityType;
         }
 
+        /**
+         * @param parentEntityType
+         *          Parent entity type
+         *
+         * @return builder
+         */
         public Builder<T> parentEntityType(final Class<? extends ProxyIdentifiableEntity> parentEntityType) {
             this.parentEntityType = parentEntityType;
             return this;
         }
 
+        /**
+         * @param parentEntityIdProvider
+         *          Parent entity id provider
+         *
+         * @return builder
+         */
         public Builder<T> parentEntityIdProvider(final Supplier<Optional<Long>> parentEntityIdProvider) {
             this.parentEntityIdProvider = parentEntityIdProvider;
             return this;
         }
 
+        /**
+         * @param entityModifiedAwareSupports
+         *          List of entity modified aware support
+         * @return builder
+         */
         public Builder<T> entityModifiedAwareSupports(
                 final List<EntityModifiedAwareSupport> entityModifiedAwareSupports) {
             this.entityModifiedAwareSupports = entityModifiedAwareSupports;
             return this;
         }
 
+        /**
+         * @return builder
+         */
         public EntityModifiedListener<T> build() {
             return new EntityModifiedListener<>(eventBus, entityType, parentEntityType, parentEntityIdProvider,
                     entityModifiedAwareSupports);

@@ -13,9 +13,22 @@ import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Event listener for view aware
+ */
 public abstract class ViewAwareListener extends EventListener {
     private final EventViewAware viewAware;
 
+    /**
+     * Constructor for ViewAwareListener
+     *
+     * @param eventBus
+     *          ViewAwareListener
+     * @param topic
+     *          Topic
+     * @param viewAware
+     *          EventViewAware
+     */
     public ViewAwareListener(final UIEventBus eventBus, final String topic, final EventViewAware viewAware) {
         super(eventBus, topic);
 
@@ -29,10 +42,16 @@ public abstract class ViewAwareListener extends EventListener {
         this.viewAware = viewAware;
     }
 
+    /**
+     * @return View aware
+     */
     public EventViewAware getViewAware() {
         return viewAware;
     }
 
+    /**
+     * @return View
+     */
     public EventView getView() {
         return viewAware.getView();
     }

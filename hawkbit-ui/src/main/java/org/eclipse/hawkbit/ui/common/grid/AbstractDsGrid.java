@@ -73,6 +73,12 @@ public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSe
         addStyleName("grid-row-border");
     }
 
+    /**
+     * @param entityId
+     *          Entity id
+     *
+     * @return  Distribution set
+     */
     public Optional<ProxyDistributionSet> mapIdToProxyEntity(final long entityId) {
         return dsManagement.get(entityId).map(dsToProxyDistributionMapper::map);
     }

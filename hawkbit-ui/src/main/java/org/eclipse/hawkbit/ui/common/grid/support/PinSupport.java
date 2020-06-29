@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -46,6 +46,25 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
 
     private T pinnedItem;
 
+    /**
+     * Constructor for PinSupport
+     *
+     * @param refreshItemCallback
+     *          Refresh item call back event
+     * @param publishPinningChangedCallback
+     *          Publish Pin changed call back event
+     * @param updatePinnedUiStateCallback
+     *          Update pin callback event
+     * @param getPinFilterCallback
+     *          Pin filter call back event
+     * @param updatePinFilterCallback
+     *          Update pin filter callback event
+     * @param assignedIdsProvider
+ *               Assigned id provider list
+     * @param installedIdsProvider
+     *          Installed Id provider list
+     *
+     */
     public PinSupport(final Consumer<T> refreshItemCallback,
             final BiConsumer<PinBehaviourType, T> publishPinningChangedCallback,
             final Consumer<T> updatePinnedUiStateCallback, final Supplier<Optional<F>> getPinFilterCallback,
@@ -67,6 +86,12 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
         this.pinnedItem = null;
     }
 
+    /**
+     * Updates the view on pinning changed
+     *
+     * @param item
+     *          Generic type of entity
+     */
     public void changeItemPinning(final T item) {
         if (isPinned(item.getId())) {
             pinnedItem = null;
@@ -117,14 +142,26 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
         installedIds.clear();
     }
 
+    /**
+     * @return Pinned item
+     */
     public Optional<T> getPinnedItem() {
         return Optional.ofNullable(pinnedItem);
     }
 
+    /**
+     * @return Id of pinned item
+     */
     public Optional<Long> getPinnedItemId() {
         return getPinnedItem().map(ProxyIdentifiableEntity::getId);
     }
 
+    /**
+     * @param item
+     *          Pinned item
+     *
+     * @return  Pin style
+     */
     public String getPinningStyle(final T item) {
         if (isPinned(item.getId())) {
             return null;
@@ -133,6 +170,12 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
         }
     }
 
+    /**
+     * @param itemId
+     *          Id of item
+     *
+     * @return  Assigned or installed row style
+     */
     public String getAssignedOrInstalledRowStyle(final Long itemId) {
         if (!isPinFilterActive()) {
             return null;
@@ -149,10 +192,22 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
         return null;
     }
 
+    /**
+     * Restore the pinning
+     *
+     * @param itemToRestore
+     *          Pin item to restore
+     */
     public void restorePinning(final T itemToRestore) {
         pinnedItem = itemToRestore;
     }
 
+    /**
+     * Update the pin filter
+     *
+     * @param pinFilter
+     *          Pin filter item
+     */
     public void updatePinFilter(final F pinFilter) {
         // used to remove grids' pinned item when applying the pin filter
         if (clearPinning()) {
@@ -180,6 +235,12 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
         return false;
     }
 
+    /**
+     * Apply installed and assigned pin filter and refresh the view
+     *
+     * @param pinFilter
+     *          Pin filter
+     */
     public void repopulateAssignedAndInstalled(final F pinFilter) {
         clearAssignedAndInstalled();
 
@@ -189,23 +250,41 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
         }
     }
 
+    /**
+     * Repopulate installed and assigned pin filter
+     */
     public void repopulateAssignedAndInstalled() {
         getPinFilterCallback.get().ifPresent(this::repopulateAssignedAndInstalled);
     }
 
+    /**
+     * @param itemIds
+     *          List of Pinned Id
+     *
+     * @return True if pinned item is found in list of pinned Ids else false
+     */
     public boolean isPinItemInIds(final Collection<Long> itemIds) {
         return pinnedItem != null && !CollectionUtils.isEmpty(itemIds) && itemIds.contains(pinnedItem.getId());
     }
 
+    /**
+     * Remove pinned item
+     */
     public void removePinning() {
         onPinningChanged(PinBehaviourType.UNPINNED, pinnedItem);
         pinnedItem = null;
     }
 
+    /**
+     * Add the pinned item
+     */
     public void reApplyPinning() {
         onPinningChanged(PinBehaviourType.PINNED, pinnedItem);
     }
 
+    /**
+     * Enum constants for pin behaviour type
+     */
     public enum PinBehaviourType {
         PINNED, UNPINNED;
     }

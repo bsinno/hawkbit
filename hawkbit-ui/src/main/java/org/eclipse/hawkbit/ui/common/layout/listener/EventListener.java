@@ -12,6 +12,9 @@ import java.util.Collections;
 
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Abstract class for event listener
+ */
 public abstract class EventListener {
     private final UIEventBus eventBus;
     private final Collection<String> topics;
@@ -28,16 +31,25 @@ public abstract class EventListener {
         subscribe();
     }
 
+    /**
+     * Subscribe the event
+     */
     public void subscribe() {
         topics.forEach(topic -> eventBus.subscribe(this, topic));
         subscribed = true;
     }
 
+    /**
+     * Unsubscribe the event
+     */
     public void unsubscribe() {
         eventBus.unsubscribe(this);
         subscribed = false;
     }
 
+    /**
+     * @return true if event is subscribed else false
+     */
     public boolean isSubscribed() {
         return subscribed;
     }

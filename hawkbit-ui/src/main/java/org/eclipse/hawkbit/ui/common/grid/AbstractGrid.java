@@ -131,6 +131,12 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         return getDataCommunicator().getDataProviderSize();
     }
 
+    /**
+     * Add data change event listener
+     *
+     * @param listener
+     *          Data provider listener
+     */
     public void addDataChangedListener(final DataProviderListener<T> listener) {
         getDataProvider().addDataProviderListener(listener);
     }
@@ -312,6 +318,9 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
         }
     }
 
+    /**
+     * Restore filter and selection
+     */
     public void restoreState() {
         if (hasFilterSupport()) {
             getFilterSupport().restoreFilter();

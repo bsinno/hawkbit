@@ -16,9 +16,24 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+/**
+ * Event listener for select grid entity
+ *
+ * @param <T>
+ */
 public class SelectGridEntityListener<T extends ProxyIdentifiableEntity> extends LayoutViewAwareListener {
     private final SelectionSupport<T> selectionSupport;
 
+    /**
+     * Constructor for SelectGridEntityListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param layoutViewAware
+     *          EventLayoutViewAware
+     * @param selectionSupport
+     *          Generic type selection support
+     */
     public SelectGridEntityListener(final UIEventBus eventBus, final EventLayoutViewAware layoutViewAware,
             final SelectionSupport<T> selectionSupport) {
         super(eventBus, CommandTopics.SELECT_GRID_ENTITY, layoutViewAware);

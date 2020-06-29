@@ -12,13 +12,28 @@ import java.util.Collection;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 import org.eclipse.hawkbit.ui.common.tagdetails.AbstractTagToken;
 
+/**
+ * Support for Entity modified with tag token aware
+ */
 public class EntityModifiedTagTokenAwareSupport implements EntityModifiedAwareSupport {
     private final AbstractTagToken<?> tagToken;
 
+    /**
+     * Constructor for EntityModifiedTagTokenAwareSupport
+     *
+     * @param tagToken
+     *          Tag token
+     */
     public EntityModifiedTagTokenAwareSupport(final AbstractTagToken<?> tagToken) {
         this.tagToken = tagToken;
     }
 
+    /**
+     * @param tagToken
+     *          Tag token
+     *
+     * @return  Support for Entity modified with tag token aware
+     */
     public static EntityModifiedTagTokenAwareSupport of(final AbstractTagToken<?> tagToken) {
         return new EntityModifiedTagTokenAwareSupport(tagToken);
     }

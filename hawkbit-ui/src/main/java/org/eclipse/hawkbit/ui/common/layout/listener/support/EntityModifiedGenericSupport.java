@@ -12,11 +12,24 @@ import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 
+/**
+ * Support for entity modified
+ */
 public class EntityModifiedGenericSupport implements EntityModifiedAwareSupport {
     private final Consumer<Collection<Long>> onEntitiesAddedCallback;
     private final Consumer<Collection<Long>> onEntitiesUpdatedCallback;
     private final Consumer<Collection<Long>> onEntitiesDeletedCallback;
 
+    /**
+     * Constructor for EntityModifiedGenericSupport
+     *
+     * @param onEntitiesAddedCallback
+     *          Entities added callback event
+     * @param onEntitiesUpdatedCallback
+     *          Entities updated callback event
+     * @param onEntitiesDeletedCallback
+     *          Entities deleted callback event
+     */
     public EntityModifiedGenericSupport(final Consumer<Collection<Long>> onEntitiesAddedCallback,
             final Consumer<Collection<Long>> onEntitiesUpdatedCallback,
             final Consumer<Collection<Long>> onEntitiesDeletedCallback) {
@@ -25,6 +38,16 @@ public class EntityModifiedGenericSupport implements EntityModifiedAwareSupport 
         this.onEntitiesDeletedCallback = onEntitiesDeletedCallback;
     }
 
+    /**
+     * @param onEntitiesAddedCallback
+     *          Entities added callback event
+     * @param onEntitiesUpdatedCallback
+     *          Entities updated callback event
+     * @param onEntitiesDeletedCallback
+     *          Entities deleted callback event
+     *
+     * @return Support for entity modified
+     */
     public static EntityModifiedGenericSupport of(final Consumer<Collection<Long>> onEntitiesAddedCallback,
             final Consumer<Collection<Long>> onEntitiesUpdatedCallback,
             final Consumer<Collection<Long>> onEntitiesDeletedCallback) {

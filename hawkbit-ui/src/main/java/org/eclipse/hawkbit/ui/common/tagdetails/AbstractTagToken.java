@@ -81,6 +81,9 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity>
         }
     }
 
+    /**
+     * @return Master entity
+     */
     public Optional<T> getMasterEntity() {
         return Optional.ofNullable(masterEntity);
     }
@@ -121,20 +124,41 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity>
 
     protected abstract List<ProxyTag> getAssignedTags();
 
+    /**
+     * Add tags
+     *
+     * @param entityIds
+     *          List of entity id
+     */
     public void onTagsAdded(final Collection<Long> entityIds) {
         getTagsById(entityIds).forEach(this::tagCreated);
     }
 
     protected abstract List<ProxyTag> getTagsById(final Collection<Long> entityIds);
 
+    /**
+     * Update tags
+     *
+     * @param entityIds
+     *          List of entity id
+     */
     public void onTagsUpdated(final Collection<Long> entityIds) {
         getTagsById(entityIds).forEach(this::tagUpdated);
     }
 
+    /**
+     * Delete tags
+     *
+     * @param entityIds
+     *          List of entity id
+     */
     public void onTagsDeleted(final Collection<Long> entityIds) {
         entityIds.forEach(this::tagDeleted);
     }
 
+    /**
+     * @return Tag panel layout
+     */
     public TagPanelLayout getTagPanel() {
         return tagPanelLayout;
     }
