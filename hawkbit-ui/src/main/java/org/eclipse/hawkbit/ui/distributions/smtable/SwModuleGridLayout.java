@@ -61,6 +61,30 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
     private final transient SelectGridEntityListener<ProxySoftwareModule> selectSmListener;
     private final transient EntityModifiedListener<ProxySoftwareModule> smModifiedListener;
 
+    /**
+     * Constructor for SwModuleGridLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     * @param eventBus
+     *          UIEventBus
+     * @param softwareModuleManagement
+     *          SoftwareModuleManagement
+     * @param softwareModuleTypeManagement
+     *          SoftwareModuleTypeManagement
+     * @param entityFactory
+     *          EntityFactory
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param artifactManagement
+     *          ArtifactManagement
+     * @param smTypeFilterLayoutUiState
+     *          TypeFilterLayoutUiState
+     * @param swModuleGridLayoutUiState
+     *          GridLayoutUiState
+     */
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement, final EntityFactory entityFactory,
@@ -121,29 +145,47 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
                         swModuleGrid::mapIdToProxyEntity));
     }
 
+    /**
+     * Show software type module header icon
+     */
     public void showSmTypeHeaderIcon() {
         swModuleGridHeader.showFilterIcon();
     }
 
+    /**
+     * Hide software type module header icon
+     */
     public void hideSmTypeHeaderIcon() {
         swModuleGridHeader.hideFilterIcon();
     }
 
+    /**
+     * Maximize the software module grid
+     */
     public void maximize() {
         swModuleGrid.createMaximizedContent();
         hideDetailsLayout();
     }
 
+    /**
+     * Minimize the software module grid
+     */
     public void minimize() {
         swModuleGrid.createMinimizedContent();
         showDetailsLayout();
     }
 
+    /**
+     * Restore the software module grid and header
+     */
     public void restoreState() {
         swModuleGridHeader.restoreState();
         swModuleGrid.restoreState();
     }
 
+    /**
+     * Unsubscribe the event listener
+     */
     public void unsubscribeListener() {
         smFilterListener.unsubscribe();
         masterDsChangedListener.unsubscribe();

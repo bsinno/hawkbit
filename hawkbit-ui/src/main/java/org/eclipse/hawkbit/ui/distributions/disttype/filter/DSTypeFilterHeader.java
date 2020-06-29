@@ -27,31 +27,25 @@ import com.vaadin.ui.Window;
 public class DSTypeFilterHeader extends AbstractFilterHeader {
     private static final long serialVersionUID = 1L;
 
+    private static final String CAPTION_TYPE = "caption.type";
+
     private final TypeFilterLayoutUiState dSTypeFilterLayoutUiState;
 
     private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
 
     /**
      * Constructor
-     * 
-     * @param i18n
-     *            VaadinMessageSource
-     * @param permChecker
-     *            SpPermissionChecker
+     *
      * @param eventBus
-     *            UIEventBus
-     * @param manageDistUIState
-     *            ManageDistUIState
-     * @param entityFactory
-     *            EntityFactory
-     * @param uiNotification
-     *            UINotification
-     * @param softwareModuleTypeManagement
-     *            SoftwareModuleTypeManagement
-     * @param distributionSetTypeManagement
-     *            DistributionSetTypeManagement
-     * @param dSTypeFilterButtons
-     *            DSTypeFilterButtons
+     *          DsTypeWindowBuilder
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param dsTypeWindowBuilder
+     *          DsTypeWindowBuilder
+     * @param dSTypeFilterLayoutUiState
+     *          TypeFilterLayoutUiState
      */
     DSTypeFilterHeader(final UIEventBus eventBus, final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final DsTypeWindowBuilder dsTypeWindowBuilder, final TypeFilterLayoutUiState dSTypeFilterLayoutUiState) {
@@ -80,8 +74,7 @@ public class DSTypeFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected String getAddEntityWindowCaptionMsgKey() {
-        // TODO: use constant
-        return "caption.type";
+        return CAPTION_TYPE;
     }
 
     @Override

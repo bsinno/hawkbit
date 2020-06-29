@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for update distribution set window
+ */
 public class UpdateDsWindowController
         extends AbstractEntityWindowController<ProxyDistributionSet, ProxyDistributionSet> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateDsWindowController.class);
@@ -40,6 +43,22 @@ public class UpdateDsWindowController
 
     private final DsWindowLayout layout;
 
+    /**
+     * Constructor for UpdateDsWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param dsManagement
+     *          DistributionSetManagement
+     * @param layout
+     *          DsWindowLayout
+     */
     public UpdateDsWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final DistributionSetManagement dsManagement, final DsWindowLayout layout) {
@@ -88,9 +107,8 @@ public class UpdateDsWindowController
             updatedDs = dsManagement.update(dsUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of distribution set failed in UI: {}", e.getMessage());
-            // TODO: use i18n
-            uiNotification.displayWarning("Distribution set with name " + entity.getName()
-                    + " was deleted or you are not allowed to update it");
+            uiNotification.displayWarning(
+                    i18n.getMessage("message.selected.distributionset.name.not.found", entity.getName()));
             return;
         }
 

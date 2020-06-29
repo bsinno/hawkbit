@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,6 +28,12 @@ public class SmTypeSourceGrid extends Grid<ProxyType> {
 
     private final VaadinMessageSource i18n;
 
+    /**
+     * Constructor for SmTypeSourceGrid
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public SmTypeSourceGrid(final VaadinMessageSource i18n) {
         this.i18n = i18n;
 

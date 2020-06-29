@@ -29,6 +29,24 @@ public class DistributionSetGridHeader extends AbstractEntityGridHeader {
     private static final String DS_TABLE_HEADER = "header.dist.table";
     private static final String DS_CAPTION = "caption.distribution";
 
+    /**
+     * Constructor for DistributionSetGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     * @param dSTypeFilterLayoutUiState
+     *          HidableLayoutUiState
+     * @param distributionSetGridLayoutUiState
+     *          GridLayoutUiState
+     * @param filterLayout
+     *          EventLayout
+     * @param view
+     *          EventView
+     */
     public DistributionSetGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final HidableLayoutUiState dSTypeFilterLayoutUiState,
             final GridLayoutUiState distributionSetGridLayoutUiState, final EventLayout filterLayout,

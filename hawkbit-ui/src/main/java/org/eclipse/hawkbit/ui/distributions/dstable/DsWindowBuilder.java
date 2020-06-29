@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,6 +24,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Window;
 
+/**
+ * Builder for distribution set window
+ */
 public class DsWindowBuilder extends AbstractEntityWindowBuilder<ProxyDistributionSet> {
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -37,6 +40,30 @@ public class DsWindowBuilder extends AbstractEntityWindowBuilder<ProxyDistributi
 
     private final EventView view;
 
+    /**
+     * Constructor for DsWindowBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param systemManagement
+     *          SystemManagement
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     * @param tenantConfigurationManagement
+     *          TenantConfigurationManagement
+     * @param dsManagement
+     *          DistributionSetManagement
+     * @param dsTypeManagement
+     *          DistributionSetTypeManagement
+     * @param view
+     *          EventView
+     */
     public DsWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory, final UIEventBus eventBus,
             final UINotification uiNotification, final SystemManagement systemManagement,
             final SystemSecurityContext systemSecurityContext,

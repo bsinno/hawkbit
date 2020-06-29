@@ -107,10 +107,16 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
         return wrapFilterContent(dSTypeFilterButtons);
     }
 
+    /**
+     * Restore state of distribution set filter button
+     */
     public void restoreState() {
         dSTypeFilterButtons.restoreState();
     }
 
+    /**
+     * Unsubscribe event listener
+     */
     public void unsubscribeListener() {
         gridActionsVisibilityListener.unsubscribe();
         entityModifiedListener.unsubscribe();

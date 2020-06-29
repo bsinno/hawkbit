@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,12 +18,25 @@ import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
+/**
+ * Distribution set window layout
+ */
 public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
     private final DsTypeWindowLayoutComponentBuilder dsTypeComponentBuilder;
 
     private final TextField typeKey;
     private final DsTypeSmSelectLayout dsTypeSmSelectLayout;
 
+    /**
+     * Constructor for DsTypeWindowLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     * @param softwareModuleTypeManagement
+     *          SoftwareModuleTypeManagement
+     */
     public DsTypeWindowLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
         super(i18n, uiNotification);
@@ -54,10 +67,16 @@ public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
         return rootLayout;
     }
 
+    /**
+     * Disable the key text file
+     */
     public void disableTypeKey() {
         typeKey.setEnabled(false);
     }
 
+    /**
+     * Disable the selection of distribution set type software module layout
+     */
     public void disableDsTypeSmSelectLayout() {
         dsTypeSmSelectLayout.setEnabled(false);
     }

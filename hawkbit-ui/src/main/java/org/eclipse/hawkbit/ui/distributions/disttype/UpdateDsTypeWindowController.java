@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,6 +37,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ *  Controller for update distribution set type window
+ */
 public class UpdateDsTypeWindowController extends AbstractEntityWindowController<ProxyType, ProxyType> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateDsTypeWindowController.class);
 
@@ -55,6 +58,24 @@ public class UpdateDsTypeWindowController extends AbstractEntityWindowController
     private String keyBeforeEdit;
     private boolean isDsTypeAssigned;
 
+    /**
+     * Constructor for UpdateDsTypeWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param dsTypeManagement
+     *          DistributionSetTypeManagement
+     * @param dsManagement
+     *          DistributionSetManagement
+     * @param layout
+     *          DsTypeWindowLayout
+     */
     public UpdateDsTypeWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final DistributionSetTypeManagement dsTypeManagement, final DistributionSetManagement dsManagement,
@@ -148,9 +169,7 @@ public class UpdateDsTypeWindowController extends AbstractEntityWindowController
             updatedDsType = dsTypeManagement.update(dsTypeUpdate);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of DS type failed in UI: {}", e.getMessage());
-            // TODO: use i18n
-            uiNotification.displayWarning(
-                    "Type with name " + entity.getName() + " was deleted or you are not allowed to update it");
+            uiNotification.displayWarning(i18n.getMessage("message.deleted.or.notAllowed", "Type", entity.getName()));
             return;
         }
 
