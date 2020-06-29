@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.distributions.disttype;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -30,7 +31,7 @@ public class DsTypeWindowLayout extends TagWindowLayout<ProxyType> {
 
         this.dsTypeComponentBuilder = new DsTypeWindowLayoutComponentBuilder(i18n, softwareModuleTypeManagement);
 
-        this.typeKey = dsTypeComponentBuilder.createKeyField(binder);
+        this.typeKey = FormComponentBuilder.createTypeKeyField(binder, i18n);
         this.dsTypeSmSelectLayout = dsTypeComponentBuilder.createDsTypeSmSelectLayout(binder);
 
         this.colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));

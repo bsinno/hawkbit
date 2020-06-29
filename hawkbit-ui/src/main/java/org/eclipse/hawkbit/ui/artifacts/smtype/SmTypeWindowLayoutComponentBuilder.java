@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtype;
 
-import org.eclipse.hawkbit.repository.model.Type;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -17,12 +15,10 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.TextField;
 
 /**
  * Builder for software module type window layout component
  */
-// TODO: remove duplication with other builders
 public class SmTypeWindowLayoutComponentBuilder {
 
     public static final String TEXTFIELD_KEY = "textfield.key";
@@ -37,25 +33,6 @@ public class SmTypeWindowLayoutComponentBuilder {
      */
     public SmTypeWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
-    }
-
-    /**
-     * Create software module type key text field
-     *
-     * @param binder
-     *            Vaadin binder of ProxyType
-     *
-     * @return Textfield
-     */
-    public TextField createKeyField(final Binder<ProxyType> binder) {
-        final TextField typeKey = new TextFieldBuilder(Type.KEY_MAX_SIZE).id(UIComponentIdProvider.TYPE_POPUP_KEY)
-                .caption(i18n.getMessage(TEXTFIELD_KEY)).prompt(i18n.getMessage(TEXTFIELD_KEY)).buildTextComponent();
-        typeKey.setSizeUndefined();
-
-        binder.forField(typeKey).asRequired(i18n.getMessage("message.type.key.empty")).bind(ProxyType::getKey,
-                ProxyType::setKey);
-
-        return typeKey;
     }
 
     /**

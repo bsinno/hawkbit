@@ -9,6 +9,7 @@ package org.eclipse.hawkbit.ui.common.builder;
 
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.repository.model.NamedVersionedEntity;
+import org.eclipse.hawkbit.repository.model.Type;
 import org.eclipse.hawkbit.ui.common.data.aware.ActionTypeAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DescriptionAware;
 import org.eclipse.hawkbit.ui.common.data.aware.DsIdAware;
@@ -20,9 +21,11 @@ import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessData
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAssignmentLayout;
 import org.eclipse.hawkbit.ui.rollout.window.layouts.AutoStartOptionGroupLayout;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
+import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -343,5 +346,27 @@ public final class FormComponentBuilder {
         tfqCombo.setDataProvider(dataProvider);
 
         return tfqCombo;
+    }
+
+    /**
+     * Create type key text field
+     *
+     * @param binder
+     *            that is bound to the input
+     * @param i18n
+     *            i18n
+     *
+     * @return text field
+     */
+    public static TextField createTypeKeyField(final Binder<ProxyType> binder, final VaadinMessageSource i18n) {
+        final TextField typeKey = new TextFieldBuilder(Type.KEY_MAX_SIZE).id(UIComponentIdProvider.TYPE_POPUP_KEY)
+                .caption(i18n.getMessage("textfield.key")).prompt(i18n.getMessage("textfield.key"))
+                .buildTextComponent();
+        typeKey.setSizeUndefined();
+
+        binder.forField(typeKey).asRequired(i18n.getMessage("message.type.key.empty")).bind(ProxyType::getKey,
+                ProxyType::setKey);
+
+        return typeKey;
     }
 }

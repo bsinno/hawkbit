@@ -106,7 +106,6 @@ public class AddSmTypeWindowController extends AbstractEntityWindowController<Pr
 
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         final String trimmedKey = StringUtils.trimWhitespace(entity.getKey());
-        // TODO: check if this is correct
         if (smTypeManagement.getByName(trimmedName).isPresent()) {
             uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
             return false;

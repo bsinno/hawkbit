@@ -28,13 +28,9 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * Builder for software module window layout
  */
-//TODO: remove duplication with other builders
 public class SmWindowLayoutComponentBuilder {
 
-    public static final String TEXTFIELD_NAME = "textfield.name";
-    public static final String TEXTFIELD_VERSION = "textfield.version";
     public static final String TEXTFIELD_VENDOR = "textfield.vendor";
-    public static final String TEXTFIELD_DESCRIPTION = "textfield.description";
 
     private final VaadinMessageSource i18n;
     private final SoftwareModuleTypeDataProvider smTypeDataProvider;
@@ -43,9 +39,9 @@ public class SmWindowLayoutComponentBuilder {
      * Constructor for SmWindowLayoutComponentBuilder
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param smTypeDataProvider
-     *          SoftwareModuleTypeDataProvider
+     *            SoftwareModuleTypeDataProvider
      */
     public SmWindowLayoutComponentBuilder(final VaadinMessageSource i18n,
             final SoftwareModuleTypeDataProvider smTypeDataProvider) {
@@ -57,7 +53,7 @@ public class SmWindowLayoutComponentBuilder {
      * Create combo box options for software module types
      *
      * @param binder
-     *          binder the input will be bound to
+     *            binder the input will be bound to
      *
      * @return input component
      */
@@ -107,7 +103,7 @@ public class SmWindowLayoutComponentBuilder {
      * Create vendor field
      *
      * @param binder
-     *          binder the input will be bound to
+     *            binder the input will be bound to
      *
      * @return input component
      */

@@ -150,12 +150,10 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         final String trimmedKey = StringUtils.trimWhitespace(entity.getKey());
         if (!nameBeforeEdit.equals(trimmedName) && smTypeManagement.getByName(trimmedName).isPresent()) {
-            // TODO: is the notification right here?
             uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
             return false;
         }
         if (!keyBeforeEdit.equals(trimmedKey) && smTypeManagement.getByKey(trimmedKey).isPresent()) {
-            // TODO: is the notification right here?
             uiNotification
                     .displayValidationError(i18n.getMessage("message.type.key.swmodule.duplicate.check", trimmedKey));
             return false;
