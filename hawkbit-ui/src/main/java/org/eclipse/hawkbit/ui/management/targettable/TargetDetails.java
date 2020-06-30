@@ -204,6 +204,9 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
         getTargetTagToken().masterEntityChanged(entity);
     }
 
+    /**
+     * @return Target tag token
+     */
     public TargetTagToken getTargetTagToken() {
         return targetTagToken;
     }

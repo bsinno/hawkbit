@@ -42,6 +42,26 @@ public class DistributionTagButtons extends AbstractTagFilterButtons {
     private final transient DistributionSetTagManagement distributionSetTagManagement;
     private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
+    /**
+     * Constructor for DistributionTagButtons
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param distributionSetTagManagement
+     *          DistributionSetTagManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param dsTagWindowBuilder
+     *          DsTagWindowBuilder
+     * @param distributionTagLayoutUiState
+     *          TagFilterLayoutUiState
+     */
     public DistributionTagButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final UINotification uiNotification, final SpPermissionChecker permChecker,
             final DistributionSetTagManagement distributionSetTagManagement,

@@ -22,12 +22,23 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.components.colorpicker.ColorUtil;
 
+/**
+ * Builder for tag window layout component
+ */
 //TODO: remove duplication with other builders
 public class TagWindowLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
     private final UINotification uiNotification;
 
+    /**
+     * Constructor for TagWindowLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     */
     public TagWindowLayoutComponentBuilder(final VaadinMessageSource i18n, final UINotification uiNotification) {
         this.i18n = i18n;
         this.uiNotification = uiNotification;
@@ -95,6 +106,9 @@ public class TagWindowLayoutComponentBuilder {
             this.color = color;
         }
 
+        /**
+         * @return Tag color
+         */
         public Color getColor() {
             return color;
         }

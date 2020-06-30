@@ -45,6 +45,12 @@ public class AssignmentWindowLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
 
+    /**
+     * Constructor for AssignmentWindowLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public AssignmentWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
     }
@@ -67,6 +73,12 @@ public class AssignmentWindowLayoutComponentBuilder {
         return actionTypeGroupBounded;
     }
 
+    /**
+     * @param binder
+     *          Proxy assignment window binder
+     *
+     * @return Maintenance window checkbox
+     */
     public CheckBox createEnableMaintenanceWindowToggle(final Binder<ProxyAssignmentWindow> binder) {
         final CheckBox maintenanceWindowToggle = SPUIComponentProvider.getCheckBox(
                 i18n.getMessage("caption.maintenancewindow.enabled"),
@@ -78,6 +90,12 @@ public class AssignmentWindowLayoutComponentBuilder {
         return maintenanceWindowToggle;
     }
 
+    /**
+     * @param binder
+     *          Proxy assignment window binder
+     *
+     * @return maintenance schedule text field
+     */
     public BoundComponent<TextField> createMaintenanceSchedule(final Binder<ProxyAssignmentWindow> binder) {
         final TextField maintenanceSchedule = new TextFieldBuilder(Action.MAINTENANCE_WINDOW_SCHEDULE_LENGTH)
                 .id(UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_ID)
@@ -100,6 +118,12 @@ public class AssignmentWindowLayoutComponentBuilder {
         return new BoundComponent<>(maintenanceSchedule, binding);
     }
 
+    /**
+     * @param binder
+     *          Proxy assignment window binder
+     *
+     * @return maintenance duration text field
+     */
     public BoundComponent<TextField> createMaintenanceDuration(final Binder<ProxyAssignmentWindow> binder) {
         final TextField maintenanceDuration = new TextFieldBuilder(Action.MAINTENANCE_WINDOW_DURATION_LENGTH)
                 .id(UIComponentIdProvider.MAINTENANCE_WINDOW_DURATION_ID)
@@ -122,6 +146,12 @@ public class AssignmentWindowLayoutComponentBuilder {
         return new BoundComponent<>(maintenanceDuration, binding);
     }
 
+    /**
+     * @param binder
+     *          Proxy assignment window binder
+     *
+     * @return Maintenance timezone combobox
+     */
     public ComboBox<String> createMaintenanceTimeZoneCombo(final Binder<ProxyAssignmentWindow> binder) {
         final ComboBox<String> maintenanceTimeZoneCombo = new ComboBox<>();
 
@@ -140,6 +170,9 @@ public class AssignmentWindowLayoutComponentBuilder {
         return maintenanceTimeZoneCombo;
     }
 
+    /**
+     * @return maintenance schedule translator
+     */
     public Label createMaintenanceScheduleTranslator() {
         final Label maintenanceScheduleTranslator = new LabelBuilder()
                 .id(UIComponentIdProvider.MAINTENANCE_WINDOW_SCHEDULE_TRANSLATOR_ID)
@@ -149,6 +182,12 @@ public class AssignmentWindowLayoutComponentBuilder {
         return maintenanceScheduleTranslator;
     }
 
+    /**
+     * @param uiProperties
+     *          UiProperties
+     *
+     * @return Maintenance window help link
+     */
     public Link createMaintenanceHelpLink(final UiProperties uiProperties) {
         final String maintenanceWindowHelpUrl = uiProperties.getLinks().getDocumentation().getMaintenanceWindowView();
         final Link maintenanceHelpLink = new Link("", new ExternalResource(maintenanceWindowHelpUrl));

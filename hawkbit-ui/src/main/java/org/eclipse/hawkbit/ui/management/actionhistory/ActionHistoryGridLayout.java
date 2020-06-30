@@ -84,19 +84,31 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
         return Optional.ofNullable(actionHistoryGrid.getMasterEntitySupport().getMasterId());
     }
 
+    /**
+     * Maximize the action history grid
+     */
     public void maximize() {
         actionHistoryGrid.createMaximizedContent();
         actionHistoryGrid.getSelectionSupport().selectFirstRow();
     }
 
+    /**
+     * Minimize the action history grid
+     */
     public void minimize() {
         actionHistoryGrid.createMinimizedContent();
     }
 
+    /**
+     * restore action histors header
+     */
     public void restoreState() {
         actionHistoryHeader.restoreState();
     }
 
+    /**
+     * Unsubscribe the changed listener
+     */
     public void unsubscribeListener() {
         entityModifiedListener.unsubscribe();
         masterEntityChangedListener.unsubscribe();

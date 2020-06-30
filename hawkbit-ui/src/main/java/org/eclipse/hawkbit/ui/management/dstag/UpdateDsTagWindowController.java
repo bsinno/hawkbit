@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for update distribution set tag window
+ */
 //TODO: remove duplication with UpdateTargetTagWindowController
 public class UpdateDsTagWindowController extends AbstractEntityWindowController<ProxyTag, ProxyTag> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateDsTagWindowController.class);
@@ -44,6 +47,22 @@ public class UpdateDsTagWindowController extends AbstractEntityWindowController<
 
     private String nameBeforeEdit;
 
+    /**
+     * Constructor for UpdateDsTagWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param dsTagManagement
+     *          DistributionSetTagManagement
+     * @param layout
+     *          Tag window layout
+     */
     public UpdateDsTagWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final DistributionSetTagManagement dsTagManagement, final TagWindowLayout<ProxyTag> layout) {

@@ -24,6 +24,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for add distribution tag window
+ */
 //TODO: remove duplication with AddTargetTagWindowController
 public class AddDsTagWindowController extends AbstractEntityWindowController<ProxyTag, ProxyTag> {
     private final VaadinMessageSource i18n;
@@ -35,6 +38,22 @@ public class AddDsTagWindowController extends AbstractEntityWindowController<Pro
 
     private final TagWindowLayout<ProxyTag> layout;
 
+    /**
+     * Constructor for AddDsTagWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param dsTagManagement
+     *          DistributionSetTagManagement
+     * @param layout
+     *          Tag window layout
+     */
     public AddDsTagWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final DistributionSetTagManagement dsTagManagement, final TagWindowLayout<ProxyTag> layout) {

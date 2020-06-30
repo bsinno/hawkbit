@@ -46,6 +46,12 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
     private boolean isValid;
     private String targetFilterQuery;
 
+    /**
+     * Constructor for AutoCompleteTextFieldComponent
+     *
+     * @param rsqlValidationOracle
+     *          RsqlValidationOracle
+     */
     public AutoCompleteTextFieldComponent(final RsqlValidationOracle rsqlValidationOracle) {
         this.rsqlValidationOracle = rsqlValidationOracle;
 
@@ -96,6 +102,12 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         return targetFilterQuery;
     }
 
+    /**
+     * Add changed listener to text field
+     *
+     * @param listener
+     *          Value change listener
+     */
     public void addTextfieldChangedListener(final ValueChangeListener<String> listener) {
         queryTextField.addValueChangeListener(listener);
     }
@@ -183,6 +195,9 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
         validationIcon.setDescription(validationMessage);
     }
 
+    /**
+     * @return True if auto complete component else false
+     */
     public boolean isValid() {
         return isValid;
     }

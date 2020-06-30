@@ -93,6 +93,9 @@ public class ActionStatusGrid extends AbstractGrid<ProxyActionStatus, Long> {
                 .setHidable(false).setHidden(false);
     }
 
+    /**
+     * @return Master entity support
+     */
     public MasterEntitySupport<ProxyAction> getMasterEntitySupport() {
         return masterEntitySupport;
     }

@@ -27,6 +27,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Window;
 
+/**
+ * Builder for bulk upload window
+ */
 public class BulkUploadWindowBuilder {
     private final VaadinMessageSource i18n;
     private final UIEventBus eventBus;
@@ -44,6 +47,34 @@ public class BulkUploadWindowBuilder {
 
     private TargetBulkUpdateWindowLayout targetBulkUpdateWindowLayout;
 
+    /**
+     * Constructor for BulkUploadWindowBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param checker
+     *          SpPermissionChecker
+     * @param uinotification
+     *          UINotification
+     * @param uiproperties
+     *          UiProperties
+     * @param uiExecutor
+     *          Executor
+     * @param targetManagement
+     *          TargetManagement
+     * @param deploymentManagement
+     *          DeploymentManagement
+     * @param tagManagement
+     *          TargetTagManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param entityFactory
+     *          EntityFactory
+     * @param targetBulkUploadUiState
+     *          TargetBulkUploadUiState
+     */
     public BulkUploadWindowBuilder(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker checker, final UINotification uinotification, final UiProperties uiproperties,
             final Executor uiExecutor, final TargetManagement targetManagement,
@@ -64,6 +95,9 @@ public class BulkUploadWindowBuilder {
         this.targetBulkUploadUiState = targetBulkUploadUiState;
     }
 
+    /**
+     * @return Target bulk upload window
+     */
     public Window getWindowForTargetBulkUpload() {
         if (!targetBulkUploadUiState.isInProgress() || targetBulkUpdateWindowLayout == null) {
             targetBulkUpdateWindowLayout = new TargetBulkUpdateWindowLayout(i18n, eventBus, checker, uinotification,
@@ -89,6 +123,9 @@ public class BulkUploadWindowBuilder {
         bulkUploadWindow.close();
     }
 
+    /**
+     * Restore target bulk update window layout
+     */
     public void restoreState() {
         targetBulkUpdateWindowLayout = new TargetBulkUpdateWindowLayout(i18n, eventBus, checker, uinotification,
                 targetManagement, deploymentManagement, tagManagement, distributionSetManagement, entityFactory,
@@ -96,6 +133,9 @@ public class BulkUploadWindowBuilder {
         targetBulkUpdateWindowLayout.restoreComponentsValue();
     }
 
+    /**
+     * @return Target bulk update window layout
+     */
     public Optional<TargetBulkUpdateWindowLayout> getLayout() {
         return Optional.ofNullable(targetBulkUpdateWindowLayout);
     }

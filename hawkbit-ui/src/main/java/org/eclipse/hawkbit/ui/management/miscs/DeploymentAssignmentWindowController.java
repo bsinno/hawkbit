@@ -53,6 +53,20 @@ public class DeploymentAssignmentWindowController {
 
     private ProxyAssignmentWindow proxyAssignmentWindow;
 
+    /**
+     * Constructor for DeploymentAssignmentWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiProperties
+     *          UiProperties
+     * @param eventBus
+     *          UIEventBus
+     * @param notification
+     *          UINotification
+     * @param deploymentManagement
+     *          DeploymentManagement
+     */
     public DeploymentAssignmentWindowController(final VaadinMessageSource i18n, final UiProperties uiProperties,
             final UIEventBus eventBus, final UINotification notification,
             final DeploymentManagement deploymentManagement) {
@@ -64,10 +78,16 @@ public class DeploymentAssignmentWindowController {
         this.assignmentWindowLayout = new AssignmentWindowLayout(i18n, uiProperties);
     }
 
+    /**
+     * @return Assignment window layout
+     */
     public AssignmentWindowLayout getLayout() {
         return assignmentWindowLayout;
     }
 
+    /**
+     * Populate assignment window with data
+     */
     public void populateWithData() {
         proxyAssignmentWindow = new ProxyAssignmentWindow();
 

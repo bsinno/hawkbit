@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -73,6 +73,12 @@ public class AutoAssignmentWindowLayout extends AbstractEntityWindowLayout<Proxy
         enableCheckBox.addValueChangeListener(event -> switchAutoAssignmentInputsVisibility(event.getValue()));
     }
 
+    /**
+     * Toggle auto assign input option
+     *
+     * @param autoAssignmentEnabled
+     *          boolean
+     */
     public void switchAutoAssignmentInputsVisibility(final boolean autoAssignmentEnabled) {
         actionTypeOptionGroupLayout.setVisible(autoAssignmentEnabled);
         autoAssignDsComboBox.getComponent().setVisible(autoAssignmentEnabled);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,6 +28,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.UI;
 
+/**
+ * Controller for auto assignment window
+ */
 public class AutoAssignmentWindowController
         extends AbstractEntityWindowController<ProxyTargetFilterQuery, ProxyTargetFilterQuery> {
     private final VaadinMessageSource i18n;
@@ -40,6 +43,24 @@ public class AutoAssignmentWindowController
 
     private final AutoAssignmentWindowLayout layout;
 
+    /**
+     * Constructor for AutoAssignmentWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param targetManagement
+     *          TargetManagement
+     * @param targetFilterQueryManagement
+     *          TargetFilterQueryManagement
+     * @param layout
+     *          AutoAssignmentWindowLayout
+     */
     public AutoAssignmentWindowController(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final UINotification uiNotification, final EntityFactory entityFactory,
             final TargetManagement targetManagement, final TargetFilterQueryManagement targetFilterQueryManagement,

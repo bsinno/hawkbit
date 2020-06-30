@@ -20,6 +20,12 @@ import com.vaadin.ui.Component;
 public class ActionStatusGridHeader extends AbstractGridHeader {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Constructor for ActionStatusGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public ActionStatusGridHeader(final VaadinMessageSource i18n) {
         super(i18n, null, null);
 

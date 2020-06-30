@@ -71,6 +71,9 @@ public class ActionTypeOptionGroupAssignmentLayout extends AbstractActionTypeOpt
         setComponentAlignment(forcedTimeDateField, Alignment.MIDDLE_LEFT);
     }
 
+    /**
+     * @return Date field for forced time
+     */
     public DateTimeField getForcedTimeDateField() {
         return forcedTimeDateField;
     }

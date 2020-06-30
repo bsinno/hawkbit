@@ -30,6 +30,20 @@ public class DistributionTagFilterHeader extends AbstractFilterHeader {
 
     private final transient DsTagWindowBuilder dsTagWindowBuilder;
 
+    /**
+     * Constructor for UIEventBus
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *         UIEventBus
+     * @param dsTagWindowBuilder
+     *          DsTagWindowBuilder
+     * @param distributionTagLayoutUiState
+     *          TagFilterLayoutUiState
+     */
     public DistributionTagFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final DsTagWindowBuilder dsTagWindowBuilder,
             final TagFilterLayoutUiState distributionTagLayoutUiState) {

@@ -119,6 +119,9 @@ public class ActionStatusMsgGrid extends AbstractGrid<ProxyMessage, Long> {
         setFrozenColumnCount(2);
     }
 
+    /**
+     * @return Master entity support
+     */
     public MasterEntitySupport<ProxyActionStatus> getMasterEntitySupport() {
         return masterEntitySupport;
     }

@@ -28,6 +28,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * target attributes detail component
+ */
 public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAttributesDetails> {
     private static final long serialVersionUID = 1L;
 
@@ -36,6 +39,14 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
 
     private final HorizontalLayout targetAttributesDetailsLayout;
 
+    /**
+     * constructor for TargetAttributesDetailsComponent
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param targetManagement
+     *          TargetManagement
+     */
     public TargetAttributesDetailsComponent(final VaadinMessageSource i18n, final TargetManagement targetManagement) {
         this.i18n = i18n;
         this.targetManagement = targetManagement;

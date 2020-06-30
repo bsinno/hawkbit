@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -70,6 +70,24 @@ public class TargetFilterGrid extends AbstractGrid<ProxyTargetFilterQuery, Strin
 
     private final transient DeleteSupport<ProxyTargetFilterQuery> targetFilterDeleteSupport;
 
+    /**
+     * Constructor for TargetFilterGrid
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param notification
+     *          UINotification
+     * @param eventBus
+     *          UIEventBus
+     * @param uiState
+     *          TargetFilterGridLayoutUiState
+     * @param targetFilterQueryManagement
+     *          TargetFilterQueryManagement
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param autoAssignmentWindowBuilder
+     *          AutoAssignmentWindowBuilder
+     */
     public TargetFilterGrid(final VaadinMessageSource i18n, final UINotification notification,
             final UIEventBus eventBus, final TargetFilterGridLayoutUiState uiState,
             final TargetFilterQueryManagement targetFilterQueryManagement, final SpPermissionChecker permChecker,

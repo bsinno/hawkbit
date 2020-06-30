@@ -25,6 +25,12 @@ public class TargetFilterCountMessageLabel extends AbstractFooterSupport {
 
     private final Label targetCountLabel;
 
+    /**
+     * Constructor for TargetFilterCountMessageLabel
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public TargetFilterCountMessageLabel(final VaadinMessageSource i18n) {
         this.i18n = i18n;
         this.targetCountLabel = new Label();
@@ -43,6 +49,12 @@ public class TargetFilterCountMessageLabel extends AbstractFooterSupport {
         return targetCountLabel;
     }
 
+    /**
+     * Update the total count of target filtered
+     *
+     * @param count
+     *          Total target filtered count
+     */
     public void updateTotalFilteredTargetsCount(final long count) {
         final StringBuilder targetMessage = new StringBuilder(i18n.getMessage("label.target.filtered.total"));
         targetMessage.append(": ");

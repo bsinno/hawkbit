@@ -70,6 +70,32 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
 
     private final transient PinSupport<ProxyDistributionSet, String> pinSupport;
 
+    /**
+     * Constructor for DistributionGrid
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param notification
+     *          UINotification
+     * @param targetManagement
+     *          TargetManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param deploymentManagement
+     *          DeploymentManagement
+     * @param uiProperties
+     *          UiProperties
+     * @param distributionGridLayoutUiState
+     *          DistributionGridLayoutUiState
+     * @param targetGridLayoutUiState
+     *          TargetGridLayoutUiState
+     * @param distributionTagLayoutUiState
+     *          TagFilterLayoutUiState
+     */
     public DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final TargetManagement targetManagement, final DistributionSetManagement distributionSetManagement,
@@ -210,6 +236,9 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
         super.restoreState();
     }
 
+    /**
+     * @return Pin support
+     */
     public PinSupport<ProxyDistributionSet, String> getPinSupport() {
         return pinSupport;
     }

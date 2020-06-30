@@ -32,6 +32,16 @@ public class ActionHistoryGridHeader extends AbstractMasterAwareGridHeader<Proxy
 
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
+    /**
+     * Constructor for ActionHistoryGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param actionHistoryGridLayoutUiState
+     *          ActionHistoryGridLayoutUiState
+     */
     public ActionHistoryGridHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
         super(i18n, null, eventBus);

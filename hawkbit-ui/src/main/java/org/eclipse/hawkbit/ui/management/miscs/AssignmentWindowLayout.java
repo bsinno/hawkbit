@@ -43,6 +43,14 @@ public class AssignmentWindowLayout extends VerticalLayout {
     private final MaintenanceWindowLayout maintenanceWindowLayout;
     private final Link maintenanceHelpLink;
 
+    /**
+     * Constructor for AssignmentWindowLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiProperties
+     *          UiProperties
+     */
     public AssignmentWindowLayout(final VaadinMessageSource i18n, final UiProperties uiProperties) {
         this.proxyAssignmentBinder = new Binder<>();
         this.componentBuilder = new AssignmentWindowLayoutComponentBuilder(i18n);
@@ -115,10 +123,19 @@ public class AssignmentWindowLayout extends VerticalLayout {
         maintenanceTimeZoneCombo.setValue(SPDateTimeUtil.getClientTimeZoneOffsetId());
     }
 
+    /**
+     * @return Proxy assignment binder
+     */
     public Binder<ProxyAssignmentWindow> getProxyAssignmentBinder() {
         return proxyAssignmentBinder;
     }
 
+    /**
+     * Add validation listener
+     *
+     * @param validationCallback
+     *          validation call back event
+     */
     public void addValidationListener(final Consumer<Boolean> validationCallback) {
         proxyAssignmentBinder.addStatusChangeListener(event -> validationCallback.accept(event.getBinder().isValid()));
     }

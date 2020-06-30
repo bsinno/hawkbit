@@ -10,15 +10,27 @@ package org.eclipse.hawkbit.ui.management.actionhistory;
 
 import java.io.Serializable;
 
+/**
+ * Action history grid layout ui state
+ */
 public class ActionHistoryGridLayoutUiState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean maximized;
 
+    /**
+     * @return true if grid id maximized else false
+     */
     public boolean isMaximized() {
         return maximized;
     }
 
+    /**
+     * Sets Maximize in grid
+     *
+     * @param maximized
+     *          boolean
+     */
     public void setMaximized(final boolean maximized) {
         this.maximized = maximized;
     }

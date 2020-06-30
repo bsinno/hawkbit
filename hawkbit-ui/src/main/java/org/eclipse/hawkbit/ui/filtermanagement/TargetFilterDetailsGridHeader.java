@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -57,6 +57,26 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
     private final transient AddTargetFilterController addTargetFilterController;
     private final transient UpdateTargetFilterController updateTargetFilterController;
 
+    /**
+     * Constructor for TargetFilterDetailsGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param entityFactory
+     *          EntityFactory
+     * @param targetFilterManagement
+     *          TargetFilterQueryManagement
+     * @param uiProperties
+     *          UiProperties
+     * @param rsqlValidationOracle
+     *          RsqlValidationOracle
+     * @param uiState
+     *          TargetFilterDetailsLayoutUiState
+     */
     public TargetFilterDetailsGridHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final UINotification uiNotification, final EntityFactory entityFactory,
             final TargetFilterQueryManagement targetFilterManagement, final UiProperties uiProperties,
@@ -95,6 +115,9 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         addComponent(targetFilterAddUpdateLayout.getRootComponent());
     }
 
+    /**
+     * Show add filter layout
+     */
     public void showAddFilterLayout() {
         uiState.setCurrentMode(Mode.CREATE);
 
@@ -107,6 +130,12 @@ public class TargetFilterDetailsGridHeader extends AbstractGridHeader {
         showAddUpdateFilterLayout(captionMessage, addTargetFilterController, proxyEntity);
     }
 
+    /**
+     * Show edit filter layout
+     *
+     * @param proxyEntity
+     *          ProxyTargetFilterQuery
+     */
     public void showEditFilterLayout(final ProxyTargetFilterQuery proxyEntity) {
         uiState.setCurrentMode(Mode.EDIT);
         uiState.setSelectedFilterId(proxyEntity.getId());

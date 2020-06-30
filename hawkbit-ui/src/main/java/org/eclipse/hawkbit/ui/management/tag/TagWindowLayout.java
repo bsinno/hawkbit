@@ -76,6 +76,9 @@ public class TagWindowLayout<T extends ProxyFilterButton> extends AbstractEntity
         return formLayout;
     }
 
+    /**
+     * Disable tag name
+     */
     public void disableTagName() {
         tagName.setEnabled(false);
     }
