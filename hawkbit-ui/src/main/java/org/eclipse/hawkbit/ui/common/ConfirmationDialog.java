@@ -19,8 +19,10 @@ import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import com.vaadin.server.Resource;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -150,7 +152,10 @@ public class ConfirmationDialog implements Serializable {
     }
 
     private static Label createConfirmationQuestion(final String question) {
-        final Label questionLbl = new Label(question, ContentMode.PREFORMATTED);
+        String questionHtmlSave = HtmlUtils.htmlEscape(question);
+        questionHtmlSave = questionHtmlSave.replace("\n", "</br>");
+        final Label questionLbl = new Label(questionHtmlSave, ContentMode.HTML);
+        questionLbl.setWidth(100, Unit.PERCENTAGE);
         questionLbl.addStyleName(SPUIStyleDefinitions.CONFIRMBOX_QUESTION_LABEL);
 
         return questionLbl;

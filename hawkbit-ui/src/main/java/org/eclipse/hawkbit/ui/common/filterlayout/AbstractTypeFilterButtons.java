@@ -142,6 +142,11 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
     }
 
     @Override
+    protected boolean isEditAllowed() {
+        return permissionChecker.hasUpdateRepositoryPermission();
+    }
+
+    @Override
     protected void editButtonClickListener(final ProxyType clickedFilter) {
         final Window updateWindow = getUpdateWindow(clickedFilter);
 

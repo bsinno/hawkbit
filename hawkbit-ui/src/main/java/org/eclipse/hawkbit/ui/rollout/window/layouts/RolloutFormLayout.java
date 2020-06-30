@@ -65,6 +65,7 @@ public class RolloutFormLayout extends ValidatableLayout {
     private final BoundComponent<ActionTypeOptionGroupAssignmentLayout> actionTypeLayout;
     private final BoundComponent<AutoStartOptionGroupLayout> autoStartOptionGroupLayout;
 
+    private Long rolloutId;
     private Long totalTargets;
 
     private Consumer<String> filterQueryChangedListener;
@@ -226,10 +227,18 @@ public class RolloutFormLayout extends ValidatableLayout {
     }
 
     public void disableFieldsOnEditForActive() {
+        disableFieldsOnEditForInActive();
+
         dsCombo.setEnabled(false);
-        targetFilterQueryField.getComponent().setEnabled(false);
         actionTypeLayout.getComponent().setEnabled(false);
         autoStartOptionGroupLayout.getComponent().setEnabled(false);
+    }
+
+    public void disableAllFields() {
+        disableFieldsOnEditForActive();
+
+        nameField.setEnabled(false);
+        descriptionField.setEnabled(false);
     }
 
     public void setFilterQueryChangedListener(final Consumer<String> filterQueryChangedListener) {
@@ -242,16 +251,14 @@ public class RolloutFormLayout extends ValidatableLayout {
         targetFilterQueryCombo.validate();
     }
 
-    public void setName(final String name) {
-        nameField.setValue(name);
-    }
-
     public void setBean(final ProxyRolloutForm bean) {
+        rolloutId = bean.getId();
         binder.readBean(bean);
     }
 
     public ProxyRolloutForm getBean() throws ValidationException {
         final ProxyRolloutForm bean = new ProxyRolloutForm();
+        bean.setId(rolloutId);
         binder.writeBean(bean);
 
         return bean;

@@ -150,6 +150,6 @@ public final class DistributionBarHelper {
 
     private static String getParentDivStart() {
         return "<div class=\"" + GwtDistributionBar.CLASSNAME
-                + "\" style=\"width: 100%; height: 100%;\" id=\"rollout.status.progress.bar.id\">";
+                + "\" style=\"width: 100%; height: 95%;\" id=\"rollout.status.progress.bar.id\">";
     }
 }

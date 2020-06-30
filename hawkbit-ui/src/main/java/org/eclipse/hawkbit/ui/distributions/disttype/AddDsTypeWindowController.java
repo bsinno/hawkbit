@@ -101,11 +101,9 @@ public class AddDsTypeWindowController extends AbstractEntityWindowController<Pr
 
     @Override
     protected boolean isEntityValid(final ProxyType entity) {
-        // TODO: check if another message should be shown when selected sm types
-        // are empty
         if (!StringUtils.hasText(entity.getName()) || !StringUtils.hasText(entity.getKey())
                 || CollectionUtils.isEmpty(entity.getSelectedSmTypes())) {
-            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.typenameorkey"));
+            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.typenameorkeyorsmtype"));
             return false;
         }
 

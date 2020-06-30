@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtype;
 
-import org.eclipse.hawkbit.repository.model.Type;
-import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
@@ -17,12 +15,10 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.TextField;
 
 /**
  * Builder for software module type window layout component
  */
-//TODO: remove duplication with other builders
 public class SmTypeWindowLayoutComponentBuilder {
 
     public static final String TEXTFIELD_KEY = "textfield.key";
@@ -33,36 +29,17 @@ public class SmTypeWindowLayoutComponentBuilder {
      * Constructor for SmTypeWindowLayoutComponentBuilder
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      */
     public SmTypeWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
     }
 
     /**
-     * Create software module type key text field
-     *
-     * @param binder
-     *          Vaadin binder of ProxyType
-     *
-     * @return Textfield
-     */
-    public TextField createKeyField(final Binder<ProxyType> binder) {
-        final TextField typeKey = new TextFieldBuilder(Type.KEY_MAX_SIZE).id(UIComponentIdProvider.TYPE_POPUP_KEY)
-                .caption(i18n.getMessage(TEXTFIELD_KEY)).prompt(i18n.getMessage(TEXTFIELD_KEY)).buildTextComponent();
-        typeKey.setSizeUndefined();
-
-        binder.forField(typeKey).asRequired(i18n.getMessage("message.type.key.empty")).bind(ProxyType::getKey,
-                ProxyType::setKey);
-
-        return typeKey;
-    }
-
-    /**
      * Create software module type assignment group
      *
      * @param binder
-     *          Vaadin binder of ProxyType
+     *            Vaadin binder of ProxyType
      *
      * @return RadioButtonGroup of software module type assignment
      */
@@ -80,13 +57,12 @@ public class SmTypeWindowLayoutComponentBuilder {
                 return null;
             }
         });
-        // TODO: adapt tooltips to describe single/multi assignment
         smTypeAssignOptionGroup.setItemDescriptionGenerator(item -> {
             switch (item) {
             case SINGLE:
-                return i18n.getMessage("label.singleAssign.type");
+                return i18n.getMessage("label.singleAssign.type.desc");
             case MULTI:
-                return i18n.getMessage("label.multiAssign.type");
+                return i18n.getMessage("label.multiAssign.type.desc");
             default:
                 return null;
             }

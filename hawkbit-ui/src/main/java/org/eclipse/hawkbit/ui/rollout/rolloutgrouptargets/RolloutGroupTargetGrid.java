@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets;
 
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.RolloutActionStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetWithActionStatusToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.RolloutGroupTargetsDataProvider;
@@ -78,27 +79,14 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
 
     @Override
     public void addColumns() {
-        addColumn(ProxyTarget::getName).setId(SPUILabelDefinitions.VAR_NAME).setCaption(i18n.getMessage("header.name"))
-                .setMinimumWidth(20).setMaximumWidth(280);
+        GridComponentBuilder.addNameColumn(this, i18n, SPUILabelDefinitions.VAR_NAME).setExpandRatio(3);
 
-        addComponentColumn(actionStatusIconSupplier::getLabel).setId(SPUILabelDefinitions.VAR_STATUS)
-                .setCaption(i18n.getMessage("header.status")).setMinimumWidth(50).setMaximumWidth(80)
-                .setStyleGenerator(item -> "v-align-center");
+        GridComponentBuilder.addIconColumn(this, actionStatusIconSupplier::getLabel, SPUILabelDefinitions.VAR_STATUS,
+                i18n.getMessage("header.status"));
 
-        addColumn(ProxyTarget::getCreatedDate).setId(SPUILabelDefinitions.VAR_CREATED_DATE)
-                .setCaption(i18n.getMessage("header.createdDate")).setMaximumWidth(180).setMinimumWidth(30);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
-        addColumn(ProxyTarget::getCreatedBy).setId(SPUILabelDefinitions.VAR_CREATED_BY)
-                .setCaption(i18n.getMessage("header.createdBy")).setMaximumWidth(180).setMinimumWidth(50);
-
-        addColumn(ProxyTarget::getModifiedDate).setId(SPUILabelDefinitions.VAR_LAST_MODIFIED_DATE)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setMaximumWidth(180).setMinimumWidth(30);
-
-        addColumn(ProxyTarget::getLastModifiedBy).setId(SPUILabelDefinitions.VAR_LAST_MODIFIED_BY)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setMaximumWidth(180).setMinimumWidth(50);
-
-        addColumn(ProxyTarget::getDescription).setId(SPUILabelDefinitions.VAR_DESC)
-                .setCaption(i18n.getMessage("header.description"));
+        GridComponentBuilder.addDescriptionColumn(this, i18n, SPUILabelDefinitions.VAR_DESC).setExpandRatio(3);
     }
 
     @Override

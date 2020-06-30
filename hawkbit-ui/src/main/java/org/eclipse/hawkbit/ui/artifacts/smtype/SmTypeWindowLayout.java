@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.smtype;
 
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType.SmTypeAssign;
 import org.eclipse.hawkbit.ui.management.tag.TagWindowLayout;
@@ -29,16 +30,16 @@ public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
 
     /**
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      */
     public SmTypeWindowLayout(final VaadinMessageSource i18n, final UINotification uiNotification) {
         super(i18n, uiNotification);
 
         this.smTypeComponentBuilder = new SmTypeWindowLayoutComponentBuilder(i18n);
 
-        this.typeKey = smTypeComponentBuilder.createKeyField(binder);
+        this.typeKey = FormComponentBuilder.createTypeKeyField(binder, i18n);
         this.smTypeAssignOptionGroup = smTypeComponentBuilder.createSmTypeAssignOptionGroup(binder);
 
         this.colorPickerComponent.getColorPickerBtn().setCaption(i18n.getMessage("label.choose.type.color"));

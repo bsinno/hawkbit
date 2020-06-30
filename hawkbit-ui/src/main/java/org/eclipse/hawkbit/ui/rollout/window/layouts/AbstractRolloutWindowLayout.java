@@ -129,8 +129,8 @@ public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<
         } catch (final ValidationException e) {
             final String validationErrors = e.getValidationErrors().stream().map(ValidationResult::getErrorMessage)
                     .collect(Collectors.joining(";"));
-            LOGGER.trace("There was a validation error while trying to get the rollouts window bean: {}",
-                    validationErrors);
+            LOGGER.trace("There was a validation error while trying to get the rollouts window bean: {} {}",
+                    e.getMessage(), validationErrors);
 
             return null;
         }

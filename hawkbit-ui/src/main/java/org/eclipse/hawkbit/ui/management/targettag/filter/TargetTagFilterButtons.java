@@ -97,6 +97,11 @@ public class TargetTagFilterButtons extends AbstractTagFilterButtons {
     }
 
     @Override
+    protected boolean isEditAllowed() {
+        return permissionChecker.hasUpdateRepositoryPermission();
+    }
+
+    @Override
     protected Window getUpdateWindow(final ProxyTag clickedFilter) {
         return targetTagWindowBuilder.getWindowForUpdate(clickedFilter);
     }

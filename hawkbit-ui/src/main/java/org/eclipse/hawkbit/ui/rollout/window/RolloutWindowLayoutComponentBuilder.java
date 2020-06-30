@@ -56,8 +56,7 @@ public final class RolloutWindowLayoutComponentBuilder {
 
     public AdvancedGroupsLayout createAdvancedGroupsLayout() {
         return new AdvancedGroupsLayout(dependencies.getI18n(), dependencies.getEntityFactory(),
-                dependencies.getRolloutManagement(), dependencies.getTargetFilterQueryManagement(),
-                dependencies.getQuotaManagement(), targetFilterQueryDataProvider);
+                dependencies.getRolloutManagement(), dependencies.getQuotaManagement(), targetFilterQueryDataProvider);
     }
 
     public TabSheet createGroupDefinitionTabs(final Component simpleGroupDefinitionTab,

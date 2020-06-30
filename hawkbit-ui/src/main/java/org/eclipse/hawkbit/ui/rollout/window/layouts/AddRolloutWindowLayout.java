@@ -9,12 +9,13 @@
 package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutWindow.GroupDefinitionMode;
 import org.eclipse.hawkbit.ui.rollout.window.RolloutWindowDependencies;
-import org.eclipse.hawkbit.ui.rollout.window.layouts.ValidatableLayout.ValidationStatus;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.data.ValidationException;
@@ -39,6 +40,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private String filterQuery;
     private Long totalTargets;
     private int noOfGroups;
+    private List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions;
 
     public AddRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         super(dependencies);
@@ -73,6 +75,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         rolloutFormLayout.setFilterQueryChangedListener(this::onTargetFilterQueryChange);
         groupsDefinitionTabs.addSelectedTabChangeListener(event -> onGroupDefinitionTabChanged());
         simpleGroupsLayout.setNoOfGroupsChangedListener(this::onNoOfSimpleGroupsChanged);
+        advancedGroupsLayout.setAdvancedGroupDefinitionsChangedListener(this::onAdvancedGroupsChanged);
     }
 
     private void onTargetFilterQueryChange(final String filterQuery) {
@@ -118,8 +121,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
             advancedGroupsLayout.setTargetFilter(filterQuery);
 
             visualGroupDefinitionLayout.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
-            visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
-                    advancedGroupsLayout.getSavedRolloutGroupDefinitions());
+            visualGroupDefinitionLayout.setAdvancedRolloutGroupDefinitions(advancedRolloutGroupDefinitions);
         }
     }
 
@@ -134,9 +136,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         simpleGroupsLayout.resetValidationStatus();
         removeValidatableLayout(simpleGroupsLayout);
 
-        // TODO: extract onAdvancedGroupsChanged to value change listener,
-        // because pie chart is not updated if the layout is not valid
-        addValidatableLayout(advancedGroupsLayout, this::onAdvancedGroupsChanged);
+        addValidatableLayout(advancedGroupsLayout);
     }
 
     private void onNoOfSimpleGroupsChanged(final int noOfGroups) {
@@ -149,16 +149,18 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         visualGroupDefinitionLayout.setNoOfGroups(noOfGroups);
     }
 
-    private void onAdvancedGroupsChanged(final ValidationStatus status) {
+    private void onAdvancedGroupsChanged(final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions,
+            final Boolean isLoading) {
         if (!isAdvancedGroupsTabSelected()) {
             return;
         }
 
-        if (status == AdvancedGroupsLayout.ValidationStatus.LOADING) {
+        this.advancedRolloutGroupDefinitions = advancedRolloutGroupDefinitions;
+
+        visualGroupDefinitionLayout.setAdvancedRolloutGroupDefinitions(advancedRolloutGroupDefinitions);
+
+        if (isLoading) {
             visualGroupDefinitionLayout.displayLoading();
-        } else {
-            visualGroupDefinitionLayout.setAdvancedRolloutGroupsValidation(advancedGroupsLayout.getGroupsValidation(),
-                    advancedGroupsLayout.getSavedRolloutGroupDefinitions());
         }
     }
 
@@ -170,15 +172,12 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         groupsDefinitionTabs.setSelectedTab(advancedGroupsLayout.getLayout());
     }
 
-    public void setRolloutName(final String rolloutName) {
-        rolloutFormLayout.setName(rolloutName);
-    }
-
     @Override
     public void setEntity(final ProxyRolloutWindow proxyEntity) {
         rolloutFormLayout.setBean(proxyEntity.getRolloutForm());
         simpleGroupsLayout.setBean(proxyEntity.getSimpleGroupsDefinition());
-        advancedGroupsLayout.populateByRolloutGroups(proxyEntity.getAdvancedRolloutGroups());
+        advancedGroupsLayout
+                .populateByAdvancedRolloutGroupDefinitions(proxyEntity.getAdvancedRolloutGroupDefinitions());
         visualGroupDefinitionLayout.setGroupDefinitionMode(proxyEntity.getGroupDefinitionMode());
     }
 
@@ -187,7 +186,7 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         final ProxyRolloutWindow proxyEntity = new ProxyRolloutWindow();
         proxyEntity.setRolloutForm(rolloutFormLayout.getBean());
         proxyEntity.setSimpleGroupsDefinition(simpleGroupsLayout.getBean());
-        proxyEntity.setAdvancedRolloutGroupDefinitions(advancedGroupsLayout.getSavedRolloutGroupDefinitions());
+        proxyEntity.setAdvancedRolloutGroupDefinitions(advancedGroupsLayout.getAdvancedRolloutGroupDefinitions());
         proxyEntity.setGroupDefinitionMode(
                 isSimpleGroupsTabSelected() ? GroupDefinitionMode.SIMPLE : GroupDefinitionMode.ADVANCED);
 

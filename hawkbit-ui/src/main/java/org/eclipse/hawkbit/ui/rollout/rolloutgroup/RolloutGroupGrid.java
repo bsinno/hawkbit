@@ -108,12 +108,11 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildRolloutGroupLink).setId(ROLLOUT_GROUP_LINK_ID)
-                .setCaption(i18n.getMessage("header.name")).setMinimumWidth(40).setMaximumWidth(200).setHidable(true);
+        GridComponentBuilder.addComponentColumn(this, this::buildRolloutGroupLink).setId(ROLLOUT_GROUP_LINK_ID)
+                .setCaption(i18n.getMessage("header.name")).setHidable(false).setExpandRatio(3);
 
-        addComponentColumn(rolloutGroupStatusIconSupplier::getLabel).setId(SPUILabelDefinitions.VAR_STATUS)
-                .setCaption(i18n.getMessage("header.status")).setMinimumWidth(75).setMaximumWidth(75).setHidable(true)
-                .setStyleGenerator(item -> "v-align-center");
+        GridComponentBuilder.addIconColumn(this, rolloutGroupStatusIconSupplier::getLabel,
+                SPUILabelDefinitions.VAR_STATUS, i18n.getMessage("header.status")).setHidable(true);
 
         addColumn(rolloutGroup -> DistributionBarHelper
                 .getDistributionBarAsHTMLString(rolloutGroup.getTotalTargetCountStatus().getStatusTotalCountMap()),
@@ -123,38 +122,28 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
                                 rolloutGroup -> DistributionBarHelper.getTooltip(
                                         rolloutGroup.getTotalTargetCountStatus().getStatusTotalCountMap(), i18n),
                                 ContentMode.HTML)
-                        .setMinimumWidth(280).setHidable(true);
+                        .setExpandRatio(8).setHidable(true);
 
-        addColumn(ProxyRolloutGroup::getFinishedPercentage)
+        GridComponentBuilder.addColumn(this, group -> group.getFinishedPercentage() + "%")
                 .setId(SPUILabelDefinitions.ROLLOUT_GROUP_INSTALLED_PERCENTAGE)
-                .setCaption(i18n.getMessage("header.rolloutgroup.installed.percentage")).setMinimumWidth(40)
-                .setMaximumWidth(100).setHidable(true);
+                .setCaption(i18n.getMessage("header.rolloutgroup.installed.percentage")).setHidable(true);
 
-        addColumn(ProxyRolloutGroup::getErrorConditionExp).setId(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
-                .setCaption(i18n.getMessage("header.rolloutgroup.threshold.error")).setMinimumWidth(40)
-                .setMaximumWidth(100).setHidable(true);
+        GridComponentBuilder.addColumn(this, group -> group.getErrorConditionExp() + "%")
+                .setId(SPUILabelDefinitions.ROLLOUT_GROUP_ERROR_THRESHOLD)
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold.error")).setHidable(true);
 
-        addColumn(ProxyRolloutGroup::getSuccessConditionExp).setId(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
-                .setCaption(i18n.getMessage("header.rolloutgroup.threshold")).setMinimumWidth(40).setMaximumWidth(100)
-                .setHidable(true);
+        GridComponentBuilder.addColumn(this, group -> group.getSuccessConditionExp() + "%")
+                .setId(SPUILabelDefinitions.ROLLOUT_GROUP_THRESHOLD)
+                .setCaption(i18n.getMessage("header.rolloutgroup.threshold")).setHidable(true);
 
-        addColumn(ProxyRolloutGroup::getCreatedBy).setId(SPUILabelDefinitions.VAR_CREATED_USER)
-                .setCaption(i18n.getMessage("header.createdBy")).setHidable(true).setHidden(true);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n)
+                .forEach(col -> col.setHidable(true).setHidden(true));
 
-        addColumn(ProxyRolloutGroup::getCreatedDate).setId(SPUILabelDefinitions.VAR_CREATED_DATE)
-                .setCaption(i18n.getMessage("header.createdDate")).setHidable(true).setHidden(true);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, SPUILabelDefinitions.VAR_DESC).setHidable(true)
+                .setHidden(true);
 
-        addColumn(ProxyRolloutGroup::getModifiedDate).setId(SPUILabelDefinitions.VAR_MODIFIED_DATE)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setHidable(true).setHidden(true);
-
-        addColumn(ProxyRolloutGroup::getLastModifiedBy).setId(SPUILabelDefinitions.VAR_MODIFIED_BY)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setHidable(true).setHidden(true);
-
-        addColumn(ProxyRolloutGroup::getDescription).setId(SPUILabelDefinitions.VAR_DESC)
-                .setCaption(i18n.getMessage("header.description")).setHidable(true).setHidden(true);
-
-        addColumn(ProxyRolloutGroup::getTotalTargetsCount).setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS)
-                .setCaption(i18n.getMessage("header.total.targets")).setMinimumWidth(40).setMaximumWidth(100)
+        GridComponentBuilder.addColumn(this, ProxyRolloutGroup::getTotalTargetsCount)
+                .setId(SPUILabelDefinitions.VAR_TOTAL_TARGETS).setCaption(i18n.getMessage("header.total.targets"))
                 .setHidable(true);
     }
 

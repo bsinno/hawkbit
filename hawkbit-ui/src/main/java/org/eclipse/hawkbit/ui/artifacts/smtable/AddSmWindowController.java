@@ -54,19 +54,19 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
      * Constructor
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param entityFactory
-     *          EntityFactory
+     *            EntityFactory
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param smManagement
-     *          SoftwareModuleManagement
+     *            SoftwareModuleManagement
      * @param layout
-     *          SoftwareModuleWindowLayout
+     *            SoftwareModuleWindowLayout
      * @param view
-     *          EventView
+     *            EventView
      */
     public AddSmWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SoftwareModuleManagement smManagement,
@@ -128,8 +128,7 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
     protected boolean isEntityValid(final ProxySoftwareModule entity) {
         if (!StringUtils.hasText(entity.getName()) || !StringUtils.hasText(entity.getVersion())
                 || entity.getProxyType() == null) {
-            // TODO: should we adapt message to include type?
-            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.nameorversion"));
+            uiNotification.displayValidationError(i18n.getMessage("message.error.missing.nameorversionortype"));
             return false;
         }
 

@@ -20,14 +20,10 @@ import org.eclipse.hawkbit.ui.common.grid.support.DeleteSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.FilterSupport;
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
-import org.eclipse.hawkbit.ui.utils.SPUIStyleDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
-
-import com.vaadin.icons.VaadinIcons;
 
 /**
  * Grid for MetaData pop up layout.
@@ -85,19 +81,14 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
 
     @Override
     public void addColumns() {
-        addColumn(ProxyMetaData::getKey).setId(META_DATA_KEY_ID).setCaption(i18n.getMessage("header.key"))
-                .setExpandRatio(1);
+        GridComponentBuilder.addColumn(this, ProxyMetaData::getKey).setId(META_DATA_KEY_ID)
+                .setCaption(i18n.getMessage("header.key"));
 
-        addColumn(ProxyMetaData::getValue).setId(META_DATA_VALUE_ID).setCaption(i18n.getMessage("header.value"))
-                .setHidden(true);
+        GridComponentBuilder.addColumn(this, ProxyMetaData::getValue).setId(META_DATA_VALUE_ID)
+                .setCaption(i18n.getMessage("header.value")).setHidden(true).setHidable(true);
 
-        addComponentColumn(metaData -> GridComponentBuilder.buildActionButton(i18n,
-                clickEvent -> metaDataDeleteSupport.openConfirmationWindowDeleteAction(metaData), VaadinIcons.TRASH,
-                UIMessageIdProvider.TOOLTIP_DELETE, SPUIStyleDefinitions.STATUS_ICON_NEUTRAL,
-                UIComponentIdProvider.META_DATA_DELET_ICON + "." + metaData.getId(),
-                permissionChecker.hasDeleteRepositoryPermission())).setId(META_DATA_DELETE_BUTTON_ID)
-                        .setCaption(i18n.getMessage("header.action.delete")).setMinimumWidth(50d).setMaximumWidth(50d)
-                        .setHidable(false).setHidden(false);
+        GridComponentBuilder.addDeleteColumn(this, i18n, META_DATA_DELETE_BUTTON_ID, metaDataDeleteSupport,
+                UIComponentIdProvider.META_DATA_DELET_ICON, e -> permissionChecker.hasDeleteRepositoryPermission());
     }
 
     @Override

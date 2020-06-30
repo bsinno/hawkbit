@@ -12,6 +12,7 @@ import java.util.Collection;
 
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
@@ -32,6 +33,7 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Button;
+import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
@@ -39,8 +41,6 @@ import com.vaadin.ui.themes.ValoTheme;
  */
 public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuery, String> {
     private static final long serialVersionUID = 1L;
-
-    private static final double FILTER_FULL_WIDTH = 148d;
 
     private static final String FILTER_BUTTON_COLUMN_ID = "filterButton";
 
@@ -88,14 +88,15 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
 
     @Override
     public void addColumns() {
-        addComponentColumn(this::buildTfqButton).setId(FILTER_BUTTON_COLUMN_ID).setWidth(FILTER_FULL_WIDTH)
-                .setStyleGenerator(item -> {
-                    if (customTargetTagFilterButtonClick.isFilterPreviouslyClicked(item)) {
-                        return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
-                    } else {
-                        return null;
-                    }
-                });
+        final StyleGenerator<ProxyTargetFilterQuery> styleGenerator = item -> {
+            if (customTargetTagFilterButtonClick.isFilterPreviouslyClicked(item)) {
+                return SPUIStyleDefinitions.SP_FILTER_BTN_CLICKED_STYLE;
+            } else {
+                return null;
+            }
+        };
+        GridComponentBuilder.addComponentColumn(this, this::buildTfqButton, styleGenerator)
+                .setId(FILTER_BUTTON_COLUMN_ID);
     }
 
     private Button buildTfqButton(final ProxyTargetFilterQuery filterQuery) {

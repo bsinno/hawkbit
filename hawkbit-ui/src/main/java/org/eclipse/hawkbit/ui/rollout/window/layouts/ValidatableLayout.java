@@ -16,18 +16,8 @@ public abstract class ValidatableLayout {
     }
 
     protected void setValidationStatusByBinder(final Binder<?> binder) {
-        binder.addStatusChangeListener(
-                event -> setValidationStatus(mapBinderStatusToValidationStatus(event.getBinder())));
-    }
-
-    private ValidationStatus mapBinderStatusToValidationStatus(final Binder<?> binder) {
-        // will only work if the beans are set by binder read/write bean
-        // (setBean will always return no changes except of invalid inputs)!
-        if (!binder.hasChanges()) {
-            return ValidationStatus.UNKNOWN;
-        }
-
-        return binder.isValid() ? ValidationStatus.VALID : ValidationStatus.INVALID;
+        binder.addStatusChangeListener(event -> setValidationStatus(
+                event.getBinder().isValid() ? ValidationStatus.VALID : ValidationStatus.INVALID));
     }
 
     protected void setValidationStatus(final ValidationStatus status) {
@@ -73,6 +63,6 @@ public abstract class ValidatableLayout {
      * Status of the validation
      */
     public enum ValidationStatus {
-        UNKNOWN, LOADING, VALID, INVALID
+        UNKNOWN, VALID, INVALID
     }
 }

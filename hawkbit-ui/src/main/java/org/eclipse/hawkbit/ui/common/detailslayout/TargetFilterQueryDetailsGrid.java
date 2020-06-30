@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetFilterQueryToProxyTargetFilterMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterQueryDetailsDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
@@ -63,9 +64,9 @@ public class TargetFilterQueryDetailsGrid extends AbstractGrid<ProxyTargetFilter
 
     @Override
     public void addColumns() {
-        addColumn(ProxyTargetFilterQuery::getName).setId(TFQ_NAME_ID)
+        GridComponentBuilder.addColumn(this, ProxyTargetFilterQuery::getName).setId(TFQ_NAME_ID)
                 .setCaption(i18n.getMessage("header.target.filter.name")).setExpandRatio(2);
-        addColumn(ProxyTargetFilterQuery::getQuery).setId(TFQ_QUERY_ID)
+        GridComponentBuilder.addColumn(this, ProxyTargetFilterQuery::getQuery).setId(TFQ_QUERY_ID)
                 .setCaption(i18n.getMessage("header.target.filter.query")).setExpandRatio(3);
     }
 

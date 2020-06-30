@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.filtermanagement;
 
 import org.eclipse.hawkbit.repository.TargetManagement;
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.TargetStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.TargetFilterStateDataProvider;
@@ -28,10 +29,6 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
     private static final long serialVersionUID = 1L;
 
     private static final String TARGET_NAME_ID = "targetName";
-    private static final String TARGET_CREATED_BY_ID = "targetCreatedBy";
-    private static final String TARGET_CREATED_DATE_ID = "targetCreatedDate";
-    private static final String TARGET_MODIFIED_BY_ID = "targetModifiedBy";
-    private static final String TARGET_MODIFIED_DATE_ID = "targetModifiedDate";
     private static final String TARGET_DESCRIPTION_ID = "targetDescription";
     private static final String TARGET_STATUS_ID = "targetStatus";
 
@@ -76,26 +73,13 @@ public class TargetFilterTargetGrid extends AbstractGrid<ProxyTarget, String> {
 
     @Override
     public void addColumns() {
-        addColumn(ProxyTarget::getName).setId(TARGET_NAME_ID).setCaption(i18n.getMessage("header.name"))
-                .setExpandRatio(2);
+        GridComponentBuilder.addNameColumn(this, i18n, TARGET_NAME_ID);
 
-        addColumn(ProxyTarget::getCreatedBy).setId(TARGET_CREATED_BY_ID).setCaption(i18n.getMessage("header.createdBy"))
-                .setExpandRatio(1);
+        GridComponentBuilder.addCreatedAndModifiedColumns(this, i18n);
 
-        addColumn(ProxyTarget::getCreatedDate).setId(TARGET_CREATED_DATE_ID)
-                .setCaption(i18n.getMessage("header.createdDate")).setExpandRatio(1);
+        GridComponentBuilder.addDescriptionColumn(this, i18n, TARGET_DESCRIPTION_ID);
 
-        addColumn(ProxyTarget::getLastModifiedBy).setId(TARGET_MODIFIED_BY_ID)
-                .setCaption(i18n.getMessage("header.modifiedBy")).setExpandRatio(1).setHidable(true).setHidden(true);
-
-        addColumn(ProxyTarget::getModifiedDate).setId(TARGET_MODIFIED_DATE_ID)
-                .setCaption(i18n.getMessage("header.modifiedDate")).setExpandRatio(1).setHidable(true).setHidden(true);
-
-        addColumn(ProxyTarget::getDescription).setId(TARGET_DESCRIPTION_ID)
-                .setCaption(i18n.getMessage("header.description")).setExpandRatio(1);
-
-        addComponentColumn(targetStatusIconSupplier::getLabel).setId(TARGET_STATUS_ID)
-                .setCaption(i18n.getMessage("header.status")).setMinimumWidth(50D).setMaximumWidth(50D)
-                .setHidable(false).setHidden(false).setStyleGenerator(item -> AbstractGrid.CENTER_ALIGN);
+        GridComponentBuilder.addIconColumn(this, targetStatusIconSupplier::getLabel, TARGET_STATUS_ID,
+                i18n.getMessage("header.status"));
     }
 }

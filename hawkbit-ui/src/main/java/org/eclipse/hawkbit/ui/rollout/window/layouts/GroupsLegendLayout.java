@@ -11,11 +11,10 @@ package org.eclipse.hawkbit.ui.rollout.window.layouts;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.hawkbit.repository.builder.RolloutGroupCreate;
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
-import org.eclipse.hawkbit.repository.model.RolloutGroupsValidation;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
+import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.CollectionUtils;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -78,7 +77,7 @@ public class GroupsLegendLayout extends VerticalLayout {
      */
     public void reset() {
         totalTargetsLabel.setVisible(false);
-        populateGroupsLegendByTargetCounts(Collections.emptyList());
+        populateGroupsLegend(Collections.emptyList());
         if (groupsLegend.getComponentCount() > MAX_GROUPS_TO_BE_DISPLAYED) {
             groupsLegend.getComponent(MAX_GROUPS_TO_BE_DISPLAYED).setVisible(false);
         }
@@ -126,7 +125,7 @@ public class GroupsLegendLayout extends VerticalLayout {
      * loading process is done one of the populate methods should be called.
      */
     public void displayLoading() {
-        populateGroupsLegendByTargetCounts(Collections.emptyList());
+        populateGroupsLegend(Collections.emptyList());
         loadingLabel.setVisible(true);
     }
 
@@ -153,7 +152,7 @@ public class GroupsLegendLayout extends VerticalLayout {
      * @param listOfTargetCountPerGroup
      *            list of target counts
      */
-    public void populateGroupsLegendByTargetCounts(final List<Long> listOfTargetCountPerGroup) {
+    public void populateGroupsLegend(final List<Long> listOfTargetCountPerGroup) {
         loadingLabel.setVisible(false);
 
         for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(listOfTargetCountPerGroup.size()); i++) {
@@ -196,38 +195,44 @@ public class GroupsLegendLayout extends VerticalLayout {
         if (amountOfRolloutGroups < groupsLegend.getComponentCount()) {
             return groupsLegend.getComponentCount();
         }
+
         return groupsLegend.getComponentCount() - 1;
     }
 
     /**
-     * Populates the legend based on a groups validation and a list of groups
-     * that is used for resolving their names. Positions of the groups in the
-     * groups list and the validation need to be in correct order. Can have
-     * unassigned targets that are displayed on top of the groups list which
-     * results in one group less to be displayed
+     * Populates the legend based on total targets, a list of targets per group
+     * and a list of their names. Positions of the groups in the groups targets
+     * list and the names list need to be in correct order. Can have unassigned
+     * targets that are displayed on top of the groups list which results in one
+     * group less to be displayed.
      * 
-     * @param validation
-     *            A rollout validation object that contains a list of target
-     *            counts and the total targets
-     * @param groups
-     *            List of groups with their name
+     * @param totalTargets
+     *            Total targets
+     * @param targetsPerGroup
+     *            List of targets per group
+     * @param groupNames
+     *            List of group names
      */
-    public void populateGroupsLegendByValidation(final RolloutGroupsValidation validation,
-            final List<RolloutGroupCreate> groups) {
+    public void populateGroupsLegend(final Long totalTargets, final List<Long> targetsPerGroup,
+            final List<String> groupNames) {
         loadingLabel.setVisible(false);
-        if (validation == null) {
+
+        if (!HawkbitCommonUtil.atLeastOnePresent(totalTargets) || CollectionUtils.isEmpty(targetsPerGroup)
+                || CollectionUtils.isEmpty(groupNames) || targetsPerGroup.size() != groupNames.size()) {
             return;
         }
-        final List<Long> targetsPerGroup = validation.getTargetsPerGroup();
-        final long unassigned = validation.getTotalTargets() - validation.getTargetsInGroups();
-        final int labelsToUpdate = (unassigned > 0) ? (getGroupsWithoutToBeContinuedLabel(groups.size()) - 1)
+
+        final long remainingTargets = totalTargets - HawkbitCommonUtil.getSumOf(targetsPerGroup);
+        final int labelsToUpdate = (remainingTargets > 0)
+                ? (getGroupsWithoutToBeContinuedLabel(targetsPerGroup.size()) - 1)
                 : groupsLegend.getComponentCount();
-        for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(groups.size()); i++) {
+
+        for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(targetsPerGroup.size()); i++) {
             final Component component = groupsLegend.getComponent(i);
             final Label label = (Label) component;
-            if (targetsPerGroup.size() > i && groups.size() > i && labelsToUpdate > i) {
+            if (targetsPerGroup.size() > i && labelsToUpdate > i) {
                 final Long targetCount = targetsPerGroup.get(i);
-                final String groupName = groups.get(i).build().getName();
+                final String groupName = groupNames.get(i);
 
                 label.setValue(getTargetsInGroupMessage(targetCount, groupName));
                 label.setVisible(true);
@@ -237,43 +242,17 @@ public class GroupsLegendLayout extends VerticalLayout {
             }
         }
 
-        showOrHideToBeContinueLabel(groups);
+        showOrHideToBeContinueLabel(targetsPerGroup);
 
-        if (unassigned > 0) {
-            unassignedTargetsLabel.setValue(getTargetsInGroupMessage(unassigned, "Unassigned"));
+        if (remainingTargets > 0) {
+            unassignedTargetsLabel.setValue(
+                    getTargetsInGroupMessage(remainingTargets, i18n.getMessage("message.rollout.target.unassigned")));
             unassignedTargetsLabel.setVisible(true);
         } else {
             unassignedTargetsLabel.setValue("");
             unassignedTargetsLabel.setVisible(false);
         }
 
-    }
-
-    /**
-     * Populates the legend based on a list of groups.
-     *
-     * @param groups
-     *            List of groups with their name
-     */
-    public void populateGroupsLegendByGroups(final List<RolloutGroup> groups) {
-        loadingLabel.setVisible(false);
-
-        for (int i = 0; i < getGroupsWithoutToBeContinuedLabel(groups.size()); i++) {
-            final Component component = groupsLegend.getComponent(i);
-            final Label label = (Label) component;
-            if (groups.size() > i) {
-                final int targetCount = groups.get(i).getTotalTargets();
-                final String groupName = groups.get(i).getName();
-
-                label.setValue(getTargetsInGroupMessage((long) targetCount, groupName));
-                label.setVisible(true);
-            } else {
-                label.setValue("");
-                label.setVisible(false);
-            }
-        }
-
-        showOrHideToBeContinueLabel(groups);
     }
 
     private String getTargetsInGroupMessage(final Long targets, final String groupName) {

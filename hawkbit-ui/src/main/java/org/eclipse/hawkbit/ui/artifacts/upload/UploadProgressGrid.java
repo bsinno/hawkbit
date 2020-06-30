@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.artifacts.upload;
 
+import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.StatusIconBuilder.ProgressStatusIconSupplier;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyUploadProgress;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -59,25 +60,26 @@ public class UploadProgressGrid extends Grid<ProxyUploadProgress> {
     }
 
     private void addColumns() {
-        addComponentColumn(progressStatusIconSupplier::getLabel).setId(UPLOAD_PROGRESS_STATUS_ID)
-                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_STATUS)).setMinimumWidth(60d)
-                .setStyleGenerator(item -> "v-align-center");
+        GridComponentBuilder.addIconColumn(this, progressStatusIconSupplier::getLabel, UPLOAD_PROGRESS_STATUS_ID,
+                i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_STATUS));
 
         addColumn(ProxyUploadProgress::getProgress, new ProgressBarRenderer()).setId(UPLOAD_PROGRESS_BAR_ID)
-                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_PROGRESS))
-                .setMinimumWidth(150d);
+                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_PROGRESS)).setExpandRatio(1);
 
-        addColumn(uploadProgress -> uploadProgress.getFileUploadId().getFilename()).setId(UPLOAD_PROGRESS_FILENAME_ID)
-                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_FILENAME)).setMinimumWidth(200d);
+        GridComponentBuilder.addColumn(this, uploadProgress -> uploadProgress.getFileUploadId().getFilename())
+                .setId(UPLOAD_PROGRESS_FILENAME_ID)
+                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_FILENAME));
 
-        addColumn(uploadProgress -> HawkbitCommonUtil.getFormattedNameVersion(
-                uploadProgress.getFileUploadId().getSoftwareModuleName(),
-                uploadProgress.getFileUploadId().getSoftwareModuleVersion())).setId(UPLOAD_PROGRESS_SM_ID)
-                        .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_SOFTWARE_MODULE)).setMinimumWidth(200d);
+        GridComponentBuilder
+                .addColumn(this,
+                        uploadProgress -> HawkbitCommonUtil.getFormattedNameVersion(
+                                uploadProgress.getFileUploadId().getSoftwareModuleName(),
+                                uploadProgress.getFileUploadId().getSoftwareModuleVersion()))
+                .setId(UPLOAD_PROGRESS_SM_ID).setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_SOFTWARE_MODULE));
 
-        addColumn(ProxyUploadProgress::getReason).setId(UPLOAD_PROGRESS_REASON_ID)
-                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_REASON)).setMinimumWidth(290d);
+        GridComponentBuilder.addColumn(this, ProxyUploadProgress::getReason).setId(UPLOAD_PROGRESS_REASON_ID)
+                .setCaption(i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_UPLOAD_REASON));
 
-        setFrozenColumnCount(5);
+        getColumns().forEach(col -> col.setSortable(false));
     }
 }
