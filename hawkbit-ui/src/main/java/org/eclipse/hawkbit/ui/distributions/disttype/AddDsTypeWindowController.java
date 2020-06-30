@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,6 +27,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Add distribution set type window controller
+ */
 public class AddDsTypeWindowController extends AbstractEntityWindowController<ProxyType, ProxyType> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
@@ -37,6 +40,22 @@ public class AddDsTypeWindowController extends AbstractEntityWindowController<Pr
 
     private final DsTypeWindowLayout layout;
 
+    /**
+     * Constructor for AddDsTypeWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param dsTypeManagement
+     *          DistributionSetTypeManagement
+     * @param layout
+     *          DsTypeWindowLayout
+     */
     public AddDsTypeWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final DistributionSetTypeManagement dsTypeManagement, final DsTypeWindowLayout layout) {

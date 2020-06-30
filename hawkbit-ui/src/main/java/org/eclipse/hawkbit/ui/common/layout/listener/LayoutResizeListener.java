@@ -19,9 +19,22 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+/**
+ * Event listener for layout resize
+ */
 public class LayoutResizeListener extends ViewAwareListener {
     private final Map<EventLayout, Consumer<Boolean>> layoutResizeHandlers;
 
+    /**
+     * Constructor for LayoutResizeListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param viewAware
+     *          EventViewAware
+     * @param layoutResizeHandlers
+     *          layout with the resize handlers
+     */
     public LayoutResizeListener(final UIEventBus eventBus, final EventViewAware viewAware,
             final Map<EventLayout, Consumer<Boolean>> layoutResizeHandlers) {
         super(eventBus, CommandTopics.RESIZE_LAYOUT, viewAware);

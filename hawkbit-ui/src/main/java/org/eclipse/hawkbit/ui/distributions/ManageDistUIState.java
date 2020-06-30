@@ -36,18 +36,30 @@ public class ManageDistUIState implements Serializable {
         this.smTypeFilterLayoutUiState = new TypeFilterLayoutUiState();
     }
 
+    /**
+     * @return Distribution set type filter layout ui state
+     */
     public TypeFilterLayoutUiState getDsTypeFilterLayoutUiState() {
         return dsTypeFilterLayoutUiState;
     }
 
+    /**
+     * @return Distribution set grid layout ui state
+     */
     public GridLayoutUiState getDistributionSetGridLayoutUiState() {
         return distributionSetGridLayoutUiState;
     }
 
+    /**
+     * @return Software module grid layout ui state
+     */
     public GridLayoutUiState getSwModuleGridLayoutUiState() {
         return swModuleGridLayoutUiState;
     }
 
+    /**
+     * @return Software module type filter layout ui state
+     */
     public TypeFilterLayoutUiState getSmTypeFilterLayoutUiState() {
         return smTypeFilterLayoutUiState;
     }

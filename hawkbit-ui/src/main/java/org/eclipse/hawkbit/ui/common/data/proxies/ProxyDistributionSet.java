@@ -30,41 +30,98 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
 
     private boolean requiredMigrationStep;
 
+    /**
+     * Default constructor
+     */
     public ProxyDistributionSet() {
     }
 
+    /**
+     * Constructor for ProxyDistributionSet
+     *
+     * @param id
+     *         Id of distribution set
+     */
     public ProxyDistributionSet(final Long id) {
         super(id);
     }
 
+    /**
+     * Gets the nameVersion
+     *
+     * @return name of the version
+     */
     public String getNameVersion() {
         return nameVersion;
     }
 
+    /**
+     * Sets the name of the version
+     *
+     * @param nameVersion
+     *          name of the version
+     */
     public void setNameVersion(final String nameVersion) {
         this.nameVersion = nameVersion;
     }
 
+    /**
+     * Flag that indicates if the action is complete.
+     *
+     * @return <code>true</code> if the action is complete, otherwise
+     *         <code>false</code>
+     */
     public Boolean getIsComplete() {
         return isComplete;
     }
 
+    /**
+     * Sets the flag that indicates if the action is complete
+     *
+     * @param isComplete
+     *            <code>true</code> if the action is complete, otherwise
+     *            <code>false</code>
+     */
     public void setIsComplete(final Boolean isComplete) {
         this.isComplete = isComplete;
     }
 
+    /**
+     * Flag that indicates if the migration step is required.
+     *
+     * @return <code>true</code> if the action is complete, otherwise
+     *         <code>false</code>
+     */
     public boolean isRequiredMigrationStep() {
         return requiredMigrationStep;
     }
 
+    /**
+     * Sets the flag that indicates if the migration step is required
+     *
+     * @param requiredMigrationStep
+     *            <code>true</code> if th migration step is required, otherwise
+     *            <code>false</code>
+     */
     public void setRequiredMigrationStep(final boolean requiredMigrationStep) {
         this.requiredMigrationStep = requiredMigrationStep;
     }
 
+    /**
+     * Gets the proxyType
+     *
+     * @return proxyType
+     */
     public ProxyType getProxyType() {
         return proxyType;
     }
 
+    /**
+     * Sets the proxyType
+     *
+     * @param proxyType
+     *          ProxyType
+     */
     public void setProxyType(final ProxyType proxyType) {
         this.proxyType = proxyType;
     }
@@ -79,14 +136,33 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
         this.version = version;
     }
 
+    /**
+     * Gets the Id of type
+     *
+     * @return typeId
+     */
     public Long getTypeId() {
         return typeId;
     }
 
+    /**
+     * Sets the typeId
+     *
+     * @param typeId
+     *          Id of type
+     */
     public void setTypeId(final Long typeId) {
         this.typeId = typeId;
     }
 
+    /**
+     * Sets the Id, name and version of distribution set
+     *
+     * @param dsIdNameVersion
+     *          ProxyIdNameVersion
+     *
+     * @return proxy of distribution set
+     */
     public ProxyDistributionSet of(final ProxyIdNameVersion dsIdNameVersion) {
         final ProxyDistributionSet ds = new ProxyDistributionSet();
 
@@ -97,6 +173,11 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
         return ds;
     }
 
+    /**
+     * Gets the Id, Name and version of distribution set
+     *
+     * @return proxy of Id, Name and version
+     */
     public ProxyIdNameVersion getIdNameVersion() {
         return new ProxyIdNameVersion(getId(), getName(), getVersion());
     }

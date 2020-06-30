@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,14 +18,28 @@ public class ProxyFilterButton extends ProxyNamedEntity {
 
     private String colour;
 
+    /**
+     * Constructor to set default colour of button
+     */
     public ProxyFilterButton() {
         this.colour = DEFAULT_COLOR;
     }
 
+    /**
+     * Gets the button colour
+     *
+     * @return colour
+     */
     public String getColour() {
         return colour;
     }
 
+    /**
+     * Sets the colour
+     *
+     * @param colour
+     *          Button color
+     */
     public void setColour(final String colour) {
         this.colour = colour;
     }

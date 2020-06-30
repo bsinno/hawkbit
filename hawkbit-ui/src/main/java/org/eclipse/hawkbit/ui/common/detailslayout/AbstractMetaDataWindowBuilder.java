@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,8 +17,19 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Window;
 
+/**
+ * Abstract builder for Meta data window
+ *
+ * @param <F>
+ */
 public abstract class AbstractMetaDataWindowBuilder<F> extends AbstractEntityWindowBuilder<ProxyMetaData> {
 
+    /**
+     * Constructor for AbstractMetaDataWindowBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public AbstractMetaDataWindowBuilder(final VaadinMessageSource i18n) {
         super(i18n);
     }

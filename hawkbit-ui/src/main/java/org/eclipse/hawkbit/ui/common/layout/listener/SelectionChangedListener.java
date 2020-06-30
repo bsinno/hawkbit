@@ -21,9 +21,23 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+/**
+ * Event listener for selection changed
+ * @param <T>
+ */
 public class SelectionChangedListener<T extends ProxyIdentifiableEntity> extends LayoutViewAwareListener {
     private final List<MasterEntityAwareComponent<T>> masterEntityAwareComponents;
 
+    /**
+     * Constructor for SelectionChangedListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param layoutViewAware
+     *          EventLayoutViewAware
+     * @param masterEntityAwareComponents
+     *          List of master entity aware components
+     */
     public SelectionChangedListener(final UIEventBus eventBus, final EventLayoutViewAware layoutViewAware,
             final List<MasterEntityAwareComponent<T>> masterEntityAwareComponents) {
         super(eventBus, EventTopics.SELECTION_CHANGED, layoutViewAware);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -13,6 +13,11 @@ import java.util.function.Consumer;
 
 import com.vaadin.data.Binder;
 
+/**
+ * Abstract class for entity window layout
+ *
+ * @param <T>
+ */
 public abstract class AbstractEntityWindowLayout<T> implements EntityWindowLayout<T> {
 
     protected final Binder<T> binder;
@@ -39,6 +44,9 @@ public abstract class AbstractEntityWindowLayout<T> implements EntityWindowLayou
         this.validationCallback = validationCallback;
     }
 
+    /**
+     * @return Validation callback event
+     */
     public Optional<Consumer<Boolean>> getValidationCallback() {
         return Optional.ofNullable(validationCallback);
     }

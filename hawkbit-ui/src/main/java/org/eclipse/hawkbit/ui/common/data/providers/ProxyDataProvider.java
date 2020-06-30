@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,10 +27,24 @@ public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U ext
 
     private final transient IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> entityMapper;
 
+    /**
+     * Constructor for ProxyDataProvider with mapper
+     *
+     * @param mapper
+     *          IdentifiableEntityToProxyIdentifiableEntityMapper of generic type
+     */
     public ProxyDataProvider(final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> mapper) {
         this(mapper, new Sort(Direction.ASC, "id"));
     }
 
+    /**
+     * Constructor for ProxyDataProvider with mapper and sorting order
+     *
+     * @param mapper
+     *          IdentifiableEntityToProxyIdentifiableEntityMapper of generic type
+     * @param defaultSortOrder
+     *          Sort
+     */
     public ProxyDataProvider(final IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> mapper,
             final Sort defaultSortOrder) {
         super(defaultSortOrder);

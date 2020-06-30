@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,6 +17,9 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
+/**
+ * Close header support
+ */
 public class CloseHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
@@ -25,6 +28,16 @@ public class CloseHeaderSupport implements HeaderSupport {
 
     private final Button closeIcon;
 
+    /**
+     * Constructor for CloseHeaderSupport
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param closeIconId
+     *          Close icon id
+     * @param closeCallback
+     *          Runnable
+     */
     public CloseHeaderSupport(final VaadinMessageSource i18n, final String closeIconId, final Runnable closeCallback) {
         this.i18n = i18n;
 

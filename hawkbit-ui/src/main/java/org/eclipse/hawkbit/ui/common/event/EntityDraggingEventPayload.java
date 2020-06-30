@@ -36,10 +36,16 @@ public class EntityDraggingEventPayload {
         this.draggingEventType = draggingEventType;
     }
 
+    /**
+     * @return grid-ID of the grid
+     */
     public String getSourceGridId() {
         return sourceGridId;
     }
 
+    /**
+     * @return Dragging event type
+     */
     public DraggingEventType getDraggingEventType() {
         return draggingEventType;
     }

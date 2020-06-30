@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -52,11 +52,34 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
     private Registration singleSelectListenerRegistration;
     private Registration multiSelectListenerRegistration;
 
-    // For grids without selection support
+    /**
+     * Constructor for grids without selection support
+     *
+     * @param grid
+     *          Vaadin grid
+     */
     public SelectionSupport(final Grid<T> grid) {
         this(grid, null, null, null, null, null, null);
     }
 
+    /**
+     * Constructor for grids with selection support
+     *
+     * @param grid
+     *          Vaadin grid
+     * @param eventBus
+     *          UIEventBus
+     * @param layout
+     *         UIEventBus
+     * @param view
+     *          EventView
+     * @param mapIdToProxyEntityFunction
+     *          Function to map id to proxy entity
+     * @param selectedEntityIdUiStateProvider
+     *          Selected entity id provider
+     * @param setSelectedEntityIdUiStateCallback
+     *          Callback event to set selected entity id
+     */
     public SelectionSupport(final Grid<T> grid, final UIEventBus eventBus, final EventLayout layout,
             final EventView view, final LongFunction<Optional<T>> mapIdToProxyEntityFunction,
             final Supplier<Long> selectedEntityIdUiStateProvider,
@@ -71,6 +94,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         this.setSelectedEntityIdUiStateCallback = setSelectedEntityIdUiStateCallback;
     }
 
+    /**
+     * Disable the selection mode in grid
+     */
     public final void disableSelection() {
         grid.setSelectionMode(SelectionMode.NONE);
 
@@ -89,6 +115,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         }
     }
 
+    /**
+     * Enable the single selection in grid
+     */
     public final void enableSingleSelection() {
         grid.setSelectionMode(SelectionMode.SINGLE);
 
@@ -102,6 +131,15 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         });
     }
 
+    /**
+     * Send selection change event
+     *
+     * @param selectionType
+     *          SelectionChangedEventType
+     * @param itemToSend
+     *          selected item to send
+     *
+     */
     public void sendSelectionChangedEvent(final SelectionChangedEventType selectionType, final T itemToSend) {
         if (eventBus == null) {
             return;
@@ -127,6 +165,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         setSelectedEntityIdUiStateCallback.accept(selectedItemId);
     }
 
+    /**
+     * Enable multiple selection in grid
+     */
     public final void enableMultiSelection() {
         grid.setSelectionMode(SelectionMode.MULTI);
 
@@ -142,6 +183,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         });
     }
 
+    /**
+     * @return true if grid selection model is not enable else false
+     */
     public boolean isNoSelectionModel() {
         return grid.getSelectionModel() instanceof NoSelectionModel;
     }
@@ -150,10 +194,16 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         return grid.getSelectionModel() instanceof SingleSelectionModel;
     }
 
+    /**
+     * @return true if grid selection model is multi selection else false
+     */
     public boolean isMultiSelectionModel() {
         return grid.getSelectionModel() instanceof MultiSelectionModel;
     }
 
+    /**
+     * @return Selected items from the grid
+     */
     public Set<T> getSelectedItems() {
         if (isNoSelectionModel()) {
             return Collections.emptySet();
@@ -162,6 +212,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         return grid.getSelectedItems();
     }
 
+    /**
+     * @return Selected entity from the grid
+     */
     public Optional<T> getSelectedEntity() {
         final Set<T> selectedItems = getSelectedItems();
 
@@ -172,6 +225,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         return Optional.empty();
     }
 
+    /**
+     * @return Id of elected entity from the grid
+     */
     public Optional<Long> getSelectedEntityId() {
         if (isNoSelectionModel() && selectedEntityIdUiStateProvider != null) {
             return Optional.ofNullable(selectedEntityIdUiStateProvider.get());
@@ -204,6 +260,12 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         return false;
     }
 
+    /**
+     * Select the item in grid
+     *
+     * @param itemToSelect
+     *          Item for selection
+     */
     public void select(final T itemToSelect) {
         if (isNoSelectionModel()) {
             return;
@@ -212,6 +274,12 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         grid.select(itemToSelect);
     }
 
+    /**
+     * Select entity based on Id
+     *
+     * @param entityId
+     *          Entity id
+     */
     public void selectEntityById(final Long entityId) {
         if (isNoSelectionModel()) {
             return;
@@ -224,6 +292,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         mapIdToProxyEntityFunction.apply(entityId).ifPresent(this::select);
     }
 
+    /**
+     * Select all items or entities in the grid
+     */
     public void selectAll() {
         if (!isMultiSelectionModel()) {
             return;
@@ -232,6 +303,12 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         grid.asMultiSelect().selectAll();
     }
 
+    /**
+     * Deselect the item from the grid
+     *
+     * @param itemToDeselect
+     *          Item for selection
+     */
     public void deselect(final T itemToDeselect) {
         if (isNoSelectionModel()) {
             return;
@@ -253,6 +330,9 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
         }
     }
 
+    /**
+     * Restores the last selection
+     */
     public void restoreSelection() {
         if (selectedEntityIdUiStateProvider == null) {
             return;

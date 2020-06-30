@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,6 +32,14 @@ public class ActionDataProvider extends ProxyDataProvider<ProxyAction, Action, S
 
     private final transient DeploymentManagement deploymentManagement;
 
+    /**
+     * Constructor for ActionDataProvider
+     *
+     * @param deploymentManagement
+     *          DeploymentManagement
+     * @param entityMapper
+     *          ActionToProxyActionMapper
+     */
     public ActionDataProvider(final DeploymentManagement deploymentManagement,
             final ActionToProxyActionMapper entityMapper) {
         super(entityMapper, new Sort(Direction.DESC, "id"));

@@ -26,41 +26,96 @@ public class ProxyTargetFilterQuery extends ProxyNamedEntity implements DsIdAwar
 
     private ActionType autoAssignActionType;
 
+    /**
+     * Constructor
+     */
     public ProxyTargetFilterQuery() {
     }
 
+    /**
+     * Constructor for ProxyTargetFilterQuery
+     *
+     * @param id
+     *          Target filter query id
+     */
     public ProxyTargetFilterQuery(final Long id) {
         super(id);
     }
 
+    /**
+     * Gets the query
+     *
+     * @return query
+     */
     public String getQuery() {
         return query;
     }
 
+    /**
+     * Sets the query
+     *
+     * @param query
+     *         Target filter query
+     */
     public void setQuery(final String query) {
         this.query = query;
     }
 
+    /**
+     * Gets the autoAssignActionType
+     *
+     * @return autoAssignActionType
+     */
     public ActionType getAutoAssignActionType() {
         return autoAssignActionType;
     }
 
+    /**
+     * Sets the autoAssignActionType
+     *
+     * @param autoAssignActionType
+     *         ActionType
+     */
     public void setAutoAssignActionType(final ActionType autoAssignActionType) {
         this.autoAssignActionType = autoAssignActionType;
     }
 
+    /**
+     * Flag that indicates if the autoAssignment is enabled.
+     *
+     * @return <code>true</code> if the autoAssignment is enabled, otherwise
+     *         <code>false</code>
+     */
     public boolean isAutoAssignmentEnabled() {
         return isAutoAssignmentEnabled;
     }
 
+    /**
+     * Sets the flag that indicates if the autoAssignment is enabled.
+     *
+     * @param isAutoAssignmentEnabled
+     *            <code>true</code> if the autoAssignment is enabled, otherwise
+     *            <code>false</code>
+     */
     public void setAutoAssignmentEnabled(final boolean isAutoAssignmentEnabled) {
         this.isAutoAssignmentEnabled = isAutoAssignmentEnabled;
     }
 
+    /**
+     * Gets the autoAssign Distribution set IdNameVersion
+     *
+     * @return autoAssignDsIdNameVersion
+     */
     public ProxyIdNameVersion getAutoAssignDsIdNameVersion() {
         return autoAssignDsIdNameVersion;
     }
 
+    /**
+     * Sets the securityToken
+     *
+     * @param autoAssignDsIdNameVersion
+     *         Target filter autoAssign Distribution set IdNameVersion
+     */
     public void setAutoAssignDsIdNameVersion(final ProxyIdNameVersion autoAssignDsIdNameVersion) {
         this.autoAssignDsIdNameVersion = autoAssignDsIdNameVersion;
     }

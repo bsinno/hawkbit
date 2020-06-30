@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -31,6 +31,14 @@ public class DistributionSetStatelessDataProvider
 
     private final transient DistributionSetManagement distributionSetManagement;
 
+    /**
+     * Constructor for DistributionSetStatelessDataProvider
+     *
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param entityMapper
+     *          DistributionSetToProxyDistributionMapper
+     */
     public DistributionSetStatelessDataProvider(final DistributionSetManagement distributionSetManagement,
             final DistributionSetToProxyDistributionMapper entityMapper) {
         super(entityMapper, new Sort(Direction.ASC, "name", "version"));

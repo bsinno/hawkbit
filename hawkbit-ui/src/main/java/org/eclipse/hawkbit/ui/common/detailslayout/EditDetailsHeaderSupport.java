@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -18,6 +18,9 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
+/**
+ * Edit Detail header support
+ */
 public class EditDetailsHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
@@ -26,6 +29,15 @@ public class EditDetailsHeaderSupport implements HeaderSupport {
 
     private final Button editIcon;
 
+    /**Constructor for EditDetailsHeaderSupport
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param editIconId
+     *          Id of edit icon
+     * @param editItemCallback
+ *              Runnable
+     */
     public EditDetailsHeaderSupport(final VaadinMessageSource i18n, final String editIconId,
             final Runnable editItemCallback) {
         this.i18n = i18n;
@@ -52,10 +64,16 @@ public class EditDetailsHeaderSupport implements HeaderSupport {
         return editIcon;
     }
 
+    /**
+     * Enable edit icon
+     */
     public void enableEditIcon() {
         editIcon.setEnabled(true);
     }
 
+    /**
+     * Disable edit icon
+     */
     public void disableEditIcon() {
         editIcon.setEnabled(false);
     }

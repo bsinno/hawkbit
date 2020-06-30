@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,6 +28,14 @@ public class DistributionSetTagDataProvider extends ProxyDataProvider<ProxyTag, 
 
     private final transient DistributionSetTagManagement distributionSetTagManagement;
 
+    /**
+     * Constructor for DistributionSetTagDataProvider
+     *
+     * @param distributionSetTagManagement
+     *          DistributionSetTagManagement
+     * @param mapper
+     *          TagToProxyTagMapper of DistributionSetTag
+     */
     public DistributionSetTagDataProvider(final DistributionSetTagManagement distributionSetTagManagement,
             final TagToProxyTagMapper<DistributionSetTag> mapper) {
         super(mapper, new Sort(Direction.ASC, "name"));

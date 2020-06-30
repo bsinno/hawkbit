@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -39,6 +39,20 @@ public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<Pr
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
 
+    /**
+     * Constructor for DistributionSetsToTagAssignmentSupport
+     *
+     * @param notification
+     *          UINotification
+     * @param i18n
+     *          VaadinMessageSource
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param eventBus
+     *          UIEventBus
+     * @param permChecker
+     *          SpPermissionChecker
+     */
     public DistributionSetsToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus,
             final SpPermissionChecker permChecker) {

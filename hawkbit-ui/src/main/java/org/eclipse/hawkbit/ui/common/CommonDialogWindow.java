@@ -250,6 +250,13 @@ public class CommonDialogWindow extends Window {
         return mainLayout;
     }
 
+    /**
+     * Enables the save confirmation button
+     *
+     * @param enabled
+     *          boolean
+     *
+     */
     public void setSaveButtonEnabled(final boolean enabled) {
         confirmButton.setEnabled(enabled);
     }
@@ -258,6 +265,12 @@ public class CommonDialogWindow extends Window {
         cancelButton.setEnabled(enabled);
     }
 
+    /**
+     * Sets the close listener in save dialog
+     *
+     * @param closeListener
+     *          SaveDialogCloseListener
+     */
     public void setCloseListener(final SaveDialogCloseListener closeListener) {
         this.closeListener = closeListener;
     }

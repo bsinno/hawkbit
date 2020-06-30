@@ -18,6 +18,11 @@ import org.eclipse.hawkbit.ui.common.event.SelectionChangedEventPayload.Selectio
 import org.eclipse.hawkbit.ui.common.grid.support.SelectionSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 
+/**
+ * Support for Entity modified with selection aware
+ *
+ * @param <T>
+ */
 public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEntity>
         implements EntityModifiedAwareSupport {
     private final SelectionSupport<T> selectionSupport;
@@ -25,6 +30,18 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
     private final Predicate<T> shouldDeselectCallback;
     private final LongConsumer selectedEntityDeletedCallback;
 
+    /**
+     * Constructor for EntityModifiedSelectionAwareSupport
+     *
+     * @param selectionSupport
+     *          Selection support
+     * @param getFromBackendCallback
+     *          Backend callback
+     * @param shouldDeselectCallback
+     *          Deselect callback
+     * @param selectedEntityDeletedCallback
+     *          Delete callback for selected entity
+     */
     public EntityModifiedSelectionAwareSupport(final SelectionSupport<T> selectionSupport,
             final LongFunction<Optional<T>> getFromBackendCallback, final Predicate<T> shouldDeselectCallback,
             final LongConsumer selectedEntityDeletedCallback) {
@@ -34,23 +51,71 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
         this.selectedEntityDeletedCallback = selectedEntityDeletedCallback;
     }
 
+    /**
+     * @param selectionSupport
+     *          Selection support
+     * @param getFromBackendCallback
+     *          Backend callback
+     * @param <E>
+     *         Generic type support
+     *
+     * @return Support for Entity modified with selection aware
+     */
     public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
             final SelectionSupport<E> selectionSupport, final LongFunction<Optional<E>> getFromBackendCallback) {
         return of(selectionSupport, getFromBackendCallback, null, null);
     }
 
+    /**
+     * @param selectionSupport
+     *          Selection support
+     * @param getFromBackendCallback
+     *          Backend callback
+     * @param selectedEntityDeletedCallback
+     *          Delete callback for selected entity
+     * @param <E>
+     *          Generic type support
+     *
+     * @return Support for Entity modified with selection aware
+     */
     public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
             final SelectionSupport<E> selectionSupport, final LongFunction<Optional<E>> getFromBackendCallback,
             final LongConsumer selectedEntityDeletedCallback) {
         return of(selectionSupport, getFromBackendCallback, null, selectedEntityDeletedCallback);
     }
 
+    /**
+     * @param selectionSupport
+     *          Selection support
+     * @param getFromBackendCallback
+     *          Backend callback
+     * @param shouldDeselectCallback
+     *          Deselect callback
+     * @param <E>
+     *          Generic type support
+     *
+     * @return Support for Entity modified with selection aware
+     */
     public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
             final SelectionSupport<E> selectionSupport, final LongFunction<Optional<E>> getFromBackendCallback,
             final Predicate<E> shouldDeselectCallback) {
         return of(selectionSupport, getFromBackendCallback, shouldDeselectCallback, null);
     }
 
+    /**
+     * @param selectionSupport
+     *          Selection support
+     * @param getFromBackendCallback
+     *          Backend callback
+     * @param shouldDeselectCallback
+     *          Deselect callback
+     * @param selectedEntityDeletedCallback
+     *          Delete callback for selected entity
+     * @param <E>
+     *          Generic type support
+     *
+     * @return Support for Entity modified with selection aware
+     */
     public static <E extends ProxyIdentifiableEntity> EntityModifiedSelectionAwareSupport<E> of(
             final SelectionSupport<E> selectionSupport, final LongFunction<Optional<E>> getFromBackendCallback,
             final Predicate<E> shouldDeselectCallback, final LongConsumer selectedEntityDeletedCallback) {

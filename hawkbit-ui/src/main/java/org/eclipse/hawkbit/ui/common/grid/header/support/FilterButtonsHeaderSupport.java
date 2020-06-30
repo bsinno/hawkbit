@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,9 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
+/**
+ * Header support for filter button
+ */
 public class FilterButtonsHeaderSupport implements HeaderSupport {
     private final VaadinMessageSource i18n;
 
@@ -28,6 +31,18 @@ public class FilterButtonsHeaderSupport implements HeaderSupport {
 
     private final Button filterButtonsIcon;
 
+    /**
+     * Constructor for FilterButtonsHeaderSupport
+     *
+     * @param i18n
+     *          FilterButtonsHeaderSupport
+     * @param filterButtonsIconId
+     *          Filter button icon id
+     * @param showFilterButtonsLayoutCallback
+     *          Runnable
+     * @param filterButtonsStateSupplier
+     *          BooleanSupplier
+     */
     public FilterButtonsHeaderSupport(final VaadinMessageSource i18n, final String filterButtonsIconId,
             final Runnable showFilterButtonsLayoutCallback, final BooleanSupplier filterButtonsStateSupplier) {
         this.i18n = i18n;
@@ -56,10 +71,16 @@ public class FilterButtonsHeaderSupport implements HeaderSupport {
         showFilterButtonsLayoutCallback.run();
     }
 
+    /**
+     * Hide filter button icon
+     */
     public void hideFilterButtonsIcon() {
         filterButtonsIcon.setVisible(false);
     }
 
+    /**
+     * Show filter button icon
+     */
     public void showFilterButtonsIcon() {
         filterButtonsIcon.setVisible(true);
     }

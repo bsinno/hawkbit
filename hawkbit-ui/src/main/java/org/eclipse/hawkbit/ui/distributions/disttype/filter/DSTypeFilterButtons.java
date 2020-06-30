@@ -34,6 +34,8 @@ import com.vaadin.ui.Window;
 public class DSTypeFilterButtons extends AbstractTypeFilterButtons {
     private static final long serialVersionUID = 1L;
 
+    private static final String DS_SET_TYPE = "Distribution set Type";
+
     private final transient DistributionSetTypeManagement distributionSetTypeManagement;
     private final transient DsTypeWindowBuilder dsTypeWindowBuilder;
     private final transient SystemManagement systemManagement;
@@ -76,8 +78,7 @@ public class DSTypeFilterButtons extends AbstractTypeFilterButtons {
 
     @Override
     protected String getFilterButtonsType() {
-        // TODO: use constant
-        return i18n.getMessage("caption.entity.distribution.type");
+        return DS_SET_TYPE;
     }
 
     @Override

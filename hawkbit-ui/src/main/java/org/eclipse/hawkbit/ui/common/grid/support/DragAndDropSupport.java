@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -62,6 +62,20 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
 
     private boolean ignoreSelection;
 
+    /**
+     * Constructor for DragAndDropSupport
+     *
+     * @param grid
+     *          Vaadin Grid
+     * @param i18n
+     *          VaadinMessageSource
+     * @param notification
+     *          UINotification
+     * @param sourceTargetAssignmentStrategies
+     *          Key value pair of target and assignments
+     * @param eventBus
+     *          UIEventBus
+     */
     public DragAndDropSupport(final AbstractGrid<T, ?> grid, final VaadinMessageSource i18n,
             final UINotification notification,
             final Map<String, AssignmentSupport<?, T>> sourceTargetAssignmentStrategies, final UIEventBus eventBus) {
@@ -78,17 +92,26 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         this.ignoreSelection = false;
     }
 
-    // workaround for target/ds tags that currently do not support
-    // selection
+    /**
+     * workaround for target/ds tags that currently do not support selection
+     *
+     * @param ignoreSelection Set to true for distribution set and targets
+     */
     public void ignoreSelection(final boolean ignoreSelection) {
         this.ignoreSelection = ignoreSelection;
     }
 
+    /**
+     * Add Drag and drop support for source and target
+     */
     public void addDragAndDrop() {
         addDragSource();
         addDropTarget();
     }
 
+    /**
+     * Add drag option for source
+     */
     public void addDragSource() {
         if (!isGridValidForDragOrDrop(dragSource, DRAG_SOURCE)) {
             return;
@@ -112,6 +135,14 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         });
     }
 
+    /**
+     * @param dragOrDropExtension
+     *          AbstractExtension
+     * @param dragOrDropDescription
+     *          Description for drag and drop
+     *
+     * @return true if grid supports drag and drop else false
+     */
     private boolean isGridValidForDragOrDrop(final AbstractExtension dragOrDropExtension,
             final String dragOrDropDescription) {
         if (!ignoreSelection && !grid.hasSelectionSupport()) {
@@ -145,6 +176,9 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         notification.displayValidationError(i18n.getMessage(UIMessageIdProvider.MESSAGE_ACTION_NOT_ALLOWED));
     }
 
+    /**
+     * Add drop option for target
+     */
     public void addDropTarget() {
         if (!isGridValidForDragOrDrop(dropTarget, DROP_TARGET)) {
             return;
@@ -205,11 +239,17 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         return true;
     }
 
+    /**
+     * Remove Drag and drop support for source and target
+     */
     public void removeDragAndDrop() {
         removeDragSource();
         removeDropTarget();
     }
 
+    /**
+     * Remove drag option for source
+     */
     public void removeDragSource() {
         if (dragSource != null) {
             dragSource.remove();
@@ -217,6 +257,9 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
         }
     }
 
+    /**
+     * Remove drag option for target
+     */
     public void removeDropTarget() {
         if (dropTarget != null) {
             dropTarget.remove();

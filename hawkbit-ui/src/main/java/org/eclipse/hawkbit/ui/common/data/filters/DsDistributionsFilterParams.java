@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,6 +22,9 @@ public class DsDistributionsFilterParams implements Serializable {
     private String searchText;
     private Long dsTypeId;
 
+    /**
+     * Constructor for DsDistributionsFilterParams
+     */
     public DsDistributionsFilterParams() {
         this(null, null);
     }
@@ -30,25 +33,47 @@ public class DsDistributionsFilterParams implements Serializable {
      * Constructor.
      * 
      * @param searchText
+     *          String
      * @param dsTypeId
+     *          Long
      */
     public DsDistributionsFilterParams(final String searchText, final Long dsTypeId) {
         this.searchText = searchText;
         this.dsTypeId = dsTypeId;
     }
 
+    /**
+     * Gets the searchText
+     *
+     * @return SearchText
+     */
     public String getSearchText() {
         return searchText;
     }
 
+    /**
+     * Sets the SearchText
+     *
+     * @param searchText
+     *          String
+     */
     public void setSearchText(final String searchText) {
         this.searchText = !StringUtils.isEmpty(searchText) ? String.format("%%%s%%", searchText) : null;
     }
 
+    /**
+     * @return DsTypeId
+     */
     public Long getDsTypeId() {
         return dsTypeId;
     }
 
+    /**
+     * Setter for DsTypeId
+     *
+     * @param dsTypeId
+     *          Long
+     */
     public void setDsTypeId(final Long dsTypeId) {
         this.dsTypeId = dsTypeId;
     }

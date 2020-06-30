@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,10 +27,21 @@ public class ProxyAdvancedRolloutGroup implements Serializable, TargetFilterQuer
     private String errorThresholdPercentage;
     private Long targetsCount;
 
+    /**
+     * Gets the name of the group
+     *
+     * @return groupName
+     */
     public String getGroupName() {
         return groupName;
     }
 
+    /**
+     * Sets the groupName
+     *
+     * @param groupName
+     *          name of the group
+     */
     public void setGroupName(final String groupName) {
         this.groupName = groupName;
     }
@@ -55,26 +66,59 @@ public class ProxyAdvancedRolloutGroup implements Serializable, TargetFilterQuer
         this.targetFilterId = targetFilterId;
     }
 
+    /**
+     * Gets the percentage of the target
+     *
+     * @return targetPercentage
+     */
     public Float getTargetPercentage() {
         return targetPercentage;
     }
 
+    /**
+     * Sets the targetPercentage
+     *
+     * @param targetPercentage
+     *          percentage of the target
+     */
     public void setTargetPercentage(final Float targetPercentage) {
         this.targetPercentage = targetPercentage;
     }
 
+    /**
+     * Gets the percentage of the TriggerThreshold
+     *
+     * @return triggerThresholdPercentage
+     */
     public String getTriggerThresholdPercentage() {
         return triggerThresholdPercentage;
     }
 
+    /**
+     * Sets the triggerThresholdPercentage
+     *
+     * @param triggerThresholdPercentage
+     *          percentage of the triggerThreshold
+     */
     public void setTriggerThresholdPercentage(final String triggerThresholdPercentage) {
         this.triggerThresholdPercentage = triggerThresholdPercentage;
     }
 
+    /**
+     * Gets the percentage of the errorThreshold
+     *
+     * @return errorThresholdPercentage
+     */
     public String getErrorThresholdPercentage() {
         return errorThresholdPercentage;
     }
 
+    /**
+     * Sets the errorThresholdPercentage
+     *
+     * @param errorThresholdPercentage
+     *          percentage of the errorThreshold
+     */
     public void setErrorThresholdPercentage(final String errorThresholdPercentage) {
         this.errorThresholdPercentage = errorThresholdPercentage;
     }

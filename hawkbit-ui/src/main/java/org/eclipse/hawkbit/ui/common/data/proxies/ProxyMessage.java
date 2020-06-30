@@ -20,6 +20,9 @@ public class ProxyMessage extends ProxyIdentifiableEntity {
 
     private String message;
 
+    /**
+     * Constructor for ProxyMessage
+     */
     public ProxyMessage() {
         super(new SecureRandom().nextLong());
     }

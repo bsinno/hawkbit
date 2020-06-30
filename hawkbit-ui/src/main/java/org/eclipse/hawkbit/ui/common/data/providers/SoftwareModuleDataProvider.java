@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,6 +32,14 @@ public class SoftwareModuleDataProvider
 
     private final transient SoftwareModuleManagement softwareModuleManagement;
 
+    /**
+     * Constructor for SoftwareModuleDataProvider
+     *
+     * @param softwareModuleManagement
+     *          SoftwareModuleManagement
+     * @param entityMapper
+     *          AssignedSoftwareModuleToProxyMapper
+     */
     public SoftwareModuleDataProvider(final SoftwareModuleManagement softwareModuleManagement,
             final AssignedSoftwareModuleToProxyMapper entityMapper) {
         super(entityMapper, Sort.by(Direction.ASC, "name", "version"));

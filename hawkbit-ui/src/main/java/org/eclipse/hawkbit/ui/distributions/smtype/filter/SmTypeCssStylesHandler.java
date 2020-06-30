@@ -14,13 +14,25 @@ import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 
 import com.vaadin.server.Page;
 
+/**
+ * Css style handler for software module type
+ */
 public class SmTypeCssStylesHandler {
     private final SoftwareModuleTypeManagement softwareModuleTypeManagement;
 
+    /**
+     * Constructor for SmTypeCssStylesHandler
+     *
+     * @param softwareModuleTypeManagement
+     *          SoftwareModuleTypeManagement
+     */
     public SmTypeCssStylesHandler(final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
     }
 
+    /**
+     * Update css styling od software module type
+     */
     public void updateSmTypeStyles() {
         final String recreateStylesheetScript = String.format("const stylesheet = recreateStylesheet('%s').sheet;",
                 UIComponentIdProvider.SM_TYPE_COLOR_STYLE);

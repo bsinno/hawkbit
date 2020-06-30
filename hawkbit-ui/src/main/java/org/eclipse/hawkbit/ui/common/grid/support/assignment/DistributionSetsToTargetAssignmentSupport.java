@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,6 +37,22 @@ public class DistributionSetsToTargetAssignmentSupport
 
     private final DeploymentAssignmentWindowController assignmentController;
 
+    /**
+     * Constructor for DistributionSetsToTargetAssignmentSupport
+     *
+     * @param notification
+     *          UINotification
+     * @param i18n
+     *          VaadinMessageSource
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     * @param configManagement
+     *          TenantConfigurationManagement
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param assignmentController
+     *          DeploymentAssignmentWindowController
+     */
     public DistributionSetsToTargetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final SystemSecurityContext systemSecurityContext, final TenantConfigurationManagement configManagement,
             final SpPermissionChecker permChecker, final DeploymentAssignmentWindowController assignmentController) {

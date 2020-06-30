@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Window;
 
+/**
+ * Builder for DistributionSet meta data window
+ */
 public class DsMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long> {
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -27,6 +30,22 @@ public class DsMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
 
     private final DistributionSetManagement dsManagement;
 
+    /**
+     * Constructor for DsMetaDataWindowBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param dsManagement
+     *         DistributionSetManagement
+     */
     public DsMetaDataWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SpPermissionChecker permChecker,
             final DistributionSetManagement dsManagement) {
@@ -40,12 +59,30 @@ public class DsMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
         this.dsManagement = dsManagement;
     }
 
+    /**
+     * @param dsId
+     *          Distribution set id
+     * @param name
+     *          Distribution set name
+     *
+     * @return Dialog window
+     */
     public Window getWindowForShowDsMetaData(final Long dsId, final String name) {
         return getWindowForShowMetaData(
                 new DsMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification, entityFactory, dsManagement),
                 dsId, name, null);
     }
 
+    /**
+     * @param dsId
+     *          Distribution set id
+     * @param name
+     *          Distribution set name
+     * @param proxyMetaData
+     *          Meta data
+     *
+     * @return Dialog window
+     */
     public Window getWindowForShowDsMetaData(final Long dsId, final String name, final ProxyMetaData proxyMetaData) {
         return getWindowForShowMetaData(
                 new DsMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification, entityFactory, dsManagement),

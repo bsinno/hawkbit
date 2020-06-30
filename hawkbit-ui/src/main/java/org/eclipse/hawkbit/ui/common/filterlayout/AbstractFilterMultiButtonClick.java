@@ -46,27 +46,51 @@ public abstract class AbstractFilterMultiButtonClick<T extends ProxyNamedEntity>
                 && previouslyClickedFilterIdsWithName.containsKey(clickedFilter.getId());
     }
 
+    /**
+     * Sets the filter name with the corresponding id
+     *
+     * @param idsWithName
+     *          Filter key value pair with id and name
+     */
     public void setPreviouslyClickedFilterIdsWithName(final Map<Long, String> idsWithName) {
         this.previouslyClickedFilterIdsWithName.clear();
         this.previouslyClickedFilterIdsWithName.putAll(idsWithName);
     }
 
+    /**
+     * @return Previously clicked Filter with id and name
+     */
     public Map<Long, String> getPreviouslyClickedFilterIdsWithName() {
         return previouslyClickedFilterIdsWithName;
     }
 
+    /**
+     * Removes all the previously stored filters from the map
+     */
     public void clearPreviouslyClickedFilters() {
         previouslyClickedFilterIdsWithName.clear();
     }
 
+    /**
+     * Removes the previously clicked filter
+     *
+     * @param filterId
+     *          Id of filter
+     */
     public void removePreviouslyClickedFilter(final Long filterId) {
         previouslyClickedFilterIdsWithName.remove(filterId);
     }
 
+    /**
+     * @return Total count of previously clicked filter
+     */
     public int getPreviouslyClickedFiltersSize() {
         return previouslyClickedFilterIdsWithName.size();
     }
 
+    /**
+     * @return List of all previously clicked filter ids
+     */
     public Set<Long> getPreviouslyClickedFilterIds() {
         return previouslyClickedFilterIdsWithName.keySet();
     }

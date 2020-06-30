@@ -164,6 +164,14 @@ public class NotificationUnreadButton extends Button {
         refreshCaption();
     }
 
+    /**
+     * Increments the unread notifications
+     *
+     * @param entityNotificationMsgKey
+     *          Key value for notification message
+     * @param eventPayload
+     *          EntityModifiedEventPayload
+     */
     public void incrementUnreadNotification(final String entityNotificationMsgKey,
             final EntityModifiedEventPayload eventPayload) {
         remotelyOriginatedEventsStore.merge(entityNotificationMsgKey, eventPayload,

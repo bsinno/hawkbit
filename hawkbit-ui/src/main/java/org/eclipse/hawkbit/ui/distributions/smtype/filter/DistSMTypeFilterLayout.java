@@ -112,10 +112,16 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
         return wrapFilterContent(smTypeFilterButtons);
     }
 
+    /**
+     * Restore the software module type filter button
+     */
     public void restoreState() {
         smTypeFilterButtons.restoreState();
     }
 
+    /**
+     * Unsubscribe the event listener
+     */
     public void unsubscribeListener() {
         gridActionsVisibilityListener.unsubscribe();
         entityModifiedListener.unsubscribe();

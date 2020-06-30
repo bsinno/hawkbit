@@ -20,6 +20,12 @@ public class TypeFilterButtonClick extends AbstractFilterSingleButtonClick<Proxy
 
     private final transient BiConsumer<ProxyType, ClickBehaviourType> filterChangedCallback;
 
+    /**
+     * Constructor for TypeFilterButtonClick
+     *
+     * @param filterChangedCallback
+     *          Callback event of ClickBehaviourType
+     */
     public TypeFilterButtonClick(final BiConsumer<ProxyType, ClickBehaviourType> filterChangedCallback) {
         this.filterChangedCallback = filterChangedCallback;
     }

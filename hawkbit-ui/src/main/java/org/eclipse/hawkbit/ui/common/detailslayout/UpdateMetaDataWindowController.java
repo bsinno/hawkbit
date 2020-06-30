@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,6 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+/**
+ * Controller for update meta data window
+ */
 public class UpdateMetaDataWindowController extends AbstractEntityWindowController<ProxyMetaData, ProxyMetaData> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateMetaDataWindowController.class);
 
@@ -33,6 +36,21 @@ public class UpdateMetaDataWindowController extends AbstractEntityWindowControll
     private final Function<ProxyMetaData, MetaData> updateMetaDataCallback;
     private final Consumer<ProxyMetaData> saveMetaDataCallback;
 
+    /**
+     * Constructor for UpdateMetaDataWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+ *              UINotification
+     * @param layout
+     *          MetaDataAddUpdateWindowLayout
+     * @param updateMetaDataCallback
+     *          Update meta data call back function for event listener
+     * @param saveMetaDataCallback
+     *          Save meta data call back event listener
+     *
+     */
     public UpdateMetaDataWindowController(final VaadinMessageSource i18n, final UINotification uiNotification,
             final MetaDataAddUpdateWindowLayout layout, final Function<ProxyMetaData, MetaData> updateMetaDataCallback,
             final Consumer<ProxyMetaData> saveMetaDataCallback) {
@@ -74,9 +92,8 @@ public class UpdateMetaDataWindowController extends AbstractEntityWindowControll
             updatedMetaData = updateMetaDataCallback.apply(entity);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of meta data failed in UI: {}", e.getMessage());
-            // TODO: use i18n
             uiNotification.displayWarning(
-                    "Metadata with key " + entity.getKey() + " was deleted or you are not allowed to update it");
+                    i18n.getMessage("message.key.deleted.or.notAllowed", "Metadata", entity.getKey()));
             return;
         }
 

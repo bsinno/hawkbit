@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -30,6 +30,18 @@ public abstract class AbstractDetailsHeader<T> extends AbstractMasterAwareGridHe
 
     protected transient T selectedEntity;
 
+    /**
+     * Constructor for AbstractDetailsHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     */
     public AbstractDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification) {
         super(i18n, permChecker, eventBus);

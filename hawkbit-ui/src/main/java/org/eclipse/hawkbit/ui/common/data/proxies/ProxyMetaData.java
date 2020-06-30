@@ -23,38 +23,87 @@ public class ProxyMetaData extends ProxyIdentifiableEntity {
     private Long entityId;
     private boolean isTargetVisible;
 
+    /**
+     * Constructor for ProxyMetaData
+     */
     public ProxyMetaData() {
         super(new SecureRandom().nextLong());
     }
 
+    /**
+     * Gets the key
+     *
+     * @return key
+     */
     public String getKey() {
         return key;
     }
 
+    /**
+     * Sets the key
+     *
+     * @param key
+     *          Key of entity
+     */
     public void setKey(final String key) {
         this.key = key;
     }
 
+    /**
+     * Gets the value
+     *
+     * @return value
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * Sets the value
+     *
+     * @param value
+     *          Value correspondent to entity key
+     */
     public void setValue(final String value) {
         this.value = value;
     }
 
+    /**
+     * Gets the id of entity
+     *
+     * @return entityId
+     */
     public Long getEntityId() {
         return entityId;
     }
 
+    /**
+     * Sets the entityId
+     *
+     * @param entityId
+     *          id of entity
+     */
     public void setEntityId(final Long entityId) {
         this.entityId = entityId;
     }
 
+    /**
+     * Flag that indicates if the target is visible.
+     *
+     * @return <code>true</code> if the target is visible, otherwise
+     *         <code>false</code>
+     */
     public boolean isTargetVisible() {
         return isTargetVisible;
     }
 
+    /**
+     * Sets the flag that indicates if the target is visible.
+     *
+     * @param isTargetVisible
+     *            <code>true</code> if the target is visible, otherwise
+     *            <code>false</code>
+     */
     public void setTargetVisible(final boolean isTargetVisible) {
         this.isTargetVisible = isTargetVisible;
     }

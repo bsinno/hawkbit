@@ -16,6 +16,11 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.grid.support.PinSupport;
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 
+/**
+ * Support for Entity modified with pinned aware
+ *
+ * @param <T>
+ */
 public class EntityModifiedPinAwareSupport<T extends ProxyIdentifiableEntity> implements EntityModifiedAwareSupport {
     private final PinSupport<T, ?> pinSupport;
 
@@ -25,6 +30,20 @@ public class EntityModifiedPinAwareSupport<T extends ProxyIdentifiableEntity> im
     private final LongFunction<Optional<T>> getFromBackendCallback;
     private final Predicate<T> shouldUnpinnOnUpdateCallback;
 
+    /**
+     * Constructor for EntityModifiedPinAwareSupport
+     *
+     * @param pinSupport
+ *              Pin support
+     * @param shouldUpdatePinStylingOnUpdate
+     *          Configure pin styling on update
+     * @param shouldReApplyPinningOnUpdate
+     *          Configure pin reapply on update
+     * @param getFromBackendCallback
+     *          Backend callback
+     * @param shouldUnpinnOnUpdateCallback
+     *          Unpin on update callback
+     */
     public EntityModifiedPinAwareSupport(final PinSupport<T, ?> pinSupport,
             final boolean shouldUpdatePinStylingOnUpdate, final boolean shouldReApplyPinningOnUpdate,
             final LongFunction<Optional<T>> getFromBackendCallback, final Predicate<T> shouldUnpinnOnUpdateCallback) {
@@ -37,6 +56,18 @@ public class EntityModifiedPinAwareSupport<T extends ProxyIdentifiableEntity> im
         this.shouldUnpinnOnUpdateCallback = shouldUnpinnOnUpdateCallback;
     }
 
+    /**
+     * @param pinSupport
+     *          Pin support
+     * @param shouldUpdatePinStylingOnUpdate
+     *          Configure pin styling on update
+     * @param shouldReApplyPinningOnUpdate
+     *          Configure pin reapply on update
+     * @param <E>
+     *          Generic type support
+     *
+     * @return Support for Entity modified with pinned aware
+     */
     public static <E extends ProxyIdentifiableEntity> EntityModifiedPinAwareSupport<E> of(
             final PinSupport<E, ?> pinSupport, final boolean shouldUpdatePinStylingOnUpdate,
             final boolean shouldReApplyPinningOnUpdate) {
@@ -44,6 +75,18 @@ public class EntityModifiedPinAwareSupport<T extends ProxyIdentifiableEntity> im
                 shouldReApplyPinningOnUpdate, null, null);
     }
 
+    /**
+     * @param pinSupport
+     *          Pin support
+     * @param getFromBackendCallback
+     *          Backend callback
+     * @param shouldUnpinnOnUpdateCallback
+     *          Unpin on update callback
+     * @param <E>
+     *          Generic type support
+     *
+     * @return  Support for Entity modified with pinned aware
+     */
     public static <E extends ProxyIdentifiableEntity> EntityModifiedPinAwareSupport<E> of(
             final PinSupport<E, ?> pinSupport, final LongFunction<Optional<E>> getFromBackendCallback,
             final Predicate<E> shouldUnpinnOnUpdateCallback) {

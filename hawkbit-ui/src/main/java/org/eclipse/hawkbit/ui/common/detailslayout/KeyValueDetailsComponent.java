@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.hawkbit.ui.common.detailslayout;
 
 import java.util.Collections;
@@ -12,11 +20,17 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+/**
+ * key value detail to component layout
+ */
 public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDetails>> {
     private static final long serialVersionUID = 1L;
 
     private final VerticalLayout keyValueDetailsLayout;
 
+    /**
+     * Constructor for KeyValueDetailsComponent
+     */
     public KeyValueDetailsComponent() {
         keyValueDetailsLayout = new VerticalLayout();
         keyValueDetailsLayout.setSpacing(true);
@@ -90,6 +104,9 @@ public class KeyValueDetailsComponent extends CustomField<List<ProxyKeyValueDeta
         return valueLabel;
     }
 
+    /**
+     * Disable the spacing in keyValueDetailsLayout
+     */
     public void disableSpacing() {
         keyValueDetailsLayout.setSpacing(false);
     }

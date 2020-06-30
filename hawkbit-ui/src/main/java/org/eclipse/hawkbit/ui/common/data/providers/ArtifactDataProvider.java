@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -29,6 +29,14 @@ public class ArtifactDataProvider extends ProxyDataProvider<ProxyArtifact, Artif
 
     private final transient ArtifactManagement artifactManagement;
 
+    /**
+     * Constructor for ArtifactDataProvider
+     *
+     * @param artifactManagement
+     *          ArtifactManagement
+     * @param entityMapper
+     *          ArtifactToProxyArtifactMapper
+     */
     public ArtifactDataProvider(final ArtifactManagement artifactManagement,
             final ArtifactToProxyArtifactMapper entityMapper) {
         super(entityMapper, new Sort(Direction.DESC, "filename"));

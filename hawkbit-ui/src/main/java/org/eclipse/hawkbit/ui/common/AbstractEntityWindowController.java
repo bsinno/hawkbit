@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -10,14 +10,29 @@ package org.eclipse.hawkbit.ui.common;
 
 import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
 
+/**
+ * Controller for abstract entity window
+ *
+ * @param <T>
+ * @param <E>
+ */
 public abstract class AbstractEntityWindowController<T, E> {
 
+    /**
+     * Populate entity with data
+     *
+     * @param proxyEntity
+     *          Generic type entity
+     */
     public void populateWithData(final T proxyEntity) {
         getLayout().setEntity(buildEntityFromProxy(proxyEntity));
 
         adaptLayout(proxyEntity);
     }
 
+    /**
+     * @return layout
+     */
     public abstract EntityWindowLayout<E> getLayout();
 
     protected abstract E buildEntityFromProxy(final T proxyEntity);
@@ -27,6 +42,9 @@ public abstract class AbstractEntityWindowController<T, E> {
         // fields, adapt bindings, etc.)
     }
 
+    /**
+     * @return Save dialog close listener
+     */
     public SaveDialogCloseListener getSaveDialogCloseListener() {
         return new SaveDialogCloseListener() {
             @Override
