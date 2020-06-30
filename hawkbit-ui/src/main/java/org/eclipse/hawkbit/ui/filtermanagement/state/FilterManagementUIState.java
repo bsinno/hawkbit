@@ -13,12 +13,18 @@ import java.io.Serializable;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 
+/**
+ * Filter management ui state
+ */
 @VaadinSessionScope
 @SpringComponent
 public class FilterManagementUIState implements Serializable {
 
     private static final long serialVersionUID = 2477103280605559284L;
 
+    /**
+     * Constants for filter view
+     */
     public enum FilterView {
         FILTERS, DETAILS
     }
@@ -34,18 +40,33 @@ public class FilterManagementUIState implements Serializable {
         this.detailsLayoutUiState = new TargetFilterDetailsLayoutUiState();
     }
 
+    /**
+     * @return Current filter view
+     */
     public FilterView getCurrentView() {
         return currentView;
     }
 
+    /**
+     * Sets the current filter view
+     *
+     * @param currentView
+     *          FilterView
+     */
     public void setCurrentView(final FilterView currentView) {
         this.currentView = currentView;
     }
 
+    /**
+     * @return Target filter grid layout ui state
+     */
     public TargetFilterGridLayoutUiState getGridLayoutUiState() {
         return gridLayoutUiState;
     }
 
+    /**
+     * @return Target filter details layout ui state
+     */
     public TargetFilterDetailsLayoutUiState getDetailsLayoutUiState() {
         return detailsLayoutUiState;
     }

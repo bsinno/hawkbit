@@ -107,10 +107,16 @@ public class SuggestionsSelectList extends MenuBar {
             this.end = end;
         }
 
+        /**
+         * @return Token start index
+         */
         public int getStart() {
             return start;
         }
 
+        /**
+         * @return Token end index
+         */
         public int getEnd() {
             return end;
         }
