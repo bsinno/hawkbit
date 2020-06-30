@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2015 Bosch Software Innovations GmbH and others.
- *
+ * <p>
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.repository.jpa;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.builder.ActionStatusBuilder;
+import org.eclipse.hawkbit.repository.builder.DirectoryGroupBuilder;
 import org.eclipse.hawkbit.repository.builder.DistributionSetBuilder;
 import org.eclipse.hawkbit.repository.builder.DistributionSetTypeBuilder;
 import org.eclipse.hawkbit.repository.builder.RolloutBuilder;
@@ -21,6 +22,7 @@ import org.eclipse.hawkbit.repository.builder.TagBuilder;
 import org.eclipse.hawkbit.repository.builder.TargetBuilder;
 import org.eclipse.hawkbit.repository.builder.TargetFilterQueryBuilder;
 import org.eclipse.hawkbit.repository.jpa.builder.JpaActionStatusBuilder;
+import org.eclipse.hawkbit.repository.jpa.builder.JpaDirectoryGroupBuilder;
 import org.eclipse.hawkbit.repository.jpa.builder.JpaRolloutGroupBuilder;
 import org.eclipse.hawkbit.repository.jpa.builder.JpaSoftwareModuleTypeBuilder;
 import org.eclipse.hawkbit.repository.jpa.builder.JpaTagBuilder;
@@ -80,6 +82,11 @@ public class JpaEntityFactory implements EntityFactory {
     @Override
     public TargetBuilder target() {
         return new JpaTargetBuilder();
+    }
+
+    @Override
+    public DirectoryGroupBuilder directoryGroup() {
+        return new JpaDirectoryGroupBuilder();
     }
 
     @Override

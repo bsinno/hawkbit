@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.artifact.repository.ArtifactRepository;
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.ControllerManagement;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.DirectoryGroupManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
@@ -508,12 +509,13 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
             final DistributionSetRepository distributionSetRepository,
             final TargetFilterQueryRepository targetFilterQueryRepository,
             final TargetTagRepository targetTagRepository, final NoCountPagingRepository criteriaNoCountDao,
+            final DirectoryGroupRepository directoryGroupRepository,
             final EventPublisherHolder eventPublisherHolder, final TenantAware tenantAware,
             final AfterTransactionCommitExecutor afterCommit, final VirtualPropertyReplacer virtualPropertyReplacer,
             final JpaProperties properties) {
         return new JpaTargetManagement(entityManager, quotaManagement, targetRepository, targetMetadataRepository,
                 rolloutGroupRepository, distributionSetRepository, targetFilterQueryRepository, targetTagRepository,
-                criteriaNoCountDao, eventPublisherHolder, tenantAware, afterCommit, virtualPropertyReplacer,
+                criteriaNoCountDao, directoryGroupRepository, eventPublisherHolder, tenantAware, afterCommit, virtualPropertyReplacer,
                 properties.getDatabase());
     }
 
@@ -560,6 +562,18 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
             final JpaProperties properties) {
         return new JpaTargetTagManagement(targetTagRepository, targetRepository, virtualPropertyReplacer,
                 properties.getDatabase());
+    }
+
+    /**
+     * {@link JpaDirectoryGroupManagement} bean.
+     *
+     * @return a new {@link DirectoryGroupManagement}
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    DirectoryGroupManagement directoryGroupManagement(final DirectoryGroupRepository directoryGroupRepository,
+                                                      final VirtualPropertyReplacer virtualPropertyReplacer, final JpaProperties properties) {
+        return new JpaDirectoryGroupManagement(directoryGroupRepository, virtualPropertyReplacer, properties.getDatabase());
     }
 
     /**
@@ -765,7 +779,7 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
 
     /**
      * {@link AutoAssignScheduler} bean.
-     * 
+     *
      * Note: does not activate in test profile, otherwise it is hard to test the
      * auto assign functionality.
      *
@@ -795,12 +809,12 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
 
     /**
      * {@link AutoActionCleanup} bean.
-     * 
+     *
      * @param deploymentManagement
      *            Deployment management service
      * @param configManagement
      *            Tenant configuration service
-     * 
+     *
      * @return a new {@link AutoActionCleanup} bean
      */
     @Bean
@@ -811,7 +825,7 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
 
     /**
      * {@link AutoCleanupScheduler} bean.
-     * 
+     *
      * @param systemManagement
      *            to find all tenants
      * @param systemSecurityContext
@@ -820,7 +834,7 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
      *            to lock the tenant for auto assignment
      * @param cleanupTasks
      *            a list of cleanup tasks
-     * 
+     *
      * @return a new {@link AutoCleanupScheduler} bean
      */
     @Bean
@@ -835,10 +849,10 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
 
     /**
      * {@link RolloutScheduler} bean.
-     * 
+     *
      * Note: does not activate in test profile, otherwise it is hard to test the
      * rollout handling functionality.
-     * 
+     *
      * @param systemManagement
      *            to find all tenants
      * @param rolloutManagement

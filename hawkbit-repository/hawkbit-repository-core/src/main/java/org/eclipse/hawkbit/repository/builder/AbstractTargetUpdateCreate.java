@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.ValidString;
 import org.eclipse.hawkbit.repository.exception.InvalidTargetAddressException;
+import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.springframework.util.StringUtils;
 
@@ -33,6 +34,7 @@ public class AbstractTargetUpdateCreate<T> extends AbstractNamedEntityBuilder<T>
 
     protected Long lastTargetQuery;
     protected TargetUpdateStatus status;
+    protected DirectoryGroup directoryGroup;
 
     protected  Boolean requestAttributes;
 
@@ -71,6 +73,11 @@ public class AbstractTargetUpdateCreate<T> extends AbstractNamedEntityBuilder<T>
 
     public T lastTargetQuery(final Long lastTargetQuery) {
         this.lastTargetQuery = lastTargetQuery;
+        return (T) this;
+    }
+
+    public T directoryGroup(final DirectoryGroup directoryGroup) {
+        this.directoryGroup = directoryGroup;
         return (T) this;
     }
 

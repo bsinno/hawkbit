@@ -24,6 +24,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import org.eclipse.hawkbit.repository.FilterParams;
 import org.eclipse.hawkbit.repository.QuotaManagement;
@@ -42,6 +44,7 @@ import org.eclipse.hawkbit.repository.jpa.builder.JpaTargetCreate;
 import org.eclipse.hawkbit.repository.jpa.builder.JpaTargetUpdate;
 import org.eclipse.hawkbit.repository.jpa.configuration.Constants;
 import org.eclipse.hawkbit.repository.jpa.executor.AfterTransactionCommitExecutor;
+import org.eclipse.hawkbit.repository.jpa.model.JpaDirectoryGroup;
 import org.eclipse.hawkbit.repository.jpa.model.JpaDistributionSet_;
 import org.eclipse.hawkbit.repository.jpa.model.JpaTarget;
 import org.eclipse.hawkbit.repository.jpa.model.JpaTargetMetadata;
@@ -53,6 +56,7 @@ import org.eclipse.hawkbit.repository.jpa.rsql.RSQLUtility;
 import org.eclipse.hawkbit.repository.jpa.specifications.SpecificationsBuilder;
 import org.eclipse.hawkbit.repository.jpa.specifications.TargetSpecifications;
 import org.eclipse.hawkbit.repository.jpa.utils.QuotaHelper;
+import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.MetaData;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
@@ -106,6 +110,8 @@ public class JpaTargetManagement implements TargetManagement {
 
     private final TargetTagRepository targetTagRepository;
 
+    private final DirectoryGroupRepository directoryGroupRepository;
+
     private final NoCountPagingRepository criteriaNoCountDao;
 
     private final EventPublisherHolder eventPublisherHolder;
@@ -119,14 +125,15 @@ public class JpaTargetManagement implements TargetManagement {
     private final Database database;
 
     public JpaTargetManagement(final EntityManager entityManager, final QuotaManagement quotaManagement,
-            final TargetRepository targetRepository, final TargetMetadataRepository targetMetadataRepository,
-            final RolloutGroupRepository rolloutGroupRepository,
-            final DistributionSetRepository distributionSetRepository,
-            final TargetFilterQueryRepository targetFilterQueryRepository,
-            final TargetTagRepository targetTagRepository, final NoCountPagingRepository criteriaNoCountDao,
-            final EventPublisherHolder eventPublisherHolder, final TenantAware tenantAware,
-            final AfterTransactionCommitExecutor afterCommit, final VirtualPropertyReplacer virtualPropertyReplacer,
-            final Database database) {
+                               final TargetRepository targetRepository, final TargetMetadataRepository targetMetadataRepository,
+                               final RolloutGroupRepository rolloutGroupRepository,
+                               final DistributionSetRepository distributionSetRepository,
+                               final TargetFilterQueryRepository targetFilterQueryRepository,
+                               final TargetTagRepository targetTagRepository, final NoCountPagingRepository criteriaNoCountDao,
+                               final DirectoryGroupRepository directoryGroupRepository,
+                               final EventPublisherHolder eventPublisherHolder, final TenantAware tenantAware,
+                               final AfterTransactionCommitExecutor afterCommit, final VirtualPropertyReplacer virtualPropertyReplacer,
+                               final Database database) {
         this.entityManager = entityManager;
         this.quotaManagement = quotaManagement;
         this.targetRepository = targetRepository;
@@ -135,6 +142,7 @@ public class JpaTargetManagement implements TargetManagement {
         this.distributionSetRepository = distributionSetRepository;
         this.targetFilterQueryRepository = targetFilterQueryRepository;
         this.targetTagRepository = targetTagRepository;
+        this.directoryGroupRepository = directoryGroupRepository;
         this.criteriaNoCountDao = criteriaNoCountDao;
         this.eventPublisherHolder = eventPublisherHolder;
         this.tenantAware = tenantAware;
@@ -239,6 +247,15 @@ public class JpaTargetManagement implements TargetManagement {
         eventPublisherHolder.getEventPublisher()
                 .publishEvent(new TargetUpdatedEvent(target, eventPublisherHolder.getApplicationId()));
         return matadata;
+    }
+
+    @Override
+    public Target assignToDirectoryGroup(@NotEmpty final String controllerId, @NotNull final Long groupId) {
+        JpaDirectoryGroup group = directoryGroupRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, groupId));
+
+        final JpaTarget target = getByControllerIdAndThrowIfNotFound(controllerId);
+        target.setDirectoryGroup(group);
+        return targetRepository.save(target);
     }
 
     @Override

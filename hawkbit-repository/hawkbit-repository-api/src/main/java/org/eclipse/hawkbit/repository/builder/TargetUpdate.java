@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.repository.builder;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
@@ -73,4 +74,10 @@ public interface TargetUpdate {
      * @return updated builder instance
      */
     TargetUpdate requestAttributes(Boolean requestAttributes);
+
+    /**
+     * @param directoryGroup for {@link Target#isRequestControllerAttributes()}
+     * @return updated builder instance
+     */
+    TargetUpdate directoryGroup(DirectoryGroup directoryGroup);
 }

@@ -14,6 +14,7 @@ import javax.validation.constraints.Size;
 import org.eclipse.hawkbit.repository.builder.ActionStatusBuilder;
 import org.eclipse.hawkbit.repository.builder.DistributionSetBuilder;
 import org.eclipse.hawkbit.repository.builder.DistributionSetTypeBuilder;
+import org.eclipse.hawkbit.repository.builder.DirectoryGroupBuilder;
 import org.eclipse.hawkbit.repository.builder.RolloutBuilder;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupBuilder;
 import org.eclipse.hawkbit.repository.builder.SoftwareModuleBuilder;
@@ -108,6 +109,11 @@ public interface EntityFactory {
      * @return {@link TargetBuilder} object
      */
     TargetBuilder target();
+
+    /**
+     * @return {@link DirectoryGroupBuilder} object
+     */
+    DirectoryGroupBuilder directoryGroup();
 
     /**
      * @return {@link TargetFilterQueryBuilder} object

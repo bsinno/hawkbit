@@ -85,10 +85,20 @@ public enum TargetFields implements FieldNameProvider {
     /**
      * The metadata.
      */
-    METADATA("metadata", new SimpleImmutableEntry<>("key", "value"));
+    METADATA("metadata", new SimpleImmutableEntry<>("key", "value")),
+
+    /**
+     * The directory group field with sub attributes.
+     */
+    DIRECTORYGROUP("directoryGroup", "name", "id"),
+
+    /**
+     * The tree of ancestors of the assigned directory group with sub attributes
+     */
+    ANCESTOR("directoryGroup.descendantTree.ancestor", "name", "id");
 
     private final String fieldName;
-    private List<String> subEntityAttribues;
+    private List<String> subEntityAttributes;
     private boolean mapField;
     private Entry<String, String> subEntityMapTuple;
 
@@ -100,25 +110,25 @@ public enum TargetFields implements FieldNameProvider {
         this(fieldName, isMapField, Collections.emptyList(), null);
     }
 
-    private TargetFields(final String fieldName, final String... subEntityAttribues) {
-        this(fieldName, false, Arrays.asList(subEntityAttribues), null);
+    private TargetFields(final String fieldName, final String... subEntityAttributes) {
+        this(fieldName, false, Arrays.asList(subEntityAttributes), null);
     }
 
     private TargetFields(final String fieldName, final Entry<String, String> subEntityMapTuple) {
         this(fieldName, true, Collections.emptyList(), subEntityMapTuple);
     }
 
-    private TargetFields(final String fieldName, final boolean mapField, final List<String> subEntityAttribues,
+    private TargetFields(final String fieldName, final boolean mapField, final List<String> subEntityAttributes,
             final Entry<String, String> subEntityMapTuple) {
         this.fieldName = fieldName;
         this.mapField = mapField;
-        this.subEntityAttribues = subEntityAttribues;
+        this.subEntityAttributes = subEntityAttributes;
         this.subEntityMapTuple = subEntityMapTuple;
     }
 
     @Override
     public List<String> getSubEntityAttributes() {
-        return subEntityAttribues;
+        return subEntityAttributes;
     }
 
     @Override

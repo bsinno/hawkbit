@@ -51,6 +51,7 @@ import org.eclipse.hawkbit.repository.jpa.model.helper.SecurityChecker;
 import org.eclipse.hawkbit.repository.jpa.model.helper.SecurityTokenGeneratorHolder;
 import org.eclipse.hawkbit.repository.jpa.model.helper.SystemSecurityContextHolder;
 import org.eclipse.hawkbit.repository.model.Action;
+import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.PollStatus;
 import org.eclipse.hawkbit.repository.model.Target;
@@ -167,6 +168,10 @@ public class JpaTarget extends AbstractJpaNamedEntity implements Target, EventAw
     // time
     @Column(name = "request_controller_attributes", nullable = false)
     private boolean requestControllerAttributes = true;
+
+    @JoinColumn(name = "directory_group", nullable = true, updatable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_directory_group"))
+    @ManyToOne(targetEntity = JpaDirectoryGroup.class)
+    private DirectoryGroup directoryGroup;
 
     @CascadeOnDelete
     @OneToMany(mappedBy = "target", fetch = FetchType.LAZY, targetEntity = JpaTargetMetadata.class)
@@ -373,6 +378,14 @@ public class JpaTarget extends AbstractJpaNamedEntity implements Target, EventAw
     public String toString() {
         return "JpaTarget [controllerId=" + controllerId + ", revision=" + getOptLockRevision() + ", id=" + getId()
                 + "]";
+    }
+
+    public DirectoryGroup getDirectoryGroup() {
+        return directoryGroup;
+    }
+
+    public void setDirectoryGroup(final DirectoryGroup directoryGroup) {
+        this.directoryGroup = directoryGroup;
     }
 
     public void setAddress(final String address) {

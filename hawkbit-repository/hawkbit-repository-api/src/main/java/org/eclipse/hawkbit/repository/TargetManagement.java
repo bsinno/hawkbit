@@ -21,11 +21,12 @@ import javax.validation.constraints.NotNull;
 import org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions;
 import org.eclipse.hawkbit.repository.builder.TargetCreate;
 import org.eclipse.hawkbit.repository.builder.TargetUpdate;
+import org.eclipse.hawkbit.repository.exception.AssignmentQuotaExceededException;
 import org.eclipse.hawkbit.repository.exception.EntityAlreadyExistsException;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
-import org.eclipse.hawkbit.repository.exception.AssignmentQuotaExceededException;
 import org.eclipse.hawkbit.repository.exception.RSQLParameterSyntaxException;
 import org.eclipse.hawkbit.repository.exception.RSQLParameterUnsupportedFieldException;
+import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.MetaData;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
@@ -55,7 +56,7 @@ public interface TargetManagement {
      * @param tagId
      *            to assign
      * @return list of assigned targets
-     * 
+     *
      * @throws EntityNotFoundException
      *             if given tagId or at least one of the targets do not exist
      */
@@ -70,7 +71,7 @@ public interface TargetManagement {
      *            to search for
      *
      * @return number of found {@link Target}s.
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -103,7 +104,7 @@ public interface TargetManagement {
      *            flag to select targets with no tag assigned
      *
      * @return the found number {@link Target}s
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -117,7 +118,7 @@ public interface TargetManagement {
      * @param distId
      *            to search for
      * @return number of found {@link Target}s.
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -141,7 +142,7 @@ public interface TargetManagement {
      * @param targetFilterQueryId
      *            {@link TargetFilterQuery#getId()}
      * @return the found number {@link Target}s
-     * 
+     *
      * @throws EntityNotFoundException
      *             if {@link TargetFilterQuery} with given ID does not exist
      */
@@ -162,7 +163,7 @@ public interface TargetManagement {
      * @param create
      *            to be created
      * @return the created {@link Target}
-     * 
+     *
      * @throws EntityAlreadyExistsException
      *             given target already exists.
      * @throws ConstraintViolationException
@@ -197,7 +198,7 @@ public interface TargetManagement {
      *
      * @param targetIDs
      *            the IDs of the targets to be deleted
-     * 
+     *
      * @throws EntityNotFoundException
      *             if (at least one) of the given target IDs does not exist
      */
@@ -209,7 +210,7 @@ public interface TargetManagement {
      *
      * @param controllerID
      *            the controller ID of the target to be deleted
-     * 
+     *
      * @throws EntityNotFoundException
      *             if target with given ID does not exist
      */
@@ -228,7 +229,7 @@ public interface TargetManagement {
      * @param rsqlParam
      *            filter definition in RSQL syntax
      * @return a page of the found {@link Target}s
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -246,7 +247,7 @@ public interface TargetManagement {
      * @param rsqlParam
      *            filter definition in RSQL syntax
      * @return the count of found {@link Target}s
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -291,7 +292,7 @@ public interface TargetManagement {
      * @param group
      *            the {@link RolloutGroup}
      * @return the found {@link Target}s
-     * 
+     *
      * @throws EntityNotFoundException
      *             if rollout group with given ID does not exist
      */
@@ -300,7 +301,7 @@ public interface TargetManagement {
 
     /**
      * retrieves {@link Target}s by the assigned {@link DistributionSet}.
-     * 
+     *
      * @param pageReq
      *            page parameter
      * @param distributionSetID
@@ -308,7 +309,7 @@ public interface TargetManagement {
      *
      *
      * @return the found {@link Target}s
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -318,7 +319,7 @@ public interface TargetManagement {
     /**
      * Retrieves {@link Target}s by the assigned {@link DistributionSet}
      * possible including additional filtering based on the given {@code spec}.
-     * 
+     *
      * @param pageReq
      *            page parameter
      * @param distributionSetID
@@ -370,7 +371,7 @@ public interface TargetManagement {
      *            non-null value; filters are AND-gated
      *
      * @return the found {@link Target}s
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -379,14 +380,14 @@ public interface TargetManagement {
 
     /**
      * retrieves {@link Target}s by the installed {@link DistributionSet}.
-     * 
+     *
      * @param pageReq
      *            page parameter
      * @param distributionSetID
      *            the ID of the {@link DistributionSet}
      *
      * @return the found {@link Target}s
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -396,7 +397,7 @@ public interface TargetManagement {
     /**
      * retrieves {@link Target}s by the installed {@link DistributionSet}
      * including additional filtering based on the given {@code spec}.
-     * 
+     *
      * @param pageReq
      *            page parameter
      * @param distributionSetId
@@ -411,7 +412,7 @@ public interface TargetManagement {
      *             given {@code fieldNameProvider}
      * @throws RSQLParameterSyntaxException
      *             if the RSQL syntax is wrong
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -444,15 +445,15 @@ public interface TargetManagement {
 
     /**
      * Retrieves all targets.
-     * 
+     *
      * @param pageable
      *            pagination parameter
      * @param rsqlParam
      *            in RSQL notation
      *
      * @return the found {@link Target}s, never {@code null}
-     * 
-     * 
+     *
+     *
      * @throws RSQLParameterUnsupportedFieldException
      *             if a field in the RSQL string is used but not provided by the
      *             given {@code fieldNameProvider}
@@ -464,7 +465,7 @@ public interface TargetManagement {
 
     /**
      * Retrieves all target based on {@link TargetFilterQuery}.
-     * 
+     *
      * @param pageable
      *            pagination parameter
      * @param targetFilterQueryId
@@ -505,7 +506,7 @@ public interface TargetManagement {
      *            non-null value; filters are AND-gated
      * @return a paged result {@link Page} of the {@link Target}s in a defined
      *         order.
-     * 
+     *
      * @throws EntityNotFoundException
      *             if distribution set with given ID does not exist
      */
@@ -515,13 +516,13 @@ public interface TargetManagement {
 
     /**
      * Find targets by tag name.
-     * 
+     *
      * @param pageable
      *            the page request parameter for paging and sorting the result
      * @param tagId
      *            tag ID
      * @return list of matching targets
-     * 
+     *
      * @throws EntityNotFoundException
      *             if target tag with given ID does not exist
      */
@@ -530,16 +531,16 @@ public interface TargetManagement {
 
     /**
      * Find targets by tag name.
-     * 
+     *
      * @param pageable
      *            the page request parameter for paging and sorting the result
      * @param tagId
      *            tag ID
      * @param rsqlParam
      *            in RSQL notation
-     * 
+     *
      * @return list of matching targets
-     * 
+     *
      * @throws EntityNotFoundException
      *             if target tag with given ID does not exist
      * @throws RSQLParameterUnsupportedFieldException
@@ -562,7 +563,7 @@ public interface TargetManagement {
      * @param tagName
      *            to toggle
      * @return TagAssigmentResult with all meta data of the assignment outcome.
-     * 
+     *
      * @throws EntityNotFoundException
      *             if tag with given name does not exist
      */
@@ -577,7 +578,7 @@ public interface TargetManagement {
      * @param targetTagId
      *            to un-assign
      * @return the unassigned target or <null> if no target is unassigned
-     * 
+     *
      * @throws EntityNotFoundException
      *             if TAG with given ID does not exist
      */
@@ -589,9 +590,9 @@ public interface TargetManagement {
      *
      * @param update
      *            to be updated
-     * 
+     *
      * @return the updated {@link Target}
-     * 
+     *
      * @throws EntityNotFoundException
      *             if given target does not exist
      * @throws ConstraintViolationException
@@ -603,7 +604,7 @@ public interface TargetManagement {
 
     /**
      * Find a {@link Target} based a given ID.
-     * 
+     *
      * @param id
      *            to look for
      * @return {@link Target}
@@ -623,11 +624,11 @@ public interface TargetManagement {
 
     /**
      * Get controller attributes of given {@link Target}.
-     * 
+     *
      * @param controllerId
      *            of the target
      * @return controller attributes as key/value pairs
-     * 
+     *
      * @throws EntityNotFoundException
      *             if target with given ID does not exist
      */
@@ -648,7 +649,7 @@ public interface TargetManagement {
 
     /**
      * Check if update of given {@link Target} attributes is already requested.
-     * 
+     *
      * @param controllerId
      *            of target
      * @return {@code true}: update of controller attributes triggered.
@@ -660,12 +661,12 @@ public interface TargetManagement {
     /**
      * Retrieves {@link Target}s where
      * {@link #isControllerAttributesRequested(String)}.
-     * 
+     *
      * @param pageReq
      *            page parameter
      *
      * @return the found {@link Target}s
-     * 
+     *
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_READ_TARGET)
     Page<Target> findByControllerAttributesRequested(@NotNull Pageable pageReq);
@@ -673,7 +674,7 @@ public interface TargetManagement {
     /**
      * Verifies that {@link Target} with given controller ID exists in the
      * repository.
-     * 
+     *
      * @param controllerId
      *            of target
      * @return {@code true} if target with given ID exists
@@ -690,14 +691,14 @@ public interface TargetManagement {
      * @param metadata
      *            the meta data entries to create or update
      * @return the updated or created target meta data entries
-     * 
+     *
      * @throws EntityNotFoundException
      *             if given target does not exist
-     * 
+     *
      * @throws EntityAlreadyExistsException
      *             in case one of the meta data entry already exists for the
      *             specific key
-     * 
+     *
      * @throws AssignmentQuotaExceededException
      *             if the maximum number of {@link MetaData} entries is exceeded
      *             for the addressed {@link Target}
@@ -712,7 +713,7 @@ public interface TargetManagement {
      *            where meta data has to be deleted
      * @param key
      *            of the meta data element
-     * 
+     *
      * @throws EntityNotFoundException
      *             if given target does not exist
      */
@@ -721,14 +722,14 @@ public interface TargetManagement {
 
     /**
      * Finds all meta data by the given target id.
-     * 
+     *
      * @param pageable
      *            the page request to page the result
      * @param controllerId
      *            the controller id to retrieve the meta data from
      *
      * @return a paged result of all meta data entries for a given target id
-     * 
+     *
      * @throws EntityNotFoundException
      *             if target with given ID does not exist
      */
@@ -737,7 +738,7 @@ public interface TargetManagement {
 
     /**
      * Finds all meta data by the given target id and query.
-     * 
+     *
      * @param pageable
      *            the page request to page the result
      * @param controllerId
@@ -746,14 +747,14 @@ public interface TargetManagement {
      *            rsql query string
      *
      * @return a paged result of all meta data entries for a given target id
-     * 
+     *
      * @throws RSQLParameterUnsupportedFieldException
      *             if a field in the RSQL string is used but not provided by the
      *             given {@code fieldNameProvider}
-     * 
+     *
      * @throws RSQLParameterSyntaxException
      *             if the RSQL syntax is wrong
-     * 
+     *
      * @throws EntityNotFoundException
      *             if target with given ID does not exist
      */
@@ -769,7 +770,7 @@ public interface TargetManagement {
      * @param key
      *            of the meta data element
      * @return the found TargetMetadata
-     * 
+     *
      * @throws EntityNotFoundException
      *             if target with given ID does not exist
      */
@@ -785,11 +786,22 @@ public interface TargetManagement {
      * @param metadata
      *            meta data entry to be updated
      * @return the updated meta data entry
-     * 
+     *
      * @throws EntityNotFoundException
      *             in case the meta data entry does not exists and cannot be
      *             updated
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_UPDATE_REPOSITORY)
     TargetMetadata updateMetadata(@NotEmpty String controllerId, @NotNull MetaData metadata);
+
+    /**
+     * Assigns parent {@link DirectoryGroup} to existing {@link Target}.
+     *
+     * @param controllerId to assign and update
+     * @param groupId      to get assigned to
+     * @return the updated {@link Target}.
+     * @throws EntityNotFoundException if given group does not exist
+     */
+    @PreAuthorize(SpringEvalExpressions.HAS_AUTH_UPDATE_REPOSITORY)
+    Target assignToDirectoryGroup(@NotEmpty String controllerId, @NotNull Long groupId);
 }
