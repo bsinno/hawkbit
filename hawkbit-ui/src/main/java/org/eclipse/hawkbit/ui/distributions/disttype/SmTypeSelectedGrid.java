@@ -29,7 +29,6 @@ import com.vaadin.ui.themes.ValoTheme;
 public class SmTypeSelectedGrid extends Grid<ProxyType> {
     private static final long serialVersionUID = 1L;
 
-    // TODO: consider changing to i18n 'Mandatory'
     private static final String STAR = " * ";
     private static final String SM_TYPE_SELECTED_NAME_ID = "smTypeSelectedName";
     private static final String SM_TYPE_SELECTED_MANDATORY = "smTypeSelectedMandatory";
@@ -41,9 +40,9 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
      * Constructor for SmTypeSelectedGrid
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param mandatoryPropertyChangedCallback
-     *          Runnable
+     *            Runnable
      */
     public SmTypeSelectedGrid(final VaadinMessageSource i18n, final Runnable mandatoryPropertyChangedCallback) {
         this.i18n = i18n;

@@ -63,8 +63,6 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
 
     @Override
     protected void doSetValue(final ProxyTargetAttributesDetails targetAttributesDetails) {
-        // TODO: Consider changing the logic not to recreate all the elements
-        // every time target is updated
         targetAttributesDetailsLayout.removeAllComponents();
 
         if (targetAttributesDetails == null) {
@@ -113,8 +111,6 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
                 UIComponentIdProvider.TARGET_ATTRIBUTES_UPDATE, "", "", "", false, VaadinIcons.REFRESH,
                 SPUIButtonStyleNoBorder.class);
 
-        // TODO: Consider changing the logic not to wait until the target is
-        // updated just to show label
         requestAttributesButton.addClickListener(e -> {
             toggleRequestAttributesUpdateButton(e.getButton(), true);
             targetManagement.requestControllerAttributes(controllerId);

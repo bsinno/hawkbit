@@ -56,23 +56,23 @@ public class SwModulesToDistributionSetAssignmentSupport
      * Constructor for SwModulesToDistributionSetAssignmentSupport
      *
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param i18n
-     *         VaadinMessageSource
+     *            VaadinMessageSource
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param targetManagement
- *              TargetManagement
+     *            TargetManagement
      * @param dsManagement
-     *          DistributionSetManagement
+     *            DistributionSetManagement
      * @param smManagement
-     *          SoftwareModuleManagement
+     *            SoftwareModuleManagement
      * @param dsTypeManagement
-     *          DistributionSetTypeManagement
+     *            DistributionSetTypeManagement
      * @param smTypeManagement
-     *          SoftwareModuleTypeManagement
+     *            SoftwareModuleTypeManagement
      */
     public SwModulesToDistributionSetAssignmentSupport(final UINotification notification,
             final VaadinMessageSource i18n, final UIEventBus eventBus, final SpPermissionChecker permChecker,
@@ -110,7 +110,7 @@ public class SwModulesToDistributionSetAssignmentSupport
 
     private boolean isTargetDsValid(final ProxyDistributionSet ds, final DistributionSetType dsType) {
         if (dsType == null) {
-            notification.displayValidationError(i18n.getMessage("message.dist.type.notfound", ds.getName(), ds.getVersion()));
+            notification.displayValidationError(i18n.getMessage("message.dist.type.notfound", ds.getNameVersion()));
             return false;
         }
 

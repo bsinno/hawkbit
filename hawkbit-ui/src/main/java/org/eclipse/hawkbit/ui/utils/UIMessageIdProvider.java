@@ -95,21 +95,13 @@ public final class UIMessageIdProvider {
 
     public static final String MESSAGE_ACTION_NOT_ALLOWED = "message.action.not.allowed";
 
-    public static final String MESSAGE_SELECTED_DS_NOT_FOUND = "message.selected.distributionset.not.found";
-
     public static final String MESSAGE_CONFIRM_AUTO_ASSIGN_CONSEQUENCES_NONE = "message.confirm.assign.consequences.none";
 
     public static final String MESSAGE_CONFIRM_AUTO_ASSIGN_CONSEQUENCES_TEXT = "message.confirm.assign.consequences.text";
 
-    public static final String MESSAGE_ASSIGN_TARGET_TO_MULTIPLE_DISTRIBUTIONS = "message.confirm.assign.multiple.entities.multiple.distributions";
-
-    public static final String MESSAGE_CONFIRM_ASSIGN_MULTIPLE_ENTITIES = "message.confirm.assign.multiple.entities";
-
     public static final String MESSAGE_CONFIRM_ASSIGN_MULTIPLE_ENTITIES_TO_ENTITY = "message.confirm.assign.multiple.entities.to.entity";
 
     public static final String MESSAGE_CONFIRM_DELETE_ENTITY = "message.confirm.delete.entity";
-
-    public static final String MESSAGE_CONFIRM_ASSIGN_ENTITY = "message.confirm.assign.entity";
 
     public static final String MESSAGE_AUTOASSIGN_CREATE_ERROR_MISSINGELEMENTS = "message.autoassign.create.error.missingElements";
 

@@ -40,15 +40,15 @@ public class UpdateMetaDataWindowController extends AbstractEntityWindowControll
      * Constructor for UpdateMetaDataWindowController
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param uiNotification
- *              UINotification
+     *            UINotification
      * @param layout
-     *          MetaDataAddUpdateWindowLayout
+     *            MetaDataAddUpdateWindowLayout
      * @param updateMetaDataCallback
-     *          Update meta data call back function for event listener
+     *            Update meta data call back function for event listener
      * @param saveMetaDataCallback
-     *          Save meta data call back event listener
+     *            Save meta data call back event listener
      *
      */
     public UpdateMetaDataWindowController(final VaadinMessageSource i18n, final UINotification uiNotification,
@@ -87,19 +87,17 @@ public class UpdateMetaDataWindowController extends AbstractEntityWindowControll
 
     @Override
     protected void persistEntity(final ProxyMetaData entity) {
-        MetaData updatedMetaData;
         try {
-            updatedMetaData = updateMetaDataCallback.apply(entity);
+            final MetaData updatedMetaData = updateMetaDataCallback.apply(entity);
+
+            uiNotification.displaySuccess(i18n.getMessage("message.metadata.updated", updatedMetaData.getKey()));
+            saveMetaDataCallback.accept(entity);
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of meta data failed in UI: {}", e.getMessage());
-            uiNotification.displayWarning(
-                    i18n.getMessage("message.key.deleted.or.notAllowed", "Metadata", entity.getKey()));
-            return;
+            final String entityType = i18n.getMessage("caption.metadata");
+            uiNotification
+                    .displayWarning(i18n.getMessage("message.key.deleted.or.notAllowed", entityType, entity.getKey()));
         }
-
-        saveMetaDataCallback.accept(entity);
-
-        uiNotification.displaySuccess(i18n.getMessage("message.metadata.updated", updatedMetaData.getKey()));
     }
 
     @Override

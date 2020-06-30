@@ -24,7 +24,6 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 
-//TODO: remove duplication with other builders
 public class AutoAssignmentWindowLayoutComponentBuilder {
 
     public static final String PROMPT_DISTRIBUTION_SET = "prompt.distribution.set";

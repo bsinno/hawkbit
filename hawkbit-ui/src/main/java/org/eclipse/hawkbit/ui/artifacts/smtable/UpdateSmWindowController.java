@@ -46,17 +46,17 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
      * Constructor for UpdateSmWindowController
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param entityFactory
-     *          EntityFactory
+     *            EntityFactory
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param smManagement
-     *          SoftwareModuleManagement
+     *            SoftwareModuleManagement
      * @param layout
- *              SmWindowLayout
+     *            SmWindowLayout
      */
     public UpdateSmWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SoftwareModuleManagement smManagement,
@@ -105,21 +105,19 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
         final SoftwareModuleUpdate smUpdate = entityFactory.softwareModule().update(entity.getId())
                 .vendor(entity.getVendor()).description(entity.getDescription());
 
-        final SoftwareModule updatedSm;
         try {
-            updatedSm = smManagement.update(smUpdate);
+            final SoftwareModule updatedSm = smManagement.update(smUpdate);
+
+            uiNotification.displaySuccess(
+                    i18n.getMessage("message.update.success", updatedSm.getName() + ":" + updatedSm.getVersion()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class, updatedSm.getId()));
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of software module failed in UI: {}", e.getMessage());
             final String entityType = i18n.getMessage("caption.software.module");
             uiNotification
                     .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
-            return;
         }
-
-        uiNotification.displaySuccess(
-                i18n.getMessage("message.update.success", updatedSm.getName() + ":" + updatedSm.getVersion()));
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class, updatedSm.getId()));
     }
 
     @Override

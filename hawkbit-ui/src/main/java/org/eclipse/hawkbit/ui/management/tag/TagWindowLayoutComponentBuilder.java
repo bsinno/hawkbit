@@ -22,7 +22,6 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.components.colorpicker.ColorUtil;
 
-//TODO: remove duplication with other builders
 public class TagWindowLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
@@ -73,9 +72,8 @@ public class TagWindowLayoutComponentBuilder {
                                 try {
                                     return BasicColor.valueOf(colorString.trim().toUpperCase()).getColor();
                                 } catch (final IllegalArgumentException ex) {
-                                    // TODO: use i18n
-                                    uiNotification.displayValidationError(
-                                            "There is no mapping for the provided colour: " + colorString);
+                                    uiNotification
+                                            .displayValidationError(i18n.getMessage("color.not.exists", colorString));
                                     return ColorUtil.stringToColor(ProxyFilterButton.DEFAULT_COLOR);
                                 }
                             }

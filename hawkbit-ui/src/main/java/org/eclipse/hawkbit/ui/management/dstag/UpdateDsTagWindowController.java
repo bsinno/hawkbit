@@ -86,21 +86,19 @@ public class UpdateDsTagWindowController extends AbstractEntityWindowController<
         final TagUpdate tagUpdate = entityFactory.tag().update(entity.getId()).name(entity.getName())
                 .description(entity.getDescription()).colour(entity.getColour());
 
-        DistributionSetTag updatedTag;
         try {
-            updatedTag = dsTagManagement.update(tagUpdate);
+            final DistributionSetTag updatedTag = dsTagManagement.update(tagUpdate);
+
+            uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTag.getName()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class,
+                            ProxyTag.class, updatedTag.getId()));
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of DS tag failed in UI: {}", e.getMessage());
-            // TODO: use i18n
-            uiNotification.displayWarning(
-                    "Tag with name " + entity.getName() + " was deleted or you are not allowed to update it");
-            return;
+            final String entityType = i18n.getMessage("caption.entity.distribution.tag");
+            uiNotification
+                    .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
         }
-
-        uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTag.getName()));
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class,
-                        ProxyTag.class, updatedTag.getId()));
     }
 
     @Override
@@ -112,7 +110,6 @@ public class UpdateDsTagWindowController extends AbstractEntityWindowController<
 
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         if (!nameBeforeEdit.equals(trimmedName) && dsTagManagement.getByName(trimmedName).isPresent()) {
-            // TODO: is the notification right here?
             uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
             return false;
         }

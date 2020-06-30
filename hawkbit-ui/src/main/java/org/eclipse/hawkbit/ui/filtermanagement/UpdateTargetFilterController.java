@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
@@ -85,19 +84,17 @@ public class UpdateTargetFilterController
         final TargetFilterQueryUpdate targetFilterUpdate = entityFactory.targetFilterQuery().update(entity.getId())
                 .name(entity.getName()).query(entity.getQuery());
 
-        final TargetFilterQuery updatedTargetFilter;
         try {
-            updatedTargetFilter = targetFilterManagement.update(targetFilterUpdate);
+            final TargetFilterQuery updatedTargetFilter = targetFilterManagement.update(targetFilterUpdate);
 
             uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTargetFilter.getName()));
             eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                     EntityModifiedEventType.ENTITY_UPDATED, ProxyTargetFilterQuery.class, updatedTargetFilter.getId()));
-        } catch (final EntityNotFoundException e) {
-            LOG.debug("TargetFilter can not be modified: Does not exist", e);
-            uiNotification.displayWarning(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_ENTITY_DELETED));
-        } catch (final EntityReadOnlyException e) {
-            LOG.debug("TargetFilter can not be modified: Read only", e);
-            uiNotification.displayWarning(i18n.getMessage(UIMessageIdProvider.MESSAGE_ERROR_ENTITY_READONLY));
+        } catch (final EntityNotFoundException | EntityReadOnlyException e) {
+            LOG.trace("Update of target filter failed in UI: {}", e.getMessage());
+            final String entityType = i18n.getMessage("caption.target.filter");
+            uiNotification
+                    .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
         } finally {
             closeFormCallback.run();
         }
@@ -112,7 +109,6 @@ public class UpdateTargetFilterController
 
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         if (!nameBeforeEdit.equals(trimmedName) && targetFilterManagement.getByName(trimmedName).isPresent()) {
-            // TODO: is the notification right here?
             uiNotification.displayValidationError(i18n.getMessage("message.target.filter.duplicate", trimmedName));
             return false;
         }

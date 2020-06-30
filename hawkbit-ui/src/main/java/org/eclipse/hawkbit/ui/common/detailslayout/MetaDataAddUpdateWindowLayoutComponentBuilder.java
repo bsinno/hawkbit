@@ -25,7 +25,7 @@ import com.vaadin.ui.TextField;
 /**
  * Builder for add/update window layout component
  */
-//TODO: remove duplication with other builders
+// TODO: remove duplication with other builders
 public class MetaDataAddUpdateWindowLayoutComponentBuilder {
 
     public static final String TEXTFIELD_KEY = "textfield.key";
@@ -40,7 +40,7 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
      * Constructor for MetaDataAddUpdateWindowLayoutComponentBuilder
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      */
     public MetaDataAddUpdateWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
@@ -48,7 +48,7 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
 
     /**
      * @param binder
-     *          Vaadin binder
+     *            Vaadin binder
      *
      * @return Key textfield
      */
@@ -60,15 +60,15 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
         keyField.setValueChangeMode(ValueChangeMode.LAZY);
         keyField.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
 
-        binder.forField(keyField).asRequired("message.entity.key").bind(ProxyMetaData::getKey,
-                ProxyMetaData::setKey);
+        binder.forField(keyField).asRequired(i18n.getMessage("message.metadata.key.required"))
+                .bind(ProxyMetaData::getKey, ProxyMetaData::setKey);
 
         return keyField;
     }
 
     /**
      * @param binder
-     *          Vaadin binder
+     *            Vaadin binder
      *
      * @return Value textarea
      */
@@ -80,15 +80,15 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
         valueField.setValueChangeMode(ValueChangeMode.LAZY);
         valueField.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
 
-        binder.forField(valueField).asRequired(i18n.getMessage("message.entity.value")).bind(ProxyMetaData::getValue,
-                ProxyMetaData::setValue);
+        binder.forField(valueField).asRequired(i18n.getMessage("message.metadata.value.required"))
+                .bind(ProxyMetaData::getValue, ProxyMetaData::setValue);
 
         return valueField;
     }
 
     /**
      * @param binder
-     *          Vaadin binder
+     *            Vaadin binder
      *
      * @return Target field CheckBox
      */

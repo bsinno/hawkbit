@@ -84,20 +84,18 @@ public class UpdateTargetWindowController extends AbstractEntityWindowController
         final TargetUpdate targetUpdate = entityFactory.target().update(entity.getControllerId()).name(entity.getName())
                 .description(entity.getDescription());
 
-        final Target updatedTarget;
         try {
-            updatedTarget = targetManagement.update(targetUpdate);
+            final Target updatedTarget = targetManagement.update(targetUpdate);
+
+            uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTarget.getName()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, updatedTarget.getId()));
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of target failed in UI: {}", e.getMessage());
-            // TODO: use i18n
-            uiNotification.displayWarning(
-                    "Target with name " + entity.getName() + " was deleted or you are not allowed to update it");
-            return;
+            final String entityType = i18n.getMessage("caption.target");
+            uiNotification
+                    .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
         }
-
-        uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTarget.getName()));
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, updatedTarget.getId()));
     }
 
     @Override
@@ -110,7 +108,6 @@ public class UpdateTargetWindowController extends AbstractEntityWindowController
         final String trimmedControllerId = StringUtils.trimWhitespace(entity.getControllerId());
         if (!controllerIdBeforeEdit.equals(trimmedControllerId)
                 && targetManagement.getByControllerID(trimmedControllerId).isPresent()) {
-            // TODO: is the notification right here?
             uiNotification
                     .displayValidationError(i18n.getMessage("message.target.duplicate.check", trimmedControllerId));
             return false;

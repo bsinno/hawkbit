@@ -211,6 +211,7 @@ public final class SPUIComponentProvider {
      *            setter for the binder
      * @return the bound box
      */
+    // TODO: consider moving to FormComponentBuilder
     public static <T> CheckBox getCheckBox(final String caption, final String id, final Binder<T> binder,
             final ValueProvider<T, Boolean> getter, final Setter<T, Boolean> setter) {
         final CheckBox checkBox;

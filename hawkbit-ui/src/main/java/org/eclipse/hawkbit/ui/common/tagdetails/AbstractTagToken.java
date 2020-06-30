@@ -39,16 +39,16 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity>
 
     protected final SpPermissionChecker checker;
     protected final VaadinMessageSource i18n;
-    protected final UINotification uinotification;
+    protected final UINotification uiNotification;
     protected final UIEventBus eventBus;
 
     private T masterEntity;
 
     protected AbstractTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
-            final UINotification uinotification, final UIEventBus eventBus) {
+            final UINotification uiNotification, final UIEventBus eventBus) {
         this.checker = checker;
         this.i18n = i18n;
-        this.uinotification = uinotification;
+        this.uiNotification = uiNotification;
         this.eventBus = eventBus;
 
         buildTagPanel();
@@ -128,7 +128,7 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity>
      * Add tags
      *
      * @param entityIds
-     *          List of entity id
+     *            List of entity id
      */
     public void onTagsAdded(final Collection<Long> entityIds) {
         getTagsById(entityIds).forEach(this::tagCreated);
@@ -140,7 +140,7 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity>
      * Update tags
      *
      * @param entityIds
-     *          List of entity id
+     *            List of entity id
      */
     public void onTagsUpdated(final Collection<Long> entityIds) {
         getTagsById(entityIds).forEach(this::tagUpdated);
@@ -150,7 +150,7 @@ public abstract class AbstractTagToken<T extends ProxyNamedEntity>
      * Delete tags
      *
      * @param entityIds
-     *          List of entity id
+     *            List of entity id
      */
     public void onTagsDeleted(final Collection<Long> entityIds) {
         entityIds.forEach(this::tagDeleted);

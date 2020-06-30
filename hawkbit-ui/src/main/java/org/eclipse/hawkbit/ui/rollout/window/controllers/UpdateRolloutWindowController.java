@@ -145,9 +145,12 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
                         : RepositoryModelConstants.NO_FORCE_TIME)
                 .startAt(entity.getStartAtByOption());
 
-        Rollout updatedRollout;
         try {
-            updatedRollout = rolloutManagement.update(rolloutUpdate);
+            final Rollout updatedRollout = rolloutManagement.update(rolloutUpdate);
+
+            uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedRollout.getName()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, updatedRollout.getId()));
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of rollout failed in UI: {}", e.getMessage());
             final String entityType = i18n.getMessage("caption.rollout");
@@ -155,12 +158,7 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
                     .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
 
             eventBus.publish(this, RolloutEvent.SHOW_ROLLOUTS);
-            return;
         }
-
-        uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedRollout.getName()));
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_UPDATED, ProxyRollout.class, updatedRollout.getId()));
     }
 
     @Override
@@ -178,7 +176,6 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
 
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         if (!nameBeforeEdit.equals(trimmedName) && rolloutManagement.getByName(trimmedName).isPresent()) {
-            // TODO: is the notification right here?
             uiNotification.displayValidationError(i18n.getMessage("message.rollout.duplicate.check", trimmedName));
             return false;
         }

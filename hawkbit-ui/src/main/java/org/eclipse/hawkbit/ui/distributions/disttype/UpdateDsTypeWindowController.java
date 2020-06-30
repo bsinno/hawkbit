@@ -38,7 +38,7 @@ import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
- *  Controller for update distribution set type window
+ * Controller for update distribution set type window
  */
 public class UpdateDsTypeWindowController extends AbstractEntityWindowController<ProxyType, ProxyType> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateDsTypeWindowController.class);
@@ -62,19 +62,19 @@ public class UpdateDsTypeWindowController extends AbstractEntityWindowController
      * Constructor for UpdateDsTypeWindowController
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param entityFactory
-     *          EntityFactory
+     *            EntityFactory
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param dsTypeManagement
-     *          DistributionSetTypeManagement
+     *            DistributionSetTypeManagement
      * @param dsManagement
-     *          DistributionSetManagement
+     *            DistributionSetManagement
      * @param layout
-     *          DsTypeWindowLayout
+     *            DsTypeWindowLayout
      */
     public UpdateDsTypeWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
@@ -164,19 +164,19 @@ public class UpdateDsTypeWindowController extends AbstractEntityWindowController
 
         dsTypeUpdate.mandatory(mandatorySmTypeIds).optional(optionalSmTypeIds);
 
-        final DistributionSetType updatedDsType;
         try {
-            updatedDsType = dsTypeManagement.update(dsTypeUpdate);
+            final DistributionSetType updatedDsType = dsTypeManagement.update(dsTypeUpdate);
+
+            uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedDsType.getName()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class,
+                            ProxyType.class, updatedDsType.getId()));
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of DS type failed in UI: {}", e.getMessage());
-            uiNotification.displayWarning(i18n.getMessage("message.deleted.or.notAllowed", "Type", entity.getName()));
-            return;
+            final String entityType = i18n.getMessage("caption.entity.distribution.type");
+            uiNotification
+                    .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
         }
-
-        uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedDsType.getName()));
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class,
-                        ProxyType.class, updatedDsType.getId()));
     }
 
     @Override
@@ -190,14 +190,11 @@ public class UpdateDsTypeWindowController extends AbstractEntityWindowController
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         final String trimmedKey = StringUtils.trimWhitespace(entity.getKey());
         if (!nameBeforeEdit.equals(trimmedName) && dsTypeManagement.getByName(trimmedName).isPresent()) {
-            // TODO: is the notification right here?
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
+            uiNotification.displayValidationError(i18n.getMessage("message.type.duplicate.check", trimmedName));
             return false;
         }
         if (!keyBeforeEdit.equals(trimmedKey) && dsTypeManagement.getByKey(trimmedKey).isPresent()) {
-            // TODO: is the notification right here?
-            uiNotification
-                    .displayValidationError(i18n.getMessage("message.type.key.swmodule.duplicate.check", trimmedKey));
+            uiNotification.displayValidationError(i18n.getMessage("message.type.key.ds.duplicate.check", trimmedKey));
             return false;
         }
 

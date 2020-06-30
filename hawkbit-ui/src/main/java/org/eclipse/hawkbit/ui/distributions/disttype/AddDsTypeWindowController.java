@@ -44,17 +44,17 @@ public class AddDsTypeWindowController extends AbstractEntityWindowController<Pr
      * Constructor for AddDsTypeWindowController
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param entityFactory
-     *          EntityFactory
+     *            EntityFactory
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param dsTypeManagement
-     *          DistributionSetTypeManagement
+     *            DistributionSetTypeManagement
      * @param layout
-     *          DsTypeWindowLayout
+     *            DsTypeWindowLayout
      */
     public AddDsTypeWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
@@ -109,14 +109,12 @@ public class AddDsTypeWindowController extends AbstractEntityWindowController<Pr
 
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         final String trimmedKey = StringUtils.trimWhitespace(entity.getKey());
-        // TODO: check if this is correct
         if (dsTypeManagement.getByName(trimmedName).isPresent()) {
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
+            uiNotification.displayValidationError(i18n.getMessage("message.type.duplicate.check", trimmedName));
             return false;
         }
         if (dsTypeManagement.getByKey(trimmedKey).isPresent()) {
-            uiNotification
-                    .displayValidationError(i18n.getMessage("message.type.key.swmodule.duplicate.check", trimmedKey));
+            uiNotification.displayValidationError(i18n.getMessage("message.type.key.ds.duplicate.check", trimmedKey));
             return false;
         }
 

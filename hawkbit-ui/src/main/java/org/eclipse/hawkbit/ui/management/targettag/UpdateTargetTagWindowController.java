@@ -85,20 +85,18 @@ public class UpdateTargetTagWindowController extends AbstractEntityWindowControl
         final TagUpdate tagUpdate = entityFactory.tag().update(entity.getId()).name(entity.getName())
                 .description(entity.getDescription()).colour(entity.getColour());
 
-        TargetTag updatedTag;
         try {
-            updatedTag = targetTagManagement.update(tagUpdate);
+            final TargetTag updatedTag = targetTagManagement.update(tagUpdate);
+
+            uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTag.getName()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, ProxyTag.class, updatedTag.getId()));
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of target tag failed in UI: {}", e.getMessage());
-            // TODO: use i18n
-            uiNotification.displayWarning(
-                    "Tag with name " + entity.getName() + " was deleted or you are not allowed to update it");
-            return;
+            final String entityType = i18n.getMessage("caption.entity.target.tag");
+            uiNotification
+                    .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
         }
-
-        uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedTag.getName()));
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, ProxyTag.class, updatedTag.getId()));
     }
 
     @Override
@@ -110,7 +108,6 @@ public class UpdateTargetTagWindowController extends AbstractEntityWindowControl
 
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         if (!nameBeforeEdit.equals(trimmedName) && targetTagManagement.getByName(trimmedName).isPresent()) {
-            // TODO: is the notification right here?
             uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
             return false;
         }
