@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,6 +37,16 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
     private final transient CrudMenuHeaderSupport crudMenuHeaderSupport;
     private final transient CloseHeaderSupport closeHeaderSupport;
 
+    /**
+     * Constructor for AbstractFilterHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     */
     public AbstractFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus) {
         super(i18n, permChecker, eventBus);
@@ -100,10 +110,16 @@ public abstract class AbstractFilterHeader extends AbstractGridHeader {
 
     protected abstract void updateHiddenUiState();
 
+    /**
+     * Enable crud menu option
+     */
     public void enableCrudMenu() {
         crudMenuHeaderSupport.enableCrudMenu();
     }
 
+    /**
+     * Disable crud menu option
+     */
     public void disableCrudMenu() {
         crudMenuHeaderSupport.disableCrudMenu();
     }

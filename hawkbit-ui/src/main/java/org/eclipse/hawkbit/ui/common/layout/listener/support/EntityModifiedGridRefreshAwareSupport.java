@@ -12,20 +12,45 @@ import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.EntityModifiedAwareSupport;
 
+/**
+ * Support for refresh the grid on entity modified
+ */
 public class EntityModifiedGridRefreshAwareSupport implements EntityModifiedAwareSupport {
     private final Runnable refreshGridCallback;
     private final Consumer<Collection<Long>> refreshGridItemsCallback;
 
+    /**
+     * Constructor for EntityModifiedGridRefreshAwareSupport
+     *
+     * @param refreshGridCallback
+     *           Refresh grid callback event
+     * @param refreshGridItemsCallback
+     *          Refresh grid items callback event
+     */
     public EntityModifiedGridRefreshAwareSupport(final Runnable refreshGridCallback,
             final Consumer<Collection<Long>> refreshGridItemsCallback) {
         this.refreshGridCallback = refreshGridCallback;
         this.refreshGridItemsCallback = refreshGridItemsCallback;
     }
 
+    /**
+     * @param refreshGridCallback
+     *          Refresh grid callback event
+     *
+     * @return Support for refresh the grid on entity modified
+     */
     public static EntityModifiedGridRefreshAwareSupport of(final Runnable refreshGridCallback) {
         return of(refreshGridCallback, null);
     }
 
+    /**
+     * @param refreshGridCallback
+     *           Refresh grid callback event
+     * @param refreshGridItemsCallback
+     *          Refresh grid items callback event
+     *
+     * @return Support for refresh the grid on entity modified
+     */
     public static EntityModifiedGridRefreshAwareSupport of(final Runnable refreshGridCallback,
             final Consumer<Collection<Long>> refreshGridItemsCallback) {
         return new EntityModifiedGridRefreshAwareSupport(refreshGridCallback, refreshGridItemsCallback);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -35,18 +35,40 @@ public class ProxyIdNameVersion extends ProxyIdentifiableEntity {
         this.version = version;
     }
 
+    /**
+     * Gets the name
+     *
+     * @return name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the name
+     *
+     * @param name
+     *          Name of entity
+     */
     public void setName(final String name) {
         this.name = name;
     }
 
+    /**
+     * Gets the version
+     *
+     * @return version
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * Sets the version
+     *
+     * @param version
+     *          Version of entity
+     */
     public void setVersion(final String version) {
         this.version = version;
     }

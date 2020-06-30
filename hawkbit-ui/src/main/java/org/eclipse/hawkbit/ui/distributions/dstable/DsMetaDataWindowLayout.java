@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -87,10 +87,7 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
 
             return true;
         } else {
-            // TODO: use i18n
-            uiNotification.displayValidationError(
-                    "No distribution set is currently selected or metadata to delete is missing");
-
+            uiNotification.displayValidationError(i18n.getMessage("message.dist.not.selected"));
             return false;
         }
     }

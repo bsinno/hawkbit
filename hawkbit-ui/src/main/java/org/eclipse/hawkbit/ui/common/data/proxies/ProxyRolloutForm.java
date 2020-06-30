@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,10 +37,20 @@ public class ProxyRolloutForm implements Serializable, NameAware, DsIdAware, Tar
     private AutoStartOption autoStartOption;
     private Long startAt;
 
+    /**
+     * Gets the rollout form id
+     * @return id
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Sets the form id
+     *
+     * @param id
+     *         rollout form id
+     */
     public void setId(final Long id) {
         this.id = id;
     }

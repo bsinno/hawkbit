@@ -19,9 +19,22 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+/**
+ * Event listener for layout visibility
+ */
 public class LayoutVisibilityListener extends ViewAwareListener {
     private final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers;
 
+    /**
+     * Constructor for LayoutVisibilityListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param viewAware
+     *          EventViewAware
+     * @param layoutVisibilityHandlers
+     *          layout with the visibility handlers
+     */
     public LayoutVisibilityListener(final UIEventBus eventBus, final EventViewAware viewAware,
             final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers) {
         super(eventBus, CommandTopics.CHANGE_LAYOUT_VISIBILITY, viewAware);

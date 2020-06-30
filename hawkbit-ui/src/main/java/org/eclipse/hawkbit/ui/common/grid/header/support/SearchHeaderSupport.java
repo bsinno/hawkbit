@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -25,6 +25,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 
+/**
+ * Header support for search functionality
+ */
 public class SearchHeaderSupport implements HeaderSupport {
     private static final String MODE_SEARCH_INPUT = "mode-search-input";
 
@@ -40,6 +43,20 @@ public class SearchHeaderSupport implements HeaderSupport {
 
     private boolean isSearchInputActive;
 
+    /**
+     * Constructor for SearchHeaderSupport
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param searchFieldId
+     *          Search field id
+     * @param searchResetIconId
+     *          Value supplier for search box
+     * @param searchStateSupplier
+     *
+     * @param searchByCallback
+     *          Callback for search event
+     */
     public SearchHeaderSupport(final VaadinMessageSource i18n, final String searchFieldId,
             final String searchResetIconId, final Supplier<String> searchStateSupplier,
             final Consumer<String> searchByCallback) {
@@ -118,14 +135,23 @@ public class SearchHeaderSupport implements HeaderSupport {
         }
     }
 
+    /**
+     * Disable search icon
+     */
     public void disableSearch() {
         searchResetIcon.setEnabled(false);
     }
 
+    /**
+     * Enable search icon
+     */
     public void enableSearch() {
         searchResetIcon.setEnabled(true);
     }
 
+    /**
+     * Reset the search value to empty and close the search bar
+     */
     public void resetSearch() {
         if (isSearchInputActive) {
             closeSearchTextField();

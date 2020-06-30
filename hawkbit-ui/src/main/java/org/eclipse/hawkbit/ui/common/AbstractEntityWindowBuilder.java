@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,6 +16,11 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Window;
 
+/**
+ * Builder for abstract entity window
+ *
+ * @param <T>
+ */
 public abstract class AbstractEntityWindowBuilder<T> {
     protected final VaadinMessageSource i18n;
 
@@ -56,8 +61,21 @@ public abstract class AbstractEntityWindowBuilder<T> {
 
     protected abstract String getWindowId();
 
+    /**
+     * Gets the add window
+     *
+     * @return window
+     */
     public abstract Window getWindowForAdd();
 
+    /**
+     * Gets the update window
+     *
+     * @param entity
+     *          Generic type entity
+     *
+     * @return window
+     */
     public abstract Window getWindowForUpdate(final T entity);
 
     protected String getHelpLink() {

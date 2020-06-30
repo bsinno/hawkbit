@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,9 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
+/**
+ * Header support for minimize and maximize the layout
+ */
 public class ResizeHeaderSupport implements HeaderSupport {
     private static final String MODE_MAXIMIZED = "mode-maximized";
 
@@ -33,6 +36,20 @@ public class ResizeHeaderSupport implements HeaderSupport {
 
     private boolean isMaximized;
 
+    /**
+     * Constructor for ResizeHeaderSupport
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param maxMinIconId
+     *          Max-min icon id
+     * @param maximizeCallback
+     *          Runnable
+     * @param minimizeCallback
+     *
+     * @param isMaximizedStateSupplier
+     *          BooleanSupplier
+     */
     public ResizeHeaderSupport(final VaadinMessageSource i18n, final String maxMinIconId,
             final Runnable maximizeCallback, final Runnable minimizeCallback,
             final BooleanSupplier isMaximizedStateSupplier) {

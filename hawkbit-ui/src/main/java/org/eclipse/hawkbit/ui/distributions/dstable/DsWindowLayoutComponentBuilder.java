@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -23,6 +23,9 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * Builder for Distribution set window layout component
+ */
 //TODO: remove duplication with other builders
 public class DsWindowLayoutComponentBuilder {
 
@@ -35,12 +38,26 @@ public class DsWindowLayoutComponentBuilder {
     private final VaadinMessageSource i18n;
     private final DistributionSetTypeDataProvider dsTypeDataProvider;
 
+    /**
+     * Constructor for DsWindowLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param dsTypeDataProvider
+     *          DistributionSetTypeDataProvider
+     */
     public DsWindowLayoutComponentBuilder(final VaadinMessageSource i18n,
             final DistributionSetTypeDataProvider dsTypeDataProvider) {
         this.i18n = i18n;
         this.dsTypeDataProvider = dsTypeDataProvider;
     }
 
+    /**
+     * @param binder
+     *          Vaddin binder
+     *
+     * @return Distribution set type combobox
+     */
     public ComboBox<ProxyType> createDistributionSetTypeCombo(final Binder<ProxyDistributionSet> binder) {
         final ComboBox<ProxyType> dsTypeSelect = new ComboBox<>(i18n.getMessage(SELECT_TYPE));
 
@@ -51,8 +68,7 @@ public class DsWindowLayoutComponentBuilder {
         dsTypeSelect.setItemCaptionGenerator(ProxyType::getName);
         dsTypeSelect.setDataProvider(dsTypeDataProvider);
 
-        // TODO: use i18n
-        binder.forField(dsTypeSelect).asRequired("You must provide the distribution set type")
+        binder.forField(dsTypeSelect).asRequired(i18n.getMessage("message.error.distributionSetRequired"))
                 .bind(ProxyDistributionSet::getProxyType, ProxyDistributionSet::setProxyType);
 
         return dsTypeSelect;
@@ -93,6 +109,12 @@ public class DsWindowLayoutComponentBuilder {
                 .getComponent();
     }
 
+    /**
+     * @param binder
+     *          Vaadin binder
+     *
+     * @return  Migration step required checkbox
+     */
     public CheckBox createMigrationStepField(final Binder<ProxyDistributionSet> binder) {
         final CheckBox migrationRequired = SPUIComponentProvider.getCheckBox(i18n.getMessage(MIGRATION_STEP),
                 UIComponentIdProvider.DIST_ADD_MIGRATION_CHECK, binder, ProxyDistributionSet::isRequiredMigrationStep,

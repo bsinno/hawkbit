@@ -43,6 +43,7 @@ import com.vaadin.ui.Window;
 public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistributionSet> {
     private static final long serialVersionUID = 1L;
 
+    private static final String DS_PREFIX = "ds.";
     private final MetadataDetailsGrid<Long> dsMetadataGrid;
     private final SoftwareModuleDetailsGrid smDetailsGrid;
     private TargetFilterQueryDetailsGrid tfqDetailsGrid;
@@ -54,6 +55,32 @@ public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistr
 
     private final transient DistributionTagToken distributionTagToken;
 
+    /**
+     * Constructor for DistributionSetDetails
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param uiNotification
+     *          UINotification
+     * @param dsManagement
+     *          DistributionSetManagement
+     * @param smManagement
+     *          SoftwareModuleManagement
+     * @param dsTypeManagement
+     *          DistributionSetTypeManagement
+     * @param dsTagManagement
+     *          DistributionSetTagManagement
+     * @param tenantConfigurationManagement
+     *          TenantConfigurationManagement
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     * @param dsMetaDataWindowBuilder
+     *          DsMetaDataWindowBuilder
+     */
     public DistributionSetDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification uiNotification,
             final DistributionSetManagement dsManagement, final SoftwareModuleManagement smManagement,
@@ -122,8 +149,7 @@ public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistr
 
     @Override
     protected String getLogLabelIdPrefix() {
-        // TODO: fix with constant
-        return "ds.";
+        return DS_PREFIX;
     }
 
     private void showMetadataDetails(final ProxyMetaData metadata) {
@@ -150,10 +176,21 @@ public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistr
         }
     }
 
+    /**
+     * @param isUnassignSmAllowed
+     *            <code>true</code> if unassigned software module is allowed, otherwise
+     *            <code>false</code>
+     */
     public void setUnassignSmAllowed(final boolean isUnassignSmAllowed) {
         smDetailsGrid.setUnassignSmAllowed(isUnassignSmAllowed);
     }
 
+    /**
+     * Add target filter query detail grid
+     *
+     * @param targetFilterQueryManagement
+     *          TargetFilterQueryManagement
+     */
     public void addTfqDetailsGrid(final TargetFilterQueryManagement targetFilterQueryManagement) {
         if (tfqDetailsGrid == null) {
             tfqDetailsGrid = new TargetFilterQueryDetailsGrid(i18n, targetFilterQueryManagement);
@@ -163,6 +200,11 @@ public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistr
         }
     }
 
+    /**
+     * Gets the distributionTagToken
+     *
+     * @return distributionTagToken
+     */
     public DistributionTagToken getDistributionTagToken() {
         return distributionTagToken;
     }

@@ -56,6 +56,24 @@ public abstract class AbstractEntityGridHeader extends AbstractGridHeader {
     private final EventLayout filterLayout;
     private final EventView view;
 
+    /**
+     * Constructor for AbstractEntityGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     * @param filterLayoutUiState
+     *          HidableLayoutUiState
+     * @param gridLayoutUiState
+     *          GridLayoutUiState
+     * @param filterLayout
+     *          EventLayout
+     * @param view
+     *          EventView
+     */
     public AbstractEntityGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final HidableLayoutUiState filterLayoutUiState,
             final GridLayoutUiState gridLayoutUiState, final EventLayout filterLayout, final EventView view) {
@@ -143,6 +161,12 @@ public abstract class AbstractEntityGridHeader extends AbstractGridHeader {
         return gridLayoutUiState.isMaximized();
     }
 
+    /**
+     * Add header support to grid
+     *
+     * @param entityWindowBuilder
+     *          EntityWindowBuilder
+     */
     public void addAddHeaderSupport(final AbstractEntityWindowBuilder<?> entityWindowBuilder) {
         if (addHeaderSupport == null && hasCreatePermission()) {
             this.entityWindowBuilder = entityWindowBuilder;
@@ -167,10 +191,16 @@ public abstract class AbstractEntityGridHeader extends AbstractGridHeader {
 
     protected abstract String getAddWindowCaptionMsg();
 
+    /**
+     * Show filter option
+     */
     public void showFilterIcon() {
         filterButtonsHeaderSupport.showFilterButtonsIcon();
     }
 
+    /**
+     * Hide filter option
+     */
     public void hideFilterIcon() {
         filterButtonsHeaderSupport.hideFilterButtonsIcon();
     }

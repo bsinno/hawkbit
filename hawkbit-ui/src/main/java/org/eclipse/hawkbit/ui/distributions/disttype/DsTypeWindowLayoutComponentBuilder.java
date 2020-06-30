@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,17 +16,34 @@ import org.springframework.util.CollectionUtils;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 
+/**
+ * Builder for Distribution set type window layout component
+ */
 public class DsTypeWindowLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
     private final SoftwareModuleTypeManagement softwareModuleTypeManagement;
 
+    /**
+     * Constructor for DsTypeWindowLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param softwareModuleTypeManagement
+     *          SoftwareModuleTypeManagement
+     */
     public DsTypeWindowLayoutComponentBuilder(final VaadinMessageSource i18n,
             final SoftwareModuleTypeManagement softwareModuleTypeManagement) {
         this.i18n = i18n;
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
     }
 
+    /**
+     * @param binder
+     *          Vaadin binder
+     *
+     * @return layout of distribution set software module selection
+     */
     public DsTypeSmSelectLayout createDsTypeSmSelectLayout(final Binder<ProxyType> binder) {
         final DsTypeSmSelectLayout dsTypeSmSelectLayout = new DsTypeSmSelectLayout(i18n, softwareModuleTypeManagement);
         dsTypeSmSelectLayout.setRequiredIndicatorVisible(true);

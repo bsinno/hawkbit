@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,12 +21,31 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
+/**
+ * Distribution set detail header
+ */
 public class DistributionSetDetailsHeader extends AbstractDetailsHeader<ProxyDistributionSet> {
     private static final long serialVersionUID = 1L;
 
     private final transient DsWindowBuilder dsWindowBuilder;
     private final transient DsMetaDataWindowBuilder dsMetaDataWindowBuilder;
 
+    /**
+     * Constructor for DistributionSetDetailsHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param dsWindowBuilder
+     *          DsWindowBuilder
+     * @param dsMetaDataWindowBuilder
+     *          DsMetaDataWindowBuilder
+     */
     public DistributionSetDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification, final DsWindowBuilder dsWindowBuilder,
             final DsMetaDataWindowBuilder dsMetaDataWindowBuilder) {

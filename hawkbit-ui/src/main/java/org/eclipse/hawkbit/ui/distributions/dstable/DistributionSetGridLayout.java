@@ -65,6 +65,44 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
     private final transient EntityModifiedListener<ProxyDistributionSet> dsModifiedListener;
     private final transient EntityModifiedListener<ProxyTag> tagModifiedListener;
 
+    /**
+     * Constructor for DistributionSetGridLayout
+     *
+     * @param i18n
+     *         VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param uiNotification
+     *          UINotification
+     * @param entityFactory
+     *          EntityFactory
+     * @param targetManagement
+     *          TargetManagement
+     * @param targetFilterQueryManagement
+     *          TargetFilterQueryManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param smManagement
+     *          SoftwareModuleManagement
+     * @param distributionSetTypeManagement
+     *          DistributionSetTypeManagement
+     * @param distributionSetTagManagement
+     *          DistributionSetTagManagement
+     * @param smTypeManagement
+     *          SoftwareModuleTypeManagement
+     * @param systemManagement
+     *          SystemManagement
+     * @param configManagement
+     *          TenantConfigurationManagement
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     * @param dSTypeFilterLayoutUiState
+     *          TypeFilterLayoutUiState
+     * @param distributionSetGridLayoutUiState
+     *          GridLayoutUiState
+     */
     public DistributionSetGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification uiNotification,
             final EntityFactory entityFactory, final TargetManagement targetManagement,
@@ -132,29 +170,47 @@ public class DistributionSetGridLayout extends AbstractGridComponentLayout {
                 .singletonList(EntityModifiedTagTokenAwareSupport.of(distributionSetDetails.getDistributionTagToken()));
     }
 
+    /**
+     * Show distribution set type header icon
+     */
     public void showDsTypeHeaderIcon() {
         distributionSetGridHeader.showFilterIcon();
     }
 
+    /**
+     * Hide distribution set type header icon
+     */
     public void hideDsTypeHeaderIcon() {
         distributionSetGridHeader.hideFilterIcon();
     }
 
+    /**
+     * Maximize the distribution set grid
+     */
     public void maximize() {
         distributionSetGrid.createMaximizedContent();
         hideDetailsLayout();
     }
 
+    /**
+     * Minimize the distribution set grid
+     */
     public void minimize() {
         distributionSetGrid.createMinimizedContent();
         showDetailsLayout();
     }
 
+    /**
+     * Restore the distribution set header and grid
+     */
     public void restoreState() {
         distributionSetGridHeader.restoreState();
         distributionSetGrid.restoreState();
     }
 
+    /**
+     * Unsubscribe the eent listener
+     */
     public void unsubscribeListener() {
         dsFilterListener.unsubscribe();
         masterDsChangedListener.unsubscribe();

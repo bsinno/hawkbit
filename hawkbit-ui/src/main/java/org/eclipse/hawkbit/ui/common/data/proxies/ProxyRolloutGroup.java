@@ -54,17 +54,37 @@ public class ProxyRolloutGroup extends ProxyNamedEntity {
     private RolloutGroupErrorAction errorAction;
     private String errorActionExp;
 
+    /**
+     * Constructor
+     */
     public ProxyRolloutGroup() {
     }
 
+    /**
+     * Constructor for ProxyRolloutGroup
+     *
+     * @param id
+     *         Rollout group Id
+     */
     public ProxyRolloutGroup(final Long id) {
         super(id);
     }
 
+    /**
+     * Gets the rollout finished percentage
+     *
+     * @return finishedPercentage
+     */
     public String getFinishedPercentage() {
         return finishedPercentage;
     }
 
+    /**
+     * Sets the finishedPercentage
+     *
+     * @param finishedPercentage
+     *          rollout finished percentage
+     */
     public void setFinishedPercentage(final String finishedPercentage) {
         this.finishedPercentage = finishedPercentage;
     }
@@ -125,26 +145,59 @@ public class ProxyRolloutGroup extends ProxyNamedEntity {
         this.isActionRecieved = isActionRecieved;
     }
 
+    /**
+     * Gets the count of total targets
+     *
+     * @return totalTargetsCount
+     */
     public String getTotalTargetsCount() {
         return totalTargetsCount;
     }
 
+    /**
+     * Sets the totalTargetsCount
+     *
+     * @param totalTargetsCount
+     *          count of total targets
+     */
     public void setTotalTargetsCount(final String totalTargetsCount) {
         this.totalTargetsCount = totalTargetsCount;
     }
 
+    /**
+     * Gets the status of rollout group assigned
+     *
+     * @return Rollout group status
+     */
     public RolloutGroupStatus getStatus() {
         return status;
     }
 
+    /**
+     * Sets the Rollout group status
+     *
+     * @param status
+     *          status of rollout group assigned
+     */
     public void setStatus(final RolloutGroupStatus status) {
         this.status = status;
     }
 
+    /**
+     * Gets the totalTargetCountStatus
+     *
+     * @return totalTargetCountStatus
+     */
     public TotalTargetCountStatus getTotalTargetCountStatus() {
         return totalTargetCountStatus;
     }
 
+    /**
+     * Sets the totalTargetCountStatus
+     *
+     * @param totalTargetCountStatus
+     *          TotalTargetCountStatus
+     */
     public void setTotalTargetCountStatus(final TotalTargetCountStatus totalTargetCountStatus) {
         this.totalTargetCountStatus = totalTargetCountStatus;
     }
@@ -153,14 +206,31 @@ public class ProxyRolloutGroup extends ProxyNamedEntity {
         return successCondition;
     }
 
+    /**
+     * Sets the rollout group successCondition
+     *
+     * @param successCondition
+     *          RolloutGroupSuccessCondition
+     */
     public void setSuccessCondition(final RolloutGroupSuccessCondition successCondition) {
         this.successCondition = successCondition;
     }
 
+    /**
+     * Gets the successConditionExp
+     *
+     * @return successConditionExp
+     */
     public String getSuccessConditionExp() {
         return successConditionExp;
     }
 
+    /**
+     * Sets the successConditionExp
+     *
+     * @param successConditionExp
+     *          RolloutGroup successConditionExp
+     */
     public void setSuccessConditionExp(final String successConditionExp) {
         this.successConditionExp = successConditionExp;
     }
@@ -185,14 +255,30 @@ public class ProxyRolloutGroup extends ProxyNamedEntity {
         return errorCondition;
     }
 
+    /**
+     * Sets the rollout group errorCondition
+     * @param errorCondition
+     *          RolloutGroupErrorCondition
+     */
     public void setErrorCondition(final RolloutGroupErrorCondition errorCondition) {
         this.errorCondition = errorCondition;
     }
 
+    /**
+     * Gets the errorConditionExp
+     *
+     * @return errorConditionExp
+     */
     public String getErrorConditionExp() {
         return errorConditionExp;
     }
 
+    /**
+     * Sets the errorConditionExp
+     *
+     * @param errorConditionExp
+     *          RolloutGroup errorConditionExp
+     */
     public void setErrorConditionExp(final String errorConditionExp) {
         this.errorConditionExp = errorConditionExp;
     }
@@ -201,6 +287,12 @@ public class ProxyRolloutGroup extends ProxyNamedEntity {
         return errorAction;
     }
 
+    /**
+     * Sets the errorAction
+     *
+     * @param errorAction
+     *          RolloutGroupErrorAction
+     */
     public void setErrorAction(final RolloutGroupErrorAction errorAction) {
         this.errorAction = errorAction;
     }
@@ -209,6 +301,12 @@ public class ProxyRolloutGroup extends ProxyNamedEntity {
         return errorActionExp;
     }
 
+    /**
+     * Sets the errorActionExp
+     *
+     * @param errorActionExp
+     *          RolloutGroup errorActionExp
+     */
     public void setErrorActionExp(final String errorActionExp) {
         this.errorActionExp = errorActionExp;
     }

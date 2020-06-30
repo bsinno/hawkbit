@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -44,6 +44,14 @@ public class ColorPickerComponent extends CustomField<Color> {
     private Color selectedColor;
     private boolean isColorUpdateInProgress;
 
+    /**
+     * Constructor for ColorPickerComponent
+     *
+     * @param coloPickerBtnId
+     *          Id of colour picker button
+     * @param coloPickerBtnCaption
+     *          Caption for colour picker button
+     */
     public ColorPickerComponent(final String coloPickerBtnId, final String coloPickerBtnCaption) {
         this.colorPickerBtn = new CustomColorPicker(coloPickerBtnId, coloPickerBtnCaption);
 
@@ -60,9 +68,20 @@ public class ColorPickerComponent extends CustomField<Color> {
         addValueChangeListeners();
     }
 
+    /**
+     * Custom colour picker
+     */
     public class CustomColorPicker extends ColorPicker {
         private static final long serialVersionUID = 1L;
 
+        /**
+         * Constructor for CustomColorPicker
+         *
+         * @param id
+         *          Id
+         * @param caption
+         *          Caption
+         */
         public CustomColorPicker(final String id, final String caption) {
             super();
 
@@ -150,6 +169,9 @@ public class ColorPickerComponent extends CustomField<Color> {
         return Doubles.constrainToRange(colorValue, RGB_START, RGB_END);
     }
 
+    /**
+     * @return Colour picker button
+     */
     public CustomColorPicker getColorPickerBtn() {
         return colorPickerBtn;
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,6 +37,14 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
     private final VaadinMessageSource i18n;
     private final transient Runnable mandatoryPropertyChangedCallback;
 
+    /**
+     * Constructor for SmTypeSelectedGrid
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param mandatoryPropertyChangedCallback
+     *          Runnable
+     */
     public SmTypeSelectedGrid(final VaadinMessageSource i18n, final Runnable mandatoryPropertyChangedCallback) {
         this.i18n = i18n;
         this.mandatoryPropertyChangedCallback = mandatoryPropertyChangedCallback;

@@ -41,6 +41,22 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
 
     private final TagToProxyTagMapper<DistributionSetTag> tagMapper;
 
+    /**
+     * Constructor for DistributionTagToken
+     *
+     * @param checker
+     *          SpPermissionChecker
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uinotification
+     *          UINotification
+     * @param eventBus
+     *          UIEventBus
+     * @param distributionSetTagManagement
+     *          DistributionSetTagManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     */
     public DistributionTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
             final UINotification uinotification, final UIEventBus eventBus,
             final DistributionSetTagManagement distributionSetTagManagement,

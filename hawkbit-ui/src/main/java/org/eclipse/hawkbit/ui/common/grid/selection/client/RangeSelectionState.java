@@ -20,10 +20,21 @@ public class RangeSelectionState extends GridDragSourceState {
 
     private int selectionCount;
 
+    /**
+     * Gets the total selected items
+     *
+     * @return selectionCount
+     */
     public int getSelectionCount() {
         return selectionCount;
     }
 
+    /**
+     * Sets the total selected items
+     *
+     * @param selectionCount
+ *              Number of selected items
+     */
     public void setSelectionCount(final int selectionCount) {
         this.selectionCount = selectionCount;
     }

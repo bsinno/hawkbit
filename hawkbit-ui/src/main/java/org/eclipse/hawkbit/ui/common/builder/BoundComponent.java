@@ -37,22 +37,40 @@ public class BoundComponent<T extends Component> implements Serializable {
         this.binding = binding;
     }
 
+    /**
+     * @return The component
+     */
     public T getComponent() {
         return component;
     }
 
+    /**
+     * Set to true if the component is required
+     *
+     * @param isRequired
+     *          boolean
+     */
     public void setRequired(final boolean isRequired) {
         binding.setAsRequiredEnabled(isRequired);
     }
 
+    /**
+     * @return boolean
+     */
     public boolean isValid() {
         return !binding.validate(false).isError();
     }
 
+    /**
+     * Validate binding
+     */
     public void validate() {
         binding.validate();
     }
 
+    /**
+     * unbind the component
+     */
     public void unbind() {
         binding.unbind();
     }

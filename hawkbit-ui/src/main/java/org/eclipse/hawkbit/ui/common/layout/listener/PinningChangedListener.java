@@ -16,10 +16,25 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
+/**
+ * Event change listener for pinning changed
+ *
+ * @param <F>
+ */
 public class PinningChangedListener<F> extends EventListener {
     private final Class<? extends ProxyIdentifiableEntity> entityType;
     private final PinSupport<? extends ProxyIdentifiableEntity, F> pinSupport;
 
+    /**
+     * Constructor for PinningChangedListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param entityType
+     *          Identifiable Entity type
+     * @param pinSupport
+     *          Pin support
+     */
     public PinningChangedListener(final UIEventBus eventBus, final Class<? extends ProxyIdentifiableEntity> entityType,
             final PinSupport<? extends ProxyIdentifiableEntity, F> pinSupport) {
         super(eventBus, EventTopics.PINNING_CHANGED);

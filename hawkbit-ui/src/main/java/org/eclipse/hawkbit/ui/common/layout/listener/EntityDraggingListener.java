@@ -19,11 +19,24 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.ui.Component;
 
+/**
+ * Event listener for entity dragging
+ */
 public class EntityDraggingListener extends EventListener {
     private static final String DROP_HINT_STYLE = "show-drop-hint";
     private final Collection<String> draggingSourceIds;
     private final Component dropComponent;
 
+    /**
+     * Constructor for EntityDraggingListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param draggingSourceIds
+     *          List of draggins source id
+     * @param dropComponent
+     *          Component
+     */
     public EntityDraggingListener(final UIEventBus eventBus, final Collection<String> draggingSourceIds,
             final Component dropComponent) {
         super(eventBus, EventTopics.ENTITY_DRAGGING_CHANGED);

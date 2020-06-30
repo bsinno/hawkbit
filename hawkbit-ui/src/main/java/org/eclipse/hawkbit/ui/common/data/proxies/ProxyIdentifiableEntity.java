@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,18 +21,37 @@ public abstract class ProxyIdentifiableEntity implements Serializable {
 
     private Long id;
 
+    /**
+     * Constructor to initialize the id with null
+     */
     public ProxyIdentifiableEntity() {
         this.id = null;
     }
 
+    /**
+     * Constructor for ProxyIdentifiableEntity
+     * @param id
+     *          Id of entity
+     */
     public ProxyIdentifiableEntity(final Long id) {
         this.id = id;
     }
 
+    /**
+     * Gets the id
+     *
+     * @return id
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Sets the id
+     *
+     * @param id
+     *         Id of entity
+     */
     public void setId(final Long id) {
         this.id = id;
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -34,10 +34,28 @@ public class ActionStatusMsgDataProvider extends GenericDataProvider<ProxyMessag
     private final transient DeploymentManagement deploymentManagement;
     private final String noMessageText;
 
+    /**
+     * Constructor for ActionStatusMsgDataProvider
+     *
+     * @param deploymentManagement
+     *          DeploymentManagement
+     * @param noMessageText
+     *          Message not available text
+     */
     public ActionStatusMsgDataProvider(final DeploymentManagement deploymentManagement, final String noMessageText) {
         this(deploymentManagement, noMessageText, new Sort(Direction.DESC, "id"));
     }
 
+    /**
+     * Constructor for ActionStatusMsgDataProvider to call super class
+     *
+     * @param deploymentManagement
+     *          DeploymentManagement
+     * @param noMessageText
+     *          Message not available text
+     * @param defaultSortOrder
+     *          Sort
+     */
     public ActionStatusMsgDataProvider(final DeploymentManagement deploymentManagement, final String noMessageText,
             final Sort defaultSortOrder) {
         super(defaultSortOrder);

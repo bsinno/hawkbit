@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,6 +37,23 @@ public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implem
 
     private final transient DeleteSupport<ProxyMetaData> metaDataDeleteSupport;
 
+    /**
+     * Constructor for MetaDataWindowGrid
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param notification
+     *          UINotification
+     * @param dataProvider
+     *          AbstractMetaDataDataProvider for filter support
+     * @param itemsDeletionCallback
+     *          Grid item deletion Call back for event listener
+     *
+     */
     public MetaDataWindowGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final UINotification notification,
             final AbstractMetaDataDataProvider<?, F> dataProvider,

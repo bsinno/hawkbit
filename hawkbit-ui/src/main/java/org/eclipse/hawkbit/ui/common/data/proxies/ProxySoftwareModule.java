@@ -31,50 +31,118 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
 
     private boolean assigned;
 
+    /**
+     * Gets the software module vendor
+     *
+     * @return vendor
+     */
     public String getVendor() {
         return vendor;
     }
 
+    /**
+     * Sets the vendor
+     *
+     * @param vendor
+     *          software module vendor
+     */
     public void setVendor(final String vendor) {
         this.vendor = vendor;
     }
 
+    /**
+     * Gets the software module name and version
+     *
+     * @return nameAndVersion
+     */
     public String getNameAndVersion() {
         return nameAndVersion;
     }
 
+    /**
+     * Sets the nameAndVersion
+     *
+     * @param nameAndVersion
+     *          software module name and version
+     */
     public void setNameAndVersion(final String nameAndVersion) {
         this.nameAndVersion = nameAndVersion;
     }
 
+    /**
+     * Flag that indicates if the software module is assigned.
+     *
+     * @return <code>true</code> if the software module is assigned, otherwise
+     *         <code>false</code>
+     */
     public boolean isAssigned() {
         return assigned;
     }
 
+    /**
+     * Sets the flag that indicates if the software module is assigned.
+     *
+     * @param assigned
+     *            <code>true</code> if the software module is assigned, otherwise
+     *            <code>false</code>
+     */
     public void setAssigned(final boolean assigned) {
         this.assigned = assigned;
     }
 
+    /**
+     * Gets the proxyType
+     *
+     * @return proxyType
+     */
     public ProxyType getProxyType() {
         return proxyType;
     }
 
+    /**
+     * Sets the proxyType
+     *
+     * @param proxyType
+     *          ProxyType
+     */
     public void setProxyType(final ProxyType proxyType) {
         this.proxyType = proxyType;
     }
 
+    /**
+     * Gets the software module version
+     *
+     * @return version
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * Sets the version
+     *
+     * @param version
+     *          software module version
+     */
     public void setVersion(final String version) {
         this.version = version;
     }
 
+    /**
+     * Gets the id of software module type
+     *
+     * @return typeId
+     */
     public Long getTypeId() {
         return typeId;
     }
 
+    /**
+     * Sets the typeId
+     *
+     * @param typeId
+     *          id of software module type
+     */
     public void setTypeId(final Long typeId) {
         this.typeId = typeId;
     }

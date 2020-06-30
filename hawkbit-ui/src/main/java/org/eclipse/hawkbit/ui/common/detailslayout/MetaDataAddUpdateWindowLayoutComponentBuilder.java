@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,6 +22,9 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
+/**
+ * Builder for add/update window layout component
+ */
 //TODO: remove duplication with other builders
 public class MetaDataAddUpdateWindowLayoutComponentBuilder {
 
@@ -33,10 +36,22 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
 
+    /**
+     * Constructor for MetaDataAddUpdateWindowLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public MetaDataAddUpdateWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
     }
 
+    /**
+     * @param binder
+     *          Vaadin binder
+     *
+     * @return Key textfield
+     */
     public TextField createKeyField(final Binder<ProxyMetaData> binder) {
         final TextField keyField = new TextFieldBuilder(MetaData.KEY_MAX_SIZE)
                 .id(UIComponentIdProvider.METADATA_KEY_FIELD_ID).caption(i18n.getMessage(TEXTFIELD_KEY))
@@ -45,13 +60,18 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
         keyField.setValueChangeMode(ValueChangeMode.LAZY);
         keyField.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
 
-        // TODO: use i18n for all the required fields messages
-        binder.forField(keyField).asRequired("You must provide metadata key").bind(ProxyMetaData::getKey,
+        binder.forField(keyField).asRequired("message.entity.key").bind(ProxyMetaData::getKey,
                 ProxyMetaData::setKey);
 
         return keyField;
     }
 
+    /**
+     * @param binder
+     *          Vaadin binder
+     *
+     * @return Value textarea
+     */
     public TextArea createValueField(final Binder<ProxyMetaData> binder) {
         final TextArea valueField = new TextAreaBuilder(MetaData.VALUE_MAX_SIZE)
                 .id(UIComponentIdProvider.METADATA_VALUE_ID).caption(i18n.getMessage(TEXTFIELD_VALUE))
@@ -60,13 +80,18 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
         valueField.setValueChangeMode(ValueChangeMode.LAZY);
         valueField.setValueChangeTimeout(INPUT_DEBOUNCE_TIMEOUT);
 
-        // TODO: use i18n for all the required fields messages
-        binder.forField(valueField).asRequired("You must provide metadata value").bind(ProxyMetaData::getValue,
+        binder.forField(valueField).asRequired(i18n.getMessage("message.entity.value")).bind(ProxyMetaData::getValue,
                 ProxyMetaData::setValue);
 
         return valueField;
     }
 
+    /**
+     * @param binder
+     *          Vaadin binder
+     *
+     * @return Target field CheckBox
+     */
     public CheckBox createVisibleForTargetsField(final Binder<ProxyMetaData> binder) {
         return SPUIComponentProvider.getCheckBox(i18n.getMessage(TARGET_VISIBLE),
                 UIComponentIdProvider.METADATA_TARGET_VISIBLE_ID, binder, ProxyMetaData::isTargetVisible,

@@ -39,6 +39,9 @@ public abstract class AbstractFilterButtonClickBehaviour<T> implements Serializa
      */
     protected abstract void filterClicked(final T clickedFilter);
 
+    /**
+     * Filter button click behaviour types
+     */
     public enum ClickBehaviourType {
         CLICKED, UNCLICKED;
     }

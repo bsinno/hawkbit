@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
+import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyRolloutGroup;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -19,6 +20,14 @@ import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 public class RolloutGroupToProxyRolloutGroupMapper
         extends AbstractNamedEntityToProxyNamedEntityMapper<ProxyRolloutGroup, RolloutGroup> {
 
+    /**
+     * Maps the rollout group to proxy rollout group
+     *
+     * @param group
+     *          RolloutGroup
+     *
+     * @return the corresponding Rollout group
+     */
     public static ProxyRolloutGroup mapGroup(final RolloutGroup group) {
         return new RolloutGroupToProxyRolloutGroupMapper().map(group);
     }

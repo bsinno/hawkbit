@@ -23,19 +23,45 @@ public class ProxyTag extends ProxyFilterButton {
 
     private boolean isNoTag;
 
+    /**
+     * Constructor
+     */
     public ProxyTag() {
     }
 
+    /**
+     * Constructor for ProxyTag
+     *
+     * @param id
+     *          Tag id
+     * @param name
+     *          Tag name
+     * @param colour
+     *          Tag oolour
+     */
     public ProxyTag(final Long id, final String name, final String colour) {
         setId(id);
         setName(name);
         setColour(colour);
     }
 
+    /**
+     * Flag that indicates if the tag is added.
+     *
+     * @return <code>true</code> if the tag is added, otherwise
+     *         <code>false</code>
+     */
     public boolean isNoTag() {
         return isNoTag;
     }
 
+    /**
+     * Sets the flag that indicates if there is no tag.
+     *
+     * @param isNoTag
+     *            <code>true</code> if there is no tag, otherwise
+     *            <code>false</code>
+     */
     public void setNoTag(final boolean isNoTag) {
         this.isNoTag = isNoTag;
     }

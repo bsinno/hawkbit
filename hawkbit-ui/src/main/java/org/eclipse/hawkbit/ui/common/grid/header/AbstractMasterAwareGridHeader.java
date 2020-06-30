@@ -30,6 +30,16 @@ public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeade
     private final Label entityDetailsCaption;
     private final Label masterEntityDetailsCaption;
 
+    /**
+     * Constructor for AbstractMasterAwareGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     */
     public AbstractMasterAwareGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus) {
         super(i18n, permChecker, eventBus);

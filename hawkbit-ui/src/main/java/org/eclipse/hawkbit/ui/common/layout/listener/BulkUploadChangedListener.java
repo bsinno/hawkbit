@@ -17,9 +17,20 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
 import com.vaadin.server.VaadinSession;
 
+/**
+ * Event change listener for bulk upload
+ */
 public class BulkUploadChangedListener extends EventListener {
     private final Consumer<BulkUploadEventPayload> bulkUploadCallback;
 
+    /**
+     * Constructor for BulkUploadChangedListener
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param bulkUploadCallback
+     *          Bulk upload callback event
+     */
     public BulkUploadChangedListener(final UIEventBus eventBus,
             final Consumer<BulkUploadEventPayload> bulkUploadCallback) {
         super(eventBus, EventTopics.BULK_UPLOAD_CHANGED);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -57,10 +57,16 @@ public class MetaDataAddUpdateWindowLayout extends AbstractEntityWindowLayout<Pr
         return addUpdateLayout;
     }
 
+    /**
+     * Enable meta data key
+     */
     public void enableMetadataKey() {
         metadataKey.setEnabled(true);
     }
 
+    /**
+     * Disable meta data key
+     */
     public void disableMetadataKey() {
         metadataKey.setEnabled(false);
     }

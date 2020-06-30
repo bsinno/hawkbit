@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -30,6 +30,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for add distribution set window
+ */
 public class AddDsWindowController extends AbstractEntityWindowController<ProxyDistributionSet, ProxyDistributionSet> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
@@ -43,6 +46,26 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
 
     private final EventView view;
 
+    /**
+     * Constructor for AddDsWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param systemManagement
+     *          SystemManagement
+     * @param dsManagement
+     *          DistributionSetManagement
+     * @param layout
+     *          DsWindowLayout
+     * @param view
+     *         EventView
+     */
     public AddDsWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SystemManagement systemManagement,
             final DistributionSetManagement dsManagement, final DsWindowLayout layout, final EventView view) {

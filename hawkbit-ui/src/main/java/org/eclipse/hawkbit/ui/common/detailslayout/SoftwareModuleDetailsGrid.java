@@ -223,8 +223,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
 
     private void unassignSoftwareModule(final Long smId, final String smNameAndVersion) {
         if (masterEntity == null) {
-            // TODO: use i18n
-            uiNotification.displayValidationError("no distribution set selected");
+            uiNotification.displayValidationError(i18n.getMessage("message.error.distributionSetRequired"));
             return;
         }
 
@@ -305,6 +304,11 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
         return smDetails;
     }
 
+    /**
+     * @param isUnassignSmAllowed
+     *            <code>true</code> if unassigned software module is allowed, otherwise
+     *            <code>false</code>
+     */
     public void setUnassignSmAllowed(final boolean isUnassignSmAllowed) {
         this.isUnassignSmAllowed = isUnassignSmAllowed;
     }

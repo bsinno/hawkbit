@@ -26,6 +26,18 @@ public class MetadataWindowGridHeader extends AbstractGridHeader {
 
     private final transient AddHeaderSupport addHeaderSupport;
 
+    /**
+     * Constructor for MetadataWindowGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     * @param addNewItemCallback
+     *          Runnable
+     */
     public MetadataWindowGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final Runnable addNewItemCallback) {
         super(i18n, permChecker, eventBus);

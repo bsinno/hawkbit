@@ -14,9 +14,22 @@ import org.eclipse.hawkbit.ui.common.event.EventLayoutViewAware;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Abstract class for layout view aware listener
+ */
 public abstract class LayoutViewAwareListener extends EventListener {
     private final EventLayoutViewAware layoutViewAware;
 
+    /**
+     * Constructor for LayoutViewAwareListener
+     *
+     * @param eventBus
+     *          LayoutViewAwareListener
+     * @param topic
+     *          Topic
+     * @param layoutViewAware
+     *          EventLayoutViewAware
+     */
     public LayoutViewAwareListener(final UIEventBus eventBus, final String topic,
             final EventLayoutViewAware layoutViewAware) {
         super(eventBus, topic);
@@ -31,14 +44,23 @@ public abstract class LayoutViewAwareListener extends EventListener {
         this.layoutViewAware = layoutViewAware;
     }
 
+    /**
+     * @return layout view aware
+     */
     public EventLayoutViewAware getLayoutViewAware() {
         return layoutViewAware;
     }
 
+    /**
+     * @return view
+     */
     public EventView getView() {
         return layoutViewAware.getView();
     }
 
+    /**
+     * @return layout
+     */
     public EventLayout getLayout() {
         return layoutViewAware.getLayout();
     }

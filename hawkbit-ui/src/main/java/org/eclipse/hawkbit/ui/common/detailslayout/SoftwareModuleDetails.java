@@ -32,10 +32,24 @@ import com.vaadin.ui.Window;
 public class SoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwareModule> {
     private static final long serialVersionUID = 1L;
 
+    private static final String SM_PREFIX = "sm.";
+
     private final MetadataDetailsGrid<Long> smMetadataGrid;
 
     private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
 
+    /**
+     * Constructor for SoftwareModuleDetails
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param softwareManagement
+     *          SoftwareModuleManagement
+     * @param smMetaDataWindowBuilder
+     *          SmMetaDataWindowBuilder
+     */
     public SoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SoftwareModuleManagement softwareManagement, final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
         super(i18n);
@@ -76,8 +90,7 @@ public class SoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwa
 
     @Override
     protected String getLogLabelIdPrefix() {
-        // TODO: fix with constant
-        return "sm.";
+        return SM_PREFIX;
     }
 
     private void showMetadataDetails(final ProxyMetaData metadata) {

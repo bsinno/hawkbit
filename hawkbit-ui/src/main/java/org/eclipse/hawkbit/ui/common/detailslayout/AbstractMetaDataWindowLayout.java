@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -61,6 +61,9 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
 
     protected abstract MetaDataWindowGrid<F> getMetaDataWindowGrid();
 
+    /**
+     * @return add meta data window controller
+     */
     public abstract AddMetaDataWindowController getAddMetaDataWindowController();
 
     private void resetSaveButton() {
@@ -69,12 +72,29 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
                 .ifPresent(validationCallback -> validationCallback.accept(false));
     }
 
+    /**
+     * @return Meta data add and update window
+     */
     public abstract MetaDataAddUpdateWindowLayout getMetaDataAddUpdateWindowLayout();
 
+    /**
+     * Validation listener for input values
+     *
+     * @param validationCallback
+     *         ValidationCallback for event listener
+     */
     public void addValidationListener(final Consumer<Boolean> validationCallback) {
         getMetaDataAddUpdateWindowLayout().addValidationListener(validationCallback);
     }
 
+    /**
+     * Set master entity filter
+     *
+     * @param masterEntityFilter
+     *          Generic type
+     * @param metaData
+     *          ProxyMetaData
+     */
     public void setMasterEntityFilter(final F masterEntityFilter, final ProxyMetaData metaData) {
         this.masterEntityFilter = masterEntityFilter;
 
@@ -89,6 +109,12 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
         }
     }
 
+    /**
+     * Set save call back listener
+     *
+     * @param saveCallback
+     *          SaveDialogCloseListener
+     */
     public void setSaveCallback(final Consumer<SaveDialogCloseListener> saveCallback) {
         this.saveCallback = saveCallback;
     }
@@ -127,6 +153,9 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
         resetSaveButton();
     }
 
+    /**
+     * @return UpdateMetaDataWindowController
+     */
     public abstract UpdateMetaDataWindowController getUpdateMetaDataWindowController();
 
     protected void onMetaDataModified(final ProxyMetaData metaData) {
@@ -143,6 +172,14 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
     private static class MetaDataWindowGridLayout extends AbstractGridComponentLayout {
         private static final long serialVersionUID = 1L;
 
+        /**
+         * Constructor for MetaDataWindowGridLayout
+         *
+         * @param metadataWindowGridHeader
+         *          MetadataWindowGridHeader
+         * @param metaDataWindowGrid
+         *          MetaDataWindowGrid
+         */
         public MetaDataWindowGridLayout(final MetadataWindowGridHeader metadataWindowGridHeader,
                 final MetaDataWindowGrid<?> metaDataWindowGrid) {
             super.buildLayout(metadataWindowGridHeader, metaDataWindowGrid);
