@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,6 +37,9 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
+/**
+ * Rollout form layout
+ */
 public class RolloutFormLayout extends ValidatableLayout {
 
     private static final String PROMPT_TARGET_FILTER = "prompt.target.filter";
@@ -70,6 +73,16 @@ public class RolloutFormLayout extends ValidatableLayout {
 
     private Consumer<String> filterQueryChangedListener;
 
+    /**
+     * Constructor for RolloutFormLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param distributionSetDataProvider
+     *          DistributionSetStatelessDataProvider
+     * @param targetFilterQueryDataProvider
+     *          TargetFilterQueryDataProvider
+     */
     public RolloutFormLayout(final VaadinMessageSource i18n,
             final DistributionSetStatelessDataProvider distributionSetDataProvider,
             final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
@@ -189,12 +202,24 @@ public class RolloutFormLayout extends ValidatableLayout {
                 event -> autoStartOptionGroupLayout.setRequired(event.getValue() == AutoStartOption.SCHEDULED));
     }
 
+    /**
+     * Add rollout form to add layout
+     *
+     * @param layout
+     *          Grid layout
+     */
     public void addFormToAddLayout(final GridLayout layout) {
         targetFilterQueryField.unbind();
         addFormToLayout(layout, targetFilterQueryCombo.getComponent());
 
     }
 
+    /**
+     * Add rollout form to edit layout
+     *
+     * @param layout
+     *          Grid layout
+     */
     public void addFormToEditLayout(final GridLayout layout) {
         targetFilterQueryCombo.unbind();
         addFormToLayout(layout, targetFilterQueryField.getComponent());
@@ -222,10 +247,16 @@ public class RolloutFormLayout extends ValidatableLayout {
         layout.addComponent(autoStartOptionGroupLayout.getComponent(), FIELD_COLUMN, 5, lastColumn, 5);
     }
 
+    /**
+     * Disable field on edit for inactive
+     */
     public void disableFieldsOnEditForInActive() {
         targetFilterQueryField.getComponent().setEnabled(false);
     }
 
+    /**
+     * Disable field on edit for active
+     */
     public void disableFieldsOnEditForActive() {
         disableFieldsOnEditForInActive();
 
@@ -234,6 +265,9 @@ public class RolloutFormLayout extends ValidatableLayout {
         autoStartOptionGroupLayout.getComponent().setEnabled(false);
     }
 
+    /**
+     * Disable all fields
+     */
     public void disableAllFields() {
         disableFieldsOnEditForActive();
 
@@ -241,21 +275,45 @@ public class RolloutFormLayout extends ValidatableLayout {
         descriptionField.setEnabled(false);
     }
 
+    /**
+     * Sets the changed listener for filter query
+     *
+     * @param filterQueryChangedListener
+     *          Changed listener
+     */
     public void setFilterQueryChangedListener(final Consumer<String> filterQueryChangedListener) {
         this.filterQueryChangedListener = filterQueryChangedListener;
     }
 
+    /**
+     * Sets the count of total targets
+     *
+     * @param totalTargets
+     *          Total targets
+     */
     public void setTotalTargets(final Long totalTargets) {
         this.totalTargets = totalTargets;
 
         targetFilterQueryCombo.validate();
     }
 
+    /**
+     * Sets the rollout form bean in binder
+     *
+     * @param bean
+     *          ProxyRolloutForm
+     */
     public void setBean(final ProxyRolloutForm bean) {
         rolloutId = bean.getId();
         binder.readBean(bean);
     }
 
+    /**
+     * @return Updated rollout form bean
+     *
+     * @throws ValidationException
+     *          ValidationException
+     */
     public ProxyRolloutForm getBean() throws ValidationException {
         final ProxyRolloutForm bean = new ProxyRolloutForm();
         bean.setId(rolloutId);

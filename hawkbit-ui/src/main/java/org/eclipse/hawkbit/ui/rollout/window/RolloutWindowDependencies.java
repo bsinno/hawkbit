@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,6 +37,32 @@ public final class RolloutWindowDependencies {
     private final UIEventBus eventBus;
     private final UiProperties uiProperties;
 
+    /**
+     * Constructor for RolloutWindowDependencies
+     *
+     * @param rolloutManagement
+     *          RolloutManagement
+     * @param targetManagement
+     *          TargetManagement
+     * @param uiNotification
+     *          UINotification
+     * @param entityFactory
+     *          EntityFactory
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiProperties
+     *          UiProperties
+     * @param eventBus
+     *          TargetFilterQueryManagement
+     * @param targetFilterQueryManagement
+     *          TargetFilterQueryManagement
+     * @param rolloutGroupManagement
+     *          RolloutGroupManagement
+     * @param quotaManagement
+     *          QuotaManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     */
     public RolloutWindowDependencies(final RolloutManagement rolloutManagement, final TargetManagement targetManagement,
             final UINotification uiNotification, final EntityFactory entityFactory, final VaadinMessageSource i18n,
             final UiProperties uiProperties, final UIEventBus eventBus,
@@ -56,46 +82,79 @@ public final class RolloutWindowDependencies {
         this.distributionSetManagement = distributionSetManagement;
     }
 
+    /**
+     * @return Rollout management
+     */
     public RolloutManagement getRolloutManagement() {
         return rolloutManagement;
     }
 
+    /**
+     * @return Rollout group management
+     */
     public RolloutGroupManagement getRolloutGroupManagement() {
         return rolloutGroupManagement;
     }
 
+    /**
+     * @return Quota management
+     */
     public QuotaManagement getQuotaManagement() {
         return quotaManagement;
     }
 
+    /**
+     * @return Target management
+     */
     public TargetManagement getTargetManagement() {
         return targetManagement;
     }
 
+    /**
+     * @return Target filter query management
+     */
     public TargetFilterQueryManagement getTargetFilterQueryManagement() {
         return targetFilterQueryManagement;
     }
 
+    /**
+     * @return UI notification
+     */
     public UINotification getUiNotification() {
         return uiNotification;
     }
 
+    /**
+     * @return Entity factory
+     */
     public EntityFactory getEntityFactory() {
         return entityFactory;
     }
 
+    /**
+     * @return Vaadin message source
+     */
     public VaadinMessageSource getI18n() {
         return i18n;
     }
 
+    /**
+     * @return UI properties
+     */
     public UiProperties getUiProperties() {
         return uiProperties;
     }
 
+    /**
+     * @return UI event bus
+     */
     public UIEventBus getEventBus() {
         return eventBus;
     }
 
+    /**
+     * @return Distribution set management
+     */
     public DistributionSetManagement getDistributionSetManagement() {
         return distributionSetManagement;
     }
