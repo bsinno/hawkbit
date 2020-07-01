@@ -26,4 +26,10 @@ public interface DirectoryGroupUpdate {
      * @return updated builder instance
      */
     DirectoryGroupUpdate name(@Size(min = 1, max = NamedEntity.NAME_MAX_SIZE) @NotNull String name);
+
+    /**
+     * @param directoryParent for {@link DirectoryGroup#getDirectoryParent()} ()}
+     * @return updated builder instance
+     */
+    DirectoryGroupUpdate directoryParent(DirectoryGroup directoryParent);
 }

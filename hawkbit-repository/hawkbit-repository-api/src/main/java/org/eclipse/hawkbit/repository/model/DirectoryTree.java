@@ -8,11 +8,13 @@
  */
 package org.eclipse.hawkbit.repository.model;
 
+import java.io.Serializable;
+
 /**
  * {@link DirectoryTree} entry.
  *
  */
-public interface DirectoryTree {
+public interface DirectoryTree extends Serializable {
 
     /**
      * @return return ancestor of the directory tree node

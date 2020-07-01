@@ -39,6 +39,10 @@ import org.eclipse.persistence.queries.StoredProcedureCall;
 public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements DirectoryGroup, EventAwareEntity {
     private static final long serialVersionUID = 1L;
 
+    public static final String PROCEDURE_PARAM_PARENT = "param_parent";
+
+    public static final String PROCEDURE_PARAM_GROUP = "param_group";
+
     @JoinColumn(name = "directory_parent", nullable = true, updatable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_directory_parent"))
     @ManyToOne(targetEntity = JpaDirectoryGroup.class)
     private DirectoryGroup directoryParent;
@@ -46,9 +50,13 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
     @OneToMany(targetEntity = JpaDirectoryGroup.class, mappedBy = "directoryParent")
     private Collection<DirectoryGroup> directoryChildren;
 
+    // Seems like a sonar bug as DirectoryTree implements Serializable also occurred in AbstractTagToken
+    @SuppressWarnings("squid:S1948")
     @OneToMany(targetEntity = JpaDirectoryTree.class, mappedBy = "ancestor")
     private Collection<DirectoryTree> ancestorTree;
 
+    // Seems like a sonar bug as DirectoryTree implements Serializable also occurred in AbstractTagToken
+    @SuppressWarnings("squid:S1948")
     @OneToMany(targetEntity = JpaDirectoryTree.class, mappedBy = "descendant")
     private Collection<DirectoryTree> descendantTree;
 
@@ -125,8 +133,8 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
             long parentId = group.getDirectoryParent() != null ? group.getDirectoryParent().getId() : groupId;
             StoredProcedureCall storedProcedureCall = new StoredProcedureCall();
             storedProcedureCall.setProcedureName("p_group_node_add");
-            storedProcedureCall.addNamedArgumentValue("param_group", groupId);
-            storedProcedureCall.addNamedArgumentValue("param_parent", parentId);
+            storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_GROUP, groupId);
+            storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_PARENT, parentId);
 
             descriptorEvent.getSession().beginTransaction();
             executeCall(descriptorEvent, storedProcedureCall);
@@ -144,13 +152,13 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
             if (newParent != null) {
                 StoredProcedureCall storedProcedureCall = new StoredProcedureCall();
                 storedProcedureCall.setProcedureName("p_group_node_move");
-                storedProcedureCall.addNamedArgumentValue("param_group", newGroup.getId());
+                storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_GROUP, newGroup.getId());
                 // an empty parent is means remove group assignment, set it to zero will clean up its closure tree
                 // self assignment should not be possible, but still try to handle it the same
                 if (newGroup.getDirectoryParent() == null || newGroup.getId().equals(newGroup.getDirectoryParent().getId())) {
-                    storedProcedureCall.addNamedArgumentValue("param_parent", 0);
+                    storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_PARENT, 0);
                 } else {
-                    storedProcedureCall.addNamedArgumentValue("param_parent", newGroup.getDirectoryParent().getId());
+                    storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_PARENT, newGroup.getDirectoryParent().getId());
                 }
 
                 descriptorEvent.getSession().beginTransaction();
