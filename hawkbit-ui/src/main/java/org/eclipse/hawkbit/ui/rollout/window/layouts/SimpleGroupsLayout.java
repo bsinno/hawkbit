@@ -33,6 +33,7 @@ import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
+//TODO: remove duplication with other builders
 public class SimpleGroupsLayout extends ValidatableLayout {
     private static final String MESSAGE_ENTER_NUMBER = "message.enter.number";
     private static final String MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED = "message.rollout.max.group.size.exceeded";
@@ -83,8 +84,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         noOfGroups.setSizeUndefined();
 
         final Binding<ProxySimpleRolloutGroupsDefinition, Integer> noOfGroupsFieldBinding = binder.forField(noOfGroups)
-                // TODO: use i18n
-                .asRequired("You must specify at least one group").withNullRepresentation("")
+                .asRequired(i18n.getMessage("message.rollout.nonzero.group.number")).withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter(i18n.getMessage(MESSAGE_ENTER_NUMBER)))
                 .withValidator((number, context) -> {
                     final int maxGroups = quotaManagement.getMaxRolloutGroupsPerRollout();
@@ -127,8 +127,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
                 .prompt(i18n.getMessage("prompt.trigger.threshold")).buildTextComponent();
         triggerThresholdField.setSizeUndefined();
 
-        // TODO: use i18n
-        binder.forField(triggerThresholdField).asRequired("Trigger threshold can not be empty")
+        binder.forField(triggerThresholdField).asRequired(i18n.getMessage("prompt.trigger.threshold.required"))
                 .withValidator((triggerThresholdText,
                         context) -> new IntegerRangeValidator(
                                 i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
@@ -153,9 +152,9 @@ public class SimpleGroupsLayout extends ValidatableLayout {
                 .buildTextComponent();
         errorThresholdField.setSizeUndefined();
 
-        // TODO: use i18n
         final Binding<ProxySimpleRolloutGroupsDefinition, String> binding = binder.forField(errorThresholdField)
-                .asRequired("Error threshold can not be empty").withValidator((errorThresholdText, context) -> {
+                .asRequired(i18n.getMessage("prompt.error.threshold.required"))
+                .withValidator((errorThresholdText, context) -> {
                     if (ERROR_THRESHOLD_OPTIONS.PERCENT == errorThresholdOptionGroup.getValue()) {
                         return new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0,
                                 100).apply(Integer.valueOf(errorThresholdText), context);

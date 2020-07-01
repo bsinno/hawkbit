@@ -44,9 +44,9 @@ public abstract class AssignmentSupport<S, T> {
      * Assign source items to target item
      *
      * @param sourceItemsToAssign
-     *          List of selectd source items
+     *            List of selectd source items
      * @param targetItem
-     *          Target item
+     *            Target item
      */
     public void assignSourceItemsToTargetItem(final List<S> sourceItemsToAssign, final T targetItem) {
         if (sourceItemsToAssign.isEmpty()) {
@@ -56,9 +56,6 @@ public abstract class AssignmentSupport<S, T> {
 
         final List<S> filteredSourceItems = getFilteredSourceItems(sourceItemsToAssign, targetItem);
         if (filteredSourceItems.isEmpty()) {
-            // TODO: consider implementing stack notifications, otherwise
-            // notifications coming from getFilteredSourceItems method will be
-            // overwritten
             showGenericErrorNotification();
             return;
         }

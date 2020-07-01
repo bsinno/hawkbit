@@ -25,7 +25,7 @@ import org.eclipse.hawkbit.ddi.rest.api.DdiRestConstants;
 import org.eclipse.hawkbit.ddi.rest.resource.DdiApiConfiguration;
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions;
-import org.eclipse.hawkbit.im.authentication.TenantUserPasswordAuthenticationToken;
+import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
 import org.eclipse.hawkbit.im.authentication.UserAuthenticationFilter;
 import org.eclipse.hawkbit.mgmt.rest.api.MgmtRestConstants;
 import org.eclipse.hawkbit.mgmt.rest.resource.MgmtApiConfiguration;
@@ -61,7 +61,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -745,23 +745,18 @@ class TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler extends 
 
     @Override
     public void onAuthenticationSuccess(final Authentication authentication) throws Exception {
-
-        if (authentication.getClass().equals(TenantUserPasswordAuthenticationToken.class)) {
-            systemSecurityContext.runAsSystemAsTenant(systemManagement::getTenantMetadata,
-                    ((TenantUserPasswordAuthenticationToken) authentication).getTenant().toString());
-        } else if (authentication.getClass().equals(UsernamePasswordAuthenticationToken.class)) {
-            // TODO: vaadin4spring-ext-security does not give us the
-            // fullyAuthenticatedToken
-            // in the GenericVaadinSecurity class. Only the token which has been
-            // created in the
-            // LoginView. This needs to be changed with the update of
-            // vaadin4spring 0.0.7 because it
-            // has been fixed.
-            final String defaultTenant = "DEFAULT";
-            systemSecurityContext.runAsSystemAsTenant(systemManagement::getTenantMetadata, defaultTenant);
-        }
+        systemSecurityContext.runAsSystemAsTenant(systemManagement::getTenantMetadata, getTenantFrom(authentication));
 
         super.onAuthenticationSuccess(authentication);
+    }
+
+    private String getTenantFrom(final Authentication authentication) {
+        final Object details = authentication.getDetails();
+        if (details instanceof TenantAwareAuthenticationDetails) {
+            return ((TenantAwareAuthenticationDetails) details).getTenant();
+        }
+
+        throw new InsufficientAuthenticationException("Authentication details/tenant info are not specified!");
     }
 }
 

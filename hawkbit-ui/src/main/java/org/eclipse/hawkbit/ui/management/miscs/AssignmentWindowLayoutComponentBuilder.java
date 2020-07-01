@@ -17,7 +17,6 @@ import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAssignmentWindow;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -68,7 +67,7 @@ public class AssignmentWindowLayoutComponentBuilder {
     }
 
     public CheckBox createEnableMaintenanceWindowToggle(final Binder<ProxyAssignmentWindow> binder) {
-        final CheckBox maintenanceWindowToggle = SPUIComponentProvider.getCheckBox(
+        final CheckBox maintenanceWindowToggle = FormComponentBuilder.getCheckBox(
                 i18n.getMessage("caption.maintenancewindow.enabled"),
                 UIComponentIdProvider.MAINTENANCE_WINDOW_ENABLED_ID, binder,
                 ProxyAssignmentWindow::isMaintenanceWindowEnabled, ProxyAssignmentWindow::setMaintenanceWindowEnabled);
@@ -84,9 +83,9 @@ public class AssignmentWindowLayoutComponentBuilder {
                 .caption(i18n.getMessage("caption.maintenancewindow.schedule")).prompt("0 0 3 ? * 6")
                 .buildTextComponent();
 
-        // TODO: use i18n for all the required fields messages
         final Binding<ProxyAssignmentWindow, String> binding = binder.forField(maintenanceSchedule)
-                .asRequired("You must provide the valid cron expression").withValidator((cronSchedule, context) -> {
+                .asRequired(i18n.getMessage("message.maintenancewindow.schedule.required.error"))
+                .withValidator((cronSchedule, context) -> {
                     try {
                         MaintenanceScheduleHelper.validateCronSchedule(cronSchedule);
                         return ValidationResult.ok();
@@ -105,17 +104,16 @@ public class AssignmentWindowLayoutComponentBuilder {
                 .id(UIComponentIdProvider.MAINTENANCE_WINDOW_DURATION_ID)
                 .caption(i18n.getMessage("caption.maintenancewindow.duration")).prompt("hh:mm:ss").buildTextComponent();
 
-        // TODO: use i18n for all the required fields messages
         final Binding<ProxyAssignmentWindow, String> binding = binder.forField(maintenanceDuration)
-                .asRequired("You must provide the valid duration").withValidator((duration, context) -> {
+                .asRequired(i18n.getMessage("message.maintenancewindow.duration.required.error"))
+                .withValidator((duration, context) -> {
                     try {
                         MaintenanceScheduleHelper.validateDuration(duration);
                         return ValidationResult.ok();
                     } catch (final InvalidMaintenanceScheduleException e) {
                         LOG.trace("Duration of Maintenance Window is invalid in UI: {}", e.getMessage());
-                        return ValidationResult
-                                .error(i18n.getMessage("message.maintenancewindow.duration.validation.error") + ": "
-                                        + e.getDurationErrorIndex());
+                        return ValidationResult.error(i18n.getMessage(
+                                "message.maintenancewindow.duration.validation.error", e.getDurationErrorIndex()));
                     }
                 }).bind(ProxyAssignmentWindow::getMaintenanceDuration, ProxyAssignmentWindow::setMaintenanceDuration);
 

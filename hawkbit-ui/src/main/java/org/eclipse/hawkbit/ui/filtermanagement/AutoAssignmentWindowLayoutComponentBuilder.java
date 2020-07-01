@@ -13,7 +13,6 @@ import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAutoAssignmentLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -44,7 +43,7 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
 
     public CheckBox createEnableCheckbox(final Binder<ProxyTargetFilterQuery> binder) {
         final String caption = i18n.getMessage(UIMessageIdProvider.LABEL_AUTO_ASSIGNMENT_ENABLE);
-        return SPUIComponentProvider.getCheckBox(caption, UIComponentIdProvider.DIST_SET_SELECT_ENABLE_ID, binder,
+        return FormComponentBuilder.getCheckBox(caption, UIComponentIdProvider.DIST_SET_SELECT_ENABLE_ID, binder,
                 ProxyTargetFilterQuery::isAutoAssignmentEnabled, ProxyTargetFilterQuery::setAutoAssignmentEnabled);
     }
 

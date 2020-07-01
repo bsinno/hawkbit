@@ -33,6 +33,10 @@ public final class UIMessageIdProvider {
 
     public static final String HEADER_DISTRIBUTION_SET = "header.distributionset";
 
+    public static final String HEADER_TARGET_TAG = "header.target.filter.tag";
+
+    public static final String HEADER_TAG = "header.filter.tag";
+
     public static final String CAPTION_ACTION_FORCED = "label.action.forced";
 
     public static final String CAPTION_ACTION_SOFT = "label.action.soft";
@@ -72,6 +76,8 @@ public final class UIMessageIdProvider {
     public static final String CAPTION_CONFIG_EDIT = "caption.config.edit";
 
     public static final String CAPTION_CONFIG_DELETE = "caption.config.delete";
+
+    public static final String CAPTION_TAG = "caption.tag";
 
     public static final String LABEL_DROP_AREA_UPLOAD = "label.drop.area.upload";
 

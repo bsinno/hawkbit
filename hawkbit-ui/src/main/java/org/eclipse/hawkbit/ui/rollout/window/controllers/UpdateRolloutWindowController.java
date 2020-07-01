@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.EntityFactory;
 import org.eclipse.hawkbit.repository.QuotaManagement;
@@ -22,7 +21,6 @@ import org.eclipse.hawkbit.repository.exception.EntityReadOnlyException;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.Rollout;
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.EntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToAdvancedDefinitionMapper;
@@ -42,7 +40,6 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -100,27 +97,20 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
             proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
         }
 
-        proxyRolloutWindow.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
-        setRolloutGroups(proxyRolloutWindow);
+        setAdvancedGroups(proxyRolloutWindow);
 
         nameBeforeEdit = proxyRolloutWindow.getName();
 
         return proxyRolloutWindow;
     }
 
-    // TODO: try to remove duplication with CopyRolloutWindowController
-    private void setRolloutGroups(final ProxyRolloutWindow proxyRolloutWindow) {
-        final List<RolloutGroup> rolloutGroups = rolloutGroupManagement
-                .findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()),
-                        proxyRolloutWindow.getId())
-                .getContent();
-
-        final RolloutGroupToAdvancedDefinitionMapper mapper = new RolloutGroupToAdvancedDefinitionMapper(
+    private void setAdvancedGroups(final ProxyRolloutWindow proxyRolloutWindow) {
+        proxyRolloutWindow.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
+        final RolloutGroupToAdvancedDefinitionMapper groupsMapper = new RolloutGroupToAdvancedDefinitionMapper(
                 targetFilterQueryManagement);
-        final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions = rolloutGroups.stream().map(mapper::map)
-                .collect(Collectors.toList());
-
-        proxyRolloutWindow.setAdvancedRolloutGroupDefinitions(advancedRolloutGroupDefinitions);
+        final List<ProxyAdvancedRolloutGroup> advancedGroupDefinitions = groupsMapper.loadRolloutGroupssFromBackend(
+                proxyRolloutWindow.getId(), rolloutGroupManagement, quotaManagement.getMaxRolloutGroupsPerRollout());
+        proxyRolloutWindow.setAdvancedRolloutGroupDefinitions(advancedGroupDefinitions);
     }
 
     @Override

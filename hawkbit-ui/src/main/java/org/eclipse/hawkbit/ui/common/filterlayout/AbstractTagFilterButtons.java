@@ -54,15 +54,15 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
      * Constructor for AbstractTagFilterButtons
      *
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param tagFilterLayoutUiState
-     *          TagFilterLayoutUiState
+     *            TagFilterLayoutUiState
      */
     public AbstractTagFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final UINotification uiNotification, final SpPermissionChecker permChecker,
@@ -96,8 +96,6 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
     }
 
     private void onFilterChangedEvent(final Map<Long, String> activeTagIdsWithName) {
-        // TODO: somehow move it to abstract class/TypeFilterButtonClick
-        // needed to trigger style generator
         getDataCommunicator().reset();
 
         publishFilterChangedEvent(activeTagIdsWithName);
@@ -163,7 +161,7 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
      * Reset the filter by removing the deleted tags
      *
      * @param deletedTagIds
-     *          List of deleted tags Id
+     *            List of deleted tags Id
      */
     public void resetFilterOnTagsDeleted(final Collection<Long> deletedTagIds) {
         if (isAtLeastOneClickedTagInIds(deletedTagIds)) {
@@ -174,9 +172,10 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
 
     /**
      * @param tagIds
-     *          List of tags Id
+     *            List of tags Id
      *
-     * @return true if at least one tag found in list of clicked tag Ids else false
+     * @return true if at least one tag found in list of clicked tag Ids else
+     *         false
      */
     private boolean isAtLeastOneClickedTagInIds(final Collection<Long> tagIds) {
         final Set<Long> clickedTagIds = getFilterButtonClickBehaviour().getPreviouslyClickedFilterIds();
@@ -214,7 +213,6 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
 
             getFilterButtonClickBehaviour().clearPreviouslyClickedFilters();
             tagFilterLayoutUiState.setClickedTagIdsWithName(Collections.emptyMap());
-            // TODO: should we reset data communicator here for styling update
         }
     }
 
@@ -224,7 +222,6 @@ public abstract class AbstractTagFilterButtons extends AbstractFilterButtons<Pro
 
         if (!CollectionUtils.isEmpty(tagsToRestore)) {
             getFilterButtonClickBehaviour().setPreviouslyClickedFilterIdsWithName(tagsToRestore);
-            // TODO: should we reset data communicator here for styling update
         }
 
         if (tagFilterLayoutUiState.isNoTagClicked()) {

@@ -38,8 +38,7 @@ public class TargetWindowLayoutComponentBuilder {
                 .prompt(i18n.getMessage(TEXTFIELD_CONTROLLER_ID)).buildTextComponent();
         targetControllerId.setSizeUndefined();
 
-        // TODO: use i18n for all the required fields messages
-        binder.forField(targetControllerId).asRequired("You must provide controller id")
+        binder.forField(targetControllerId).asRequired(i18n.getMessage("message.error.missing.controllerId"))
                 .withValidator(new RegexpValidator(i18n.getMessage("message.target.whitespace.check"), "[.\\S]*"))
                 .bind(ProxyTarget::getControllerId, ProxyTarget::setControllerId);
 

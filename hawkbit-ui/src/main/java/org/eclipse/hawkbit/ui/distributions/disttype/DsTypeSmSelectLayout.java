@@ -41,7 +41,6 @@ import com.vaadin.ui.VerticalLayout;
 public class DsTypeSmSelectLayout extends CustomField<Set<ProxyType>> {
     private static final long serialVersionUID = 1L;
 
-    // TODO: consider using lazy loading with dataprovider
     private static final int MAX_SM_TYPE_QUERY = 500;
 
     private final VaadinMessageSource i18n;

@@ -130,7 +130,6 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
                 EntityModifiedEventType.ENTITY_ADDED, ProxyRollout.class, rolloutToCreate.getId()));
     }
 
-    // TODO: try to remove duplication with AdvancedGroupsLayout
     private List<RolloutGroupCreate> getRolloutGroupsCreateFromDefinitions(
             final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions) {
         final AdvancedRolloutGroupDefinitionToCreateMapper mapper = new AdvancedRolloutGroupDefinitionToCreateMapper(

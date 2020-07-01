@@ -87,7 +87,9 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
 
             return true;
         } else {
-            uiNotification.displayValidationError(i18n.getMessage("message.dist.not.selected"));
+            final String entityType = i18n.getMessage("caption.distribution");
+            uiNotification.displayValidationError(i18n.getMessage("message.error.deleteMetaData", entityType));
+
             return false;
         }
     }

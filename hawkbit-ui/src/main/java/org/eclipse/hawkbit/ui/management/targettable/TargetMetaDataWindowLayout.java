@@ -89,8 +89,8 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
 
             return true;
         } else {
-            // TODO: use i18n
-            uiNotification.displayValidationError("No Target is currently selected or metadata to delete is missing");
+            final String entityType = i18n.getMessage("caption.target");
+            uiNotification.displayValidationError(i18n.getMessage("message.error.deleteMetaData", entityType));
 
             return false;
         }

@@ -8,11 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype;
 
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -82,6 +82,6 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
         binder.addValueChangeListener(event -> mandatoryPropertyChangedCallback.run());
 
         final String id = "selected.sm.type." + smType.getId();
-        return SPUIComponentProvider.getCheckBox(id, binder, ProxyType::isMandatory, ProxyType::setMandatory);
+        return FormComponentBuilder.getCheckBox(id, binder, ProxyType::isMandatory, ProxyType::setMandatory);
     }
 }
