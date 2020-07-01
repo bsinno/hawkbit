@@ -151,6 +151,14 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         getFilterSupport().setFilter(!StringUtils.isEmpty(searchText) ? String.format("%%%s%%", searchText) : null);
     }
 
+    /**
+     * Map id to rollout
+     *
+     * @param entityId
+     *          Entity id
+     *
+     * @return Rollout
+     */
     public Optional<ProxyRollout> mapIdToProxyEntity(final long entityId) {
         return rolloutManagement.get(entityId).map(rolloutMapper::map);
     }
@@ -226,6 +234,12 @@ public class RolloutGrid extends AbstractGrid<ProxyRollout, String> {
         return statesThatAllowStartingAndResuming.contains(status);
     }
 
+    /**
+     * Update items in rollout grid
+     *
+     * @param ids
+     *          List of rollout id
+     */
     public void updateGridItems(final Collection<Long> ids) {
         ids.stream().filter(Predicates.notNull()).map(rolloutManagement::getWithDetailedStatus)
                 .forEach(rollout -> rollout.ifPresent(this::updateGridItem));

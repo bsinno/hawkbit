@@ -48,6 +48,15 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader
 
     private final transient CloseHeaderSupport closeHeaderSupport;
 
+    /**
+     * Constructor for RolloutGroupTargetGridHeader
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param rolloutManagementUIState
+     *          RolloutManagementUIState
+     */
     public RolloutGroupTargetGridHeader(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final RolloutManagementUIState rolloutManagementUIState) {
         super(i18n, null, eventBus);
@@ -117,6 +126,12 @@ public class RolloutGroupTargetGridHeader extends AbstractGridHeader
                 new LayoutVisibilityEventPayload(VisibilityType.SHOW, EventLayout.ROLLOUT_LIST, EventView.ROLLOUT));
     }
 
+    /**
+     * Updates the rollout name in the rollout group target header
+     *
+     * @param rollout
+     *          ProxyRollout
+     */
     public void rolloutChanged(final ProxyRollout rollout) {
         rolloutNameLink.setCaption(rollout != null ? rollout.getName() : "");
     }

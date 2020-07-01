@@ -91,6 +91,9 @@ public class RolloutGroupGridHeader extends AbstractGridHeader implements Master
         return headerCaptionLayout;
     }
 
+    /**
+     * Close rollout group grid
+     */
     public void closeRolloutGroups() {
         eventBus.publish(CommandTopics.CHANGE_LAYOUT_VISIBILITY, this, new LayoutVisibilityEventPayload(
                 VisibilityType.HIDE, EventLayout.ROLLOUT_GROUP_LIST, EventView.ROLLOUT));

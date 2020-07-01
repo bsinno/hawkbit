@@ -125,10 +125,16 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
 
     }
 
+    /**
+     * @return Rollout auto start option button
+     */
     public RadioButtonGroup<AutoStartOption> getAutoStartOptionGroup() {
         return autoStartOptionGroup;
     }
 
+    /**
+     * @return Rollout start date time field
+     */
     public DateTimeField getStartAtDateField() {
         return startAtDateField;
     }

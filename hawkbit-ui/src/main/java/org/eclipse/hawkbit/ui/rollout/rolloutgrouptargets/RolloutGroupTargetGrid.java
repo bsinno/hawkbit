@@ -97,6 +97,9 @@ public class RolloutGroupTargetGrid extends AbstractGrid<ProxyTarget, Long> {
         }
     }
 
+    /**
+     * @return Rollout group master entity support
+     */
     public MasterEntitySupport<ProxyRolloutGroup> getMasterEntitySupport() {
         return masterEntitySupport;
     }

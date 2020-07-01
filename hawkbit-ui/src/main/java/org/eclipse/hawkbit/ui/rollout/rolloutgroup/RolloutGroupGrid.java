@@ -61,6 +61,20 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
 
     private final transient MasterEntitySupport<ProxyRollout> masterEntitySupport;
 
+    /**
+     * Constructor for RolloutGroupGrid
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param rolloutGroupManagement
+     *          RolloutGroupManagement
+     * @param rolloutManagementUIState
+     *          RolloutManagementUIState
+     */
     public RolloutGroupGrid(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final RolloutGroupManagement rolloutGroupManagement,
             final RolloutManagementUIState rolloutManagementUIState) {
@@ -84,6 +98,14 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         init();
     }
 
+    /**
+     * Map id to rollout group
+     *
+     * @param entityId
+     *          Entity id
+     *
+     * @return Rollout group
+     */
     public Optional<ProxyRolloutGroup> mapIdToProxyEntity(final long entityId) {
         return rolloutGroupManagement.get(entityId).map(rolloutGroupMapper::map);
     }
@@ -168,6 +190,12 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
                 VisibilityType.SHOW, EventLayout.ROLLOUT_GROUP_TARGET_LIST, EventView.ROLLOUT));
     }
 
+    /**
+     * Update items in rollout group grid
+     *
+     * @param ids
+     *          List of Rollout group id
+     */
     public void updateGridItems(final Collection<Long> ids) {
         ids.stream().filter(Predicates.notNull()).map(rolloutGroupManagement::getWithDetailedStatus)
                 .forEach(rolloutGroup -> rolloutGroup.ifPresent(this::updateGridItem));
@@ -186,6 +214,9 @@ public class RolloutGroupGrid extends AbstractGrid<ProxyRolloutGroup, Long> {
         }
     }
 
+    /**
+     * @return Rollout master entity support
+     */
     public MasterEntitySupport<ProxyRollout> getMasterEntitySupport() {
         return masterEntitySupport;
     }

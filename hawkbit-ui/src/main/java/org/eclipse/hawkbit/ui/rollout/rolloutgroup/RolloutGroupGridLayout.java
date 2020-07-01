@@ -91,11 +91,17 @@ public class RolloutGroupGridLayout extends AbstractGridComponentLayout {
         return Optional.ofNullable(rolloutGroupListGrid.getMasterEntitySupport().getMasterId());
     }
 
+    /**
+     * Restore the rollout group grid list state
+     */
     public void restoreState() {
         rolloutGroupsListHeader.restoreState();
         rolloutGroupListGrid.restoreState();
     }
 
+    /**
+     * Unsubscribe the event listener
+     */
     public void unsubscribeListener() {
         masterEntityChangedListener.unsubscribe();
         entityModifiedListener.unsubscribe();

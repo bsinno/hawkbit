@@ -24,6 +24,9 @@ import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * Rollout approval layout
+ */
 public class ApprovalLayout extends ValidatableLayout {
     private static final String APPROVAL_CAPTION = "label.approval.decision";
     private static final String APPROVAL_BUTTON_LABEL = "button.approve";
@@ -36,6 +39,12 @@ public class ApprovalLayout extends ValidatableLayout {
     private final RadioButtonGroup<Rollout.ApprovalDecision> approveButtonsGroup;
     private final TextField approvalRemark;
 
+    /**
+     * Constructor for ApprovalLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public ApprovalLayout(final VaadinMessageSource i18n) {
         this.i18n = i18n;
 
@@ -89,6 +98,16 @@ public class ApprovalLayout extends ValidatableLayout {
         return approvalRemarkField;
     }
 
+    /**
+     * Add approval option to layout
+     *
+     * @param layout
+     *          Rollout grid layout
+     * @param lastColumnIdx
+     *          Approval button position
+     * @param lastRowIdx
+     *          Approval remark position
+     */
     public void addApprovalToLayout(final GridLayout layout, final int lastColumnIdx, final int lastRowIdx) {
         layout.addComponent(SPUIComponentProvider.generateLabel(i18n, APPROVAL_CAPTION), 0, lastRowIdx);
 
@@ -96,10 +115,22 @@ public class ApprovalLayout extends ValidatableLayout {
         layout.addComponent(approvalRemark, 2, lastRowIdx, lastColumnIdx, lastRowIdx);
     }
 
+    /**
+     * Sets the rollout approval bean in binder
+     *
+     * @param bean
+     *          Approval bean
+     */
     public void setBean(final ProxyRolloutApproval bean) {
         binder.readBean(bean);
     }
 
+    /**
+     * @return Rollout approval bean
+     *
+     * @throws ValidationException
+     *          ValidationException
+     */
     public ProxyRolloutApproval getBean() throws ValidationException {
         final ProxyRolloutApproval bean = new ProxyRolloutApproval();
         binder.writeBean(bean);

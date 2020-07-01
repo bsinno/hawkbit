@@ -22,6 +22,12 @@ public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
 
     private final ApprovalLayout approvalLayout;
 
+    /**
+     * Constructor for ApproveRolloutWindowLayout
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     */
     public ApproveRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         super(dependencies);
 
@@ -62,6 +68,9 @@ public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
         approvalLayout.resetValidationStatus();
     }
 
+    /**
+     * Disable the rollout form layout
+     */
     public void disableRolloutFormLayout() {
         rolloutFormLayout.disableAllFields();
     }

@@ -39,6 +39,14 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
     private final RolloutGroupManagement rolloutGroupManagement;
     private final QuotaManagement quotaManagement;
 
+    /**
+     * Constructor for CopyRolloutWindowController
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     * @param layout
+     *          AddRolloutWindowLayout
+     */
     public CopyRolloutWindowController(final RolloutWindowDependencies dependencies,
             final AddRolloutWindowLayout layout) {
         super(dependencies, layout);

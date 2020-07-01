@@ -56,6 +56,14 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
 
     protected final AddRolloutWindowLayout layout;
 
+    /**
+     * Controller for AddRolloutWindowController
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     * @param layout
+     *          AddRolloutWindowLayout
+     */
     public AddRolloutWindowController(final RolloutWindowDependencies dependencies,
             final AddRolloutWindowLayout layout) {
         this.i18n = dependencies.getI18n();

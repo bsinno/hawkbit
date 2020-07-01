@@ -66,6 +66,14 @@ public class UpdateRolloutWindowController extends AbstractEntityWindowControlle
 
     private String nameBeforeEdit;
 
+    /**
+     * Constructor for UpdateRolloutWindowController
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     * @param layout
+     *          UpdateRolloutWindowLayout
+     */
     public UpdateRolloutWindowController(final RolloutWindowDependencies dependencies,
             final UpdateRolloutWindowLayout layout) {
         this.i18n = dependencies.getI18n();

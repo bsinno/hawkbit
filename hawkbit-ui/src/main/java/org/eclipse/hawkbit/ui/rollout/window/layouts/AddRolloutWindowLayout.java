@@ -42,6 +42,12 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private int noOfGroups;
     private List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions;
 
+    /**
+     * Constructor for AddRolloutWindowLayout
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     */
     public AddRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         super(dependencies);
 
@@ -164,10 +170,16 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         }
     }
 
+    /**
+     * Add advance group row and validate
+     */
     public void addAdvancedGroupRowAndValidate() {
         advancedGroupsLayout.addGroupRowAndValidate();
     }
 
+    /**
+     * Select advance group tab in the add rollout window
+     */
     public void selectAdvancedGroupsTab() {
         groupsDefinitionTabs.setSelectedTab(advancedGroupsLayout.getLayout());
     }

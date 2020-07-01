@@ -22,6 +22,14 @@ import org.eclipse.hawkbit.ui.rollout.window.layouts.ApproveRolloutWindowLayout;
 public class ApproveRolloutWindowController extends UpdateRolloutWindowController {
     private final ApproveRolloutWindowLayout layout;
 
+    /**
+     * Constructor for ApproveRolloutWindowController
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     * @param layout
+     *          ApproveRolloutWindowLayout
+     */
     public ApproveRolloutWindowController(final RolloutWindowDependencies dependencies,
             final ApproveRolloutWindowLayout layout) {
         super(dependencies, layout);

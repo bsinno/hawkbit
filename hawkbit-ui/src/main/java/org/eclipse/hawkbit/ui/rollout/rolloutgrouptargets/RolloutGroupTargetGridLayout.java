@@ -39,6 +39,18 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
     private final transient SelectionChangedListener<ProxyRollout> rolloutChangedListener;
     private final transient SelectionChangedListener<ProxyRolloutGroup> rolloutGroupChangedListener;
 
+    /**
+     * Constructor for RolloutGroupTargetGridLayout
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param rolloutGroupManagement
+     *          RolloutGroupManagement
+     * @param rolloutManagementUIState
+     *          RolloutManagementUIState
+     */
     public RolloutGroupTargetGridLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final RolloutGroupManagement rolloutGroupManagement,
             final RolloutManagementUIState rolloutManagementUIState) {
@@ -71,6 +83,9 @@ public class RolloutGroupTargetGridLayout extends AbstractGridComponentLayout {
         return Arrays.asList(rolloutGroupTargetsListHeader, rolloutGroupTargetsListGrid.getMasterEntitySupport());
     }
 
+    /**
+     * Restore the rollout group target list state
+     */
     public void restoreState() {
         rolloutGroupTargetsListHeader.restoreState();
         rolloutGroupTargetsListGrid.restoreState();
