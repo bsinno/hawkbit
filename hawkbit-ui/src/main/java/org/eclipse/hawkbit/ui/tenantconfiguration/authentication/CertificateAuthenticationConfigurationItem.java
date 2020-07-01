@@ -31,6 +31,14 @@ public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
     private final VerticalLayout detailLayout;
     private final TextField caRootAuthorityTextField;
 
+    /**
+     * Constructor for CertificateAuthenticationConfigurationItem
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param binder
+     *          System config window binder
+     */
     public CertificateAuthenticationConfigurationItem(final VaadinMessageSource i18n,
             final Binder<ProxySystemConfigWindow> binder) {
         this.setSpacing(false);
@@ -63,10 +71,16 @@ public class CertificateAuthenticationConfigurationItem extends VerticalLayout {
         }
     }
 
+    /**
+     * Show Certificate detail
+     */
     public void showDetails() {
         addComponent(detailLayout);
     }
 
+    /**
+     * Hide Certificate detail
+     */
     public void hideDetails() {
         removeComponent(detailLayout);
     }

@@ -21,6 +21,12 @@ public class TargetSecurityTokenAuthenticationConfigurationItem extends Horizont
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Constructor for TargetSecurityTokenAuthenticationConfigurationItem
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public TargetSecurityTokenAuthenticationConfigurationItem(final VaadinMessageSource i18n) {
         this.setSpacing(false);
         this.setMargin(false);

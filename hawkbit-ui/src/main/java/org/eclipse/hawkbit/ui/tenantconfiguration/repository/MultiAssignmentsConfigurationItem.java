@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -34,7 +34,9 @@ public class MultiAssignmentsConfigurationItem extends VerticalLayout {
      * Constructor.
      *
      * @param i18n
+     *          VaadinMessageSource
      * @param binder
+     *          System config window binder
      */
     public MultiAssignmentsConfigurationItem(final VaadinMessageSource i18n,
             final Binder<ProxySystemConfigWindow> binder) {
@@ -51,10 +53,16 @@ public class MultiAssignmentsConfigurationItem extends VerticalLayout {
         }
     }
 
+    /**
+     * Show multi assignment settings
+     */
     public void showSettings() {
         addComponent(container);
     }
 
+    /**
+     * Hide multi assignment settings
+     */
     public void hideSettings() {
         removeComponent(container);
     }

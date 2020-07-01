@@ -64,6 +64,12 @@ public class DurationField extends DateTimeField {
         this.setLocale(Locale.GERMANY);
     }
 
+    /**
+     * Sets the message source
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public void setI18n(final VaadinMessageSource i18n) {
         this.i18n = i18n;
     }
@@ -101,6 +107,12 @@ public class DurationField extends DateTimeField {
         super.doSetValue(sanitizedValue);
     }
 
+    /**
+     * @param value
+     *          Input date time value
+     *
+     * @return Validated date time value within range of minimum and maximum duration
+     */
     public LocalDateTime sanitizeValue(final LocalDateTime value) {
         if (value == null && minimumDuration != null) {
             return minimumDuration;

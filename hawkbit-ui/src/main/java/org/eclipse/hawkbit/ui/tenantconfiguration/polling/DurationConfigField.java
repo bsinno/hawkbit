@@ -69,10 +69,16 @@ public final class DurationConfigField extends HorizontalLayout {
         this.globalDuration = globalDuration;
     }
 
+    /**
+     * @return Duration config checkbox
+     */
     public CheckBox getCheckBox() {
         return checkBox;
     }
 
+    /**
+     * @return Duration input field
+     */
     public DurationField getDurationField() {
         return durationField;
     }
