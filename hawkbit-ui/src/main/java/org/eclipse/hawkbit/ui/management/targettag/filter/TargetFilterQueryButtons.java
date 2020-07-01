@@ -129,6 +129,9 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(targetFilterQueryId);
     }
 
+    /**
+     * Remove applied target filter query
+     */
     public void clearAppliedTargetFilterQuery() {
         if (customTargetTagFilterButtonClick.getPreviouslyClickedFilterId() != null) {
             customTargetTagFilterButtonClick.setPreviouslyClickedFilterId(null);
@@ -137,6 +140,12 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         }
     }
 
+    /**
+     * Reselect filter when target filter query updated
+     *
+     * @param updatedTargetFilterQueryIds
+     *          List of update query id
+     */
     public void reselectFilterOnTfqUpdated(final Collection<Long> updatedTargetFilterQueryIds) {
         if (isClickedTfqInIds(updatedTargetFilterQueryIds)) {
             publishFilterChangedEvent(customTargetTagFilterButtonClick.getPreviouslyClickedFilterId());
@@ -149,6 +158,12 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         return clickedTargetFilterQueryId != null && tfqIds.contains(clickedTargetFilterQueryId);
     }
 
+    /**
+     * Reselect filter when target filter query deleted
+     *
+     * @param deletedTargetFilterQueryIds
+     *          List of deleted query id
+     */
     public void resetFilterOnTfqDeleted(final Collection<Long> deletedTargetFilterQueryIds) {
         if (isClickedTfqInIds(deletedTargetFilterQueryIds)) {
             customTargetTagFilterButtonClick.setPreviouslyClickedFilterId(null);

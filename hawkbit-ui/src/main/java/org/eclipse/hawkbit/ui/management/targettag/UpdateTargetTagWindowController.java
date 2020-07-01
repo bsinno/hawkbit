@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for Update target tag window
+ */
 public class UpdateTargetTagWindowController extends AbstractEntityWindowController<ProxyTag, ProxyTag> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateTargetTagWindowController.class);
 
@@ -43,6 +46,22 @@ public class UpdateTargetTagWindowController extends AbstractEntityWindowControl
 
     private String nameBeforeEdit;
 
+    /**
+     * Constructor for UpdateTargetTagWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param targetTagManagement
+     *          TargetTagManagement
+     * @param layout
+     *          TagWindowLayout
+     */
     public UpdateTargetTagWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final TargetTagManagement targetTagManagement, final TagWindowLayout<ProxyTag> layout) {

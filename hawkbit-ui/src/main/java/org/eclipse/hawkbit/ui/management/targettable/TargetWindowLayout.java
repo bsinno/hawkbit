@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -57,11 +57,23 @@ public class TargetWindowLayout extends AbstractEntityWindowLayout<ProxyTarget> 
         targetWindowLayout.addComponent(targetDescription);
         return targetWindowLayout;
     }
-    
+
+    /**
+     * Enable or disable the target controller id
+     *
+     * @param isIdEnabled
+     *          boolean
+     */
     public void setControllerIdEnabled(boolean isIdEnabled) {
         targetControllerId.setEnabled(isIdEnabled);
     }
-    
+
+    /**
+     * Enable or disable the target name filed as required
+     *
+     * @param isNameRequired
+     *          boolean
+     */
     public void setNameRequired(boolean isNameRequired) {
         targetName.setRequired(isNameRequired);
     }

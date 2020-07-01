@@ -94,11 +94,17 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
         return multipleTargetFilter;
     }
 
+    /**
+     * Restore the target filter state
+     */
     public void restoreState() {
         targetTagFilterHeader.restoreState();
         multipleTargetFilter.restoreState();
     }
 
+    /**
+     * Unsubscribe the event listener
+     */
     public void unsubscribeListener() {
         filterTabChangedListener.unsubscribe();
         multipleTargetFilter.unsubscribeListener();

@@ -37,8 +37,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- *
- *
+ * layout of filter by status
  */
 public class FilterByStatusLayout extends VerticalLayout {
     private static final long serialVersionUID = 1L;
@@ -221,6 +220,9 @@ public class FilterByStatusLayout extends VerticalLayout {
         return overdueLayout;
     }
 
+    /**
+     * Remove active status and overdue filters
+     */
     public void clearStatusAndOverdueFilters() {
         if (!activeStatusFilters.isEmpty()) {
             removeActiveStatusStyles();
@@ -239,6 +241,9 @@ public class FilterByStatusLayout extends VerticalLayout {
         activeStatusFilters.forEach(status -> statusToButtonMap.get(status).removeStyleName(BTN_CLICKED_STYLE));
     }
 
+    /**
+     * Restore the filter state
+     */
     public void restoreState() {
         final List<TargetUpdateStatus> statusFiltersToRestore = targetTagFilterLayoutUiState
                 .getClickedTargetUpdateStatusFilters();

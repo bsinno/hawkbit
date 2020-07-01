@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,6 +21,9 @@ import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
+/**
+ * Builder for target window layout component
+ */
 //TODO: remove duplication with other builders
 public class TargetWindowLayoutComponentBuilder {
 
@@ -28,10 +31,22 @@ public class TargetWindowLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
 
+    /**
+     * Constructor for TargetWindowLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public TargetWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
     }
 
+    /**
+     * @param binder
+     *          Target binder
+     *
+     * @return Target controller id Text field
+     */
     public TextField createControllerIdField(final Binder<ProxyTarget> binder) {
         final TextField targetControllerId = new TextFieldBuilder(Target.CONTROLLER_ID_MAX_SIZE)
                 .id(UIComponentIdProvider.TARGET_ADD_CONTROLLER_ID).caption(i18n.getMessage(TEXTFIELD_CONTROLLER_ID))
