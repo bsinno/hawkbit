@@ -2,6 +2,9 @@ package org.eclipse.hawkbit.ui.rollout.window.layouts;
 
 import com.vaadin.data.Binder;
 
+/**
+ * Layout for input validation
+ */
 public abstract class ValidatableLayout {
 
     protected ValidationStatus validationStatus;
@@ -11,6 +14,12 @@ public abstract class ValidatableLayout {
         this.validationStatus = ValidationStatus.UNKNOWN;
     }
 
+    /**
+     * Sets the validation listener
+     *
+     * @param validationListener
+     *          ValidationListener
+     */
     public void setValidationListener(final ValidationListener validationListener) {
         this.validationListener = validationListener;
     }
@@ -36,10 +45,16 @@ public abstract class ValidatableLayout {
         return validationStatus;
     }
 
+    /**
+     * @return True when status is valid else false
+     */
     public boolean isValid() {
         return ValidationStatus.VALID == validationStatus;
     }
 
+    /**
+     * Reset the validation status to unknown
+     */
     public void resetValidationStatus() {
         validationStatus = ValidationStatus.UNKNOWN;
     }
@@ -53,7 +68,7 @@ public abstract class ValidatableLayout {
         /**
          * Is called after user input
          * 
-         * @param isValid
+         * @param validationStatus
          *            whether the input of the group rows is valid
          */
         void validationStatusChanged(ValidationStatus validationStatus);

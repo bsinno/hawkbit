@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,6 +32,16 @@ public class ActionHistoryGridHeader extends AbstractMasterAwareGridHeader<Proxy
 
     private final transient ResizeHeaderSupport resizeHeaderSupport;
 
+    /**
+     * Constructor for ActionHistoryGridHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param actionHistoryGridLayoutUiState
+     *          ActionHistoryGridLayoutUiState
+     */
     public ActionHistoryGridHeader(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final ActionHistoryGridLayoutUiState actionHistoryGridLayoutUiState) {
         super(i18n, null, eventBus);

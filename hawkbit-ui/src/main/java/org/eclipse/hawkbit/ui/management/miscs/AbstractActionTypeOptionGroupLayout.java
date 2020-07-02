@@ -103,6 +103,9 @@ public abstract class AbstractActionTypeOptionGroupLayout extends HorizontalLayo
 
     protected abstract void addOptionGroup();
 
+    /**
+     * @return Radio button group of action type
+     */
     public RadioButtonGroup<ActionType> getActionTypeOptionGroup() {
         return actionTypeOptionGroup;
     }

@@ -185,15 +185,29 @@ public class GroupsPieChartWidget extends DockLayoutPanel {
 
         private final double endAngle;
 
+        /**
+         * Constructor
+         *
+         * @param startAngle
+         *          Pie arc start angle
+         * @param endAngle
+         *          Pie arc start angle
+         */
         public PieArc(final double startAngle, final double endAngle) {
             this.startAngle = startAngle;
             this.endAngle = endAngle;
         }
 
+        /**
+         * @return Pie arc end angle
+         */
         public double getEndAngle() {
             return endAngle;
         }
 
+        /**
+         * @return Pie arc
+         */
         public Arc getArc() {
             return Arc.constantArc().startAngle(startAngle).endAngle(endAngle);
         }

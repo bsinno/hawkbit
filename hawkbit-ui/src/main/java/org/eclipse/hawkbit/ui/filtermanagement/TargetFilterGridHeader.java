@@ -47,8 +47,8 @@ public class TargetFilterGridHeader extends AbstractGridHeader {
      * 
      * @param eventBus
      *            UIEventBus
-     * @param filterManagementUIState
-     *            FilterManagementUIState
+     * @param uiState
+     *            TargetFilterGridLayoutUiState
      * @param permissionChecker
      *            SpPermissionChecker
      * @param i18n

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -95,6 +95,34 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     private final transient PinSupport<ProxyTarget, Long> pinSupport;
     private final transient DeleteSupport<ProxyTarget> targetDeleteSupport;
 
+    /**
+     * Constructor for TargetGrid
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param notification
+     *          UINotification
+     * @param targetManagement
+     *          TargetManagement
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param deploymentManagement
+     *          DeploymentManagement
+     * @param configManagement
+     *          TenantConfigurationManagement
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     * @param uiProperties
+     *          UiProperties
+     * @param targetGridLayoutUiState
+     *          TargetGridLayoutUiState
+     * @param distributionGridLayoutUiState
+     *          DistributionGridLayoutUiState
+     * @param targetTagFilterLayoutUiState
+     *          TargetTagFilterLayoutUiState
+     */
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final SpPermissionChecker permChecker,
             final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,
@@ -166,6 +194,12 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         addStyleName("grid-row-border");
     }
 
+    /**
+     * @param entityId
+     *          Entity id
+     *
+     * @return Target
+     */
     public Optional<ProxyTarget> mapIdToProxyEntity(final long entityId) {
         return targetManagement.get(entityId).map(targetToProxyTargetMapper::map);
     }
@@ -255,6 +289,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         return UIComponentIdProvider.TARGET_TABLE_ID;
     }
 
+    /**
+     * Update filter on custom tab selection
+     */
     public void onCustomTabSelected() {
         getFilter().ifPresent(filter -> {
             filter.setDistributionId(null);
@@ -268,6 +305,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         });
     }
 
+    /**
+     * Update filter on simple tab selection
+     */
     public void onSimpleTabSelected() {
         getFilterSupport().updateFilter(TargetManagementFilterParams::setTargetFilterQueryId, null);
     }
@@ -340,6 +380,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         super.restoreState();
     }
 
+    /**
+     * @return Pin support
+     */
     public PinSupport<ProxyTarget, Long> getPinSupport() {
         return pinSupport;
     }

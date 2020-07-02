@@ -136,6 +136,9 @@ public class RepositoryConfigurationView extends CustomComponent {
         setCompositionRoot(rootPanel);
     }
 
+    /**
+     * Disable multiple assignment option
+     */
     public void disableMultipleAssignmentOption() {
         multiAssignmentsCheckBox.setEnabled(false);
         multiAssignmentsConfigurationItem.setEnabled(false);

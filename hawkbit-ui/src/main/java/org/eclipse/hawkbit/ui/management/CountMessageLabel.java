@@ -59,6 +59,14 @@ public class CountMessageLabel extends AbstractFooterSupport {
         targetCountLabel.setDescription(null);
     }
 
+    /**
+     * Display target count status on label
+     *
+     * @param count
+     *          Total targets
+     * @param targetFilterParams
+     *          TargetManagementFilterParams
+     */
     public void displayTargetCountStatus(final long count, final TargetManagementFilterParams targetFilterParams) {
         if (targetFilterParams == null) {
             return;
@@ -129,6 +137,12 @@ public class CountMessageLabel extends AbstractFooterSupport {
         return CollectionUtils.isEmpty(tags) && Boolean.FALSE.equals(noTargetTagSelected) ? " " : param;
     }
 
+    /**
+     * Update pinning details
+     *
+     * @param pinnedDsId
+     *          Pinned distribution set id
+     */
     public void updatePinningDetails(final Long pinnedDsId) {
         if (pinnedDsId == null) {
             targetCountLabel.setValue("");

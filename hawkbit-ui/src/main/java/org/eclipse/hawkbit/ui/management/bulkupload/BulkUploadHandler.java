@@ -90,6 +90,19 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
 
     private final transient Supplier<ProxyBulkUploadWindow> bulkUploadInputsProvider;
 
+    /**
+     * Constructor
+     *
+     * @param i18n
+     * @param eventBus
+     * @param entityFactory
+     * @param uiExecutor
+     * @param targetManagement
+     * @param tagManagement
+     * @param distributionSetManagement
+     * @param deploymentManagement
+     * @param bulkUploadInputsProvider
+     */
     BulkUploadHandler(final VaadinMessageSource i18n, final UIEventBus eventBus, final EntityFactory entityFactory,
             final Executor uiExecutor, final TargetManagement targetManagement, final TargetTagManagement tagManagement,
             final DistributionSetManagement distributionSetManagement, final DeploymentManagement deploymentManagement,
@@ -151,6 +164,14 @@ public class BulkUploadHandler implements SucceededListener, FailedListener, Rec
         private List<String> provisionedControllerIds;
         private float currentProgress;
 
+        /**
+         * Constructor for UploadAsync
+         *
+         * @param vaadinSession
+         *          VaadinSession
+         * @param vaadinUI
+         *          UI
+         */
         public UploadAsync(final VaadinSession vaadinSession, final UI vaadinUI) {
             this.vaadinSession = vaadinSession;
             this.vaadinUI = vaadinUI;

@@ -64,6 +64,20 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
     private BiConsumer<List<ProxyAdvancedRolloutGroup>, Boolean> advancedGroupDefinitionsChangedListener;
 
+    /**
+     * Constructor for AdvancedGroupsLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param rolloutManagement
+     *          RolloutManagement
+     * @param quotaManagement
+     *          QuotaManagement
+     * @param targetFilterQueryDataProvider
+     *          TargetFilterQueryDataProvider
+     */
     public AdvancedGroupsLayout(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final RolloutManagement rolloutManagement, final QuotaManagement quotaManagement,
             final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
@@ -120,6 +134,9 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
 
     }
 
+    /**
+     * Add advance group ro and validate
+     */
     public void addGroupRowAndValidate() {
         addGroupRow(getDefaultAdvancedRolloutGroupDefinition());
 
@@ -238,6 +255,9 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         groupRows.forEach(AdvancedGroupRow::resetError);
     }
 
+    /**
+     * @return List of advance rollout group
+     */
     public List<ProxyAdvancedRolloutGroup> getAdvancedRolloutGroupDefinitions() {
         return groupRows.stream().map(AdvancedGroupRow::getBean).collect(Collectors.toList());
     }
@@ -346,10 +366,19 @@ public class AdvancedGroupsLayout extends ValidatableLayout {
         lastGroupIndex = 0;
     }
 
+    /**
+     * @return Advance group layout
+     */
     public GridLayout getLayout() {
         return layout;
     }
 
+    /**
+     * Sets the event change listener in rollout advance group definitions
+     *
+     * @param advancedGroupDefinitionsChangedListener
+     *          Event change listener
+     */
     public void setAdvancedGroupDefinitionsChangedListener(
             final BiConsumer<List<ProxyAdvancedRolloutGroup>, Boolean> advancedGroupDefinitionsChangedListener) {
         this.advancedGroupDefinitionsChangedListener = advancedGroupDefinitionsChangedListener;

@@ -112,11 +112,17 @@ public class DistributionTagLayout extends AbstractFilterLayout {
         return filterButtonsLayout;
     }
 
+    /**
+     * Restore the distribution tag state
+     */
     public void restoreState() {
         distributionTagFilterHeader.restoreState();
         distributionTagButtons.restoreState();
     }
 
+    /**
+     * Unsubscribe the changed listener
+     */
     public void unsubscribeListener() {
         gridActionsVisibilityListener.unsubscribe();
         entityModifiedListener.unsubscribe();

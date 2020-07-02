@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,6 +28,12 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
 
     private final RolloutWindowDependencies dependencies;
 
+    /**
+     * Constructor for RolloutWindowBuilder
+     *
+     * @param rolloutWindowDependencies
+     *          RolloutWindowDependencies
+     */
     public RolloutWindowBuilder(final RolloutWindowDependencies rolloutWindowDependencies) {
         super(rolloutWindowDependencies.getI18n());
 
@@ -50,6 +56,12 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
                 new AddRolloutWindowController(dependencies, new AddRolloutWindowLayout(dependencies)));
     }
 
+    /**
+     * @param proxyRollout
+     *          ProxyRollout
+     *
+     * @return Common dialog window to copy rollout
+     */
     public Window getWindowForCopyRollout(final ProxyRollout proxyRollout) {
         return getWindowForEntity(proxyRollout,
                 new CopyRolloutWindowController(dependencies, new AddRolloutWindowLayout(dependencies)));
@@ -61,6 +73,12 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
                 new UpdateRolloutWindowController(dependencies, new UpdateRolloutWindowLayout(dependencies)));
     }
 
+    /**
+     * @param proxyRollout
+     *          ProxyRollout
+     *
+     * @return Common dialog window to approve rollout
+     */
     public Window getWindowForApproveRollout(final ProxyRollout proxyRollout) {
         return getWindowForEntity(proxyRollout,
                 new ApproveRolloutWindowController(dependencies, new ApproveRolloutWindowLayout(dependencies)));

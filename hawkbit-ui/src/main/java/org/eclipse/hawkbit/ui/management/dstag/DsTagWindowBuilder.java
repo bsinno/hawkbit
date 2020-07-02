@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -20,6 +20,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Window;
 
+/**
+ * Builder for distribution set tag window
+ */
 public class DsTagWindowBuilder extends AbstractEntityWindowBuilder<ProxyTag> {
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -27,6 +30,20 @@ public class DsTagWindowBuilder extends AbstractEntityWindowBuilder<ProxyTag> {
 
     private final DistributionSetTagManagement dsTagManagement;
 
+    /**
+     * Constructor for DsTagWindowBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param dsTagManagement
+     *          DistributionSetTagManagement
+     */
     public DsTagWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final DistributionSetTagManagement dsTagManagement) {

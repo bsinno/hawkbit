@@ -162,6 +162,14 @@ public final class HawkbitCommonUtil {
                 .setDialogText(i18n.getMessage(UIMessageIdProvider.VAADIN_SYSTEM_TRYINGRECONNECT));
     }
 
+    /**
+     * @param provider
+     *          Pageable provider
+     * @param <T>
+     *          Generic type
+     *
+     * @return Entities
+     */
     public static <T> List<T> getEntitiesByPageableProvider(final Function<Pageable, Slice<T>> provider) {
         Pageable query = PageRequest.of(0, SPUIDefinitions.PAGE_SIZE);
         Slice<T> slice;
@@ -175,10 +183,22 @@ public final class HawkbitCommonUtil {
         return entities;
     }
 
+    /**
+     * @param count
+     *          Total target
+     *
+     * @return True if at least one target is present else false
+     */
     public static boolean atLeastOnePresent(final Long count) {
         return count != null && count > 0L;
     }
 
+    /**
+     * @param countList
+ *              List of target per group
+     *
+     * @return Total count
+     */
     public static Long getSumOf(final Collection<Long> countList) {
         return countList.stream().mapToLong(Long::longValue).sum();
     }

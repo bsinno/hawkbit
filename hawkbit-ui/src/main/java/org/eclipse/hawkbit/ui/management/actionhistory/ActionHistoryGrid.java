@@ -120,6 +120,12 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
         init();
     }
 
+    /**
+     * @param entityId
+     *          Entity id
+     *
+     * @return Proxy action
+     */
     public Optional<ProxyAction> mapIdToProxyEntity(final long entityId) {
         return deploymentManagement.findAction(entityId).map(actionToProxyActionMapper::map);
     }
@@ -378,6 +384,9 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
                 .setCaption(i18n.getMessage("caption.rollout.name"));
     }
 
+    /**
+     * @return Master entity support
+     */
     public MasterEntitySupport<ProxyTarget> getMasterEntitySupport() {
         return masterEntitySupport;
     }

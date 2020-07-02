@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,6 +26,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
 
+/**
+ * Builder for target filter add update layout component
+ */
 public class TargetFilterAddUpdateLayoutComponentBuilder {
 
     public static final String TEXTFIELD_FILTER_NAME = "textfield.name";
@@ -34,6 +37,16 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
     private final UiProperties uiProperties;
     private final RsqlValidationOracle rsqlValidationOracle;
 
+    /**
+     * Constructor for TargetFilterAddUpdateLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiProperties
+     *          UiProperties
+     * @param rsqlValidationOracle
+     *          RsqlValidationOracle
+     */
     public TargetFilterAddUpdateLayoutComponentBuilder(final VaadinMessageSource i18n, final UiProperties uiProperties,
             final RsqlValidationOracle rsqlValidationOracle) {
         this.i18n = i18n;
@@ -55,6 +68,12 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
         return filterName;
     }
 
+    /**
+     * @param binder
+     *          Vaadin binder
+     *
+     * @return Auto complete query field component
+     */
     public AutoCompleteTextFieldComponent createQueryField(final Binder<ProxyTargetFilterQuery> binder) {
         final AutoCompleteTextFieldComponent autoCompleteComponent = new AutoCompleteTextFieldComponent(
                 rsqlValidationOracle);
@@ -68,17 +87,26 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
         return autoCompleteComponent;
     }
 
+    /**
+     * @return Filter help link
+     */
     public Link createFilterHelpLink() {
         return SPUIComponentProvider.getHelpLink(i18n,
                 uiProperties.getLinks().getDocumentation().getTargetfilterView());
     }
 
+    /**
+     * @return Filter button to search targets
+     */
     public Button createSearchTargetsByFilterButton() {
         return SPUIComponentProvider.getButton(UIComponentIdProvider.FILTER_SEARCH_ICON_ID, "",
                 i18n.getMessage(UIMessageIdProvider.TOOLTIP_SEARCH), null, false, VaadinIcons.SEARCH,
                 SPUIButtonStyleNoBorder.class);
     }
 
+    /**
+     * @return Save button
+     */
     public Button createSaveButton() {
         return SPUIComponentProvider.getButton(UIComponentIdProvider.CUSTOM_FILTER_SAVE_ICON,
                 UIComponentIdProvider.CUSTOM_FILTER_SAVE_ICON, i18n.getMessage(UIMessageIdProvider.TOOLTIP_SAVE), null,

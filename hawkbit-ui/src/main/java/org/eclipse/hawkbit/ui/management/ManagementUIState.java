@@ -50,26 +50,44 @@ public class ManagementUIState implements Serializable {
         distributionTagLayoutUiState.setHidden(true);
     }
 
+    /**
+     * @return Target tag filter layout ui state
+     */
     public TargetTagFilterLayoutUiState getTargetTagFilterLayoutUiState() {
         return targetTagFilterLayoutUiState;
     }
 
+    /**
+     * @return Target grid layout ui state
+     */
     public TargetGridLayoutUiState getTargetGridLayoutUiState() {
         return targetGridLayoutUiState;
     }
 
+    /**
+     * @return Distribution grid layout ui state
+     */
     public DistributionGridLayoutUiState getDistributionGridLayoutUiState() {
         return distributionGridLayoutUiState;
     }
 
+    /**
+     * @return Target filter layout ui state
+     */
     public TagFilterLayoutUiState getDistributionTagLayoutUiState() {
         return distributionTagLayoutUiState;
     }
 
+    /**
+     * @return Action history grid layout ui state
+     */
     public ActionHistoryGridLayoutUiState getActionHistoryGridLayoutUiState() {
         return actionHistoryGridLayoutUiState;
     }
 
+    /**
+     * @return Target bulk upload ui state
+     */
     public TargetBulkUploadUiState getTargetBulkUploadUiState() {
         return targetBulkUploadUiState;
     }

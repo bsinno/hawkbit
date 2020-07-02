@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,12 +19,31 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
+/**
+ * Header for target details
+ */
 public class TargetDetailsHeader extends AbstractDetailsHeader<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
     private final transient TargetWindowBuilder targetWindowBuilder;
     private final transient TargetMetaDataWindowBuilder targetMetaDataWindowBuilder;
 
+    /**
+     * Constructor for TargetDetailsHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param targetWindowBuilder
+     *          TargetWindowBuilder
+     * @param targetMetaDataWindowBuilder
+     *          TargetMetaDataWindowBuilder
+     */
     public TargetDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification,
             final TargetWindowBuilder targetWindowBuilder,

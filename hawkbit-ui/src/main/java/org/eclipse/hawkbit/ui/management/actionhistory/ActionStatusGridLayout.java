@@ -82,14 +82,23 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
                 selectedActionStatus));
     }
 
+    /**
+     * Enable the single selection in action status grid
+     */
     public void enableSelection() {
         actionStatusGrid.getSelectionSupport().enableSingleSelection();
     }
 
+    /**
+     * Disable the selection in action status grid
+     */
     public void disableSelection() {
         actionStatusGrid.getSelectionSupport().disableSelection();
     }
 
+    /**
+     * Unsubscribe the changed listener
+     */
     public void unsubscribeListener() {
         selectionChangedListener.unsubscribe();
     }

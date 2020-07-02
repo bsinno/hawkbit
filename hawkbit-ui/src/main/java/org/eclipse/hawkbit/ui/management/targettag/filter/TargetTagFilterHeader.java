@@ -30,6 +30,20 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
 
     private final transient TargetTagWindowBuilder targetTagWindowBuilder;
 
+    /**
+     * Constructor for TargetTagFilterHeader
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param eventBus
+     *          UIEventBus
+     * @param targetTagFilterLayoutUiState
+     *          TargetTagFilterLayoutUiState
+     * @param targetTagWindowBuilder
+     *          TargetTagWindowBuilder
+     */
     public TargetTagFilterHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState,
             final TargetTagWindowBuilder targetTagWindowBuilder) {

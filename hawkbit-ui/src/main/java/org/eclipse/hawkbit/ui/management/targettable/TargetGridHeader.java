@@ -80,6 +80,9 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
                 notification, targetGridLayoutUiState);
     }
 
+    /**
+     * Add distribution set filter drop area
+     */
     public void addDsDroArea() {
         final Component distributionSetFilterDropArea = distributionSetFilterDropAreaSupport.getHeaderComponent();
         addComponent(distributionSetFilterDropArea);
@@ -153,6 +156,9 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
         }
     }
 
+    /**
+     * Reset the distribution set filer drop area support
+     */
     public void onSimpleFilterReset() {
         getSearchHeaderSupport().resetSearch();
         getSearchHeaderSupport().disableSearch();
@@ -188,6 +194,12 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
         return targetBulkUploadUiState.isInProgress();
     }
 
+    /**
+     * Perform tasks on bulk upload state
+     *
+     * @param eventPayload
+     *          BulkUploadEventPayload
+     */
     public void onBulkUploadChanged(final BulkUploadEventPayload eventPayload) {
         bulkUploadWindowBuilder.getLayout()
                 .ifPresent(layout -> onBulkUploadStateChanged(layout, eventPayload.getBulkUploadState(),
@@ -234,6 +246,9 @@ public class TargetGridHeader extends AbstractEntityGridHeader {
         targetBulkUploadUiState.setInProgress(isInProgress);
     }
 
+    /**
+     * Enable search icon in the search header
+     */
     public void enableSearchIcon() {
         getSearchHeaderSupport().enableSearch();
     }

@@ -66,14 +66,23 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
         actionStatusMsgGrid.getSelectionSupport().selectFirstRow();
     }
 
+    /**
+     * Enable the single selection in action status message grid
+     */
     public void enableSelection() {
         actionStatusMsgGrid.getSelectionSupport().enableSingleSelection();
     }
 
+    /**
+     * Disable the selection in action status message grid
+     */
     public void disableSelection() {
         actionStatusMsgGrid.getSelectionSupport().disableSelection();
     }
 
+    /**
+     * Unsubscribe the changed listener
+     */
     public void unsubscribeListener() {
         selectionChangedListener.unsubscribe();
     }

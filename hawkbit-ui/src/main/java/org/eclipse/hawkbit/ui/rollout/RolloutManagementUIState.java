@@ -34,50 +34,104 @@ public class RolloutManagementUIState implements Serializable {
     private Long selectedRolloutGroupId;
     private String selectedRolloutGroupName;
 
+    /**
+     * @return Current event layout
+     */
     public Optional<EventLayout> getCurrentLayout() {
         return Optional.ofNullable(currentLayout);
     }
 
+    /**
+     * Sets the current event layout
+     *
+     * @param currentLayout
+     *          EventLayout
+     */
     public void setCurrentLayout(final EventLayout currentLayout) {
         this.currentLayout = currentLayout;
     }
 
+    /**
+     * @return Search text
+     */
     public Optional<String> getSearchText() {
         return Optional.ofNullable(searchText);
     }
 
+    /**
+     * Sets the search text
+     *
+     * @param searchText
+     *          Text
+     */
     public void setSearchText(final String searchText) {
         this.searchText = searchText;
     }
 
+    /**
+     * @return Selected rollout id
+     */
     public Long getSelectedRolloutId() {
         return selectedRolloutId;
     }
 
+    /**
+     * Sets the selected rollout id
+     *
+     * @param selectedRolloutId
+     *          Id
+     */
     public void setSelectedRolloutId(final Long selectedRolloutId) {
         this.selectedRolloutId = selectedRolloutId;
     }
 
+    /**
+     * @return Selected rollout name
+     */
     public String getSelectedRolloutName() {
         return selectedRolloutName;
     }
 
+    /**
+     * Sets the selected rollout name
+     *
+     * @param selectedRolloutName
+     *          name
+     */
     public void setSelectedRolloutName(final String selectedRolloutName) {
         this.selectedRolloutName = selectedRolloutName;
     }
 
+    /**
+     * @return Selected rollout group id
+     */
     public Long getSelectedRolloutGroupId() {
         return selectedRolloutGroupId;
     }
 
+    /**
+     * Sets the selected rollout group id
+     *
+     * @param selectedRolloutGroupId
+     *          Group id
+     */
     public void setSelectedRolloutGroupId(final Long selectedRolloutGroupId) {
         this.selectedRolloutGroupId = selectedRolloutGroupId;
     }
 
+    /**
+     * @return Selected rollout group id
+     */
     public String getSelectedRolloutGroupName() {
         return selectedRolloutGroupName;
     }
 
+    /**
+     * Sets the selected rollout group name
+     *
+     * @param selectedRolloutGroupName
+     *          Group name
+     */
     public void setSelectedRolloutGroupName(final String selectedRolloutGroupName) {
         this.selectedRolloutGroupName = selectedRolloutGroupName;
     }

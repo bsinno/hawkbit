@@ -68,10 +68,16 @@ public class ActionHistoryLayout extends HorizontalLayout {
         setExpandRatio(actionStatusMsgLayout, 0.27F);
     }
 
+    /**
+     * Restore the action history grid layout
+     */
     public void restoreState() {
         actionHistoryGridLayout.restoreState();
     }
 
+    /**
+     * Maximize the action history grid layout
+     */
     public void maximize() {
         actionStatusLayout.enableSelection();
         actionStatusMsgLayout.enableSelection();
@@ -82,6 +88,9 @@ public class ActionHistoryLayout extends HorizontalLayout {
         actionStatusMsgLayout.setVisible(true);
     }
 
+    /**
+     * Minimize the action history grid layout
+     */
     public void minimize() {
         actionStatusLayout.disableSelection();
         actionStatusMsgLayout.disableSelection();
@@ -92,6 +101,9 @@ public class ActionHistoryLayout extends HorizontalLayout {
         actionStatusMsgLayout.setVisible(false);
     }
 
+    /**
+     * Unsubscribe the changed listener
+     */
     public void unsubscribeListener() {
         actionHistoryGridLayout.unsubscribeListener();
         actionStatusLayout.unsubscribeListener();

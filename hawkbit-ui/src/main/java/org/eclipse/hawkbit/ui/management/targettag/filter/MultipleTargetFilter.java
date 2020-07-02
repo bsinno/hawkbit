@@ -140,6 +140,9 @@ public class MultipleTargetFilter extends Accordion {
         addTab(customFilterTab).setId(UIComponentIdProvider.CUSTOM_FILTER_ACCORDION_TAB);
     }
 
+    /**
+     * Update target filter ui state on tab changed
+     */
     public void selectedTabChanged() {
         final String selectedTabId = getTab(getSelectedTab()).getId();
 
@@ -159,6 +162,9 @@ public class MultipleTargetFilter extends Accordion {
         }
     }
 
+    /**
+     * Restore the target tag filter layout ui state
+     */
     public void restoreState() {
         if (targetTagFilterLayoutUiState.isCustomFilterTabSelected()) {
             customFilterTab.restoreState();
@@ -172,6 +178,9 @@ public class MultipleTargetFilter extends Accordion {
         }
     }
 
+    /**
+     * Unsubscribe the event listener
+     */
     public void unsubscribeListener() {
         gridActionsVisibilityListener.unsubscribe();
         entityTagModifiedListener.unsubscribe();

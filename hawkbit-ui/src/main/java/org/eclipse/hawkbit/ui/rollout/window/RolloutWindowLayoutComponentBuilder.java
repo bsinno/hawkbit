@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -36,6 +36,12 @@ public final class RolloutWindowLayoutComponentBuilder {
     private final DistributionSetStatelessDataProvider distributionSetDataProvider;
     private final TargetFilterQueryDataProvider targetFilterQueryDataProvider;
 
+    /**
+     * Constructor for RolloutWindowLayoutComponentBuilder
+     *
+     * @param rolloutWindowDependecies
+     *          RolloutWindowDependencies
+     */
     public RolloutWindowLayoutComponentBuilder(final RolloutWindowDependencies rolloutWindowDependecies) {
         this.dependencies = rolloutWindowDependecies;
 
@@ -45,20 +51,37 @@ public final class RolloutWindowLayoutComponentBuilder {
                 dependencies.getTargetFilterQueryManagement(), new TargetFilterQueryToProxyTargetFilterMapper());
     }
 
+    /**
+     * @return Form layout to create rollout
+     */
     public RolloutFormLayout createRolloutFormLayout() {
         return new RolloutFormLayout(dependencies.getI18n(), distributionSetDataProvider,
                 targetFilterQueryDataProvider);
     }
 
+    /**
+     * @return Layout to create simple group
+     */
     public SimpleGroupsLayout createSimpleGroupsLayout() {
         return new SimpleGroupsLayout(dependencies.getI18n(), dependencies.getQuotaManagement());
     }
 
+    /**
+     * @return Layout to create advance group
+     */
     public AdvancedGroupsLayout createAdvancedGroupsLayout() {
         return new AdvancedGroupsLayout(dependencies.getI18n(), dependencies.getEntityFactory(),
                 dependencies.getRolloutManagement(), dependencies.getQuotaManagement(), targetFilterQueryDataProvider);
     }
 
+    /**
+     * @param simpleGroupDefinitionTab
+     *          Simple group definition tab component
+     * @param advancedGroupDefinitionTab
+     *          Advance group definition tab component
+     *
+     * @return Group definition tab sheet
+     */
     public TabSheet createGroupDefinitionTabs(final Component simpleGroupDefinitionTab,
             final Component advancedGroupDefinitionTab) {
         final TabSheet groupsDefinitionTabs = new TabSheet();
@@ -78,6 +101,9 @@ public final class RolloutWindowLayoutComponentBuilder {
         return groupsDefinitionTabs;
     }
 
+    /**
+     * @return Group definition layout with Pie chat
+     */
     public VisualGroupDefinitionLayout createVisualGroupDefinitionLayout() {
         return new VisualGroupDefinitionLayout(createGroupsPieChart(), createGroupsLegendLayout());
     }
@@ -95,6 +121,9 @@ public final class RolloutWindowLayoutComponentBuilder {
         return new GroupsLegendLayout(dependencies.getI18n());
     }
 
+    /**
+     * @return Rollout approval layout
+     */
     public ApprovalLayout createApprovalLayout() {
         return new ApprovalLayout(dependencies.getI18n());
     }

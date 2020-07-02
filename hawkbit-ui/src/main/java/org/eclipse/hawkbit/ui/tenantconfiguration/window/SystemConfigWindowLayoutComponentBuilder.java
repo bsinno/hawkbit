@@ -1,3 +1,10 @@
+/** Copyright (c) 2020 Bosch.IO GmbH and others.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.hawkbit.ui.tenantconfiguration.window;
 
 import org.eclipse.hawkbit.ui.common.builder.LabelBuilder;
@@ -12,17 +19,37 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * Builder for system config window layout component
+ */
 public class SystemConfigWindowLayoutComponentBuilder {
     private final SystemConfigWindowDependencies dependencies;
 
+    /**
+     * Constructor for SystemConfigWindowLayoutComponentBuilder
+     *
+     * @param dependencies
+     */
     public SystemConfigWindowLayoutComponentBuilder(final SystemConfigWindowDependencies dependencies) {
         this.dependencies = dependencies;
     }
 
+    /**
+     * @param key
+     *          Message key
+     *
+     * @return Label
+     */
     public Label getLabel(final String key) {
         return new LabelBuilder().name(dependencies.getI18n().getMessage(key)).buildLabel();
     }
 
+    /**
+     * @param binder
+     *          System config window binder
+     *
+     * @return Distribution set combo box
+     */
     public ComboBox<ProxyType> createDistributionSetCombo(final Binder<ProxySystemConfigWindow> binder) {
         final ComboBox<ProxyType> distributionSetType = new ComboBox<>();
         distributionSetType.setDescription(
@@ -53,6 +80,9 @@ public class SystemConfigWindowLayoutComponentBuilder {
         return distributionSetType;
     }
 
+    /**
+     * @return System config window dependencies
+     */
     public SystemConfigWindowDependencies getDependencies() {
         return dependencies;
     }

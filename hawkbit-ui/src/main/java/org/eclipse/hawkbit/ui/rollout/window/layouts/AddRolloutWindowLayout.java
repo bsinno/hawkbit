@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -42,6 +42,12 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
     private int noOfGroups;
     private List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions;
 
+    /**
+     * Constructor for AddRolloutWindowLayout
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     */
     public AddRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         super(dependencies);
 
@@ -164,10 +170,16 @@ public class AddRolloutWindowLayout extends AbstractRolloutWindowLayout {
         }
     }
 
+    /**
+     * Add advance group row and validate
+     */
     public void addAdvancedGroupRowAndValidate() {
         advancedGroupsLayout.addGroupRowAndValidate();
     }
 
+    /**
+     * Select advance group tab in the add rollout window
+     */
     public void selectAdvancedGroupsTab() {
         groupsDefinitionTabs.setSelectedTab(advancedGroupsLayout.getLayout());
     }

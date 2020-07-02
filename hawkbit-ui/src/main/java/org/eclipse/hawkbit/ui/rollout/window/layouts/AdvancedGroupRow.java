@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -30,6 +30,9 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * Advance group row component
+ */
 public class AdvancedGroupRow {
 
     private final VaadinMessageSource i18n;
@@ -43,6 +46,14 @@ public class AdvancedGroupRow {
     private final TextField triggerThreshold;
     private final TextField errorThreshold;
 
+    /**
+     * Constructor for AdvancedGroupRow
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param targetFilterQueryDataProvider
+     *          TargetFilterQueryDataProvider
+     */
     public AdvancedGroupRow(final VaadinMessageSource i18n,
             final TargetFilterQueryDataProvider targetFilterQueryDataProvider) {
         this.i18n = i18n;
@@ -120,6 +131,14 @@ public class AdvancedGroupRow {
         return errorThresholdField;
     }
 
+    /**
+     * Add row to group layout
+     *
+     * @param layout
+     *          Grid layout
+     * @param index
+     *          Row index
+     */
     public void addRowToLayout(final GridLayout layout, final int index) {
         layout.addComponent(groupName, 0, index);
         layout.addComponent(targetFilterQueryCombo, 1, index);
@@ -128,6 +147,12 @@ public class AdvancedGroupRow {
         layout.addComponent(errorThreshold, 4, index);
     }
 
+    /**
+     * Update Group components
+     *
+     * @param index
+     *          Group index
+     */
     public void updateComponentIds(final int index) {
         groupName.setId(UIComponentIdProvider.ROLLOUT_GROUP_LIST_GRID_ID + "." + index);
         targetFilterQueryCombo.setId(UIComponentIdProvider.ROLLOUT_TARGET_FILTER_COMBO_ID + "." + index);
@@ -136,14 +161,29 @@ public class AdvancedGroupRow {
         errorThreshold.setId(UIComponentIdProvider.ROLLOUT_ERROR_THRESOLD_ID + "." + index);
     }
 
+    /**
+     * Sets the bean in vaadin binder
+     *
+     * @param bean
+     *          ProxyAdvancedRolloutGroup
+     */
     public void setBean(final ProxyAdvancedRolloutGroup bean) {
         binder.setBean(bean);
     }
 
+    /**
+     * @return Bean of advance rollout group
+     */
     public ProxyAdvancedRolloutGroup getBean() {
         return binder.getBean();
     }
 
+    /**
+     * Add status change listener in rollout group binder
+     *
+     * @param listener
+     *          StatusChangeListener
+     */
     public void addStatusChangeListener(final StatusChangeListener listener) {
         binder.addStatusChangeListener(listener);
     }
@@ -155,10 +195,19 @@ public class AdvancedGroupRow {
         return binder.isValid();
     }
 
+    /**
+     * Sets the user error in target percentage component
+     *
+     * @param error
+     *          Component error
+     */
     public void setError(final String error) {
         targetPercentage.setComponentError(new UserError(error));
     }
 
+    /**
+     * Remove the error from the target percentage component
+     */
     public void resetError() {
         targetPercentage.setComponentError(null);
     }

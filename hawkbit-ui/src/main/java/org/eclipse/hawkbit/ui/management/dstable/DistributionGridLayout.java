@@ -70,6 +70,46 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
     private final transient EntityModifiedListener<ProxyDistributionSet> dsModifiedListener;
     private final transient EntityModifiedListener<ProxyTag> tagModifiedListener;
 
+    /**
+     * Constructor for DistributionGridLayout
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param i18n
+     *          VaadinMessageSource
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param entityFactory
+     *          EntityFactory
+     * @param notification
+     *          UINotification
+     * @param targetManagement
+     *          TargetManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param smManagement
+     *          SoftwareModuleManagement
+     * @param distributionSetTypeManagement
+     *          DistributionSetTypeManagement
+     * @param distributionSetTagManagement
+     *          DistributionSetTagManagement
+     * @param systemManagement
+     *          SystemManagement
+     * @param deploymentManagement
+     *          DeploymentManagement
+     * @param configManagement
+     *          TenantConfigurationManagement
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     * @param uiProperties
+     *          UiProperties
+     * @param distributionGridLayoutUiState
+     *          DistributionGridLayoutUiState
+     * @param distributionTagLayoutUiState
+     *          TagFilterLayoutUiState
+     * @param targetGridLayoutUiState
+     *          TargetGridLayoutUiState
+     */
     public DistributionGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permissionChecker, final EntityFactory entityFactory,
             final UINotification notification, final TargetManagement targetManagement,
@@ -140,29 +180,47 @@ public class DistributionGridLayout extends AbstractGridComponentLayout {
                 .singletonList(EntityModifiedTagTokenAwareSupport.of(distributionDetails.getDistributionTagToken()));
     }
 
+    /**
+     * Show distribution set tag header icon
+     */
     public void showDsTagHeaderIcon() {
         distributionGridHeader.showFilterIcon();
     }
 
+    /**
+     * Hide distribution set tag header icon
+     */
     public void hideDsTagHeaderIcon() {
         distributionGridHeader.hideFilterIcon();
     }
 
+    /**
+     * Maximize the distribution grid
+     */
     public void maximize() {
         distributionGrid.createMaximizedContent();
         hideDetailsLayout();
     }
 
+    /**
+     * Minimize the distribution grid
+     */
     public void minimize() {
         distributionGrid.createMinimizedContent();
         showDetailsLayout();
     }
 
+    /**
+     * Restore the distribution grid state
+     */
     public void restoreState() {
         distributionGridHeader.restoreState();
         distributionGrid.restoreState();
     }
 
+    /**
+     * Unsubscribe the changed listener
+     */
     public void unsubscribeListener() {
         dsFilterListener.unsubscribe();
         pinningChangedListener.unsubscribe();

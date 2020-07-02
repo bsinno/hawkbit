@@ -72,6 +72,9 @@ public class TargetBulkTokenTags extends AbstractTagToken<ProxyTarget> {
         return Collections.emptyList();
     }
 
+    /**
+     * @return List of assigned tags
+     */
     public List<ProxyTag> getSelectedTagsForAssignment() {
         return tagPanelLayout.getAssignedTags();
     }

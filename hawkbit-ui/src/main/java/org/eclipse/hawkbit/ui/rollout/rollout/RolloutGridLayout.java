@@ -50,6 +50,40 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
     private final transient FilterChangedListener<ProxyRollout> rolloutFilterListener;
     private final transient EntityModifiedListener<ProxyRollout> rolloutModifiedListener;
 
+    /**
+     * Constructor for RolloutGridLayout
+     *
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param rolloutManagementUIState
+     *          RolloutManagementUIState
+     * @param eventBus
+     *          UIEventBus
+     * @param rolloutManagement
+     *          RolloutManagement
+     * @param targetManagement
+     *          TargetManagement
+     * @param uiNotification
+     *          UINotification
+     * @param uiProperties
+     *          UiProperties
+     * @param entityFactory
+     *          EntityFactory
+     * @param i18n
+     *          VaadinMessageSource
+     * @param targetFilterQueryManagement
+     *          TargetFilterQueryManagement
+     * @param rolloutGroupManagement
+     *          RolloutGroupManagement
+     * @param quotaManagement
+     *          QuotaManagement
+     * @param tenantConfigManagement
+     *          TenantConfigurationManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     */
     public RolloutGridLayout(final SpPermissionChecker permissionChecker,
             final RolloutManagementUIState rolloutManagementUIState, final UIEventBus eventBus,
             final RolloutManagement rolloutManagement, final TargetManagement targetManagement,
@@ -86,6 +120,9 @@ public class RolloutGridLayout extends AbstractGridComponentLayout {
                         rolloutListGrid::mapIdToProxyEntity, rolloutListGrid::onSelectedRolloutDeleted));
     }
 
+    /**
+     * Restore the rollout grid state
+     */
     public void restoreState() {
         rolloutListHeader.restoreState();
         rolloutListGrid.restoreState();

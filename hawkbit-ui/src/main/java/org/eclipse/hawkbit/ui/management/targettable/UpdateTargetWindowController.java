@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for update target window
+ */
 public class UpdateTargetWindowController extends AbstractEntityWindowController<ProxyTarget, ProxyTarget> {
     private static final Logger LOG = LoggerFactory.getLogger(UpdateTargetWindowController.class);
 
@@ -41,6 +44,22 @@ public class UpdateTargetWindowController extends AbstractEntityWindowController
 
     private String controllerIdBeforeEdit;
 
+    /**
+     * Constructor for UpdateTargetWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param targetManagement
+     *          TargetManagement
+     * @param layout
+     *          TargetWindowLayout
+     */
     public UpdateTargetWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final TargetManagement targetManagement,
             final TargetWindowLayout layout) {

@@ -74,6 +74,34 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     private final Binder<ProxyBulkUploadWindow> binder;
 
+    /**
+     * Constructor for TargetBulkUpdateWindowLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param checker
+     *          SpPermissionChecker
+     * @param uinotification
+     *          UINotification
+     * @param targetManagement
+     *          TargetManagement
+     * @param deploymentManagement
+     *          DeploymentManagement
+     * @param tagManagement
+     *          TargetTagManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param entityFactory
+     *          EntityFactory
+     * @param uiproperties
+     *          UiProperties
+     * @param uiExecutor
+     *          Executor
+     * @param targetBulkUploadUiState
+     *          TargetBulkUploadUiState
+     */
     public TargetBulkUpdateWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker checker, final UINotification uinotification,
             final TargetManagement targetManagement, final DeploymentManagement deploymentManagement,
@@ -160,6 +188,12 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         return closeBtn;
     }
 
+    /**
+     * Sets the close call back event listener
+     *
+     * @param closeCallback
+     *          Runnable
+     */
     public void setCloseCallback(final Runnable closeCallback) {
         if (closeRegistration != null) {
             closeRegistration.remove();
@@ -231,6 +265,9 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         setCompositionRoot(mainLayout);
     }
 
+    /**
+     * Actions once start of upload
+     */
     public void onStartOfUpload() {
         targetBulkUploadUiState.setDsId(binder.getBean().getDistributionSetId());
         targetBulkUploadUiState.setTagIdsWithNameToAssign(getTagIdsWithNameToAssign());
@@ -242,16 +279,28 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         disableInputs();
     }
 
+    /**
+     * Actions once start of provisioning
+     */
     public void onStartOfProvisioning() {
         targetsCountLabel.setVisible(true);
         targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.provisioning.started"));
     }
 
+    /**
+     * Sets the upload progress value
+     *
+     * @param value
+     *          progress percentage
+     */
     public void setProgressBarValue(final float value) {
         progressBar.setVisible(true);
         progressBar.setValue(value);
     }
 
+    /**
+     * Actions once start of assignment
+     */
     public void onStartOfAssignment() {
         targetsCountLabel.setVisible(true);
         targetsCountLabel.setValue(i18n.getMessage("message.bulk.upload.assignment.started"));
@@ -279,6 +328,9 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         return countLabelBuilder.toString();
     }
 
+    /**
+     * Actions once upload fails
+     */
     public void onUploadFailure(final String failureReason) {
         targetsCountLabel.setVisible(true);
         targetsCountLabel.setValue(
@@ -288,6 +340,9 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         enableInputs();
     }
 
+    /**
+     * Actions once assignment fails
+     */
     public void onAssignmentFailure(final String failureReason) {
         uinotification.displayValidationError(failureReason);
     }
@@ -307,6 +362,9 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
         changeInputsState(true);
     }
 
+    /**
+     * Reset target bulk upload ui state
+     */
     public void clearUiState() {
         targetBulkUploadUiState.setDsId(null);
         targetBulkUploadUiState.getTagIdsWithNameToAssign().clear();

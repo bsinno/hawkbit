@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,6 +28,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for add target window
+ */
 public class AddTargetWindowController extends AbstractEntityWindowController<ProxyTarget, ProxyTarget> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
@@ -40,6 +43,24 @@ public class AddTargetWindowController extends AbstractEntityWindowController<Pr
 
     private final EventView view;
 
+    /**
+     * Constructor for AddTargetWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param targetManagement
+     *          TargetManagement
+     * @param layout
+     *          TargetWindowLayout
+     * @param view
+     *          EventView
+     */
     public AddTargetWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final TargetManagement targetManagement,
             final TargetWindowLayout layout, final EventView view) {

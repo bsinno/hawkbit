@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,18 +22,29 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.components.colorpicker.ColorUtil;
 
+/**
+ * Builder for tag window layout component
+ */
 public class TagWindowLayoutComponentBuilder {
 
     private final VaadinMessageSource i18n;
     private final UINotification uiNotification;
 
+    /**
+     * Constructor for TagWindowLayoutComponentBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     */
     public TagWindowLayoutComponentBuilder(final VaadinMessageSource i18n, final UINotification uiNotification) {
         this.i18n = i18n;
         this.uiNotification = uiNotification;
     }
 
     /**
-     * create name field
+     * Create name field
      * 
      * @param binder
      *            binder the input will be bound to
@@ -44,7 +55,7 @@ public class TagWindowLayoutComponentBuilder {
     }
 
     /**
-     * create description field
+     * Create description field
      * 
      * @param binder
      *            binder the input will be bound to
@@ -55,6 +66,12 @@ public class TagWindowLayoutComponentBuilder {
                 .getComponent();
     }
 
+    /**
+     * @param binder
+     *          Filter button binder
+     *
+     * @return Colour picker component for tags
+     */
     public ColorPickerComponent createColorPickerComponent(final Binder<? extends ProxyFilterButton> binder) {
         final ColorPickerComponent colorPickerComponent = new ColorPickerComponent(
                 UIComponentIdProvider.TAG_COLOR_PREVIEW_ID, i18n.getMessage("label.choose.tag.color"));
@@ -93,6 +110,9 @@ public class TagWindowLayoutComponentBuilder {
             this.color = color;
         }
 
+        /**
+         * @return Tag color
+         */
         public Color getColor() {
             return color;
         }

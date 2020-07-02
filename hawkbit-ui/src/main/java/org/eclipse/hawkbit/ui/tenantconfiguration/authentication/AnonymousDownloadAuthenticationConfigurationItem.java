@@ -21,6 +21,12 @@ public class AnonymousDownloadAuthenticationConfigurationItem extends Horizontal
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Constructor for AnonymousDownloadAuthenticationConfigurationItem
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     */
     public AnonymousDownloadAuthenticationConfigurationItem(final VaadinMessageSource i18n) {
         setSpacing(false);
         setMargin(false);

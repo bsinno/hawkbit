@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -56,6 +56,14 @@ public class AddRolloutWindowController extends AbstractEntityWindowController<P
 
     protected final AddRolloutWindowLayout layout;
 
+    /**
+     * Controller for AddRolloutWindowController
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     * @param layout
+     *          AddRolloutWindowLayout
+     */
     public AddRolloutWindowController(final RolloutWindowDependencies dependencies,
             final AddRolloutWindowLayout layout) {
         this.i18n = dependencies.getI18n();

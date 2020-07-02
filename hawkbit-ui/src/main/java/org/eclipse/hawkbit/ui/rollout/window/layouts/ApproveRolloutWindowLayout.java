@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,6 +22,12 @@ public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
 
     private final ApprovalLayout approvalLayout;
 
+    /**
+     * Constructor for ApproveRolloutWindowLayout
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     */
     public ApproveRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         super(dependencies);
 
@@ -62,6 +68,9 @@ public class ApproveRolloutWindowLayout extends UpdateRolloutWindowLayout {
         approvalLayout.resetValidationStatus();
     }
 
+    /**
+     * Disable the rollout form layout
+     */
     public void disableRolloutFormLayout() {
         rolloutFormLayout.disableAllFields();
     }

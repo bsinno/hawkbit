@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,6 +28,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * target attributes detail component
+ */
 public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAttributesDetails> {
     private static final long serialVersionUID = 1L;
 
@@ -36,6 +39,14 @@ public class TargetAttributesDetailsComponent extends CustomField<ProxyTargetAtt
 
     private final HorizontalLayout targetAttributesDetailsLayout;
 
+    /**
+     * constructor for TargetAttributesDetailsComponent
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param targetManagement
+     *          TargetManagement
+     */
     public TargetAttributesDetailsComponent(final VaadinMessageSource i18n, final TargetManagement targetManagement) {
         this.i18n = i18n;
         this.targetManagement = targetManagement;

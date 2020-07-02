@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,6 +24,9 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
+/**
+ * Controller for add target tag window
+ */
 public class AddTargetTagWindowController extends AbstractEntityWindowController<ProxyTag, ProxyTag> {
     private final VaadinMessageSource i18n;
     private final EntityFactory entityFactory;
@@ -34,6 +37,22 @@ public class AddTargetTagWindowController extends AbstractEntityWindowController
 
     private final TagWindowLayout<ProxyTag> layout;
 
+    /**
+     * Constructor for AddTargetTagWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param targetTagManagement
+     *          TargetTagManagement
+     * @param layout
+     *          TagWindowLayout
+     */
     public AddTargetTagWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
             final TargetTagManagement targetTagManagement, final TagWindowLayout<ProxyTag> layout) {

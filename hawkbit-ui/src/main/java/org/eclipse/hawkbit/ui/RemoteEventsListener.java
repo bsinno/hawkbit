@@ -33,6 +33,9 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.vaadin.ui.UI;
 
+/**
+ * Remote events listener
+ */
 public class RemoteEventsListener {
     private final UIEventBus eventBus;
     private final UIEventProvider eventProvider;
@@ -60,6 +63,9 @@ public class RemoteEventsListener {
 
     private class EntityModifiedListener {
 
+        /**
+         * Constructor for EntityModifiedListener
+         */
         public EntityModifiedListener() {
             eventBus.subscribe(this, EventTopics.ENTITY_MODIFIED);
         }
@@ -73,6 +79,9 @@ public class RemoteEventsListener {
         }
     }
 
+    /**
+     * Ignore remote events filter
+     */
     public static class IgnoreRemoteEventsFilter implements EventBusListenerMethodFilter {
 
         @Override
@@ -83,6 +92,9 @@ public class RemoteEventsListener {
 
     private class RemoteEventListener {
 
+        /**
+         * Constructor for RemoteEventListener
+         */
         public RemoteEventListener() {
             eventBus.subscribe(this, EventTopics.REMOTE_EVENT_RECEIVED);
         }

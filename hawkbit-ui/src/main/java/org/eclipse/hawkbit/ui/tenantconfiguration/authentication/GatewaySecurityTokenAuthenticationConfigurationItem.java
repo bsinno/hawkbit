@@ -36,6 +36,16 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Vertica
     private final VerticalLayout detailLayout;
     private final Binder<ProxySystemConfigWindow> binder;
 
+    /**
+     * Constructor for GatewaySecurityTokenAuthenticationConfigurationItem
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param securityTokenGenerator
+     *          SecurityTokenGenerator
+     * @param binder
+     *          System config window binder
+     */
     public GatewaySecurityTokenAuthenticationConfigurationItem(final VaadinMessageSource i18n,
             final SecurityTokenGenerator securityTokenGenerator, final Binder<ProxySystemConfigWindow> binder) {
         this.securityTokenGenerator = securityTokenGenerator;
@@ -70,10 +80,16 @@ public class GatewaySecurityTokenAuthenticationConfigurationItem extends Vertica
         }
     }
 
+    /**
+     * Show gateway token detail
+     */
     public void showDetails() {
         addComponent(detailLayout);
     }
 
+    /**
+     * Hide gateway token detail
+     */
     public void hideDetails() {
         removeComponent(detailLayout);
     }

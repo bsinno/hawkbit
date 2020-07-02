@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -23,6 +23,12 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
     protected final RolloutFormLayout rolloutFormLayout;
     private final VisualGroupDefinitionLayout visualGroupDefinitionLayout;
 
+    /**
+     * Constructor for UpdateRolloutWindowLayout
+     *
+     * @param dependencies
+     *          RolloutWindowDependencies
+     */
     public UpdateRolloutWindowLayout(final RolloutWindowDependencies dependencies) {
         super(dependencies);
 
@@ -58,18 +64,33 @@ public class UpdateRolloutWindowLayout extends AbstractRolloutWindowLayout {
         return proxyEntity;
     }
 
+    /**
+     * Sets the count of total targets
+     *
+     * @param totalTargets
+     *          Total targets
+     */
     public void setTotalTargets(final Long totalTargets) {
         visualGroupDefinitionLayout.setTotalTargets(totalTargets);
     }
 
+    /**
+     * Reset rollout form layout validation
+     */
     public void resetValidation() {
         rolloutFormLayout.resetValidationStatus();
     }
 
+    /**
+     *  Adapt rollout form layout when status is pending
+     */
     public void adaptForPendingStatus() {
         rolloutFormLayout.disableFieldsOnEditForInActive();
     }
 
+    /**
+     *  Adapt rollout form layout when status is started
+     */
     public void adaptForStartedStatus() {
         rolloutFormLayout.disableFieldsOnEditForActive();
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Window;
 
+/**
+ * Builder for target meta data window
+ */
 public class TargetMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<String> {
     private final EntityFactory entityFactory;
     private final UIEventBus eventBus;
@@ -27,6 +30,22 @@ public class TargetMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<S
 
     private final TargetManagement targetManagement;
 
+    /**
+     * Constructor for TargetMetaDataWindowBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param targetManagement
+     *          TargetManagement
+     */
     public TargetMetaDataWindowBuilder(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SpPermissionChecker permChecker,
             final TargetManagement targetManagement) {
@@ -40,11 +59,29 @@ public class TargetMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<S
         this.targetManagement = targetManagement;
     }
 
+    /**
+     * @param controllerId
+     *          Controller id
+     * @param name
+     *          Entity name
+     *
+     * @return Common dialog window with target meta data
+     */
     public Window getWindowForShowTargetMetaData(final String controllerId, final String name) {
         return getWindowForShowMetaData(new TargetMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification,
                 entityFactory, targetManagement), controllerId, name, null);
     }
 
+    /**
+     * @param controllerId
+     *          Controller id
+     * @param name
+     *          Entity name
+     * @param proxyMetaData
+     *          ProxyMetaData
+     *
+     * @return Common dialog window with target meta data
+     */
     public Window getWindowForShowTargetMetaData(final String controllerId, final String name,
             final ProxyMetaData proxyMetaData) {
         return getWindowForShowMetaData(new TargetMetaDataWindowLayout(i18n, eventBus, permChecker, uiNotification,

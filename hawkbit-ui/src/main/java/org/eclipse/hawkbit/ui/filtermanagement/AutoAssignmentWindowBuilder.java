@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,6 +21,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Window;
 
+/**
+ * Builder for auto assignment window
+ */
 public class AutoAssignmentWindowBuilder extends AbstractEntityWindowBuilder<ProxyTargetFilterQuery> {
     private final UIEventBus eventBus;
     private final UINotification uiNotification;
@@ -30,6 +33,24 @@ public class AutoAssignmentWindowBuilder extends AbstractEntityWindowBuilder<Pro
     private final TargetFilterQueryManagement targetFilterQueryManagement;
     private final DistributionSetManagement dsManagement;
 
+    /**
+     * Constructor for AutoAssignmentWindowBuilder
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param entityFactory
+     *          EntityFactory
+     * @param eventBus
+     *          UIEventBus
+     * @param uiNotification
+     *          UINotification
+     * @param targetManagement
+     *          TargetManagement
+     * @param targetFilterQueryManagement
+     *          TargetFilterQueryManagement
+     * @param dsManagement
+     *          DistributionSetManagement
+     */
     public AutoAssignmentWindowBuilder(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final UINotification uiNotification, final EntityFactory entityFactory,
             final TargetManagement targetManagement, final TargetFilterQueryManagement targetFilterQueryManagement,
@@ -50,6 +71,12 @@ public class AutoAssignmentWindowBuilder extends AbstractEntityWindowBuilder<Pro
         return UIComponentIdProvider.DIST_SET_SELECT_WINDOW_ID;
     }
 
+    /**
+     * @param proxyTargetFilter
+     *          ProxyTargetFilterQuery
+     *
+     * @return  Common dialog window
+     */
     public Window getWindowForAutoAssignment(final ProxyTargetFilterQuery proxyTargetFilter) {
         return getWindowForEntity(proxyTargetFilter,
                 new AutoAssignmentWindowController(i18n, eventBus, uiNotification, entityFactory, targetManagement,

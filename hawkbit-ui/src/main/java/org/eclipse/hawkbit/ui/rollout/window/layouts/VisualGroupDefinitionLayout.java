@@ -20,6 +20,9 @@ import org.springframework.util.CollectionUtils;
 
 import com.vaadin.ui.GridLayout;
 
+/**
+ * Visual group definition layout of pie chat
+ */
 public class VisualGroupDefinitionLayout {
 
     private final GroupsPieChart groupsPieChart;
@@ -30,12 +33,24 @@ public class VisualGroupDefinitionLayout {
     private List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions;
     private GroupDefinitionMode groupDefinitionMode;
 
+    /**
+     * Constructor for VisualGroupDefinitionLayout
+     *
+     * @param groupsPieChart
+     * @param groupsLegendLayout
+     */
     public VisualGroupDefinitionLayout(final GroupsPieChart groupsPieChart,
             final GroupsLegendLayout groupsLegendLayout) {
         this.groupsPieChart = groupsPieChart;
         this.groupsLegendLayout = groupsLegendLayout;
     }
 
+    /**
+     * Set the total count of targets
+     *
+     * @param totalTargets
+     *          Total targets
+     */
     public void setTotalTargets(final Long totalTargets) {
         this.totalTargets = totalTargets;
 
@@ -96,6 +111,12 @@ public class VisualGroupDefinitionLayout {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Sets the total number of groups
+     *
+     * @param noOfGroups
+     *          Total groups
+     */
     public void setNoOfGroups(final int noOfGroups) {
         this.noOfGroups = noOfGroups;
 
@@ -104,6 +125,12 @@ public class VisualGroupDefinitionLayout {
         }
     }
 
+    /**
+     * Sets the advance rollout group definitions
+     *
+     * @param advancedRolloutGroupDefinitions
+     *          List of group definitions
+     */
     public void setAdvancedRolloutGroupDefinitions(
             final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions) {
         this.advancedRolloutGroupDefinitions = advancedRolloutGroupDefinitions;
@@ -113,14 +140,33 @@ public class VisualGroupDefinitionLayout {
         }
     }
 
+    /**
+     * Display loading
+     */
     public void displayLoading() {
         groupsLegendLayout.displayLoading();
     }
 
+    /**
+     * Sets the group definition mode
+     *
+     * @param groupDefinitionMode
+     *          GroupDefinitionMode
+     */
     public void setGroupDefinitionMode(final GroupDefinitionMode groupDefinitionMode) {
         this.groupDefinitionMode = groupDefinitionMode;
     }
 
+    /**
+     * Add groups pie chart in the group legend layout
+     *
+     * @param layout
+     *          GridLayout
+     * @param lastColumnIdx
+     *          Last column index
+     * @param heightInRows
+     *          Row height
+     */
     public void addChartWithLegendToLayout(final GridLayout layout, final int lastColumnIdx, final int heightInRows) {
         layout.addComponent(groupsPieChart, lastColumnIdx - 1, 0, lastColumnIdx - 1, heightInRows);
         layout.addComponent(groupsLegendLayout, lastColumnIdx, 0, lastColumnIdx, heightInRows);

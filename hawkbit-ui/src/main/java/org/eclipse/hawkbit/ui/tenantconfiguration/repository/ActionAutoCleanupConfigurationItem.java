@@ -126,18 +126,30 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         return layout;
     }
 
+    /**
+     * Show action auto cleanup settings
+     */
     public void showSettings() {
         addComponent(container);
     }
 
+    /**
+     * Hide action auto cleanup settings
+     */
     public void hideSettings() {
         removeComponent(container);
     }
 
+    /**
+     * @return Action status option of auto cleanup
+     */
     public static Collection<ActionStatusOption> getActionStatusOptions() {
         return ACTION_STATUS_OPTIONS;
     }
 
+    /**
+     * Auto cleanup action status options
+     */
     public static class ActionStatusOption implements Serializable {
         private static final long serialVersionUID = 1L;
 
@@ -145,10 +157,19 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
         private final Set<Status> statusSet;
         private String name;
 
+        /**
+         * Constructor for ActionStatusOption
+         *
+         * @param status
+         *          Action status
+         */
         public ActionStatusOption(final Status... status) {
             statusSet = Arrays.stream(status).collect(Collectors.toCollection(() -> EnumSet.noneOf(Status.class)));
         }
 
+        /**
+         * @return Status name
+         */
         public String getName() {
             if (name == null) {
                 name = assembleName();
@@ -156,10 +177,16 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
             return name;
         }
 
+        /**
+         * @return List of status
+         */
         public Set<Status> getStatus() {
             return statusSet;
         }
 
+        /**
+         * @return Join action status
+         */
         private String assembleName() {
             return statusSet.stream().map(Status::name).collect(Collectors.joining(SEPARATOR));
         }

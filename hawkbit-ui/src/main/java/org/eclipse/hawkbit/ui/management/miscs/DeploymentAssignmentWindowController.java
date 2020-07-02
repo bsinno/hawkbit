@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -53,6 +53,20 @@ public class DeploymentAssignmentWindowController {
 
     private ProxyAssignmentWindow proxyAssignmentWindow;
 
+    /**
+     * Constructor for DeploymentAssignmentWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiProperties
+     *          UiProperties
+     * @param eventBus
+     *          UIEventBus
+     * @param notification
+     *          UINotification
+     * @param deploymentManagement
+     *          DeploymentManagement
+     */
     public DeploymentAssignmentWindowController(final VaadinMessageSource i18n, final UiProperties uiProperties,
             final UIEventBus eventBus, final UINotification notification,
             final DeploymentManagement deploymentManagement) {
@@ -64,10 +78,16 @@ public class DeploymentAssignmentWindowController {
         this.assignmentWindowLayout = new AssignmentWindowLayout(i18n, uiProperties);
     }
 
+    /**
+     * @return Assignment window layout
+     */
     public AssignmentWindowLayout getLayout() {
         return assignmentWindowLayout;
     }
 
+    /**
+     * Populate assignment window with data
+     */
     public void populateWithData() {
         proxyAssignmentWindow = new ProxyAssignmentWindow();
 
