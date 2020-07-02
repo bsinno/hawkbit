@@ -234,18 +234,36 @@ public final class SPDateTimeUtil {
         return getTimeZoneId(getBrowserTimeZone());
     }
 
+    /**
+     * @return Two weeks from current date and time in epoc milliseconds
+     */
     public static Long twoWeeksFromNowEpochMilli() {
         return getCurentZonedDateTime().plusWeeks(2).toInstant().toEpochMilli();
     }
 
+    /**
+     * @return Half an hour from current date and time in epoc milliseconds
+     */
     public static Long halfAnHourFromNowEpochMilli() {
         return getCurentZonedDateTime().plusMinutes(30).toInstant().toEpochMilli();
     }
 
+    /**
+     * @param localDateTime
+     *          Date time
+     *
+     * @return convert local date time format to epoc milliseconds
+     */
     public static Long localDateTimeToEpochMilli(final LocalDateTime localDateTime) {
         return localDateTime.atZone(getBrowserTimeZoneId()).toInstant().toEpochMilli();
     }
 
+    /**
+     * @param epochMilli
+     *          Time in epoc milliseconds
+     *
+     * @return convert epoc milliseconds format to local date time
+     */
     public static LocalDateTime epochMilliToLocalDateTime(final Long epochMilli) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), getBrowserTimeZoneId());
     }
