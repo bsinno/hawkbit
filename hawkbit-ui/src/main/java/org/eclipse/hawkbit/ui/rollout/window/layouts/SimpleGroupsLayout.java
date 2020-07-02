@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -33,6 +33,9 @@ import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
+/**
+ * Simple group layout component
+ */
 //TODO: remove duplication with other builders
 public class SimpleGroupsLayout extends ValidatableLayout {
     private static final String MESSAGE_ENTER_NUMBER = "message.enter.number";
@@ -57,6 +60,14 @@ public class SimpleGroupsLayout extends ValidatableLayout {
 
     private IntConsumer noOfGroupsChangedListener;
 
+    /**
+     * Constructor for SimpleGroupsLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param quotaManagement
+     *          QuotaManagement
+     */
     public SimpleGroupsLayout(final VaadinMessageSource i18n, final QuotaManagement quotaManagement) {
         super();
 
@@ -275,10 +286,22 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         });
     }
 
+    /**
+     * Sets the number of groups changed listener
+     *
+     * @param noOfGroupsChangedListener
+     *          Changed listener
+     */
     public void setNoOfGroupsChangedListener(final IntConsumer noOfGroupsChangedListener) {
         this.noOfGroupsChangedListener = noOfGroupsChangedListener;
     }
 
+    /**
+     * Sets the count of total targets
+     *
+     * @param totalTargets
+     *          Total targets
+     */
     public void setTotalTargets(final Long totalTargets) {
         this.totalTargets = totalTargets;
 
@@ -301,10 +324,22 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         return new StringBuilder(i18n.getMessage("label.target.per.group")).append(targetsPerGroup).toString();
     }
 
+    /**
+     * Sets the rollout group definition bean in binder
+     *
+     * @param bean
+     *          ProxyRolloutForm
+     */
     public void setBean(final ProxySimpleRolloutGroupsDefinition bean) {
         binder.readBean(bean);
     }
 
+    /**
+     * @return Updated rollout group definition bean
+     *
+     * @throws ValidationException
+     *          ValidationException
+     */
     public ProxySimpleRolloutGroupsDefinition getBean() throws ValidationException {
         final ProxySimpleRolloutGroupsDefinition bean = new ProxySimpleRolloutGroupsDefinition();
         binder.writeBean(bean);
@@ -312,10 +347,16 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         return bean;
     }
 
+    /**
+     * @return Simple group grid layout
+     */
     public GridLayout getLayout() {
         return layout;
     }
 
+    /**
+     * Error threshold option constants
+     */
     public enum ERROR_THRESHOLD_OPTIONS {
         PERCENT("label.errorthreshold.option.percent"), COUNT("label.errorthreshold.option.count");
 
