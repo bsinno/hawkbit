@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.tenantconfiguration;
 
 import org.eclipse.hawkbit.security.SecurityTokenGenerator;
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.authentication.AnonymousDownloadAuthenticationConfigurationItem;
@@ -87,7 +88,7 @@ public class AuthenticationConfigurationView extends CustomComponent {
         gridLayout.setSizeFull();
         gridLayout.setColumnExpandRatio(1, 1.0F);
 
-        final CheckBox certificateAuthCheckbox = SPUIComponentProvider.getCheckBox(
+        final CheckBox certificateAuthCheckbox = FormComponentBuilder.getCheckBox(
                 UIComponentIdProvider.CERT_AUTH_ALLOWED_CHECKBOX, binder, ProxySystemConfigWindow::isCertificateAuth,
                 ProxySystemConfigWindow::setCertificateAuth);
         certificateAuthCheckbox.setStyleName(DIST_CHECKBOX_STYLE);
@@ -101,14 +102,14 @@ public class AuthenticationConfigurationView extends CustomComponent {
         gridLayout.addComponent(certificateAuthCheckbox, 0, 0);
         gridLayout.addComponent(certificateAuthenticationConfigurationItem, 1, 0);
 
-        final CheckBox targetSecTokenCheckBox = SPUIComponentProvider.getCheckBox(
+        final CheckBox targetSecTokenCheckBox = FormComponentBuilder.getCheckBox(
                 UIComponentIdProvider.TARGET_SEC_TOKEN_ALLOWED_CHECKBOX, binder,
                 ProxySystemConfigWindow::isTargetSecToken, ProxySystemConfigWindow::setTargetSecToken);
         targetSecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
         gridLayout.addComponent(targetSecTokenCheckBox, 0, 1);
         gridLayout.addComponent(targetSecurityTokenAuthenticationConfigurationItem, 1, 1);
 
-        final CheckBox gatewaySecTokenCheckBox = SPUIComponentProvider.getCheckBox(
+        final CheckBox gatewaySecTokenCheckBox = FormComponentBuilder.getCheckBox(
                 UIComponentIdProvider.GATEWAY_SEC_TOKEN_ALLOWED_CHECKBOX, binder,
                 ProxySystemConfigWindow::isGatewaySecToken, ProxySystemConfigWindow::setGatewaySecToken);
         gatewaySecTokenCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
@@ -122,7 +123,7 @@ public class AuthenticationConfigurationView extends CustomComponent {
         gridLayout.addComponent(gatewaySecTokenCheckBox, 0, 2);
         gridLayout.addComponent(gatewaySecurityTokenAuthenticationConfigurationItem, 1, 2);
 
-        final CheckBox downloadAnonymousCheckBox = SPUIComponentProvider.getCheckBox(
+        final CheckBox downloadAnonymousCheckBox = FormComponentBuilder.getCheckBox(
                 UIComponentIdProvider.DOWNLOAD_ANONYMOUS_CHECKBOX, binder, ProxySystemConfigWindow::isDownloadAnonymous,
                 ProxySystemConfigWindow::setDownloadAnonymous);
         downloadAnonymousCheckBox.setStyleName(DIST_CHECKBOX_STYLE);

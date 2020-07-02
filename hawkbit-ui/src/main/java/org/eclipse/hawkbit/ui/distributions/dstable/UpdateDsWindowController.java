@@ -47,17 +47,17 @@ public class UpdateDsWindowController
      * Constructor for UpdateDsWindowController
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param entityFactory
-     *          EntityFactory
+     *            EntityFactory
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param dsManagement
-     *          DistributionSetManagement
+     *            DistributionSetManagement
      * @param layout
-     *          DsWindowLayout
+     *            DsWindowLayout
      */
     public UpdateDsWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification,
@@ -102,21 +102,19 @@ public class UpdateDsWindowController
                 .name(entity.getName()).version(entity.getVersion()).description(entity.getDescription())
                 .requiredMigrationStep(entity.isRequiredMigrationStep());
 
-        final DistributionSet updatedDs;
         try {
-            updatedDs = dsManagement.update(dsUpdate);
+            final DistributionSet updatedDs = dsManagement.update(dsUpdate);
+
+            uiNotification.displaySuccess(
+                    i18n.getMessage("message.update.success", updatedDs.getName() + ":" + updatedDs.getVersion()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
+                    EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, updatedDs.getId()));
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of distribution set failed in UI: {}", e.getMessage());
-            uiNotification.displayWarning(
-                    i18n.getMessage("message.selected.distributionset.name.not.found", entity.getName()));
-            return;
+            final String entityType = i18n.getMessage("caption.distribution");
+            uiNotification
+                    .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
         }
-
-        uiNotification.displaySuccess(
-                i18n.getMessage("message.update.success", updatedDs.getName() + ":" + updatedDs.getVersion()));
-        // TODO: verify if sender is correct
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
-                EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, updatedDs.getId()));
     }
 
     @Override

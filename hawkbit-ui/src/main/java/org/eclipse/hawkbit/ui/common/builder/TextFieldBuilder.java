@@ -53,6 +53,7 @@ public class TextFieldBuilder extends AbstractTextFieldBuilder<TextFieldBuilder,
     @Override
     protected TextField createTextComponent() {
         final TextField textField = new TextField();
+        // TODO: should we also use ValueChangeMode.LAZY here?
         textField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
         return textField;
     }

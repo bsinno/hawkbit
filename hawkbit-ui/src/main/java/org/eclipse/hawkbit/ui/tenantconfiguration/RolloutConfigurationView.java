@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.rollout.ApprovalConfigurationItem;
@@ -67,7 +68,7 @@ public class RolloutConfigurationView extends CustomComponent {
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 
-        final CheckBox approvalCheckbox = SPUIComponentProvider.getCheckBox(
+        final CheckBox approvalCheckbox = FormComponentBuilder.getCheckBox(
                 UIComponentIdProvider.ROLLOUT_APPROVAL_ENABLED_CHECKBOX, binder,
                 ProxySystemConfigWindow::isRolloutApproval, ProxySystemConfigWindow::setRolloutApproval);
 

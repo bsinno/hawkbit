@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020 Bosch.IO GmbH and others.
+ * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -13,7 +13,6 @@ import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetStatelessDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTargetFilterQuery;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.management.miscs.ActionTypeOptionGroupAutoAssignmentLayout;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -24,29 +23,16 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 
-/**
- * Builder for auto assignment window layout component
- */
-//TODO: remove duplication with other builders
 public class AutoAssignmentWindowLayoutComponentBuilder {
 
     public static final String PROMPT_DISTRIBUTION_SET = "prompt.distribution.set";
 
     private final VaadinMessageSource i18n;
 
-    /**
-     * Constructor for AutoAssignmentWindowLayoutComponentBuilder
-     *
-     * @param i18n
-     *          VaadinMessageSource
-     */
     public AutoAssignmentWindowLayoutComponentBuilder(final VaadinMessageSource i18n) {
         this.i18n = i18n;
     }
 
-    /**
-     * @return Description label
-     */
     public Label createDescriptionLabel() {
         final Label autoAssignmentDescription = new Label(
                 i18n.getMessage(UIMessageIdProvider.LABEL_AUTO_ASSIGNMENT_DESC));
@@ -55,24 +41,12 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
         return autoAssignmentDescription;
     }
 
-    /**
-     * @param binder
-     *          Vaadin binder
-     *
-     * @return Auto assignment checkbox
-     */
     public CheckBox createEnableCheckbox(final Binder<ProxyTargetFilterQuery> binder) {
         final String caption = i18n.getMessage(UIMessageIdProvider.LABEL_AUTO_ASSIGNMENT_ENABLE);
-        return SPUIComponentProvider.getCheckBox(caption, UIComponentIdProvider.DIST_SET_SELECT_ENABLE_ID, binder,
+        return FormComponentBuilder.getCheckBox(caption, UIComponentIdProvider.DIST_SET_SELECT_ENABLE_ID, binder,
                 ProxyTargetFilterQuery::isAutoAssignmentEnabled, ProxyTargetFilterQuery::setAutoAssignmentEnabled);
     }
 
-    /**
-     * @param binder
-     *          Vaadin binder
-     *
-     * @return Action type option group layout
-     */
     public ActionTypeOptionGroupAutoAssignmentLayout createActionTypeOptionGroupLayout(
             final Binder<ProxyTargetFilterQuery> binder) {
         final ActionTypeOptionGroupAutoAssignmentLayout actionTypeOptionGroupLayout = new ActionTypeOptionGroupAutoAssignmentLayout(

@@ -29,8 +29,6 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.data.domain.PageRequest;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
-import com.google.common.collect.Sets;
-
 /**
  * Implementation of target/ds tag token layout.
  *
@@ -45,17 +43,17 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
      * Constructor for DistributionTagToken
      *
      * @param checker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param uinotification
-     *          UINotification
+     *            UINotification
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param distributionSetTagManagement
-     *          DistributionSetTagManagement
+     *            DistributionSetTagManagement
      * @param distributionSetManagement
-     *          DistributionSetManagement
+     *            DistributionSetManagement
      */
     public DistributionTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
             final UINotification uinotification, final UIEventBus eventBus,
@@ -75,15 +73,12 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
             final Long masterEntityId = masterEntity.getId();
 
             final List<DistributionSet> assignedDistributionSets = distributionSetManagement
-                    .assignTag(Sets.newHashSet(masterEntityId), tagData.getId());
+                    .assignTag(Collections.singleton(masterEntityId), tagData.getId());
             if (checkAssignmentResult(assignedDistributionSets, masterEntityId)) {
-                uinotification.displaySuccess(
+                uiNotification.displaySuccess(
                         i18n.getMessage("message.target.assigned.one", masterEntity.getName(), tagData.getName()));
                 eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                         EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, masterEntityId));
-
-                // TODO: check if needed
-                tagPanelLayout.setAssignedTag(tagData);
             }
         });
     }
@@ -96,13 +91,10 @@ public class DistributionTagToken extends AbstractTagToken<ProxyDistributionSet>
             final DistributionSet unAssignedDistributionSet = distributionSetManagement.unAssignTag(masterEntityId,
                     tagData.getId());
             if (checkUnassignmentResult(unAssignedDistributionSet, masterEntityId)) {
-                uinotification.displaySuccess(
+                uiNotification.displaySuccess(
                         i18n.getMessage("message.target.unassigned.one", masterEntity.getName(), tagData.getName()));
                 eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                         EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, masterEntityId));
-
-                // TODO: check if needed
-                tagPanelLayout.removeAssignedTag(tagData);
             }
         });
     }

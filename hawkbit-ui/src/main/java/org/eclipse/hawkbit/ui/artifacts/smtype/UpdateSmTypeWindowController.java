@@ -121,22 +121,20 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
         final SoftwareModuleTypeUpdate smTypeUpdate = entityFactory.softwareModuleType().update(entity.getId())
                 .description(entity.getDescription()).colour(entity.getColour());
 
-        final SoftwareModuleType updatedSmType;
         try {
-            updatedSmType = smTypeManagement.update(smTypeUpdate);
+            final SoftwareModuleType updatedSmType = smTypeManagement.update(smTypeUpdate);
+
+            uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedSmType.getName()));
+            eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
+                    new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class,
+                            ProxyType.class, updatedSmType.getId()));
         } catch (final EntityNotFoundException | EntityReadOnlyException e) {
             LOG.trace("Update of software module type failed in UI: {}", e.getMessage());
 
-            final String entityType = i18n.getMessage("caption.type");
+            final String entityType = i18n.getMessage("caption.entity.software.module.type");
             uiNotification
                     .displayWarning(i18n.getMessage("message.deleted.or.notAllowed", entityType, entity.getName()));
-            return;
         }
-
-        uiNotification.displaySuccess(i18n.getMessage("message.update.success", updatedSmType.getName()));
-        eventBus.publish(EventTopics.ENTITY_MODIFIED, this,
-                new EntityModifiedEventPayload(EntityModifiedEventType.ENTITY_UPDATED, ProxySoftwareModule.class,
-                        ProxyType.class, updatedSmType.getId()));
     }
 
     @Override
@@ -150,7 +148,7 @@ public class UpdateSmTypeWindowController extends AbstractEntityWindowController
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         final String trimmedKey = StringUtils.trimWhitespace(entity.getKey());
         if (!nameBeforeEdit.equals(trimmedName) && smTypeManagement.getByName(trimmedName).isPresent()) {
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
+            uiNotification.displayValidationError(i18n.getMessage("message.type.duplicate.check", trimmedName));
             return false;
         }
         if (!keyBeforeEdit.equals(trimmedKey) && smTypeManagement.getByKey(trimmedKey).isPresent()) {

@@ -8,6 +8,10 @@
  */
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
@@ -48,5 +52,11 @@ public class RolloutGroupToAdvancedDefinitionMapper {
         advancedGroupRow.setErrorThresholdPercentage(rolloutGroup.getErrorConditionExp());
 
         return advancedGroupRow;
+    }
+
+    public List<ProxyAdvancedRolloutGroup> loadRolloutGroupssFromBackend(final Long rolloutId,
+            final RolloutGroupManagement rolloutGroupManagement, final int pageCount) {
+        return rolloutGroupManagement.findByRollout(PageRequest.of(0, pageCount), rolloutId).stream().map(this::map)
+                .collect(Collectors.toList());
     }
 }

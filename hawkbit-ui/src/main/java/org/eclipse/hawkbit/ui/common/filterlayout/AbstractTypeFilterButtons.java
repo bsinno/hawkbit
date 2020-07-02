@@ -43,15 +43,15 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
      * Constructor for AbstractTypeFilterButtons
      *
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param typeFilterLayoutUiState
-     *          TypeFilterLayoutUiState
+     *            TypeFilterLayoutUiState
      */
     public AbstractTypeFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final UINotification uiNotification, final SpPermissionChecker permChecker,
@@ -69,8 +69,6 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
     }
 
     private void onFilterChanged(final ProxyType typeFilter, final ClickBehaviourType clickType) {
-        // TODO: somehow move it to abstract class/TypeFilterButtonClick
-        // needed to trigger style generator
         getDataCommunicator().reset();
 
         final Long typeId = ClickBehaviourType.CLICKED == clickType ? typeFilter.getId() : null;
@@ -125,7 +123,7 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
      * Reset the filter after types deleted
      *
      * @param deletedTypeIds
-     *          List of deleted type Ids
+     *            List of deleted type Ids
      */
     public void resetFilterOnTypesDeleted(final Collection<Long> deletedTypeIds) {
         final Long clickedTypeId = getFilterButtonClickBehaviour().getPreviouslyClickedFilterId();
@@ -163,7 +161,6 @@ public abstract class AbstractTypeFilterButtons extends AbstractFilterButtons<Pr
 
         if (lastClickedTypeId != null) {
             getFilterButtonClickBehaviour().setPreviouslyClickedFilterId(lastClickedTypeId);
-            // TODO: should we reset data communicator here for styling update
         }
     }
 }

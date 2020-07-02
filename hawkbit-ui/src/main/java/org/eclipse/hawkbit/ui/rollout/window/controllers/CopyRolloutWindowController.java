@@ -9,13 +9,11 @@
 package org.eclipse.hawkbit.ui.rollout.window.controllers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.repository.QuotaManagement;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
-import org.eclipse.hawkbit.repository.model.RolloutGroup;
 import org.eclipse.hawkbit.repository.model.TargetFilterQuery;
 import org.eclipse.hawkbit.ui.common.data.mappers.RolloutGroupToAdvancedDefinitionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
@@ -74,8 +72,7 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
             proxyRolloutWindow.setStartAt(SPDateTimeUtil.halfAnHourFromNowEpochMilli());
         }
 
-        proxyRolloutWindow.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
-        setRolloutGroups(proxyRolloutWindow);
+        setAdvancedGroups(proxyRolloutWindow);
 
         if (CollectionUtils.isEmpty(proxyRolloutWindow.getAdvancedRolloutGroupDefinitions())) {
             setDefaultThresholds(proxyRolloutWindow);
@@ -94,18 +91,13 @@ public class CopyRolloutWindowController extends AddRolloutWindowController {
         }
     }
 
-    private void setRolloutGroups(final ProxyRolloutWindow proxyRolloutWindow) {
-        final List<RolloutGroup> rolloutGroups = rolloutGroupManagement
-                .findByRollout(PageRequest.of(0, quotaManagement.getMaxRolloutGroupsPerRollout()),
-                        proxyRolloutWindow.getId())
-                .getContent();
-
-        final RolloutGroupToAdvancedDefinitionMapper mapper = new RolloutGroupToAdvancedDefinitionMapper(
+    private void setAdvancedGroups(final ProxyRolloutWindow proxyRolloutWindow) {
+        proxyRolloutWindow.setGroupDefinitionMode(GroupDefinitionMode.ADVANCED);
+        final RolloutGroupToAdvancedDefinitionMapper groupsMapper = new RolloutGroupToAdvancedDefinitionMapper(
                 targetFilterQueryManagement);
-        final List<ProxyAdvancedRolloutGroup> advancedRolloutGroupDefinitions = rolloutGroups.stream().map(mapper::map)
-                .collect(Collectors.toList());
-
-        proxyRolloutWindow.setAdvancedRolloutGroupDefinitions(advancedRolloutGroupDefinitions);
+        final List<ProxyAdvancedRolloutGroup> advancedGroupDefinitions = groupsMapper.loadRolloutGroupssFromBackend(
+                proxyRolloutWindow.getId(), rolloutGroupManagement, quotaManagement.getMaxRolloutGroupsPerRollout());
+        proxyRolloutWindow.setAdvancedRolloutGroupDefinitions(advancedGroupDefinitions);
     }
 
     private void setThresholdsOfFirstGroup(final ProxyRolloutWindow proxyRolloutWindow) {

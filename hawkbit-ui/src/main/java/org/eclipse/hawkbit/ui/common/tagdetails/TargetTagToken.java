@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.tagdetails;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -45,17 +44,17 @@ public class TargetTagToken extends AbstractTagToken<ProxyTarget> {
      * Constructor for TargetTagToken
      *
      * @param checker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param uinotification
-     *          UINotification
+     *            UINotification
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param targetTagManagement
-     *          TargetTagManagement
+     *            TargetTagManagement
      * @param targetManagement
-     *          TargetManagement
+     *            TargetManagement
      */
     public TargetTagToken(final SpPermissionChecker checker, final VaadinMessageSource i18n,
             final UINotification uinotification, final UIEventBus eventBus,
@@ -74,15 +73,12 @@ public class TargetTagToken extends AbstractTagToken<ProxyTarget> {
             final Long masterEntityId = masterEntity.getId();
 
             final List<Target> assignedTargets = targetManagement
-                    .assignTag(Arrays.asList(masterEntity.getControllerId()), tagData.getId());
+                    .assignTag(Collections.singleton(masterEntity.getControllerId()), tagData.getId());
             if (checkAssignmentResult(assignedTargets, masterEntityId)) {
-                uinotification.displaySuccess(
+                uiNotification.displaySuccess(
                         i18n.getMessage("message.target.assigned.one", masterEntity.getName(), tagData.getName()));
                 eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                         EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, masterEntityId));
-
-                // TODO: check if needed
-                tagPanelLayout.setAssignedTag(tagData);
             }
         });
     }
@@ -95,13 +91,10 @@ public class TargetTagToken extends AbstractTagToken<ProxyTarget> {
             final Target unassignedTarget = targetManagement.unAssignTag(masterEntity.getControllerId(),
                     tagData.getId());
             if (checkUnassignmentResult(unassignedTarget, masterEntityId)) {
-                uinotification.displaySuccess(
+                uiNotification.displaySuccess(
                         i18n.getMessage("message.target.unassigned.one", masterEntity.getName(), tagData.getName()));
                 eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                         EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, masterEntityId));
-
-                // TODO: check if needed
-                tagPanelLayout.removeAssignedTag(tagData);
             }
         });
     }

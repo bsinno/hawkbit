@@ -12,7 +12,6 @@ import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -26,7 +25,7 @@ import com.vaadin.ui.themes.ValoTheme;
 /**
  * Builder for Distribution set window layout component
  */
-//TODO: remove duplication with other builders
+// TODO: remove duplication with other builders
 public class DsWindowLayoutComponentBuilder {
 
     public static final String SELECT_TYPE = "label.combobox.type";
@@ -42,9 +41,9 @@ public class DsWindowLayoutComponentBuilder {
      * Constructor for DsWindowLayoutComponentBuilder
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param dsTypeDataProvider
-     *          DistributionSetTypeDataProvider
+     *            DistributionSetTypeDataProvider
      */
     public DsWindowLayoutComponentBuilder(final VaadinMessageSource i18n,
             final DistributionSetTypeDataProvider dsTypeDataProvider) {
@@ -54,7 +53,7 @@ public class DsWindowLayoutComponentBuilder {
 
     /**
      * @param binder
-     *          Vaddin binder
+     *            Vaddin binder
      *
      * @return Distribution set type combobox
      */
@@ -111,12 +110,12 @@ public class DsWindowLayoutComponentBuilder {
 
     /**
      * @param binder
-     *          Vaadin binder
+     *            Vaadin binder
      *
-     * @return  Migration step required checkbox
+     * @return Migration step required checkbox
      */
     public CheckBox createMigrationStepField(final Binder<ProxyDistributionSet> binder) {
-        final CheckBox migrationRequired = SPUIComponentProvider.getCheckBox(i18n.getMessage(MIGRATION_STEP),
+        final CheckBox migrationRequired = FormComponentBuilder.getCheckBox(i18n.getMessage(MIGRATION_STEP),
                 UIComponentIdProvider.DIST_ADD_MIGRATION_CHECK, binder, ProxyDistributionSet::isRequiredMigrationStep,
                 ProxyDistributionSet::setRequiredMigrationStep);
 

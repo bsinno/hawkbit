@@ -9,6 +9,7 @@
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
 import org.eclipse.hawkbit.ui.UiProperties;
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySystemConfigWindow;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem;
@@ -84,7 +85,7 @@ public class RepositoryConfigurationView extends CustomComponent {
         gridLayout.setColumnExpandRatio(1, 1.0F);
         gridLayout.setSizeFull();
 
-        final CheckBox actionAutoCloseCheckBox = SPUIComponentProvider.getCheckBox(
+        final CheckBox actionAutoCloseCheckBox = FormComponentBuilder.getCheckBox(
                 UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLOSE_CHECKBOX, binder,
                 ProxySystemConfigWindow::isActionAutoclose, ProxySystemConfigWindow::setActionAutoclose);
         actionAutoCloseCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
@@ -93,7 +94,7 @@ public class RepositoryConfigurationView extends CustomComponent {
         gridLayout.addComponent(actionAutoCloseCheckBox, 0, 0);
         gridLayout.addComponent(actionAutocloseConfigurationItem, 1, 0);
 
-        multiAssignmentsCheckBox = SPUIComponentProvider.getCheckBox(
+        multiAssignmentsCheckBox = FormComponentBuilder.getCheckBox(
                 UIComponentIdProvider.REPOSITORY_MULTI_ASSIGNMENTS_CHECKBOX, binder,
                 ProxySystemConfigWindow::isMultiAssignments, ProxySystemConfigWindow::setMultiAssignments);
         multiAssignmentsCheckBox.setStyleName(DIST_CHECKBOX_STYLE);
@@ -111,7 +112,7 @@ public class RepositoryConfigurationView extends CustomComponent {
         gridLayout.addComponent(multiAssignmentsCheckBox, 0, 1);
         gridLayout.addComponent(multiAssignmentsConfigurationItem, 1, 1);
 
-        final CheckBox actionAutoCleanupCheckBox = SPUIComponentProvider.getCheckBox(
+        final CheckBox actionAutoCleanupCheckBox = FormComponentBuilder.getCheckBox(
                 UIComponentIdProvider.REPOSITORY_ACTIONS_AUTOCLEANUP_CHECKBOX, binder,
                 ProxySystemConfigWindow::isActionAutocleanup, ProxySystemConfigWindow::setActionAutocleanup);
         actionAutoCleanupCheckBox.setStyleName(DIST_CHECKBOX_STYLE);

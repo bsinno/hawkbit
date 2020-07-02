@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.grid.header.AbstractFilterHeader;
 import org.eclipse.hawkbit.ui.management.targettag.TargetTagWindowBuilder;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
+import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
@@ -65,8 +66,7 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected String getHeaderCaptionMsgKey() {
-        // TODO: constant
-        return "header.target.filter.tag";
+        return UIMessageIdProvider.HEADER_TARGET_TAG;
     }
 
     @Override
@@ -81,8 +81,7 @@ public class TargetTagFilterHeader extends AbstractFilterHeader {
 
     @Override
     protected String getAddEntityWindowCaptionMsgKey() {
-        // TODO: use constant
-        return "caption.tag";
+        return UIMessageIdProvider.CAPTION_TAG;
     }
 
     @Override

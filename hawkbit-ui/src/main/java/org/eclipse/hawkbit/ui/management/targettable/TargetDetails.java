@@ -46,6 +46,8 @@ import com.vaadin.ui.Window;
 public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
     private static final long serialVersionUID = 1L;
 
+    private static final String TARGET_ID_PREFIX = "target.";
+
     private final transient TargetManagement targetManagement;
     private final transient DeploymentManagement deploymentManagement;
 
@@ -180,8 +182,7 @@ public class TargetDetails extends AbstractGridDetailsLayout<ProxyTarget> {
 
     @Override
     protected String getLogLabelIdPrefix() {
-        // TODO: fix with constant
-        return "target.";
+        return TARGET_ID_PREFIX;
     }
 
     private void showMetadataDetails(final ProxyMetaData metadata) {

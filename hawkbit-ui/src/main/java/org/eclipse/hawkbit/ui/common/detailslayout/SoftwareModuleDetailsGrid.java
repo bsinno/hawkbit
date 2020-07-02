@@ -263,7 +263,6 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
 
         final List<ProxySoftwareModuleDetails> items = new ArrayList<>();
 
-        // TODO: try to optimize
         dsType.ifPresent(type -> {
             final Collection<SoftwareModule> softwareModules = getSoftwareModulesByDsId(masterEntity.getId());
 
@@ -306,8 +305,8 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
 
     /**
      * @param isUnassignSmAllowed
-     *            <code>true</code> if unassigned software module is allowed, otherwise
-     *            <code>false</code>
+     *            <code>true</code> if unassigned software module is allowed,
+     *            otherwise <code>false</code>
      */
     public void setUnassignSmAllowed(final boolean isUnassignSmAllowed) {
         this.isUnassignSmAllowed = isUnassignSmAllowed;

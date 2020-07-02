@@ -28,11 +28,15 @@ import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.StringUtils;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.Binder.Binding;
 import com.vaadin.data.Binder.BindingBuilder;
 import com.vaadin.data.Validator;
+import com.vaadin.data.ValueProvider;
+import com.vaadin.server.Setter;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
@@ -368,5 +372,55 @@ public final class FormComponentBuilder {
                 ProxyType::setKey);
 
         return typeKey;
+    }
+
+    /**
+     * Generate a check box
+     * 
+     * @param <T>
+     *            entity type the check box can be bound to
+     * @param id
+     *            id of the check box element
+     * @param binder
+     *            the box is bound to
+     * @param getter
+     *            getter for the binder
+     * @param setter
+     *            setter for the binder
+     * @return the bound box
+     */
+    public static <T> CheckBox getCheckBox(final String id, final Binder<T> binder,
+            final ValueProvider<T, Boolean> getter, final Setter<T, Boolean> setter) {
+        return getCheckBox(null, id, binder, getter, setter);
+    }
+
+    /**
+     * Generate a check box
+     * 
+     * @param <T>
+     *            entity type the check box can be bound to
+     * @param caption
+     *            check box caption
+     * @param id
+     *            id of the check box element
+     * @param binder
+     *            the box is bound to
+     * @param getter
+     *            getter for the binder
+     * @param setter
+     *            setter for the binder
+     * @return the bound box
+     */
+    public static <T> CheckBox getCheckBox(final String caption, final String id, final Binder<T> binder,
+            final ValueProvider<T, Boolean> getter, final Setter<T, Boolean> setter) {
+        final CheckBox checkBox;
+        if (StringUtils.isEmpty(caption)) {
+            checkBox = new CheckBox();
+        } else {
+            checkBox = new CheckBox(caption);
+        }
+        checkBox.setId(id);
+        binder.forField(checkBox).bind(getter, setter);
+        return checkBox;
     }
 }

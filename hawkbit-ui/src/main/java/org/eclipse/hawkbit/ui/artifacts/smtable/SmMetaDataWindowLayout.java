@@ -50,17 +50,17 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
      * Constructor for AbstractTagWindowLayout
      * 
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param entityFactory
-     *          EntityFactory
+     *            EntityFactory
      * @param smManagement
-     *          SoftwareModuleManagement
+     *            SoftwareModuleManagement
      */
     public SmMetaDataWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permChecker, final UINotification uiNotification,
@@ -96,7 +96,8 @@ public class SmMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
 
             return true;
         } else {
-            uiNotification.displayValidationError(i18n.getMessage("message.error.deleteMetaData"));
+            final String entityType = i18n.getMessage("caption.software.module");
+            uiNotification.displayValidationError(i18n.getMessage("message.error.deleteMetaData", entityType));
 
             return false;
         }

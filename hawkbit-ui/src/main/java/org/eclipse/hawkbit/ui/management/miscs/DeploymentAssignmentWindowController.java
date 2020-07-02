@@ -149,9 +149,6 @@ public class DeploymentAssignmentWindowController {
     }
 
     private void showAssignmentResultNotifications(final DistributionSetAssignmentResult assignmentResult) {
-        // TODO: use stacked notifications here: e.x. with
-        // https://vaadin.com/directory/component/fancylayouts
-        // Otherwise only the last one is shown
         notification.displaySuccess(i18n.getMessage("message.target.ds.assign.success"));
 
         if (assignmentResult.getAssigned() > 0) {
@@ -192,8 +189,7 @@ public class DeploymentAssignmentWindowController {
     public boolean isForceTimeValid() {
         if (proxyAssignmentWindow.getActionType() == ActionType.TIMEFORCED
                 && proxyAssignmentWindow.getForcedTime() == null) {
-            // TODO: use i18n
-            notification.displayValidationError("Force time is not specified for the time-forced assignment");
+            notification.displayValidationError(i18n.getMessage("message.forcedTime.missing"));
 
             return false;
         }

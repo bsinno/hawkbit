@@ -43,17 +43,17 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
      * Constructor for SoftwareModuleDetailsHeader
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param smWindowBuilder
-     *          SmWindowBuilder
+     *            SmWindowBuilder
      * @param smMetaDataWindowBuilder
-     *          SmMetaDataWindowBuilder
+     *            SmMetaDataWindowBuilder
      */
     public SoftwareModuleDetailsHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final UINotification uiNotification, final SmWindowBuilder smWindowBuilder,
@@ -140,7 +140,7 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
      * Add artifact details header support
      *
      * @param artifactManagement
-     *          ArtifactManagement
+     *            ArtifactManagement
      */
     public void addArtifactDetailsHeaderSupport(final ArtifactManagement artifactManagement) {
         if (artifactDetailsHeaderSupport == null) {
@@ -155,7 +155,6 @@ public class SoftwareModuleDetailsHeader extends AbstractDetailsHeader<ProxySoft
     /**
      * Show artifact detail window layout
      */
-    // TODO: use Common*Window?
     private void showArtifactDetailsWindow() {
         if (selectedEntity == null) {
             return;

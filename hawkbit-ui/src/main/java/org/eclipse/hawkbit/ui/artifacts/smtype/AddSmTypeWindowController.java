@@ -107,7 +107,7 @@ public class AddSmTypeWindowController extends AbstractEntityWindowController<Pr
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         final String trimmedKey = StringUtils.trimWhitespace(entity.getKey());
         if (smTypeManagement.getByName(trimmedName).isPresent()) {
-            uiNotification.displayValidationError(i18n.getMessage("message.tag.duplicate.check", trimmedName));
+            uiNotification.displayValidationError(i18n.getMessage("message.type.duplicate.check", trimmedName));
             return false;
         }
         if (smTypeManagement.getByKey(trimmedKey).isPresent()) {

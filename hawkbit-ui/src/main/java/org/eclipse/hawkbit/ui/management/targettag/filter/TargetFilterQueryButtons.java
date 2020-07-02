@@ -112,8 +112,6 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
 
     private void onFilterChangedEvent(final ProxyTargetFilterQuery targetFilterQueryFilter,
             final ClickBehaviourType clickType) {
-        // TODO: somehow move it to abstract class/TypeFilterButtonClick
-        // needed to trigger style generator
         getDataCommunicator().reset();
 
         final Long targetFilterQueryId = ClickBehaviourType.CLICKED == clickType ? targetFilterQueryFilter.getId()
@@ -136,7 +134,6 @@ public class TargetFilterQueryButtons extends AbstractGrid<ProxyTargetFilterQuer
         if (customTargetTagFilterButtonClick.getPreviouslyClickedFilterId() != null) {
             customTargetTagFilterButtonClick.setPreviouslyClickedFilterId(null);
             targetTagFilterLayoutUiState.setClickedTargetFilterQueryId(null);
-            // TODO: should we reset data communicator here for styling update?
         }
     }
 

@@ -8,11 +8,11 @@
  */
 package org.eclipse.hawkbit.ui.distributions.disttype;
 
+import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.GridComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
 import org.eclipse.hawkbit.ui.common.grid.AbstractGrid;
 import org.eclipse.hawkbit.ui.common.grid.selection.RangeSelectionModel;
-import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -29,7 +29,6 @@ import com.vaadin.ui.themes.ValoTheme;
 public class SmTypeSelectedGrid extends Grid<ProxyType> {
     private static final long serialVersionUID = 1L;
 
-    // TODO: consider changing to i18n 'Mandatory'
     private static final String STAR = " * ";
     private static final String SM_TYPE_SELECTED_NAME_ID = "smTypeSelectedName";
     private static final String SM_TYPE_SELECTED_MANDATORY = "smTypeSelectedMandatory";
@@ -41,9 +40,9 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
      * Constructor for SmTypeSelectedGrid
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param mandatoryPropertyChangedCallback
-     *          Runnable
+     *            Runnable
      */
     public SmTypeSelectedGrid(final VaadinMessageSource i18n, final Runnable mandatoryPropertyChangedCallback) {
         this.i18n = i18n;
@@ -83,6 +82,6 @@ public class SmTypeSelectedGrid extends Grid<ProxyType> {
         binder.addValueChangeListener(event -> mandatoryPropertyChangedCallback.run());
 
         final String id = "selected.sm.type." + smType.getId();
-        return SPUIComponentProvider.getCheckBox(id, binder, ProxyType::isMandatory, ProxyType::setMandatory);
+        return FormComponentBuilder.getCheckBox(id, binder, ProxyType::isMandatory, ProxyType::setMandatory);
     }
 }

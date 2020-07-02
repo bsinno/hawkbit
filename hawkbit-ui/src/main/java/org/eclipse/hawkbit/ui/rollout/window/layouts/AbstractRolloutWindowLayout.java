@@ -72,19 +72,6 @@ public abstract class AbstractRolloutWindowLayout implements EntityWindowLayout<
         }
     }
 
-    // TODO: consider removing after refactoring Advanced Groups Layout to use
-    // value change listener instead of validation listener
-    protected void addValidatableLayout(final ValidatableLayout validatableLayout,
-            final Consumer<ValidationStatus> onValidationChangedCallback) {
-        if (validatableLayout != null) {
-            validatableLayout.setValidationListener(status -> {
-                onValidationChanged(status);
-                onValidationChangedCallback.accept(status);
-            });
-            validatableLayouts.add(validatableLayout);
-        }
-    }
-
     protected void removeValidatableLayout(final ValidatableLayout validatableLayout) {
         if (validatableLayout != null) {
             validatableLayout.setValidationListener(null);

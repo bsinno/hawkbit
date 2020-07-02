@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020 Bosch.IO GmbH and others.
+ * Copyright (c) 2019 Bosch Software Innovations GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -33,9 +33,7 @@ import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
-/**
- * Simple group layout component
- */
+//TODO: remove duplication with other builders
 public class SimpleGroupsLayout extends ValidatableLayout {
     private static final String MESSAGE_ENTER_NUMBER = "message.enter.number";
     private static final String MESSAGE_ROLLOUT_MAX_GROUP_SIZE_EXCEEDED = "message.rollout.max.group.size.exceeded";
@@ -59,14 +57,6 @@ public class SimpleGroupsLayout extends ValidatableLayout {
 
     private IntConsumer noOfGroupsChangedListener;
 
-    /**
-     * Constructor for SimpleGroupsLayout
-     *
-     * @param i18n
-     *          VaadinMessageSource
-     * @param quotaManagement
-     *          QuotaManagement
-     */
     public SimpleGroupsLayout(final VaadinMessageSource i18n, final QuotaManagement quotaManagement) {
         super();
 
@@ -94,8 +84,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         noOfGroups.setSizeUndefined();
 
         final Binding<ProxySimpleRolloutGroupsDefinition, Integer> noOfGroupsFieldBinding = binder.forField(noOfGroups)
-                // TODO: use i18n
-                .asRequired("You must specify at least one group").withNullRepresentation("")
+                .asRequired(i18n.getMessage("message.rollout.nonzero.group.number")).withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter(i18n.getMessage(MESSAGE_ENTER_NUMBER)))
                 .withValidator((number, context) -> {
                     final int maxGroups = quotaManagement.getMaxRolloutGroupsPerRollout();
@@ -138,8 +127,7 @@ public class SimpleGroupsLayout extends ValidatableLayout {
                 .prompt(i18n.getMessage("prompt.trigger.threshold")).buildTextComponent();
         triggerThresholdField.setSizeUndefined();
 
-        // TODO: use i18n
-        binder.forField(triggerThresholdField).asRequired("Trigger threshold can not be empty")
+        binder.forField(triggerThresholdField).asRequired(i18n.getMessage("prompt.trigger.threshold.required"))
                 .withValidator((triggerThresholdText,
                         context) -> new IntegerRangeValidator(
                                 i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0, 100)
@@ -164,9 +152,9 @@ public class SimpleGroupsLayout extends ValidatableLayout {
                 .buildTextComponent();
         errorThresholdField.setSizeUndefined();
 
-        // TODO: use i18n
         final Binding<ProxySimpleRolloutGroupsDefinition, String> binding = binder.forField(errorThresholdField)
-                .asRequired("Error threshold can not be empty").withValidator((errorThresholdText, context) -> {
+                .asRequired(i18n.getMessage("prompt.error.threshold.required"))
+                .withValidator((errorThresholdText, context) -> {
                     if (ERROR_THRESHOLD_OPTIONS.PERCENT == errorThresholdOptionGroup.getValue()) {
                         return new IntegerRangeValidator(i18n.getMessage(MESSAGE_ROLLOUT_FIELD_VALUE_RANGE, 0, 100), 0,
                                 100).apply(Integer.valueOf(errorThresholdText), context);
@@ -287,22 +275,10 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         });
     }
 
-    /**
-     * Sets the number of groups changed listener
-     *
-     * @param noOfGroupsChangedListener
-     *          Chanegd listener
-     */
     public void setNoOfGroupsChangedListener(final IntConsumer noOfGroupsChangedListener) {
         this.noOfGroupsChangedListener = noOfGroupsChangedListener;
     }
 
-    /**
-     * Sets the count of total targets
-     *
-     * @param totalTargets
-     *          Total targets
-     */
     public void setTotalTargets(final Long totalTargets) {
         this.totalTargets = totalTargets;
 
@@ -325,22 +301,10 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         return new StringBuilder(i18n.getMessage("label.target.per.group")).append(targetsPerGroup).toString();
     }
 
-    /**
-     * Sets the rollout group definition bean in binder
-     *
-     * @param bean
-     *          ProxyRolloutForm
-     */
     public void setBean(final ProxySimpleRolloutGroupsDefinition bean) {
         binder.readBean(bean);
     }
 
-    /**
-     * @return Updated rollout group definition bean
-     *
-     * @throws ValidationException
-     *          ValidationException
-     */
     public ProxySimpleRolloutGroupsDefinition getBean() throws ValidationException {
         final ProxySimpleRolloutGroupsDefinition bean = new ProxySimpleRolloutGroupsDefinition();
         binder.writeBean(bean);
@@ -348,16 +312,10 @@ public class SimpleGroupsLayout extends ValidatableLayout {
         return bean;
     }
 
-    /**
-     * @return Simple group grid layout
-     */
     public GridLayout getLayout() {
         return layout;
     }
 
-    /**
-     * Error threshold option constants
-     */
     public enum ERROR_THRESHOLD_OPTIONS {
         PERCENT("label.errorthreshold.option.percent"), COUNT("label.errorthreshold.option.count");
 
