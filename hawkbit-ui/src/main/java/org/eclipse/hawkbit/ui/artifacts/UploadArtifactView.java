@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.artifacts;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -29,7 +28,9 @@ import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.eclipse.hawkbit.ui.common.layout.listener.LayoutResizeListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutResizeListener.ResizeHandler;
 import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener.VisibilityHandler;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
@@ -86,14 +87,17 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
                     artifactUploadState, artifactUploadState.getArtifactDetailsGridLayoutUiState(), artifactManagement,
                     softwareModuleManagement, multipartConfigElement);
 
-            final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
-            layoutVisibilityHandlers.put(EventLayout.SM_TYPE_FILTER, this::changeSmTypeLayoutVisibility);
+            final Map<EventLayout, VisibilityHandler> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
+            layoutVisibilityHandlers.put(EventLayout.SM_TYPE_FILTER,
+                    new VisibilityHandler(this::showSmTypeLayout, this::hideSmTypeLayout));
             this.layoutVisibilityListener = new LayoutVisibilityListener(eventBus, new EventViewAware(EventView.UPLOAD),
                     layoutVisibilityHandlers);
 
-            final Map<EventLayout, Consumer<Boolean>> layoutResizeHandlers = new EnumMap<>(EventLayout.class);
-            layoutResizeHandlers.put(EventLayout.SM_LIST, this::resizeSmGridLayout);
-            layoutResizeHandlers.put(EventLayout.ARTIFACT_LIST, this::resizeArtifactGridLayout);
+            final Map<EventLayout, ResizeHandler> layoutResizeHandlers = new EnumMap<>(EventLayout.class);
+            layoutResizeHandlers.put(EventLayout.SM_LIST,
+                    new ResizeHandler(this::maximizeSmGridLayout, this::minimizeSmGridLayout));
+            layoutResizeHandlers.put(EventLayout.ARTIFACT_LIST,
+                    new ResizeHandler(this::maximizeArtifactGridLayout, this::minimizeArtifactGridLayout));
             this.layoutResizeListener = new LayoutResizeListener(eventBus, new EventViewAware(EventView.UPLOAD),
                     layoutResizeHandlers);
         } else {
@@ -141,79 +145,84 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     private void restoreState() {
-        changeSmTypeLayoutVisibility(!artifactUploadState.getSmTypeFilterLayoutUiState().isHidden());
+        if (artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()
+                || artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
+            hideSmTypeLayout();
+        } else {
+            showSmTypeLayout();
+        }
         smTypeFilterLayout.restoreState();
 
         if (artifactUploadState.getSmGridLayoutUiState().isMaximized()) {
-            resizeSmGridLayout(true);
+            maximizeSmGridLayout();
         }
         smGridLayout.restoreState();
 
         if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
-            resizeArtifactGridLayout(true);
+            maximizeArtifactGridLayout();
         }
         artifactDetailsGridLayout.restoreState();
     }
 
-    private void changeSmTypeLayoutVisibility(final boolean shouldShow) {
-        if (shouldShow) {
+    private void showSmTypeLayout() {
+        smTypeFilterLayout.setVisible(true);
+        smGridLayout.hideSmTypeHeaderIcon();
+    }
+
+    private void hideSmTypeLayout() {
+        smTypeFilterLayout.setVisible(false);
+        smGridLayout.showSmTypeHeaderIcon();
+    }
+
+    private void maximizeSmGridLayout() {
+        artifactDetailsGridLayout.setVisible(false);
+
+        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(smGridLayout, 1.0F);
+        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0F);
+
+        smGridLayout.maximize();
+    }
+
+    private void minimizeSmGridLayout() {
+        artifactDetailsGridLayout.setVisible(true);
+
+        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(smGridLayout, 0.5F);
+        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
+
+        smGridLayout.minimize();
+    }
+
+    private void maximizeArtifactGridLayout() {
+        smTypeFilterLayout.setVisible(false);
+        smGridLayout.setVisible(false);
+
+        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(smGridLayout, 0F);
+        mainLayout.setExpandRatio(artifactDetailsGridLayout, 1.0F);
+
+        artifactDetailsGridLayout.maximize();
+    }
+
+    private void minimizeArtifactGridLayout() {
+        if (!artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
             smTypeFilterLayout.setVisible(true);
-            smGridLayout.hideSmTypeHeaderIcon();
-        } else {
-            smTypeFilterLayout.setVisible(false);
-            smGridLayout.showSmTypeHeaderIcon();
         }
-    }
+        smGridLayout.setVisible(true);
 
-    private void resizeSmGridLayout(final boolean shouldMaximize) {
-        if (shouldMaximize) {
-            artifactDetailsGridLayout.setVisible(false);
+        mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
+        mainLayout.setExpandRatio(smGridLayout, 0.5F);
+        mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
 
-            mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-            mainLayout.setExpandRatio(smGridLayout, 1.0F);
-            mainLayout.setExpandRatio(artifactDetailsGridLayout, 0F);
-
-            smGridLayout.maximize();
-        } else {
-            artifactDetailsGridLayout.setVisible(true);
-
-            mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-            mainLayout.setExpandRatio(smGridLayout, 0.5F);
-            mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
-
-            smGridLayout.minimize();
-        }
-    }
-
-    private void resizeArtifactGridLayout(final boolean shouldMaximize) {
-        if (shouldMaximize) {
-            smTypeFilterLayout.setVisible(false);
-            smGridLayout.setVisible(false);
-
-            mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-            mainLayout.setExpandRatio(smGridLayout, 0F);
-            mainLayout.setExpandRatio(artifactDetailsGridLayout, 1.0F);
-
-            artifactDetailsGridLayout.maximize();
-        } else {
-            if (!artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
-                smTypeFilterLayout.setVisible(true);
-            }
-            smGridLayout.setVisible(true);
-
-            mainLayout.setExpandRatio(smTypeFilterLayout, 0F);
-            mainLayout.setExpandRatio(smGridLayout, 0.5F);
-            mainLayout.setExpandRatio(artifactDetailsGridLayout, 0.5F);
-
-            artifactDetailsGridLayout.minimize();
-        }
+        artifactDetailsGridLayout.minimize();
     }
 
     /**
      * Show or hide the filter button based on the event width
      *
      * @param event
-     *          BrowserWindowResizeEvent
+     *            BrowserWindowResizeEvent
      */
     @Override
     public void browserWindowResized(final BrowserWindowResizeEvent event) {
@@ -221,13 +230,17 @@ public class UploadArtifactView extends VerticalLayout implements View, BrowserW
     }
 
     private void showOrHideFilterButtons(final int browserWidth) {
+        if (artifactUploadState.getArtifactDetailsGridLayoutUiState().isMaximized()) {
+            return;
+        }
+
         if (browserWidth < SPUIDefinitions.REQ_MIN_BROWSER_WIDTH) {
             if (!artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
-                changeSmTypeLayoutVisibility(false);
+                hideSmTypeLayout();
             }
         } else {
             if (artifactUploadState.getSmTypeFilterLayoutUiState().isHidden()) {
-                changeSmTypeLayoutVisibility(true);
+                showSmTypeLayout();
             }
         }
     }

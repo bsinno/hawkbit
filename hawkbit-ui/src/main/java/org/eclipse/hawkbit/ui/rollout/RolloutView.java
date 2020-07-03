@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.ui.rollout;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -31,6 +30,7 @@ import org.eclipse.hawkbit.ui.common.event.EventLayout;
 import org.eclipse.hawkbit.ui.common.event.EventView;
 import org.eclipse.hawkbit.ui.common.event.EventViewAware;
 import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener;
+import org.eclipse.hawkbit.ui.common.layout.listener.LayoutVisibilityListener.VisibilityHandler;
 import org.eclipse.hawkbit.ui.rollout.rollout.RolloutGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgroup.RolloutGroupGridLayout;
 import org.eclipse.hawkbit.ui.rollout.rolloutgrouptargets.RolloutGroupTargetGridLayout;
@@ -82,10 +82,13 @@ public class RolloutView extends VerticalLayout implements View {
         this.rolloutGroupTargetsLayout = new RolloutGroupTargetGridLayout(eventBus, i18n, rolloutGroupManagement,
                 rolloutManagementUIState);
 
-        final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
-        layoutVisibilityHandlers.put(EventLayout.ROLLOUT_LIST, this::changeRolloutListLayoutVisibility);
-        layoutVisibilityHandlers.put(EventLayout.ROLLOUT_GROUP_LIST, this::changeRolloutGroupListLayoutVisibility);
-        layoutVisibilityHandlers.put(EventLayout.ROLLOUT_GROUP_TARGET_LIST, this::changeRgtListLayoutVisibility);
+        final Map<EventLayout, VisibilityHandler> layoutVisibilityHandlers = new EnumMap<>(EventLayout.class);
+        layoutVisibilityHandlers.put(EventLayout.ROLLOUT_LIST,
+                new VisibilityHandler(this::showRolloutListLayout, this::showRolloutGroupListLayout));
+        layoutVisibilityHandlers.put(EventLayout.ROLLOUT_GROUP_LIST,
+                new VisibilityHandler(this::showRolloutGroupListLayout, this::showRolloutListLayout));
+        layoutVisibilityHandlers.put(EventLayout.ROLLOUT_GROUP_TARGET_LIST,
+                new VisibilityHandler(this::showRolloutGroupTargetsListLayout, this::showRolloutGroupListLayout));
         this.layoutVisibilityListener = new LayoutVisibilityListener(eventBus, new EventViewAware(EventView.ROLLOUT),
                 layoutVisibilityHandlers);
     }
@@ -116,13 +119,7 @@ public class RolloutView extends VerticalLayout implements View {
         setExpandRatio(rolloutGroupTargetsLayout, 1.0F);
     }
 
-    private void changeRolloutListLayoutVisibility(final boolean shouldShow) {
-        if (shouldShow) {
-            showRolloutListView();
-        }
-    }
-
-    private void showRolloutListView() {
+    private void showRolloutListLayout() {
         rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_LIST);
         rolloutManagementUIState.setSelectedRolloutId(null);
         rolloutManagementUIState.setSelectedRolloutName("");
@@ -134,15 +131,7 @@ public class RolloutView extends VerticalLayout implements View {
         rolloutGroupTargetsLayout.setVisible(false);
     }
 
-    private void changeRolloutGroupListLayoutVisibility(final boolean shouldShow) {
-        if (shouldShow) {
-            showRolloutGroupListView();
-        } else {
-            showRolloutListView();
-        }
-    }
-
-    private void showRolloutGroupListView() {
+    private void showRolloutGroupListLayout() {
         rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_GROUP_LIST);
         rolloutManagementUIState.setSelectedRolloutGroupId(null);
         rolloutManagementUIState.setSelectedRolloutGroupName("");
@@ -152,15 +141,7 @@ public class RolloutView extends VerticalLayout implements View {
         rolloutGroupTargetsLayout.setVisible(false);
     }
 
-    private void changeRgtListLayoutVisibility(final boolean shouldShow) {
-        if (shouldShow) {
-            showRolloutGroupTargetsListView();
-        } else {
-            showRolloutGroupListView();
-        }
-    }
-
-    private void showRolloutGroupTargetsListView() {
+    private void showRolloutGroupTargetsListLayout() {
         rolloutManagementUIState.setCurrentLayout(EventLayout.ROLLOUT_GROUP_TARGET_LIST);
 
         rolloutsLayout.setVisible(false);
@@ -172,13 +153,13 @@ public class RolloutView extends VerticalLayout implements View {
         final EventLayout layout = rolloutManagementUIState.getCurrentLayout().orElse(EventLayout.ROLLOUT_LIST);
         switch (layout) {
         case ROLLOUT_LIST:
-            showRolloutListView();
+            showRolloutListLayout();
             break;
         case ROLLOUT_GROUP_LIST:
-            showRolloutGroupListView();
+            showRolloutGroupListLayout();
             break;
         case ROLLOUT_GROUP_TARGET_LIST:
-            showRolloutGroupTargetsListView();
+            showRolloutGroupTargetsListLayout();
             break;
         default:
             break;

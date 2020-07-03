@@ -8,7 +8,6 @@
 package org.eclipse.hawkbit.ui.common.layout.listener;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
@@ -23,20 +22,20 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
  * Event listener for layout visibility
  */
 public class LayoutVisibilityListener extends ViewAwareListener {
-    private final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers;
+    private final Map<EventLayout, VisibilityHandler> layoutVisibilityHandlers;
 
     /**
      * Constructor for LayoutVisibilityListener
      *
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param viewAware
-     *          EventViewAware
+     *            EventViewAware
      * @param layoutVisibilityHandlers
-     *          layout with the visibility handlers
+     *            layout with the visibility handlers
      */
     public LayoutVisibilityListener(final UIEventBus eventBus, final EventViewAware viewAware,
-            final Map<EventLayout, Consumer<Boolean>> layoutVisibilityHandlers) {
+            final Map<EventLayout, VisibilityHandler> layoutVisibilityHandlers) {
         super(eventBus, CommandTopics.CHANGE_LAYOUT_VISIBILITY, viewAware);
 
         this.layoutVisibilityHandlers = layoutVisibilityHandlers;
@@ -49,7 +48,33 @@ public class LayoutVisibilityListener extends ViewAwareListener {
             return;
         }
 
-        layoutVisibilityHandlers.get(eventPayload.getLayout())
-                .accept(VisibilityType.SHOW == eventPayload.getVisibilityType());
+        final VisibilityHandler handler = layoutVisibilityHandlers.get(eventPayload.getLayout());
+        if (handler == null) {
+            return;
+        }
+
+        if (VisibilityType.SHOW == eventPayload.getVisibilityType()) {
+            handler.show();
+        } else {
+            handler.hide();
+        }
+    }
+
+    public static class VisibilityHandler {
+        private final Runnable show;
+        private final Runnable hide;
+
+        public VisibilityHandler(final Runnable show, final Runnable hide) {
+            this.show = show;
+            this.hide = hide;
+        }
+
+        public void show() {
+            show.run();
+        }
+
+        public void hide() {
+            hide.run();
+        }
     }
 }

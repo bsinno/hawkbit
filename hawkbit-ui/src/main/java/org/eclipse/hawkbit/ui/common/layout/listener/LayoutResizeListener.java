@@ -8,7 +8,6 @@
 package org.eclipse.hawkbit.ui.common.layout.listener;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EventLayout;
@@ -23,20 +22,20 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
  * Event listener for layout resize
  */
 public class LayoutResizeListener extends ViewAwareListener {
-    private final Map<EventLayout, Consumer<Boolean>> layoutResizeHandlers;
+    private final Map<EventLayout, ResizeHandler> layoutResizeHandlers;
 
     /**
      * Constructor for LayoutResizeListener
      *
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param viewAware
-     *          EventViewAware
+     *            EventViewAware
      * @param layoutResizeHandlers
-     *          layout with the resize handlers
+     *            layout with the resize handlers
      */
     public LayoutResizeListener(final UIEventBus eventBus, final EventViewAware viewAware,
-            final Map<EventLayout, Consumer<Boolean>> layoutResizeHandlers) {
+            final Map<EventLayout, ResizeHandler> layoutResizeHandlers) {
         super(eventBus, CommandTopics.RESIZE_LAYOUT, viewAware);
 
         this.layoutResizeHandlers = layoutResizeHandlers;
@@ -49,6 +48,33 @@ public class LayoutResizeListener extends ViewAwareListener {
             return;
         }
 
-        layoutResizeHandlers.get(eventPayload.getLayout()).accept(ResizeType.MAXIMIZE == eventPayload.getResizeType());
+        final ResizeHandler handler = layoutResizeHandlers.get(eventPayload.getLayout());
+        if (handler == null) {
+            return;
+        }
+
+        if (ResizeType.MAXIMIZE == eventPayload.getResizeType()) {
+            handler.maximize();
+        } else {
+            handler.minimize();
+        }
+    }
+
+    public static class ResizeHandler {
+        private final Runnable maximize;
+        private final Runnable minimize;
+
+        public ResizeHandler(final Runnable maximize, final Runnable minimize) {
+            this.maximize = maximize;
+            this.minimize = minimize;
+        }
+
+        public void maximize() {
+            maximize.run();
+        }
+
+        public void minimize() {
+            minimize.run();
+        }
     }
 }
