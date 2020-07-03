@@ -18,6 +18,10 @@ public interface HeaderSupport {
 
     Component getHeaderComponent();
 
+    default float getExpandRation() {
+        return 0F;
+    }
+
     default void restoreState() {
         // empty by default for stateless header supports
     }

@@ -8,11 +8,6 @@
  */
 package org.eclipse.hawkbit.ui.common.builder;
 
-import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
-
-import com.vaadin.data.HasValue.ValueChangeListener;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -33,27 +28,11 @@ public class TextFieldBuilder extends AbstractTextFieldBuilder<TextFieldBuilder,
         styleName(ValoTheme.TEXTAREA_TINY);
     }
 
-    /**
-     * Create a search text field.
-     * 
-     * @param textChangeListener
-     *            listener when text is changed.
-     * @return the textfield
-     */
-    public TextField createSearchField(final ValueChangeListener<String> textChangeListener) {
-        final TextField textField = style(SPUIDefinitions.FILTER_BOX).styleName("text-style").buildTextComponent();
-        textField.setWidth(100.0F, Unit.PERCENTAGE);
-        textField.addValueChangeListener(textChangeListener);
-        textField.setValueChangeMode(ValueChangeMode.LAZY);
-        // 1 seconds timeout.
-        textField.setValueChangeTimeout(1000);
-        return textField;
-    }
-
     @Override
     protected TextField createTextComponent() {
         final TextField textField = new TextField();
-        // TODO: should we also use ValueChangeMode.LAZY here?
+        // TODO: should we use ValueChangeMode.LAZY here, see
+        // SearchHeaderSupport#createSearchField?
         textField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
         return textField;
     }
