@@ -35,6 +35,8 @@ public class EventViewAware {
     }
 
     /**
+     * Verifies if event view is suitable
+     *
      * @param view
      *          EventView
      *
@@ -46,6 +48,8 @@ public class EventViewAware {
     }
 
     /**
+     * Verifies if event view aware is suitable
+     *
      * @param viewAware
      *          EventViewAware
      *

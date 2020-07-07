@@ -157,6 +157,8 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
     }
 
     /**
+     * Gets the pin style
+     *
      * @param item
      *          Pinned item
      *
@@ -171,6 +173,8 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
     }
 
     /**
+     * Gets the style of assigned or installed row
+     *
      * @param itemId
      *          Id of item
      *
@@ -258,6 +262,8 @@ public class PinSupport<T extends ProxyIdentifiableEntity, F> {
     }
 
     /**
+     * Match pin item in the collection of pin id
+     *
      * @param itemIds
      *          List of Pinned Id
      *

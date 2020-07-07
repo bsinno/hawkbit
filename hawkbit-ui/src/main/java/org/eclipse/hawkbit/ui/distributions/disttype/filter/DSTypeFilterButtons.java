@@ -55,6 +55,10 @@ public class DSTypeFilterButtons extends AbstractTypeFilterButtons {
      *            UINotification
      * @param systemManagement
      *            SystemManagement
+     * @param dsTypeWindowBuilder
+ *                DsTypeWindowBuilder
+     * @param typeFilterLayoutUiState
+     *            TypeFilterLayoutUiState
      */
     public DSTypeFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final UINotification uiNotification, final SpPermissionChecker permChecker,

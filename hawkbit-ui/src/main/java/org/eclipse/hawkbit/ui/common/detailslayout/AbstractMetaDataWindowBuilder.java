@@ -21,6 +21,7 @@ import com.vaadin.ui.Window;
  * Abstract builder for Meta data window
  *
  * @param <F>
+ *          Generic type
  */
 public abstract class AbstractMetaDataWindowBuilder<F> extends AbstractEntityWindowBuilder<ProxyMetaData> {
 

@@ -24,6 +24,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
  * Event listener for show entity form layout
  *
  * @param <T>
+ *          Generic type of ProxyIdentifiableEntity
  */
 public class ShowEntityFormLayoutListener<T extends ProxyIdentifiableEntity> extends LayoutViewAwareListener {
     private final Class<T> entityType;

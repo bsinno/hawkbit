@@ -45,6 +45,8 @@ public final class BulkUploadEventPayload {
     }
 
     /**
+     * Build bulk upload started
+     *
      * @return Bulk upload started state
      */
     public static BulkUploadEventPayload buildUploadStarted() {
@@ -52,6 +54,8 @@ public final class BulkUploadEventPayload {
     }
 
     /**
+     * Build bulk upload failed
+     *
      * @return Bulk upload failed state
      */
     public static BulkUploadEventPayload buildUploadFailed(final String failureReason) {
@@ -59,6 +63,8 @@ public final class BulkUploadEventPayload {
     }
 
     /**
+     * Build target provisioning started
+     *
      * @return Bulk upload target provisioning started state
      */
     public static BulkUploadEventPayload buildTargetProvisioningStarted() {
@@ -66,6 +72,8 @@ public final class BulkUploadEventPayload {
     }
 
     /**
+     * Build target provisioning progress updated
+     *
      * @return Bulk upload target provisioning updated state
      */
     public static BulkUploadEventPayload buildTargetProvisioningProgressUpdated(final float progress) {
@@ -73,6 +81,8 @@ public final class BulkUploadEventPayload {
     }
 
     /**
+     * Build tags and distribution set assignment started
+     *
      * @return Bulk upload tags and distribution set assignment started state
      */
     public static BulkUploadEventPayload buildTagsAndDsAssignmentStarted() {
@@ -80,6 +90,8 @@ public final class BulkUploadEventPayload {
     }
 
     /**
+     * Build tags and distribution set assignment failed
+     *
      * @return Bulk upload tags and distribution set assignment failed state
      */
     public static BulkUploadEventPayload buildTagsAndDsAssignmentFailed(final String failureReason) {
@@ -87,6 +99,8 @@ public final class BulkUploadEventPayload {
     }
 
     /**
+     * Build bulk upload completed
+     *
      * @return Bulk upload completed state
      */
     public static BulkUploadEventPayload buildBulkUploadCompleted(final int successBulkUploadCount,

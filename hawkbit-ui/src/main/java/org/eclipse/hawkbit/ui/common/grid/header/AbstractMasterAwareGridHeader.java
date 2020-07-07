@@ -22,6 +22,9 @@ import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Abstract header for master entity aware grids.
+ *
+ * @param <T>
+ *          Generic type
  */
 public abstract class AbstractMasterAwareGridHeader<T> extends AbstractGridHeader
         implements MasterEntityAwareComponent<T> {

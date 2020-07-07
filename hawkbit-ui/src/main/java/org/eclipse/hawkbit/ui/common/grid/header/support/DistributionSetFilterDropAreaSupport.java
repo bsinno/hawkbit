@@ -70,6 +70,8 @@ public class DistributionSetFilterDropAreaSupport implements HeaderSupport {
      *            dragging
      * @param notification
      *            to display notification
+     * @param targetGridLayoutUiState
+     *            TargetGridLayoutUiState
      */
     public DistributionSetFilterDropAreaSupport(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final UINotification notification, final TargetGridLayoutUiState targetGridLayoutUiState) {

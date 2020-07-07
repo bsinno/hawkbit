@@ -60,6 +60,8 @@ public class DsMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
     }
 
     /**
+     * Get the distribution set window
+     *
      * @param dsId
      *          Distribution set id
      * @param name
@@ -74,6 +76,8 @@ public class DsMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
     }
 
     /**
+     *  Get the distribution set window
+     *
      * @param dsId
      *          Distribution set id
      * @param name

@@ -46,7 +46,7 @@ public class ResizeHeaderSupport implements HeaderSupport {
      * @param maximizeCallback
      *          Runnable
      * @param minimizeCallback
-     *
+     *          Runnable
      * @param isMaximizedStateSupplier
      *          BooleanSupplier
      */

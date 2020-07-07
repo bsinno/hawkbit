@@ -25,10 +25,23 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyAdvancedRolloutGroup;
 public class AdvancedRolloutGroupDefinitionToCreateMapper {
     private final EntityFactory entityFactory;
 
+    /**
+     * Constructor for AdvancedRolloutGroupDefinitionToCreateMapper
+     *
+     * @param entityFactory
+     */
     public AdvancedRolloutGroupDefinitionToCreateMapper(final EntityFactory entityFactory) {
         this.entityFactory = entityFactory;
     }
 
+    /**
+     *  Map rollout group
+     *
+     * @param advancedRolloutGroupDefinition
+     *          ProxyAdvancedRolloutGroup
+     *
+     * @return  ProxyAdvancedRolloutGroup
+     */
     public RolloutGroupCreate map(final ProxyAdvancedRolloutGroup advancedRolloutGroupDefinition) {
         final RolloutGroupConditions conditions = new RolloutGroupConditionBuilder()
                 .successAction(RolloutGroupSuccessAction.NEXTGROUP, null)

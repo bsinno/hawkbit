@@ -288,6 +288,8 @@ public final class FormComponentBuilder {
      *            type of the binder
      * @param binder
      *            that is bound to the input
+     * @param validator
+     *          Target filter query validator
      * @param dataProvider
      *            provides target filter queries
      * @param i18n

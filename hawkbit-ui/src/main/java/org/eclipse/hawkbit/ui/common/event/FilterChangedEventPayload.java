@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
  * payload event for filter changed
  *
  * @param <F>
+ *          Generic type
  */
 public class FilterChangedEventPayload<F> extends EventViewAware {
     private final Class<? extends ProxyIdentifiableEntity> entityType;

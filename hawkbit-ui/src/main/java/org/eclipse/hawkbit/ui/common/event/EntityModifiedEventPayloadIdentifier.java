@@ -127,6 +127,8 @@ public class EntityModifiedEventPayloadIdentifier {
     }
 
     /**
+     * Static method for constructor EntityModifiedEventPayloadIdentifier
+     *
      * @param eventPayload
      *          EntityModifiedEventPayload
      *

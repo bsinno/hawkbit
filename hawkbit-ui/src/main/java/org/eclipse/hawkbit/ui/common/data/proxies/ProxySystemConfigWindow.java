@@ -3,8 +3,12 @@ package org.eclipse.hawkbit.ui.common.data.proxies;
 import java.io.Serializable;
 import java.time.Duration;
 
+import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.tenantconfiguration.repository.ActionAutoCleanupConfigurationItem.ActionStatusOption;
 
+/**
+ * Proxy for system config window.
+ */
 public class ProxySystemConfigWindow implements Serializable {
 
     private static final long serialVersionUID = 1L;

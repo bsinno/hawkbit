@@ -34,6 +34,7 @@ import com.vaadin.ui.themes.ValoTheme;
  * Abstract Layout to show the entity details.
  *
  * @param <T>
+ *          Generic type of ProxyNamedEntity
  */
 public abstract class AbstractGridDetailsLayout<T extends ProxyNamedEntity> extends TabSheet
         implements MasterEntityAwareComponent<T> {

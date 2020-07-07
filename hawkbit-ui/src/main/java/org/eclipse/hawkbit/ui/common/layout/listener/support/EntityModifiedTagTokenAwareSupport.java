@@ -29,6 +29,8 @@ public class EntityModifiedTagTokenAwareSupport implements EntityModifiedAwareSu
     }
 
     /**
+     * Static method for constructor EntityModifiedTagTokenAwareSupport
+     *
      * @param tagToken
      *          Tag token
      *

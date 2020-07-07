@@ -238,6 +238,8 @@ public class SelectionSupport<T extends ProxyIdentifiableEntity> {
 
     /**
      * Selects the first row if available and enabled.
+     *
+     * @return True if first row is selected else false
      */
     public boolean selectFirstRow() {
         if (isNoSelectionModel()) {

@@ -22,6 +22,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.Enti
  * Support for Entity modified with selection aware
  *
  * @param <T>
+ *          Generic type of ProxyIdentifiableEntity
  */
 public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEntity>
         implements EntityModifiedAwareSupport {
@@ -52,6 +53,8 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
     }
 
     /**
+     * Static method for constructor EntityModifiedSelectionAwareSupport
+     *
      * @param selectionSupport
      *          Selection support
      * @param getFromBackendCallback
@@ -67,6 +70,8 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
     }
 
     /**
+     * Static method for constructor EntityModifiedSelectionAwareSupport
+     *
      * @param selectionSupport
      *          Selection support
      * @param getFromBackendCallback
@@ -85,6 +90,8 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
     }
 
     /**
+     * Static method for constructor EntityModifiedSelectionAwareSupport
+     *
      * @param selectionSupport
      *          Selection support
      * @param getFromBackendCallback
@@ -103,6 +110,8 @@ public class EntityModifiedSelectionAwareSupport<T extends ProxyIdentifiableEnti
     }
 
     /**
+     * Static method for constructor EntityModifiedSelectionAwareSupport
+     *
      * @param selectionSupport
      *          Selection support
      * @param getFromBackendCallback

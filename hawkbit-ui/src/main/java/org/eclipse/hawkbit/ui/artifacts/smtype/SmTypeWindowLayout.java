@@ -29,6 +29,8 @@ public class SmTypeWindowLayout extends TagWindowLayout<ProxyType> {
     private final RadioButtonGroup<SmTypeAssign> smTypeAssignOptionGroup;
 
     /**
+     * Constructor for SmTypeWindowLayout
+     *
      * @param i18n
      *            VaadinMessageSource
      * @param uiNotification

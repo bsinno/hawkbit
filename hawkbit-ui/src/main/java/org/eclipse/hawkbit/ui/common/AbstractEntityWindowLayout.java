@@ -17,6 +17,7 @@ import com.vaadin.data.Binder;
  * Abstract class for entity window layout
  *
  * @param <T>
+ *     Generic type entity
  */
 public abstract class AbstractEntityWindowLayout<T> implements EntityWindowLayout<T> {
 

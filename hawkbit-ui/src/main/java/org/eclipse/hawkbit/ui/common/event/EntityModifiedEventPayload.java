@@ -170,6 +170,8 @@ public class EntityModifiedEventPayload {
     }
 
     /**
+     * Static method for constructor EntityModifiedEventPayload
+     *
      * @param eventPayloadIdentifier
      *          EntityModifiedEventPayloadIdentifier
      * @param parentId
@@ -186,6 +188,8 @@ public class EntityModifiedEventPayload {
     }
 
     /**
+     * Static method for constructor EntityModifiedEventPayload
+     *
      * @param eventPayloadIdentifier
      *          EntityModifiedEventPayloadIdentifier
      * @param entityIds

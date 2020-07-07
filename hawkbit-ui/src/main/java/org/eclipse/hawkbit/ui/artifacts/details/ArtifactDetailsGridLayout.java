@@ -47,19 +47,25 @@ public class ArtifactDetailsGridLayout extends AbstractGridComponentLayout {
 
     /**
      * Constructor for ArtifactDetailsLayout
-     * 
+     *
      * @param i18n
      *            VaadinMessageSource
      * @param eventBus
      *            UIEventBus
-     * @param artifactDetailsGridLayoutUiState
-     *            ArtifactDetailsGridLayoutUiState
-     * @param notification
-     *            UINotification
-     * @param artifactManagement
-     *            ArtifactManagement
      * @param permChecker
-     *            SpPermissionChecker
+     *          SpPermissionChecker
+     * @param notification
+     *          UINotification
+     * @param artifactUploadState
+     *          ArtifactUploadState
+     * @param artifactDetailsGridLayoutUiState
+     *          ArtifactDetailsGridLayoutUiState
+     * @param artifactManagement
+     *          ArtifactManagement
+     * @param softwareManagement
+     *          SoftwareModuleManagement
+     * @param multipartConfigElement
+     *          MultipartConfigElement
      */
     public ArtifactDetailsGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permChecker, final UINotification notification,

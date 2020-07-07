@@ -16,6 +16,7 @@ import com.vaadin.ui.ComponentContainer;
  * Interface for entity window layout
  *
  * @param <T>
+ *     Generic type entity
  */
 public interface EntityWindowLayout<T> {
 
@@ -25,5 +26,9 @@ public interface EntityWindowLayout<T> {
 
     T getEntity();
 
+    /**
+     * @param validationCallback
+     *          Validation callback event
+     */
     void addValidationListener(final Consumer<Boolean> validationCallback);
 }

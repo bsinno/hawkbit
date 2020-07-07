@@ -21,7 +21,9 @@ import com.vaadin.data.provider.DataProvider;
  * Support for Filter in Grid
  *
  * @param <T>
+ *          Generic type
  * @param <F>
+*           Generic type
  */
 public class FilterSupport<T, F> {
     private final ConfigurableFilterDataProvider<T, Void, F> filterDataProvider;
@@ -134,6 +136,8 @@ public class FilterSupport<T, F> {
     }
 
     /**
+     * Verifies if filter type is supported
+     *
      * @param filterType
      *          Filter type
      *

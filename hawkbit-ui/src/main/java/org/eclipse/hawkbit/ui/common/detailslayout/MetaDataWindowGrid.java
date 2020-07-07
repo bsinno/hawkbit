@@ -27,6 +27,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
  * Grid for MetaData pop up layout.
+ *
+ * @param <F>
+ *          Generic type
  */
 public class MetaDataWindowGrid<F> extends AbstractGrid<ProxyMetaData, F> implements MasterEntityAwareComponent<F> {
     private static final long serialVersionUID = 1L;

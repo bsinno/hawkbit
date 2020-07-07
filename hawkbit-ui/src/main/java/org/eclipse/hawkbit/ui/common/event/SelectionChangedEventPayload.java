@@ -12,6 +12,7 @@ package org.eclipse.hawkbit.ui.common.event;
  * Payload event for selection changed
  *
  * @param <T>
+ *          Generic type
  */
 public class SelectionChangedEventPayload<T> extends EventLayoutViewAware {
 

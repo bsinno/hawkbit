@@ -31,6 +31,8 @@ public class SmMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<Long>
     private final SoftwareModuleManagement smManagement;
 
     /**
+     * Constructor for SmMetaDataWindowBuilder
+     *
      * @param i18n
      *          VaadinMessageSource
      * @param entityFactory

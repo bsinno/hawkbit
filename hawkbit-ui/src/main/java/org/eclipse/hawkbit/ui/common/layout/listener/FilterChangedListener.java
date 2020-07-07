@@ -21,6 +21,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
  * Event changed listener for filter changed
  *
  * @param <T>
+*          Generic type of ProxyIdentifiableEntity
  */
 public class FilterChangedListener<T extends ProxyIdentifiableEntity> extends ViewAwareListener {
     private final Class<T> entityType;

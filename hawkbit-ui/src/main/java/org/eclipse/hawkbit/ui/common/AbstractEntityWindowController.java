@@ -14,7 +14,9 @@ import org.eclipse.hawkbit.ui.common.CommonDialogWindow.SaveDialogCloseListener;
  * Controller for abstract entity window
  *
  * @param <T>
+ *     Generic type entity
  * @param <E>
+ *     Generic type entity
  */
 public abstract class AbstractEntityWindowController<T, E> {
 

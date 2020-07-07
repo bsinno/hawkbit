@@ -119,6 +119,9 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
 
     /**
      * Refresh single item.
+     *
+     * @param item
+     *          grid item
      */
     public void refreshItem(final T item) {
         getDataProvider().refreshItem(item);
@@ -197,7 +200,7 @@ public abstract class AbstractGrid<T extends ProxyIdentifiableEntity, F> extends
      * Enables selection-support for the grid by setting SelectionSupport
      * configuration.
      *
-     * @param SelectionSupport
+     * @param selectionSupport
      *            encapsulates behavior for selection and offers some convenient
      *            functionality.
      */

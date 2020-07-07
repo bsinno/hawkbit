@@ -34,6 +34,8 @@ public class EntityModifiedGridRefreshAwareSupport implements EntityModifiedAwar
     }
 
     /**
+     * Static method for constructor EntityModifiedGridRefreshAwareSupport
+     *
      * @param refreshGridCallback
      *          Refresh grid callback event
      *
@@ -44,6 +46,8 @@ public class EntityModifiedGridRefreshAwareSupport implements EntityModifiedAwar
     }
 
     /**
+     * Static method for constructor EntityModifiedGridRefreshAwareSupport
+     *
      * @param refreshGridCallback
      *           Refresh grid callback event
      * @param refreshGridItemsCallback

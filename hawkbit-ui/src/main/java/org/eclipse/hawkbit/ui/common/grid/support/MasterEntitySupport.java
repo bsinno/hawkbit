@@ -19,6 +19,7 @@ import org.eclipse.hawkbit.ui.common.layout.MasterEntityAwareComponent;
  * Filter support in Master entity
  *
  * @param <M>
+ *          Generic type of ProxyIdentifiableEntity
  */
 public class MasterEntitySupport<M extends ProxyIdentifiableEntity> implements MasterEntityAwareComponent<M> {
     private final FilterSupport<?, ?> filterSupport;

@@ -27,6 +27,9 @@ import com.vaadin.ui.themes.ValoTheme;
 
 /**
  * Metadata grid for entities.
+ *
+ * @param <F>
+ *          Generic type
  */
 public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> implements MasterEntityAwareComponent<F> {
     private static final long serialVersionUID = 1L;
@@ -37,6 +40,8 @@ public class MetadataDetailsGrid<F> extends AbstractGrid<ProxyMetaData, F> imple
     private final transient Consumer<ProxyMetaData> showMetadataDetailsCallback;
 
     /**
+     * Constructor for MetadataDetailsGrid
+     *
      * @param i18n
      *          VaadinMessageSource
      * @param eventBus

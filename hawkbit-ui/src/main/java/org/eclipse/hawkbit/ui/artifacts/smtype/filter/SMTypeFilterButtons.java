@@ -53,6 +53,10 @@ public class SMTypeFilterButtons extends AbstractTypeFilterButtons {
      *            UINotification
      * @param smTypeWindowBuilder
      *            SmTypeWindowBuilder
+     * @param typeFilterLayoutUiState
+     *          TypeFilterLayoutUiState
+     * @param view
+     *         EventView
      */
     public SMTypeFilterButtons(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final UINotification uiNotification, final SpPermissionChecker permChecker,

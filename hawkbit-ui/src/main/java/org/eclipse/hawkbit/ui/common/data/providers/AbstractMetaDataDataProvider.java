@@ -20,6 +20,11 @@ import org.springframework.data.domain.Sort.Direction;
  * Abstract data provider for {@link MetaData}, which dynamically loads a batch
  * of {@link MetaData} entities from backend and maps them to corresponding
  * {@link ProxyMetaData} entities.
+ *
+ * @param <U>
+ *          Generic type of MetaData
+ * @param <F>
+ *          Generic type of Proxy meta Data provider
  */
 public abstract class AbstractMetaDataDataProvider<U extends MetaData, F>
         extends GenericDataProvider<ProxyMetaData, U, F> {

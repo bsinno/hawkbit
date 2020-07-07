@@ -66,6 +66,12 @@ public class DSTypeFilterLayout extends AbstractFilterLayout {
      *            SoftwareModuleTypeManagement
      * @param distributionSetTypeManagement
      *            DistributionSetTypeManagement
+     * @param distributionSetManagement
+     *            DistributionSetManagement
+     * @param systemManagement
+     *            SystemManagement
+     * @param dSTypeFilterLayoutUiState
+     *            TypeFilterLayoutUiState
      */
     public DSTypeFilterLayout(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus, final EntityFactory entityFactory, final UINotification uiNotification,

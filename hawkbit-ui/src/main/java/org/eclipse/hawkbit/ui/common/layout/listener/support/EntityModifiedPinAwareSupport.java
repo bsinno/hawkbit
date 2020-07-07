@@ -20,6 +20,7 @@ import org.eclipse.hawkbit.ui.common.layout.listener.EntityModifiedListener.Enti
  * Support for Entity modified with pinned aware
  *
  * @param <T>
+ *          Generic type of ProxyIdentifiableEntity
  */
 public class EntityModifiedPinAwareSupport<T extends ProxyIdentifiableEntity> implements EntityModifiedAwareSupport {
     private final PinSupport<T, ?> pinSupport;
@@ -57,6 +58,8 @@ public class EntityModifiedPinAwareSupport<T extends ProxyIdentifiableEntity> im
     }
 
     /**
+     * Static method for constructor EntityModifiedPinAwareSupport
+     *
      * @param pinSupport
      *          Pin support
      * @param shouldUpdatePinStylingOnUpdate
@@ -76,6 +79,8 @@ public class EntityModifiedPinAwareSupport<T extends ProxyIdentifiableEntity> im
     }
 
     /**
+     *  Static method for constructor EntityModifiedPinAwareSupport
+     *
      * @param pinSupport
      *          Pin support
      * @param getFromBackendCallback

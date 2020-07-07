@@ -12,9 +12,13 @@ import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.common.UserDetailsFormatter;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 import org.eclipse.hawkbit.ui.utils.SPDateTimeUtil;
-
 /**
  * Maps named entities, fetched from backend, to the proxy named entities.
+ *
+ * @param <T>
+ *          Generic type of ProxyNamedEntity
+ * @param <U>
+ *          Generic type of NamedEntity
  */
 public abstract class AbstractNamedEntityToProxyNamedEntityMapper<T extends ProxyNamedEntity, U extends NamedEntity>
         implements NamedEntityToProxyNamedEntityMapper<T, U> {

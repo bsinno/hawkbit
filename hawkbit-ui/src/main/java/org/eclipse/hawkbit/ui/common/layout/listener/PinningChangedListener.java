@@ -20,6 +20,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
  * Event change listener for pinning changed
  *
  * @param <F>
+ *          Generic type
  */
 public class PinningChangedListener<F> extends EventListener {
     private final Class<? extends ProxyIdentifiableEntity> entityType;

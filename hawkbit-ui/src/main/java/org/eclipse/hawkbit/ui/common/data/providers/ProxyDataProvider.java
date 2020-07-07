@@ -20,6 +20,13 @@ import org.springframework.hateoas.Identifiable;
 /**
  * Base class for loading a batch of {@link Identifiable} entities from backend
  * mapping them to {@link ProxyIdentifiableEntity} entities.
+ *
+ * @param <T>
+ *          Generic type of ProxyIdentifiableEntity
+ * @param <U>
+ *          Generic type of Identifiable
+ * @param <F>
+ *          Generic type
  */
 public abstract class ProxyDataProvider<T extends ProxyIdentifiableEntity, U extends Identifiable<Long>, F>
         extends GenericDataProvider<T, U, F> {

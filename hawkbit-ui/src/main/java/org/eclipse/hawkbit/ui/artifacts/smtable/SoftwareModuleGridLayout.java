@@ -134,6 +134,7 @@ public class SoftwareModuleGridLayout extends AbstractGridComponentLayout {
      * Verifies when file upload is in progress
      *
      * @param fileUploadProgress
+     *          FileUploadProgress
      */
     public void onUploadChanged(final FileUploadProgress fileUploadProgress) {
         softwareModuleGrid.onUploadChanged(fileUploadProgress);

@@ -41,6 +41,8 @@ public class EventLayoutViewAware extends EventViewAware {
     }
 
     /**
+     * Verifies if event layout is suitable
+     *
      * @param layout
      *          EventLayout
      *
@@ -56,6 +58,8 @@ public class EventLayoutViewAware extends EventViewAware {
     }
 
     /**
+     * Verifies if event view and layout are suitable
+     *
      * @param layout
      *          EventLayout
      * @param view
@@ -69,6 +73,8 @@ public class EventLayoutViewAware extends EventViewAware {
     }
 
     /**
+     * Verifies if layout aware view and layout are suitable
+     *
      * @param layoutAware
      *          EventLayoutViewAware
      *

@@ -11,8 +11,16 @@ package org.eclipse.hawkbit.ui.common.layout;
  * Interface for master entity aware component
  *
  * @param <T>
+ *         Master entity
  */
 @FunctionalInterface
 public interface MasterEntityAwareComponent<T> {
+
+    /**
+     * Master entity changed
+     *
+     * @param masterEntity
+     *          Generic type
+     */
     void masterEntityChanged(final T masterEntity);
 }

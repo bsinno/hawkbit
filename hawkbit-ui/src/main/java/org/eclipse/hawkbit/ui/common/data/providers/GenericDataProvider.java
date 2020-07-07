@@ -25,6 +25,13 @@ import com.vaadin.data.provider.Query;
 /**
  * Base class for loading a batch of entities from backend mapping them to UI
  * {@link ProxyIdentifiableEntity} entities.
+ *
+ * @param <T>
+ *          Generic type of ProxyIdentifiableEntity
+ * @param <U>
+ *          Generic type
+ * @param <F>
+ *          Generic type
  */
 public abstract class GenericDataProvider<T extends ProxyIdentifiableEntity, U, F>
         extends AbstractBackEndDataProvider<T, F> {

@@ -39,6 +39,8 @@ public class DsTypeWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create distribution set software module layout
+     *
      * @param binder
      *          Vaadin binder
      *

@@ -20,6 +20,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
  * Event listener for select grid entity
  *
  * @param <T>
+ *          Generic type of ProxyIdentifiableEntity
  */
 public class SelectGridEntityListener<T extends ProxyIdentifiableEntity> extends LayoutViewAwareListener {
     private final SelectionSupport<T> selectionSupport;

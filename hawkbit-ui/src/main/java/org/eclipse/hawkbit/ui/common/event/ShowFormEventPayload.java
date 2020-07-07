@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
  * Payload event to show form
  *
  * @param <T>
+ *          Generic type
  */
 public class ShowFormEventPayload<T extends ProxyIdentifiableEntity> extends EventViewAware {
     private final FormType formType;

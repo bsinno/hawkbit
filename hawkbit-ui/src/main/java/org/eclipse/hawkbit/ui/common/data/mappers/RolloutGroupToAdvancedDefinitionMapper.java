@@ -28,10 +28,24 @@ public class RolloutGroupToAdvancedDefinitionMapper {
 
     private final TargetFilterQueryManagement targetFilterQueryManagement;
 
+    /**
+     * Constructor for RolloutGroupToAdvancedDefinitionMapper
+     *
+     * @param targetFilterQueryManagement
+     *          TargetFilterQueryManagement
+     */
     public RolloutGroupToAdvancedDefinitionMapper(final TargetFilterQueryManagement targetFilterQueryManagement) {
         this.targetFilterQueryManagement = targetFilterQueryManagement;
     }
 
+    /**
+     * Map advanced Rollout Group
+     *
+     * @param rolloutGroup
+     *          RolloutGroup
+     *
+     * @return ProxyAdvancedRolloutGroup
+     */
     public ProxyAdvancedRolloutGroup map(final RolloutGroup rolloutGroup) {
         final ProxyAdvancedRolloutGroup advancedGroupRow = new ProxyAdvancedRolloutGroup();
         advancedGroupRow.setGroupName(rolloutGroup.getName());
@@ -54,6 +68,18 @@ public class RolloutGroupToAdvancedDefinitionMapper {
         return advancedGroupRow;
     }
 
+    /**
+     * Fetch rollout group data from the backend
+     *
+     * @param rolloutId
+     *          Rollout id
+     * @param rolloutGroupManagement
+     *          RolloutGroupManagement
+     * @param pageCount
+     *          Total page count
+     *
+     * @return List of advance rollout group
+     */
     public List<ProxyAdvancedRolloutGroup> loadRolloutGroupssFromBackend(final Long rolloutId,
             final RolloutGroupManagement rolloutGroupManagement, final int pageCount) {
         return rolloutGroupManagement.findByRollout(PageRequest.of(0, pageCount), rolloutId).stream().map(this::map)

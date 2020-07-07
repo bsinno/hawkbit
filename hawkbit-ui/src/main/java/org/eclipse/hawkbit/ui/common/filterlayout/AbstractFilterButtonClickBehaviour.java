@@ -20,22 +20,34 @@ public abstract class AbstractFilterButtonClickBehaviour<T> implements Serializa
     private static final long serialVersionUID = 1L;
 
     /**
+     * Process filter click
+     *
      * @param clickedFilter
+     *          Generic type of filter button
      */
     public abstract void processFilterClick(final T clickedFilter);
 
     /**
+     * Verifies if filter is previously clicked
+     *
      * @param clickedFilter
+     *          Generic type of filter button
      */
     public abstract boolean isFilterPreviouslyClicked(final T clickedFilter);
 
     /**
+     * Filter unClicked
+     *
      * @param clickedFilter
+     *          Generic type of filter button
      */
     protected abstract void filterUnClicked(final T clickedFilter);
 
     /**
+     * Filter clicked
+     *
      * @param clickedFilter
+     *          Generic type of filter button
      */
     protected abstract void filterClicked(final T clickedFilter);
 

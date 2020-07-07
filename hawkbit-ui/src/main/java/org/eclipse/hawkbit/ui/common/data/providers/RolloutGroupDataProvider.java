@@ -31,6 +31,8 @@ public class RolloutGroupDataProvider extends ProxyDataProvider<ProxyRolloutGrou
      *
      * @param rolloutGroupManagement
      *            rollout group management
+     * @param entityMapper
+     *          RolloutGroupToProxyRolloutGroupMapper
      */
     public RolloutGroupDataProvider(final RolloutGroupManagement rolloutGroupManagement,
             final RolloutGroupToProxyRolloutGroupMapper entityMapper) {

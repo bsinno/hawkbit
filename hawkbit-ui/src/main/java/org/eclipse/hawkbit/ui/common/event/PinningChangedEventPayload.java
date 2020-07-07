@@ -14,6 +14,7 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
  * Payload event for pinning changed
  *
  * @param <T>
+ *          Generic type
  */
 public class PinningChangedEventPayload<T> {
 

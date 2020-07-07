@@ -23,6 +23,9 @@ import com.vaadin.ui.HorizontalLayout;
 
 /**
  * Class for metadata add/update window layout.
+ *
+ * @param <F>
+ *          Generic type
  */
 public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
     private static final long serialVersionUID = 1L;
@@ -38,9 +41,13 @@ public abstract class AbstractMetaDataWindowLayout<F> extends HorizontalLayout {
 
     /**
      * Constructor for AbstractTagWindowLayout
-     * 
+     *
      * @param i18n
      *            I18N
+     * @param eventBus
+     *          UIEventBus
+     * @param permChecker
+     *          SpPermissionChecker
      */
     public AbstractMetaDataWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permChecker) {

@@ -17,6 +17,7 @@ import org.vaadin.spring.events.annotation.EventBusListenerMethod;
  * Event listener for generic type
  *
  * @param <T>
+ *          Generic type
  */
 public class GenericEventListener<T> extends EventListener {
     private final Consumer<T> eventCallback;

@@ -39,6 +39,8 @@ public class EntityModifiedGenericSupport implements EntityModifiedAwareSupport 
     }
 
     /**
+     * Static method for constructor EntityModifiedGenericSupport
+     *
      * @param onEntitiesAddedCallback
      *          Entities added callback event
      * @param onEntitiesUpdatedCallback

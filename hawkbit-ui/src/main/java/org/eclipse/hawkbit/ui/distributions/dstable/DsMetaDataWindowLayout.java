@@ -51,7 +51,17 @@ public class DsMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Long> {
      * Constructor for AbstractTagWindowLayout
      * 
      * @param i18n
-     *            I18N
+     *          I18N
+     * @param eventBus
+     *          UIEventBus
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param uiNotification
+     *          UINotification
+     * @param entityFactory
+     *          EntityFactory
+     * @param dsManagement
+     *          DistributionSetManagement
      */
     public DsMetaDataWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permChecker, final UINotification uiNotification,

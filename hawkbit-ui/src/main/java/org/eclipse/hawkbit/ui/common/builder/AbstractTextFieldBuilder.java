@@ -37,6 +37,8 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     }
 
     /**
+     * Add caption to text field
+     *
      * @param caption
      *            the caption to set
      * @return the builder
@@ -48,6 +50,8 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     }
 
     /**
+     * Add style to text field
+     *
      * @param style
      *            the style to set * @return the builder
      * @return the builder
@@ -58,6 +62,8 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     }
 
     /**
+     * Add style name to text field
+     *
      * @param styleName
      *            the styleName to set
      * @return the builder
@@ -68,6 +74,8 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     }
 
     /**
+     * Add read only to text field
+     *
      * @param readOnly
      *            the readOnly to set
      * @return the builder
@@ -78,6 +86,8 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     }
 
     /**
+     * Enable the text field
+     *
      * @param enabled
      *            the enabled to set
      * @return the builder
@@ -88,6 +98,8 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     }
 
     /**
+     * Add prompt to text field
+     *
      * @param prompt
      *            the prompt to set
      * @return the builder
@@ -98,6 +110,8 @@ public abstract class AbstractTextFieldBuilder<T, E extends AbstractTextField> {
     }
 
     /**
+     * Add id to text field
+     *
      * @param id
      *            the id to set
      * @return the builder

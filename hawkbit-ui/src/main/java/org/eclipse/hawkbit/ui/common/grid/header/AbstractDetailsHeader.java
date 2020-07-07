@@ -19,6 +19,9 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
  * Header for entity details with edit and metadata support.
+ *
+ * @param <T>
+ *          Generic type
  */
 public abstract class AbstractDetailsHeader<T> extends AbstractMasterAwareGridHeader<T> {
     private static final long serialVersionUID = 1L;

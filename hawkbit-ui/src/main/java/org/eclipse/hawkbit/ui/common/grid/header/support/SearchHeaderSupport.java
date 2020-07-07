@@ -53,7 +53,7 @@ public class SearchHeaderSupport implements HeaderSupport {
      * @param searchResetIconId
      *          Value supplier for search box
      * @param searchStateSupplier
-     *
+     *          Search state supplier
      * @param searchByCallback
      *          Callback for search event
      */

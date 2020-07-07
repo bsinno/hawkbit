@@ -14,6 +14,11 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyNamedEntity;
 /**
  * Interface for mapping named entities, fetched from backend, to the proxy
  * named entities.
+ *
+ * @param <T>
+ *          Generic type of ProxyNamedEntity
+ * @param <U>
+ *          Generic type of NamedEntity
  */
 public interface NamedEntityToProxyNamedEntityMapper<T extends ProxyNamedEntity, U extends NamedEntity>
         extends IdentifiableEntityToProxyIdentifiableEntityMapper<T, U> {

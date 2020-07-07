@@ -30,7 +30,14 @@ public abstract class AssignmentSupport<S, T> {
         this.i18n = i18n;
     }
 
-    // only needed for drag and drop support
+    /**
+     * only needed for drag and drop support
+     *
+     * @param sourceItemsToAssign
+     *          Source item object
+     * @param targetItem
+     *          Generic type target item
+     */
     public void assignSourceItemsToTargetItem(final Object sourceItemsToAssign, final T targetItem) {
         // sourceItemsToAssign are of type UnmodifiableRandomAccessList
         if (sourceItemsToAssign instanceof List) {

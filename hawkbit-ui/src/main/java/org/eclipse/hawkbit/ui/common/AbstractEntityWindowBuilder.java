@@ -20,6 +20,7 @@ import com.vaadin.ui.Window;
  * Builder for abstract entity window
  *
  * @param <T>
+ *       Generic type entity
  */
 public abstract class AbstractEntityWindowBuilder<T> {
     protected final VaadinMessageSource i18n;

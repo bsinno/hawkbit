@@ -47,6 +47,8 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create key field
+     *
      * @param binder
      *            Vaadin binder
      *
@@ -67,6 +69,8 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create value field
+     *
      * @param binder
      *            Vaadin binder
      *
@@ -87,6 +91,8 @@ public class MetaDataAddUpdateWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create visible target field
+     *
      * @param binder
      *            Vaadin binder
      *

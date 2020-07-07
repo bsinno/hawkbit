@@ -32,6 +32,22 @@ public class AddMetaDataWindowController extends AbstractEntityWindowController<
     private final Consumer<ProxyMetaData> saveMetaDataCallback;
     private final Predicate<String> duplicateCheckCallback;
 
+    /**
+     * Constructor for AddMetaDataWindowController
+     *
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     * @param layout
+     *          MetaDataAddUpdateWindowLayout
+     * @param createMetaDataCallback
+     *          Create meta data callback eent
+     * @param saveMetaDataCallback
+     *          Save meta data callback event
+     * @param duplicateCheckCallback
+     *          Duplicate check callback event
+     */
     public AddMetaDataWindowController(final VaadinMessageSource i18n, final UINotification uiNotification,
             final MetaDataAddUpdateWindowLayout layout, final Function<ProxyMetaData, MetaData> createMetaDataCallback,
             final Consumer<ProxyMetaData> saveMetaDataCallback, final Predicate<String> duplicateCheckCallback) {

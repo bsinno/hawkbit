@@ -30,6 +30,8 @@ public class LocalizedSystemMessagesProvider implements SystemMessagesProvider {
     private final UiProperties uiProperties;
 
     /**
+     * Constructor for LocalizedSystemMessagesProvider
+     *
      * @param uiProperties
      *            Properties to determine the available Locales
      * @param i18n

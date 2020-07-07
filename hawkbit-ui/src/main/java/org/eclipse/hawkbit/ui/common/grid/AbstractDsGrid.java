@@ -25,6 +25,12 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 
 import com.vaadin.ui.Button;
 
+/**
+ * Abstract class of distribution set grid
+ *
+ * @param <F>
+ *          Generic type
+ */
 public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSet, F> {
     private static final long serialVersionUID = 1L;
 
@@ -70,6 +76,8 @@ public abstract class AbstractDsGrid<F> extends AbstractGrid<ProxyDistributionSe
     }
 
     /**
+     * Map distribution set to proxy entity
+     *
      * @param entityId
      *          Entity id
      *

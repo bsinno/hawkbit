@@ -46,7 +46,13 @@ public class DsWindowLayout extends AbstractEntityWindowLayout<ProxyDistribution
      * Constructor for AbstractTagWindowLayout
      * 
      * @param i18n
-     *            I18N
+     *          VaadinMessageSource
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     * @param tenantConfigurationManagement
+     *          TenantConfigurationManagement
+     * @param dsTypeManagement
+     *          DistributionSetTypeManagement
      */
     public DsWindowLayout(final VaadinMessageSource i18n, final SystemSecurityContext systemSecurityContext,
             final TenantConfigurationManagement tenantConfigurationManagement,

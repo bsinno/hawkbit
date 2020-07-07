@@ -28,6 +28,7 @@ import com.vaadin.ui.UI;
  * Event listener for entity modified
  *
  * @param <T>
+ *          Generic typ of ProxyIdentifiableEntity
  */
 public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends EventListener {
     private final Class<T> entityType;
@@ -115,14 +116,33 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends E
      * Interface for entity modified aware support
      */
     public interface EntityModifiedAwareSupport {
+
+        /**
+         * On entities added
+         *
+         * @param entityIds
+         *          List of id
+         */
         default void onEntitiesAdded(final Collection<Long> entityIds) {
             // do nothing by default
         }
 
+        /**
+         * On entities updated
+         *
+         * @param entityIds
+         *          List of id
+         */
         default void onEntitiesUpdated(final Collection<Long> entityIds) {
             // do nothing by default
         }
 
+        /**
+         * On entities deleted
+         *
+         * @param entityIds
+         *          List of id
+         */
         default void onEntitiesDeleted(final Collection<Long> entityIds) {
             // do nothing by default
         }
@@ -132,6 +152,7 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends E
      * Builder for entity
      *
      * @param <T>
+     *          Generic type of ProxyIdentifiableEntity
      */
     public static class Builder<T extends ProxyIdentifiableEntity> {
         private final UIEventBus eventBus;
@@ -165,6 +186,8 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends E
         }
 
         /**
+         * Get parent id
+         *
          * @param parentEntityIdProvider
          *          Parent entity id provider
          *
@@ -176,6 +199,8 @@ public class EntityModifiedListener<T extends ProxyIdentifiableEntity> extends E
         }
 
         /**
+         * Build entity modified support for layout
+         *
          * @param entityModifiedAwareSupports
          *          List of entity modified aware support
          * @return builder
