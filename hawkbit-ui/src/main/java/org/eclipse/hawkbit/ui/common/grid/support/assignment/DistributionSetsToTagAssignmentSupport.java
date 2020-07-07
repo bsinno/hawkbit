@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
-import org.eclipse.hawkbit.repository.model.DistributionSetTagAssignmentResult;
+import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
+import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
@@ -23,7 +24,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -33,8 +33,8 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * {@link ProxyTag}.
  * 
  */
-// TODO: remove duplication with TargetsToTagAssignmentSupport
-public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<ProxyDistributionSet, ProxyTag> {
+public class DistributionSetsToTagAssignmentSupport
+        extends ToTagAssignmentSupport<ProxyDistributionSet, DistributionSet> {
     private final DistributionSetManagement distributionSetManagement;
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
@@ -43,15 +43,15 @@ public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<Pr
      * Constructor for DistributionSetsToTagAssignmentSupport
      *
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param distributionSetManagement
-     *          DistributionSetManagement
+     *            DistributionSetManagement
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      */
     public DistributionSetsToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus,
@@ -65,27 +65,26 @@ public class DistributionSetsToTagAssignmentSupport extends AssignmentSupport<Pr
 
     @Override
     public List<String> getMissingPermissionsForDrop() {
-        return permChecker.hasUpdateTargetPermission() ? Collections.emptyList()
+        return permChecker.hasUpdateRepositoryPermission() ? Collections.emptyList()
                 : Collections.singletonList(SpPermission.UPDATE_REPOSITORY);
     }
 
     @Override
-    protected void performAssignment(final List<ProxyDistributionSet> sourceItemsToAssign, final ProxyTag targetItem) {
-        final String tagName = targetItem.getName();
-        final Collection<Long> dsIdsToAssign = sourceItemsToAssign.stream().map(ProxyDistributionSet::getId)
+    protected AbstractAssignmentResult<DistributionSet> toggleTagAssignment(
+            final List<ProxyDistributionSet> sourceItems, final String tagName) {
+        final Collection<Long> dsIdsToAssign = sourceItems.stream().map(ProxyDistributionSet::getId)
                 .collect(Collectors.toList());
 
-        final DistributionSetTagAssignmentResult tagsAssignmentResult = distributionSetManagement
-                .toggleTagAssignment(dsIdsToAssign, tagName);
-
-        // TODO: check if it could be extracted from HawkbitCommonUtil, fix the
-        // bug of displaying messages for Targets instead of Distribution Sets
-        notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
-
-        publishTagAssignmentEvent(sourceItemsToAssign);
+        return distributionSetManagement.toggleTagAssignment(dsIdsToAssign, tagName);
     }
 
-    private void publishTagAssignmentEvent(final List<ProxyDistributionSet> sourceItemsToAssign) {
+    @Override
+    protected String getAssignedEntityTypeMsgKey() {
+        return "caption.distribution";
+    }
+
+    @Override
+    protected void publishTagAssignmentEvent(final List<ProxyDistributionSet> sourceItemsToAssign) {
         final List<Long> assignedDsIds = sourceItemsToAssign.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(

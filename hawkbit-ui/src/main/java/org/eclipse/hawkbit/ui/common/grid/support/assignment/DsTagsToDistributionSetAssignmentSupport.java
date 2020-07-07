@@ -9,10 +9,13 @@
 package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
 import java.util.Collections;
+import java.util.List;
 
+import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
+import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
@@ -29,25 +32,36 @@ public class DsTagsToDistributionSetAssignmentSupport
         extends TagsAssignmentSupport<ProxyDistributionSet, DistributionSet> {
     private final DistributionSetManagement distributionSetManagement;
     private final UIEventBus eventBus;
+    private final SpPermissionChecker permChecker;
 
     /**
      * Constructor for DsTagsToDistributionSetAssignmentSupport
      *
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param distributionSetManagement
-     *          DistributionSetManagement
+     *            DistributionSetManagement
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
+     * @param permChecker
+     *            SpPermissionChecker
      */
     public DsTagsToDistributionSetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus) {
+            final DistributionSetManagement distributionSetManagement, final UIEventBus eventBus,
+            final SpPermissionChecker permChecker) {
         super(notification, i18n);
 
         this.distributionSetManagement = distributionSetManagement;
         this.eventBus = eventBus;
+        this.permChecker = permChecker;
+    }
+
+    @Override
+    public List<String> getMissingPermissionsForDrop() {
+        return permChecker.hasUpdateRepositoryPermission() ? Collections.emptyList()
+                : Collections.singletonList(SpPermission.UPDATE_REPOSITORY);
     }
 
     @Override
@@ -57,8 +71,12 @@ public class DsTagsToDistributionSetAssignmentSupport
     }
 
     @Override
-    protected void publishTagAssignmentEvent(final AbstractAssignmentResult<DistributionSet> tagsAssignmentResult,
-            final ProxyDistributionSet targetItem) {
+    protected String getAssignedEntityTypeMsgKey() {
+        return "caption.distribution";
+    }
+
+    @Override
+    protected void publishTagAssignmentEvent(final ProxyDistributionSet targetItem) {
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyDistributionSet.class, targetItem.getId()));
 

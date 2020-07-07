@@ -74,27 +74,27 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
      * Constructor for DistributionGrid
      *
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param permissionChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param targetManagement
-     *          TargetManagement
+     *            TargetManagement
      * @param distributionSetManagement
-     *          DistributionSetManagement
+     *            DistributionSetManagement
      * @param deploymentManagement
-     *          DeploymentManagement
+     *            DeploymentManagement
      * @param uiProperties
-     *          UiProperties
+     *            UiProperties
      * @param distributionGridLayoutUiState
-     *          DistributionGridLayoutUiState
+     *            DistributionGridLayoutUiState
      * @param targetGridLayoutUiState
-     *          TargetGridLayoutUiState
+     *            TargetGridLayoutUiState
      * @param distributionTagLayoutUiState
-     *          TagFilterLayoutUiState
+     *            TagFilterLayoutUiState
      */
     public DistributionGrid(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permissionChecker, final UINotification notification,
@@ -124,7 +124,7 @@ public class DistributionGrid extends AbstractDsGrid<DsManagementFilterParams> {
         final TargetTagsToDistributionSetAssignmentSupport targetTagsToDsAssignment = new TargetTagsToDistributionSetAssignmentSupport(
                 notification, i18n, targetManagement, targetsToDsAssignment);
         final DsTagsToDistributionSetAssignmentSupport dsTagsToDsAssignment = new DsTagsToDistributionSetAssignmentSupport(
-                notification, i18n, distributionSetManagement, eventBus);
+                notification, i18n, distributionSetManagement, eventBus, permissionChecker);
 
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TABLE_ID, targetsToDsAssignment);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToDsAssignment);

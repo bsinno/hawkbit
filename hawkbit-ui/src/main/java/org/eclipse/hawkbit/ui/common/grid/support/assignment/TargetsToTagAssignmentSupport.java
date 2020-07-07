@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.TargetManagement;
-import org.eclipse.hawkbit.repository.model.TargetTagAssignmentResult;
+import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
+import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTag;
@@ -23,7 +24,6 @@ import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
 import org.eclipse.hawkbit.ui.common.event.EventTopics;
-import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.vaadin.spring.events.EventBus.UIEventBus;
@@ -32,7 +32,7 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
  * Support for assigning the {@link ProxyTarget} items to {@link ProxyTag}.
  * 
  */
-public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget, ProxyTag> {
+public class TargetsToTagAssignmentSupport extends ToTagAssignmentSupport<ProxyTarget, Target> {
     private final TargetManagement targetManagement;
     private final UIEventBus eventBus;
     private final SpPermissionChecker permChecker;
@@ -41,15 +41,15 @@ public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget
      * Constructor for TargetsToTagAssignmentSupport
      *
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param targetManagement
-     *          TargetManagement
+     *            TargetManagement
      */
     public TargetsToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
             final UIEventBus eventBus, final SpPermissionChecker permChecker, final TargetManagement targetManagement) {
@@ -67,21 +67,21 @@ public class TargetsToTagAssignmentSupport extends AssignmentSupport<ProxyTarget
     }
 
     @Override
-    protected void performAssignment(final List<ProxyTarget> sourceItemsToAssign, final ProxyTag targetItem) {
-        final String tagName = targetItem.getName();
-        final Collection<String> controllerIdsToAssign = sourceItemsToAssign.stream().map(ProxyTarget::getControllerId)
+    protected AbstractAssignmentResult<Target> toggleTagAssignment(final List<ProxyTarget> sourceItems,
+            final String tagName) {
+        final Collection<String> controllerIdsToAssign = sourceItems.stream().map(ProxyTarget::getControllerId)
                 .collect(Collectors.toList());
 
-        final TargetTagAssignmentResult tagsAssignmentResult = targetManagement
-                .toggleTagAssignment(controllerIdsToAssign, tagName);
-
-        // TODO: check if it could be extracted from HawkbitCommonUtil
-        notification.displaySuccess(HawkbitCommonUtil.createAssignmentMessage(tagName, tagsAssignmentResult, i18n));
-
-        publishTagAssignmentEvent(sourceItemsToAssign);
+        return targetManagement.toggleTagAssignment(controllerIdsToAssign, tagName);
     }
 
-    private void publishTagAssignmentEvent(final List<ProxyTarget> sourceItemsToAssign) {
+    @Override
+    protected String getAssignedEntityTypeMsgKey() {
+        return "caption.target";
+    }
+
+    @Override
+    protected void publishTagAssignmentEvent(final List<ProxyTarget> sourceItemsToAssign) {
         final List<Long> assignedTargetIds = sourceItemsToAssign.stream().map(ProxyIdentifiableEntity::getId)
                 .collect(Collectors.toList());
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(

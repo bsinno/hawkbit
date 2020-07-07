@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 
-import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
-import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.UiProperties.Localization;
 import org.springframework.data.domain.PageRequest;
@@ -73,44 +71,6 @@ public final class HawkbitCommonUtil {
     }
 
     /**
-     * Display Target Tag action message.
-     *
-     * @param tagName
-     *            as tag name
-     * @param result
-     *            as TargetTagAssigmentResult
-     * @param i18n
-     *            I18N
-     * @return message
-     */
-    // TODO: move to *AssignmentSupport (see usages)
-    public static String createAssignmentMessage(final String tagName,
-            final AbstractAssignmentResult<? extends NamedEntity> result, final VaadinMessageSource i18n) {
-        final StringBuilder formMsg = new StringBuilder();
-        final int assignedCount = result.getAssigned();
-        final int alreadyAssignedCount = result.getAlreadyAssigned();
-        final int unassignedCount = result.getUnassigned();
-        if (assignedCount == 1) {
-            formMsg.append(i18n.getMessage("message.target.assigned.one", result.getAssignedEntity().get(0).getName(),
-                    tagName)).append("\n");
-        } else if (assignedCount > 1) {
-            formMsg.append(i18n.getMessage("message.target.assigned.many", assignedCount, tagName)).append("\n");
-
-            if (alreadyAssignedCount > 0) {
-                final String alreadyAssigned = i18n.getMessage("message.target.alreadyAssigned", alreadyAssignedCount);
-                formMsg.append(alreadyAssigned).append("\n");
-            }
-        }
-        if (unassignedCount == 1) {
-            formMsg.append(i18n.getMessage("message.target.unassigned.one",
-                    result.getUnassignedEntity().get(0).getName(), tagName)).append("\n");
-        } else if (unassignedCount > 1) {
-            formMsg.append(i18n.getMessage("message.target.unassigned.many", unassignedCount, tagName)).append("\n");
-        }
-        return formMsg.toString();
-    }
-
-    /**
      * Gets the locale of the current Vaadin UI. If the locale can not be
      * determined, the default locale is returned instead.
      *
@@ -164,9 +124,9 @@ public final class HawkbitCommonUtil {
 
     /**
      * @param provider
-     *          Pageable provider
+     *            Pageable provider
      * @param <T>
-     *          Generic type
+     *            Generic type
      *
      * @return Entities
      */
@@ -185,7 +145,7 @@ public final class HawkbitCommonUtil {
 
     /**
      * @param count
-     *          Total target
+     *            Total target
      *
      * @return True if at least one target is present else false
      */
@@ -195,7 +155,7 @@ public final class HawkbitCommonUtil {
 
     /**
      * @param countList
- *              List of target per group
+     *            List of target per group
      *
      * @return Total count
      */
