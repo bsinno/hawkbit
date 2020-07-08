@@ -69,6 +69,8 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
     }
 
     /**
+     * Create query field
+     *
      * @param binder
      *          Vaadin binder
      *
@@ -88,6 +90,8 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
     }
 
     /**
+     * Create filter help link
+     *
      * @return Filter help link
      */
     public Link createFilterHelpLink() {
@@ -96,6 +100,8 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
     }
 
     /**
+     * Create filter to search targets
+     *
      * @return Filter button to search targets
      */
     public Button createSearchTargetsByFilterButton() {
@@ -105,6 +111,8 @@ public class TargetFilterAddUpdateLayoutComponentBuilder {
     }
 
     /**
+     * Create save button
+     *
      * @return Save button
      */
     public Button createSaveButton() {

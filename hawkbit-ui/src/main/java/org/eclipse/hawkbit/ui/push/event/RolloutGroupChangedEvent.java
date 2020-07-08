@@ -33,11 +33,13 @@ public class RolloutGroupChangedEvent extends RemoteIdEvent implements EntityUpd
 
     /**
      * Constructor for json serialization.
-     * 
-     * @param entityId
-     *            the entity Id
+     *
      * @param tenant
      *            the tenant
+     * @param rolloutId
+     *            the rollout Id
+     * @param entityId
+     *            the entity Id
      */
     public RolloutGroupChangedEvent(final String tenant, final Long rolloutId, final Long entityId) {
         // application id is not needed, because we compose the event ourselves

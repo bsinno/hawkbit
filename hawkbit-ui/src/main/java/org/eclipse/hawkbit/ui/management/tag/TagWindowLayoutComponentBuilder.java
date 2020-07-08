@@ -67,6 +67,8 @@ public class TagWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create color picker component
+     *
      * @param binder
      *          Filter button binder
      *

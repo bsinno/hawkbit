@@ -43,6 +43,8 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create discription label
+     *
      * @return Description label
      */
     public Label createDescriptionLabel() {
@@ -54,6 +56,8 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create checkbox for auto enable
+     *
      * @param binder
      *          Target filter query binder
      *
@@ -66,6 +70,8 @@ public class AutoAssignmentWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create layout for action type option group
+     *
      * @param binder
      *          Target filter query binder
      *

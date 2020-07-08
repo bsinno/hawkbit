@@ -195,6 +195,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     /**
+     * Map entity id to proxy entity
+     *
      * @param entityId
      *          Entity id
      *
@@ -381,6 +383,8 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     /**
+     * Gets the pin support
+     *
      * @return Pin support
      */
     public PinSupport<ProxyTarget, Long> getPinSupport() {

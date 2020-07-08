@@ -41,7 +41,9 @@ public class AutoStartOptionGroupLayout extends HorizontalLayout {
      * Instantiates the auto start options layout
      * 
      * @param i18n
-     *            the internationalization helper
+     *          the internationalization helper
+     * @param autoStartOptionGroupId
+     *          Auto start option group id
      */
     public AutoStartOptionGroupLayout(final VaadinMessageSource i18n, final String autoStartOptionGroupId) {
         this.i18n = i18n;

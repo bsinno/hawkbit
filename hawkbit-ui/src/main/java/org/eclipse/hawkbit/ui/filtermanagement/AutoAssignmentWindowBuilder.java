@@ -72,6 +72,8 @@ public class AutoAssignmentWindowBuilder extends AbstractEntityWindowBuilder<Pro
     }
 
     /**
+     * Gets the auto assigment window
+     *
      * @param proxyTargetFilter
      *          ProxyTargetFilterQuery
      *

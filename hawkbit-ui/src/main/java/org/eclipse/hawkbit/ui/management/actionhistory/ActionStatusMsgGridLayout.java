@@ -34,11 +34,14 @@ public class ActionStatusMsgGridLayout extends AbstractGridComponentLayout {
     private final transient SelectionChangedListener<ProxyActionStatus> selectionChangedListener;
 
     /**
-     * Constructor.
+     * Constructor for ActionStatusMsgGridLayout
      *
      * @param i18n
+     *          VaadinMessageSource
      * @param eventBus
+     *          UIEventBus
      * @param deploymentManagement
+     *          DeploymentManagement
      */
     public ActionStatusMsgGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final DeploymentManagement deploymentManagement) {

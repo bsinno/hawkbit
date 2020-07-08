@@ -42,6 +42,8 @@ public class TargetWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create a controller id field
+     *
      * @param binder
      *          Target binder
      *

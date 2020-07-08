@@ -308,6 +308,11 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     /**
      * Actions once bulk upload is completed.
+     *
+     * @param successCount
+     *          Total count of success upload
+     * @param failCount
+     *          Total count of fail upload
      */
     public void onUploadCompletion(final int successCount, final int failCount) {
         final String targetCountLabel = getFormattedCountLabelValue(successCount, failCount);
@@ -330,6 +335,9 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     /**
      * Actions once upload fails
+     *
+     * @param failureReason
+     *          Reason for failed upload
      */
     public void onUploadFailure(final String failureReason) {
         targetsCountLabel.setVisible(true);
@@ -342,6 +350,9 @@ public class TargetBulkUpdateWindowLayout extends CustomComponent {
 
     /**
      * Actions once assignment fails
+     *
+     * @param failureReason
+     *          Reason for failed upload
      */
     public void onAssignmentFailure(final String failureReason) {
         uinotification.displayValidationError(failureReason);

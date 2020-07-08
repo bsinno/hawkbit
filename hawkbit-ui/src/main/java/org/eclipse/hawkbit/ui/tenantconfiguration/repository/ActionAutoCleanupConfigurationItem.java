@@ -63,7 +63,9 @@ public class ActionAutoCleanupConfigurationItem extends VerticalLayout {
      * Constructs the Action Cleanup configuration UI.
      *
      * @param binder
+     *          ProxySystemConfigWindow binder
      * @param i18n
+     *          VaadinMessageSource
      */
     public ActionAutoCleanupConfigurationItem(final Binder<ProxySystemConfigWindow> binder,
             final VaadinMessageSource i18n) {

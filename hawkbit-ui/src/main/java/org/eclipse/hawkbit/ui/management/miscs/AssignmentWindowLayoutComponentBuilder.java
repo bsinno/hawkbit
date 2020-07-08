@@ -73,6 +73,8 @@ public class AssignmentWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create toggle for maintenance window
+     *
      * @param binder
      *          Proxy assignment window binder
      *
@@ -90,6 +92,8 @@ public class AssignmentWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create maintenance schedule
+     *
      * @param binder
      *          Proxy assignment window binder
      *
@@ -118,6 +122,8 @@ public class AssignmentWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create maintenance duration
+     *
      * @param binder
      *          Proxy assignment window binder
      *
@@ -145,6 +151,8 @@ public class AssignmentWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create maintenance time zone combo
+     *
      * @param binder
      *          Proxy assignment window binder
      *
@@ -169,6 +177,8 @@ public class AssignmentWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create maintenance schedule translator
+     *
      * @return maintenance schedule translator
      */
     public Label createMaintenanceScheduleTranslator() {
@@ -181,6 +191,8 @@ public class AssignmentWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create maintenance help link
+     *
      * @param uiProperties
      *          UiProperties
      *

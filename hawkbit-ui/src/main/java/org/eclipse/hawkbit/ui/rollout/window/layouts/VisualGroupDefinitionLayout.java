@@ -37,7 +37,9 @@ public class VisualGroupDefinitionLayout {
      * Constructor for VisualGroupDefinitionLayout
      *
      * @param groupsPieChart
+     *          GroupsPieChart
      * @param groupsLegendLayout
+     *          GroupsLegendLayout
      */
     public VisualGroupDefinitionLayout(final GroupsPieChart groupsPieChart,
             final GroupsLegendLayout groupsLegendLayout) {

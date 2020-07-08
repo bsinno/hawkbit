@@ -60,6 +60,8 @@ public class TargetMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<S
     }
 
     /**
+     * Get the target meta data window
+     *
      * @param controllerId
      *          Controller id
      * @param name
@@ -73,6 +75,8 @@ public class TargetMetaDataWindowBuilder extends AbstractMetaDataWindowBuilder<S
     }
 
     /**
+     * Get the target meta data window
+     *
      * @param controllerId
      *          Controller id
      * @param name

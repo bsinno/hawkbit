@@ -59,7 +59,15 @@ public class TargetFilterAddUpdateLayout extends AbstractEntityWindowLayout<Prox
      * Constructor for AbstractTagWindowLayout
      * 
      * @param i18n
-     *            I18N
+     *          VaadinMessageSource
+     * @param uiProperties
+     *          UiProperties
+     * @param uiState
+     *          TargetFilterDetailsLayoutUiState
+     * @param eventBus
+     *          UIEventBus
+     * @param rsqlValidationOracle
+     *          RsqlValidationOracle
      */
     public TargetFilterAddUpdateLayout(final VaadinMessageSource i18n, final UiProperties uiProperties,
             final TargetFilterDetailsLayoutUiState uiState, final UIEventBus eventBus,

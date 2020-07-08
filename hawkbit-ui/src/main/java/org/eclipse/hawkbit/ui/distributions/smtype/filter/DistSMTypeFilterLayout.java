@@ -65,6 +65,8 @@ public class DistSMTypeFilterLayout extends AbstractFilterLayout {
      *            UINotification
      * @param softwareModuleTypeManagement
      *            SoftwareModuleTypeManagement
+     * @param smTypeFilterLayoutUiState
+     *            TypeFilterLayoutUiState
      */
     public DistSMTypeFilterLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final EntityFactory entityFactory,

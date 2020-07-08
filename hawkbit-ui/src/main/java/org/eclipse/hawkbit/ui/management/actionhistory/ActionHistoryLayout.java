@@ -27,13 +27,20 @@ public class ActionHistoryLayout extends HorizontalLayout {
     private final ActionStatusMsgGridLayout actionStatusMsgLayout;
 
     /**
-     * Constructor.
+     * Constructor for ActionHistoryLayout
      *
      * @param i18n
+     *          VaadinMessageSource
      * @param deploymentManagement
+     *          DeploymentManagement
      * @param eventBus
+     *          UIEventBus
      * @param notification
+     *          UINotification
      * @param permChecker
+     *          SpPermissionChecker
+     * @param actionHistoryGridLayoutUiState
+     *          ActionHistoryGridLayoutUiState
      */
     public ActionHistoryLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
             final UIEventBus eventBus, final UINotification notification, final SpPermissionChecker permChecker,

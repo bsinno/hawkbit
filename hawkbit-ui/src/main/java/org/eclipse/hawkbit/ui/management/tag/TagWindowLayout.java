@@ -22,6 +22,9 @@ import com.vaadin.ui.TextField;
 
 /**
  * Abstract class for tag add/update window layout.
+ *
+ * @param <T>
+ *         Generic type of ProxyFilterButton
  */
 public class TagWindowLayout<T extends ProxyFilterButton> extends AbstractEntityWindowLayout<T> {
     protected final VaadinMessageSource i18n;
@@ -36,7 +39,9 @@ public class TagWindowLayout<T extends ProxyFilterButton> extends AbstractEntity
      * Constructor for AbstractTagWindowLayout
      * 
      * @param i18n
-     *            I18N
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
      */
     public TagWindowLayout(final VaadinMessageSource i18n, final UINotification uiNotification) {
         super();

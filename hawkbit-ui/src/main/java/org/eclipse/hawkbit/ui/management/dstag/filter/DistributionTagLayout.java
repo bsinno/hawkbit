@@ -65,6 +65,10 @@ public class DistributionTagLayout extends AbstractFilterLayout {
      *            EntityFactory
      * @param uiNotification
      *            UINotification
+     * @param distributionSetManagement
+     *            DistributionSetManagement
+     * @param distributionTagLayoutUiState
+     *            TagFilterLayoutUiState
      */
     public DistributionTagLayout(final UIEventBus eventBus, final VaadinMessageSource i18n,
             final SpPermissionChecker permChecker, final DistributionSetTagManagement distributionSetTagManagement,

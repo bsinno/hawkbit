@@ -50,10 +50,20 @@ public class TargetMetaDataWindowLayout extends AbstractMetaDataWindowLayout<Str
     private final transient UpdateMetaDataWindowController updateTargetMetaDataWindowController;
 
     /**
-     * Constructor for AbstractTagWindowLayout
-     * 
+     * Constructor for TargetMetaDataWindowLayout
+     *
      * @param i18n
-     *            I18N
+     *          VaadinMessageSource
+     * @param eventBus
+     *          UIEventBus
+     * @param permChecker
+     *          SpPermissionChecker
+     * @param uiNotification
+     *          UINotification
+     * @param entityFactory
+     *          EntityFactory
+     * @param targetManagement
+     *          TargetManagement
      */
     public TargetMetaDataWindowLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final SpPermissionChecker permChecker, final UINotification uiNotification,

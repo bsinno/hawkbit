@@ -108,6 +108,8 @@ public class DurationField extends DateTimeField {
     }
 
     /**
+     * Sanitize the input date time value
+     *
      * @param value
      *          Input date time value
      *

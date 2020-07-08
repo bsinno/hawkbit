@@ -52,6 +52,8 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create rollout form layout
+     *
      * @return Form layout to create rollout
      */
     public RolloutFormLayout createRolloutFormLayout() {
@@ -60,6 +62,8 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create simple group layout
+     *
      * @return Layout to create simple group
      */
     public SimpleGroupsLayout createSimpleGroupsLayout() {
@@ -67,6 +71,8 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create advance group layout
+     *
      * @return Layout to create advance group
      */
     public AdvancedGroupsLayout createAdvancedGroupsLayout() {
@@ -75,6 +81,8 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create group definition tabs
+     *
      * @param simpleGroupDefinitionTab
      *          Simple group definition tab component
      * @param advancedGroupDefinitionTab
@@ -102,6 +110,7 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create visual group definition layout
      * @return Group definition layout with Pie chat
      */
     public VisualGroupDefinitionLayout createVisualGroupDefinitionLayout() {
@@ -122,6 +131,8 @@ public final class RolloutWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create rollout approval layout
+     *
      * @return Rollout approval layout
      */
     public ApprovalLayout createApprovalLayout() {

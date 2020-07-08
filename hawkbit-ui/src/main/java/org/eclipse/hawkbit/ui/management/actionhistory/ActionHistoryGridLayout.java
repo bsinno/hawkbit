@@ -43,13 +43,20 @@ public class ActionHistoryGridLayout extends AbstractGridComponentLayout {
     private final transient EntityModifiedListener<ProxyAction> entityModifiedListener;
 
     /**
-     * Constructor.
+     * Constructor for ActionHistoryGridLayout
      *
      * @param i18n
+     *          DeploymentManagement
      * @param deploymentManagement
+     *          DeploymentManagement
      * @param eventBus
+     *          UIEventBus
      * @param notification
+     *          UINotification
      * @param permChecker
+     *          SpPermissionChecker
+     * @param actionHistoryGridLayoutUiState
+     *          ActionHistoryGridLayoutUiState
      */
     public ActionHistoryGridLayout(final VaadinMessageSource i18n, final DeploymentManagement deploymentManagement,
             final UIEventBus eventBus, final UINotification notification, final SpPermissionChecker permChecker,

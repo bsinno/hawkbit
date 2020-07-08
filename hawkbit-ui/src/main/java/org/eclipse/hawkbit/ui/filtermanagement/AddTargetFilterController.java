@@ -23,7 +23,8 @@ import org.springframework.util.StringUtils;
 import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
- * 
+ * Controller for add target filter
+ *
  * @author rollouts
  *
  */

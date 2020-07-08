@@ -121,6 +121,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     /**
+     * Map entity id to proxy entity
+     *
      * @param entityId
      *          Entity id
      *
@@ -385,6 +387,8 @@ public class ActionHistoryGrid extends AbstractGrid<ProxyAction, String> {
     }
 
     /**
+     * Gets the master entity support
+     *
      * @return Master entity support
      */
     public MasterEntitySupport<ProxyTarget> getMasterEntitySupport() {

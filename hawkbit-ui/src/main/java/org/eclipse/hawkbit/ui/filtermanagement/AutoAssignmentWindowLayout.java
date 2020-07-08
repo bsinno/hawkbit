@@ -39,7 +39,9 @@ public class AutoAssignmentWindowLayout extends AbstractEntityWindowLayout<Proxy
      * Constructor for AbstractTagWindowLayout
      * 
      * @param i18n
-     *            I18N
+     *          VaadinMessageSource
+     * @param dsManagement
+     *          DistributionSetManagement
      */
     public AutoAssignmentWindowLayout(final VaadinMessageSource i18n, final DistributionSetManagement dsManagement) {
         super();

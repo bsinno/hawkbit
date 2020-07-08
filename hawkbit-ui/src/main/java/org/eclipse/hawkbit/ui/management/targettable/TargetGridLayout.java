@@ -75,6 +75,44 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
     private final transient EntityModifiedListener<ProxyTag> tagModifiedListener;
     private final transient BulkUploadChangedListener bulkUploadListener;
 
+    /**
+     * Constructor for TargetGridLayout
+     *
+     * @param eventBus
+     *          UIEventBus
+     * @param targetManagement
+     *          TargetManagement
+     * @param entityFactory
+     *          EntityFactory
+     * @param i18n
+     *          VaadinMessageSource
+     * @param uiNotification
+     *          UINotification
+     * @param deploymentManagement
+     *          DeploymentManagement
+     * @param uiProperties
+     *          UiProperties
+     * @param permissionChecker
+     *          SpPermissionChecker
+     * @param targetTagManagement
+     *          TargetTagManagement
+     * @param distributionSetManagement
+     *          DistributionSetManagement
+     * @param uiExecutor
+     *          Executor
+     * @param configManagement
+     *          TenantConfigurationManagement
+     * @param systemSecurityContext
+     *          SystemSecurityContext
+     * @param targetTagFilterLayoutUiState
+     *          TargetTagFilterLayoutUiState
+     * @param targetGridLayoutUiState
+     *          TargetGridLayoutUiState
+     * @param targetBulkUploadUiState
+     *          TargetBulkUploadUiState
+     * @param distributionGridLayoutUiState
+     *          DistributionGridLayoutUiState
+     */
     public TargetGridLayout(final UIEventBus eventBus, final TargetManagement targetManagement,
             final EntityFactory entityFactory, final VaadinMessageSource i18n, final UINotification uiNotification,
             final DeploymentManagement deploymentManagement, final UiProperties uiProperties,
@@ -153,14 +191,23 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         return Collections.singletonList(EntityModifiedTagTokenAwareSupport.of(targetDetails.getTargetTagToken()));
     }
 
+    /**
+     * Show target tag header icon
+     */
     public void showTargetTagHeaderIcon() {
         targetGridHeader.showFilterIcon();
     }
 
+    /**
+     * Hide target tag header icon
+     */
     public void hideTargetTagHeaderIcon() {
         targetGridHeader.hideFilterIcon();
     }
 
+    /**
+     * Actions on target filter tab changed
+     */
     public void onTargetFilterTabChanged(final TargetFilterTabChangedEventPayload eventPayload) {
         final boolean isCustomFilterTabSelected = TargetFilterTabChangedEventPayload.CUSTOM == eventPayload;
 
@@ -173,21 +220,33 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         }
     }
 
+    /**
+     * Maximize the target grid
+     */
     public void maximize() {
         targetGrid.createMaximizedContent();
         hideDetailsLayout();
     }
 
+    /**
+     * Minimize the target grid
+     */
     public void minimize() {
         targetGrid.createMinimizedContent();
         showDetailsLayout();
     }
 
+    /**
+     * Restore the target grid state
+     */
     public void restoreState() {
         targetGridHeader.restoreState();
         targetGrid.restoreState();
     }
 
+    /**
+     * Unsubscribe all the listeners
+     */
     public void unsubscribeListener() {
         filterTabChangedListener.unsubscribe();
         targetFilterListener.unsubscribe();
@@ -199,6 +258,11 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         bulkUploadListener.unsubscribe();
     }
 
+    /**
+     * Gets the count message label
+     *
+     * @return Count message label
+     */
     public CountMessageLabel getCountMessageLabel() {
         return countMessageLabel;
     }

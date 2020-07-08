@@ -41,6 +41,9 @@ public class GroupsLegendLayout extends VerticalLayout {
 
     /**
      * Initializes a new GroupsLegendLayout
+     *
+     * @param i18n
+     *          VaadinMessageSource
      */
     public GroupsLegendLayout(final VaadinMessageSource i18n) {
         this.i18n = i18n;

@@ -86,6 +86,10 @@ public final class DurationConfigField extends HorizontalLayout {
     /**
      * Create a DurationConfigFieldBuilder.
      *
+     * @param id
+     *         Config field id
+     * @param i18n
+     *          VaadinMessageSource
      * @return the builder
      */
     public static DurationConfigFieldBuilder builder(final String id, final VaadinMessageSource i18n) {

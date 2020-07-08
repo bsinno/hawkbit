@@ -29,12 +29,15 @@ public class SystemConfigWindowLayoutComponentBuilder {
      * Constructor for SystemConfigWindowLayoutComponentBuilder
      *
      * @param dependencies
+     *          SystemConfigWindowDependencies
      */
     public SystemConfigWindowLayoutComponentBuilder(final SystemConfigWindowDependencies dependencies) {
         this.dependencies = dependencies;
     }
 
     /**
+     * Gets the label
+     *
      * @param key
      *          Message key
      *
@@ -45,6 +48,8 @@ public class SystemConfigWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create the distribution set combo
+     *
      * @param binder
      *          System config window binder
      *
@@ -81,6 +86,8 @@ public class SystemConfigWindowLayoutComponentBuilder {
     }
 
     /**
+     * Gets the system config dependencies
+     *
      * @return System config window dependencies
      */
     public SystemConfigWindowDependencies getDependencies() {

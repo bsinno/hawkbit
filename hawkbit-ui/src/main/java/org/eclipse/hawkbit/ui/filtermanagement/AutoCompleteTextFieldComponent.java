@@ -212,7 +212,7 @@ public class AutoCompleteTextFieldComponent extends CustomField<String> {
          * 
          * @param valid
          *            indicates if the entered query text is valid
-         * @param query
+         * @param validationMessage
          *            the entered query text
          */
         void validationChanged(final boolean valid, final String validationMessage);

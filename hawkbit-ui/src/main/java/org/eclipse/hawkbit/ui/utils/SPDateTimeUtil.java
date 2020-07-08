@@ -87,6 +87,7 @@ public final class SPDateTimeUtil {
      * abbreviated like 'IST'.
      *
      * @param tz
+     *         TimeZone
      * @return ZoneId
      */
     public static ZoneId getTimeZoneId(final TimeZone tz) {
@@ -97,6 +98,7 @@ public final class SPDateTimeUtil {
      * Get formatted date with browser time zone.
      *
      * @param lastQueryDate
+     *          Last query date
      * @return String formatted date
      */
     public static String getFormattedDate(final Long lastQueryDate) {
@@ -107,6 +109,7 @@ public final class SPDateTimeUtil {
      * Get formatted date with browser time zone.
      *
      * @param lastQueryDate
+     *          Last query date
      * @param datePattern
      *            pattern how to format the date (cp. {@code SimpleDateFormat})
      * @return String formatted date
@@ -235,6 +238,8 @@ public final class SPDateTimeUtil {
     }
 
     /**
+     * Gets the two weeks date and time in milliseconds
+     *
      * @return Two weeks from current date and time in epoc milliseconds
      */
     public static Long twoWeeksFromNowEpochMilli() {
@@ -242,6 +247,8 @@ public final class SPDateTimeUtil {
     }
 
     /**
+     * Gets the half and hour time in milliseconds
+     *
      * @return Half an hour from current date and time in epoc milliseconds
      */
     public static Long halfAnHourFromNowEpochMilli() {
@@ -249,20 +256,24 @@ public final class SPDateTimeUtil {
     }
 
     /**
+     * Convert local date and time in milliseconds
+     *
      * @param localDateTime
      *          Date time
      *
-     * @return convert local date time format to epoc milliseconds
+     * @return local date time format to epoc milliseconds
      */
     public static Long localDateTimeToEpochMilli(final LocalDateTime localDateTime) {
         return localDateTime.atZone(getBrowserTimeZoneId()).toInstant().toEpochMilli();
     }
 
     /**
+     * Convert milliseconds in local date and time
+     *
      * @param epochMilli
      *          Time in epoc milliseconds
      *
-     * @return convert epoc milliseconds format to local date time
+     * @return Epoc milliseconds format to local date time
      */
     public static LocalDateTime epochMilliToLocalDateTime(final Long epochMilli) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), getBrowserTimeZoneId());

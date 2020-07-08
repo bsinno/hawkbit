@@ -33,11 +33,13 @@ public class ActionChangedEvent extends RemoteIdEvent implements EntityUpdatedEv
 
     /**
      * Constructor for json serialization.
-     * 
-     * @param entityId
-     *            the entity Id
+     *
      * @param tenant
      *            the tenant
+     * @param targetId
+     *            the target Id
+     * @param entityId
+     *            the entity Id
      */
     public ActionChangedEvent(final String tenant, final Long targetId, final Long entityId) {
         // application id is not needed, because we compose the event ourselves

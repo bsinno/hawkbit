@@ -55,6 +55,10 @@ public class TargetTagFilterLayout extends AbstractFilterLayout {
      *            TargetFilterQueryManagement
      * @param targetTagManagement
      *            TargetTagManagement
+     * @param targetManagement
+     *          TargetManagement
+     * @param targetTagFilterLayoutUiState
+     *          TargetTagFilterLayoutUiState
      */
     public TargetTagFilterLayout(final VaadinMessageSource i18n, final ManagementUIState managementUIState,
             final SpPermissionChecker permChecker, final UIEventBus eventBus, final UINotification notification,

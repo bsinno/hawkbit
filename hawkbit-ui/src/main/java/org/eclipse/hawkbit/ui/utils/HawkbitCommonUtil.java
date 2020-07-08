@@ -65,7 +65,9 @@ public final class HawkbitCommonUtil {
      * Get concatenated string of software module name and version.
      *
      * @param name
+     *          Name
      * @param version
+     *          Version
      * @return String concatenated string
      */
     public static String getFormattedNameVersion(final String name, final String version) {
@@ -163,6 +165,8 @@ public final class HawkbitCommonUtil {
     }
 
     /**
+     * Gets the entities by pageable
+     *
      * @param provider
      *          Pageable provider
      * @param <T>
@@ -184,6 +188,8 @@ public final class HawkbitCommonUtil {
     }
 
     /**
+     * Verify target
+     *
      * @param count
      *          Total target
      *
@@ -194,6 +200,8 @@ public final class HawkbitCommonUtil {
     }
 
     /**
+     * Gets the count of total targets
+     *
      * @param countList
  *              List of target per group
      *

@@ -52,6 +52,8 @@ public class DsWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create combobox of distribution set type
+     *
      * @param binder
      *            Vaddin binder
      *
@@ -109,6 +111,8 @@ public class DsWindowLayoutComponentBuilder {
     }
 
     /**
+     * Create migration step field
+     *
      * @param binder
      *            Vaadin binder
      *

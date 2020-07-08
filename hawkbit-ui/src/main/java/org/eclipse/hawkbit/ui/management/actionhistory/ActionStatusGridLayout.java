@@ -35,10 +35,14 @@ public class ActionStatusGridLayout extends AbstractGridComponentLayout {
     private final transient SelectionChangedListener<ProxyAction> selectionChangedListener;
 
     /**
-     * Constructor.
+     * Constructor for ActionStatusGridLayout
      *
      * @param i18n
+     *          VaadinMessageSource
      * @param eventBus
+     *          UIEventBus
+     * @param deploymentManagement
+     *          DeploymentManagement
      */
     public ActionStatusGridLayout(final VaadinMessageSource i18n, final UIEventBus eventBus,
             final DeploymentManagement deploymentManagement) {

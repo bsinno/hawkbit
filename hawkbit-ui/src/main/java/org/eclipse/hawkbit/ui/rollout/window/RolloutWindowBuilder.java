@@ -57,6 +57,8 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
     }
 
     /**
+     * Gets the copy rollout window
+     *
      * @param proxyRollout
      *          ProxyRollout
      *
@@ -74,6 +76,8 @@ public final class RolloutWindowBuilder extends AbstractEntityWindowBuilder<Prox
     }
 
     /**
+     * Gets the approval rollout window
+     *
      * @param proxyRollout
      *          ProxyRollout
      *

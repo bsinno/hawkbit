@@ -44,6 +44,15 @@ public class MaintenanceWindowLayout extends VerticalLayout {
      * @param i18n
      *            (@link VaadinMessageSource} to get the localized resource
      *            strings.
+     * @param schedule
+     *          Schedule
+     * @param duration
+     *          Duration
+     * @param timeZone
+     *          Time zone
+     * @param scheduleTranslator
+     *          Schedule translator
+     *
      */
     public MaintenanceWindowLayout(final VaadinMessageSource i18n, final TextField schedule, final TextField duration,
             final ComboBox<String> timeZone, final Label scheduleTranslator) {
