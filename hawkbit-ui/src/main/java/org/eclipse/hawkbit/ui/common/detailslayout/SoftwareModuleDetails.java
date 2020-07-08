@@ -11,8 +11,11 @@ package org.eclipse.hawkbit.ui.common.detailslayout;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
+import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
+import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.ui.artifacts.smtable.SmMetaDataWindowBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.SmMetaDataDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyKeyValueDetails;
@@ -37,24 +40,30 @@ public class SoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwa
     private final MetadataDetailsGrid<Long> smMetadataGrid;
 
     private final transient SmMetaDataWindowBuilder smMetaDataWindowBuilder;
+    private final transient SoftwareModuleTypeManagement softwareModuleTypeManagement;
 
     /**
      * Constructor for SoftwareModuleDetails
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param softwareManagement
-     *          SoftwareModuleManagement
+     *            SoftwareModuleManagement
+     * @param softwareModuleTypeManagement
+     *            SoftwareModuleTypeManagement
      * @param smMetaDataWindowBuilder
-     *          SmMetaDataWindowBuilder
+     *            SmMetaDataWindowBuilder
      */
     public SoftwareModuleDetails(final VaadinMessageSource i18n, final UIEventBus eventBus,
-            final SoftwareModuleManagement softwareManagement, final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
+            final SoftwareModuleManagement softwareManagement,
+            final SoftwareModuleTypeManagement softwareModuleTypeManagement,
+            final SmMetaDataWindowBuilder smMetaDataWindowBuilder) {
         super(i18n);
 
         this.smMetaDataWindowBuilder = smMetaDataWindowBuilder;
+        this.softwareModuleTypeManagement = softwareModuleTypeManagement;
 
         this.smMetadataGrid = new MetadataDetailsGrid<>(i18n, eventBus, UIComponentIdProvider.SW_TYPE_PREFIX,
                 this::showMetadataDetails, new SmMetaDataDataProvider(softwareManagement));
@@ -72,15 +81,20 @@ public class SoftwareModuleDetails extends AbstractGridDetailsLayout<ProxySoftwa
 
     @Override
     protected List<ProxyKeyValueDetails> getEntityDetails(final ProxySoftwareModule entity) {
-        return Arrays.asList(
-                new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_VENDOR_LABEL_ID, i18n.getMessage("label.vendor"),
-                        entity.getVendor()),
-                new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID, i18n.getMessage("label.type"),
-                        entity.getProxyType().getName()),
-                new ProxyKeyValueDetails(UIComponentIdProvider.SWM_DTLS_MAX_ASSIGN,
-                        i18n.getMessage("label.assigned.type"),
-                        entity.getProxyType().getMaxAssignments() == 1 ? i18n.getMessage("label.singleAssign.type")
-                                : i18n.getMessage("label.multiAssign.type")));
+
+        final List<ProxyKeyValueDetails> details = Arrays.asList(new ProxyKeyValueDetails(
+                UIComponentIdProvider.DETAILS_VENDOR_LABEL_ID, i18n.getMessage("label.vendor"), entity.getVendor()));
+
+        final Optional<SoftwareModuleType> smType = softwareModuleTypeManagement.get(entity.getTypeInfo().getId());
+        smType.ifPresent(type -> {
+            details.add(new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
+                    i18n.getMessage("label.type"), type.getName()));
+            details.add(new ProxyKeyValueDetails(UIComponentIdProvider.SWM_DTLS_MAX_ASSIGN,
+                    i18n.getMessage("label.assigned.type"),
+                    type.getMaxAssignments() == 1 ? i18n.getMessage("label.singleAssign.type")
+                            : i18n.getMessage("label.multiAssign.type")));
+        });
+        return details;
     }
 
     @Override

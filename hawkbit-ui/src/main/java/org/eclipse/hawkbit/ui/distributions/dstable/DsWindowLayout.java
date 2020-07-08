@@ -14,10 +14,10 @@ import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
-import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
+import org.eclipse.hawkbit.ui.common.data.mappers.TypeToTypeInfoMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.CheckBox;
@@ -36,7 +36,7 @@ public class DsWindowLayout extends AbstractEntityWindowLayout<ProxyDistribution
 
     private final DsWindowLayoutComponentBuilder dsComponentBuilder;
 
-    private final ComboBox<ProxyType> dsTypeSelect;
+    private final ComboBox<TypeInfo> dsTypeSelect;
     private final TextField dsName;
     private final TextField dsVersion;
     private final TextArea dsDescription;
@@ -56,8 +56,8 @@ public class DsWindowLayout extends AbstractEntityWindowLayout<ProxyDistribution
         this.systemSecurityContext = systemSecurityContext;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
 
-        final DistributionSetTypeDataProvider dsTypeDataProvider = new DistributionSetTypeDataProvider(dsTypeManagement,
-                new TypeToProxyTypeMapper<DistributionSetType>());
+        final DistributionSetTypeDataProvider<TypeInfo> dsTypeDataProvider = new DistributionSetTypeDataProvider<>(
+                dsTypeManagement, new TypeToTypeInfoMapper<DistributionSetType>());
         this.dsComponentBuilder = new DsWindowLayoutComponentBuilder(i18n, dsTypeDataProvider);
 
         this.dsTypeSelect = dsComponentBuilder.createDistributionSetTypeCombo(binder);

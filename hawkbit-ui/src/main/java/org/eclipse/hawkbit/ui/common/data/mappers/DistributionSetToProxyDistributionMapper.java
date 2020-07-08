@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.data.mappers;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
+import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
 
 /**
@@ -31,9 +32,10 @@ public class DistributionSetToProxyDistributionMapper
                 HawkbitCommonUtil.getFormattedNameVersion(distributionSet.getName(), distributionSet.getVersion()));
         proxyDistribution.setIsComplete(distributionSet.isComplete());
         proxyDistribution.setRequiredMigrationStep(distributionSet.isRequiredMigrationStep());
-        proxyDistribution.setTypeId(distributionSet.getType().getId());
-        // TODO: consider removing or refactor
-        proxyDistribution.setProxyType(new TypeToProxyTypeMapper<DistributionSetType>().map(distributionSet.getType()));
+
+        final DistributionSetType type = distributionSet.getType();
+        final TypeInfo typeInfo = new TypeInfo(type.getId(), type.getName(), type.getKey());
+        proxyDistribution.setTypeInfo(typeInfo);
 
         return proxyDistribution;
     }

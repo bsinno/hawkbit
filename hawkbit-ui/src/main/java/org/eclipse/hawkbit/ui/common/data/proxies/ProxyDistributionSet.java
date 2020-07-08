@@ -23,10 +23,7 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
 
     private String nameVersion;
 
-    private Long typeId;
-
-    // TODO: consider removing or refactoring ProxyType
-    private ProxyType proxyType;
+    private TypeInfo typeInfo;
 
     private boolean requiredMigrationStep;
 
@@ -40,7 +37,7 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
      * Constructor for ProxyDistributionSet
      *
      * @param id
-     *         Id of distribution set
+     *            Id of distribution set
      */
     public ProxyDistributionSet(final Long id) {
         super(id);
@@ -59,7 +56,7 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
      * Sets the name of the version
      *
      * @param nameVersion
-     *          name of the version
+     *            name of the version
      */
     public void setNameVersion(final String nameVersion) {
         this.nameVersion = nameVersion;
@@ -107,23 +104,12 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
         this.requiredMigrationStep = requiredMigrationStep;
     }
 
-    /**
-     * Gets the proxyType
-     *
-     * @return proxyType
-     */
-    public ProxyType getProxyType() {
-        return proxyType;
+    public TypeInfo getTypeInfo() {
+        return typeInfo;
     }
 
-    /**
-     * Sets the proxyType
-     *
-     * @param proxyType
-     *          ProxyType
-     */
-    public void setProxyType(final ProxyType proxyType) {
-        this.proxyType = proxyType;
+    public void setTypeInfo(final TypeInfo typeInfo) {
+        this.typeInfo = typeInfo;
     }
 
     @Override
@@ -137,29 +123,10 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
     }
 
     /**
-     * Gets the Id of type
-     *
-     * @return typeId
-     */
-    public Long getTypeId() {
-        return typeId;
-    }
-
-    /**
-     * Sets the typeId
-     *
-     * @param typeId
-     *          Id of type
-     */
-    public void setTypeId(final Long typeId) {
-        this.typeId = typeId;
-    }
-
-    /**
      * Sets the Id, name and version of distribution set
      *
      * @param dsIdNameVersion
-     *          ProxyIdNameVersion
+     *            ProxyIdNameVersion
      *
      * @return proxy of distribution set
      */

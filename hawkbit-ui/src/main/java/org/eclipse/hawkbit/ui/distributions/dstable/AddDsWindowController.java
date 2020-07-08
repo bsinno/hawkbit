@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
@@ -50,21 +50,21 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
      * Constructor for AddDsWindowController
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param entityFactory
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param systemManagement
-     *          SystemManagement
+     *            SystemManagement
      * @param dsManagement
-     *          DistributionSetManagement
+     *            DistributionSetManagement
      * @param layout
-     *          DsWindowLayout
+     *            DsWindowLayout
      * @param view
-     *         EventView
+     *            EventView
      */
     public AddDsWindowController(final VaadinMessageSource i18n, final EntityFactory entityFactory,
             final UIEventBus eventBus, final UINotification uiNotification, final SystemManagement systemManagement,
@@ -93,9 +93,9 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
         // empty object, that we can populate with defaults
         final ProxyDistributionSet newDs = new ProxyDistributionSet();
 
-        final ProxyType newDsType = new ProxyType();
-        newDsType.setId(systemManagement.getTenantMetadata().getDefaultDsType().getId());
-        newDs.setProxyType(newDsType);
+        final TypeInfo newType = new TypeInfo();
+        newType.setId(systemManagement.getTenantMetadata().getDefaultDsType().getId());
+        newDs.setTypeInfo(newType);
 
         return newDs;
     }
@@ -103,7 +103,7 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
     @Override
     protected void persistEntity(final ProxyDistributionSet entity) {
         final DistributionSet newDs = dsManagement.create(entityFactory.distributionSet().create()
-                .type(entity.getProxyType().getKey()).name(entity.getName()).version(entity.getVersion())
+                .type(entity.getTypeInfo().getKey()).name(entity.getName()).version(entity.getVersion())
                 .description(entity.getDescription()).requiredMigrationStep(entity.isRequiredMigrationStep()));
 
         uiNotification

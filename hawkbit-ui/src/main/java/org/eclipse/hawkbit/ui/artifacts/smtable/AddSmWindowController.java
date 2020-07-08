@@ -101,7 +101,7 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
     @Override
     protected void persistEntity(final ProxySoftwareModule entity) {
         final SoftwareModuleCreate smCreate = entityFactory.softwareModule().create()
-                .type(entity.getProxyType().getKey()).name(entity.getName()).version(entity.getVersion())
+                .type(entity.getTypeInfo().getKey()).name(entity.getName()).version(entity.getVersion())
                 .vendor(entity.getVendor()).description(entity.getDescription());
 
         final SoftwareModule newSoftwareModule;
@@ -127,14 +127,14 @@ public class AddSmWindowController extends AbstractEntityWindowController<ProxyS
     @Override
     protected boolean isEntityValid(final ProxySoftwareModule entity) {
         if (!StringUtils.hasText(entity.getName()) || !StringUtils.hasText(entity.getVersion())
-                || entity.getProxyType() == null) {
+                || entity.getTypeInfo() == null) {
             uiNotification.displayValidationError(i18n.getMessage("message.error.missing.nameorversionortype"));
             return false;
         }
 
         final String trimmedName = StringUtils.trimWhitespace(entity.getName());
         final String trimmedVersion = StringUtils.trimWhitespace(entity.getVersion());
-        final Long typeId = entity.getProxyType().getId();
+        final Long typeId = entity.getTypeInfo().getId();
         if (smManagement.getByNameAndVersionAndType(trimmedName, trimmedVersion, typeId).isPresent()) {
             uiNotification.displayValidationError(
                     i18n.getMessage("message.duplicate.softwaremodule", trimmedName, trimmedVersion));

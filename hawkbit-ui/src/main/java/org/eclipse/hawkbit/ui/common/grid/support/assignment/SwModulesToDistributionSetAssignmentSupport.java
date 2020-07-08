@@ -94,7 +94,7 @@ public class SwModulesToDistributionSetAssignmentSupport
     @Override
     protected List<ProxySoftwareModule> getFilteredSourceItems(final List<ProxySoftwareModule> sourceItemsToAssign,
             final ProxyDistributionSet targetItem) {
-        final DistributionSetType dsType = dsTypeManagement.get(targetItem.getTypeId()).orElse(null);
+        final DistributionSetType dsType = dsTypeManagement.get(targetItem.getTypeInfo().getId()).orElse(null);
 
         if (!isTargetDsValid(targetItem, dsType)) {
             return Collections.emptyList();
@@ -147,8 +147,9 @@ public class SwModulesToDistributionSetAssignmentSupport
 
     private boolean checkValidTypeAssignment(final ProxySoftwareModule sm, final ProxyDistributionSet ds,
             final DistributionSetType dsType) {
-        if (!dsType.containsModuleType(sm.getTypeId())) {
-            final String smTypeName = smTypeManagement.get(sm.getTypeId()).map(SoftwareModuleType::getName).orElse("");
+        if (!dsType.containsModuleType(sm.getTypeInfo().getId())) {
+            final String smTypeName = smTypeManagement.get(sm.getTypeInfo().getId()).map(SoftwareModuleType::getName)
+                    .orElse("");
 
             notification.displayValidationError(i18n.getMessage("message.software.dist.type.notallowed",
                     sm.getNameAndVersion(), ds.getNameVersion(), smTypeName));

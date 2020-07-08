@@ -240,7 +240,7 @@ public class SoftwareModuleGrid extends AbstractGrid<ProxySoftwareModule, SwFilt
             }
 
             return String.join("-", UIComponentIdProvider.SM_TYPE_COLOR_CLASS,
-                    String.valueOf(sm.getProxyType().getId()));
+                    String.valueOf(sm.getTypeInfo().getId()));
         });
     }
 

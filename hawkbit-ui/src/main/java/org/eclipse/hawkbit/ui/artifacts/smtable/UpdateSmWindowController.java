@@ -84,7 +84,7 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
         final ProxySoftwareModule sm = new ProxySoftwareModule();
 
         sm.setId(proxyEntity.getId());
-        sm.setProxyType(proxyEntity.getProxyType());
+        sm.setTypeInfo(proxyEntity.getTypeInfo());
         sm.setName(proxyEntity.getName());
         sm.setVersion(proxyEntity.getVersion());
         sm.setVendor(proxyEntity.getVendor());
@@ -123,7 +123,7 @@ public class UpdateSmWindowController extends AbstractEntityWindowController<Pro
     @Override
     protected boolean isEntityValid(final ProxySoftwareModule entity) {
         if (!StringUtils.hasText(entity.getName()) || !StringUtils.hasText(entity.getVersion())
-                || entity.getProxyType() == null) {
+                || entity.getTypeInfo() == null) {
             uiNotification.displayValidationError(i18n.getMessage("message.error.missing.nameorversionortype"));
             return false;
         }

@@ -118,7 +118,7 @@ public class DistributionSetDetails extends AbstractGridDetailsLayout<ProxyDistr
     @Override
     protected List<ProxyKeyValueDetails> getEntityDetails(final ProxyDistributionSet entity) {
         final ProxyKeyValueDetails typeLabel = new ProxyKeyValueDetails(UIComponentIdProvider.DETAILS_TYPE_LABEL_ID,
-                i18n.getMessage("label.type"), entity.getProxyType().getName());
+                i18n.getMessage("label.type"), entity.getTypeInfo().getName());
 
         if (isMultiAssignmentEnabled()) {
             return Collections.singletonList(typeLabel);

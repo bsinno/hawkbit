@@ -10,8 +10,8 @@ package org.eclipse.hawkbit.ui.common.data.providers;
 
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
 import org.eclipse.hawkbit.repository.model.DistributionSetType;
-import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.data.mappers.IdentifiableEntityToProxyIdentifiableEntityMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -20,9 +20,13 @@ import org.springframework.data.domain.Sort.Direction;
 /**
  * Data provider for {@link DistributionSetType}, which dynamically loads a
  * batch of {@link DistributionSetType} entities from backend and maps them to
- * corresponding {@link ProxyType} entities.
+ * corresponding output type.
+ * 
+ * @param <T>
+ *            output type
  */
-public class DistributionSetTypeDataProvider extends ProxyDataProvider<ProxyType, DistributionSetType, String> {
+public class DistributionSetTypeDataProvider<T extends ProxyIdentifiableEntity>
+        extends ProxyDataProvider<T, DistributionSetType, String> {
     private static final long serialVersionUID = 1L;
 
     private final transient DistributionSetTypeManagement distributionSetTypeManagement;
@@ -31,12 +35,12 @@ public class DistributionSetTypeDataProvider extends ProxyDataProvider<ProxyType
      * Constructor for DistributionSetTypeDataProvider
      *
      * @param distributionSetTypeManagement
-     *          DistributionSetTypeManagement
+     *            DistributionSetTypeManagement
      * @param mapper
-     *          TypeToProxyTypeMapper of DistributionSetType
+     *            TypeToProxyTypeMapper of DistributionSetType
      */
     public DistributionSetTypeDataProvider(final DistributionSetTypeManagement distributionSetTypeManagement,
-            final TypeToProxyTypeMapper<DistributionSetType> mapper) {
+            final IdentifiableEntityToProxyIdentifiableEntityMapper<T, DistributionSetType> mapper) {
         super(mapper, new Sort(Direction.ASC, "name"));
 
         this.distributionSetTypeManagement = distributionSetTypeManagement;

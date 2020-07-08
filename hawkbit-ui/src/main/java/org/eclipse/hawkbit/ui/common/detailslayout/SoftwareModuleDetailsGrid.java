@@ -259,7 +259,7 @@ public class SoftwareModuleDetailsGrid extends Grid<ProxySoftwareModuleDetails>
             return;
         }
 
-        final Optional<DistributionSetType> dsType = dsTypeManagement.get(masterEntity.getTypeId());
+        final Optional<DistributionSetType> dsType = dsTypeManagement.get(masterEntity.getTypeInfo().getId());
 
         final List<ProxySoftwareModuleDetails> items = new ArrayList<>();
 

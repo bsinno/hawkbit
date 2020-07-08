@@ -10,8 +10,8 @@ package org.eclipse.hawkbit.ui.common.data.providers;
 
 import org.eclipse.hawkbit.repository.SoftwareModuleTypeManagement;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
-import org.eclipse.hawkbit.ui.common.data.mappers.TypeToProxyTypeMapper;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.data.mappers.IdentifiableEntityToProxyIdentifiableEntityMapper;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -20,9 +20,13 @@ import org.springframework.data.domain.Sort.Direction;
 /**
  * Data provider for {@link SoftwareModuleType}, which dynamically loads a batch
  * of {@link SoftwareModuleType} entities from backend and maps them to
- * corresponding {@link ProxyType} entities.
+ * corresponding output type.
+ * 
+ * @param <T>
+ *            output type
  */
-public class SoftwareModuleTypeDataProvider extends ProxyDataProvider<ProxyType, SoftwareModuleType, String> {
+public class SoftwareModuleTypeDataProvider<T extends ProxyIdentifiableEntity>
+        extends ProxyDataProvider<T, SoftwareModuleType, String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,12 +36,12 @@ public class SoftwareModuleTypeDataProvider extends ProxyDataProvider<ProxyType,
      * Constructor for SoftwareModuleTypeDataProvider
      *
      * @param softwareModuleTypeManagement
-     *          SoftwareModuleTypeManagement
+     *            SoftwareModuleTypeManagement
      * @param mapper
-     *          TypeToProxyTypeMapper of softwareModuleType
+     *            TypeToProxyTypeMapper of softwareModuleType
      */
     public SoftwareModuleTypeDataProvider(final SoftwareModuleTypeManagement softwareModuleTypeManagement,
-            final TypeToProxyTypeMapper<SoftwareModuleType> mapper) {
+            final IdentifiableEntityToProxyIdentifiableEntityMapper<T, SoftwareModuleType> mapper) {
         super(mapper, new Sort(Direction.ASC, "name"));
         this.softwareModuleTypeManagement = softwareModuleTypeManagement;
     }

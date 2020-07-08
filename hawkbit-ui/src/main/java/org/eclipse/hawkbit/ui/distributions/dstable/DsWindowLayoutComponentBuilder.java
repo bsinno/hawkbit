@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020 Bosch.IO GmbH and others.
+l * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.dstable;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.ProxyType;
+import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -35,7 +35,7 @@ public class DsWindowLayoutComponentBuilder {
     public static final String MIGRATION_STEP = "label.dist.required.migration.step";
 
     private final VaadinMessageSource i18n;
-    private final DistributionSetTypeDataProvider dsTypeDataProvider;
+    private final DistributionSetTypeDataProvider<TypeInfo> dsTypeDataProvider;
 
     /**
      * Constructor for DsWindowLayoutComponentBuilder
@@ -46,7 +46,7 @@ public class DsWindowLayoutComponentBuilder {
      *            DistributionSetTypeDataProvider
      */
     public DsWindowLayoutComponentBuilder(final VaadinMessageSource i18n,
-            final DistributionSetTypeDataProvider dsTypeDataProvider) {
+            final DistributionSetTypeDataProvider<TypeInfo> dsTypeDataProvider) {
         this.i18n = i18n;
         this.dsTypeDataProvider = dsTypeDataProvider;
     }
@@ -57,18 +57,18 @@ public class DsWindowLayoutComponentBuilder {
      *
      * @return Distribution set type combobox
      */
-    public ComboBox<ProxyType> createDistributionSetTypeCombo(final Binder<ProxyDistributionSet> binder) {
-        final ComboBox<ProxyType> dsTypeSelect = new ComboBox<>(i18n.getMessage(SELECT_TYPE));
+    public ComboBox<TypeInfo> createDistributionSetTypeCombo(final Binder<ProxyDistributionSet> binder) {
+        final ComboBox<TypeInfo> dsTypeSelect = new ComboBox<>(i18n.getMessage(SELECT_TYPE));
 
         dsTypeSelect.setId(UIComponentIdProvider.DIST_ADD_DISTSETTYPE);
         dsTypeSelect.setDescription(i18n.getMessage(SELECT_TYPE));
         dsTypeSelect.addStyleName(ValoTheme.COMBOBOX_SMALL);
 
-        dsTypeSelect.setItemCaptionGenerator(ProxyType::getName);
+        dsTypeSelect.setItemCaptionGenerator(TypeInfo::getName);
         dsTypeSelect.setDataProvider(dsTypeDataProvider);
 
         binder.forField(dsTypeSelect).asRequired(i18n.getMessage("message.error.distributionSetRequired"))
-                .bind(ProxyDistributionSet::getProxyType, ProxyDistributionSet::setProxyType);
+                .bind(ProxyDistributionSet::getTypeInfo, ProxyDistributionSet::setTypeInfo);
 
         return dsTypeSelect;
     }

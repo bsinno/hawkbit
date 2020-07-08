@@ -82,7 +82,7 @@ public class UpdateDsWindowController
         final ProxyDistributionSet ds = new ProxyDistributionSet();
 
         ds.setId(proxyEntity.getId());
-        ds.setProxyType(proxyEntity.getProxyType());
+        ds.setTypeInfo(proxyEntity.getTypeInfo());
         ds.setName(proxyEntity.getName());
         ds.setVersion(proxyEntity.getVersion());
         ds.setDescription(proxyEntity.getDescription());

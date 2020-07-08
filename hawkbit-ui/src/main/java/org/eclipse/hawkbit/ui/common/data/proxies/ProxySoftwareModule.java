@@ -24,10 +24,7 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
 
     private String vendor;
 
-    private Long typeId;
-
-    // TODO: consider removing or refactoring ProxyType
-    private ProxyType proxyType;
+    private TypeInfo typeInfo;
 
     private boolean assigned;
 
@@ -44,7 +41,7 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
      * Sets the vendor
      *
      * @param vendor
-     *          software module vendor
+     *            software module vendor
      */
     public void setVendor(final String vendor) {
         this.vendor = vendor;
@@ -63,7 +60,7 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
      * Sets the nameAndVersion
      *
      * @param nameAndVersion
-     *          software module name and version
+     *            software module name and version
      */
     public void setNameAndVersion(final String nameAndVersion) {
         this.nameAndVersion = nameAndVersion;
@@ -83,30 +80,30 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
      * Sets the flag that indicates if the software module is assigned.
      *
      * @param assigned
-     *            <code>true</code> if the software module is assigned, otherwise
-     *            <code>false</code>
+     *            <code>true</code> if the software module is assigned,
+     *            otherwise <code>false</code>
      */
     public void setAssigned(final boolean assigned) {
         this.assigned = assigned;
     }
 
     /**
-     * Gets the proxyType
+     * Gets the typeInfo
      *
-     * @return proxyType
+     * @return typeInfo
      */
-    public ProxyType getProxyType() {
-        return proxyType;
+    public TypeInfo getTypeInfo() {
+        return typeInfo;
     }
 
     /**
-     * Sets the proxyType
+     * Sets the typeInfo
      *
-     * @param proxyType
-     *          ProxyType
+     * @param typeInfo
+     *            typeInfo
      */
-    public void setProxyType(final ProxyType proxyType) {
-        this.proxyType = proxyType;
+    public void setTypeInfo(final TypeInfo typeInfo) {
+        this.typeInfo = typeInfo;
     }
 
     /**
@@ -114,6 +111,7 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
      *
      * @return version
      */
+    @Override
     public String getVersion() {
         return version;
     }
@@ -122,28 +120,10 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
      * Sets the version
      *
      * @param version
-     *          software module version
+     *            software module version
      */
+    @Override
     public void setVersion(final String version) {
         this.version = version;
-    }
-
-    /**
-     * Gets the id of software module type
-     *
-     * @return typeId
-     */
-    public Long getTypeId() {
-        return typeId;
-    }
-
-    /**
-     * Sets the typeId
-     *
-     * @param typeId
-     *          id of software module type
-     */
-    public void setTypeId(final Long typeId) {
-        this.typeId = typeId;
     }
 }

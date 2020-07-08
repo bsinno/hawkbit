@@ -65,25 +65,25 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
      * Constructor for SwModuleGridLayout
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param uiNotification
-     *          UINotification
+     *            UINotification
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param softwareModuleManagement
-     *          SoftwareModuleManagement
+     *            SoftwareModuleManagement
      * @param softwareModuleTypeManagement
-     *          SoftwareModuleTypeManagement
+     *            SoftwareModuleTypeManagement
      * @param entityFactory
-     *          EntityFactory
+     *            EntityFactory
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param artifactManagement
-     *          ArtifactManagement
+     *            ArtifactManagement
      * @param smTypeFilterLayoutUiState
-     *          TypeFilterLayoutUiState
+     *            TypeFilterLayoutUiState
      * @param swModuleGridLayoutUiState
-     *          GridLayoutUiState
+     *            GridLayoutUiState
      */
     public SwModuleGridLayout(final VaadinMessageSource i18n, final UINotification uiNotification,
             final UIEventBus eventBus, final SoftwareModuleManagement softwareModuleManagement,
@@ -113,7 +113,7 @@ public class SwModuleGridLayout extends AbstractGridComponentLayout {
         this.softwareModuleDetailsHeader.addArtifactDetailsHeaderSupport(artifactManagement);
         this.softwareModuleDetailsHeader.buildHeader();
         this.swModuleDetails = new SoftwareModuleDetails(i18n, eventBus, softwareModuleManagement,
-                smMetaDataWindowBuilder);
+                softwareModuleTypeManagement, smMetaDataWindowBuilder);
         this.swModuleDetails.buildDetails();
 
         this.smFilterListener = new FilterChangedListener<>(eventBus, ProxySoftwareModule.class,

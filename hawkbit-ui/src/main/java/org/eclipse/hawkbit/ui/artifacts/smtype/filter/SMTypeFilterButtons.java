@@ -67,7 +67,7 @@ public class SMTypeFilterButtons extends AbstractTypeFilterButtons {
 
         init();
         setDataProvider(
-                new SoftwareModuleTypeDataProvider(softwareModuleTypeManagement, new TypeToProxyTypeMapper<>()));
+                new SoftwareModuleTypeDataProvider<>(softwareModuleTypeManagement, new TypeToProxyTypeMapper<>()));
     }
 
     /**
