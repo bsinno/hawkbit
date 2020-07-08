@@ -20,6 +20,8 @@ import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 import org.springframework.util.StringUtils;
 
 import com.vaadin.icons.VaadinIcons;
+import com.vaadin.shared.ui.ValueChangeMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -47,15 +49,15 @@ public class SearchHeaderSupport implements HeaderSupport {
      * Constructor for SearchHeaderSupport
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param searchFieldId
-     *          Search field id
+     *            Search field id
      * @param searchResetIconId
-     *          Value supplier for search box
+     *            Value supplier for search box
      * @param searchStateSupplier
      *          Search state supplier
      * @param searchByCallback
-     *          Callback for search event
+     *            Callback for search event
      */
     public SearchHeaderSupport(final VaadinMessageSource i18n, final String searchFieldId,
             final String searchResetIconId, final Supplier<String> searchStateSupplier,
@@ -74,13 +76,22 @@ public class SearchHeaderSupport implements HeaderSupport {
     }
 
     private TextField createSearchField() {
-        return new TextFieldBuilder(64).id(searchFieldId).createSearchField(event -> {
+        final TextField searchInput = new TextFieldBuilder(64).id(searchFieldId).style(SPUIDefinitions.FILTER_BOX)
+                .styleName("text-style").buildTextComponent();
+        searchInput.setWidthFull();
+
+        searchInput.setValueChangeMode(ValueChangeMode.LAZY);
+        // 1 seconds timeout.
+        searchInput.setValueChangeTimeout(1000);
+        searchInput.addValueChangeListener(event -> {
             // we do not want to send the event during state restore, so we
             // react only on user input
             if (event.isUserOriginated()) {
                 searchByCallback.accept(event.getValue());
             }
         });
+
+        return searchInput;
     }
 
     private Button createSearchResetIcon() {
@@ -164,13 +175,24 @@ public class SearchHeaderSupport implements HeaderSupport {
         final HorizontalLayout headerIconLayout = new HorizontalLayout();
         headerIconLayout.setMargin(false);
         headerIconLayout.setSpacing(false);
+        headerIconLayout.setWidthFull();
 
         headerIconLayout.addComponent(searchField);
+        headerIconLayout.setComponentAlignment(searchField, Alignment.TOP_RIGHT);
+        headerIconLayout.setExpandRatio(searchField, 1.0F);
+
         headerIconLayout.addComponent(searchResetIcon);
+        headerIconLayout.setComponentAlignment(searchResetIcon, Alignment.TOP_RIGHT);
+        headerIconLayout.setExpandRatio(searchResetIcon, 0F);
 
         // hidden by default
         searchField.setVisible(false);
 
         return headerIconLayout;
+    }
+
+    @Override
+    public float getExpandRation() {
+        return 0.6F;
     }
 }

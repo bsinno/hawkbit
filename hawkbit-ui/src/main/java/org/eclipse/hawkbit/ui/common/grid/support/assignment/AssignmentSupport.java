@@ -10,8 +10,11 @@ package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
 import java.util.List;
 
+import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
+import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
+import org.springframework.util.StringUtils;
 
 /**
  * Support for assigning the items between two grids.
@@ -94,4 +97,47 @@ public abstract class AssignmentSupport<S, T> {
     public abstract List<String> getMissingPermissionsForDrop();
 
     protected abstract void performAssignment(final List<S> sourceItemsToAssign, final T targetItem);
+
+    protected String createAssignmentMessage(final AbstractAssignmentResult<? extends NamedEntity> assignmentResult,
+            final String assignedEntityType, final String targetEntityType, final String targetEntityName) {
+        final StringBuilder assignmentMsg = new StringBuilder();
+        final int assignedCount = assignmentResult.getAssigned();
+        final int alreadyAssignedCount = assignmentResult.getAlreadyAssigned();
+        final int unassignedCount = assignmentResult.getUnassigned();
+
+        final String assignedMsg = getAssignmentMsgFor(assignedCount, "message.assigned.one", "message.assigned.many",
+                assignedEntityType, assignmentResult.getAssignedEntity().get(0).getName(), targetEntityType,
+                targetEntityName);
+        if (!StringUtils.isEmpty(assignedMsg)) {
+            assignmentMsg.append(assignedMsg).append("\n");
+        }
+
+        if (alreadyAssignedCount > 0) {
+            assignmentMsg.append(i18n.getMessage("message.alreadyAssigned", alreadyAssignedCount, assignedEntityType,
+                    targetEntityType, targetEntityName)).append("\n");
+        }
+
+        final String unassignedMsg = getAssignmentMsgFor(unassignedCount, "message.unassigned.one",
+                "message.unassigned.many", assignedEntityType, assignmentResult.getUnassignedEntity().get(0).getName(),
+                targetEntityType, targetEntityName);
+        if (!StringUtils.isEmpty(unassignedMsg)) {
+            assignmentMsg.append(unassignedMsg).append("\n");
+        }
+
+        return assignmentMsg.toString();
+    }
+
+    private String getAssignmentMsgFor(final int count, final String singularMsgKey, final String pluralMsgKey,
+            final String assignedEntityType, final String assignedEntityName, final String targetEntityType,
+            final String targetEntityName) {
+        if (count < 1) {
+            return "";
+        }
+        if (count == 1) {
+            return i18n.getMessage(singularMsgKey, assignedEntityType, assignedEntityName, targetEntityType,
+                    targetEntityName);
+        } else {
+            return i18n.getMessage(pluralMsgKey, count, assignedEntityType, targetEntityType, targetEntityName);
+        }
+    }
 }

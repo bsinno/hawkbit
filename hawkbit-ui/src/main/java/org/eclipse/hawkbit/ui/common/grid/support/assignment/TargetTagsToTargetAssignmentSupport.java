@@ -9,10 +9,13 @@
 package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
 import java.util.Collections;
+import java.util.List;
 
+import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
 import org.eclipse.hawkbit.repository.model.Target;
+import org.eclipse.hawkbit.ui.SpPermissionChecker;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
@@ -28,25 +31,35 @@ import org.vaadin.spring.events.EventBus.UIEventBus;
 public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<ProxyTarget, Target> {
     private final TargetManagement targetManagement;
     private final UIEventBus eventBus;
+    private final SpPermissionChecker permChecker;
 
     /**
      * Constructor for TargetTagsToTargetAssignmentSupport
      *
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param targetManagement
-     *          TargetManagement
+     *            TargetManagement
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
+     * @param permChecker
+     *            SpPermissionChecker
      */
     public TargetTagsToTargetAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n,
-            final TargetManagement targetManagement, final UIEventBus eventBus) {
+            final TargetManagement targetManagement, final UIEventBus eventBus, final SpPermissionChecker permChecker) {
         super(notification, i18n);
 
         this.targetManagement = targetManagement;
         this.eventBus = eventBus;
+        this.permChecker = permChecker;
+    }
+
+    @Override
+    public List<String> getMissingPermissionsForDrop() {
+        return permChecker.hasUpdateTargetPermission() ? Collections.emptyList()
+                : Collections.singletonList(SpPermission.UPDATE_TARGET);
     }
 
     @Override
@@ -55,8 +68,12 @@ public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<P
     }
 
     @Override
-    protected void publishTagAssignmentEvent(final AbstractAssignmentResult<Target> tagsAssignmentResult,
-            final ProxyTarget targetItem) {
+    protected String getAssignedEntityTypeMsgKey() {
+        return "caption.target";
+    }
+
+    @Override
+    protected void publishTagAssignmentEvent(final ProxyTarget targetItem) {
         eventBus.publish(EventTopics.ENTITY_MODIFIED, this, new EntityModifiedEventPayload(
                 EntityModifiedEventType.ENTITY_UPDATED, ProxyTarget.class, targetItem.getId()));
     }

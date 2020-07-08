@@ -99,29 +99,29 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      * Constructor for TargetGrid
      *
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param targetManagement
-     *          TargetManagement
+     *            TargetManagement
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param deploymentManagement
-     *          DeploymentManagement
+     *            DeploymentManagement
      * @param configManagement
-     *          TenantConfigurationManagement
+     *            TenantConfigurationManagement
      * @param systemSecurityContext
-     *          SystemSecurityContext
+     *            SystemSecurityContext
      * @param uiProperties
-     *          UiProperties
+     *            UiProperties
      * @param targetGridLayoutUiState
-     *          TargetGridLayoutUiState
+     *            TargetGridLayoutUiState
      * @param distributionGridLayoutUiState
-     *          DistributionGridLayoutUiState
+     *            DistributionGridLayoutUiState
      * @param targetTagFilterLayoutUiState
-     *          TargetTagFilterLayoutUiState
+     *            TargetTagFilterLayoutUiState
      */
     public TargetGrid(final UIEventBus eventBus, final VaadinMessageSource i18n, final UINotification notification,
             final TargetManagement targetManagement, final SpPermissionChecker permChecker,
@@ -162,7 +162,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         final DistributionSetsToTargetAssignmentSupport distributionsToTargetAssignment = new DistributionSetsToTargetAssignmentSupport(
                 notification, i18n, systemSecurityContext, configManagement, permChecker, assignmentController);
         final TargetTagsToTargetAssignmentSupport targetTagsToTargetAssignment = new TargetTagsToTargetAssignmentSupport(
-                notification, i18n, targetManagement, eventBus);
+                notification, i18n, targetManagement, eventBus, permChecker);
 
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.DIST_TABLE_ID, distributionsToTargetAssignment);
         sourceTargetAssignmentStrategies.put(UIComponentIdProvider.TARGET_TAG_TABLE_ID, targetTagsToTargetAssignment);
@@ -198,7 +198,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      * Map entity id to proxy entity
      *
      * @param entityId
-     *          Entity id
+     *            Entity id
      *
      * @return Target
      */

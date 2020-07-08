@@ -40,11 +40,11 @@ public abstract class AbstractGridHeader extends VerticalLayout {
      * Constructor for AbstractGridHeader
      *
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param permChecker
-     *          SpPermissionChecker
+     *            SpPermissionChecker
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      */
     public AbstractGridHeader(final VaadinMessageSource i18n, final SpPermissionChecker permChecker,
             final UIEventBus eventBus) {
@@ -103,13 +103,12 @@ public abstract class AbstractGridHeader extends VerticalLayout {
         headerComponentsLayout.setComponentAlignment(headerCaption, Alignment.TOP_LEFT);
         headerComponentsLayout.setExpandRatio(headerCaption, 0.4F);
 
-        // TODO: adapt Expand Ratios for header support components and header
-        // caption so that they do not overlap
         headerSupports.stream().filter(Objects::nonNull).forEach(headerSupport -> {
             final Component headerComponent = headerSupport.getHeaderComponent();
 
             headerComponentsLayout.addComponent(headerComponent);
             headerComponentsLayout.setComponentAlignment(headerComponent, Alignment.TOP_RIGHT);
+            headerComponentsLayout.setExpandRatio(headerComponent, headerSupport.getExpandRation());
         });
 
         addComponent(headerComponentsLayout);

@@ -17,38 +17,35 @@ import org.eclipse.hawkbit.ui.utils.UINotification;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 /**
- * Support for assigning the {@link ProxyTag} items to target item (target or
- * distribution set).
+ * Support for assigning items (target or distribution set) to tag item.
  * 
  * @param <T>
- *            The item-type of target item
+ *            The item-type of source item
  * @param <R>
  *            The item-type of assignment result
  */
-public abstract class TagsAssignmentSupport<T, R extends NamedEntity> extends AssignmentSupport<ProxyTag, T> {
+public abstract class ToTagAssignmentSupport<T, R extends NamedEntity> extends AssignmentSupport<T, ProxyTag> {
 
-    protected TagsAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n) {
+    protected ToTagAssignmentSupport(final UINotification notification, final VaadinMessageSource i18n) {
         super(notification, i18n);
     }
 
     @Override
-    protected void performAssignment(final List<ProxyTag> sourceItemsToAssign, final T targetItem) {
+    protected void performAssignment(final List<T> sourceItemsToAssign, final ProxyTag targetItem) {
+        final String tagName = targetItem.getName();
 
-        // we are taking first tag because multi-tag assignment is
-        // not supported
-        final String tagName = sourceItemsToAssign.get(0).getName();
-        final AbstractAssignmentResult<R> tagsAssignmentResult = toggleTagAssignment(tagName, targetItem);
+        final AbstractAssignmentResult<R> tagsAssignmentResult = toggleTagAssignment(sourceItemsToAssign, tagName);
 
         final String assignmentMsg = createAssignmentMessage(tagsAssignmentResult,
                 i18n.getMessage(getAssignedEntityTypeMsgKey()), i18n.getMessage("caption.tag"), tagName);
         notification.displaySuccess(assignmentMsg);
 
-        publishTagAssignmentEvent(targetItem);
+        publishTagAssignmentEvent(sourceItemsToAssign);
     }
 
-    protected abstract AbstractAssignmentResult<R> toggleTagAssignment(final String tagName, final T targetItem);
+    protected abstract AbstractAssignmentResult<R> toggleTagAssignment(final List<T> sourceItems, final String tagName);
 
     protected abstract String getAssignedEntityTypeMsgKey();
 
-    protected abstract void publishTagAssignmentEvent(final T targetItem);
+    protected abstract void publishTagAssignmentEvent(final List<T> sourceItems);
 }
