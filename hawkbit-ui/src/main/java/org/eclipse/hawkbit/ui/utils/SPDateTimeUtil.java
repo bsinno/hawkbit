@@ -256,24 +256,24 @@ public final class SPDateTimeUtil {
     }
 
     /**
-     * Convert local date and time in milliseconds
+     * Convert local date and time in epoch milliseconds
      *
      * @param localDateTime
      *          Date time
      *
-     * @return local date time format to epoc milliseconds
+     * @return local date time format
      */
     public static Long localDateTimeToEpochMilli(final LocalDateTime localDateTime) {
         return localDateTime.atZone(getBrowserTimeZoneId()).toInstant().toEpochMilli();
     }
 
     /**
-     * Convert milliseconds in local date and time
+     * Convert epoch milliseconds in local date and time
      *
      * @param epochMilli
-     *          Time in epoc milliseconds
+     *          Time in epoch milliseconds
      *
-     * @return Epoc milliseconds format to local date time
+     * @return Epoch milliseconds format
      */
     public static LocalDateTime epochMilliToLocalDateTime(final Long epochMilli) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), getBrowserTimeZoneId());
