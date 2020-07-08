@@ -96,6 +96,12 @@ public abstract class AbstractJpaIntegrationTest extends AbstractIntegrationTest
     protected RolloutRepository rolloutRepository;
 
     @Autowired
+    protected DirectoryGroupRepository directoryGroupRepository;
+
+    @Autowired
+    protected DirectoryTreeRepository directoryTreeRepository;
+
+    @Autowired
     protected TenantConfigurationProperties tenantConfigurationProperties;
 
     @Autowired

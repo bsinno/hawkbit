@@ -10,6 +10,8 @@ package org.eclipse.hawkbit.repository.jpa.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -21,20 +23,23 @@ import org.eclipse.hawkbit.repository.model.DirectoryTree;
 /**
  * JpaDirectoryTree entries reflect a closure table for the DirectoryTree hierarchy
  */
+@IdClass(DirectoryTreeId.class)
 @Entity
 @Table(name = "sp_directory_tree", uniqueConstraints = @UniqueConstraint(columnNames = {"ancestor", "descendant",
         "tenant"}, name = "uk_directory_tree"))
 // exception squid:S2160 - BaseEntity equals/hashcode is handling correctly for
 // sub entities
 @SuppressWarnings("squid:S2160")
-public class JpaDirectoryTree extends AbstractJpaTenantAwareBaseEntity implements DirectoryTree {
+public class JpaDirectoryTree implements DirectoryTree {
     private static final long serialVersionUID = 1L;
 
-    @JoinColumn(name = "ancestor", nullable = false)
+    @Id
+    @JoinColumn(name = "ancestor", nullable = false, updatable = false)
     @ManyToOne(targetEntity = JpaDirectoryGroup.class)
     private DirectoryGroup ancestor;
 
-    @JoinColumn(name = "descendant", nullable = false)
+    @Id
+    @JoinColumn(name = "descendant", nullable = false, updatable = false)
     @ManyToOne(targetEntity = JpaDirectoryGroup.class)
     private DirectoryGroup descendant;
 
@@ -57,27 +62,33 @@ public class JpaDirectoryTree extends AbstractJpaTenantAwareBaseEntity implement
     public JpaDirectoryTree() {
     }
 
+    @Override
     public DirectoryGroup getAncestor() {
         return ancestor;
     }
 
-    public void setAncestor(DirectoryGroup ancestor) {
+    @Override
+    public void setAncestor(final DirectoryGroup ancestor) {
         this.ancestor = ancestor;
     }
 
+    @Override
     public DirectoryGroup getDescendant() {
         return descendant;
     }
 
-    public void setDescendant(DirectoryGroup descendant) {
+    @Override
+    public void setDescendant(final DirectoryGroup descendant) {
         this.descendant = descendant;
     }
 
+    @Override
     public int getDepth() {
         return depth;
     }
 
-    public void setDepth(int depth) {
+    @Override
+    public void setDepth(final int depth) {
         this.depth = depth;
     }
 

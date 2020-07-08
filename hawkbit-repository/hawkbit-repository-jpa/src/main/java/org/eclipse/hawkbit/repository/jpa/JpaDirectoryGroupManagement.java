@@ -21,9 +21,11 @@ import org.eclipse.hawkbit.repository.DirectoryGroupManagement;
 import org.eclipse.hawkbit.repository.builder.DirectoryGroupCreate;
 import org.eclipse.hawkbit.repository.builder.DirectoryGroupUpdate;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
+import org.eclipse.hawkbit.repository.exception.InvalidDirectoryGroupAssignmentException;
 import org.eclipse.hawkbit.repository.jpa.builder.JpaDirectoryGroupCreate;
 import org.eclipse.hawkbit.repository.jpa.builder.JpaDirectoryGroupUpdate;
 import org.eclipse.hawkbit.repository.jpa.configuration.Constants;
+import org.eclipse.hawkbit.repository.jpa.model.DirectoryTreeId;
 import org.eclipse.hawkbit.repository.jpa.model.JpaDirectoryGroup;
 import org.eclipse.hawkbit.repository.jpa.rsql.RSQLUtility;
 import org.eclipse.hawkbit.repository.model.DirectoryGroup;
@@ -48,13 +50,15 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
 
     private final DirectoryGroupRepository directoryGroupRepository;
 
+    private final DirectoryTreeRepository directoryTreeRepository;
 
     private final VirtualPropertyReplacer virtualPropertyReplacer;
 
     private final Database database;
 
-    public JpaDirectoryGroupManagement(final DirectoryGroupRepository directoryGroupRepository, final VirtualPropertyReplacer virtualPropertyReplacer, final Database database) {
+    public JpaDirectoryGroupManagement(final DirectoryGroupRepository directoryGroupRepository, final DirectoryTreeRepository directoryTreeRepository, final VirtualPropertyReplacer virtualPropertyReplacer, final Database database) {
         this.directoryGroupRepository = directoryGroupRepository;
+        this.directoryTreeRepository = directoryTreeRepository;
         this.virtualPropertyReplacer = virtualPropertyReplacer;
         this.database = database;
     }
@@ -139,6 +143,12 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
                 .orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, update.getId()));
 
         update.getName().ifPresent(group::setName);
+        update.getDirectoryParent().ifPresent((DirectoryGroup g) -> {
+            // ensure no reverted parent child relationship exists to prevent loops
+            if (directoryTreeRepository.existsById(new DirectoryTreeId(group, g))) {
+                group.setDirectoryParent(g);
+            }
+        });
 
         return directoryGroupRepository.save(group);
     }
@@ -148,6 +158,11 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
         final JpaDirectoryGroup parentGroup = directoryGroupRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, groupId));
         final JpaDirectoryGroup group = directoryGroupRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, id));
+
+        // ensure no reverted parent child relationship exists to prevent loops
+        if (directoryTreeRepository.existsById(new DirectoryTreeId(group, parentGroup))) {
+            throw new InvalidDirectoryGroupAssignmentException(id, groupId, "Causing a loop.");
+        }
 
         group.setDirectoryParent(parentGroup);
         return directoryGroupRepository.save(group);

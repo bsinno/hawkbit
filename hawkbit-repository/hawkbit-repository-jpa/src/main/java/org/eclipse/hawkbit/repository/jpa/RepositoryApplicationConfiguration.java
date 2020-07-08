@@ -572,8 +572,9 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
     @Bean
     @ConditionalOnMissingBean
     DirectoryGroupManagement directoryGroupManagement(final DirectoryGroupRepository directoryGroupRepository,
+                                                      final DirectoryTreeRepository directoryTreeRepository,
                                                       final VirtualPropertyReplacer virtualPropertyReplacer, final JpaProperties properties) {
-        return new JpaDirectoryGroupManagement(directoryGroupRepository, virtualPropertyReplacer, properties.getDatabase());
+        return new JpaDirectoryGroupManagement(directoryGroupRepository, directoryTreeRepository, virtualPropertyReplacer, properties.getDatabase());
     }
 
     /**

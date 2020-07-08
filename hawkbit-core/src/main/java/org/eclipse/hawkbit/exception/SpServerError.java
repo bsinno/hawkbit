@@ -269,7 +269,13 @@ public enum SpServerError {
     *
     */
     SP_NO_WEIGHT_PROVIDED_IN_MULTIASSIGNMENT_MODE("hawkbit.server.error.noWeightProvidedInMultiAssignmentMode",
-            "The requested operation requires a weight to be specified when multi assignments is enabled.");
+            "The requested operation requires a weight to be specified when multi assignments is enabled."),
+
+    /**
+     * Error message regarding a disallowed assignment of a directory group
+     */
+    SP_DIRECTORY_GROUP_FALSE_ASSIGNMENT("hawkbit.server.error.directoryGroupFalseAssignment",
+            "The requested directory group assignment is not allowed.");
 
     private final String key;
     private final String message;

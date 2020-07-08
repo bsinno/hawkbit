@@ -30,6 +30,7 @@ import org.eclipse.hawkbit.cache.TenantAwareCacheManager;
 import org.eclipse.hawkbit.repository.ArtifactManagement;
 import org.eclipse.hawkbit.repository.ControllerManagement;
 import org.eclipse.hawkbit.repository.DeploymentManagement;
+import org.eclipse.hawkbit.repository.DirectoryGroupManagement;
 import org.eclipse.hawkbit.repository.DistributionSetManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTagManagement;
 import org.eclipse.hawkbit.repository.DistributionSetTypeManagement;
@@ -179,6 +180,9 @@ public abstract class AbstractIntegrationTest {
 
     @Autowired
     protected RolloutGroupManagement rolloutGroupManagement;
+
+    @Autowired
+    protected DirectoryGroupManagement directoryGroupManagement;
 
     @Autowired
     protected SystemSecurityContext systemSecurityContext;
