@@ -17,7 +17,7 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToTypeInfoMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.CheckBox;
@@ -36,7 +36,7 @@ public class DsWindowLayout extends AbstractEntityWindowLayout<ProxyDistribution
 
     private final DsWindowLayoutComponentBuilder dsComponentBuilder;
 
-    private final ComboBox<TypeInfo> dsTypeSelect;
+    private final ComboBox<ProxyTypeInfo> dsTypeSelect;
     private final TextField dsName;
     private final TextField dsVersion;
     private final TextArea dsDescription;
@@ -56,7 +56,7 @@ public class DsWindowLayout extends AbstractEntityWindowLayout<ProxyDistribution
         this.systemSecurityContext = systemSecurityContext;
         this.tenantConfigurationManagement = tenantConfigurationManagement;
 
-        final DistributionSetTypeDataProvider<TypeInfo> dsTypeDataProvider = new DistributionSetTypeDataProvider<>(
+        final DistributionSetTypeDataProvider<ProxyTypeInfo> dsTypeDataProvider = new DistributionSetTypeDataProvider<>(
                 dsTypeManagement, new TypeToTypeInfoMapper<DistributionSetType>());
         this.dsComponentBuilder = new DsWindowLayoutComponentBuilder(i18n, dsTypeDataProvider);
 

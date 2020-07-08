@@ -11,7 +11,7 @@ package org.eclipse.hawkbit.ui.distributions.dstable;
 import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.DistributionSetTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
@@ -35,7 +35,7 @@ public class DsWindowLayoutComponentBuilder {
     public static final String MIGRATION_STEP = "label.dist.required.migration.step";
 
     private final VaadinMessageSource i18n;
-    private final DistributionSetTypeDataProvider<TypeInfo> dsTypeDataProvider;
+    private final DistributionSetTypeDataProvider<ProxyTypeInfo> dsTypeDataProvider;
 
     /**
      * Constructor for DsWindowLayoutComponentBuilder
@@ -46,7 +46,7 @@ public class DsWindowLayoutComponentBuilder {
      *            DistributionSetTypeDataProvider
      */
     public DsWindowLayoutComponentBuilder(final VaadinMessageSource i18n,
-            final DistributionSetTypeDataProvider<TypeInfo> dsTypeDataProvider) {
+            final DistributionSetTypeDataProvider<ProxyTypeInfo> dsTypeDataProvider) {
         this.i18n = i18n;
         this.dsTypeDataProvider = dsTypeDataProvider;
     }
@@ -57,14 +57,14 @@ public class DsWindowLayoutComponentBuilder {
      *
      * @return Distribution set type combobox
      */
-    public ComboBox<TypeInfo> createDistributionSetTypeCombo(final Binder<ProxyDistributionSet> binder) {
-        final ComboBox<TypeInfo> dsTypeSelect = new ComboBox<>(i18n.getMessage(SELECT_TYPE));
+    public ComboBox<ProxyTypeInfo> createDistributionSetTypeCombo(final Binder<ProxyDistributionSet> binder) {
+        final ComboBox<ProxyTypeInfo> dsTypeSelect = new ComboBox<>(i18n.getMessage(SELECT_TYPE));
 
         dsTypeSelect.setId(UIComponentIdProvider.DIST_ADD_DISTSETTYPE);
         dsTypeSelect.setDescription(i18n.getMessage(SELECT_TYPE));
         dsTypeSelect.addStyleName(ValoTheme.COMBOBOX_SMALL);
 
-        dsTypeSelect.setItemCaptionGenerator(TypeInfo::getName);
+        dsTypeSelect.setItemCaptionGenerator(ProxyTypeInfo::getName);
         dsTypeSelect.setDataProvider(dsTypeDataProvider);
 
         binder.forField(dsTypeSelect).asRequired(i18n.getMessage("message.error.distributionSetRequired"))

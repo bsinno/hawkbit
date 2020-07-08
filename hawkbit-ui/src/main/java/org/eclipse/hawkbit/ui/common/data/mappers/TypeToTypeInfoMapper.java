@@ -9,21 +9,21 @@
 package org.eclipse.hawkbit.ui.common.data.mappers;
 
 import org.eclipse.hawkbit.repository.model.Type;
-import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 
 /**
  * 
- * Use to map {@link Type} to {@link TypeInfo}
+ * Use to map {@link Type} to {@link ProxyTypeInfo}
  *
  * @param <T>
  *            type of input type
  */
 public class TypeToTypeInfoMapper<T extends Type>
-        implements IdentifiableEntityToProxyIdentifiableEntityMapper<TypeInfo, T> {
+        implements IdentifiableEntityToProxyIdentifiableEntityMapper<ProxyTypeInfo, T> {
 
     @Override
-    public TypeInfo map(final T entity) {
-        return new TypeInfo(entity.getId(), entity.getName(), entity.getKey());
+    public ProxyTypeInfo map(final T entity) {
+        return new ProxyTypeInfo(entity.getId(), entity.getName(), entity.getKey());
     }
 
 }

@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * Holds information about a type
  */
-public class TypeInfo extends ProxyIdentifiableEntity {
+public class ProxyTypeInfo extends ProxyIdentifiableEntity {
     private static final long serialVersionUID = 1L;
 
     private String name;
@@ -22,7 +22,7 @@ public class TypeInfo extends ProxyIdentifiableEntity {
     /**
      * Constructor
      */
-    public TypeInfo() {
+    public ProxyTypeInfo() {
         super();
     }
 
@@ -36,7 +36,7 @@ public class TypeInfo extends ProxyIdentifiableEntity {
      * @param key
      *            type key
      */
-    public TypeInfo(final Long id, final String name, final String key) {
+    public ProxyTypeInfo(final Long id, final String name, final String key) {
         super(id);
         this.name = name;
         this.key = key;
@@ -71,7 +71,7 @@ public class TypeInfo extends ProxyIdentifiableEntity {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final TypeInfo other = (TypeInfo) obj;
+        final ProxyTypeInfo other = (ProxyTypeInfo) obj;
         return Objects.equals(this.getId(), other.getId()) && Objects.equals(this.getName(), other.getName())
                 && Objects.equals(this.getKey(), other.getKey());
     }

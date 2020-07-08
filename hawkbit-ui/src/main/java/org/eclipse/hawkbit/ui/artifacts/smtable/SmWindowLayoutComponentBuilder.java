@@ -13,7 +13,7 @@ import org.eclipse.hawkbit.ui.common.builder.FormComponentBuilder;
 import org.eclipse.hawkbit.ui.common.builder.TextFieldBuilder;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.utils.SPUIDefinitions;
 import org.eclipse.hawkbit.ui.utils.UIComponentIdProvider;
 import org.eclipse.hawkbit.ui.utils.UIMessageIdProvider;
@@ -33,7 +33,7 @@ public class SmWindowLayoutComponentBuilder {
     public static final String TEXTFIELD_VENDOR = "textfield.vendor";
 
     private final VaadinMessageSource i18n;
-    private final SoftwareModuleTypeDataProvider<TypeInfo> smTypeDataProvider;
+    private final SoftwareModuleTypeDataProvider<ProxyTypeInfo> smTypeDataProvider;
 
     /**
      * Constructor for SmWindowLayoutComponentBuilder
@@ -44,7 +44,7 @@ public class SmWindowLayoutComponentBuilder {
      *            SoftwareModuleTypeDataProvider
      */
     public SmWindowLayoutComponentBuilder(final VaadinMessageSource i18n,
-            final SoftwareModuleTypeDataProvider<TypeInfo> smTypeDataProvider) {
+            final SoftwareModuleTypeDataProvider<ProxyTypeInfo> smTypeDataProvider) {
         this.i18n = i18n;
         this.smTypeDataProvider = smTypeDataProvider;
     }
@@ -57,8 +57,8 @@ public class SmWindowLayoutComponentBuilder {
      *
      * @return input component
      */
-    public ComboBox<TypeInfo> createSoftwareModuleTypeCombo(final Binder<ProxySoftwareModule> binder) {
-        final ComboBox<TypeInfo> smTypeSelect = new ComboBox<>(
+    public ComboBox<ProxyTypeInfo> createSoftwareModuleTypeCombo(final Binder<ProxySoftwareModule> binder) {
+        final ComboBox<ProxyTypeInfo> smTypeSelect = new ComboBox<>(
                 i18n.getMessage(UIMessageIdProvider.CAPTION_ARTIFACT_SOFTWARE_MODULE_TYPE));
 
         smTypeSelect.setId(UIComponentIdProvider.SW_MODULE_TYPE);
@@ -66,7 +66,7 @@ public class SmWindowLayoutComponentBuilder {
         smTypeSelect.addStyleName(ValoTheme.COMBOBOX_SMALL);
         smTypeSelect.addStyleName(SPUIDefinitions.COMBO_BOX_SPECIFIC_STYLE);
 
-        smTypeSelect.setItemCaptionGenerator(TypeInfo::getName);
+        smTypeSelect.setItemCaptionGenerator(ProxyTypeInfo::getName);
         smTypeSelect.setDataProvider(smTypeDataProvider);
 
         binder.forField(smTypeSelect).asRequired(i18n.getMessage("message.error.typeRequired"))

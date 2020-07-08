@@ -14,7 +14,7 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.TypeToTypeInfoMapper;
 import org.eclipse.hawkbit.ui.common.data.providers.SoftwareModuleTypeDataProvider;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxySoftwareModule;
-import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.utils.VaadinMessageSource;
 
 import com.vaadin.ui.ComboBox;
@@ -29,7 +29,7 @@ import com.vaadin.ui.TextField;
 public class SmWindowLayout extends AbstractEntityWindowLayout<ProxySoftwareModule> {
     private final SmWindowLayoutComponentBuilder smComponentBuilder;
 
-    private final ComboBox<TypeInfo> smTypeSelect;
+    private final ComboBox<ProxyTypeInfo> smTypeSelect;
     private final TextField smName;
     private final TextField smVersion;
     private final TextField smVendor;
@@ -46,7 +46,7 @@ public class SmWindowLayout extends AbstractEntityWindowLayout<ProxySoftwareModu
     public SmWindowLayout(final VaadinMessageSource i18n, final SoftwareModuleTypeManagement smTypeManagement) {
         super();
 
-        final SoftwareModuleTypeDataProvider<TypeInfo> smTypeDataProvider = new SoftwareModuleTypeDataProvider<>(
+        final SoftwareModuleTypeDataProvider<ProxyTypeInfo> smTypeDataProvider = new SoftwareModuleTypeDataProvider<>(
                 smTypeManagement, new TypeToTypeInfoMapper<SoftwareModuleType>());
         this.smComponentBuilder = new SmWindowLayoutComponentBuilder(i18n, smTypeDataProvider);
 

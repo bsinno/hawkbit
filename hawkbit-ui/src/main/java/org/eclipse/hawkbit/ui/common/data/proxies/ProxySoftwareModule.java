@@ -24,7 +24,7 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
 
     private String vendor;
 
-    private TypeInfo typeInfo;
+    private ProxyTypeInfo typeInfo;
 
     private boolean assigned;
 
@@ -92,7 +92,7 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
      *
      * @return typeInfo
      */
-    public TypeInfo getTypeInfo() {
+    public ProxyTypeInfo getTypeInfo() {
         return typeInfo;
     }
 
@@ -102,7 +102,7 @@ public class ProxySoftwareModule extends ProxyNamedEntity implements VersionAwar
      * @param typeInfo
      *            typeInfo
      */
-    public void setTypeInfo(final TypeInfo typeInfo) {
+    public void setTypeInfo(final ProxyTypeInfo typeInfo) {
         this.typeInfo = typeInfo;
     }
 

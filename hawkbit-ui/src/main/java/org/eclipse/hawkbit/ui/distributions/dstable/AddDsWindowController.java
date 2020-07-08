@@ -16,7 +16,7 @@ import org.eclipse.hawkbit.ui.common.AbstractEntityWindowController;
 import org.eclipse.hawkbit.ui.common.AbstractEntityWindowLayout;
 import org.eclipse.hawkbit.ui.common.data.mappers.DistributionSetToProxyDistributionMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
-import org.eclipse.hawkbit.ui.common.data.proxies.TypeInfo;
+import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTypeInfo;
 import org.eclipse.hawkbit.ui.common.event.CommandTopics;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityModifiedEventPayload.EntityModifiedEventType;
@@ -93,7 +93,7 @@ public class AddDsWindowController extends AbstractEntityWindowController<ProxyD
         // empty object, that we can populate with defaults
         final ProxyDistributionSet newDs = new ProxyDistributionSet();
 
-        final TypeInfo newType = new TypeInfo();
+        final ProxyTypeInfo newType = new ProxyTypeInfo();
         newType.setId(systemManagement.getTenantMetadata().getDefaultDsType().getId());
         newDs.setTypeInfo(newType);
 

@@ -23,7 +23,7 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
 
     private String nameVersion;
 
-    private TypeInfo typeInfo;
+    private ProxyTypeInfo typeInfo;
 
     private boolean requiredMigrationStep;
 
@@ -104,11 +104,11 @@ public class ProxyDistributionSet extends ProxyNamedEntity implements VersionAwa
         this.requiredMigrationStep = requiredMigrationStep;
     }
 
-    public TypeInfo getTypeInfo() {
+    public ProxyTypeInfo getTypeInfo() {
         return typeInfo;
     }
 
-    public void setTypeInfo(final TypeInfo typeInfo) {
+    public void setTypeInfo(final ProxyTypeInfo typeInfo) {
         this.typeInfo = typeInfo;
     }
 
