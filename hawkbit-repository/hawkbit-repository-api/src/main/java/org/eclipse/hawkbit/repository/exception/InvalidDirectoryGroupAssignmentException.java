@@ -9,6 +9,8 @@ import org.eclipse.hawkbit.exception.SpServerError;
  */
 public class InvalidDirectoryGroupAssignmentException extends AbstractServerRtException {
 
+    private static final long serialVersionUID = 1L;
+
     private static final SpServerError THIS_ERROR = SpServerError.SP_DIRECTORY_GROUP_FALSE_ASSIGNMENT;
 
     public InvalidDirectoryGroupAssignmentException() {

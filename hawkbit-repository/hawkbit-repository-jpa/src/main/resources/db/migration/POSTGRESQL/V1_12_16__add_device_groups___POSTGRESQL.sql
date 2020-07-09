@@ -19,7 +19,7 @@ alter table sp_directory_group
     ADD CONSTRAINT fk_directory_parent
     FOREIGN KEY (directory_parent)
     REFERENCES sp_directory_group (id)
-    ON DELETE RESTRICT;
+    ON DELETE CASCADE;
 
 /*
  * Adapt target to be able to assign them to groups

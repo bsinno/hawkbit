@@ -111,8 +111,8 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
 
 
     @Test
-    @Description("Deleting parent group is blocked by a database restriction")
-    public void deletingParentGroupIsBlocked() {
+    @Description("Deleting a parent also deletes all sub groups")
+    public void deletingParentGroupCascades() {
         // Create directory groups
         final DirectoryGroup testGroupGrandparent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupGrandparent"));
         final DirectoryGroup testGroupParent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupParent"));
@@ -122,12 +122,17 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupGrandparent.getId());
         directoryGroupManagement.assignDirectoryParent(testGroupChild.getId(), testGroupParent.getId());
 
-        // deleting parent only is not possible
-        verifyExceptionIsThrown(() -> directoryGroupManagement.deleteById(testGroupGrandparent.getId()), EntityAlreadyExistsException.class);
+        // deleting grandparent only
+        directoryGroupManagement.deleteById(testGroupGrandparent.getId());
 
-        // ensure closures are still valid
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupParent, 1)).isTrue();
+        // ensure directory groups are gone
+        assertThat(directoryGroupRepository.existsById(testGroupGrandparent.getId())).isFalse();
+        assertThat(directoryGroupRepository.existsById(testGroupParent.getId())).isFalse();
+        assertThat(directoryGroupRepository.existsById(testGroupChild.getId())).isFalse();
+
+        // ensure closures are gone too
+        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupGrandparent.getId(), testGroupParent.getId()))).isFalse();
+        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupParent.getId(), testGroupChild.getId()))).isFalse();
     }
 
     @Test

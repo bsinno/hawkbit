@@ -116,4 +116,16 @@ BEGIN
       sub.ancestor = @param_group
     AND
       par.descendant = @param_parent
-END;
+END
+GO
+
+-- MS SQL needs additional trigger as it cannot handle (possible) looped references during delete
+CREATE TRIGGER t_delete_directory_hierarchy
+    ON sp_directory_group
+    INSTEAD OF DELETE
+    AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM sp_directory_group WHERE id IN (SELECT t.descendant FROM sp_directory_tree t, DELETED d WHERE d.id = t.ancestor);
+END
+GO

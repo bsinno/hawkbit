@@ -19,7 +19,7 @@ alter table sp_directory_group
 	add constraint fk_directory_parent
 	foreign key (directory_parent)
 	references sp_directory_group (id)
-	on delete restrict;
+	on delete cascade;
 
 /*
  * Adapt target to be able to assign them to groups
@@ -55,7 +55,6 @@ alter table sp_directory_tree
  */
 -- Add group to parent procedure
 DELIMITER $
-DROP PROCEDURE IF EXISTS p_group_node_add$
 
 CREATE PROCEDURE p_group_node_add (
   param_group    bigint,
@@ -87,7 +86,6 @@ DELIMITER ;
 
 -- Move group to parent procedure
 DELIMITER $
-DROP PROCEDURE IF EXISTS p_group_node_move$
 
 CREATE PROCEDURE p_group_node_move (
   param_group   bigint,
@@ -126,7 +124,6 @@ DELIMITER ;
 
 -- Delete group from directory tree procedure
 DELIMITER $
-DROP PROCEDURE IF EXISTS p_group_node_delete$
 
 CREATE PROCEDURE p_group_node_delete (
   param_group   bigint
