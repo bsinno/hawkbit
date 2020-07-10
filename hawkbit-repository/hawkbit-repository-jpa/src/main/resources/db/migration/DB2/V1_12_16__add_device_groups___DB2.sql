@@ -60,7 +60,7 @@ alter table sp_directory_tree
  * Procedures to ease closure table handling
  */
 -- Add group to parent procedure
-CREATE PROCEDURE p_group_node_add (
+CREATE PROCEDURE p_directory_tree_add (
   param_group    bigint,
   param_parent   bigint
 )
@@ -91,7 +91,7 @@ BEGIN
 END;
 
 -- Move group to parent procedure
-CREATE PROCEDURE p_group_node_move (
+CREATE PROCEDURE p_directory_tree_move (
   param_group   bigint,
   param_parent  bigint
 )

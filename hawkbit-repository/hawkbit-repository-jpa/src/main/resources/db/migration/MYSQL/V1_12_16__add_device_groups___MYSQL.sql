@@ -62,7 +62,7 @@ alter table sp_directory_tree
 -- Add group to parent procedure
 DELIMITER $
 
-CREATE PROCEDURE p_group_node_add (
+CREATE PROCEDURE p_directory_tree_add (
   param_group    bigint,
   param_parent   bigint
 )
@@ -93,7 +93,7 @@ DELIMITER ;
 -- Move group to parent procedure
 DELIMITER $
 
-CREATE PROCEDURE p_group_node_move (
+CREATE PROCEDURE p_directory_tree_move (
   param_group   bigint,
   param_parent  bigint
 )

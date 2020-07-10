@@ -39,6 +39,10 @@ import org.eclipse.persistence.queries.StoredProcedureCall;
 public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements DirectoryGroup, EventAwareEntity {
     private static final long serialVersionUID = 1L;
 
+    public static final String PROCEDURE_DIRECTORY_TREE_ADD = "p_directory_tree_add";
+
+    public static final String PROCEDURE_DIRECTORY_TREE_MOVE = "p_directory_tree_move";
+
     public static final String PROCEDURE_PARAM_PARENT = "param_parent";
 
     public static final String PROCEDURE_PARAM_GROUP = "param_group";
@@ -132,7 +136,7 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
             // if no parent was specified during create only self assign (depth 0)
             long parentId = group.getDirectoryParent() != null ? group.getDirectoryParent().getId() : groupId;
             StoredProcedureCall storedProcedureCall = new StoredProcedureCall();
-            storedProcedureCall.setProcedureName("p_group_node_add");
+            storedProcedureCall.setProcedureName(PROCEDURE_DIRECTORY_TREE_ADD);
             storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_GROUP, groupId);
             storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_PARENT, parentId);
 
@@ -151,7 +155,7 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
             DirectoryGroup newParent = newGroup.getDirectoryParent();
             if (newParent != null) {
                 StoredProcedureCall storedProcedureCall = new StoredProcedureCall();
-                storedProcedureCall.setProcedureName("p_group_node_move");
+                storedProcedureCall.setProcedureName(PROCEDURE_DIRECTORY_TREE_MOVE);
                 storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_GROUP, newGroup.getId());
                 // an empty parent is means remove group assignment, set it to zero will clean up its closure tree
                 // self assignment should not be possible, but still try to handle it the same

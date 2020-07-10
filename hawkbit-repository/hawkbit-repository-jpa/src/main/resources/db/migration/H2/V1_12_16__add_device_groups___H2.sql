@@ -60,12 +60,12 @@ alter table sp_directory_tree
  * Procedures to ease closure table handling
  */
 -- Add group to parent procedure
-CREATE ALIAS p_group_node_add AS $$
+CREATE ALIAS p_directory_tree_add AS $$
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 @CODE
-void p_group_node_add(final Connection conn, final Long param_group, final Long param_parent) throws SQLException{
+void p_directory_tree_add(final Connection conn, final Long param_group, final Long param_parent) throws SQLException{
     StringBuffer sql = new StringBuffer();
     sql.append("INSERT INTO sp_directory_tree (ancestor, descendant, depth) ");
     sql.append("SELECT ancestor, " + param_group + ", depth + 1 FROM sp_directory_tree WHERE descendant = " + param_parent + " ");
@@ -77,12 +77,12 @@ void p_group_node_add(final Connection conn, final Long param_group, final Long 
 $$;
 
 -- Move group to parent procedure
-CREATE ALIAS p_group_node_move AS $$
+CREATE ALIAS p_directory_tree_move AS $$
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 @CODE
-void p_group_node_move(final Connection conn, final Long param_group, final Long param_parent) throws SQLException{
+void p_directory_tree_move(final Connection conn, final Long param_group, final Long param_parent) throws SQLException{
     // Delete old relationships between moved group (gr) and old ancestors (par),
     // as well as old ancestors (par) and the moved groups child nodes (sub)
     StringBuffer delSql = new StringBuffer();

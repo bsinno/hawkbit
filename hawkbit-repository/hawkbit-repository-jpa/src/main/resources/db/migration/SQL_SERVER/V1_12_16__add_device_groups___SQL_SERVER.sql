@@ -15,7 +15,8 @@ create table sp_directory_group (
     primary key (id)
 );
 
--- MS SQL cannot handle possible loops in cascading delete, it is therefore handled by trigger
+-- MSSQL cannot handle possible loops in cascading delete, therefore no action is used here
+-- Instead cascading will be handled by trigger t_delete_directory_hierarchy below
 alter table sp_directory_group
 	add constraint fk_directory_parent
 	foreign key (directory_parent)
@@ -63,7 +64,7 @@ GO
  * Procedures to ease closure table handling
  */
 -- Add group to parent procedure
-CREATE PROCEDURE p_group_node_add
+CREATE PROCEDURE p_directory_tree_add
   @param_group    NUMERIC(19),
   @param_parent   NUMERIC(19)
 AS
@@ -92,7 +93,7 @@ END
 GO
 
 -- Move group to parent procedure
-CREATE PROCEDURE p_group_node_move
+CREATE PROCEDURE p_directory_tree_move
   @param_group   NUMERIC(19),
   @param_parent  NUMERIC(19)
 AS
