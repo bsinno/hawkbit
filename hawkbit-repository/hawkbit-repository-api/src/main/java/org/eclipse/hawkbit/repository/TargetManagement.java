@@ -802,6 +802,6 @@ public interface TargetManagement {
      * @return the updated {@link Target}.
      * @throws EntityNotFoundException if given group does not exist
      */
-    @PreAuthorize(SpringEvalExpressions.HAS_AUTH_UPDATE_REPOSITORY)
+    @PreAuthorize(SpringEvalExpressions.HAS_AUTH_UPDATE_TARGET)
     Target assignToDirectoryGroup(@NotEmpty String controllerId, @NotNull Long groupId);
 }

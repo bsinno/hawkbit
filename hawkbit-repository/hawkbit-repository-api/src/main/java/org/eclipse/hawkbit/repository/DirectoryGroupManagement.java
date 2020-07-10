@@ -142,11 +142,11 @@ public interface DirectoryGroupManagement {
     /**
      * Assigns path parent {@link DirectoryGroup} to existing {@link DirectoryGroup}.
      *
-     * @param id      to assign and update
+     * @param id      to assign to and update
      * @param groupId to get assigned
-     * @return the updated {@link Target}.
+     * @return the updated {@link DirectoryGroup}.
      * @throws EntityNotFoundException if given group does not exist
      */
-    @PreAuthorize(SpringEvalExpressions.HAS_AUTH_UPDATE_REPOSITORY)
+    @PreAuthorize(SpringEvalExpressions.HAS_AUTH_UPDATE_TARGET)
     DirectoryGroup assignDirectoryParent(@NotNull Long id, @NotNull Long groupId);
 }
