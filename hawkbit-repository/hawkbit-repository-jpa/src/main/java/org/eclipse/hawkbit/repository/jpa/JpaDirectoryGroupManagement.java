@@ -8,14 +8,6 @@
  */
 package org.eclipse.hawkbit.repository.jpa;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.validation.constraints.NotNull;
-
 import org.eclipse.hawkbit.repository.DirectoryGroupFields;
 import org.eclipse.hawkbit.repository.DirectoryGroupManagement;
 import org.eclipse.hawkbit.repository.builder.DirectoryGroupCreate;
@@ -40,6 +32,13 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotNull;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * JPA implementation of {@link DirectoryGroupManagement}.
@@ -143,10 +142,10 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
                 .orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, update.getId()));
 
         update.getName().ifPresent(group::setName);
-        update.getDirectoryParent().ifPresent((DirectoryGroup g) -> {
-            // ensure no reverted parent child relationship exists to prevent loops
-            if (directoryTreeRepository.existsById(new DirectoryTreeId(group, g))) {
-                group.setDirectoryParent(g);
+        update.getDirectoryParent().ifPresent(parent -> {
+            // ensure no reverted parent child relationship exists to prevent loops, also prevents self reference
+            if (directoryTreeRepository.existsById(new DirectoryTreeId(group, parent))) {
+                group.setDirectoryParent(parent);
             }
         });
 
@@ -154,14 +153,15 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
     }
 
     @Override
-    public DirectoryGroup assignDirectoryParent(@NotNull final Long id, @NotNull final Long groupId) {
-        final JpaDirectoryGroup parentGroup = directoryGroupRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, groupId));
+    public DirectoryGroup assignDirectoryParent(@NotNull final Long id, @NotNull final Long parentId) {
+        final JpaDirectoryGroup parentGroup = directoryGroupRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class,
+                parentId));
         final JpaDirectoryGroup group = directoryGroupRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, id));
 
-        // ensure no reverted parent child relationship exists to prevent loops
+        // ensure no reverted parent child relationship exists to prevent loops, also prevents self reference
         if (directoryTreeRepository.existsById(new DirectoryTreeId(group, parentGroup))) {
-            throw new InvalidDirectoryGroupAssignmentException(id, groupId, "Causing a loop.");
+            throw new InvalidDirectoryGroupAssignmentException(id, parentId, "Causing a loop.");
         }
 
         group.setDirectoryParent(parentGroup);
