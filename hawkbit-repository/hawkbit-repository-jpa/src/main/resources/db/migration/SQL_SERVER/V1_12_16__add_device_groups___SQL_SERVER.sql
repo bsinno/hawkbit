@@ -15,6 +15,7 @@ create table sp_directory_group (
     primary key (id)
 );
 
+-- MS SQL cannot handle possible loops in cascading delete, it is therefore handled by trigger
 alter table sp_directory_group
 	add constraint fk_directory_parent
 	foreign key (directory_parent)
@@ -43,7 +44,14 @@ create table sp_directory_tree (
     primary key (ancestor, descendant)
 );
 
--- Only this constraint is necessary as only groups without descendants can be deleted
+-- Delete cascades to closures as they are not necessary without group
+-- MS SQL cannot handle possible loops in cascading delete, it is therefore handled by trigger
+alter table sp_directory_tree
+    add constraint fk_group_ancestor
+    foreign key (ancestor)
+    references sp_directory_group (id)
+    on delete no action;
+
 alter table sp_directory_tree
 	add constraint fk_group_descendant
 	foreign key (descendant)
@@ -127,5 +135,6 @@ CREATE TRIGGER t_delete_directory_hierarchy
 BEGIN
     SET NOCOUNT ON;
     DELETE FROM sp_directory_group WHERE id IN (SELECT t.descendant FROM sp_directory_tree t, DELETED d WHERE d.id = t.ancestor);
+    DELETE FROM sp_directory_tree WHERE ancestor IN (SELECT id FROM DELETED)
 END
 GO

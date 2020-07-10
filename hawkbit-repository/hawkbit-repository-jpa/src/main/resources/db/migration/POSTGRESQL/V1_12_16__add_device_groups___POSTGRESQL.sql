@@ -44,7 +44,13 @@ create table sp_directory_tree (
     FOREIGN KEY (descendant) REFERENCES sp_directory_group (id) ON DELETE CASCADE
 );
 
--- Only this constraint is necessary as only groups without descendants can be deleted
+-- Delete cascades to closures as they are not necessary without group
+alter table sp_directory_tree
+    ADD CONSTRAINT fk_group_ancestor
+    FOREIGN KEY (ancestor)
+    REFERENCES sp_directory_group (id)
+    ON DELETE CASCADE;
+
 alter table sp_directory_tree
     ADD CONSTRAINT fk_group_descendant
     FOREIGN KEY (descendant)
