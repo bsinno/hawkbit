@@ -90,7 +90,7 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
 
         /* Expected closures:
          *   - grandparent <-> parent | depth: 1
-         *   - parent <-> parent      | depth: 1
+         *   - parent <-> child      | depth: 1
          *   - grandparent <-> child  | depth: 2
          */
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupParent, 1)).isTrue();
@@ -146,6 +146,7 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupGrandparent.getId());
         directoryGroupManagement.assignDirectoryParent(testGroupChild.getId(), testGroupParent.getId());
 
+        // Delete all groups of single tenant
         directoryGroupRepository.deleteByTenant("DEFAULT");
 
         // ensure all groups are removed
