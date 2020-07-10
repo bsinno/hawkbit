@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
 import org.eclipse.hawkbit.repository.DirectoryGroupManagement;
-import org.eclipse.hawkbit.repository.exception.EntityAlreadyExistsException;
 import org.eclipse.hawkbit.repository.exception.InvalidDirectoryGroupAssignmentException;
 import org.eclipse.hawkbit.repository.jpa.builder.JpaDirectoryGroupBuilder;
 import org.eclipse.hawkbit.repository.jpa.model.DirectoryTreeId;
@@ -69,7 +68,7 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
 
         /* Expected closures:
          *   - grandparent <-> parent | depth: 1
-         *   - parent <-> parent      | depth: 1
+         *   - parent <-> child      | depth: 1
          *   - grandparent <-> child  | depth: 2
          */
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupParent, 1)).isTrue();
