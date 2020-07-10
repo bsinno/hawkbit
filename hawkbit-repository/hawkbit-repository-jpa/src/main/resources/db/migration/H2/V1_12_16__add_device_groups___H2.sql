@@ -66,7 +66,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 @CODE
 void p_directory_tree_add(final Connection conn, final Long param_group, final Long param_parent) throws SQLException{
-    StringBuffer sql = new StringBuffer();
+    StringBuilder sql = new StringBuilder();
     sql.append("INSERT INTO sp_directory_tree (ancestor, descendant, depth) ");
     sql.append("SELECT ancestor, " + param_group + ", depth + 1 FROM sp_directory_tree WHERE descendant = " + param_parent + " ");
     sql.append("UNION ALL ");
@@ -85,7 +85,7 @@ import java.sql.SQLException;
 void p_directory_tree_move(final Connection conn, final Long param_group, final Long param_parent) throws SQLException{
     // Delete old relationships between moved group (gr) and old ancestors (par),
     // as well as old ancestors (par) and the moved groups child nodes (sub)
-    StringBuffer delSql = new StringBuffer();
+    StringBuilder delSql = new StringBuilder();
     delSql.append("DELETE FROM sp_directory_tree ");
     delSql.append("WHERE (ancestor, descendant) IN ( ");
     delSql.append("SELECT par.ancestor, par.descendant FROM sp_directory_tree par ");
@@ -97,7 +97,7 @@ void p_directory_tree_move(final Connection conn, final Long param_group, final 
     delStatement.execute();
 
     // Update group relationship information
-    StringBuffer insSql = new StringBuffer();
+    StringBuilder insSql = new StringBuilder();
     insSql.append("INSERT INTO sp_directory_tree (ancestor, descendant, depth) ");
     insSql.append("SELECT par.ancestor, sub.descendant, par.depth + sub.depth + 1 ");
     insSql.append("FROM sp_directory_tree sub, sp_directory_tree par ");
