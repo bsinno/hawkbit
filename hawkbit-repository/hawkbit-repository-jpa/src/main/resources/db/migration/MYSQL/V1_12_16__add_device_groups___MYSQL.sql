@@ -127,17 +127,3 @@ BEGIN
       par.descendant = param_parent;
 END$
 DELIMITER ;
-
--- Delete group from directory tree procedure
-DELIMITER $
-
-CREATE PROCEDURE p_group_node_delete (
-  param_group   bigint
-)
-BEGIN
-  -- Delete old relationships between deleted group (gr) and all ancestors (par)
-  -- DELETE
-  -- FROM sp_directory_tree
-  -- WHERE descendant = param_group;
-END$
-DELIMITER ;
