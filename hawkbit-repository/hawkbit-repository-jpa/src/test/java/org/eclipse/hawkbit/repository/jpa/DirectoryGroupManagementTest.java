@@ -74,19 +74,58 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupGrandparent.getId());
         directoryGroupManagement.assignDirectoryParent(testGroupChild.getId(), testGroupParent.getId());
 
-        /* Expected closures:
+        /* Expected closures (without self reference, total 6):
          *   - grandparent <-> parent | depth: 1
          *   - parent <-> child      | depth: 1
          *   - grandparent <-> child  | depth: 2
          */
+        assertThat(directoryTreeRepository.count()).isEqualTo(6);
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupParent, 1)).isTrue();
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1)).isTrue();
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupChild, 2)).isTrue();
     }
 
     @Test
-    @Description("Deleting group clears closure entries")
-    public void deletingGroupClearsClosure() {
+    @Description("Moving a group to another parent results in the correct closure hierarchy")
+    public void movingGroupLeadsToCorrectClosureHierarchy() {
+        // Create directory groups
+        final DirectoryGroup testGroupGrandparent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupGrandparent"));
+        final DirectoryGroup testGroupParent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupParent"));
+        final DirectoryGroup testGroupChild = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupChild"));
+
+        // Set parent/child relationships
+        directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupGrandparent.getId());
+        directoryGroupManagement.assignDirectoryParent(testGroupChild.getId(), testGroupParent.getId());
+
+        /* Expected closures (without self reference, total 6):
+         *   - grandparent <-> parent | depth: 1
+         *   - parent <-> child       | depth: 1
+         *   - grandparent <-> child  | depth: 2
+         */
+        assertThat(directoryTreeRepository.count()).isEqualTo(6);
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupParent, 1)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupChild, 2)).isTrue();
+
+        // Create second grandparent and move parent to it
+        final DirectoryGroup testGroupSecondGrandparent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupSecondGrandparent"));
+        directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupSecondGrandparent.getId());
+
+        /* Ensure old closures are gone and new exists
+         * Expected closures (without self reference, total 7):
+         *   - grandparent <-> parent | depth: 1
+         *   - parent <-> child       | depth: 1
+         *   - grandparent <-> child  | depth: 2
+         */
+        assertThat(directoryTreeRepository.count()).isEqualTo(7);
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupSecondGrandparent, testGroupParent, 1)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupSecondGrandparent, testGroupChild, 2)).isTrue();
+    }
+
+    @Test
+    @Description("Deleting leaf groups clears closure entries")
+    public void deletingLeafGroupsClearsClosure() {
         // Create directory groups
         final DirectoryGroup testGroupGrandparent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupGrandParent"));
         final DirectoryGroup testGroupParent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupParent"));
@@ -96,11 +135,12 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupGrandparent.getId());
         directoryGroupManagement.assignDirectoryParent(testGroupChild.getId(), testGroupParent.getId());
 
-        /* Expected closures:
+        /* Expected closures (without self reference, total 7):
          *   - grandparent <-> parent | depth: 1
-         *   - parent <-> child      | depth: 1
+         *   - parent <-> child       | depth: 1
          *   - grandparent <-> child  | depth: 2
          */
+        assertThat(directoryTreeRepository.count()).isEqualTo(6);
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupParent, 1)).isTrue();
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1)).isTrue();
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupChild, 2)).isTrue();
@@ -114,11 +154,38 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         final long parentId = testGroupParent.getId();
         directoryGroupManagement.deleteById(parentId);
         assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupGrandparent.getId(), parentId))).isFalse();
+
+        // Only grandparent self reference is left
+        assertThat(directoryTreeRepository.count()).isEqualTo(1);
     }
 
+    @Test
+    @Description("Deleting an intermediate parent deletes sub groups and clears closures")
+    public void deletingIntermediateParentClearsClosure() {
+        // Create directory groups
+        final DirectoryGroup testGroupGrandparent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupGrandparent"));
+        final DirectoryGroup testGroupParent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupParent"));
+        final DirectoryGroup testGroupChild = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupChild"));
+
+        // Set parent/child relationships
+        directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupGrandparent.getId());
+        directoryGroupManagement.assignDirectoryParent(testGroupChild.getId(), testGroupParent.getId());
+
+        // deleting intermediate parent only
+        directoryGroupManagement.deleteById(testGroupParent.getId());
+
+        // ensure directory groups (parent and child) are gone
+        assertThat(directoryGroupRepository.existsById(testGroupParent.getId())).isFalse();
+        assertThat(directoryGroupRepository.existsById(testGroupChild.getId())).isFalse();
+
+        // ensure closures are gone too, also between grandparent and child
+        assertThat(directoryTreeRepository.count()).isEqualTo(1);
+        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupParent.getId(), testGroupChild.getId()))).isFalse();
+        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupGrandparent.getId(), testGroupChild.getId()))).isFalse();
+    }
 
     @Test
-    @Description("Deleting a parent also deletes all sub groups")
+    @Description("Deleting a hierarchy parent also deletes all sub groups")
     public void deletingParentGroupCascades() {
         // Create directory groups
         final DirectoryGroup testGroupGrandparent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupGrandparent"));
@@ -137,7 +204,8 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         assertThat(directoryGroupRepository.existsById(testGroupParent.getId())).isFalse();
         assertThat(directoryGroupRepository.existsById(testGroupChild.getId())).isFalse();
 
-        // ensure closures are gone too
+        // ensure closures are gone too, no closures left
+        assertThat(directoryTreeRepository.count()).isEqualTo(0);
         assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupGrandparent.getId(), testGroupParent.getId()))).isFalse();
         assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupParent.getId(), testGroupChild.getId()))).isFalse();
     }
