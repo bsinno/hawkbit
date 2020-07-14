@@ -15,7 +15,7 @@ import org.eclipse.persistence.queries.UpdateObjectQuery;
 
 /**
  * Listens to change in property values of an entity and calls the corresponding
- * {@link EventAwareEntity}.
+ * {@link EventAwareEntity} or  {@link ProcedureAwareEntity}.
  *
  */
 public class EntityPropertyChangeListener extends DescriptorEventAdapter {
@@ -26,17 +26,21 @@ public class EntityPropertyChangeListener extends DescriptorEventAdapter {
         if (isEventAwareEntity(object)) {
             doNotifiy(() -> ((EventAwareEntity) object).fireCreateEvent(event));
         }
+        if (isProcedureAwareEntity(object)) {
+            doNotifiy(() -> ((ProcedureAwareEntity) object).fireCreateProcedure(event));
+        }
     }
 
     @Override
     public void postUpdate(final DescriptorEvent event) {
-
         final Object object = event.getObject();
         if (isEventAwareEntity(object)
                 && isFireUpdate((EventAwareEntity) object, (UpdateObjectQuery) event.getQuery())) {
             doNotifiy(() -> ((EventAwareEntity) object).fireUpdateEvent(event));
         }
-
+        if (isProcedureAwareEntity(object)) {
+            doNotifiy(() -> ((ProcedureAwareEntity) object).fireUpdateProcedure(event));
+        }
     }
 
     @Override
@@ -49,6 +53,10 @@ public class EntityPropertyChangeListener extends DescriptorEventAdapter {
 
     private static boolean isEventAwareEntity(final Object object) {
         return object instanceof EventAwareEntity;
+    }
+
+    private static boolean isProcedureAwareEntity(final Object object) {
+        return object instanceof ProcedureAwareEntity;
     }
 
     private static void doNotifiy(final Runnable runnable) {

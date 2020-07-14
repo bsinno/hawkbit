@@ -9,7 +9,6 @@
 package org.eclipse.hawkbit.repository.jpa.model;
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
@@ -23,8 +22,6 @@ import javax.persistence.UniqueConstraint;
 import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 import org.eclipse.hawkbit.repository.model.DirectoryTree;
 import org.eclipse.persistence.descriptors.DescriptorEvent;
-import org.eclipse.persistence.platform.database.H2Platform;
-import org.eclipse.persistence.platform.database.PostgreSQLPlatform;
 import org.eclipse.persistence.queries.StoredProcedureCall;
 
 /**
@@ -36,7 +33,7 @@ import org.eclipse.persistence.queries.StoredProcedureCall;
 // exception squid:S2160 - BaseEntity equals/hashcode is handling correctly for
 // sub entities
 @SuppressWarnings("squid:S2160")
-public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements DirectoryGroup, EventAwareEntity {
+public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements DirectoryGroup, ProcedureAwareEntity {
     private static final long serialVersionUID = 1L;
 
     public static final String PROCEDURE_DIRECTORY_TREE_ADD = "p_directory_tree_add";
@@ -106,28 +103,8 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
         return "DirectoryGroup [getOptLockRevision()=" + getOptLockRevision() + ", getId()=" + getId() + "]";
     }
 
-    /**
-     * Helper to pick the correct call for the platform
-     * <p>
-     * It is necessary as the current EclipseLink implementation (2.7.x) does not correctly handle Postgres and H2 calls
-     * without a return value
-     *
-     * @param descriptorEvent     of the event
-     * @param storedProcedureCall that shall be executed
-     */
-    public static void executeCall(final DescriptorEvent descriptorEvent, final StoredProcedureCall storedProcedureCall) {
-        if (descriptorEvent.getSession().getPlatform() instanceof PostgreSQLPlatform) {
-            descriptorEvent.getSession().executeSelectingCall(storedProcedureCall);
-        } else if (descriptorEvent.getSession().getPlatform() instanceof H2Platform) {
-            final List<Object> parameters = storedProcedureCall.getParameters();
-            descriptorEvent.getSession().executeNonSelectingSQL("CALL " + storedProcedureCall.getProcedureName() + "(" + parameters.get(0) + ", " + parameters.get(1) + ")");
-        } else {
-            descriptorEvent.getSession().executeNonSelectingCall(storedProcedureCall);
-        }
-    }
-
     @Override
-    public void fireCreateEvent(final DescriptorEvent descriptorEvent) {
+    public void fireCreateProcedure(final DescriptorEvent descriptorEvent) {
         // Create entries in closure table by calling procedure
         Object object = descriptorEvent.getObject();
         if (object instanceof DirectoryGroup) {
@@ -147,7 +124,7 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
     }
 
     @Override
-    public void fireUpdateEvent(final DescriptorEvent descriptorEvent) {
+    public void fireUpdateProcedure(final DescriptorEvent descriptorEvent) {
         // Update entries in closure table by calling procedure
         Object newObject = descriptorEvent.getObject();
         if (newObject instanceof DirectoryGroup) {
@@ -171,10 +148,4 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
             }
         }
     }
-
-    @Override
-    public void fireDeleteEvent(final DescriptorEvent descriptorEvent) {
-        // delete event is not necessary as delete is handled by database constraints
-    }
-
 }
