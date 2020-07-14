@@ -12,6 +12,7 @@ import java.util.Collection;
 
 import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -45,20 +46,20 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
     public static final String PROCEDURE_PARAM_GROUP = "param_group";
 
     @JoinColumn(name = "directory_parent", nullable = true, updatable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_directory_parent"))
-    @ManyToOne(targetEntity = JpaDirectoryGroup.class)
+    @ManyToOne(fetch=FetchType.LAZY, targetEntity = JpaDirectoryGroup.class)
     private DirectoryGroup directoryParent;
 
-    @OneToMany(targetEntity = JpaDirectoryGroup.class, mappedBy = "directoryParent")
+    @OneToMany(fetch=FetchType.LAZY, targetEntity = JpaDirectoryGroup.class, mappedBy = "directoryParent")
     private Collection<DirectoryGroup> directoryChildren;
 
     // Seems like a sonar bug as DirectoryTree implements Serializable also occurred in AbstractTagToken
     @SuppressWarnings("squid:S1948")
-    @OneToMany(targetEntity = JpaDirectoryTree.class, mappedBy = "ancestor")
+    @OneToMany(fetch=FetchType.LAZY, targetEntity = JpaDirectoryTree.class, mappedBy = "ancestor")
     private Collection<DirectoryTree> ancestorTree;
 
     // Seems like a sonar bug as DirectoryTree implements Serializable also occurred in AbstractTagToken
     @SuppressWarnings("squid:S1948")
-    @OneToMany(targetEntity = JpaDirectoryTree.class, mappedBy = "descendant")
+    @OneToMany(fetch=FetchType.LAZY, targetEntity = JpaDirectoryTree.class, mappedBy = "descendant")
     private Collection<DirectoryTree> descendantTree;
 
     protected JpaDirectoryGroup() {
