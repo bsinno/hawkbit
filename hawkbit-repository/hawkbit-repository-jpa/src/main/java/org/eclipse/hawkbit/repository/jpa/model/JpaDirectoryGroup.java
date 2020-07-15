@@ -26,11 +26,12 @@ import org.eclipse.persistence.descriptors.DescriptorEvent;
 import org.eclipse.persistence.queries.StoredProcedureCall;
 
 /**
- * A JpaGroup provides a grouping mechanism for targets as well as other groups
+ * A JpaDirectoryGroup provides a grouping mechanism for targets as well as
+ * other groups
  */
 @Entity
-@Table(name = "sp_directory_group", uniqueConstraints = @UniqueConstraint(columnNames = {"name",
-        "tenant"}, name = "uk_directory_group"))
+@Table(name = "sp_directory_group", uniqueConstraints = @UniqueConstraint(columnNames = { "name",
+        "tenant" }, name = "uk_directory_group"))
 // exception squid:S2160 - BaseEntity equals/hashcode is handling correctly for
 // sub entities
 @SuppressWarnings("squid:S2160")
@@ -46,20 +47,22 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
     public static final String PROCEDURE_PARAM_GROUP = "param_group";
 
     @JoinColumn(name = "directory_parent", nullable = true, updatable = true, foreignKey = @ForeignKey(value = ConstraintMode.CONSTRAINT, name = "fk_directory_parent"))
-    @ManyToOne(fetch=FetchType.LAZY, targetEntity = JpaDirectoryGroup.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = JpaDirectoryGroup.class)
     private DirectoryGroup directoryParent;
 
-    @OneToMany(fetch=FetchType.LAZY, targetEntity = JpaDirectoryGroup.class, mappedBy = "directoryParent")
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = JpaDirectoryGroup.class, mappedBy = "directoryParent")
     private Collection<DirectoryGroup> directoryChildren;
 
-    // Seems like a sonar bug as DirectoryTree implements Serializable also occurred in AbstractTagToken
+    // Seems like a sonar bug as DirectoryTree implements Serializable also occurred
+    // in AbstractTagToken
     @SuppressWarnings("squid:S1948")
-    @OneToMany(fetch=FetchType.LAZY, targetEntity = JpaDirectoryTree.class, mappedBy = "ancestor")
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = JpaDirectoryTree.class, mappedBy = "ancestor")
     private Collection<DirectoryTree> ancestorTree;
 
-    // Seems like a sonar bug as DirectoryTree implements Serializable also occurred in AbstractTagToken
+    // Seems like a sonar bug as DirectoryTree implements Serializable also occurred
+    // in AbstractTagToken
     @SuppressWarnings("squid:S1948")
-    @OneToMany(fetch=FetchType.LAZY, targetEntity = JpaDirectoryTree.class, mappedBy = "descendant")
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = JpaDirectoryTree.class, mappedBy = "descendant")
     private Collection<DirectoryTree> descendantTree;
 
     protected JpaDirectoryGroup() {
@@ -69,8 +72,10 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
     /**
      * Public constructor.
      *
-     * @param name        of the {@link DirectoryGroup}
-     * @param description of the {@link DirectoryGroup}
+     * @param name
+     *            of the {@link DirectoryGroup}
+     * @param description
+     *            of the {@link DirectoryGroup}
      */
     public JpaDirectoryGroup(final String name, final String description, final DirectoryGroup directoryParent) {
         super(name, description);
@@ -135,12 +140,15 @@ public class JpaDirectoryGroup extends AbstractJpaNamedEntity implements Directo
                 StoredProcedureCall storedProcedureCall = new StoredProcedureCall();
                 storedProcedureCall.setProcedureName(PROCEDURE_DIRECTORY_TREE_MOVE);
                 storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_GROUP, newGroup.getId());
-                // an empty parent is means remove group assignment, set it to zero will clean up its closure tree
+                // an empty parent is means remove group assignment, set it to zero will clean
+                // up its closure tree
                 // self assignment should not be possible, but still try to handle it the same
-                if (newGroup.getDirectoryParent() == null || newGroup.getId().equals(newGroup.getDirectoryParent().getId())) {
+                if (newGroup.getDirectoryParent() == null
+                        || newGroup.getId().equals(newGroup.getDirectoryParent().getId())) {
                     storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_PARENT, 0);
                 } else {
-                    storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_PARENT, newGroup.getDirectoryParent().getId());
+                    storedProcedureCall.addNamedArgumentValue(PROCEDURE_PARAM_PARENT,
+                            newGroup.getDirectoryParent().getId());
                 }
 
                 descriptorEvent.getSession().beginTransaction();

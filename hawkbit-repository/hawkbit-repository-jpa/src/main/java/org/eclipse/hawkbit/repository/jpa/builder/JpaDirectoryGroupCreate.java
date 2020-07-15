@@ -16,7 +16,8 @@ import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 /**
  * Create/build implementation for DirectoryGroup.
  */
-public class JpaDirectoryGroupCreate extends AbstractDirectoryGroupUpdateCreate<DirectoryGroupCreate> implements DirectoryGroupCreate {
+public class JpaDirectoryGroupCreate extends AbstractDirectoryGroupUpdateCreate<DirectoryGroupCreate>
+        implements DirectoryGroupCreate {
     JpaDirectoryGroupCreate() {
 
     }

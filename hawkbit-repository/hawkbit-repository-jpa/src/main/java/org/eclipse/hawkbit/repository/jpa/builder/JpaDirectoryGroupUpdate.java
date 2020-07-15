@@ -14,7 +14,8 @@ import org.eclipse.hawkbit.repository.builder.DirectoryGroupUpdate;
 /**
  * Update implementation for DirectoryGroups.
  */
-public class JpaDirectoryGroupUpdate extends AbstractDirectoryGroupUpdateCreate<DirectoryGroupUpdate> implements DirectoryGroupUpdate {
+public class JpaDirectoryGroupUpdate extends AbstractDirectoryGroupUpdateCreate<DirectoryGroupUpdate>
+        implements DirectoryGroupUpdate {
     public JpaDirectoryGroupUpdate(final Long id) {
         super.id = id;
     }

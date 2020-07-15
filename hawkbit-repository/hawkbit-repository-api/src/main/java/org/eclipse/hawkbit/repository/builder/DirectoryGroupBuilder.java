@@ -18,7 +18,8 @@ import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 public interface DirectoryGroupBuilder {
 
     /**
-     * @param groupId of the updatable entity
+     * @param groupId
+     *            of the updatable entity
      * @return builder instance
      */
     DirectoryGroupUpdate update(@NotEmpty Long groupId);

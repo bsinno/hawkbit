@@ -12,9 +12,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.eclipse.hawkbit.repository.builder.ActionStatusBuilder;
+import org.eclipse.hawkbit.repository.builder.DirectoryGroupBuilder;
 import org.eclipse.hawkbit.repository.builder.DistributionSetBuilder;
 import org.eclipse.hawkbit.repository.builder.DistributionSetTypeBuilder;
-import org.eclipse.hawkbit.repository.builder.DirectoryGroupBuilder;
 import org.eclipse.hawkbit.repository.builder.RolloutBuilder;
 import org.eclipse.hawkbit.repository.builder.RolloutGroupBuilder;
 import org.eclipse.hawkbit.repository.builder.SoftwareModuleBuilder;
@@ -44,8 +44,8 @@ public interface EntityFactory {
     DistributionSetBuilder distributionSet();
 
     /**
-     * Generates an {@link MetaData} element for distribution set without
-     * persisting it.
+     * Generates an {@link MetaData} element for distribution set without persisting
+     * it.
      * 
      * @param key
      *            {@link MetaData#getKey()}

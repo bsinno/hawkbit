@@ -125,15 +125,14 @@ public class JpaTargetManagement implements TargetManagement {
     private final Database database;
 
     public JpaTargetManagement(final EntityManager entityManager, final QuotaManagement quotaManagement,
-                               final TargetRepository targetRepository, final TargetMetadataRepository targetMetadataRepository,
-                               final RolloutGroupRepository rolloutGroupRepository,
-                               final DistributionSetRepository distributionSetRepository,
-                               final TargetFilterQueryRepository targetFilterQueryRepository,
-                               final TargetTagRepository targetTagRepository, final NoCountPagingRepository criteriaNoCountDao,
-                               final DirectoryGroupRepository directoryGroupRepository,
-                               final EventPublisherHolder eventPublisherHolder, final TenantAware tenantAware,
-                               final AfterTransactionCommitExecutor afterCommit, final VirtualPropertyReplacer virtualPropertyReplacer,
-                               final Database database) {
+            final TargetRepository targetRepository, final TargetMetadataRepository targetMetadataRepository,
+            final RolloutGroupRepository rolloutGroupRepository,
+            final DistributionSetRepository distributionSetRepository,
+            final TargetFilterQueryRepository targetFilterQueryRepository,
+            final TargetTagRepository targetTagRepository, final NoCountPagingRepository criteriaNoCountDao,
+            final DirectoryGroupRepository directoryGroupRepository, final EventPublisherHolder eventPublisherHolder,
+            final TenantAware tenantAware, final AfterTransactionCommitExecutor afterCommit,
+            final VirtualPropertyReplacer virtualPropertyReplacer, final Database database) {
         this.entityManager = entityManager;
         this.quotaManagement = quotaManagement;
         this.targetRepository = targetRepository;
@@ -251,7 +250,8 @@ public class JpaTargetManagement implements TargetManagement {
 
     @Override
     public Target assignToDirectoryGroup(@NotEmpty final String controllerId, @NotNull final Long groupId) {
-        JpaDirectoryGroup group = directoryGroupRepository.findById(groupId).orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, groupId));
+        JpaDirectoryGroup group = directoryGroupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, groupId));
 
         final JpaTarget target = getByControllerIdAndThrowIfNotFound(controllerId);
         target.setDirectoryGroup(group);
@@ -310,8 +310,7 @@ public class JpaTargetManagement implements TargetManagement {
     public Optional<TargetMetadata> getMetaDataByControllerId(final String controllerId, final String key) {
         final Long targetId = getByControllerIdAndThrowIfNotFound(controllerId).getId();
 
-        return targetMetadataRepository.findById(new TargetMetadataCompositeKey(targetId, key))
-                .map(t -> t);
+        return targetMetadataRepository.findById(new TargetMetadataCompositeKey(targetId, key)).map(t -> t);
     }
 
     @Override

@@ -36,7 +36,7 @@ public class AbstractTargetUpdateCreate<T> extends AbstractNamedEntityBuilder<T>
     protected TargetUpdateStatus status;
     protected DirectoryGroup directoryGroup;
 
-    protected  Boolean requestAttributes;
+    protected Boolean requestAttributes;
 
     protected AbstractTargetUpdateCreate(final String controllerId) {
         this.controllerId = StringUtils.trimWhitespace(controllerId);

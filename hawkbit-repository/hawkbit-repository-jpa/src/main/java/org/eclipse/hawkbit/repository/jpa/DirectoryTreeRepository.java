@@ -28,7 +28,8 @@ public interface DirectoryTreeRepository
     /**
      * Checks if group with given ancestor exists.
      *
-     * @param ancestorId to check for
+     * @param ancestorId
+     *            to check for
      * @return <code>true</code> is group with given ancestor exists
      */
     @Query("SELECT CASE WHEN COUNT(t)>0 THEN 'true' ELSE 'false' END FROM JpaDirectoryTree t WHERE t.ancestor=:ancestorId")
@@ -37,7 +38,8 @@ public interface DirectoryTreeRepository
     /**
      * Checks if group with given ancestor exists.
      *
-     * @param descendantId to check for
+     * @param descendantId
+     *            to check for
      * @return <code>true</code> is group with given ancestor exists
      */
     @Query("SELECT CASE WHEN COUNT(t)>0 THEN 'true' ELSE 'false' END FROM JpaDirectoryTree t WHERE t.descendant=:descendantId")

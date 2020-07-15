@@ -15,7 +15,7 @@ import org.eclipse.persistence.queries.UpdateObjectQuery;
 
 /**
  * Listens to change in property values of an entity and calls the corresponding
- * {@link EventAwareEntity} or  {@link ProcedureAwareEntity}.
+ * {@link EventAwareEntity} or {@link ProcedureAwareEntity}.
  *
  */
 public class EntityPropertyChangeListener extends DescriptorEventAdapter {

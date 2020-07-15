@@ -21,12 +21,13 @@ import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 import org.eclipse.hawkbit.repository.model.DirectoryTree;
 
 /**
- * JpaDirectoryTree entries reflect a closure table for the DirectoryTree hierarchy
+ * JpaDirectoryTree entries reflect a closure table for the DirectoryTree
+ * hierarchy
  */
 @IdClass(DirectoryTreeId.class)
 @Entity
-@Table(name = "sp_directory_tree", uniqueConstraints = @UniqueConstraint(columnNames = {"ancestor", "descendant",
-        "tenant"}, name = "uk_directory_tree"))
+@Table(name = "sp_directory_tree", uniqueConstraints = @UniqueConstraint(columnNames = { "ancestor", "descendant",
+        "tenant" }, name = "uk_directory_tree"))
 // exception squid:S2160 - BaseEntity equals/hashcode is handling correctly for
 // sub entities
 @SuppressWarnings("squid:S2160")
@@ -49,9 +50,12 @@ public class JpaDirectoryTree implements DirectoryTree {
     /**
      * Public constructor.
      *
-     * @param ancestor   the ancestor {@link DirectoryGroup}
-     * @param descendant the descendant {@link DirectoryGroup}
-     * @param depth      depth of the group relation
+     * @param ancestor
+     *            the ancestor {@link DirectoryGroup}
+     * @param descendant
+     *            the descendant {@link DirectoryGroup}
+     * @param depth
+     *            depth of the group relation
      */
     public JpaDirectoryTree(final DirectoryGroup ancestor, final DirectoryGroup descendant, final int depth) {
         this.ancestor = ancestor;

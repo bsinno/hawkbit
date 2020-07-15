@@ -8,6 +8,14 @@
  */
 package org.eclipse.hawkbit.repository.jpa;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.validation.constraints.NotNull;
+
 import org.eclipse.hawkbit.repository.DirectoryGroupFields;
 import org.eclipse.hawkbit.repository.DirectoryGroupManagement;
 import org.eclipse.hawkbit.repository.builder.DirectoryGroupCreate;
@@ -33,13 +41,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 /**
  * JPA implementation of {@link DirectoryGroupManagement}.
  */
@@ -55,7 +56,9 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
 
     private final Database database;
 
-    public JpaDirectoryGroupManagement(final DirectoryGroupRepository directoryGroupRepository, final DirectoryTreeRepository directoryTreeRepository, final VirtualPropertyReplacer virtualPropertyReplacer, final Database database) {
+    public JpaDirectoryGroupManagement(final DirectoryGroupRepository directoryGroupRepository,
+            final DirectoryTreeRepository directoryTreeRepository,
+            final VirtualPropertyReplacer virtualPropertyReplacer, final Database database) {
         this.directoryGroupRepository = directoryGroupRepository;
         this.directoryTreeRepository = directoryTreeRepository;
         this.virtualPropertyReplacer = virtualPropertyReplacer;
@@ -70,7 +73,7 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public DirectoryGroup create(final DirectoryGroupCreate c) {
         final JpaDirectoryGroupCreate create = (JpaDirectoryGroupCreate) c;
 
@@ -80,18 +83,19 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public List<DirectoryGroup> create(final Collection<DirectoryGroupCreate> tt) {
-        @SuppressWarnings({"unchecked", "rawtypes"}) final Collection<JpaDirectoryGroupCreate> groups = (Collection) tt;
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final Collection<JpaDirectoryGroupCreate> groups = (Collection) tt;
 
-        return Collections.unmodifiableList(
-                groups.stream().map(ttc -> directoryGroupRepository.save(ttc.buildGroup())).collect(Collectors.toList()));
+        return Collections.unmodifiableList(groups.stream().map(ttc -> directoryGroupRepository.save(ttc.buildGroup()))
+                .collect(Collectors.toList()));
     }
 
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public void delete(final String groupName) {
         if (!directoryGroupRepository.existsByName(groupName)) {
             throw new EntityNotFoundException(DirectoryGroup.class, groupName);
@@ -104,7 +108,7 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public void deleteById(final Long groupId) {
         if (!directoryGroupRepository.existsById(groupId)) {
             throw new EntityNotFoundException(DirectoryGroup.class, groupId);
@@ -117,8 +121,8 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
     @Override
     public Page<DirectoryGroup> findByRsql(final Pageable pageable, final String rsqlParam) {
 
-        final Specification<JpaDirectoryGroup> spec = RSQLUtility.parse(rsqlParam, DirectoryGroupFields.class, virtualPropertyReplacer,
-                database);
+        final Specification<JpaDirectoryGroup> spec = RSQLUtility.parse(rsqlParam, DirectoryGroupFields.class,
+                virtualPropertyReplacer, database);
         return convertTPage(directoryGroupRepository.findAll(spec, pageable), pageable);
     }
 
@@ -134,7 +138,7 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
     @Override
     @Transactional
     @Retryable(include = {
-            ConcurrencyFailureException.class}, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
+            ConcurrencyFailureException.class }, maxAttempts = Constants.TX_RT_MAX, backoff = @Backoff(delay = Constants.TX_RT_DELAY))
     public DirectoryGroup update(final DirectoryGroupUpdate u) {
         final JpaDirectoryGroupUpdate update = (JpaDirectoryGroupUpdate) u;
 
@@ -143,7 +147,8 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
 
         update.getName().ifPresent(group::setName);
         update.getDirectoryParent().ifPresent(parent -> {
-            // ensure no reverted parent child relationship exists to prevent loops, also prevents self reference
+            // ensure no reverted parent child relationship exists to prevent loops, also
+            // prevents self reference
             if (directoryTreeRepository.existsById(new DirectoryTreeId(group, parent))) {
                 group.setDirectoryParent(parent);
             }
@@ -154,12 +159,13 @@ public class JpaDirectoryGroupManagement implements DirectoryGroupManagement {
 
     @Override
     public DirectoryGroup assignDirectoryParent(@NotNull final Long id, @NotNull final Long parentId) {
-        final JpaDirectoryGroup parentGroup = directoryGroupRepository.findById(parentId).orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class,
-                parentId));
+        final JpaDirectoryGroup parentGroup = directoryGroupRepository.findById(parentId)
+                .orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, parentId));
         final JpaDirectoryGroup group = directoryGroupRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(DirectoryGroup.class, id));
 
-        // ensure no reverted parent child relationship exists to prevent loops, also prevents self reference
+        // ensure no reverted parent child relationship exists to prevent loops, also
+        // prevents self reference
         if (directoryTreeRepository.existsById(new DirectoryTreeId(group, parentGroup))) {
             throw new InvalidDirectoryGroupAssignmentException(id, parentId, "Causing a loop.");
         }

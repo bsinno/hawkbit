@@ -12,8 +12,8 @@ import org.eclipse.hawkbit.exception.AbstractServerRtException;
 import org.eclipse.hawkbit.exception.SpServerError;
 
 /**
- * the {@link InvalidDirectoryGroupAssignmentException} is thrown when a group assignment is tried to
- * be created which is not allowed, e.g. causing a loop.
+ * the {@link InvalidDirectoryGroupAssignmentException} is thrown when a group
+ * assignment is tried to be created which is not allowed, e.g. causing a loop.
  */
 public class InvalidDirectoryGroupAssignmentException extends AbstractServerRtException {
 

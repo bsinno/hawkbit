@@ -36,5 +36,4 @@ public interface DirectoryGroup extends NamedEntity {
      */
     Collection<DirectoryTree> getDescendantTree();
 
-
 }

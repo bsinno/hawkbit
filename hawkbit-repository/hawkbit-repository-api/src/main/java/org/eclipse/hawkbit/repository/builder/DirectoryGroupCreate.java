@@ -16,19 +16,21 @@ import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 
 /**
- * Builder to create a new {@link DirectoryGroup} entry. Defines all fields that can be set
- * at creation time. Other fields are set by the repository automatically, e.g.
- * {@link BaseEntity#getCreatedAt()}.
+ * Builder to create a new {@link DirectoryGroup} entry. Defines all fields that
+ * can be set at creation time. Other fields are set by the repository
+ * automatically, e.g. {@link BaseEntity#getCreatedAt()}.
  */
 public interface DirectoryGroupCreate {
     /**
-     * @param name for {@link DirectoryGroup#getName()}
+     * @param name
+     *            for {@link DirectoryGroup#getName()}
      * @return updated builder instance
      */
     DirectoryGroupCreate name(@Size(min = 1, max = NamedEntity.NAME_MAX_SIZE) @NotNull String name);
 
     /**
-     * @param directoryParent for {@link DirectoryGroup#getDirectoryParent()} ()}
+     * @param directoryParent
+     *            for {@link DirectoryGroup#getDirectoryParent()} ()}
      * @return updated builder instance
      */
     DirectoryGroupCreate directoryParent(DirectoryGroup directoryParent);

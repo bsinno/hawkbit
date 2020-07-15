@@ -15,8 +15,8 @@ import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 
 /**
- * Builder to update an existing {@link DirectoryGroup} entry. Defines all fields that can
- * be updated.
+ * Builder to update an existing {@link DirectoryGroup} entry. Defines all
+ * fields that can be updated.
  *
  */
 public interface DirectoryGroupUpdate {
@@ -28,7 +28,8 @@ public interface DirectoryGroupUpdate {
     DirectoryGroupUpdate name(@Size(min = 1, max = NamedEntity.NAME_MAX_SIZE) @NotNull String name);
 
     /**
-     * @param directoryParent for {@link DirectoryGroup#getDirectoryParent()} ()}
+     * @param directoryParent
+     *            for {@link DirectoryGroup#getDirectoryParent()} ()}
      * @return updated builder instance
      */
     DirectoryGroupUpdate directoryParent(DirectoryGroup directoryParent);

@@ -15,7 +15,8 @@ import org.eclipse.hawkbit.repository.model.DirectoryGroup;
 /**
  * Create and update builder DTO.
  *
- * @param <T> update or create builder interface
+ * @param <T>
+ *            update or create builder interface
  */
 public class AbstractDirectoryGroupUpdateCreate<T> extends AbstractNamedEntityBuilder<T> {
 

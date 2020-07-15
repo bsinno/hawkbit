@@ -31,7 +31,8 @@ public interface DirectoryGroupRepository
     /**
      * deletes the {@link DirectoryGroup}s with the given names.
      *
-     * @param groupName to be deleted
+     * @param groupName
+     *            to be deleted
      * @return 1 if group was deleted
      */
     @Modifying
@@ -41,7 +42,8 @@ public interface DirectoryGroupRepository
     /**
      * find {@link DirectoryGroup} by its name.
      *
-     * @param groupName to filter on
+     * @param groupName
+     *            to filter on
      * @return the {@link DirectoryGroup} if found
      */
     Optional<DirectoryGroup> findByNameEquals(String groupName);
@@ -49,7 +51,8 @@ public interface DirectoryGroupRepository
     /**
      * Checks if group with given name exists.
      *
-     * @param groupName to check for
+     * @param groupName
+     *            to check for
      * @return <code>true</code> is group with given name exists
      */
     @Query("SELECT CASE WHEN COUNT(t)>0 THEN 'true' ELSE 'false' END FROM JpaDirectoryGroup t WHERE t.name=:groupName")
@@ -64,12 +67,13 @@ public interface DirectoryGroupRepository
     List<JpaDirectoryGroup> findAll();
 
     /**
-     * Deletes all {@link JpaDirectoryGroup} of a given tenant. For safety
-     * reasons (this is a "delete everything" query after all) we add the tenant
-     * manually to query even if this will by done by {@link EntityManager}
-     * anyhow. The DB should take care of optimizing this away.
+     * Deletes all {@link JpaDirectoryGroup} of a given tenant. For safety reasons
+     * (this is a "delete everything" query after all) we add the tenant manually to
+     * query even if this will by done by {@link EntityManager} anyhow. The DB
+     * should take care of optimizing this away.
      *
-     * @param tenant to delete data from
+     * @param tenant
+     *            to delete data from
      */
     @Modifying
     @Transactional

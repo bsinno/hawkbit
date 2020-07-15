@@ -509,14 +509,13 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
             final DistributionSetRepository distributionSetRepository,
             final TargetFilterQueryRepository targetFilterQueryRepository,
             final TargetTagRepository targetTagRepository, final NoCountPagingRepository criteriaNoCountDao,
-            final DirectoryGroupRepository directoryGroupRepository,
-            final EventPublisherHolder eventPublisherHolder, final TenantAware tenantAware,
-            final AfterTransactionCommitExecutor afterCommit, final VirtualPropertyReplacer virtualPropertyReplacer,
-            final JpaProperties properties) {
+            final DirectoryGroupRepository directoryGroupRepository, final EventPublisherHolder eventPublisherHolder,
+            final TenantAware tenantAware, final AfterTransactionCommitExecutor afterCommit,
+            final VirtualPropertyReplacer virtualPropertyReplacer, final JpaProperties properties) {
         return new JpaTargetManagement(entityManager, quotaManagement, targetRepository, targetMetadataRepository,
                 rolloutGroupRepository, distributionSetRepository, targetFilterQueryRepository, targetTagRepository,
-                criteriaNoCountDao, directoryGroupRepository, eventPublisherHolder, tenantAware, afterCommit, virtualPropertyReplacer,
-                properties.getDatabase());
+                criteriaNoCountDao, directoryGroupRepository, eventPublisherHolder, tenantAware, afterCommit,
+                virtualPropertyReplacer, properties.getDatabase());
     }
 
     /**
@@ -572,9 +571,10 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
     @Bean
     @ConditionalOnMissingBean
     DirectoryGroupManagement directoryGroupManagement(final DirectoryGroupRepository directoryGroupRepository,
-                                                      final DirectoryTreeRepository directoryTreeRepository,
-                                                      final VirtualPropertyReplacer virtualPropertyReplacer, final JpaProperties properties) {
-        return new JpaDirectoryGroupManagement(directoryGroupRepository, directoryTreeRepository, virtualPropertyReplacer, properties.getDatabase());
+            final DirectoryTreeRepository directoryTreeRepository,
+            final VirtualPropertyReplacer virtualPropertyReplacer, final JpaProperties properties) {
+        return new JpaDirectoryGroupManagement(directoryGroupRepository, directoryTreeRepository,
+                virtualPropertyReplacer, properties.getDatabase());
     }
 
     /**

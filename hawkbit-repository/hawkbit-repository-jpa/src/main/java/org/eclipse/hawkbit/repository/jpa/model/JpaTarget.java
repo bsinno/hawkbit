@@ -111,8 +111,8 @@ public class JpaTarget extends AbstractJpaNamedEntity implements Target, EventAw
     private List<JpaAction> actions;
 
     /**
-     * the security token of the target which allows if enabled to authenticate
-     * with this security token.
+     * the security token of the target which allows if enabled to authenticate with
+     * this security token.
      */
     @Column(name = "sec_token", updatable = true, nullable = false, length = Target.SECURITY_TOKEN_MAX_SIZE)
     @Size(min = 1, max = Target.SECURITY_TOKEN_MAX_SIZE)
@@ -277,8 +277,8 @@ public class JpaTarget extends AbstractJpaNamedEntity implements Target, EventAw
 
     /**
      * @return the securityToken if the current security context contains the
-     *         necessary permission {@link SpPermission#READ_TARGET_SEC_TOKEN}
-     *         or the current context is executed as system code, otherwise
+     *         necessary permission {@link SpPermission#READ_TARGET_SEC_TOKEN} or
+     *         the current context is executed as system code, otherwise
      *         {@code null}.
      */
     @Override
@@ -311,10 +311,10 @@ public class JpaTarget extends AbstractJpaNamedEntity implements Target, EventAw
     }
 
     /**
-     * @return the poll time which holds the last poll time of the target, the
-     *         next poll time and the overdue time. In case the
-     *         {@link #lastTargetQuery} is not set e.g. the target never polled
-     *         before this method returns {@code null}
+     * @return the poll time which holds the last poll time of the target, the next
+     *         poll time and the overdue time. In case the {@link #lastTargetQuery}
+     *         is not set e.g. the target never polled before this method returns
+     *         {@code null}
      */
     @Override
     public PollStatus getPollStatus() {

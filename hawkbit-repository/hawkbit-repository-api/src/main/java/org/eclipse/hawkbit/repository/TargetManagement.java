@@ -797,10 +797,13 @@ public interface TargetManagement {
     /**
      * Assigns parent {@link DirectoryGroup} to existing {@link Target}.
      *
-     * @param controllerId to assign and update
-     * @param groupId      to get assigned to
+     * @param controllerId
+     *            to assign and update
+     * @param groupId
+     *            to get assigned to
      * @return the updated {@link Target}.
-     * @throws EntityNotFoundException if given group does not exist
+     * @throws EntityNotFoundException
+     *             if given group does not exist
      */
     @PreAuthorize(SpringEvalExpressions.HAS_AUTH_UPDATE_TARGET)
     Target assignToDirectoryGroup(@NotEmpty String controllerId, @NotNull Long groupId);

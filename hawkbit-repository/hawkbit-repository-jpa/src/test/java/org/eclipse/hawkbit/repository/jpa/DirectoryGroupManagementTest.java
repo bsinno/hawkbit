@@ -10,7 +10,6 @@ package org.eclipse.hawkbit.repository.jpa;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.qameta.allure.Step;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert;
 import org.eclipse.hawkbit.repository.DirectoryGroupManagement;
@@ -22,6 +21,7 @@ import org.junit.Test;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Step;
 import io.qameta.allure.Story;
 
 /**
@@ -60,9 +60,12 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
          * Total: 3
          */
         assertThat(directoryTreeRepository.count()).isEqualTo(3);
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupParent, 0)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupChild, testGroupChild, 0)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupParent, 0))
+                .isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupChild, testGroupChild, 0))
+                .isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1))
+                .isTrue();
     }
 
     @Test
@@ -85,12 +88,20 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
          * Total: 6
          */
         assertThat(directoryTreeRepository.count()).isEqualTo(6);
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupGrandparent, 0)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupParent, 0)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupChild, testGroupChild, 0)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupParent, 1)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupChild, 2)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent,
+                testGroupGrandparent, 0)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupParent, 0))
+                .isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupChild, testGroupChild, 0))
+                .isTrue();
+        assertThat(
+                directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupParent, 1))
+                        .isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1))
+                .isTrue();
+        assertThat(
+                directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupChild, 2))
+                        .isTrue();
     }
 
     @Test
@@ -102,7 +113,8 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         final DirectoryGroup testGroupGrandparent = createAndCheckParentGroup(testGroupParent);
 
         // Create another grandparent and move parent to it
-        final DirectoryGroup testGroupSecondGrandparent = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroupSecondGrandparent"));
+        final DirectoryGroup testGroupSecondGrandparent = directoryGroupManagement
+                .create(new JpaDirectoryGroupBuilder().create().name("testGroupSecondGrandparent"));
         directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupSecondGrandparent.getId());
 
         /* 3. Ensure old closures are gone and new exists
@@ -114,12 +126,17 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
          */
         assertThat(directoryTreeRepository.count()).isEqualTo(7);
         // ensure expected closures are there
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupSecondGrandparent, testGroupParent, 1)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1)).isTrue();
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupSecondGrandparent, testGroupChild, 2)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupSecondGrandparent,
+                testGroupParent, 1)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupParent, testGroupChild, 1))
+                .isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupSecondGrandparent,
+                testGroupChild, 2)).isTrue();
         // ensure closures with old grandparent are gone
-        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupGrandparent, testGroupParent))).isFalse();
-        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupGrandparent, testGroupChild))).isFalse();
+        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupGrandparent, testGroupParent)))
+                .isFalse();
+        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupGrandparent, testGroupChild)))
+                .isFalse();
     }
 
     @Test
@@ -130,20 +147,24 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         final DirectoryGroup testGroupParent = createAndCheckParentGroup(testGroupChild);
         final DirectoryGroup testGroupGrandparent = createAndCheckParentGroup(testGroupParent);
 
-        // Delete leaf child group and ensure closures are removed as well (depth does not need to be considered)
+        // Delete leaf child group and ensure closures are removed as well (depth does
+        // not need to be considered)
         final long childId = testGroupChild.getId();
         directoryGroupManagement.deleteById(childId);
         assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupParent.getId(), childId))).isFalse();
         assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupParent.getId(), childId))).isFalse();
 
-        // Delete leaf parent group and ensure closures are removed as well (depth does not need to be considered)
+        // Delete leaf parent group and ensure closures are removed as well (depth does
+        // not need to be considered)
         final long parentId = testGroupParent.getId();
         directoryGroupManagement.deleteById(parentId);
-        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupParent.getId(), parentId))).isFalse();
+        assertThat(directoryTreeRepository.existsById(new DirectoryTreeId(testGroupParent.getId(), parentId)))
+                .isFalse();
 
         // Ensure only grandparent self reference is left
         assertThat(directoryTreeRepository.count()).isEqualTo(1);
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupGrandparent, 0)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent,
+                testGroupGrandparent, 0)).isTrue();
     }
 
     @Test
@@ -161,9 +182,11 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         assertThat(directoryGroupRepository.existsById(testGroupParent.getId())).isFalse();
         assertThat(directoryGroupRepository.existsById(testGroupChild.getId())).isFalse();
 
-        // Ensure closures are gone too, also between grandparent and child (only grandparent self reference is left)
+        // Ensure closures are gone too, also between grandparent and child (only
+        // grandparent self reference is left)
         assertThat(directoryTreeRepository.count()).isEqualTo(1);
-        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent, testGroupGrandparent, 0)).isTrue();
+        assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(testGroupGrandparent,
+                testGroupGrandparent, 0)).isTrue();
     }
 
     @Test
@@ -208,8 +231,11 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         final DirectoryGroup testGroupChild = createAndCheckBasicGroup();
         final DirectoryGroup testGroupParent = createAndCheckParentGroup(testGroupChild);
 
-        // Try to set parents group to child causing a looped reference leading to an exception
-        verifyExceptionIsThrown(() -> directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupChild.getId()), InvalidDirectoryGroupAssignmentException.class);
+        // Try to set parents group to child causing a looped reference leading to an
+        // exception
+        verifyExceptionIsThrown(
+                () -> directoryGroupManagement.assignDirectoryParent(testGroupParent.getId(), testGroupChild.getId()),
+                InvalidDirectoryGroupAssignmentException.class);
     }
 
     @Test
@@ -218,17 +244,21 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         // Create directory group
         final DirectoryGroup testGroup = createAndCheckBasicGroup();
 
-        // Try to set parents group to child causing a looped reference leading to an exception
-        verifyExceptionIsThrown(() -> directoryGroupManagement.assignDirectoryParent(testGroup.getId(), testGroup.getId()), InvalidDirectoryGroupAssignmentException.class);
+        // Try to set parents group to child causing a looped reference leading to an
+        // exception
+        verifyExceptionIsThrown(
+                () -> directoryGroupManagement.assignDirectoryParent(testGroup.getId(), testGroup.getId()),
+                InvalidDirectoryGroupAssignmentException.class);
     }
 
     /*
      * Reusable create and check steps
      */
     @Step("Create a single group and check closure")
-    private DirectoryGroup createAndCheckBasicGroup(){
+    private DirectoryGroup createAndCheckBasicGroup() {
         // Create directory group
-        final DirectoryGroup testGroup = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroup"));
+        final DirectoryGroup testGroup = directoryGroupManagement
+                .create(new JpaDirectoryGroupBuilder().create().name("testGroup"));
 
         /* Expected closure only self reference:
          *   - group <-> group | depth: 0
@@ -239,9 +269,10 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
     }
 
     @Step("Create a parent group, assign it to a child and check closure (also for possible grandchildren)")
-    private DirectoryGroup createAndCheckParentGroup(DirectoryGroup childGroup){
+    private DirectoryGroup createAndCheckParentGroup(DirectoryGroup childGroup) {
         // Create parent directory group
-        DirectoryGroup parentGroup = directoryGroupManagement.create(new JpaDirectoryGroupBuilder().create().name("testGroup"));
+        DirectoryGroup parentGroup = directoryGroupManagement
+                .create(new JpaDirectoryGroupBuilder().create().name("testGroup"));
 
         // assign parent to child
         childGroup = directoryGroupManagement.assignDirectoryParent(childGroup.getId(), parentGroup.getId());
@@ -254,14 +285,16 @@ public class DirectoryGroupManagementTest extends AbstractJpaIntegrationTest {
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(parentGroup, parentGroup, 0)).isTrue();
         assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(parentGroup, childGroup, 1)).isTrue();
         // if child also has children, also check second generation closure (depth 2)
-        for(DirectoryGroup grandchildGroup : childGroup.getDirectoryChildren()){
-            assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(parentGroup, grandchildGroup, 2)).isTrue();
+        for (DirectoryGroup grandchildGroup : childGroup.getDirectoryChildren()) {
+            assertThat(directoryTreeRepository.existsByAncestorAndDescendantAndDepth(parentGroup, grandchildGroup, 2))
+                    .isTrue();
         }
 
         return parentGroup;
     }
 
-    private static <T extends Throwable> void verifyExceptionIsThrown(final ThrowableAssert.ThrowingCallable tc, final Class<? extends T> exceptionType) {
+    private static <T extends Throwable> void verifyExceptionIsThrown(final ThrowableAssert.ThrowingCallable tc,
+            final Class<? extends T> exceptionType) {
         Assertions.assertThatExceptionOfType(exceptionType).isThrownBy(tc);
     }
 }

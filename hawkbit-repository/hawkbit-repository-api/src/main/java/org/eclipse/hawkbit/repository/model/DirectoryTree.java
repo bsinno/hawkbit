@@ -24,7 +24,8 @@ public interface DirectoryTree extends Serializable {
     /**
      * set the ancestor of the directory tree node
      *
-     * @param ancestor the ancestor node
+     * @param ancestor
+     *            the ancestor node
      */
     public void setAncestor(DirectoryGroup ancestor);
 
@@ -36,7 +37,8 @@ public interface DirectoryTree extends Serializable {
     /**
      * set the descendant of the directory tree node
      *
-     * @param descendant the descendant node
+     * @param descendant
+     *            the descendant node
      */
     public void setDescendant(DirectoryGroup descendant);
 
@@ -48,7 +50,8 @@ public interface DirectoryTree extends Serializable {
     /**
      * set the depth of the directory tree node
      *
-     * @param depth the depth of the tree path
+     * @param depth
+     *            the depth of the tree path
      */
     public void setDepth(int depth);
 

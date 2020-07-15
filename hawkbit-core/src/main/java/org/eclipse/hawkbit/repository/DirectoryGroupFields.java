@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Describing the fields of the Group model which can be used in the REST API e.g.
- * for sorting etc.
+ * Describing the fields of the Group model which can be used in the REST API
+ * e.g. for sorting etc.
  */
 public enum DirectoryGroupFields implements FieldNameProvider {
     /**

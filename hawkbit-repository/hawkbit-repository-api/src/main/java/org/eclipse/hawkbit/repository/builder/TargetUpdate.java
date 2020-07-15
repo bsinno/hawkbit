@@ -70,13 +70,15 @@ public interface TargetUpdate {
     TargetUpdate status(@NotNull TargetUpdateStatus status);
 
     /**
-     * @param requestAttributes for {@link Target#isRequestControllerAttributes()}
+     * @param requestAttributes
+     *            for {@link Target#isRequestControllerAttributes()}
      * @return updated builder instance
      */
     TargetUpdate requestAttributes(Boolean requestAttributes);
 
     /**
-     * @param directoryGroup for {@link Target#isRequestControllerAttributes()}
+     * @param directoryGroup
+     *            for {@link Target#isRequestControllerAttributes()}
      * @return updated builder instance
      */
     TargetUpdate directoryGroup(DirectoryGroup directoryGroup);
