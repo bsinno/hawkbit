@@ -10,13 +10,14 @@ package org.eclipse.hawkbit.ui.utils;
 
 import java.io.Serializable;
 
+import org.eclipse.hawkbit.ui.common.parallelnotification.ParallelNotification;
+
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
-import com.vaadin.ui.Notification;
 
 /**
  * Show success, warning and error messages.
@@ -74,7 +75,7 @@ public class UINotification implements Serializable {
 
     private static void showNotification(final String styleName, final String caption, final String description,
             final Resource icon, final Boolean autoClose) {
-        final Notification notification = new Notification(caption, description);
+        final ParallelNotification notification = new ParallelNotification(caption, description);
 
         notification.setIcon(icon);
         notification.setStyleName(styleName);

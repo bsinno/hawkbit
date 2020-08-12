@@ -16,6 +16,7 @@ import org.eclipse.hawkbit.im.authentication.TenantUserPasswordAuthenticationTok
 import org.eclipse.hawkbit.ui.AbstractHawkbitUI;
 import org.eclipse.hawkbit.ui.UiProperties;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyLoginCredentials;
+import org.eclipse.hawkbit.ui.common.parallelnotification.ParallelNotification;
 import org.eclipse.hawkbit.ui.components.SPUIComponentProvider;
 import org.eclipse.hawkbit.ui.themes.HawkbitTheme;
 import org.eclipse.hawkbit.ui.utils.HawkbitCommonUtil;
@@ -55,7 +56,6 @@ import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
@@ -285,7 +285,7 @@ public abstract class AbstractHawkbitLoginUI extends UI {
     }
 
     private void loginCredentialsExpiredNotification() {
-        final Notification notification = new Notification(
+        final ParallelNotification notification = new ParallelNotification(
                 i18n.getMessage("notification.login.failed.credentialsexpired.title"));
         notification.setDescription(i18n.getMessage("notification.login.failed.credentialsexpired.description"));
         notification.setDelayMsec(10_000);
@@ -296,7 +296,8 @@ public abstract class AbstractHawkbitLoginUI extends UI {
     }
 
     private void loginAuthenticationFailedNotification() {
-        final Notification notification = new Notification(i18n.getMessage("notification.login.failed.title"));
+        final ParallelNotification notification = new ParallelNotification(
+                i18n.getMessage("notification.login.failed.title"));
         notification.setDescription(i18n.getMessage("notification.login.failed.description"));
         notification.setHtmlContentAllowed(true);
         notification.setStyleName("error closable");

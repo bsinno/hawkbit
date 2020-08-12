@@ -8,15 +8,15 @@
  */
 package org.eclipse.hawkbit.ui.components;
 
+import org.eclipse.hawkbit.ui.common.parallelnotification.ParallelNotification;
 import org.eclipse.hawkbit.ui.utils.SPUILabelDefinitions;
 
 import com.vaadin.shared.Position;
-import com.vaadin.ui.Notification;
 
 /**
  * Notification message component for displaying errors in the UI.
  */
-public class HawkbitErrorNotificationMessage extends Notification {
+public class HawkbitErrorNotificationMessage extends ParallelNotification {
 
     private static final long serialVersionUID = -6512576924243195753L;
 
