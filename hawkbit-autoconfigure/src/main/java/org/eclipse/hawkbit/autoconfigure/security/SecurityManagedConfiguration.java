@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -26,7 +25,7 @@ import org.eclipse.hawkbit.ddi.rest.api.DdiRestConstants;
 import org.eclipse.hawkbit.ddi.rest.resource.DdiApiConfiguration;
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions;
-import org.eclipse.hawkbit.im.authentication.TenantUserPasswordAuthenticationToken;
+import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
 import org.eclipse.hawkbit.im.authentication.UserAuthenticationFilter;
 import org.eclipse.hawkbit.mgmt.rest.api.MgmtRestConstants;
 import org.eclipse.hawkbit.mgmt.rest.resource.MgmtApiConfiguration;
@@ -62,7 +61,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -86,7 +85,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -97,11 +96,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.vaadin.spring.security.VaadinSecurityContext;
-import org.vaadin.spring.security.annotation.EnableVaadinSecurity;
+import org.vaadin.spring.http.HttpService;
+import org.vaadin.spring.security.annotation.EnableVaadinSharedSecurity;
+import org.vaadin.spring.security.config.VaadinSharedSecurityConfiguration;
+import org.vaadin.spring.security.shared.VaadinAuthenticationSuccessHandler;
+import org.vaadin.spring.security.shared.VaadinUrlAuthenticationSuccessHandler;
 import org.vaadin.spring.security.web.VaadinRedirectStrategy;
-import org.vaadin.spring.security.web.authentication.VaadinAuthenticationSuccessHandler;
-import org.vaadin.spring.security.web.authentication.VaadinUrlAuthenticationSuccessHandler;
 
 /**
  * All configurations related to HawkBit's authentication and authorization
@@ -236,12 +236,12 @@ public class SecurityManagedConfiguration {
                 LOG.info(
                         "******************\n** Anonymous controller security enabled, should only be used for developing purposes **\n******************");
 
-                final AnonymousAuthenticationFilter anoymousFilter = new AnonymousAuthenticationFilter(
+                final AnonymousAuthenticationFilter anonymousFilter = new AnonymousAuthenticationFilter(
                         "controllerAnonymousFilter", "anonymous",
                         Arrays.asList(new SimpleGrantedAuthority(SpringEvalExpressions.CONTROLLER_ROLE_ANONYMOUS)));
-                anoymousFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                anonymousFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
                 httpSec.requestMatchers().antMatchers(DDI_ANT_MATCHERS).and().securityContext().disable().anonymous()
-                        .authenticationFilter(anoymousFilter);
+                        .authenticationFilter(anonymousFilter);
             } else {
 
                 httpSec.addFilter(securityHeaderFilter).addFilter(securityTokenFilter)
@@ -358,12 +358,12 @@ public class SecurityManagedConfiguration {
                 LOG.info(
                         "******************\n** Anonymous controller security enabled, should only be used for developing purposes **\n******************");
 
-                final AnonymousAuthenticationFilter anoymousFilter = new AnonymousAuthenticationFilter(
+                final AnonymousAuthenticationFilter anonymousFilter = new AnonymousAuthenticationFilter(
                         "controllerAnonymousFilter", "anonymous",
                         Arrays.asList(new SimpleGrantedAuthority(SpringEvalExpressions.CONTROLLER_ROLE_ANONYMOUS)));
-                anoymousFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+                anonymousFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
                 httpSec.requestMatchers().antMatchers(DDI_DL_ANT_MATCHER).and().securityContext().disable().anonymous()
-                        .authenticationFilter(anoymousFilter);
+                        .authenticationFilter(anonymousFilter);
             } else {
 
                 httpSec.addFilter(securityHeaderFilter).addFilter(securityTokenFilter)
@@ -421,7 +421,7 @@ public class SecurityManagedConfiguration {
     }
 
     /**
-     * A Websecruity config to handle and filter the download ids.
+     * A Websecurity config to handle and filter the download ids.
      */
     @Configuration
     @EnableWebSecurity
@@ -529,11 +529,10 @@ public class SecurityManagedConfiguration {
                 // Only get the first client registration. Testing against every
                 // client could increase the
                 // attack vector
-                ClientRegistration clientRegistration = null;
-                for (final ClientRegistration cr : clientRegistrationRepository) {
-                    clientRegistration = cr;
-                    break;
-                }
+                final ClientRegistration clientRegistration = clientRegistrationRepository != null
+                        && clientRegistrationRepository.iterator().hasNext()
+                                ? clientRegistrationRepository.iterator().next()
+                                : null;
 
                 Assert.notNull(clientRegistration, "There must be a valid client registration");
                 httpSec.oauth2ResourceServer().jwt().jwkSetUri(clientRegistration.getProviderDetails().getJwkSetUri());
@@ -595,33 +594,24 @@ public class SecurityManagedConfiguration {
      */
     @Configuration
     @Order(400)
-    @EnableVaadinSecurity
+    @EnableVaadinSharedSecurity
     @ConditionalOnClass(MgmtUiConfiguration.class)
     public static class UISecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
         @Autowired
-        private VaadinSecurityContext vaadinSecurityContext;
-
-        @Autowired
         private HawkbitSecurityProperties hawkbitSecurityProperties;
-
-        private final VaadinUrlAuthenticationSuccessHandler handler;
-
-        @Autowired(required = false)
-        private AuthenticationSuccessHandler oidcAuthenticationSuccessHandler;
-
-        @Autowired(required = false)
-        private LogoutHandler oidcLogoutHandler;
 
         @Autowired(required = false)
         private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
 
-        public UISecurityConfigurationAdapter(final VaadinRedirectStrategy redirectStrategy) {
-            handler = new TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler();
-            handler.setRedirectStrategy(redirectStrategy);
-            handler.setDefaultTargetUrl("/UI/");
-            handler.setTargetUrlParameter("r");
-        }
+        @Autowired(required = false)
+        private AuthenticationSuccessHandler authenticationSuccessHandler;
+
+        @Autowired
+        private LogoutHandler logoutHandler;
+
+        @Autowired
+        private LogoutSuccessHandler logoutSuccessHandler;
 
         /**
          * Filter to protect the hawkBit management UI against to many requests.
@@ -646,17 +636,8 @@ public class SecurityManagedConfiguration {
             return filterRegBean;
         }
 
-        /**
-         * post construct for setting the authentication success handler for the
-         * vaadin security context.
-         */
-        @PostConstruct
-        public void afterPropertiesSet() {
-            this.vaadinSecurityContext.addAuthenticationSuccessHandler(handler);
-        }
-
         @Override
-        @Bean(name = "authenticationManager")
+        @Bean(name = VaadinSharedSecurityConfiguration.AUTHENTICATION_MANAGER_BEAN)
         public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();
         }
@@ -664,15 +645,20 @@ public class SecurityManagedConfiguration {
         /**
          * @return the vaadin success authentication handler
          */
-        @Bean
-        public VaadinAuthenticationSuccessHandler redirectSaveHandler() {
+        @Bean(name = VaadinSharedSecurityConfiguration.VAADIN_AUTHENTICATION_SUCCESS_HANDLER_BEAN)
+        public VaadinAuthenticationSuccessHandler redirectSaveHandler(final HttpService httpService,
+                final VaadinRedirectStrategy redirectStrategy) {
+            final VaadinUrlAuthenticationSuccessHandler handler = new TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(
+                    httpService, redirectStrategy, "/UI/");
+            handler.setTargetUrlParameter("r");
+
             return handler;
         }
 
         /**
          * Listener to redirect to login page after session timeout. Close the
          * vaadin session, because it's is not possible to redirect in
-         * atmospehere.
+         * atmosphere.
          *
          * @return the servlet listener.
          */
@@ -684,14 +670,13 @@ public class SecurityManagedConfiguration {
         @Override
         protected void configure(final HttpSecurity http) throws Exception {
 
-            final boolean enableOidc = oidcUserService != null && oidcAuthenticationSuccessHandler != null
-                    && oidcLogoutHandler != null;
+            final boolean enableOidc = oidcUserService != null && authenticationSuccessHandler != null;
 
             // workaround regex: we need to exclude the URL /UI/HEARTBEAT here
             // because we bound the vaadin application to /UI and not to root,
             // described in vaadin-forum:
             // https://vaadin.com/forum#!/thread/3200565.
-            HttpSecurity httpSec = null;
+            HttpSecurity httpSec;
             if (enableOidc) {
                 httpSec = http.regexMatcher("(?!.*HEARTBEAT)^.*\\/(UI|oauth2).*$");
             } else {
@@ -712,32 +697,28 @@ public class SecurityManagedConfiguration {
                 httpSec.headers().contentSecurityPolicy(hawkbitSecurityProperties.getContentSecurityPolicy());
             }
 
-            if (enableOidc) {
-                httpSec.authorizeRequests().antMatchers("/UI/login/**").permitAll().antMatchers("/UI/UIDL/**")
-                        .permitAll().anyRequest().authenticated().and()
-                        // OIDC
-                        .oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService).and()
-                        .successHandler(oidcAuthenticationSuccessHandler).and().oauth2Client().and()
-                        // logout
-                        .logout().logoutUrl("/UI/logout").addLogoutHandler(oidcLogoutHandler).logoutSuccessUrl("/");
-            } else {
-                final SimpleUrlLogoutSuccessHandler simpleUrlLogoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
-                simpleUrlLogoutSuccessHandler.setTargetUrlParameter("login");
+            // UI
+            httpSec.authorizeRequests().antMatchers("/UI/login/**", "/UI/UIDL/**").permitAll().anyRequest()
+                    .authenticated();
 
-                httpSec
-                        // UI
-                        .authorizeRequests().antMatchers("/UI/login/**").permitAll().antMatchers("/UI/UIDL/**")
-                        .permitAll().anyRequest().authenticated().and()
-                        // UI login / logout
-                        .exceptionHandling()
-                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/UI/login/#/")).and().logout()
-                        .logoutUrl("/UI/logout").logoutSuccessHandler(simpleUrlLogoutSuccessHandler);
+            if (enableOidc) {
+                // OIDC
+                httpSec.oauth2Login().userInfoEndpoint().oidcUserService(oidcUserService).and()
+                        .successHandler(authenticationSuccessHandler).and().oauth2Client();
+            } else {
+                // UI login / Basic auth
+                httpSec.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/UI/login"));
             }
+
+            // UI logout
+            httpSec.logout().logoutUrl("/UI/logout*").addLogoutHandler(logoutHandler)
+                    .logoutSuccessHandler(logoutSuccessHandler);
+
         }
 
         @Override
         public void configure(final WebSecurity webSecurity) throws Exception {
-            // Not security for static content
+            // No security for static content
             webSecurity.ignoring().antMatchers("/documentation/**", "/VAADIN/**", "/*.*", "/docs/**");
         }
     }
@@ -756,30 +737,31 @@ class TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler extends 
     @Autowired
     private SystemSecurityContext systemSecurityContext;
 
+    public TenantMetadataSavedRequestAwareVaadinAuthenticationSuccessHandler(final HttpService http,
+            final VaadinRedirectStrategy redirectStrategy, final String defaultTargetUrl) {
+        super(http, redirectStrategy, defaultTargetUrl);
+    }
+
     @Override
     public void onAuthenticationSuccess(final Authentication authentication) throws Exception {
-
-        if (authentication.getClass().equals(TenantUserPasswordAuthenticationToken.class)) {
-            systemSecurityContext.runAsSystemAsTenant(systemManagement::getTenantMetadata,
-                    ((TenantUserPasswordAuthenticationToken) authentication).getTenant().toString());
-        } else if (authentication.getClass().equals(UsernamePasswordAuthenticationToken.class)) {
-            // TODO: vaadin4spring-ext-security does not give us the
-            // fullyAuthenticatedToken
-            // in the GenericVaadinSecurity class. Only the token which has been
-            // created in the
-            // LoginView. This needs to be changed with the update of
-            // vaadin4spring 0.0.7 because it
-            // has been fixed.
-            final String defaultTenant = "DEFAULT";
-            systemSecurityContext.runAsSystemAsTenant(systemManagement::getTenantMetadata, defaultTenant);
-        }
+        systemSecurityContext.runAsSystemAsTenant(systemManagement::getTenantMetadata, getTenantFrom(authentication));
 
         super.onAuthenticationSuccess(authentication);
+    }
+
+    private static String getTenantFrom(final Authentication authentication) {
+        final Object details = authentication.getDetails();
+        if (details instanceof TenantAwareAuthenticationDetails) {
+            return ((TenantAwareAuthenticationDetails) details).getTenant();
+        }
+
+        throw new InsufficientAuthenticationException("Authentication details/tenant info are not specified!");
     }
 }
 
 /**
- * Sevletfilter to create metadata after successful authentication over RESTful.
+ * Servletfilter to create metadata after successful authentication over
+ * RESTful.
  */
 class AuthenticationSuccessTenantMetadataCreationFilter implements Filter {
 
@@ -816,4 +798,5 @@ class AuthenticationSuccessTenantMetadataCreationFilter implements Filter {
     public void destroy() {
         // not needed
     }
+
 }

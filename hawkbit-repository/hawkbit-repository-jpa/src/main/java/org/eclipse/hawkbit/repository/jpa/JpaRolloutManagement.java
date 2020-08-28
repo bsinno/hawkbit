@@ -1016,7 +1016,9 @@ public class JpaRolloutManagement extends AbstractRolloutManagement {
         update.getActionType().ifPresent(rollout::setActionType);
         update.getForcedTime().ifPresent(rollout::setForcedTime);
         update.getWeight().ifPresent(rollout::setWeight);
-        update.getStartAt().ifPresent(rollout::setStartAt);
+        // reseting back to manual start is done by setting start at time to
+        // null
+        rollout.setStartAt(update.getStartAt().orElse(null));
         update.getSet().ifPresent(setId -> {
             final DistributionSet set = distributionSetManagement.get(setId)
                     .orElseThrow(() -> new EntityNotFoundException(DistributionSet.class, setId));
