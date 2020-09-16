@@ -200,8 +200,6 @@
       </sonar.coverage.jacoco.xmlReportPaths>
 
       <!-- Sonar - END -->
-      <!-- required for allure-junit (https://docs.qameta.io/allure/#_java) -->
-      <aspectj-weaver.arg>-javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"</aspectj-weaver.arg>
 
       <!-- ************************ -->
       <!-- Maven Surefire settings -->
@@ -444,7 +442,7 @@
                <configuration>
                   <reuseForks>false</reuseForks>
                   <forkCount>${surefire.forkcount}</forkCount>
-                  <argLine>-Xmx1024m ${jacoco.agent.ut.arg} ${aspectj-weaver.arg}</argLine>
+                  <argLine>-Xmx1024m ${jacoco.agent.ut.arg}</argLine>
                   <properties>
                      <property>
                         <name>listener</name>
