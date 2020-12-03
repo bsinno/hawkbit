@@ -19,7 +19,8 @@ import org.springframework.security.web.firewall.RequestRejectedException;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
-@SpringBootTest(properties = { "hawkbit.server.security.allowedHostNames=localhost" })
+@SpringBootTest(properties = { "hawkbit.server.security.allowedHostNames=localhost",
+        "hawkbit.server.security.httpFirewallIgnoredPaths=/index.html" })
 @Feature("Integration Test - Security")
 @Story("Allowed Host Names")
 public class AllowedHostNamesTest extends AbstractSecurityTest {
@@ -37,4 +38,10 @@ public class AllowedHostNamesTest extends AbstractSecurityTest {
     public void allowedHostNameWithAllowedHost() throws Exception {
         mvc.perform(get("/").header(HttpHeaders.HOST, "localhost")).andExpect(status().is3xxRedirection());
     }
-} 
+
+    @Test
+    public void notAllowedHostnameWithIgnoredPath() throws Exception {
+        mvc.perform(get("/index.html").header(HttpHeaders.HOST, "www.google.com"))
+                .andExpect(status().is4xxClientError());
+    }
+}
