@@ -8,16 +8,14 @@
  */
 package org.eclipse.hawkbit.app;
 
-import org.eclipse.hawkbit.repository.test.util.MsSqlTestDatabase;
-import org.eclipse.hawkbit.repository.test.util.MySqlTestDatabase;
+import org.eclipse.hawkbit.repository.test.util.WithRandomDatabaseRule;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
@@ -26,10 +24,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = { "hawkbit.dmf.rabbitmq.enabled=false" })
-@TestExecutionListeners(listeners = { MySqlTestDatabase.class,
-        MsSqlTestDatabase.class }, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
 @DirtiesContext
 public abstract class AbstractSecurityTest {
+
+    @ClassRule
+    public static final WithRandomDatabaseRule randomDatabaseRule = new WithRandomDatabaseRule("security_test");
 
     @Autowired
     private WebApplicationContext context;

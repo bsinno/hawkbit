@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.hawkbit.repository.jpa.AbstractJpaIntegrationTest;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.support.locks.LockRegistry;
@@ -29,6 +30,7 @@ import io.qameta.allure.Story;
  */
 @Feature("Component Tests - Repository")
 @Story("Auto cleanup scheduler")
+@Ignore
 public class AutoCleanupSchedulerTest extends AbstractJpaIntegrationTest {
 
     private final AtomicInteger counter = new AtomicInteger();

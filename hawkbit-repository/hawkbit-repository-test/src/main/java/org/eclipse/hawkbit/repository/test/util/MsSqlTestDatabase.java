@@ -13,53 +13,62 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
-import org.springframework.test.context.support.AbstractTestExecutionListener;
+import org.springframework.util.StringUtils;
 
 /**
  * A {@link TestExecutionListener} for creating and dropping MS SQL Server
  * schemas if tests are setup with MS SQL Server.
  */
-public class MsSqlTestDatabase extends AbstractTestExecutionListener {
+public class MsSqlTestDatabase extends DatabaseRule {
 
     private static final Logger LOG = LoggerFactory.getLogger(MsSqlTestDatabase.class);
-    private String schemaName;
     private String uri;
     private String username;
     private String password;
+    private final String schemaName;
 
-    @Override
-    public void beforeTestClass(final TestContext testContext) throws Exception {
-        if (isRunningWithMsSql()) {
-            LOG.info("Setting up mysql schema for test class {}", testContext.getTestClass().getName());
-            this.username = System.getProperty("spring.datasource.username");
-            this.password = System.getProperty("spring.datasource.password");
-            this.uri = System.getProperty("spring.datasource.url");
-            createSchemaUri();
-            createSchema();
-        }
+    public MsSqlTestDatabase(final String schemaName) {
+        super(schemaName);
+        this.schemaName = schemaName;
     }
 
     @Override
-    public void afterTestClass(final TestContext testContext) throws Exception {
-        if (isRunningWithMsSql()) {
-            dropSchema();
+    public Statement apply(final Statement base, final Description description) {
+        if (!StringUtils.isEmpty(SchemaNameHolder.getInstance().getSchemaName())) {
+            LOG.info("Setting up mssql schema {} for test class {}", schemaName, description.getTestClass().getName());
         }
+        return super.apply(base, description);
+    }
+
+    @Override
+    public void before() throws Exception {
+        SchemaNameHolder.getInstance().setSchemaName(schemaName);
+        this.username = System.getProperty("spring.datasource.username");
+        this.password = System.getProperty("spring.datasource.password");
+        this.uri = System.getProperty("spring.datasource.url");
+        assert !StringUtils.isEmpty(username);
+        assert !StringUtils.isEmpty(uri);
+        createSchemaUri();
+        createSchema();
+    }
+
+    @Override
+    public void after() {
+        if (StringUtils.isEmpty(SchemaNameHolder.getInstance().getSchemaName())) {
+            return;
+        }
+        dropSchema();
     }
 
     private void createSchemaUri() {
-        schemaName = "SP" + RandomStringUtils.randomAlphanumeric(10);
         this.uri = this.uri.substring(0, uri.indexOf(';'));
 
         System.setProperty("spring.datasource.url", uri + ";database=" + schemaName);
-    }
-
-    private static boolean isRunningWithMsSql() {
-        return "SQL_SERVER".equals(System.getProperty("spring.jpa.database"));
     }
 
     private void createSchema() {

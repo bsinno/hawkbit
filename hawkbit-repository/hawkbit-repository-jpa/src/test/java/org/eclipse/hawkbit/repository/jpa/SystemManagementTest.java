@@ -9,6 +9,9 @@
 package org.eclipse.hawkbit.repository.jpa;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.CONTROLLER_ROLE;
+import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.SYSTEM_ROLE;
+import static org.springframework.test.context.TestExecutionListeners.MergeMode.*;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -20,8 +23,11 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.report.model.TenantUsage;
+import org.eclipse.hawkbit.repository.test.util.CleanupTestExecutionListener;
 import org.eclipse.hawkbit.repository.test.util.WithSpringAuthorityRule;
+import org.eclipse.hawkbit.repository.test.util.WithUser;
 import org.junit.Test;
+import org.springframework.test.context.TestExecutionListeners;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
@@ -29,6 +35,8 @@ import io.qameta.allure.Story;
 
 @Feature("Component Tests - Repository")
 @Story("System Management")
+@WithUser(tenantId = "DEFAULT", allSpPermissions = true, authorities = { CONTROLLER_ROLE, SYSTEM_ROLE })
+@TestExecutionListeners(listeners = { CleanupTestExecutionListener.class }, mergeMode = MERGE_WITH_DEFAULTS)
 public class SystemManagementTest extends AbstractJpaIntegrationTest {
 
     @Test
@@ -54,9 +62,9 @@ public class SystemManagementTest extends AbstractJpaIntegrationTest {
         // per tenant data
         final List<TenantUsage> tenants = systemManagement.getSystemUsageStatisticsWithTenants().getTenants();
         assertThat(tenants).hasSize(3);
-        assertThat(tenants).containsOnly(new TenantUsage("default"),
-                new TenantUsage("tenant0").setArtifacts(1).setOverallArtifactVolumeInBytes(1234),
-                new TenantUsage("tenant1").setArtifacts(1).setOverallArtifactVolumeInBytes(1234));
+        assertThat(tenants).containsOnly(new TenantUsage("DEFAULT"),
+                new TenantUsage("TENANT0").setArtifacts(1).setOverallArtifactVolumeInBytes(1234),
+                new TenantUsage("TENANT1").setArtifacts(1).setOverallArtifactVolumeInBytes(1234));
     }
 
     @Test
@@ -72,8 +80,8 @@ public class SystemManagementTest extends AbstractJpaIntegrationTest {
         // per tenant data
         final List<TenantUsage> tenants = systemManagement.getSystemUsageStatisticsWithTenants().getTenants();
         assertThat(tenants).hasSize(3);
-        assertThat(tenants).containsOnly(new TenantUsage("default"), new TenantUsage("tenant0").setTargets(100),
-                new TenantUsage("tenant1").setTargets(100));
+        assertThat(tenants).containsOnly(new TenantUsage("DEFAULT"), new TenantUsage("TENANT0").setTargets(100),
+                new TenantUsage("TENANT1").setTargets(100));
 
     }
 
@@ -89,9 +97,9 @@ public class SystemManagementTest extends AbstractJpaIntegrationTest {
         // per tenant data
         final List<TenantUsage> tenants = systemManagement.getSystemUsageStatisticsWithTenants().getTenants();
         assertThat(tenants).hasSize(3);
-        assertThat(tenants).containsOnly(new TenantUsage("default"),
-                new TenantUsage("tenant0").setTargets(100).setActions(200),
-                new TenantUsage("tenant1").setTargets(100).setActions(200));
+        assertThat(tenants).containsOnly(new TenantUsage("DEFAULT"),
+                new TenantUsage("TENANT0").setTargets(100).setActions(200),
+                new TenantUsage("TENANT1").setTargets(100).setActions(200));
     }
 
     private byte[] createTestTenantsForSystemStatistics(final int tenants, final int artifactSize, final int targets,

@@ -23,7 +23,7 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 public class CleanupTestExecutionListener extends AbstractTestExecutionListener {
 
     @Override
-    public void afterTestMethod(final TestContext testContext) throws Exception {
+    public void beforeTestMethod(final TestContext testContext) throws Exception {
 
         final ApplicationContext applicationContext = testContext.getApplicationContext();
         new JpaTestRepositoryManagement(applicationContext.getBean(TenantAwareCacheManager.class),

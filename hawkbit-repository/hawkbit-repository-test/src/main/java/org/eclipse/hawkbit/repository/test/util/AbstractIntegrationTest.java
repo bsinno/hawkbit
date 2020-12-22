@@ -66,6 +66,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -86,8 +87,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -106,8 +105,7 @@ import com.google.common.io.Files;
 // Cleaning repository will fire "delete" events. We won't count them to the
 // test execution. So, the order execution between EventVerifier and Cleanup is
 // important!
-@TestExecutionListeners(inheritListeners = true, listeners = { EventVerifier.class, CleanupTestExecutionListener.class,
-        MySqlTestDatabase.class, MsSqlTestDatabase.class }, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+//@TestExecutionListeners(listeners = EventVerifier.class, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 public abstract class AbstractIntegrationTest {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIntegrationTest.class);
@@ -208,24 +206,29 @@ public abstract class AbstractIntegrationTest {
     protected ApplicationEventPublisher eventPublisher;
 
     @Rule
-    public final WithSpringAuthorityRule securityRule = new WithSpringAuthorityRule();
+    public final WithSpringAuthorityRule securityRule = WithSpringAuthorityRule.instance();
+
+    @ClassRule
+    public static final WithRandomDatabaseRule randomDatabaseRule = new WithRandomDatabaseRule();
 
     @Rule
     public TestWatcher testLifecycleLoggerRule = new TestWatcher() {
 
         @Override
         protected void starting(final Description description) {
-            LOG.info("Starting Test {}...", description.getMethodName());
+            LoggerFactory.getLogger(description.getClassName())
+                    .info("Starting Test {}...", description.getMethodName());
         }
 
         @Override
         protected void succeeded(final Description description) {
-            LOG.info("Test {} succeeded.", description.getMethodName());
+            LoggerFactory.getLogger(description.getClassName()).info("Test {} succeeded.", description.getMethodName());
         }
 
         @Override
         protected void failed(final Throwable e, final Description description) {
-            LOG.error("Test {} failed with {}.", description.getMethodName(), e);
+            LoggerFactory.getLogger(description.getClassName())
+                    .error("Test {} failed with {}.", description.getMethodName(), e);
         }
     };
 
@@ -350,10 +353,6 @@ public abstract class AbstractIntegrationTest {
 
     protected Long getOsModule(final DistributionSet ds) {
         return ds.findFirstModuleByType(osType).get().getId();
-    }
-
-    protected Action prepareFinishedUpdate() {
-        return prepareFinishedUpdate(TestdataFactory.DEFAULT_CONTROLLER_ID, "", false);
     }
 
     protected Action prepareFinishedUpdate(final String controllerId, final String distributionSet,
