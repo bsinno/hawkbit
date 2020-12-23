@@ -45,6 +45,7 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.exception.TenantNotExistException;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.DeploymentRequest;
@@ -94,9 +95,6 @@ import com.google.common.io.Files;
 @WithUser(principal = "bumlux", allSpPermissions = true, authorities = { CONTROLLER_ROLE, SYSTEM_ROLE })
 @SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
 @ContextConfiguration(name = "base", classes = { TestSupportBinderAutoConfiguration.class })
-// Cleaning repository will fire "delete" events. We won't count them to the
-// test execution. So, the order execution between EventVerifier and Cleanup is
-// important!
 //@TestExecutionListeners(listeners = EventVerifier.class, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
 public abstract class AbstractIntegrationTest {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIntegrationTest.class);
@@ -367,22 +365,28 @@ public abstract class AbstractIntegrationTest {
 
         final String description = "Updated description.";
 
-        osType = securityRule
-                .runAsPrivileged(() -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_OS));
-        osType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement
-                .update(entityFactory.softwareModuleType().update(osType.getId()).description(description)));
+        try {
+            osType = securityRule.runAsPrivileged(
+                    () -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_OS));
+            osType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement.update(
+                    entityFactory.softwareModuleType().update(osType.getId()).description(description)));
 
-        appType = securityRule.runAsPrivileged(
-                () -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_APP, Integer.MAX_VALUE));
-        appType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement
-                .update(entityFactory.softwareModuleType().update(appType.getId()).description(description)));
+            appType = securityRule.runAsPrivileged(
+                    () -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_APP,
+                            Integer.MAX_VALUE));
+            appType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement.update(
+                    entityFactory.softwareModuleType().update(appType.getId()).description(description)));
 
-        runtimeType = securityRule
-                .runAsPrivileged(() -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_RT));
-        runtimeType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement
-                .update(entityFactory.softwareModuleType().update(runtimeType.getId()).description(description)));
+            runtimeType = securityRule.runAsPrivileged(
+                    () -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_RT));
+            runtimeType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement.update(
+                    entityFactory.softwareModuleType().update(runtimeType.getId()).description(description)));
 
-        standardDsType = securityRule.runAsPrivileged(() -> testdataFactory.findOrCreateDefaultTestDsType());
+            standardDsType = securityRule.runAsPrivileged(() -> testdataFactory.findOrCreateDefaultTestDsType());
+        } catch (final Exception e) {
+            LOG.error("Not creating default software types since tenant {} has autoCreate = false",
+                    tenantAware.getCurrentTenant(), e);
+        }
 
         // publish the reset counter market event to reset the counters after
         // setup. The setup is transparent by the test and its @ExpectedEvent

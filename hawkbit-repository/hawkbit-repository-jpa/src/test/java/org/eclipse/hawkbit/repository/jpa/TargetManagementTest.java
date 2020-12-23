@@ -10,8 +10,11 @@ package org.eclipse.hawkbit.repository.jpa;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.CONTROLLER_ROLE;
+import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.SYSTEM_ROLE;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -56,12 +59,13 @@ import org.eclipse.hawkbit.repository.model.TargetMetadata;
 import org.eclipse.hawkbit.repository.model.TargetTag;
 import org.eclipse.hawkbit.repository.test.matcher.Expect;
 import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
+import org.eclipse.hawkbit.repository.test.util.CleanupTestExecutionListener;
 import org.eclipse.hawkbit.repository.test.util.WithSpringAuthorityRule;
 import org.eclipse.hawkbit.repository.test.util.WithUser;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.TestExecutionListeners;
 
 import com.google.common.collect.Iterables;
 
@@ -858,7 +862,6 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
     }
 
     @Test
-    @Ignore
     @Description("Tests the a target can be read with only the read target permission")
     @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 1),
             @Expect(type = TargetPollEvent.class, count = 1) })
@@ -866,7 +869,7 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
         final String knownTargetControllerId = "readTarget";
         controllerManagement.findOrRegisterTargetIfItDoesNotExist(knownTargetControllerId, new URI("http://127.0.0.1"));
 
-        securityRule.runAs(WithSpringAuthorityRule.withUser("bumlux", "READ_TARGET"), () -> {
+        securityRule.runAs(WithSpringAuthorityRule.withUserAndTenant("bumlux", tenantAware.getCurrentTenant(), "READ_TARGET"), () -> {
             final Target findTargetByControllerID = targetManagement.getByControllerID(knownTargetControllerId).get();
             assertThat(findTargetByControllerID).isNotNull();
             assertThat(findTargetByControllerID.getPollStatus()).isNotNull();

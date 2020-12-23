@@ -1673,7 +1673,6 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
     }
 
     @Test
-    @Ignore
     @ExpectEvents({ @Expect(type = RolloutDeletedEvent.class, count = 1),
             @Expect(type = DistributionSetCreatedEvent.class, count = 1),
             @Expect(type = TargetCreatedEvent.class, count = 25), @Expect(type = RolloutUpdatedEvent.class, count = 2),
@@ -1683,6 +1682,8 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
             @Expect(type = RolloutGroupUpdatedEvent.class, count = 5),
             @Expect(type = RolloutCreatedEvent.class, count = 1) })
     public void deleteRolloutWhichHasNeverStartedIsHardDeleted() {
+        final long initialCountTargetGroup = rolloutTargetGroupRepository.count();
+
         final int amountTargetsForRollout = 10;
         final int amountOtherTargets = 15;
         final int amountGroups = 5;
@@ -1699,7 +1700,7 @@ public class RolloutManagementTest extends AbstractJpaIntegrationTest {
         final Optional<JpaRollout> deletedRollout = rolloutRepository.findById(createdRollout.getId());
         assertThat(deletedRollout).isNotPresent();
         assertThat(rolloutGroupRepository.count()).isZero();
-        assertThat(rolloutTargetGroupRepository.count()).isZero();
+        assertThat(rolloutTargetGroupRepository.count()).isEqualTo(initialCountTargetGroup);
     }
 
     @Test
