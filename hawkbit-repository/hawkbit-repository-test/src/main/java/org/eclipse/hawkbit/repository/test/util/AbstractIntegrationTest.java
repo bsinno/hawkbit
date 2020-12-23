@@ -57,7 +57,6 @@ import org.eclipse.hawkbit.repository.model.RepositoryModelConstants;
 import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetMetadata;
-import org.eclipse.hawkbit.repository.test.TestConfiguration;
 import org.eclipse.hawkbit.repository.test.matcher.EventVerifier;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.TenantAware;
@@ -83,11 +82,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.common.io.Files;
@@ -95,18 +92,12 @@ import com.google.common.io.Files;
 @RunWith(SpringRunner.class)
 @ActiveProfiles({ "test" })
 @WithUser(principal = "bumlux", allSpPermissions = true, authorities = { CONTROLLER_ROLE, SYSTEM_ROLE })
-@SpringBootTest
-@ContextConfiguration(classes = { TestConfiguration.class, TestSupportBinderAutoConfiguration.class })
-// destroy the context after each test class because otherwise we get problem
-// when context is
-// refreshed we e.g. get two instances of CacheManager which leads to very
-// strange test failures.
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
+@ContextConfiguration(name = "base", classes = { TestSupportBinderAutoConfiguration.class })
 // Cleaning repository will fire "delete" events. We won't count them to the
 // test execution. So, the order execution between EventVerifier and Cleanup is
 // important!
 //@TestExecutionListeners(listeners = EventVerifier.class, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
-@TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 public abstract class AbstractIntegrationTest {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 

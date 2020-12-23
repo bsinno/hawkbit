@@ -23,6 +23,7 @@ import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetTag;
 import org.eclipse.hawkbit.repository.test.util.TestdataFactory;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 
@@ -30,6 +31,7 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
+@Ignore
 @Feature("Component Tests - Repository")
 @Story("RSQL filter target")
 public class RSQLTargetFieldTest extends AbstractJpaIntegrationTest {
