@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.repository.test.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.CONTROLLER_ROLE;
 import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.SYSTEM_ROLE;
+import static org.springframework.test.context.TestExecutionListeners.MergeMode.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +46,9 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeUpdatedEvent;
 import org.eclipse.hawkbit.repository.exception.TenantNotExistException;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
@@ -59,6 +63,8 @@ import org.eclipse.hawkbit.repository.model.SoftwareModuleType;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetMetadata;
 import org.eclipse.hawkbit.repository.test.matcher.EventVerifier;
+import org.eclipse.hawkbit.repository.test.matcher.Expect;
+import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
@@ -95,7 +101,7 @@ import com.google.common.io.Files;
 @WithUser(principal = "bumlux", allSpPermissions = true, authorities = { CONTROLLER_ROLE, SYSTEM_ROLE })
 @SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
 @ContextConfiguration(name = "base", classes = { TestSupportBinderAutoConfiguration.class })
-//@TestExecutionListeners(listeners = EventVerifier.class, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = EventVerifier.class, mergeMode = MERGE_WITH_DEFAULTS)
 public abstract class AbstractIntegrationTest {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
@@ -361,6 +367,9 @@ public abstract class AbstractIntegrationTest {
     }
 
     @Before
+    @ExpectEvents({@Expect(type = SoftwareModuleTypeCreatedEvent.class, count = 3),
+            @Expect(type = SoftwareModuleTypeUpdatedEvent.class, count = 3),
+            @Expect(type = DistributionSetTypeCreatedEvent.class, count = 4)})
     public void before() throws Exception {
 
         final String description = "Updated description.";
@@ -387,15 +396,6 @@ public abstract class AbstractIntegrationTest {
             LOG.error("Not creating default software types since tenant {} has autoCreate = false",
                     tenantAware.getCurrentTenant(), e);
         }
-
-        // publish the reset counter market event to reset the counters after
-        // setup. The setup is transparent by the test and its @ExpectedEvent
-        // counting so we reset the counter here after the setup. Note that this
-        // approach is only working when using a single-thread executor in the
-        // ApplicationEventMultiCaster which the TestConfiguration is doing so
-        // the order of the events keep the same.
-        EventVerifier.publishResetMarkerEvent(eventPublisher);
-
     }
 
     private static String artifactDirectory = Files.createTempDir().getAbsolutePath() + "/"

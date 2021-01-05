@@ -8,9 +8,16 @@
  */
 package org.eclipse.hawkbit.repository.test;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.eclipse.hawkbit.ControllerPollProperties;
 import org.eclipse.hawkbit.HawkbitServerProperties;
@@ -26,10 +33,12 @@ import org.eclipse.hawkbit.event.BusProtoStuffMessageConverter;
 import org.eclipse.hawkbit.repository.RolloutApprovalStrategy;
 import org.eclipse.hawkbit.repository.RolloutStatusCache;
 import org.eclipse.hawkbit.repository.event.ApplicationEventFilter;
+import org.eclipse.hawkbit.repository.event.TenantAwareEvent;
 import org.eclipse.hawkbit.repository.model.helper.EventPublisherHolder;
 import org.eclipse.hawkbit.repository.rsql.VirtualPropertyReplacer;
 import org.eclipse.hawkbit.repository.rsql.VirtualPropertyResolver;
 import org.eclipse.hawkbit.repository.test.util.RolloutTestApprovalStrategy;
+import org.eclipse.hawkbit.repository.test.util.TenantEventCounter;
 import org.eclipse.hawkbit.repository.test.util.TestdataFactory;
 import org.eclipse.hawkbit.security.DdiSecurityProperties;
 import org.eclipse.hawkbit.security.HawkbitSecurityProperties;
@@ -41,7 +50,9 @@ import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cloud.bus.ConditionalOnBusEnabled;
@@ -62,6 +73,7 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
 import org.springframework.security.concurrent.DelegatingSecurityContextScheduledExecutorService;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.test.context.event.BeforeTestExecutionEvent;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -137,6 +149,12 @@ public class TestConfiguration implements AsyncConfigurer {
         return new DefaultDownloadIdCache(cacheManager());
     }
 
+    @Bean
+    TenantEventCounter tenantEventCounter() {
+        return TenantEventCounter.instance();
+    }
+
+    @ConditionalOnMissingBean(name = AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME)
     @Bean(name = AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME)
     SimpleApplicationEventMulticaster applicationEventMulticaster(final ApplicationEventFilter applicationEventFilter) {
         final SimpleApplicationEventMulticaster simpleApplicationEventMulticaster = new FilterEnabledApplicationEventPublisher(
@@ -158,7 +176,6 @@ public class TestConfiguration implements AsyncConfigurer {
             if (applicationEventFilter.filter(event)) {
                 return;
             }
-
             super.multicastEvent(event, eventType);
         }
     }
