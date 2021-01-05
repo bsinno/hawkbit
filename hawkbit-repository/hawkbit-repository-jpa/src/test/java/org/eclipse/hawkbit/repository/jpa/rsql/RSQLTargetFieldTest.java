@@ -9,37 +9,27 @@
 package org.eclipse.hawkbit.repository.jpa.rsql;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.CONTROLLER_ROLE;
-import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.SYSTEM_ROLE;
 import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL;
 import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.POLLING_TIME_INTERVAL;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.hawkbit.repository.TargetFields;
-import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
 import org.eclipse.hawkbit.repository.exception.RSQLParameterUnsupportedFieldException;
 import org.eclipse.hawkbit.repository.jpa.AbstractJpaIntegrationTest;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetTag;
-import org.eclipse.hawkbit.repository.model.TenantConfiguration;
-import org.eclipse.hawkbit.repository.model.helper.TenantConfigurationManagementHolder;
-import org.eclipse.hawkbit.repository.test.util.CleanupTestExecutionListener;
 import org.eclipse.hawkbit.repository.test.util.TestdataFactory;
-import org.eclipse.hawkbit.repository.test.util.WithUser;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.util.StringUtils;
 
 import io.qameta.allure.Description;
@@ -267,17 +257,11 @@ public class RSQLTargetFieldTest extends AbstractJpaIntegrationTest {
     }
 
     private void assertRSQLQuery(final String rsqlParam, final long expcetedTargets) {
-        final TenantConfigurationManagement tenantConfigurationManagement = TenantConfigurationManagementHolder.getInstance()
-                .getTenantConfigurationManagement();
-
-        System.err.println("\n\n=======>>>> " + tenantAware.getCurrentTenant() + "<<<<==========\n\n");
         assertNotNull(tenantConfigurationManagement);
 
-        assertNotNull(tenantConfigurationManagement.getConfigurationValue(
-                POLLING_OVERDUE_TIME_INTERVAL));
+        assertNotNull(tenantConfigurationManagement.getConfigurationValue(POLLING_OVERDUE_TIME_INTERVAL));
 
-        assertNotNull(tenantConfigurationManagement.getConfigurationValue(
-                POLLING_TIME_INTERVAL));
+        assertNotNull(tenantConfigurationManagement.getConfigurationValue(POLLING_TIME_INTERVAL));
         final Page<Target> findTargetPage = targetManagement.findByRsql(PAGE, rsqlParam);
         final long countTargetsAll = findTargetPage.getTotalElements();
         assertThat(findTargetPage).isNotNull();
