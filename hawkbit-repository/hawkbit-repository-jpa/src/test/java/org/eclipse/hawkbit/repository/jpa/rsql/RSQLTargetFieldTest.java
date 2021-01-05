@@ -50,8 +50,7 @@ public class RSQLTargetFieldTest extends AbstractJpaIntegrationTest {
     private TenantConfigurationProperties tenantConfigurationProperties;
 
     @Before
-    public void setupBeforeTest() throws InterruptedException {
-
+    public void setupBeforeTest() {
         final DistributionSet ds = testdataFactory.createDistributionSet("AssignedDs");
 
         final Map<String, String> attributes = new HashMap<>();

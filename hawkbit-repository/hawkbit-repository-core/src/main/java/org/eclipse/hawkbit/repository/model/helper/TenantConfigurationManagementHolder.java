@@ -20,7 +20,6 @@ public final class TenantConfigurationManagementHolder {
 
     private static final TenantConfigurationManagementHolder INSTANCE = new TenantConfigurationManagementHolder();
 
-    @Autowired
     private TenantConfigurationManagement tenantConfiguration;
 
     private TenantConfigurationManagementHolder() {
@@ -41,4 +40,11 @@ public final class TenantConfigurationManagementHolder {
         return tenantConfiguration;
     }
 
+    /**
+     * Setter for the wrapped {@link TenantConfigurationManagement}
+     */
+    @Autowired
+    public void setTenantConfiguration(final TenantConfigurationManagement tenantConfiguration) {
+        this.tenantConfiguration = tenantConfiguration;
+    }
 }
