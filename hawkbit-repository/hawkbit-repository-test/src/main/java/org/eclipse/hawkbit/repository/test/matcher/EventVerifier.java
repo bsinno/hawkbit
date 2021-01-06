@@ -9,88 +9,60 @@
 
 package org.eclipse.hawkbit.repository.test.matcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.in;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.context.support.AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionTimeoutException;
 import org.eclipse.hawkbit.repository.event.TenantAwareEvent;
-import org.eclipse.hawkbit.repository.event.remote.RemoteIdEvent;
-import org.eclipse.hawkbit.repository.event.remote.RemoteTenantAwareEvent;
-import org.eclipse.hawkbit.repository.event.remote.TargetAssignDistributionSetEvent;
-import org.eclipse.hawkbit.repository.test.TestConfiguration;
-import org.eclipse.hawkbit.repository.test.util.AbstractIntegrationTest;
 import org.eclipse.hawkbit.repository.test.util.TenantEventCounter;
 import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.junit.Assert;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ApplicationEventMulticaster;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
-
-import com.google.common.collect.ConcurrentHashMultiset;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Sets;
-import org.awaitility.Awaitility;
-import org.awaitility.core.ConditionTimeoutException;
 
 /**
  * Test rule to setup and verify the event count for a method.
  */
 public class EventVerifier extends AbstractTestExecutionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventVerifier.class);
+//    private final TenantEventCounter eventCounter = new TenantEventCounter();
+//
+//    @Override
+//    public void beforeTestMethod(final TestContext testContext) throws Exception {
+//        ((ConfigurableApplicationContext) testContext.getApplicationContext()).addApplicationListener(eventCounter);
+//    }
+//
+//    @Override
+//    public void afterTestMethod(final TestContext testContext) throws Exception {
+//        testContext.getApplicationContext().getBean(ApplicationEventMulticaster.class).removeApplicationListener(eventCounter);
+//    }
 
     @Override
-    public void beforeTestExecution(final TestContext testContext) throws Exception {
-        final Map<Class<?>, Integer> expectedEvents = getExpectationsFrom(testContext);
+    public void afterTestExecution(final TestContext testContext) {
+        final Map<Class<?>, Integer> expectedEvents = getExpectations(testContext);
         if (expectedEvents.isEmpty()) {
             return;
         }
+        final TenantEventCounter eventCounter = testContext.getApplicationContext().getBean(TenantEventCounter.class);
         final String tenant = testContext.getApplicationContext().getBean(TenantAware.class).getCurrentTenant();
-        LOGGER.info("Counting events for tenant {}", tenant);
+        logEvents(eventCounter.getEventsCount(tenant), expectedEvents);
+        verifyRightCountOfEvents(tenant, eventCounter, expectedEvents);
+        verifyAllEventsCounted(eventCounter.getEventsCount(tenant), expectedEvents);
     }
 
-    @Override
-    public void afterTestExecution(final TestContext testContext) throws Exception {
-        final Map<Class<?>, Integer> expectedEvents = getExpectationsFrom(testContext);
-        if (expectedEvents.isEmpty()) {
-            return;
-        }
-
-        final String tenant = testContext.getApplicationContext().getBean(TenantAware.class).getCurrentTenant();
-        LOGGER.info("Verifying events for tenant {}", tenant);
-
-        final Map<Class<? extends TenantAwareEvent>, Integer> receivedEvents = testContext.getApplicationContext()
-                .getBean(TenantEventCounter.class).getEventsCount(tenant);
-
-        verifyRightCountOfEvents(receivedEvents, expectedEvents);
-        verifyAllEventsCounted(receivedEvents, expectedEvents);
-    }
-
-    private static Map<Class<?>, Integer> getExpectationsFrom(final TestContext testContext) {
+    private static Map<Class<?>, Integer> getExpectations(final TestContext testContext) {
         final ExpectEvents methodAnnotation = testContext.getTestMethod().getAnnotation(ExpectEvents.class);
 
         return methodAnnotation == null ?
@@ -122,27 +94,41 @@ public class EventVerifier extends AbstractTestExecutionListener {
         return new Expect[0];
     }
 
-    private static void verifyRightCountOfEvents(final Map<Class<? extends TenantAwareEvent>, Integer> receivedEvents,
+    private static void verifyRightCountOfEvents(final String tenant, final TenantEventCounter eventCounter,
             final Map<Class<?>, Integer> expectedEvents) {
 
-        System.out.println("\n\n*************** Actual **************");
-        receivedEvents.forEach((aClass, integer) -> System.out.println(aClass.getSimpleName() + " -> " + integer));
-        System.out.println("*****************************\n\n");
+        final StringBuilder failMessage = new StringBuilder();
 
-        System.out.println("\n\n=============== Expects ===============");
-        expectedEvents.forEach((aClass, integer) -> System.out.println(aClass.getSimpleName() + " -> " + integer));
-        System.out.println("==============================\n\n");
-
-        Awaitility.await().atMost(5, TimeUnit.SECONDS).pollInterval(100, TimeUnit.MILLISECONDS).untilAsserted(() -> {
-            for (Map.Entry<Class<?>, Integer> expected : expectedEvents.entrySet()) {
-                final Class<?> eventType = expected.getKey();
-                final Integer expectedCount = expected.getValue();
-                final Integer actualCount = receivedEvents.getOrDefault(eventType, 0);
-
-                assertThat(actualCount).as("Did not receive the expected amount of %s events. Expected: %d but was: %d",
-                        eventType.getSimpleName(), expectedCount, actualCount).isEqualTo(expectedCount);
+        for (Map.Entry<Class<?>, Integer> expected : expectedEvents.entrySet()) {
+            try {
+                Awaitility.await().atMost(3, TimeUnit.SECONDS).pollInterval(50, TimeUnit.MILLISECONDS)
+                        .until(() -> eventCounter.getEventsCount(tenant).getOrDefault(expected.getKey(), 0),
+                                equalTo(expected.getValue()));
+            } catch (final ConditionTimeoutException e) {
+                LOGGER.trace("", e);
+                failMessage.append(expected.getKey().getSimpleName())
+                        .append(" [expected: ")
+                        .append(expected.getValue())
+                        .append(", but was: ")
+                        .append(eventCounter.getEventsCount(tenant).getOrDefault(expected.getKey(), 0))
+                        .append("]\n");
             }
-        });
+        }
+
+        if (!failMessage.toString().isEmpty()) {
+            Assert.fail("Did not receive the expected amount of events.\n" + failMessage.toString());
+        }
+    }
+
+    private static void logEvents(final Map<Class<? extends TenantAwareEvent>, Integer> receivedEvents,
+            final Map<Class<?>, Integer> expectedEvents) {
+        LOGGER.trace("=============== Actual (Observed) Events ===============");
+        receivedEvents.forEach((aClass, integer) -> LOGGER.trace("{} -> {}", aClass.getSimpleName(), integer));
+        LOGGER.trace("===============================================\n\n");
+
+        LOGGER.trace("=============== Expected Events ===============");
+        expectedEvents.forEach((aClass, integer) -> LOGGER.trace("{} -> {}", aClass.getSimpleName(), integer));
+        LOGGER.trace("===============================================\n\n");
     }
 
     private static void verifyAllEventsCounted(final Map<Class<? extends TenantAwareEvent>, Integer> receivedEvents,
@@ -158,7 +144,5 @@ public class EventVerifier extends AbstractTestExecutionListener {
         if (!failMessage.toString().isEmpty()) {
             Assert.fail("Missing event verification for [" + failMessage.append("]").toString());
         }
-
     }
-
 }

@@ -17,6 +17,7 @@ import javax.persistence.PersistenceContext;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
+import org.eclipse.hawkbit.repository.RepositoryProperties;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
@@ -42,7 +43,7 @@ import com.google.common.collect.Lists;
 
 @ContextHierarchy({ //
     @ContextConfiguration(name = "base"), //
-    @ContextConfiguration(name = "jpa", classes = { TestConfiguration.class, RepositoryApplicationConfiguration.class}) //
+    @ContextConfiguration(name = "jpa", classes = { RepositoryApplicationConfiguration.class, TestConfiguration.class}) //
 })
 @TestPropertySource(locations = "classpath:/jpa-test.properties")
 public abstract class AbstractJpaIntegrationTest extends AbstractIntegrationTest {
@@ -101,6 +102,9 @@ public abstract class AbstractJpaIntegrationTest extends AbstractIntegrationTest
 
     @Autowired
     protected TenantConfigurationProperties tenantConfigurationProperties;
+
+    @Autowired
+    protected RepositoryProperties repositoryProperties;
 
     @Autowired
     protected RolloutTestApprovalStrategy approvalStrategy;
