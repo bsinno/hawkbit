@@ -50,7 +50,6 @@ import org.eclipse.hawkbit.repository.exception.MultiAssignmentIsNotEnabledExcep
 import org.eclipse.hawkbit.repository.exception.RolloutIllegalStateException;
 import org.eclipse.hawkbit.repository.jpa.model.JpaAction;
 import org.eclipse.hawkbit.repository.jpa.model.JpaRollout;
-import org.eclipse.hawkbit.repository.jpa.model.RolloutTargetGroup;
 import org.eclipse.hawkbit.repository.jpa.utils.MultipleInvokeHelper;
 import org.eclipse.hawkbit.repository.jpa.utils.SuccessCondition;
 import org.eclipse.hawkbit.repository.model.Action;
@@ -75,7 +74,6 @@ import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;

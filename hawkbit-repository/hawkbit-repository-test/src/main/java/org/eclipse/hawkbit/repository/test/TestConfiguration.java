@@ -42,6 +42,7 @@ import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
@@ -141,16 +142,15 @@ public class TestConfiguration implements AsyncConfigurer {
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
     TenantEventCounter tenantEventCounter() {
         return new TenantEventCounter();
     }
 
-    @ConditionalOnMissingBean(name = AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME)
+    @ConditionalOnMissingBean(name = AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME, search = SearchStrategy.CURRENT)
     @Bean(name = AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME)
-    SimpleApplicationEventMulticaster applicationEventMulticaster(final ApplicationEventFilter applicationEventFilter) {
-        final SimpleApplicationEventMulticaster simpleApplicationEventMulticaster = new FilterEnabledApplicationEventPublisher(
-                applicationEventFilter);
+    SimpleApplicationEventMulticaster applicationEventMulticaster() {
+        final SimpleApplicationEventMulticaster simpleApplicationEventMulticaster = new FilterEnabledApplicationEventPublisher();
         simpleApplicationEventMulticaster.setTaskExecutor(asyncExecutor());
         simpleApplicationEventMulticaster.addApplicationListener(tenantEventCounter());
         return simpleApplicationEventMulticaster;
@@ -158,16 +158,10 @@ public class TestConfiguration implements AsyncConfigurer {
 
     public static class FilterEnabledApplicationEventPublisher extends SimpleApplicationEventMulticaster {
 
+        @Autowired
         private ApplicationEventFilter applicationEventFilter;
 
-        public FilterEnabledApplicationEventPublisher(final ApplicationEventFilter applicationEventFilter) {
-            this.applicationEventFilter = applicationEventFilter;
-        }
-
-        public ApplicationEventFilter getApplicationEventFilter() {
-            return applicationEventFilter;
-        }
-
+        @Autowired
         public void setApplicationEventFilter(final ApplicationEventFilter applicationEventFilter) {
             this.applicationEventFilter = applicationEventFilter;
         }

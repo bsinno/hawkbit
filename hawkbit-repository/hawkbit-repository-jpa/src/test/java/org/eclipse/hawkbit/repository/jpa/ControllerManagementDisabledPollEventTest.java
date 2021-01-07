@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2020 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,14 +8,10 @@
  */
 package org.eclipse.hawkbit.repository.jpa;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.concurrent.TimeUnit;
-
+import org.eclipse.hawkbit.repository.ControllerManagement;
 import org.eclipse.hawkbit.repository.RepositoryProperties;
 import org.eclipse.hawkbit.repository.event.remote.TargetPollEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetCreatedEvent;
-import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.test.matcher.Expect;
 import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
 import org.junit.Test;
@@ -35,11 +31,10 @@ import io.qameta.allure.Story;
 // a fresh context creation with the empty Config class
 @ContextHierarchy({ //
     @ContextConfiguration(name = "base"), //
-    @ContextConfiguration(name = "jpa", classes = { LazyControllerManagementTest.Config.class}/*, initializers = LazyControllerManagementTest.Config.class*/) //
+    @ContextConfiguration(name = "jpa", classes = { ControllerManagementDisabledPollEventTest.Config.class}) //
 })
-@TestPropertySource(properties = { "hawkbit.server.repository.eagerPollPersistence=false",
-                            "hawkbit.server.repository.pollPersistenceFlushTime=1000"})
-public class LazyControllerManagementTest extends AbstractJpaIntegrationTest {
+@TestPropertySource(properties = "hawkbit.server.repository.publishTargetPollEvent=false")
+public class ControllerManagementDisabledPollEventTest extends AbstractJpaIntegrationTest {
 
     /**
      * Dummy config class to 'force' spring to create a new context for this test,
@@ -47,27 +42,24 @@ public class LazyControllerManagementTest extends AbstractJpaIntegrationTest {
      */
     @Configuration
     public static class Config {
-
     }
+
+    @Autowired
+    private ControllerManagement controllerManagement;
 
     @Autowired
     private RepositoryProperties repositoryProperties;
 
     @Test
-    @Description("Verifies that lazy target poll update is executed as specified.")
+    @Description("Verify that controller registration does not result in a TargetPollEvent if feature is disabled")
     @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 1),
-            @Expect(type = TargetPollEvent.class, count = 2) })
-    public void lazyFindOrRegisterTargetIfItDoesNotexist() throws InterruptedException {
-        final Target target = controllerManagement.findOrRegisterTargetIfItDoesNotExist("AA", LOCALHOST);
-        assertThat(target).as("target should not be null").isNotNull();
-
-        TimeUnit.MILLISECONDS.sleep(10);
-        controllerManagement.findOrRegisterTargetIfItDoesNotExist("AA", LOCALHOST);
-        TimeUnit.MILLISECONDS.sleep(repositoryProperties.getPollPersistenceFlushTime() + 1);
-
-        final Target updated = targetManagement.get(target.getId()).get();
-
-        assertThat(updated.getOptLockRevision()).isEqualTo(target.getOptLockRevision());
-        assertThat(updated.getLastTargetQuery()).isGreaterThan(target.getLastTargetQuery());
+                    @Expect(type = TargetPollEvent.class, count = 0) })
+    public void targetPollEventNotSendIfDisabled() {
+        try {
+            repositoryProperties.setPublishTargetPollEvent(false);
+            controllerManagement.findOrRegisterTargetIfItDoesNotExist("AA", LOCALHOST);
+        } finally {
+            repositoryProperties.setPublishTargetPollEvent(true);
+        }
     }
 }

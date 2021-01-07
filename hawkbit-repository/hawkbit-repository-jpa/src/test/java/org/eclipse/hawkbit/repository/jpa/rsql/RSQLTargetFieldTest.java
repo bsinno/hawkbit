@@ -256,11 +256,6 @@ public class RSQLTargetFieldTest extends AbstractJpaIntegrationTest {
     }
 
     private void assertRSQLQuery(final String rsqlParam, final long expcetedTargets) {
-        assertNotNull(tenantConfigurationManagement);
-
-        assertNotNull(tenantConfigurationManagement.getConfigurationValue(POLLING_OVERDUE_TIME_INTERVAL));
-
-        assertNotNull(tenantConfigurationManagement.getConfigurationValue(POLLING_TIME_INTERVAL));
         final Page<Target> findTargetPage = targetManagement.findByRsql(PAGE, rsqlParam);
         final long countTargetsAll = findTargetPage.getTotalElements();
         assertThat(findTargetPage).isNotNull();

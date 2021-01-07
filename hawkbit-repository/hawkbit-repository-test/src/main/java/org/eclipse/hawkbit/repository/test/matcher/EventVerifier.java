@@ -107,7 +107,7 @@ public class EventVerifier extends AbstractTestExecutionListener {
             } catch (final ConditionTimeoutException e) {
                 LOGGER.trace("", e);
                 failMessage.append(expected.getKey().getSimpleName())
-                        .append(" [expected: ")
+                        .append("\t\t[expected: ")
                         .append(expected.getValue())
                         .append(", but was: ")
                         .append(eventCounter.getEventsCount(tenant).getOrDefault(expected.getKey(), 0))
