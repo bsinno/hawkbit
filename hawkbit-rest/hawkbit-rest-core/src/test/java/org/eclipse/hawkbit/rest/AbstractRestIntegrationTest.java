@@ -8,16 +8,21 @@
  */
 package org.eclipse.hawkbit.rest;
 
+import org.eclipse.hawkbit.repository.RepositoryProperties;
 import org.eclipse.hawkbit.repository.jpa.RepositoryApplicationConfiguration;
 import org.eclipse.hawkbit.repository.test.TestConfiguration;
 import org.eclipse.hawkbit.repository.test.util.AbstractIntegrationTest;
 import org.eclipse.hawkbit.rest.filter.ExcludePathAwareShallowETagFilter;
 import org.eclipse.hawkbit.rest.util.FilterHttpResponse;
 import org.junit.Before;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
@@ -34,6 +39,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
     @ContextConfiguration(name = "rest", classes = { RestConfiguration.class, RepositoryApplicationConfiguration.class, TestConfiguration.class})
 })
 @AutoConfigureMockMvc
+@TestPropertySource(locations = { "classpath:/rest-test.properties" })
 public abstract class AbstractRestIntegrationTest extends AbstractIntegrationTest {
 
     protected MockMvc mvc;

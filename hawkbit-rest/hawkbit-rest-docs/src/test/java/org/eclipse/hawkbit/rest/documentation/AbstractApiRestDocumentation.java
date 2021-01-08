@@ -51,6 +51,7 @@ import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.payload.SubsectionDescriptor;
 import org.springframework.restdocs.snippet.Snippet;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -65,8 +66,10 @@ import io.qameta.allure.Feature;
  *
  */
 @Feature("Documentation Verfication - API")
-@ContextConfiguration(classes = { DdiApiConfiguration.class, MgmtApiConfiguration.class, RestConfiguration.class,
-        RepositoryApplicationConfiguration.class, TestConfiguration.class, TestSupportBinderAutoConfiguration.class })
+@ContextHierarchy({ //
+    @ContextConfiguration(name = "base"), //
+    @ContextConfiguration(name = "rest", classes = { DdiApiConfiguration.class, MgmtApiConfiguration.class })
+})
 @TestPropertySource(locations = { "classpath:/updateserver-restdocumentation-test.properties" })
 public abstract class AbstractApiRestDocumentation extends AbstractRestIntegrationTest {
 
