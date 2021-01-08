@@ -11,14 +11,10 @@ package org.eclipse.hawkbit.ddi.rest.resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.Writer;
 
-import org.eclipse.hawkbit.repository.jpa.RepositoryApplicationConfiguration;
-import org.eclipse.hawkbit.repository.test.TestConfiguration;
 import org.eclipse.hawkbit.rest.AbstractRestIntegrationTest;
-import org.eclipse.hawkbit.rest.RestConfiguration;
-import org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.TestPropertySource;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -28,8 +24,10 @@ import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
 import com.fasterxml.jackson.dataformat.cbor.CBORParser;
 
-@ContextConfiguration(classes = { DdiApiConfiguration.class, RestConfiguration.class,
-        RepositoryApplicationConfiguration.class, TestConfiguration.class, TestSupportBinderAutoConfiguration.class })
+@ContextHierarchy({ //
+    @ContextConfiguration(name = "base"), //
+    @ContextConfiguration(name = "rest", classes = DdiApiConfiguration.class)
+})
 @TestPropertySource(locations = "classpath:/ddi-test.properties")
 public abstract class AbstractDDiApiIntegrationTest extends AbstractRestIntegrationTest {
 

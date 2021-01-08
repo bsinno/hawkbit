@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.eclipse.hawkbit.ddi.rest.resource.DdiArtifactDownloadTest.DownloadTestConfiguration;
@@ -39,11 +41,13 @@ import org.eclipse.hawkbit.repository.test.util.TestdataFactory;
 import org.eclipse.hawkbit.repository.test.util.WithUser;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.google.common.base.Charsets;
@@ -58,13 +62,16 @@ import io.qameta.allure.Story;
  */
 @Feature("Component Tests - Direct Device Integration API")
 @Story("Artifact Download Resource")
-@SpringBootTest(classes = { DownloadTestConfiguration.class })
+@ContextHierarchy({ //
+    @ContextConfiguration(name = "base"), //
+    @ContextConfiguration(name = "rest", classes = DownloadTestConfiguration.class)
+})
 public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
 
-    private static volatile int downLoadProgress = 0;
-    private static volatile long shippedBytes = 0;
-
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
+
+    @Autowired
+    private Listener listener;
 
     @Before
     public void setup() {
@@ -158,8 +165,8 @@ public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
     @WithUser(principal = "4712", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
     @Description("Tests valid downloads through the artifact resource by identifying the artifact not by ID but file name.")
     public void downloadArtifactThroughFileName() throws Exception {
-        downLoadProgress = 1;
-        shippedBytes = 0;
+        listener.getDownLoadProgress().set(1);
+        listener.getShippedBytes().set(0);
         assertThat(softwareModuleManagement.findAll(PAGE)).hasSize(0);
 
         // create target
@@ -194,8 +201,8 @@ public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
                 Arrays.equals(result.getResponse().getContentAsByteArray(), random));
 
         // download complete
-        assertThat(downLoadProgress).isEqualTo(10);
-        assertThat(shippedBytes).isEqualTo(artifactSize);
+        assertThat(listener.getDownLoadProgress()).hasValue(10);
+        assertThat(listener.getShippedBytes()).hasValue(artifactSize);
     }
 
     @Test
@@ -358,11 +365,21 @@ public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
 
     private static class Listener {
 
-        @EventListener(classes = DownloadProgressEvent.class)
-        public static void listen(final DownloadProgressEvent event) {
-            downLoadProgress++;
-            shippedBytes += event.getShippedBytesSinceLast();
+        private final AtomicInteger downLoadProgress = new AtomicInteger(0);
+        private final AtomicLong shippedBytes = new AtomicLong(0);
 
+        @EventListener(classes = DownloadProgressEvent.class)
+        public void listen(final DownloadProgressEvent event) {
+            downLoadProgress.incrementAndGet();
+            shippedBytes.addAndGet(event.getShippedBytesSinceLast());
+        }
+
+        private AtomicInteger getDownLoadProgress() {
+            return downLoadProgress;
+        }
+
+        private AtomicLong getShippedBytes() {
+            return shippedBytes;
         }
     }
 

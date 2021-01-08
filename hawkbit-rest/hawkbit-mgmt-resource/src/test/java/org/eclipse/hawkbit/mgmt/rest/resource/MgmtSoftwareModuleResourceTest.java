@@ -76,6 +76,7 @@ import io.qameta.allure.Story;
 @Story("Software Module Resource")
 @TestPropertySource(properties = { "hawkbit.server.security.dos.maxArtifactSize=100000",
         "hawkbit.server.security.dos.maxArtifactStorage=500000" })
+// todo
 public class MgmtSoftwareModuleResourceTest extends AbstractManagementApiIntegrationTest {
 
     @Before

@@ -18,11 +18,12 @@ import org.eclipse.hawkbit.rest.util.MockMvcResultPrinter;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.servlet.server.Encoding;
-import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Arrays;
@@ -40,8 +41,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * in the response, which is achieved through enabling {@link Encoding} via
  * properties.
  */
-@SpringBootTest(properties = { "server.servlet.encoding.charset=UTF-8", "server.servlet.encoding.force=true" })
-@Import(HttpEncodingAutoConfiguration.class)
+@ContextHierarchy({ //
+    @ContextConfiguration(name = "base"), //
+    @ContextConfiguration(name = "rest", classes = HttpEncodingAutoConfiguration.class)
+})
+@TestPropertySource(properties = { "server.servlet.encoding.charset=UTF-8", "server.servlet.encoding.force=true" })
 @Feature("Component Tests - Management API")
 @Story("Response Content-Type")
 public class MgmtContentTypeTest extends AbstractManagementApiIntegrationTest {

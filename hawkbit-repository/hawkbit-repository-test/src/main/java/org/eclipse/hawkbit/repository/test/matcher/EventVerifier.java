@@ -65,9 +65,12 @@ public class EventVerifier extends AbstractTestExecutionListener {
     private static Map<Class<?>, Integer> getExpectations(final TestContext testContext) {
         final ExpectEvents methodAnnotation = testContext.getTestMethod().getAnnotation(ExpectEvents.class);
 
-        return methodAnnotation == null ?
-                Collections.emptyMap() :
-                asMap(methodAnnotation.value(), getBeforeMethodExpects(testContext));
+        if (methodAnnotation == null) {
+            return Collections.emptyMap();
+        }
+        return methodAnnotation.inheritExpects() ?
+                asMap(methodAnnotation.value(), getBeforeMethodExpects(testContext)) :
+                asMap(methodAnnotation.value());
     }
 
     private static Map<Class<?>, Integer> asMap(final Expect[]... expectsArray) {
