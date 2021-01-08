@@ -156,7 +156,7 @@ public class AmqpMessageDispatcherServiceIntegrationTest extends AbstractAmqpSer
         assertDownloadAndInstallMessage(distributionSet2.getModules(), controllerId);
         assertCancelActionMessage(getFirstAssignedActionId(assignmentResult), controllerId);
 
-        createAndSendThingCreated(controllerId, TENANT_EXIST);
+        createAndSendThingCreated(controllerId, tenantAware.getCurrentTenant());
         waitUntilTargetHasStatus(controllerId, TargetUpdateStatus.PENDING);
         assertCancelActionMessage(getFirstAssignedActionId(assignmentResult), controllerId);
     }
@@ -331,7 +331,7 @@ public class AmqpMessageDispatcherServiceIntegrationTest extends AbstractAmqpSer
 
     private void updateActionViaDmfClient(final String controllerId, final long actionId,
             final DmfActionStatus status) {
-        createAndSendActionStatusUpdateMessage(controllerId, TENANT_EXIST, actionId, status);
+        createAndSendActionStatusUpdateMessage(controllerId, tenantAware.getCurrentTenant(), actionId, status);
     }
 
     private Long assignNewDsToTarget(final String controllerId) {
@@ -452,7 +452,7 @@ public class AmqpMessageDispatcherServiceIntegrationTest extends AbstractAmqpSer
 
         final Long actionId = registerTargetAndCancelActionId(controllerId);
 
-        createAndSendThingCreated(controllerId, TENANT_EXIST);
+        createAndSendThingCreated(controllerId, tenantAware.getCurrentTenant());
         waitUntilTargetHasStatus(controllerId, TargetUpdateStatus.PENDING);
         assertCancelActionMessage(actionId, controllerId);
     }

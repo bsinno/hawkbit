@@ -33,15 +33,12 @@ import org.eclipse.hawkbit.integration.listener.DeadletterListener;
 import org.eclipse.hawkbit.integration.listener.ReplyToListener;
 import org.eclipse.hawkbit.matcher.SoftwareModuleJsonMatcher;
 import org.eclipse.hawkbit.rabbitmq.test.AbstractAmqpIntegrationTest;
-import org.eclipse.hawkbit.rabbitmq.test.AmqpTestConfiguration;
-import org.eclipse.hawkbit.repository.jpa.RepositoryApplicationConfiguration;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.DistributionSetAssignmentResult;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
-import org.eclipse.hawkbit.repository.test.TestConfiguration;
 import org.eclipse.hawkbit.repository.test.util.TestdataFactory;
 import org.eclipse.hawkbit.util.IpUtil;
 import org.junit.Assert;
@@ -52,8 +49,8 @@ import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.test.RabbitListenerTestHarness;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
 
 import io.qameta.allure.Step;
 
@@ -62,12 +59,12 @@ import io.qameta.allure.Step;
  * Common class for {@link AmqpMessageHandlerServiceIntegrationTest} and
  * {@link AmqpMessageDispatcherServiceIntegrationTest}.
  */
-@ContextConfiguration(classes = { DmfApiConfiguration.class, DmfTestConfiguration.class,
-        RepositoryApplicationConfiguration.class, AmqpTestConfiguration.class, TestConfiguration.class,
-        TestSupportBinderAutoConfiguration.class })
+@ContextHierarchy({ //
+    @ContextConfiguration(name = "base"), //
+    @ContextConfiguration(name = "amqp", classes = { DmfApiConfiguration.class, DmfTestConfiguration.class })
+})
 public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpIntegrationTest {
 
-    protected static final String TENANT_EXIST = "DEFAULT";
     protected static final String CREATED_BY = "CONTROLLER_PLUG_AND_PLAY";
 
     protected ReplyToListener replyToListener;
@@ -93,9 +90,7 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
     }
 
     private <T> T waitUntilIsPresent(final Callable<Optional<T>> callable) {
-        createConditionFactory().until(() -> {
-            return securityRule.runAsPrivileged(() -> callable.call().isPresent());
-        });
+        createConditionFactory().until(() -> securityRule.runAsPrivileged(() -> callable.call().isPresent()));
 
         try {
             return securityRule.runAsPrivileged(() -> callable.call().get());
@@ -153,7 +148,7 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
         assertAllTargetsCount(0);
         final Map<String, Object> headers = replyMessage.getMessageProperties().getHeaders();
         assertThat(headers.get(MessageHeaderKey.THING_ID)).isEqualTo(target);
-        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(TENANT_EXIST);
+        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(tenantAware.getCurrentTenant());
         assertThat(headers.get(MessageHeaderKey.TYPE)).isEqualTo(MessageType.THING_DELETED.toString());
     }
 
@@ -172,7 +167,7 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
 
         final Map<String, Object> headers = replyMessage.getMessageProperties().getHeaders();
 
-        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(TENANT_EXIST);
+        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(tenantAware.getCurrentTenant());
         assertThat(correlationId).isEqualTo(replyMessage.getMessageProperties().getCorrelationId());
         assertThat(headers.get(MessageHeaderKey.TYPE)).isEqualTo(MessageType.PING_RESPONSE.toString());
         assertThat(Long.valueOf(new String(replyMessage.getBody(), StandardCharsets.UTF_8)))
@@ -251,7 +246,7 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
         final Map<String, Object> headers = replyMessage.getMessageProperties().getHeaders();
         assertThat(headers.get(MessageHeaderKey.TOPIC)).isEqualTo(eventTopic.toString());
         assertThat(headers.get(MessageHeaderKey.THING_ID)).isEqualTo(controllerId);
-        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(TENANT_EXIST);
+        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(tenantAware.getCurrentTenant());
         assertThat(headers.get(MessageHeaderKey.TYPE)).isEqualTo(MessageType.EVENT.toString());
         return replyMessage;
     }
@@ -272,7 +267,7 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
     protected void registerAndAssertTargetWithExistingTenant(final String target,
             final int existingTargetsAfterCreation, final TargetUpdateStatus expectedTargetStatus,
             final String createdBy) {
-        createAndSendThingCreated(target, TENANT_EXIST);
+        createAndSendThingCreated(target, tenantAware.getCurrentTenant());
         final Target registerdTarget = waitUntilIsPresent(() -> targetManagement.getByControllerID(target));
         assertAllTargetsCount(existingTargetsAfterCreation);
         assertTarget(registerdTarget, expectedTargetStatus, createdBy);
@@ -281,7 +276,7 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
     protected void registerSameTargetAndAssertBasedOnVersion(final String controllerId,
             final int existingTargetsAfterCreation, final TargetUpdateStatus expectedTargetStatus) {
         final int version = controllerManagement.getByControllerId(controllerId).get().getOptLockRevision();
-        createAndSendThingCreated(controllerId, TENANT_EXIST);
+        createAndSendThingCreated(controllerId, tenantAware.getCurrentTenant());
         final Target registeredTarget = waitUntilIsPresent(() -> findTargetBasedOnNewVersion(controllerId, version));
         assertAllTargetsCount(existingTargetsAfterCreation);
         assertThat(registeredTarget.getUpdateStatus()).isEqualTo(expectedTargetStatus);
@@ -296,7 +291,7 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
     }
 
     private void assertTarget(final Target target, final TargetUpdateStatus updateStatus, final String createdBy) {
-        assertThat(target.getTenant()).isEqualTo(TENANT_EXIST);
+        assertThat(target.getTenant()).isEqualTo(tenantAware.getCurrentTenant());
         assertThat(target.getDescription()).contains("Plug and Play");
         assertThat(target.getDescription()).contains(target.getControllerId());
         assertThat(target.getCreatedBy()).isEqualTo(createdBy);
