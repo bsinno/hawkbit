@@ -38,15 +38,11 @@ public class MySqlTestDatabase extends DatabaseRule {
     }
 
     @Override
-    public Statement apply(final Statement base, final Description description) {
-        if (!StringUtils.isEmpty(SchemaNameHolder.getInstance().getSchemaName())) {
-            LOG.info("Setting up mysql schema {} for test class {}", schemaName, description.getTestClass().getName());
-        }
-        return super.apply(base, description);
-    }
-
-    @Override
     public void before() throws Exception {
+        if (!StringUtils.isEmpty(SchemaNameHolder.getInstance().getSchemaName())) {
+            return;
+        }
+        LOG.info("Setting up mssql schema {}", schemaName);
         SchemaNameHolder.getInstance().setSchemaName(schemaName);
         this.username = System.getProperty("spring.datasource.username");
         this.password = System.getProperty("spring.datasource.password");
@@ -59,10 +55,10 @@ public class MySqlTestDatabase extends DatabaseRule {
 
     @Override
     public void after() {
-        if (StringUtils.isEmpty(SchemaNameHolder.getInstance().getSchemaName())) {
-            return;
-        }
-        dropSchema();
+//        if (StringUtils.isEmpty(SchemaNameHolder.getInstance().getSchemaName())) {
+//            return;
+//        }
+//        dropSchema();
     }
 
     private void createSchemaUri() {
