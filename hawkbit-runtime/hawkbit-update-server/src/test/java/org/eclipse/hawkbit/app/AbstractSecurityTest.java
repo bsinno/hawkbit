@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
@@ -24,11 +23,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = { "hawkbit.dmf.rabbitmq.enabled=false" })
-@DirtiesContext
 public abstract class AbstractSecurityTest {
 
     @ClassRule
-    public static final WithRandomDatabaseRule randomDatabaseRule = new WithRandomDatabaseRule("security_test");
+    public static final WithRandomDatabaseRule randomDatabaseRule = new WithRandomDatabaseRule();
 
     @Autowired
     private WebApplicationContext context;
