@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.integration;
 
 import org.eclipse.hawkbit.integration.listener.DeadletterListener;
 import org.eclipse.hawkbit.integration.listener.ReplyToListener;
+import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.FanoutExchange;
@@ -33,8 +34,8 @@ public class DmfTestConfiguration {
     }
 
     @Bean
-    ReplyToListener replyToListener() {
-        return new ReplyToListener();
+    ReplyToListener replyToListener(final TenantAware tenantAware) {
+        return new ReplyToListener(tenantAware);
     }
 
     @Bean

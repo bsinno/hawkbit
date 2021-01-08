@@ -100,9 +100,11 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
     }
 
     protected void waitUntilEventMessagesAreDispatchedToTarget(final EventTopic... eventTopics) {
+        final String tenant = tenantAware.getCurrentTenant();
         createConditionFactory().untilAsserted(() -> {
+            tenantAware.runAsTenant(tenant, () ->
             assertThat(replyToListener.getLatestEventMessageTopics())
-                    .containsExactlyInAnyOrderElementsOf(Arrays.asList(eventTopics));
+                    .containsExactlyInAnyOrderElementsOf(Arrays.asList(eventTopics)));
         });
         replyToListener.resetLatestEventMessageTopics();
     }
@@ -144,7 +146,7 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
     protected void assertDeleteMessage(final String target) {
 
         verifyReplyToListener();
-        final Message replyMessage = replyToListener.getDeleteMessages().get(target);
+        final Message replyMessage = replyToListener.getTenantDeleteMessages().get(target);
         assertAllTargetsCount(0);
         final Map<String, Object> headers = replyMessage.getMessageProperties().getHeaders();
         assertThat(headers.get(MessageHeaderKey.THING_ID)).isEqualTo(target);
@@ -157,13 +159,13 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
     }
 
     protected void assertRequestAttributesUpdateMessageAbsent() {
-        assertThat(replyToListener.getEventMessages()).doesNotContainKey(EventTopic.REQUEST_ATTRIBUTES_UPDATE);
+        assertThat(replyToListener.getTenantEventMessages()).doesNotContainKey(EventTopic.REQUEST_ATTRIBUTES_UPDATE);
     }
 
     protected void assertPingReplyMessage(final String correlationId) {
 
         verifyReplyToListener();
-        final Message replyMessage = replyToListener.getPingResponseMessages().get(correlationId);
+        final Message replyMessage = replyToListener.getTenantPingResponseMessages().get(correlationId);
 
         final Map<String, Object> headers = replyMessage.getMessageProperties().getHeaders();
 
@@ -243,6 +245,8 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
 
         final Message replyMessage = replyToListener.getLatestEventMessage(eventTopic);
         assertAllTargetsCount(1);
+        assertThat(replyMessage).isNotNull();
+        assertThat(replyMessage.getMessageProperties()).isNotNull();
         final Map<String, Object> headers = replyMessage.getMessageProperties().getHeaders();
         assertThat(headers.get(MessageHeaderKey.TOPIC)).isEqualTo(eventTopic.toString());
         assertThat(headers.get(MessageHeaderKey.THING_ID)).isEqualTo(controllerId);
