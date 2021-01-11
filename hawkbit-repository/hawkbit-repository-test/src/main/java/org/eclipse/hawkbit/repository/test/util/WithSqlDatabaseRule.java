@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Bosch Software Innovations GmbH and others.
+ * Copyright (c) 2021 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,9 +24,15 @@ public class WithSqlDatabaseRule extends ExternalResource {
     private static final Logger LOG = LoggerFactory.getLogger(WithSqlDatabaseRule.class);
     private static final AntPathMatcher MATCHER = new AntPathMatcher();
     private static final String MYSQL_URI_PATTERN = "jdbc:mysql://{host}:{port}/{db}*";
+    private static volatile String databaseName;
 
     @Override
     public void before() {
+        if (!StringUtils.isEmpty(databaseName)) {
+            LOG.trace("Schema {} already created", databaseName);
+            return;
+        }
+
         final String username = System.getProperty("spring.datasource.username");
         final String password = System.getProperty("spring.datasource.password");
         final String uri = System.getProperty("spring.datasource.url");
@@ -54,6 +60,7 @@ public class WithSqlDatabaseRule extends ExternalResource {
 
         executeStatement(username, password, uri.split("/" + schemaName)[0], schemaName,
                 "CREATE SCHEMA IF NOT EXISTS " + schemaName + ";");
+        databaseName = schemaName;
     }
 
     private static boolean isRunningWithMsSql(final String uri) {
@@ -65,6 +72,7 @@ public class WithSqlDatabaseRule extends ExternalResource {
         LOG.info("Creating mssql schema {} if not existing", schemaName);
 
         executeStatement(username, password, uri, schemaName, "CREATE DATABASE IF NOT EXISTS " + schemaName + ";");
+        databaseName = schemaName;
     }
 
     private static void executeStatement(final String username, final String password, final String uri,
