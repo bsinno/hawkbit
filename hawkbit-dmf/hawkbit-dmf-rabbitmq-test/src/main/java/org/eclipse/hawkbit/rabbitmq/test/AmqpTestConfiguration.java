@@ -90,7 +90,7 @@ public class AmqpTestConfiguration {
         factory.setPassword(rabbitmqSetupService.getPassword());
         try {
             factory.setVirtualHost(rabbitmqSetupService.createVirtualHost());
-            // All exception are catched. The BrokerRunning decide if the
+            // All exception are caught. The BrokerRunning decide if the
             // test should break or not
         } catch (@SuppressWarnings("squid:S2221") final Exception e) {
             Throwables.propagateIfInstanceOf(e, AlivenessException.class);

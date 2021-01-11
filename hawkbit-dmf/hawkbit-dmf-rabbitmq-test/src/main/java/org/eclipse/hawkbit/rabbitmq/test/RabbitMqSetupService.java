@@ -89,7 +89,7 @@ public class RabbitMqSetupService {
 
     }
 
-    @PreDestroy
+//    @PreDestroy
     public void deleteVirtualHost() {
         LOGGER.warn("Bean is being destroyed, deleting virtual host {}", VIRTUAL_HOST);
         if (StringUtils.isEmpty(VIRTUAL_HOST)) {
