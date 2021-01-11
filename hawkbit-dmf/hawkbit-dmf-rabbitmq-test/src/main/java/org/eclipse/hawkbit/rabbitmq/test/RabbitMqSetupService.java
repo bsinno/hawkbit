@@ -14,6 +14,8 @@ import java.util.UUID;
 
 import javax.annotation.PreDestroy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.util.StringUtils;
 
@@ -31,13 +33,14 @@ import com.rabbitmq.http.client.domain.UserPermissions;
 @SuppressWarnings("squid:S2068")
 public class RabbitMqSetupService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMqSetupService.class);
     private static final String GUEST = "guest";
     private static final String DEFAULT_USER = GUEST;
     private static final String DEFAULT_PASSWORD = GUEST;
 
     private Client rabbitmqHttpClient;
 
-    private String virtualHost;
+    private static final String VIRTUAL_HOST = UUID.randomUUID().toString();
 
     private final String hostname;
 
@@ -80,19 +83,19 @@ public class RabbitMqSetupService {
             throw new AlivenessException(getHostname());
 
         }
-        virtualHost = UUID.randomUUID().toString();
-        getRabbitmqHttpClient().createVhost(virtualHost);
-        getRabbitmqHttpClient().updatePermissions(virtualHost, getUsername(), createUserPermissionsFullAccess());
-        return virtualHost;
+        getRabbitmqHttpClient().createVhost(VIRTUAL_HOST);
+        getRabbitmqHttpClient().updatePermissions(VIRTUAL_HOST, getUsername(), createUserPermissionsFullAccess());
+        return VIRTUAL_HOST;
 
     }
 
     @PreDestroy
     public void deleteVirtualHost() {
-        if (StringUtils.isEmpty(virtualHost)) {
+        LOGGER.warn("Bean is being destroyed, deleting virtual host {}", VIRTUAL_HOST);
+        if (StringUtils.isEmpty(VIRTUAL_HOST)) {
             return;
         }
-        getRabbitmqHttpClient().deleteVhost(virtualHost);
+        getRabbitmqHttpClient().deleteVhost(VIRTUAL_HOST);
     }
 
     public String getHostname() {
@@ -109,7 +112,7 @@ public class RabbitMqSetupService {
 
     private UserPermissions createUserPermissionsFullAccess() {
         final UserPermissions permissions = new UserPermissions();
-        permissions.setVhost(virtualHost);
+        permissions.setVhost(VIRTUAL_HOST);
         permissions.setRead(".*");
         permissions.setConfigure(".*");
         permissions.setWrite(".*");
