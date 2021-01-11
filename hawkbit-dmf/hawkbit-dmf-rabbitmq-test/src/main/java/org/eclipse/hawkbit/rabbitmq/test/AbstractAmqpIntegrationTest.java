@@ -8,6 +8,8 @@
  */
 package org.eclipse.hawkbit.rabbitmq.test;
 
+import static org.springframework.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
+
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -28,12 +30,14 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.TestExecutionListeners;
 
 @ContextHierarchy({ //
     @ContextConfiguration(name = "base"), //
     @ContextConfiguration(name = "amqp", classes = { RepositoryApplicationConfiguration.class, TestConfiguration.class,
             AmqpTestConfiguration.class }), //
 })
+//@TestExecutionListeners(listeners = RandomVirtualHostTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)
 public abstract class AbstractAmqpIntegrationTest extends AbstractIntegrationTest {
     private static final Duration TIMEOUT = Duration.ofSeconds(5);
 

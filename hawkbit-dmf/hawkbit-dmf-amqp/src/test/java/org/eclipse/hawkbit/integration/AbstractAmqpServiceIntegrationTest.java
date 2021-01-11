@@ -43,11 +43,9 @@ import org.eclipse.hawkbit.repository.test.util.TestdataFactory;
 import org.eclipse.hawkbit.util.IpUtil;
 import org.junit.Assert;
 import org.junit.Before;
-import org.mockito.Mockito;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.test.RabbitListenerTestHarness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
@@ -67,25 +65,18 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
 
     protected static final String CREATED_BY = "CONTROLLER_PLUG_AND_PLAY";
 
-    protected ReplyToListener replyToListener;
-    private DeadletterListener deadletterListener;
-    private DistributionSet distributionSet;
-
     @Autowired
-    private RabbitListenerTestHarness harness;
+    protected ReplyToListener replyToListener;
+    @Autowired
+    protected DeadletterListener deadletterListener;
+    private DistributionSet distributionSet;
 
     @Autowired
     private ConnectionFactory connectionFactory;
 
     @Before
-    public void initListener() {
-        deadletterListener = harness.getSpy(DeadletterListener.LISTENER_ID);
-        assertThat(deadletterListener).isNotNull();
-        Mockito.reset(deadletterListener);
-        replyToListener = harness.getSpy(ReplyToListener.LISTENER_ID);
-        assertThat(replyToListener).isNotNull();
-        replyToListener.purge();
-        Mockito.reset(replyToListener);
+    public void initDmfClient() {
+        deadletterListener.reset();
         getDmfClient().setExchange(AmqpSettings.DMF_EXCHANGE);
     }
 
@@ -101,16 +92,9 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
 
     protected void waitUntilEventMessagesAreDispatchedToTarget(final EventTopic... eventTopics) {
         final String tenant = tenantAware.getCurrentTenant();
-        createConditionFactory().untilAsserted(() -> {
-            tenantAware.runAsTenant(tenant, () ->
-            assertThat(replyToListener.getLatestEventMessageTopics())
-                    .containsExactlyInAnyOrderElementsOf(Arrays.asList(eventTopics)));
-        });
-        replyToListener.resetLatestEventMessageTopics();
-    }
-
-    protected DeadletterListener getDeadletterListener() {
-        return deadletterListener;
+        createConditionFactory().untilAsserted(() -> assertThat(replyToListener.getLatestEventMessageTopics(tenant))
+                .containsExactlyInAnyOrderElementsOf(Arrays.asList(eventTopics)));
+        replyToListener.resetLatestEventMessageTopics(tenant);
     }
 
     protected DistributionSet getDistributionSet() {
@@ -145,12 +129,13 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
 
     protected void assertDeleteMessage(final String target) {
 
-        verifyReplyToListener();
-        final Message replyMessage = replyToListener.getTenantDeleteMessages().get(target);
+        final String tenant = tenantAware.getCurrentTenant();
+        verifyReplyToListener(() -> replyToListener.getTenantDeleteMessages(tenant).size());
+        final Message replyMessage = replyToListener.getTenantDeleteMessages(tenant).get(target);
         assertAllTargetsCount(0);
         final Map<String, Object> headers = replyMessage.getMessageProperties().getHeaders();
         assertThat(headers.get(MessageHeaderKey.THING_ID)).isEqualTo(target);
-        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(tenantAware.getCurrentTenant());
+        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(tenant);
         assertThat(headers.get(MessageHeaderKey.TYPE)).isEqualTo(MessageType.THING_DELETED.toString());
     }
 
@@ -159,17 +144,19 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
     }
 
     protected void assertRequestAttributesUpdateMessageAbsent() {
-        assertThat(replyToListener.getTenantEventMessages()).doesNotContainKey(EventTopic.REQUEST_ATTRIBUTES_UPDATE);
+        assertThat(replyToListener.getTenantEventMessages(tenantAware.getCurrentTenant()))
+                .doesNotContainKey(EventTopic.REQUEST_ATTRIBUTES_UPDATE);
     }
 
     protected void assertPingReplyMessage(final String correlationId) {
 
-        verifyReplyToListener();
-        final Message replyMessage = replyToListener.getTenantPingResponseMessages().get(correlationId);
+        final String tenant = tenantAware.getCurrentTenant();
+        verifyReplyToListener(() -> replyToListener.getTenantPingResponseMessages(tenant).size());
+        final Message replyMessage = replyToListener.getTenantPingResponseMessages(tenant).get(correlationId);
 
         final Map<String, Object> headers = replyMessage.getMessageProperties().getHeaders();
 
-        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(tenantAware.getCurrentTenant());
+        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(tenant);
         assertThat(correlationId).isEqualTo(replyMessage.getMessageProperties().getCorrelationId());
         assertThat(headers.get(MessageHeaderKey.TYPE)).isEqualTo(MessageType.PING_RESPONSE.toString());
         assertThat(Long.valueOf(new String(replyMessage.getBody(), StandardCharsets.UTF_8)))
@@ -219,10 +206,8 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
         return message;
     }
 
-    protected void verifyReplyToListener() {
-        createConditionFactory().untilAsserted(() -> {
-            Mockito.verify(replyToListener, Mockito.atLeast(1)).handleMessage(Mockito.any());
-        });
+    protected void verifyReplyToListener(final Callable<Integer> invocations) {
+        createConditionFactory().untilAsserted(() -> assertThat(invocations.call()).isGreaterThanOrEqualTo(1));
     }
 
     protected Long cancelAction(final Long actionId, final String controllerId) {
@@ -241,16 +226,17 @@ public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpInt
     }
 
     protected Message assertReplyMessageHeader(final EventTopic eventTopic, final String controllerId) {
-        verifyReplyToListener();
+        final String tenant = tenantAware.getCurrentTenant();
+        verifyReplyToListener(() -> replyToListener.getTenantEventMessages(tenant).get(eventTopic).size());
 
-        final Message replyMessage = replyToListener.getLatestEventMessage(eventTopic);
+        final Message replyMessage = replyToListener.getLatestEventMessage(eventTopic, tenant);
         assertAllTargetsCount(1);
         assertThat(replyMessage).isNotNull();
         assertThat(replyMessage.getMessageProperties()).isNotNull();
         final Map<String, Object> headers = replyMessage.getMessageProperties().getHeaders();
         assertThat(headers.get(MessageHeaderKey.TOPIC)).isEqualTo(eventTopic.toString());
         assertThat(headers.get(MessageHeaderKey.THING_ID)).isEqualTo(controllerId);
-        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(tenantAware.getCurrentTenant());
+        assertThat(headers.get(MessageHeaderKey.TENANT)).isEqualTo(tenant);
         assertThat(headers.get(MessageHeaderKey.TYPE)).isEqualTo(MessageType.EVENT.toString());
         return replyMessage;
     }

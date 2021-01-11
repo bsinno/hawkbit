@@ -50,7 +50,6 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.repository.test.matcher.Expect;
 import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.amqp.core.Message;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -237,7 +236,8 @@ public class AmqpMessageDispatcherServiceIntegrationTest extends AbstractAmqpSer
     }
 
     private List<DmfMultiActionElement> getLatestMultiActionMessages(final String expectedControllerId) {
-        final Message multiactionMessage = replyToListener.getLatestEventMessage(EventTopic.MULTI_ACTION);
+        final Message multiactionMessage = replyToListener.getLatestEventMessage(EventTopic.MULTI_ACTION,
+                tenantAware.getCurrentTenant());
         assertThat(multiactionMessage.getMessageProperties().getHeaders().get(MessageHeaderKey.THING_ID))
                 .isEqualTo(expectedControllerId);
         return ((DmfMultiActionRequest) getDmfClient().getMessageConverter().fromMessage(multiactionMessage))
@@ -508,7 +508,7 @@ public class AmqpMessageDispatcherServiceIntegrationTest extends AbstractAmqpSer
         final DistributionSet distributionSet = createTargetAndDistributionSetAndAssign(controllerId, DOWNLOAD_ONLY);
 
         final Message message = assertReplyMessageHeader(EventTopic.DOWNLOAD, controllerId);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
 
         assertThat(message).isNotNull();
         final Map<String, Object> headers = message.getMessageProperties().getHeaders();
@@ -538,7 +538,8 @@ public class AmqpMessageDispatcherServiceIntegrationTest extends AbstractAmqpSer
 
     private void assertLatestMultiActionMessageContainsInstallMessages(final String controllerId,
             final List<Set<Long>> smIdsOfActionsExpected) {
-        final Message multiactionMessage = replyToListener.getLatestEventMessage(EventTopic.MULTI_ACTION);
+        final Message multiactionMessage = replyToListener.getLatestEventMessage(EventTopic.MULTI_ACTION,
+                tenantAware.getCurrentTenant());
         assertThat(multiactionMessage.getMessageProperties().getHeaders().get(MessageHeaderKey.THING_ID))
                 .isEqualTo(controllerId);
         final DmfMultiActionRequest multiActionRequest = (DmfMultiActionRequest) getDmfClient().getMessageConverter()

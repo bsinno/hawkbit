@@ -28,8 +28,7 @@ public class WithSqlDatabaseRule extends ExternalResource {
 
     @Override
     public void before() {
-        if (!StringUtils.isEmpty(databaseName)) {
-            LOG.trace("Schema {} already created", databaseName);
+        if (!StringUtils.isEmpty(databaseName) || !isRunningWithMsSql() && !isRunningWithMySql()) {
             return;
         }
 
@@ -37,24 +36,24 @@ public class WithSqlDatabaseRule extends ExternalResource {
         final String password = System.getProperty("spring.datasource.password");
         final String uri = System.getProperty("spring.datasource.url");
 
-        assert !StringUtils.isEmpty(username);
-        assert !StringUtils.isEmpty(uri);
-
-        if (isRunningWithMySql(uri)) {
+        if (isRunningWithMySql()) {
             createMySqlSchemaIfNotExists(username, password, uri);
         }
 
-        if (isRunningWithMsSql(uri)) {
+        if (isRunningWithMsSql()) {
             createMsSqlSchemaIfNotExists(username, password, uri);
         }
     }
 
-    private static boolean isRunningWithMySql(final String uri) {
-        return "MYSQL".equals(System.getProperty("spring.jpa.database")) && MATCHER.match(MYSQL_URI_PATTERN, uri)
-                && !StringUtils.isEmpty(MATCHER.extractUriTemplateVariables(MYSQL_URI_PATTERN, uri).get("db"));
+    private static boolean isRunningWithMySql() {
+        return "MYSQL".equals(System.getProperty("spring.jpa.database"));
     }
 
     private static void createMySqlSchemaIfNotExists(final String username, final String password, final String uri) {
+        if (!MATCHER.match(MYSQL_URI_PATTERN, uri) || StringUtils.isEmpty(
+                MATCHER.extractUriTemplateVariables(MYSQL_URI_PATTERN, uri).get("db"))) {
+            throw new AssertionError("Expected database uri to be in the format " + MYSQL_URI_PATTERN);
+        }
         final String schemaName = MATCHER.extractUriTemplateVariables(MYSQL_URI_PATTERN, uri).get("db");
         LOG.info("Creating mysql schema {} if not existing", schemaName);
 
@@ -63,11 +62,14 @@ public class WithSqlDatabaseRule extends ExternalResource {
         databaseName = schemaName;
     }
 
-    private static boolean isRunningWithMsSql(final String uri) {
-        return "SQL_SERVER".equals(System.getProperty("spring.jpa.database")) && uri.contains("database=");
+    private static boolean isRunningWithMsSql() {
+        return "SQL_SERVER".equals(System.getProperty("spring.jpa.database"));
     }
 
     public static void createMsSqlSchemaIfNotExists(final String username, final String password, final String uri) {
+        if (!uri.contains("database=")) {
+            throw new AssertionError("Expected uri to include database name 'database=test-db'");
+        }
         final String schemaName = uri.split("database=")[1].split(";")[0];
         LOG.info("Creating mssql schema {} if not existing", schemaName);
 

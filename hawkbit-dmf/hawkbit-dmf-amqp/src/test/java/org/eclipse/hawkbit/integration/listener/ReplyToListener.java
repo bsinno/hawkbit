@@ -20,7 +20,6 @@ import org.eclipse.hawkbit.dmf.amqp.api.EventTopic;
 import org.eclipse.hawkbit.dmf.amqp.api.MessageHeaderKey;
 import org.eclipse.hawkbit.dmf.amqp.api.MessageType;
 import org.eclipse.hawkbit.rabbitmq.test.listener.TestRabbitListener;
-import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
@@ -33,11 +32,6 @@ public class ReplyToListener implements TestRabbitListener {
     private final Map<String, List<EventTopic>> tenantEventMessageTopics = new ConcurrentHashMap<>();
     private final Map<String, Map<String, Message>> tenantDeleteMessages = new HashMap<>();
     private final Map<String, Map<String, Message>> tenantPingResponseMessages = new HashMap<>();
-    private final TenantAware tenantAware;
-
-    public ReplyToListener(final TenantAware tenantAware) {
-        this.tenantAware = tenantAware;
-    }
 
     @Override
     @RabbitListener(id = LISTENER_ID, queues = REPLY_TO_QUEUE)
@@ -94,36 +88,29 @@ public class ReplyToListener implements TestRabbitListener {
         tenantPingResponseMessages.put(tenant, pingResponseMessages);
     }
 
-    public void purge() {
-        tenantEventMessages.remove(tenantAware.getCurrentTenant());
-        tenantDeleteMessages.remove(tenantAware.getCurrentTenant());
-        tenantPingResponseMessages.remove(tenantAware.getCurrentTenant());
-        tenantEventMessageTopics.remove(tenantAware.getCurrentTenant());
+    public List<EventTopic> getLatestEventMessageTopics(final String tenant) {
+        return tenantEventMessageTopics.get(tenant);
     }
 
-    public List<EventTopic> getLatestEventMessageTopics() {
-        return tenantEventMessageTopics.get(tenantAware.getCurrentTenant());
+    public void resetLatestEventMessageTopics(final String tenant) {
+        tenantEventMessageTopics.remove(tenant);
     }
 
-    public void resetLatestEventMessageTopics() {
-        tenantEventMessageTopics.remove(tenantAware.getCurrentTenant());
-    }
-
-    public Message getLatestEventMessage(final EventTopic eventTopic) {
-        final List<Message> messages = getTenantEventMessages().get(eventTopic);
+    public Message getLatestEventMessage(final EventTopic eventTopic, final String tenant) {
+        final List<Message> messages = getTenantEventMessages(tenant).get(eventTopic);
         return messages == null ? null : messages.get(messages.size() - 1);
     }
 
-    public Map<EventTopic, List<Message>> getTenantEventMessages() {
-        return tenantEventMessages.get(tenantAware.getCurrentTenant());
+    public Map<EventTopic, List<Message>> getTenantEventMessages(final String tenant) {
+        return tenantEventMessages.get(tenant);
     }
 
-    public Map<String, Message> getTenantDeleteMessages() {
-        return tenantDeleteMessages.get(tenantAware.getCurrentTenant());
+    public Map<String, Message> getTenantDeleteMessages(final String tenant) {
+        return tenantDeleteMessages.get(tenant);
     }
 
-    public Map<String, Message> getTenantPingResponseMessages() {
-        return tenantPingResponseMessages.get(tenantAware.getCurrentTenant());
+    public Map<String, Message> getTenantPingResponseMessages(final String tenant) {
+        return tenantPingResponseMessages.get(tenant);
     }
 
 }

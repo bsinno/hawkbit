@@ -12,14 +12,9 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
-import javax.annotation.PreDestroy;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Throwables;
 import com.rabbitmq.http.client.Client;
 import com.rabbitmq.http.client.domain.UserPermissions;
@@ -33,14 +28,13 @@ import com.rabbitmq.http.client.domain.UserPermissions;
 @SuppressWarnings("squid:S2068")
 public class RabbitMqSetupService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMqSetupService.class);
     private static final String GUEST = "guest";
     private static final String DEFAULT_USER = GUEST;
     private static final String DEFAULT_PASSWORD = GUEST;
 
     private Client rabbitmqHttpClient;
 
-    private static final String VIRTUAL_HOST = UUID.randomUUID().toString();
+    private final String virtualHost = UUID.randomUUID().toString();
 
     private final String hostname;
 
@@ -59,13 +53,12 @@ public class RabbitMqSetupService {
         if (StringUtils.isEmpty(password)) {
             password = DEFAULT_PASSWORD;
         }
-
     }
 
     private synchronized Client getRabbitmqHttpClient() {
         if (rabbitmqHttpClient == null) {
             try {
-                rabbitmqHttpClient = new Client(getHttpApiUrl(), getUsername(), getPassword());
+                rabbitmqHttpClient = new Client(getHttpApiUrl(), username, password);
             } catch (MalformedURLException | URISyntaxException e) {
                 throw Throwables.propagate(e);
             }
@@ -73,46 +66,29 @@ public class RabbitMqSetupService {
         return rabbitmqHttpClient;
     }
 
-    public String getHttpApiUrl() {
-        return "http://" + getHostname() + ":15672/api/";
+    private String getHttpApiUrl() {
+        return "http://" + hostname + ":15672/api/";
     }
 
     @SuppressWarnings("squid:S1162")
-    public String createVirtualHost() throws JsonProcessingException {
-        if (!getRabbitmqHttpClient().alivenessTest("/")) {
-            throw new AlivenessException(getHostname());
+    public String createVirtualHost() {
+        final Client client = getRabbitmqHttpClient();
+        if (!client.alivenessTest("/")) {
+            throw new AlivenessException(hostname);
 
         }
-        getRabbitmqHttpClient().createVhost(VIRTUAL_HOST);
-        getRabbitmqHttpClient().updatePermissions(VIRTUAL_HOST, getUsername(), createUserPermissionsFullAccess());
-        return VIRTUAL_HOST;
-
+        client.createVhost(virtualHost);
+        client.updatePermissions(virtualHost, username, createUserPermissionsFullAccess());
+        return virtualHost;
     }
 
-//    @PreDestroy
     public void deleteVirtualHost() {
-        LOGGER.warn("Bean is being destroyed, deleting virtual host {}", VIRTUAL_HOST);
-        if (StringUtils.isEmpty(VIRTUAL_HOST)) {
-            return;
-        }
-        getRabbitmqHttpClient().deleteVhost(VIRTUAL_HOST);
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getUsername() {
-        return username;
+        getRabbitmqHttpClient().deleteVhost(virtualHost);
     }
 
     private UserPermissions createUserPermissionsFullAccess() {
         final UserPermissions permissions = new UserPermissions();
-        permissions.setVhost(VIRTUAL_HOST);
+        permissions.setVhost(virtualHost);
         permissions.setRead(".*");
         permissions.setConfigure(".*");
         permissions.setWrite(".*");

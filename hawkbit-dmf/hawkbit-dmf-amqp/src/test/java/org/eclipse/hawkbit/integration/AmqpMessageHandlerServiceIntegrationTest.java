@@ -94,7 +94,7 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
 
         assertPingReplyMessage(CORRELATION_ID);
 
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
     }
 
     @Test
@@ -109,7 +109,7 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
         registerAndAssertTargetWithExistingTenant(target2, 2);
 
         registerSameTargetAndAssertBasedOnVersion(target2, 2, TargetUpdateStatus.REGISTERED);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
     }
 
     @Test
@@ -514,7 +514,7 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
 
         // verify
         assertDownloadAndInstallMessage(distributionSet.getModules(), controllerId);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
     }
 
     @Test
@@ -541,7 +541,7 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
 
         // verify
         assertDownloadMessage(distributionSet.getModules(), controllerId);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
     }
 
     @Test
@@ -568,7 +568,7 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
 
         // verify
         assertDownloadAndInstallMessage(distributionSet.getModules(), controllerId);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
     }
 
     @Test
@@ -596,7 +596,7 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
 
         // verify
         assertCancelActionMessage(getFirstAssignedActionId(distributionSetAssignmentResult), controllerId);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
     }
 
     @Test
@@ -840,7 +840,7 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
 
         // verify
         final Message message = assertReplyMessageHeader(EventTopic.DOWNLOAD, controllerId);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
 
         // get actionId from Message
         Long actionId = Long.parseLong(getJsonFieldFromBody(message.getBody(), "actionId"));
@@ -848,7 +848,7 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
         // Send DOWNLOADED message
         sendActionUpdateStatus(new DmfActionUpdateStatus(actionId, DmfActionStatus.DOWNLOADED));
         assertAction(actionId, 1, Status.RUNNING, Status.DOWNLOADED);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
 
         verifyAssignedDsAndInstalledDs(controllerId, distributionSet.getId(), null);
     }
@@ -872,7 +872,7 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
 
         // verify
         final Message message = assertReplyMessageHeader(EventTopic.DOWNLOAD, controllerId);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
 
         // get actionId from Message
         Long actionId = Long.parseLong(getJsonFieldFromBody(message.getBody(), "actionId"));
@@ -880,14 +880,14 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
         // Send DOWNLOADED message, should result in the action being closed
         sendActionUpdateStatus(new DmfActionUpdateStatus(actionId, DmfActionStatus.DOWNLOADED));
         assertAction(actionId, 1, Status.RUNNING, Status.DOWNLOADED);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
 
         verifyAssignedDsAndInstalledDs(controllerId, distributionSet.getId(), null);
 
         // Send FINISHED message
         sendActionUpdateStatus(new DmfActionUpdateStatus(actionId, DmfActionStatus.FINISHED));
         assertAction(actionId, 2, Status.RUNNING, Status.DOWNLOADED, Status.FINISHED);
-        Mockito.verifyZeroInteractions(getDeadletterListener());
+        assertThat(deadletterListener.getMessageCount()).isZero();
 
         verifyAssignedDsAndInstalledDs(controllerId, distributionSet.getId(), distributionSet.getId());
     }
@@ -1025,9 +1025,9 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
 
     private void verifyNumberOfDeadLetterMessages(final int numberOfInvocations) {
         assertEmptyReceiverQueueCount();
-        createConditionFactory().untilAsserted(() -> Mockito
-                .verify(getDeadletterListener(), Mockito.times(numberOfInvocations)).handleMessage(Mockito.any()));
-        Mockito.reset(getDeadletterListener());
+        createConditionFactory().untilAsserted(
+                () -> assertThat(deadletterListener.getMessageCount()).isEqualTo(numberOfInvocations));
+        deadletterListener.reset();
     }
 
     private static String getJsonFieldFromBody(final byte[] body, final String fieldName) throws IOException {

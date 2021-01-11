@@ -15,6 +15,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PreDestroy;
+
 import org.eclipse.hawkbit.HawkbitServerProperties;
 import org.eclipse.hawkbit.api.HostnameResolver;
 import org.eclipse.hawkbit.rabbitmq.test.RabbitMqSetupService.AlivenessException;
@@ -82,14 +84,25 @@ public class AmqpTestConfiguration {
     }
 
     @Bean
-    ConnectionFactory rabbitConnectionFactory(final RabbitMqSetupService rabbitmqSetupService) {
-        final CachingConnectionFactory factory = new CachingConnectionFactory();
-        factory.setHost(rabbitmqSetupService.getHostname());
+    RabbitMqSetupService rabbitMqSetupService(final RabbitProperties properties) {
+        return new RabbitMqSetupService(properties);
+    }
+
+    @Bean(destroyMethod = "deleteVhost")
+    ConnectionFactory rabbitConnectionFactory(final RabbitProperties properties, final RabbitMqSetupService setupService) {
+        final CachingConnectionFactory factory = new CachingConnectionFactory(){
+            @PreDestroy
+            public void deleteVhost() {
+                destroy();
+                setupService.deleteVirtualHost();
+            }
+        };
+        factory.setHost(properties.getHost());
         factory.setPort(5672);
-        factory.setUsername(rabbitmqSetupService.getUsername());
-        factory.setPassword(rabbitmqSetupService.getPassword());
+        factory.setUsername(properties.getUsername());
+        factory.setPassword(properties.getPassword());
         try {
-            factory.setVirtualHost(rabbitmqSetupService.createVirtualHost());
+            factory.setVirtualHost(setupService.createVirtualHost());
             // All exception are caught. The BrokerRunning decide if the
             // test should break or not
         } catch (@SuppressWarnings("squid:S2221") final Exception e) {
@@ -97,11 +110,6 @@ public class AmqpTestConfiguration {
             LOG.error("Cannot create virtual host.", e);
         }
         return factory;
-    }
-
-    @Bean
-    RabbitMqSetupService rabbitmqSetupService(final RabbitProperties properties) {
-        return new RabbitMqSetupService(properties);
     }
 
     @Bean
@@ -115,11 +123,11 @@ public class AmqpTestConfiguration {
     }
 
     @Bean
-    BrokerRunning brokerRunning(final RabbitMqSetupService rabbitmqSetupService) {
+    BrokerRunning brokerRunning(final RabbitProperties properties) {
         final BrokerRunning brokerRunning = BrokerRunning.isRunning();
-        brokerRunning.setHostName(rabbitmqSetupService.getHostname());
-        brokerRunning.getConnectionFactory().setUsername(rabbitmqSetupService.getUsername());
-        brokerRunning.getConnectionFactory().setPassword(rabbitmqSetupService.getPassword());
+        brokerRunning.setHostName(properties.getHost());
+        brokerRunning.getConnectionFactory().setUsername(properties.getUsername());
+        brokerRunning.getConnectionFactory().setPassword(properties.getPassword());
         return brokerRunning;
     }
 
