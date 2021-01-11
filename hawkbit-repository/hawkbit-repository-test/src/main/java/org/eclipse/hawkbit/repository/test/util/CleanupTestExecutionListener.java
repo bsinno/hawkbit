@@ -17,15 +17,24 @@ import org.springframework.test.context.TestExecutionListener;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
 
 /**
- * A spring {@link TestExecutionListener} which cleansup the repository after
+ * A spring {@link TestExecutionListener} which cleansup the repository before and after
  * each test-method.
  */
 public class CleanupTestExecutionListener extends AbstractTestExecutionListener {
 
     @Override
-    public void beforeTestMethod(final TestContext testContext) throws Exception {
+    public void beforeTestMethod(final TestContext testContext) {
+        cleanup(testContext);
+    }
 
+    @Override
+    public void afterTestMethod(final TestContext testContext) {
+        cleanup(testContext);
+    }
+
+    private static void cleanup(final TestContext testContext) {
         final ApplicationContext applicationContext = testContext.getApplicationContext();
+
         new JpaTestRepositoryManagement(applicationContext.getBean(TenantAwareCacheManager.class),
                 applicationContext.getBean(SystemSecurityContext.class),
                 applicationContext.getBean(SystemManagement.class)).clearTestRepository();
