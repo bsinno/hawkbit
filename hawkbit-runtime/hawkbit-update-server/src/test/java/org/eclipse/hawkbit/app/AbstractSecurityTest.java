@@ -8,7 +8,9 @@
  */
 package org.eclipse.hawkbit.app;
 
+import org.eclipse.hawkbit.repository.test.util.WithSqlDatabaseRule;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +24,9 @@ import org.springframework.web.context.WebApplicationContext;
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = { "hawkbit.dmf.rabbitmq.enabled=false" })
 public abstract class AbstractSecurityTest {
+
+    @ClassRule
+    public static final WithSqlDatabaseRule randomDatabaseRule = new WithSqlDatabaseRule();
 
     @Autowired
     private WebApplicationContext context;

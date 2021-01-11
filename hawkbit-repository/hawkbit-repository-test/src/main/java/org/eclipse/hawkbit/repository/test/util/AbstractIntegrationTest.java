@@ -71,6 +71,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -200,6 +201,9 @@ public abstract class AbstractIntegrationTest {
 
     @Rule
     public final WithSpringAuthorityRule securityRule = WithSpringAuthorityRule.instance();
+
+    @ClassRule
+    public static final WithSqlDatabaseRule randomDatabaseRule = new WithSqlDatabaseRule();
 
     @Rule
     public TestWatcher testLifecycleLoggerRule = new TestWatcher() {

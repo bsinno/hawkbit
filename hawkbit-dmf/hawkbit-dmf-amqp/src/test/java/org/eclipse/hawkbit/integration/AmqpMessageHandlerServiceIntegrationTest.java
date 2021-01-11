@@ -238,13 +238,12 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
     @Description("Tests tenant not exist. This message should forwarded to the deadletter queue")
     @ExpectEvents({@Expect(type = TargetCreatedEvent.class, count = 0)})
     public void tenantNotExist() {
-        final long countTenants = systemManagement.getSystemUsageStatistics().getOverallTenants();
-        final String controllerId = TARGET_PREFIX + "tenantNotExist";
-        final Message createTargetMessage = createTargetMessage(controllerId, "TenantNotExist");
-        getDmfClient().send(createTargetMessage);
+        final String tenant = "TenantNotExist";
+        final String controllerId = TARGET_PREFIX + tenant;
+        getDmfClient().send(createTargetMessage(controllerId, tenant));
 
         verifyOneDeadLetterMessage();
-        assertThat(systemManagement.findTenants(PAGE)).hasSize((int) countTenants);
+        assertThat(systemManagement.findTenants(PAGE).getContent()).doesNotContain(tenant);
     }
 
     @Test
