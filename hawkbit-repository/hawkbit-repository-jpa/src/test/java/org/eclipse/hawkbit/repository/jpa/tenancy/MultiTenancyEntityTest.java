@@ -91,7 +91,7 @@ public class MultiTenancyEntityTest extends AbstractJpaIntegrationTest {
 
         final Page<String> tenants = systemManagement.findTenants(PAGE);
         assertThat(tenants).as("Expected number if tenants before deletion is")
-                .contains(tenantAware.getCurrentTenant(), anotherTenant.toUpperCase());
+                .contains(tenantAware.getCurrentTenant().toUpperCase(), anotherTenant.toUpperCase());
 
         systemManagement.deleteTenant(anotherTenant);
 

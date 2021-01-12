@@ -412,6 +412,7 @@
                   <useSystemClassLoader>false</useSystemClassLoader>
                   <reuseForks>true</reuseForks>
                   <forkCount>${surefire.forkcount}</forkCount>
+                  <parallel>none</parallel>
                   <argLine>
                      ${jacoco.agent.ut.arg}
                   </argLine>
