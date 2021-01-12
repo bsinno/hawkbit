@@ -15,8 +15,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PreDestroy;
-
 import org.eclipse.hawkbit.HawkbitServerProperties;
 import org.eclipse.hawkbit.api.HostnameResolver;
 import org.eclipse.hawkbit.rabbitmq.test.RabbitMqSetupService.AlivenessException;
@@ -85,14 +83,9 @@ public class AmqpTestConfiguration {
     }
 
     @ConditionalOnMissingBean
-    @Bean(destroyMethod = "deleteVhost")
+    @Bean
     ConnectionFactory rabbitConnectionFactory(final RabbitProperties properties, final RabbitMqSetupService setupService) {
-        final CachingConnectionFactory factory = new CachingConnectionFactory() {
-            public void deleteVhost() {
-                destroy();
-                setupService.deleteVirtualHost();
-            }
-        };
+        final CachingConnectionFactory factory = new CachingConnectionFactory();
         factory.setHost(properties.getHost());
         factory.setPort(5672);
         factory.setUsername(properties.getUsername());
@@ -108,7 +101,7 @@ public class AmqpTestConfiguration {
         return factory;
     }
 
-    @Bean
+    @Bean(destroyMethod = "deleteVirtualHost")
     @ConditionalOnMissingBean
     RabbitMqSetupService rabbitmqSetupService() {
         return RabbitMqSetupService.instance();

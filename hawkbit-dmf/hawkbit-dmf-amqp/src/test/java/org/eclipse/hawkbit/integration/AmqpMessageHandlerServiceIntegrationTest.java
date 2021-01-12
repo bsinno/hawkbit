@@ -10,13 +10,9 @@ package org.eclipse.hawkbit.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.hawkbit.repository.model.Action.ActionType.DOWNLOAD_ONLY;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +31,6 @@ import org.eclipse.hawkbit.dmf.json.model.DmfActionStatus;
 import org.eclipse.hawkbit.dmf.json.model.DmfActionUpdateStatus;
 import org.eclipse.hawkbit.dmf.json.model.DmfAttributeUpdate;
 import org.eclipse.hawkbit.dmf.json.model.DmfUpdateMode;
-import org.eclipse.hawkbit.repository.ControllerManagement;
 import org.eclipse.hawkbit.repository.RepositoryConstants;
 import org.eclipse.hawkbit.repository.event.remote.TargetAssignDistributionSetEvent;
 import org.eclipse.hawkbit.repository.event.remote.TargetAttributesRequestedEvent;
@@ -48,7 +43,6 @@ import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleCreatedE
 import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleUpdatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetUpdatedEvent;
-import org.eclipse.hawkbit.repository.exception.EntityAlreadyExistsException;
 import org.eclipse.hawkbit.repository.jpa.model.JpaDistributionSet;
 import org.eclipse.hawkbit.repository.jpa.model.JpaTarget;
 import org.eclipse.hawkbit.repository.model.Action.Status;
@@ -60,7 +54,6 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.repository.test.matcher.Expect;
 import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -890,31 +883,6 @@ public class AmqpMessageHandlerServiceIntegrationTest extends AbstractAmqpServic
         assertThat(deadletterListener.getMessageCount()).isZero();
 
         verifyAssignedDsAndInstalledDs(controllerId, distributionSet.getId(), distributionSet.getId());
-    }
-
-    @Test
-    @Description("Messages that result into certain exceptions being raised should not be requeued. This message should forwarded to the deadletter queue")
-    @ExpectEvents({@Expect(type = TargetCreatedEvent.class, count = 0)})
-    public void ignoredExceptionTypesShouldNotBeRequeued() {
-        final ControllerManagement mockedControllerManagement = Mockito.mock(ControllerManagement.class);
-
-        final List<Class<? extends RuntimeException>> exceptionsThatShouldNotBeRequeued = Arrays
-                .asList(IllegalArgumentException.class, EntityAlreadyExistsException.class);
-        final String controllerId = "dummy_target";
-
-        try {
-            for (Class<? extends RuntimeException> exceptionClass : exceptionsThatShouldNotBeRequeued) {
-                doThrow(exceptionClass).when(mockedControllerManagement)
-                        .findOrRegisterTargetIfItDoesNotExist(eq(controllerId), any());
-
-                amqpMessageHandlerService.setControllerManagement(mockedControllerManagement);
-                createAndSendThingCreated(controllerId, tenantAware.getCurrentTenant());
-                verifyOneDeadLetterMessage();
-                assertThat(targetManagement.getByControllerID(controllerId)).isEmpty();
-            }
-        } finally {
-            amqpMessageHandlerService.setControllerManagement(controllerManagement);
-        }
     }
 
     @Step

@@ -12,8 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +85,6 @@ public class RabbitMqSetupService {
         return VIRTUAL_HOST;
     }
 
-    @PreDestroy
     public void deleteVirtualHost() {
         LOGGER.info("\n\n\nDeleting virtual host {}\n\n", VIRTUAL_HOST);
         getRabbitmqHttpClient().deleteVhost(VIRTUAL_HOST);
