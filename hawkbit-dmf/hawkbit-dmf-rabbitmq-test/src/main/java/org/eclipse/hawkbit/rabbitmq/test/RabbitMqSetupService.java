@@ -12,6 +12,11 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
+import javax.annotation.PreDestroy;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
 import org.springframework.util.StringUtils;
 
@@ -27,38 +32,38 @@ import com.rabbitmq.http.client.domain.UserPermissions;
 // exception squid:S2068 - Test instance passwd
 @SuppressWarnings("squid:S2068")
 public class RabbitMqSetupService {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMqSetupService.class);
     private static final String GUEST = "guest";
     private static final String DEFAULT_USER = GUEST;
     private static final String DEFAULT_PASSWORD = GUEST;
+    private static final RabbitMqSetupService INSTANCE = new RabbitMqSetupService();
+
+    @Autowired
+    private RabbitProperties properties;
 
     private Client rabbitmqHttpClient;
 
-    private final String virtualHost = UUID.randomUUID().toString();
+    private static final String VIRTUAL_HOST = UUID.randomUUID().toString();
 
-    private final String hostname;
+    private RabbitMqSetupService() {
+    }
 
-    private String username;
+    public String getUsername() {
+        return StringUtils.isEmpty(properties.getUsername()) ? DEFAULT_USER : properties.getUsername();
+    }
 
-    private String password;
+    public String getPassword() {
+        return StringUtils.isEmpty(properties.getPassword()) ? DEFAULT_PASSWORD : properties.getPassword();
+    }
 
-    public RabbitMqSetupService(final RabbitProperties properties) {
-        hostname = properties.getHost();
-        username = properties.getUsername();
-        if (StringUtils.isEmpty(username)) {
-            username = DEFAULT_USER;
-        }
-
-        password = properties.getPassword();
-        if (StringUtils.isEmpty(password)) {
-            password = DEFAULT_PASSWORD;
-        }
+    public static RabbitMqSetupService instance() {
+        return INSTANCE;
     }
 
     private synchronized Client getRabbitmqHttpClient() {
         if (rabbitmqHttpClient == null) {
             try {
-                rabbitmqHttpClient = new Client(getHttpApiUrl(), username, password);
+                rabbitmqHttpClient = new Client(getHttpApiUrl(), getUsername(), getPassword());
             } catch (MalformedURLException | URISyntaxException e) {
                 throw Throwables.propagate(e);
             }
@@ -67,28 +72,30 @@ public class RabbitMqSetupService {
     }
 
     private String getHttpApiUrl() {
-        return "http://" + hostname + ":15672/api/";
+        return "http://" + properties.getHost() + ":15672/api/";
     }
 
     @SuppressWarnings("squid:S1162")
     public String createVirtualHost() {
         final Client client = getRabbitmqHttpClient();
         if (!client.alivenessTest("/")) {
-            throw new AlivenessException(hostname);
-
+            throw new AlivenessException(properties.getHost());
         }
-        client.createVhost(virtualHost);
-        client.updatePermissions(virtualHost, username, createUserPermissionsFullAccess());
-        return virtualHost;
+        LOGGER.info("\n\n\nCreating virtual host {}\n\n", VIRTUAL_HOST);
+        client.createVhost(VIRTUAL_HOST);
+        client.updatePermissions(VIRTUAL_HOST, getUsername(), createUserPermissionsFullAccess());
+        return VIRTUAL_HOST;
     }
 
+    @PreDestroy
     public void deleteVirtualHost() {
-        getRabbitmqHttpClient().deleteVhost(virtualHost);
+        LOGGER.info("\n\n\nDeleting virtual host {}\n\n", VIRTUAL_HOST);
+        getRabbitmqHttpClient().deleteVhost(VIRTUAL_HOST);
     }
 
     private UserPermissions createUserPermissionsFullAccess() {
         final UserPermissions permissions = new UserPermissions();
-        permissions.setVhost(virtualHost);
+        permissions.setVhost(VIRTUAL_HOST);
         permissions.setRead(".*");
         permissions.setConfigure(".*");
         permissions.setWrite(".*");

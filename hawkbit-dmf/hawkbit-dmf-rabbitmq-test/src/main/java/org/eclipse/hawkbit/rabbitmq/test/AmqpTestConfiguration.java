@@ -29,6 +29,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.junit.BrokerRunning;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -83,10 +84,10 @@ public class AmqpTestConfiguration {
         };
     }
 
+    @ConditionalOnMissingBean
     @Bean(destroyMethod = "deleteVhost")
     ConnectionFactory rabbitConnectionFactory(final RabbitProperties properties, final RabbitMqSetupService setupService) {
-        final CachingConnectionFactory factory = new CachingConnectionFactory(){
-            @PreDestroy
+        final CachingConnectionFactory factory = new CachingConnectionFactory() {
             public void deleteVhost() {
                 destroy();
                 setupService.deleteVirtualHost();
@@ -108,8 +109,9 @@ public class AmqpTestConfiguration {
     }
 
     @Bean
-    RabbitMqSetupService rabbitmqSetupService(final RabbitProperties properties) {
-        return new RabbitMqSetupService(properties);
+    @ConditionalOnMissingBean
+    RabbitMqSetupService rabbitmqSetupService() {
+        return RabbitMqSetupService.instance();
     }
 
     @Bean

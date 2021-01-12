@@ -28,12 +28,14 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.TestPropertySource;
 
 @ContextHierarchy({ //
     @ContextConfiguration(name = "base"), //
     @ContextConfiguration(name = "amqp", classes = { RepositoryApplicationConfiguration.class, TestConfiguration.class,
             AmqpTestConfiguration.class }), //
 })
+@TestPropertySource(properties = "logging.level.org.eclipse.hawkbit.rabbitmq.test.RabbitMqSetupService=INFO")
 public abstract class AbstractAmqpIntegrationTest extends AbstractIntegrationTest {
     private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
