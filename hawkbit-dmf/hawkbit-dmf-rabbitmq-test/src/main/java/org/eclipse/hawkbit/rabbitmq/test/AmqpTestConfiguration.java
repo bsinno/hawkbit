@@ -83,11 +83,6 @@ public class AmqpTestConfiguration {
         };
     }
 
-    @Bean
-    RabbitMqSetupService rabbitMqSetupService(final RabbitProperties properties) {
-        return new RabbitMqSetupService(properties);
-    }
-
     @Bean(destroyMethod = "deleteVhost")
     ConnectionFactory rabbitConnectionFactory(final RabbitProperties properties, final RabbitMqSetupService setupService) {
         final CachingConnectionFactory factory = new CachingConnectionFactory(){
@@ -110,6 +105,11 @@ public class AmqpTestConfiguration {
             LOG.error("Cannot create virtual host.", e);
         }
         return factory;
+    }
+
+    @Bean
+    RabbitMqSetupService rabbitmqSetupService(final RabbitProperties properties) {
+        return new RabbitMqSetupService(properties);
     }
 
     @Bean
