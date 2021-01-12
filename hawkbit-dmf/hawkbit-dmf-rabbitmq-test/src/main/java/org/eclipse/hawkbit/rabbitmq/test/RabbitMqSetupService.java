@@ -29,7 +29,7 @@ import com.rabbitmq.http.client.domain.UserPermissions;
  */
 // exception squid:S2068 - Test instance passwd
 @SuppressWarnings("squid:S2068")
-public class RabbitMqSetupService {
+public final class RabbitMqSetupService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RabbitMqSetupService.class);
     private static final String GUEST = "guest";
     private static final String DEFAULT_USER = GUEST;
