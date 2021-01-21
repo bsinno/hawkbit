@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.app;
 
 import org.eclipse.hawkbit.repository.test.util.MsSqlTestDatabase;
 import org.eclipse.hawkbit.repository.test.util.MySqlTestDatabase;
+import org.eclipse.hawkbit.repository.test.util.PostgreSqlTestDatabase;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,9 @@ import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = { "hawkbit.dmf.rabbitmq.enabled=false" })
-@TestExecutionListeners(listeners = { MySqlTestDatabase.class,
-        MsSqlTestDatabase.class }, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { MySqlTestDatabase.class, MsSqlTestDatabase.class,
+        PostgreSqlTestDatabase.class }, mergeMode = MergeMode.MERGE_WITH_DEFAULTS)
+
 @DirtiesContext
 public abstract class AbstractSecurityTest {
 
