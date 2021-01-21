@@ -46,11 +46,13 @@ import io.qameta.allure.Story;
 
 @Feature("Component Tests - Repository")
 @Story("Entity Events")
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
-    @ContextConfiguration(name = "jpa"), //
-    @ContextConfiguration(name = "repoEntityEvent", classes = { TestConfiguration.class }) //
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
+    @ContextConfiguration(name = "jpa"),
+    @ContextConfiguration(name = "repoEntityEvent", classes = { TestConfiguration.class })
 })
+//@formatter:on
 public class RepositoryEntityEventTest extends AbstractJpaIntegrationTest {
 
     @Autowired

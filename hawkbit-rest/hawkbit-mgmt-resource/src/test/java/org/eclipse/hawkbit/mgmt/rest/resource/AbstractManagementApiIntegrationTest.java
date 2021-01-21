@@ -26,10 +26,12 @@ import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
     @ContextConfiguration(name = "rest", classes = MgmtApiConfiguration.class)
 })
+//@formatter:on
 @TestPropertySource(locations = "classpath:/mgmt-test.properties")
 public abstract class AbstractManagementApiIntegrationTest extends AbstractRestIntegrationTest {
 

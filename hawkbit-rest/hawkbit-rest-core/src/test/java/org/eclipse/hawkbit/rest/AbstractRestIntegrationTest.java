@@ -34,10 +34,14 @@ import org.springframework.web.filter.CharacterEncodingFilter;
  * Abstract Test for Rest tests.
  */
 @WebAppConfiguration
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
-    @ContextConfiguration(name = "rest", classes = { RestConfiguration.class, RepositoryApplicationConfiguration.class, TestConfiguration.class})
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
+    @ContextConfiguration(name = "rest", classes = { RestConfiguration.class, RepositoryApplicationConfiguration.class,
+            TestConfiguration.class }
+    )
 })
+//@formatter:on
 @AutoConfigureMockMvc
 @TestPropertySource(locations = { "classpath:/rest-test.properties" })
 public abstract class AbstractRestIntegrationTest extends AbstractIntegrationTest {

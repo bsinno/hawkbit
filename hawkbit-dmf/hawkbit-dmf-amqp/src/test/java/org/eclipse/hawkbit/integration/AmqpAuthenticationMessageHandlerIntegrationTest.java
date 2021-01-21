@@ -42,10 +42,12 @@ import io.qameta.allure.Story;
 
 @Feature("Component Tests - Device Management Federation API")
 @Story("Amqp Authentication Message Handler")
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
     @ContextConfiguration(name = "amqp", classes = DmfApiConfiguration.class),
 })
+//@formatter:on
 public class AmqpAuthenticationMessageHandlerIntegrationTest extends AbstractAmqpIntegrationTest {
 
     private static final String TARGET_SECURITY_TOKEN = "12345";

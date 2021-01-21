@@ -62,10 +62,12 @@ import io.qameta.allure.Story;
  */
 @Feature("Component Tests - Direct Device Integration API")
 @Story("Artifact Download Resource")
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
     @ContextConfiguration(name = "rest", classes = DownloadTestConfiguration.class)
 })
+//@formatter:on
 public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);

@@ -30,11 +30,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.TestPropertySource;
 
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
     @ContextConfiguration(name = "amqp", classes = { RepositoryApplicationConfiguration.class, TestConfiguration.class,
-            AmqpTestConfiguration.class }), //
+            AmqpTestConfiguration.class }),
 })
+//@formatter:on
 @TestPropertySource(properties = "logging.level.org.eclipse.hawkbit.rabbitmq.test.RabbitMqSetupService=INFO")
 public abstract class AbstractAmqpIntegrationTest extends AbstractIntegrationTest {
     private static final Duration TIMEOUT = Duration.ofSeconds(5);

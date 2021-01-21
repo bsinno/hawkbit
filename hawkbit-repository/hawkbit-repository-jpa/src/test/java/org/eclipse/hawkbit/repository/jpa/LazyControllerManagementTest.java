@@ -31,12 +31,15 @@ import io.qameta.allure.Story;
 
 @Feature("Component Tests - Repository")
 @Story("Controller Management")
-// explicitly redeclaring the context hirarchy, in order to "enforce"
-// a fresh context creation with the empty Config class
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
-    @ContextConfiguration(name = "jpa", classes = { LazyControllerManagementTest.Config.class}/*, initializers = LazyControllerManagementTest.Config.class*/) //
+/**
+ * explicitly redeclare the context hierarchy, to "enforce" a fresh context creation with the empty Config class
+ */
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
+    @ContextConfiguration(name = "jpa", classes = { LazyControllerManagementTest.Config.class})
 })
+//@formatter:on
 @TestPropertySource(properties = { "hawkbit.server.repository.eagerPollPersistence=false",
                             "hawkbit.server.repository.pollPersistenceFlushTime=1000"})
 public class LazyControllerManagementTest extends AbstractJpaIntegrationTest {

@@ -57,10 +57,12 @@ import io.qameta.allure.Step;
  * Common class for {@link AmqpMessageHandlerServiceIntegrationTest} and
  * {@link AmqpMessageDispatcherServiceIntegrationTest}.
  */
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
     @ContextConfiguration(name = "amqp", classes = { DmfApiConfiguration.class, DmfTestConfiguration.class })
 })
+//@formatter:on
 public abstract class AbstractAmqpServiceIntegrationTest extends AbstractAmqpIntegrationTest {
 
     protected static final String CREATED_BY = "CONTROLLER_PLUG_AND_PLAY";

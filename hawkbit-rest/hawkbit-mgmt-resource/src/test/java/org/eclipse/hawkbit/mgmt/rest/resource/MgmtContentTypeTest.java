@@ -41,11 +41,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * in the response, which is achieved through enabling {@link Encoding} via
  * properties.
  */
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
+@TestPropertySource(properties = { "server.servlet.encoding.charset=UTF-8", "server.servlet.encoding.force=true" })
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
     @ContextConfiguration(name = "rest", classes = HttpEncodingAutoConfiguration.class)
 })
-@TestPropertySource(properties = { "server.servlet.encoding.charset=UTF-8", "server.servlet.encoding.force=true" })
+//@formatter:on
 @Feature("Component Tests - Management API")
 @Story("Response Content-Type")
 public class MgmtContentTypeTest extends AbstractManagementApiIntegrationTest {

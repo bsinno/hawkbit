@@ -38,10 +38,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
-    @ContextConfiguration(name = "jpa", classes = { RepositoryApplicationConfiguration.class, TestConfiguration.class}) //
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
+    @ContextConfiguration(name = "jpa", classes = { RepositoryApplicationConfiguration.class, TestConfiguration.class})
 })
+//@formatter:on
 @TestPropertySource(locations = "classpath:/jpa-test.properties")
 public abstract class AbstractJpaIntegrationTest extends AbstractIntegrationTest {
 

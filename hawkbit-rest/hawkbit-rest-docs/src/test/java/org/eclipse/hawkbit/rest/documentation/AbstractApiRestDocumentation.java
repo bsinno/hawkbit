@@ -66,10 +66,12 @@ import io.qameta.allure.Feature;
  *
  */
 @Feature("Documentation Verfication - API")
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
     @ContextConfiguration(name = "rest", classes = { DdiApiConfiguration.class, MgmtApiConfiguration.class })
 })
+//@formatter:on
 @TestPropertySource(locations = { "classpath:/updateserver-restdocumentation-test.properties" })
 public abstract class AbstractApiRestDocumentation extends AbstractRestIntegrationTest {
 

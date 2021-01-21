@@ -24,10 +24,12 @@ import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
 import com.fasterxml.jackson.dataformat.cbor.CBORParser;
 
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
     @ContextConfiguration(name = "rest", classes = DdiApiConfiguration.class)
 })
+//@formatter:on
 @TestPropertySource(locations = "classpath:/ddi-test.properties")
 public abstract class AbstractDDiApiIntegrationTest extends AbstractRestIntegrationTest {
 

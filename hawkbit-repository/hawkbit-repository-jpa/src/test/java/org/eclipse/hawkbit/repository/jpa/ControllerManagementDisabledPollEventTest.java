@@ -27,12 +27,15 @@ import io.qameta.allure.Story;
 
 @Feature("Component Tests - Repository")
 @Story("Controller Management")
-// explicitly redeclaring the context hirarchy, in order to "enforce"
-// a fresh context creation with the empty Config class
-@ContextHierarchy({ //
-    @ContextConfiguration(name = "base"), //
-    @ContextConfiguration(name = "jpa", classes = { ControllerManagementDisabledPollEventTest.Config.class}) //
+/**
+ * explicitly redeclare the context hierarchy, to "enforce" a fresh context creation with the empty Config class
+ */
+//@formatter:off
+@ContextHierarchy({
+    @ContextConfiguration(name = "base"),
+    @ContextConfiguration(name = "jpa", classes = { ControllerManagementDisabledPollEventTest.Config.class})
 })
+//@formatter:on
 @TestPropertySource(properties = "hawkbit.server.repository.publishTargetPollEvent=false")
 public class ControllerManagementDisabledPollEventTest extends AbstractJpaIntegrationTest {
 
