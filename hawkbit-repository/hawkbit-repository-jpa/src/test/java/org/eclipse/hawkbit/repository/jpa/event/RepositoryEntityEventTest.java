@@ -30,7 +30,6 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Rollout;
 import org.eclipse.hawkbit.repository.model.SoftwareModule;
 import org.eclipse.hawkbit.repository.model.Target;
-import org.eclipse.hawkbit.repository.test.TestConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +48,7 @@ import io.qameta.allure.Story;
 //@formatter:off
 @ContextHierarchy({
     @ContextConfiguration(name = "base"),
-    @ContextConfiguration(name = "jpa"),
-    @ContextConfiguration(name = "repoEntityEvent", classes = { TestConfiguration.class })
+    @ContextConfiguration(name = "jpa", classes = { RepositoryEntityEventTest.RepositoryTestConfiguration.class })
 })
 //@formatter:on
 public class RepositoryEntityEventTest extends AbstractJpaIntegrationTest {
