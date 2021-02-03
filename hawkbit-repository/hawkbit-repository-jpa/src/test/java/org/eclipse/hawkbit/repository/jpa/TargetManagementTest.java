@@ -42,9 +42,9 @@ import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleCreatedE
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetTagCreatedEvent;
 import org.eclipse.hawkbit.repository.event.remote.entity.TargetUpdatedEvent;
+import org.eclipse.hawkbit.repository.exception.AssignmentQuotaExceededException;
 import org.eclipse.hawkbit.repository.exception.EntityAlreadyExistsException;
 import org.eclipse.hawkbit.repository.exception.InvalidTargetAddressException;
-import org.eclipse.hawkbit.repository.exception.AssignmentQuotaExceededException;
 import org.eclipse.hawkbit.repository.exception.TenantNotExistException;
 import org.eclipse.hawkbit.repository.jpa.model.JpaTarget;
 import org.eclipse.hawkbit.repository.jpa.model.JpaTargetMetadata;
@@ -110,6 +110,8 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
         verifyThrownExceptionBy(() -> targetManagement.countByAssignedDistributionSet(NOT_EXIST_IDL),
                 "DistributionSet");
         verifyThrownExceptionBy(() -> targetManagement.countByInstalledDistributionSet(NOT_EXIST_IDL),
+                "DistributionSet");
+        verifyThrownExceptionBy(() -> targetManagement.existsByInstalledOrAssignedDistributionSet(NOT_EXIST_IDL),
                 "DistributionSet");
 
         verifyThrownExceptionBy(() -> targetManagement.countByTargetFilterQuery(NOT_EXIST_IDL), "TargetFilterQuery");
@@ -471,10 +473,14 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
                 .isEqualTo(0);
         assertThat(targetManagement.countByInstalledDistributionSet(set.getId())).as("Target count is wrong")
                 .isEqualTo(0);
+        assertThat(targetManagement.existsByInstalledOrAssignedDistributionSet(set.getId())).as("Target count is wrong")
+                .isFalse();
         assertThat(targetManagement.countByAssignedDistributionSet(set2.getId())).as("Target count is wrong")
                 .isEqualTo(0);
         assertThat(targetManagement.countByInstalledDistributionSet(set2.getId())).as("Target count is wrong")
                 .isEqualTo(0);
+        assertThat(targetManagement.existsByInstalledOrAssignedDistributionSet(set2.getId())).as("Target count is wrong")
+                .isFalse();
 
         Target target = createTargetWithAttributes("4711");
 
@@ -494,10 +500,14 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
                 .isEqualTo(0);
         assertThat(targetManagement.countByInstalledDistributionSet(set.getId())).as("Target count is wrong")
                 .isEqualTo(1);
+        assertThat(targetManagement.existsByInstalledOrAssignedDistributionSet(set.getId())).as("Target count is wrong")
+                .isTrue();
         assertThat(targetManagement.countByAssignedDistributionSet(set2.getId())).as("Target count is wrong")
                 .isEqualTo(1);
         assertThat(targetManagement.countByInstalledDistributionSet(set2.getId())).as("Target count is wrong")
                 .isEqualTo(0);
+        assertThat(targetManagement.existsByInstalledOrAssignedDistributionSet(set2.getId())).as("Target count is wrong")
+                .isTrue();
         assertThat(target.getLastTargetQuery()).as("Target query is not work").isGreaterThanOrEqualTo(current);
         assertThat(deploymentManagement.getAssignedDistributionSet("4711").get()).as("Assigned ds size is wrong")
                 .isEqualTo(set2);
