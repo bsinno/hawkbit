@@ -13,18 +13,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.eclipse.hawkbit.mgmt.rest.api.MgmtRestConstants;
-import org.eclipse.hawkbit.repository.test.util.MsSqlTestDatabase;
-import org.eclipse.hawkbit.repository.test.util.MySqlTestDatabase;
-import org.eclipse.hawkbit.repository.test.util.PostgreSqlTestDatabase;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.test.context.TestPropertySource;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
