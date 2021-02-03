@@ -26,9 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
 
@@ -37,17 +34,6 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
  */
 public class EventVerifier extends AbstractTestExecutionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventVerifier.class);
-//    private final TenantEventCounter eventCounter = new TenantEventCounter();
-//
-//    @Override
-//    public void beforeTestMethod(final TestContext testContext) throws Exception {
-//        ((ConfigurableApplicationContext) testContext.getApplicationContext()).addApplicationListener(eventCounter);
-//    }
-//
-//    @Override
-//    public void afterTestMethod(final TestContext testContext) throws Exception {
-//        testContext.getApplicationContext().getBean(ApplicationEventMulticaster.class).removeApplicationListener(eventCounter);
-//    }
 
     @Override
     public void afterTestExecution(final TestContext testContext) {
