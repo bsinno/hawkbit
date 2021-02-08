@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.app;
 
-import org.eclipse.hawkbit.repository.test.util.WithSqlDatabaseRule;
+import org.eclipse.hawkbit.repository.test.util.SqlTestDatabase;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 public abstract class AbstractSecurityTest {
 
     @ClassRule
-    public static final WithSqlDatabaseRule randomDatabaseRule = new WithSqlDatabaseRule();
+    public static final SqlTestDatabase randomDatabaseRule = new SqlTestDatabase();
 
     @Autowired
     private WebApplicationContext context;

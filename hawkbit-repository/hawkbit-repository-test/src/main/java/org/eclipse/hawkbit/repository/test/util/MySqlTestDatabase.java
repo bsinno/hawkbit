@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020 Microsoft and others.
+ * Copyright (c) 2015 Bosch Software Innovations GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,28 +17,28 @@ import org.springframework.util.StringUtils;
  * A {@link TestExecutionListener} for creating and dropping MySql schemas if
  * tests are setup with MySql.
  */
-public class PostgreSqlTestDatabase extends AbstractSqlTestDatabase {
+public class MySqlTestDatabase extends AbstractSqlTestDatabase {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PostgreSqlTestDatabase.class);
-    protected static final String POSTGRESQL_URI_PATTERN = "jdbc:postgresql://{host}:{port}/{path}?currentSchema={db}*";
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySqlTestDatabase.class);
+    protected static final String MYSQL_URI_PATTERN = "jdbc:mysql://{host}:{port}/{db}*";
 
-    @Override
+    @Override 
     protected boolean isApplicable() {
-        return "POSTGRESQL".equals(System.getProperty("spring.jpa.database")) //
-                && MATCHER.match(POSTGRESQL_URI_PATTERN, URI)  //
+        return "MYSQL".equals(System.getProperty("spring.jpa.database")) //
+                && MATCHER.match(MYSQL_URI_PATTERN, URI)  //
                 && !StringUtils.isEmpty(getSchemaName());
     }
 
     @Override
-    protected String createSchema() {
+    public String createSchema() {
         final String schemaName = getSchemaName();
         LOGGER.info("Creating mysql schema {} if not existing", schemaName);
 
-        executeStatement(URI.split("\\?currentSchema=")[0], schemaName, "CREATE SCHEMA IF NOT EXISTS " + schemaName + ";");
+        executeStatement(URI.split("/" + schemaName)[0], schemaName, "CREATE SCHEMA IF NOT EXISTS " + schemaName + ";");
         return schemaName;
     }
 
     private static String getSchemaName() {
-        return MATCHER.extractUriTemplateVariables(POSTGRESQL_URI_PATTERN, URI).get("db");
+        return MATCHER.extractUriTemplateVariables(MYSQL_URI_PATTERN, URI).get("db");
     }
 }

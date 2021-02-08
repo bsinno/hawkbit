@@ -203,7 +203,7 @@ public abstract class AbstractIntegrationTest {
     public final WithSpringAuthorityRule securityRule = WithSpringAuthorityRule.instance();
 
     @ClassRule
-    public static final WithSqlDatabaseRule randomDatabaseRule = new WithSqlDatabaseRule();
+    public static final SqlTestDatabase databaseRule = new SqlTestDatabase();
 
     @Rule
     public TestWatcher testLifecycleLoggerRule = new TestWatcher() {
