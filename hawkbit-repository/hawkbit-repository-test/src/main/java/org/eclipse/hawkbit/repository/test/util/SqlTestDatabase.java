@@ -27,6 +27,17 @@ public class SqlTestDatabase extends ExternalResource {
             LOGGER.trace("Skipping creation of schema {}, since it's already created...", SCHEMA_NAME);
             return;
         }
+
+        if (StringUtils.isEmpty(System.getProperty("spring.jpa.database"))) {
+            LOGGER.info("No database uri configured. Skipping...");
+            return;
+        }
+
+        if ("H2".equals(System.getProperty("spring.jpa.database"))) {
+            LOGGER.trace("H2 database detected, skipping sql schema creation");
+            return;
+        }
+
         createSchema();
     }
 
