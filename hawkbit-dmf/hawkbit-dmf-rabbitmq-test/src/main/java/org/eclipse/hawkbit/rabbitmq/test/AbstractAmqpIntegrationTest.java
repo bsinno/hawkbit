@@ -27,15 +27,10 @@ import org.springframework.amqp.rabbit.junit.BrokerRunning;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 
 @ContextConfiguration(classes = { RepositoryApplicationConfiguration.class, AmqpTestConfiguration.class,
         TestConfiguration.class, TestSupportBinderAutoConfiguration.class })
-// Dirty context is necessary to create a new vhost and recreate all necessary
-// beans after every test class.
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public abstract class AbstractAmqpIntegrationTest extends AbstractIntegrationTest {
     private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
@@ -74,11 +69,6 @@ public abstract class AbstractAmqpIntegrationTest extends AbstractIntegrationTes
         return getDmfClient().getMessageConverter().toMessage(payload, messageProperties);
     }
 
-    protected int getQueueMessageCount(final String queueName) {
-        return Integer
-                .parseInt(rabbitAdmin.getQueueProperties(queueName).get(RabbitAdmin.QUEUE_MESSAGE_COUNT).toString());
-    }
-
     protected RabbitAdmin getRabbitAdmin() {
         return rabbitAdmin;
     }
@@ -90,14 +80,6 @@ public abstract class AbstractAmqpIntegrationTest extends AbstractIntegrationTes
         template.setReplyTimeout(TimeUnit.SECONDS.toMillis(3));
         template.setExchange(getExchange());
         return template;
-    }
-
-    protected String getVirtualHost() {
-        return connectionFactory.getVirtualHost();
-    }
-
-    protected int getPort() {
-        return connectionFactory.getPort();
     }
 
 }

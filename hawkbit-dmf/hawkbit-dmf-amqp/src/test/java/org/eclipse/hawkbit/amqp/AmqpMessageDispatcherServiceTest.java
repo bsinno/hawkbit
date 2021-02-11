@@ -9,6 +9,8 @@
 package org.eclipse.hawkbit.amqp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.CONTROLLER_ROLE;
+import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.SYSTEM_ROLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -49,6 +51,7 @@ import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TenantMetaData;
 import org.eclipse.hawkbit.repository.test.util.AbstractIntegrationTest;
 import org.eclipse.hawkbit.repository.test.util.TestdataFactory;
+import org.eclipse.hawkbit.repository.test.util.WithUser;
 import org.eclipse.hawkbit.util.IpUtil;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -59,19 +62,17 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.AbstractJavaTypeMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
-@ActiveProfiles({ "test" })
 @Feature("Component Tests - Device Management Federation API")
 @Story("AmqpMessage Dispatcher Service Test")
 @SpringBootTest(classes = { RepositoryApplicationConfiguration.class })
+@WithUser(allSpPermissions = true, authorities = { CONTROLLER_ROLE, SYSTEM_ROLE })
 public class AmqpMessageDispatcherServiceTest extends AbstractIntegrationTest {
 
-    private static final String TENANT = "default";
     private static final Long TENANT_ID = 4711L;
 
     private static final URI AMQP_URI = IpUtil.createAmqpUri("vHost", "mytest");
@@ -106,7 +107,7 @@ public class AmqpMessageDispatcherServiceTest extends AbstractIntegrationTest {
         systemManagement = Mockito.mock(SystemManagement.class);
         final TenantMetaData tenantMetaData = Mockito.mock(TenantMetaData.class);
         when(tenantMetaData.getId()).thenReturn(TENANT_ID);
-        when(tenantMetaData.getTenant()).thenReturn(TENANT);
+        when(tenantMetaData.getTenant()).thenReturn(tenantAware.getCurrentTenant());
 
         when(systemManagement.getTenantMetadata()).thenReturn(tenantMetaData);
 
@@ -218,7 +219,7 @@ public class AmqpMessageDispatcherServiceTest extends AbstractIntegrationTest {
     @Description("Verifies that sending update controller attributes event works.")
     public void sendUpdateAttributesRequest() {
         final String amqpUri = "amqp://anyhost";
-        final TargetAttributesRequestedEvent targetAttributesRequestedEvent = new TargetAttributesRequestedEvent(TENANT,
+        final TargetAttributesRequestedEvent targetAttributesRequestedEvent = new TargetAttributesRequestedEvent(tenantAware.getCurrentTenant(),
                 1L, CONTROLLER_ID, amqpUri, Target.class.getName(), serviceMatcher.getServiceId());
 
         amqpMessageDispatcherService.targetTriggerUpdateAttributes(targetAttributesRequestedEvent);
@@ -246,7 +247,7 @@ public class AmqpMessageDispatcherServiceTest extends AbstractIntegrationTest {
 
         // setup
         final String amqpUri = "amqp://anyhost";
-        final TargetDeletedEvent targetDeletedEvent = new TargetDeletedEvent(TENANT, 1L, CONTROLLER_ID, amqpUri,
+        final TargetDeletedEvent targetDeletedEvent = new TargetDeletedEvent(tenantAware.getCurrentTenant(), 1L, CONTROLLER_ID, amqpUri,
                 Target.class.getName(), serviceMatcher.getServiceId());
 
         // test
@@ -263,7 +264,7 @@ public class AmqpMessageDispatcherServiceTest extends AbstractIntegrationTest {
 
         // setup
         final String noAmqpUri = "http://anyhost";
-        final TargetDeletedEvent targetDeletedEvent = new TargetDeletedEvent(TENANT, 1L, CONTROLLER_ID, noAmqpUri,
+        final TargetDeletedEvent targetDeletedEvent = new TargetDeletedEvent(tenantAware.getCurrentTenant(), 1L, CONTROLLER_ID, noAmqpUri,
                 Target.class.getName(), serviceMatcher.getServiceId());
 
         // test
@@ -279,7 +280,7 @@ public class AmqpMessageDispatcherServiceTest extends AbstractIntegrationTest {
 
         // setup
         final String noAmqpUri = null;
-        final TargetDeletedEvent targetDeletedEvent = new TargetDeletedEvent(TENANT, 1L, CONTROLLER_ID, noAmqpUri,
+        final TargetDeletedEvent targetDeletedEvent = new TargetDeletedEvent(tenantAware.getCurrentTenant(), 1L, CONTROLLER_ID, noAmqpUri,
                 Target.class.getName(), serviceMatcher.getServiceId());
 
         // test
@@ -302,7 +303,7 @@ public class AmqpMessageDispatcherServiceTest extends AbstractIntegrationTest {
         assertNotNull(sendMessage);
         assertThat(sendMessage.getMessageProperties().getHeaders().get(MessageHeaderKey.THING_ID))
                 .isEqualTo(CONTROLLER_ID);
-        assertThat(sendMessage.getMessageProperties().getHeaders().get(MessageHeaderKey.TENANT)).isEqualTo(TENANT);
+        assertThat(sendMessage.getMessageProperties().getHeaders().get(MessageHeaderKey.TENANT)).isEqualTo(tenantAware.getCurrentTenant());
         assertThat(sendMessage.getMessageProperties().getHeaders().get(MessageHeaderKey.TYPE))
                 .isEqualTo(MessageType.THING_DELETED);
     }

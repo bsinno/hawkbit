@@ -45,6 +45,9 @@ import org.eclipse.hawkbit.repository.TargetFilterQueryManagement;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.TargetTagManagement;
 import org.eclipse.hawkbit.repository.TenantConfigurationManagement;
+import org.eclipse.hawkbit.repository.event.remote.entity.DistributionSetTypeCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeCreatedEvent;
+import org.eclipse.hawkbit.repository.event.remote.entity.SoftwareModuleTypeUpdatedEvent;
 import org.eclipse.hawkbit.repository.model.Action;
 import org.eclipse.hawkbit.repository.model.Action.ActionType;
 import org.eclipse.hawkbit.repository.model.DeploymentRequest;
@@ -59,6 +62,8 @@ import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetMetadata;
 import org.eclipse.hawkbit.repository.test.TestConfiguration;
 import org.eclipse.hawkbit.repository.test.matcher.EventVerifier;
+import org.eclipse.hawkbit.repository.test.matcher.Expect;
+import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
 import org.eclipse.hawkbit.security.SystemSecurityContext;
 import org.eclipse.hawkbit.tenancy.TenantAware;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
@@ -95,7 +100,7 @@ import com.google.common.io.Files;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles({ "test" })
-@WithUser(principal = "bumlux", allSpPermissions = true, authorities = { CONTROLLER_ROLE, SYSTEM_ROLE })
+@WithUser(tenantId = "default", principal = "bumlux", allSpPermissions = true, authorities = { CONTROLLER_ROLE, SYSTEM_ROLE })
 @SpringBootTest
 @ContextConfiguration(classes = { TestConfiguration.class, TestSupportBinderAutoConfiguration.class })
 // destroy the context after each test class because otherwise we get problem
@@ -216,17 +221,19 @@ public abstract class AbstractIntegrationTest {
 
         @Override
         protected void starting(final Description description) {
-            LOG.info("Starting Test {}...", description.getMethodName());
+            LoggerFactory.getLogger(description.getClassName())
+                    .info("Starting Test {}...", description.getMethodName());
         }
 
         @Override
         protected void succeeded(final Description description) {
-            LOG.info("Test {} succeeded.", description.getMethodName());
+            LoggerFactory.getLogger(description.getClassName()).info("Test {} succeeded.", description.getMethodName());
         }
 
         @Override
         protected void failed(final Throwable e, final Description description) {
-            LOG.error("Test {} failed with {}.", description.getMethodName(), e);
+            LoggerFactory.getLogger(description.getClassName())
+                    .error("Test {} failed with {}.", description.getMethodName(), e);
         }
     };
 
@@ -374,35 +381,35 @@ public abstract class AbstractIntegrationTest {
     }
 
     @Before
+    @ExpectEvents({@Expect(type = SoftwareModuleTypeCreatedEvent.class, count = 3),
+            @Expect(type = SoftwareModuleTypeUpdatedEvent.class, count = 3),
+            @Expect(type = DistributionSetTypeCreatedEvent.class, count = 4)})
     public void before() throws Exception {
 
         final String description = "Updated description.";
 
-        osType = securityRule
-                .runAsPrivileged(() -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_OS));
-        osType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement
-                .update(entityFactory.softwareModuleType().update(osType.getId()).description(description)));
+        try {
+            osType = securityRule.runAsPrivileged(
+                    () -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_OS));
+            osType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement.update(
+                    entityFactory.softwareModuleType().update(osType.getId()).description(description)));
 
-        appType = securityRule.runAsPrivileged(
-                () -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_APP, Integer.MAX_VALUE));
-        appType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement
-                .update(entityFactory.softwareModuleType().update(appType.getId()).description(description)));
+            appType = securityRule.runAsPrivileged(
+                    () -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_APP,
+                            Integer.MAX_VALUE));
+            appType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement.update(
+                    entityFactory.softwareModuleType().update(appType.getId()).description(description)));
 
-        runtimeType = securityRule
-                .runAsPrivileged(() -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_RT));
-        runtimeType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement
-                .update(entityFactory.softwareModuleType().update(runtimeType.getId()).description(description)));
+            runtimeType = securityRule.runAsPrivileged(
+                    () -> testdataFactory.findOrCreateSoftwareModuleType(TestdataFactory.SM_TYPE_RT));
+            runtimeType = securityRule.runAsPrivileged(() -> softwareModuleTypeManagement.update(
+                    entityFactory.softwareModuleType().update(runtimeType.getId()).description(description)));
 
-        standardDsType = securityRule.runAsPrivileged(() -> testdataFactory.findOrCreateDefaultTestDsType());
-
-        // publish the reset counter market event to reset the counters after
-        // setup. The setup is transparent by the test and its @ExpectedEvent
-        // counting so we reset the counter here after the setup. Note that this
-        // approach is only working when using a single-thread executor in the
-        // ApplicationEventMultiCaster which the TestConfiguration is doing so
-        // the order of the events keep the same.
-        EventVerifier.publishResetMarkerEvent(eventPublisher);
-
+            standardDsType = securityRule.runAsPrivileged(() -> testdataFactory.findOrCreateDefaultTestDsType());
+        } catch (final Exception e) {
+            LOG.error("Not creating default software types since tenant {} has autoCreate = false",
+                    tenantAware.getCurrentTenant(), e);
+        }
     }
 
     private static String artifactDirectory = Files.createTempDir().getAbsolutePath() + "/"

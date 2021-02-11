@@ -27,6 +27,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.junit.BrokerRunning;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -81,16 +82,17 @@ public class AmqpTestConfiguration {
         };
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    ConnectionFactory rabbitConnectionFactory(final RabbitMqSetupService rabbitmqSetupService) {
+    ConnectionFactory rabbitConnectionFactory(final RabbitProperties properties, final RabbitMqSetupService setupService) {
         final CachingConnectionFactory factory = new CachingConnectionFactory();
-        factory.setHost(rabbitmqSetupService.getHostname());
+        factory.setHost(properties.getHost());
         factory.setPort(5672);
-        factory.setUsername(rabbitmqSetupService.getUsername());
-        factory.setPassword(rabbitmqSetupService.getPassword());
+        factory.setUsername(properties.getUsername());
+        factory.setPassword(properties.getPassword());
         try {
-            factory.setVirtualHost(rabbitmqSetupService.createVirtualHost());
-            // All exception are catched. The BrokerRunning decide if the
+            factory.setVirtualHost(setupService.createVirtualHost());
+            // All exception are caught. The BrokerRunning decide if the
             // test should break or not
         } catch (@SuppressWarnings("squid:S2221") final Exception e) {
             Throwables.propagateIfInstanceOf(e, AlivenessException.class);
@@ -99,9 +101,10 @@ public class AmqpTestConfiguration {
         return factory;
     }
 
-    @Bean
-    RabbitMqSetupService rabbitmqSetupService(final RabbitProperties properties) {
-        return new RabbitMqSetupService(properties);
+    @Bean(destroyMethod = "deleteVirtualHost")
+    @ConditionalOnMissingBean
+    RabbitMqSetupService rabbitmqSetupService() {
+        return RabbitMqSetupService.instance();
     }
 
     @Bean
@@ -115,11 +118,11 @@ public class AmqpTestConfiguration {
     }
 
     @Bean
-    BrokerRunning brokerRunning(final RabbitMqSetupService rabbitmqSetupService) {
+    BrokerRunning brokerRunning(final RabbitProperties properties) {
         final BrokerRunning brokerRunning = BrokerRunning.isRunning();
-        brokerRunning.setHostName(rabbitmqSetupService.getHostname());
-        brokerRunning.getConnectionFactory().setUsername(rabbitmqSetupService.getUsername());
-        brokerRunning.getConnectionFactory().setPassword(rabbitmqSetupService.getPassword());
+        brokerRunning.setHostName(properties.getHost());
+        brokerRunning.getConnectionFactory().setUsername(properties.getUsername());
+        brokerRunning.getConnectionFactory().setPassword(properties.getPassword());
         return brokerRunning;
     }
 
