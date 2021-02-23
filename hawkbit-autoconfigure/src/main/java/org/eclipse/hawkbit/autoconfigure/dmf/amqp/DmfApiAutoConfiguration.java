@@ -13,6 +13,7 @@ import org.eclipse.hawkbit.amqp.InvalidTargetOperationsExceptionHandler;
 import org.eclipse.hawkbit.exception.ConditionalErrorHandler;
 import org.eclipse.hawkbit.exception.DelegatingConditionalErrorHandler;
 
+import org.springframework.amqp.rabbit.listener.ConditionalRejectingErrorHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +42,7 @@ public class DmfApiAutoConfiguration {
     @Bean
     @Primary
     public ErrorHandler errorHandler(final List<ConditionalErrorHandler> handlers) {
-        return new DelegatingConditionalErrorHandler(handlers);
+        return new DelegatingConditionalErrorHandler(handlers, new ConditionalRejectingErrorHandler());
     }
 
     /**

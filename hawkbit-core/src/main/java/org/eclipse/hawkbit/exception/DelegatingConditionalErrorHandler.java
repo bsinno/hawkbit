@@ -8,7 +8,6 @@
  */
 package org.eclipse.hawkbit.exception;
 
-import com.google.common.base.Throwables;
 import org.springframework.util.ErrorHandler;
 
 import java.util.List;
@@ -19,9 +18,12 @@ import java.util.List;
 public class DelegatingConditionalErrorHandler implements ErrorHandler {
 
     private final List<ConditionalErrorHandler> handlers;
+    private final ErrorHandler defaultHandler;
 
-    public DelegatingConditionalErrorHandler(final List<ConditionalErrorHandler> handlers) {
+
+    public DelegatingConditionalErrorHandler(final List<ConditionalErrorHandler> handlers, final ErrorHandler defaultHandler) {
         this.handlers = handlers;
+        this.defaultHandler = defaultHandler;
     }
 
     @Override
@@ -32,6 +34,6 @@ public class DelegatingConditionalErrorHandler implements ErrorHandler {
                 return;
             }
         }
-        Throwables.throwIfUnchecked(t);
+        defaultHandler.handleError(t);
     }
 }
