@@ -25,6 +25,6 @@ public class MessageConversionExceptionHandler extends ConditionalRejectingError
 
     @Override
     public void handleError(Throwable t) {
-        throw new AmqpRejectAndDontRequeueException(t.getCause());
+        throw new AmqpRejectAndDontRequeueException("The message could not be parsed", t.getCause());
     }
 }

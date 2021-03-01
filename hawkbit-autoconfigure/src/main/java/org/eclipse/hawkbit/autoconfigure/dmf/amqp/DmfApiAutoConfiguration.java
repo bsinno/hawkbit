@@ -57,9 +57,9 @@ public class DmfApiAutoConfiguration {
     }
 
     /**
-     * Error handler bean for all target related fatal errors
+     * Error handler bean for amqp message conversion errors
      *
-     * @return the invalid target operations exception handler bean
+     * @return the amqp message conversion exception handler bean
      */
     @Bean
     public ConditionalErrorHandler messageConversionExceptionHandler() {
