@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.annotation.Description;
+import org.springframework.util.ErrorHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,17 +32,16 @@ public class DelegatingConditionalErrorHandlerTest {
         List<ConditionalErrorHandler> handlers = new ArrayList<>();
         handlers.add(new ConditionalErrorHandler1());
         handlers.add(new ConditionalErrorHandler2());
-        new DelegatingConditionalErrorHandler(handlers).handleError(new Throwable(new IllegalArgumentException()));
+        new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler()).handleError(new Throwable(new IllegalArgumentException()));
     }
 
-    @Test
+    @Test(expected = RuntimeException.class)
     @Description("Verifies that with a list of conditional error handlers, undefined error is handled in default way.")
     public void verifyDefaultDelegationHandling(){
         List<ConditionalErrorHandler> handlers = new ArrayList<>();
         handlers.add(new ConditionalErrorHandler1());
         handlers.add(new ConditionalErrorHandler2());
-        new DelegatingConditionalErrorHandler(handlers).handleError(new Throwable(new RuntimeException()));
-        assertThatExceptionOfType(RuntimeException.class);
+        new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler()).handleError(new Throwable(new RuntimeException()));
     }
 
     // Test class
@@ -67,6 +67,15 @@ public class DelegatingConditionalErrorHandlerTest {
         @Override
         public void handleError(Throwable t) {
             throw new IndexOutOfBoundsException(t.getCause().getMessage());
+        }
+    }
+
+    // Test class
+    public class DefaultErrorHandler implements ErrorHandler {
+
+        @Override
+        public void handleError(Throwable t) {
+            throw new RuntimeException(t);
         }
     }
 }
