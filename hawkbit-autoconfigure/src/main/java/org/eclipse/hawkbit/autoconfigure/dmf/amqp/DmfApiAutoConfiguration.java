@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.autoconfigure.dmf.amqp;
 
 import org.eclipse.hawkbit.amqp.DmfApiConfiguration;
 import org.eclipse.hawkbit.amqp.InvalidTargetOperationsExceptionHandler;
+import org.eclipse.hawkbit.amqp.MessageConversionExceptionHandler;
 import org.eclipse.hawkbit.exception.ConditionalErrorHandler;
 import org.eclipse.hawkbit.exception.DelegatingConditionalErrorHandler;
 
@@ -46,12 +47,22 @@ public class DmfApiAutoConfiguration {
     }
 
     /**
-     * Default Error handler bean for all target related fatal errors
+     * Error handler bean for all target related fatal errors
      *
      * @return the invalid target operations exception handler bean
      */
     @Bean
     public ConditionalErrorHandler invalidTargetOperationsConditionalExceptionHandler() {
         return new InvalidTargetOperationsExceptionHandler();
+    }
+
+    /**
+     * Error handler bean for all target related fatal errors
+     *
+     * @return the invalid target operations exception handler bean
+     */
+    @Bean
+    public ConditionalErrorHandler messageConversionExceptionHandler() {
+        return new MessageConversionExceptionHandler();
     }
 }
