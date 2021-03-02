@@ -8,18 +8,16 @@
  */
 package org.eclipse.hawkbit.exception;
 
+import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.context.annotation.Description;
 import org.springframework.util.ErrorHandler;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @Feature("Unit Tests - Delegating Conditional Error Handler")
 @Story("Delegating Conditional Error Handler")
@@ -45,28 +43,26 @@ public class DelegatingConditionalErrorHandlerTest {
     }
 
     // Test class
-    public class ConditionalErrorHandler1 implements ConditionalErrorHandler{
+    public class ConditionalErrorHandler1 implements ConditionalErrorHandler<Throwable> {
 
-        @Override public boolean canHandle(Throwable e) {
-            return e.getCause() instanceof IllegalArgumentException;
-        }
-
-        @Override public void handleError(Throwable t) {
-            throw new IllegalArgumentException(t.getCause().getMessage());
+        @Override public void handle(Throwable t, EventHandlerChain<Throwable> chain) {
+            if (t.getCause() instanceof IllegalArgumentException) {
+                throw new IllegalArgumentException(t.getCause().getMessage());
+            } else {
+                chain.doHandle(t);
+            }
         }
     }
 
     // Test class
-    public class ConditionalErrorHandler2 implements ConditionalErrorHandler{
+    public class ConditionalErrorHandler2 implements ConditionalErrorHandler<Throwable> {
 
-        @Override
-        public boolean canHandle(Throwable e) {
-            return e.getCause() instanceof IndexOutOfBoundsException;
-        }
-
-        @Override
-        public void handleError(Throwable t) {
-            throw new IndexOutOfBoundsException(t.getCause().getMessage());
+        @Override public void handle(Throwable t, EventHandlerChain<Throwable> chain) {
+            if (t.getCause() instanceof IndexOutOfBoundsException) {
+                throw new IndexOutOfBoundsException(t.getCause().getMessage());
+            } else {
+                chain.doHandle(t);
+            }
         }
     }
 

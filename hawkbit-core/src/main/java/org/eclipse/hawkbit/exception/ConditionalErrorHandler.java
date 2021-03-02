@@ -8,20 +8,20 @@
  */
 package org.eclipse.hawkbit.exception;
 
-import org.springframework.util.ErrorHandler;
-
 /**
- * Interface declaration of {@link ConditionalErrorHandler} that validates if a typed {@link ConditionalErrorHandler}
- * can handle the incoming error or not.
+ * Interface declaration of {@link ConditionalErrorHandler} that handles errors based on the
+ * types of {@link ConditionalErrorHandler}
  */
-public interface ConditionalErrorHandler extends ErrorHandler {
+public interface ConditionalErrorHandler<T> {
 
     /**
-     * Determines if the typed {@link ConditionalErrorHandler} can handle the specific error.
+     * Handles the error based on the type of {@link ConditionalErrorHandler}
      *
-     * @param e
+     * @param event
      *            the throwable
-     * @return true if the error can be handled, otherwise false
+     * @param chain
+     *            an {@link EventHandlerChain}
      */
-    boolean canHandle(final Throwable e);
+void handle(T event, EventHandlerChain<T> chain);
+
 }

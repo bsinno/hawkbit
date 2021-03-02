@@ -9,22 +9,22 @@
 package org.eclipse.hawkbit.amqp;
 
 import org.eclipse.hawkbit.exception.ConditionalErrorHandler;
+import org.eclipse.hawkbit.exception.EventHandlerChain;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
-import org.springframework.amqp.rabbit.listener.ConditionalRejectingErrorHandler;
 import org.springframework.amqp.support.converter.MessageConversionException;
 
 /**
  * An error handler for message conversion exception resulting from AMQP.
  */
-public class MessageConversionExceptionHandler extends ConditionalRejectingErrorHandler implements ConditionalErrorHandler {
+public class MessageConversionExceptionHandler implements ConditionalErrorHandler<Throwable> {
 
     @Override
-    public boolean canHandle(Throwable e) {
-        return e.getCause() instanceof MessageConversionException;
-    }
-
-    @Override
-    public void handleError(Throwable t) {
-        throw new AmqpRejectAndDontRequeueException("The message could not be parsed", t.getCause());
+    public void handle(Throwable t, EventHandlerChain<Throwable> chain) {
+        if (t.getCause() instanceof MessageConversionException) {
+            throw new AmqpRejectAndDontRequeueException("The message could not be parsed", t.getCause());
+        } else {
+            chain.doHandle(t);
+        }
     }
 }
+
