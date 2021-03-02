@@ -31,6 +31,7 @@ import org.eclipse.hawkbit.repository.RepositoryDefaultConfiguration;
 import org.eclipse.hawkbit.repository.RepositoryProperties;
 import org.eclipse.hawkbit.repository.RolloutApprovalStrategy;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
+import org.eclipse.hawkbit.repository.RolloutHandler;
 import org.eclipse.hawkbit.repository.RolloutManagement;
 import org.eclipse.hawkbit.repository.RolloutStatusCache;
 import org.eclipse.hawkbit.repository.SoftwareModuleManagement;
@@ -618,6 +619,22 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean RolloutHandler rolloutHandler(
+            final RolloutTargetGroupRepository rolloutTargetGroupRepository, final EntityManager entityManager,
+            final RolloutRepository rolloutRepository, final ActionRepository actionRepository,
+            final RolloutGroupRepository rolloutGroupRepository, final AfterTransactionCommitExecutor afterCommit,
+            final TenantAware tenantAware, final RolloutGroupManagement rolloutGroupManagement,
+            final QuotaManagement quotaManagement, final DeploymentManagement deploymentManagement,
+            final TargetManagement targetManagement, final EventPublisherHolder eventPublisherHolder,
+            final PlatformTransactionManager txManager, final RolloutApprovalStrategy rolloutApprovalStrategy,
+            final ApplicationContext context) {
+        return new JpaRolloutHandler(rolloutTargetGroupRepository, entityManager, rolloutRepository, actionRepository,
+                rolloutGroupRepository, afterCommit, tenantAware, rolloutGroupManagement, quotaManagement,
+                deploymentManagement, targetManagement, eventPublisherHolder, txManager, rolloutApprovalStrategy,
+                context);
+    }
+
+    @Bean
     @ConditionalOnMissingBean
     RolloutManagement rolloutManagement(final TargetManagement targetManagement,
             final DeploymentManagement deploymentManagement, final RolloutGroupManagement rolloutGroupManagement,
@@ -626,11 +643,11 @@ public class RepositoryApplicationConfiguration extends JpaBaseConfiguration {
             final PlatformTransactionManager txManager, final TenantAware tenantAware, final LockRegistry lockRegistry,
             final JpaProperties properties, final RolloutApprovalStrategy rolloutApprovalStrategy,
             final TenantConfigurationManagement tenantConfigurationManagement,
-            final SystemSecurityContext systemSecurityContext) {
+            final SystemSecurityContext systemSecurityContext, final RolloutHandler rolloutHandler) {
         return new JpaRolloutManagement(targetManagement, deploymentManagement, rolloutGroupManagement,
                 distributionSetManagement, context, eventPublisherHolder, virtualPropertyReplacer, txManager,
                 tenantAware, lockRegistry, properties.getDatabase(), rolloutApprovalStrategy,
-                tenantConfigurationManagement, systemSecurityContext);
+                tenantConfigurationManagement, systemSecurityContext, rolloutHandler);
     }
 
     /**
