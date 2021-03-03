@@ -22,6 +22,6 @@ public interface ConditionalErrorHandler<T> {
      * @param chain
      *            an {@link ErrorHandlerChain}
      */
-void doHandle(T event, ErrorHandlerChain<T> chain);
+void doHandle(final T event, final ErrorHandlerChain<T> chain);
 
 }

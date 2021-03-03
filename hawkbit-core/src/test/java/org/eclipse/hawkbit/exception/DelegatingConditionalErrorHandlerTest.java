@@ -46,7 +46,7 @@ public class DelegatingConditionalErrorHandlerTest {
     public class ConditionalErrorHandler1 implements ConditionalErrorHandler<Throwable> {
 
         @Override
-        public void doHandle(Throwable t, ErrorHandlerChain<Throwable> chain) {
+        public void doHandle(final Throwable t, final ErrorHandlerChain<Throwable> chain) {
             if (t.getCause() instanceof IllegalArgumentException) {
                 throw new IllegalArgumentException(t.getCause().getMessage());
             } else {
@@ -59,7 +59,7 @@ public class DelegatingConditionalErrorHandlerTest {
     public class ConditionalErrorHandler2 implements ConditionalErrorHandler<Throwable> {
 
         @Override
-        public void doHandle(Throwable t, ErrorHandlerChain<Throwable> chain) {
+        public void doHandle(final Throwable t, final ErrorHandlerChain<Throwable> chain) {
             if (t.getCause() instanceof IndexOutOfBoundsException) {
                 throw new IndexOutOfBoundsException(t.getCause().getMessage());
             } else {

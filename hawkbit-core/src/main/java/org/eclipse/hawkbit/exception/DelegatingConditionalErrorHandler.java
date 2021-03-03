@@ -59,12 +59,12 @@ public class DelegatingConditionalErrorHandler implements ErrorHandler {
          *                      the default error handler
          * @return an {@link ErrorHandlerChain}
          */
-        public static ErrorHandlerChain getHandler(final List<ConditionalErrorHandler> errorHandlers, ErrorHandler defaultHandler) {
+        public static ErrorHandlerChain getHandler(final List<ConditionalErrorHandler> errorHandlers, final ErrorHandler defaultHandler) {
             return new ConditionalErrorHandlerChain(errorHandlers.iterator(), defaultHandler);
         }
 
         @Override
-        public void handle(Throwable event) {
+        public void handle(final Throwable event) {
             if (iterator.hasNext()) {
                 final ConditionalErrorHandler handler = iterator.next();
                 handler.doHandle(event, this);

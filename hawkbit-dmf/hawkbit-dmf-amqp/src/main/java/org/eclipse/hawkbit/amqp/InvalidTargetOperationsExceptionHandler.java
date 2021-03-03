@@ -20,7 +20,7 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 public class InvalidTargetOperationsExceptionHandler implements ConditionalErrorHandler<Throwable> {
 
     @Override
-    public void doHandle(Throwable t, ErrorHandlerChain<Throwable> chain) {
+    public void doHandle(final Throwable t, final ErrorHandlerChain<Throwable> chain) {
         Throwable cause = t.getCause();
         if (cause instanceof InvalidTargetAttributeException || cause instanceof EntityNotFoundException) {
             throw new AmqpRejectAndDontRequeueException(t.getCause().getMessage());
