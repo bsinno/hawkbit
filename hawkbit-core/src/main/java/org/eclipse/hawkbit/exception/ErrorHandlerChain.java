@@ -9,19 +9,19 @@
 package org.eclipse.hawkbit.exception;
 
 /**
- * A chain where an event is passed through all handlers until one is found that
- * can process the event.
+ * A chain where an error is passed through all handlers until one is found that
+ * can process the error.
  *
  * @param <T>
  *            generic type of event.
  */
-public interface EventHandlerChain<T> {
+public interface ErrorHandlerChain<T> {
 
     /**
-     * Pass the event and search for a suitable handler
+     * Pass the error and search for a suitable handler
      *
-     * @param event
-     *            the event
+     * @param error
+     *            the error
      */
-    void doHandle(final T event);
+    void handle(final T error);
 }

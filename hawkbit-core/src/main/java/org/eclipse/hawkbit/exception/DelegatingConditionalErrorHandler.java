@@ -26,7 +26,7 @@ public class DelegatingConditionalErrorHandler implements ErrorHandler {
      * @param handlers
      *                 {@link List} of error handlers
      * @param defaultHandler
-     *                  the defult error handler
+     *                  the default error handler
      */
     public DelegatingConditionalErrorHandler(final List<ConditionalErrorHandler> handlers, final ErrorHandler defaultHandler) {
         this.handlers = handlers;
@@ -35,17 +35,17 @@ public class DelegatingConditionalErrorHandler implements ErrorHandler {
 
     @Override
     public void handleError(final Throwable t) {
-        ErrorHandlerChain.getHandler(handlers, defaultHandler).doHandle(t);
+        DelegatingConditionalErrorHandler.ConditionalErrorHandlerChain.getHandler(handlers, defaultHandler).handle(t);
     }
 
     /**
      * An error handler chain which processes a {@link List} of error handlers based on the type of {@link ConditionalErrorHandler}
      */
-    static class ErrorHandlerChain implements EventHandlerChain<Throwable> {
+    static class ConditionalErrorHandlerChain implements ErrorHandlerChain<Throwable> {
         private final Iterator<ConditionalErrorHandler> iterator;
         private final ErrorHandler defaultHandler;
 
-        ErrorHandlerChain(Iterator<ConditionalErrorHandler> iterator, ErrorHandler defaultHandler) {
+        ConditionalErrorHandlerChain(Iterator<ConditionalErrorHandler> iterator, ErrorHandler defaultHandler) {
             this.iterator = iterator;
             this.defaultHandler = defaultHandler;
         }
@@ -60,14 +60,14 @@ public class DelegatingConditionalErrorHandler implements ErrorHandler {
          * @return an {@link ErrorHandlerChain}
          */
         public static ErrorHandlerChain getHandler(final List<ConditionalErrorHandler> errorHandlers, ErrorHandler defaultHandler) {
-            return new ErrorHandlerChain(errorHandlers.iterator(), defaultHandler);
+            return new ConditionalErrorHandlerChain(errorHandlers.iterator(), defaultHandler);
         }
 
         @Override
-        public void doHandle(Throwable event) {
+        public void handle(Throwable event) {
             if (iterator.hasNext()) {
                 final ConditionalErrorHandler handler = iterator.next();
-                handler.handle(event, this);
+                handler.doHandle(event, this);
             } else {
                 defaultHandler.handleError(event);
             }

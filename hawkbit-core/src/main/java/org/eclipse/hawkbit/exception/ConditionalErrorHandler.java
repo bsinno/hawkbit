@@ -20,8 +20,8 @@ public interface ConditionalErrorHandler<T> {
      * @param event
      *            the throwable
      * @param chain
-     *            an {@link EventHandlerChain}
+     *            an {@link ErrorHandlerChain}
      */
-void handle(T event, EventHandlerChain<T> chain);
+void doHandle(T event, ErrorHandlerChain<T> chain);
 
 }
