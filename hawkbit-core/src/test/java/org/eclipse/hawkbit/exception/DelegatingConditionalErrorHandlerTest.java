@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Bosch.IO GmbH and others.
+ * Copyright (c) 2021 Bosch.IO GmbH and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -12,6 +12,7 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.util.ErrorHandler;
@@ -24,22 +25,27 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingConditionalErrorHandlerTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     @Description("Verifies that with a list of conditional error handlers, the error is delegated to specific handler.")
     public void verifyDelegationHandling(){
         List<ConditionalErrorHandler> handlers = new ArrayList<>();
         handlers.add(new ConditionalErrorHandler1());
         handlers.add(new ConditionalErrorHandler2());
-        new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler()).handleError(new Throwable(new IllegalArgumentException()));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler())
+                        .handleError(new Throwable(new IllegalArgumentException())),
+                "Expected handled exception to be of type IllegalArgumentException");
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     @Description("Verifies that with a list of conditional error handlers, undefined error is handled in default way.")
     public void verifyDefaultDelegationHandling(){
         List<ConditionalErrorHandler> handlers = new ArrayList<>();
         handlers.add(new ConditionalErrorHandler1());
         handlers.add(new ConditionalErrorHandler2());
-        new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler()).handleError(new Throwable(new RuntimeException()));
+        Assertions.assertThrows(RuntimeException.class,
+                () -> new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler()).handleError(new Throwable(new RuntimeException())),
+                "Expected handled exception to be of type RuntimeException");
     }
 
     // Test class

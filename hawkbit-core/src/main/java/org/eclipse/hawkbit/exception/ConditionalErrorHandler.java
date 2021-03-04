@@ -17,11 +17,11 @@ public interface ConditionalErrorHandler<T> {
     /**
      * Handles the error based on the type of {@link ConditionalErrorHandler}
      *
-     * @param event
-     *            the throwable
+     * @param error
+     *            the error
      * @param chain
      *            an {@link ErrorHandlerChain}
      */
-void doHandle(final T event, final ErrorHandlerChain<T> chain);
+void doHandle(final T error, final ErrorHandlerChain<T> chain);
 
 }
