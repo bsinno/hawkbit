@@ -38,12 +38,12 @@ public class ConditionalErrorHandlerChain implements ErrorHandlerChain<Throwable
     }
 
     @Override
-    public void handle(final Throwable event) {
+    public void handle(final Throwable error) {
         if (iterator.hasNext()) {
             final ConditionalErrorHandler handler = iterator.next();
-            handler.doHandle(event, this);
+            handler.doHandle(error, this);
         } else {
-            defaultHandler.handleError(event);
+            defaultHandler.handleError(error);
         }
     }
 }
