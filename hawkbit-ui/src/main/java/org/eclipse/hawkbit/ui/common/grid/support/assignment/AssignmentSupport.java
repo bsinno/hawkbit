@@ -10,6 +10,7 @@ package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 
 import java.util.List;
 
+import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.model.AbstractAssignmentResult;
 import org.eclipse.hawkbit.repository.model.NamedEntity;
 import org.eclipse.hawkbit.ui.utils.UINotification;
@@ -94,7 +95,7 @@ public abstract class AssignmentSupport<S, T> {
     /**
      * @return List of missing required permission to drop the item
      */
-    public abstract List<String> getMissingPermissionsForDrop();
+    public abstract List<SpPermission> getMissingPermissionsForDrop();
 
     protected abstract void performAssignment(final List<S> sourceItemsToAssign, final T targetItem);
 

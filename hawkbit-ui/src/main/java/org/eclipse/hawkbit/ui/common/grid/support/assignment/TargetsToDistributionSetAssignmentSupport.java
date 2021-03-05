@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.ui.SpPermissionChecker;
-import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
+import org.eclipse.hawkbit.ui.common.ConfirmationDialog;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyDistributionSet;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
 import org.eclipse.hawkbit.ui.management.miscs.DeploymentAssignmentWindowController;
@@ -48,7 +48,7 @@ public class TargetsToDistributionSetAssignmentSupport
     }
 
     @Override
-    public List<String> getMissingPermissionsForDrop() {
+    public List<SpPermission> getMissingPermissionsForDrop() {
         return permChecker.hasUpdateTargetPermission() ? Collections.emptyList()
                 : Collections.singletonList(SpPermission.UPDATE_TARGET);
     }

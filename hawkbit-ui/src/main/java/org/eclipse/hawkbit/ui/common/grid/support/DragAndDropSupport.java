@@ -15,6 +15,7 @@ import java.util.Map;
 
 import javax.annotation.PreDestroy;
 
+import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyIdentifiableEntity;
 import org.eclipse.hawkbit.ui.common.event.EntityDraggingEventPayload;
 import org.eclipse.hawkbit.ui.common.event.EntityDraggingEventPayload.DraggingEventType;
@@ -66,15 +67,15 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
      * Constructor for DragAndDropSupport
      *
      * @param grid
-     *          Vaadin Grid
+     *            Vaadin Grid
      * @param i18n
-     *          VaadinMessageSource
+     *            VaadinMessageSource
      * @param notification
-     *          UINotification
+     *            UINotification
      * @param sourceTargetAssignmentStrategies
-     *          Key value pair of target and assignments
+     *            Key value pair of target and assignments
      * @param eventBus
-     *          UIEventBus
+     *            UIEventBus
      */
     public DragAndDropSupport(final AbstractGrid<T, ?> grid, final VaadinMessageSource i18n,
             final UINotification notification,
@@ -95,7 +96,8 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
     /**
      * workaround for target/ds tags that currently do not support selection
      *
-     * @param ignoreSelection Set to true for distribution set and targets
+     * @param ignoreSelection
+     *            Set to true for distribution set and targets
      */
     public void ignoreSelection(final boolean ignoreSelection) {
         this.ignoreSelection = ignoreSelection;
@@ -137,9 +139,9 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
 
     /**
      * @param dragOrDropExtension
-     *          AbstractExtension
+     *            AbstractExtension
      * @param dragOrDropDescription
-     *          Description for drag and drop
+     *            Description for drag and drop
      *
      * @return true if grid supports drag and drop else false
      */
@@ -229,7 +231,7 @@ public class DragAndDropSupport<T extends ProxyIdentifiableEntity> {
             return false;
         }
 
-        final List<String> requiredPermissions = assignmentStrategy.getMissingPermissionsForDrop();
+        final List<SpPermission> requiredPermissions = assignmentStrategy.getMissingPermissionsForDrop();
         if (!CollectionUtils.isEmpty(requiredPermissions)) {
             notification
                     .displayValidationError(i18n.getMessage("message.permission.insufficient", requiredPermissions));

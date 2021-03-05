@@ -46,7 +46,7 @@ public class TargetTagsToTargetAssignmentSupport extends TagsAssignmentSupport<P
     }
 
     @Override
-    public List<String> getMissingPermissionsForDrop() {
+    public List<SpPermission> getMissingPermissionsForDrop() {
         return uiDependencies.getPermChecker().hasUpdateTargetPermission() ? Collections.emptyList()
                 : Collections.singletonList(SpPermission.UPDATE_TARGET);
     }

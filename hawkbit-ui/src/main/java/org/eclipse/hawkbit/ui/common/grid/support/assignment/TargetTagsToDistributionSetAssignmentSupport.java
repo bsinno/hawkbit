@@ -11,6 +11,7 @@ package org.eclipse.hawkbit.ui.common.grid.support.assignment;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.repository.TargetManagement;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.ui.common.CommonUiDependencies;
@@ -47,7 +48,7 @@ public class TargetTagsToDistributionSetAssignmentSupport extends AssignmentSupp
     }
 
     @Override
-    public List<String> getMissingPermissionsForDrop() {
+    public List<SpPermission> getMissingPermissionsForDrop() {
         return targetsToDistributionSetAssignmentSupport.getMissingPermissionsForDrop();
     }
 

@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.filtermanagement;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
@@ -57,8 +57,8 @@ public class FilterManagementViewMenuItem extends AbstractDashboardMenuItemNotif
     }
 
     @Override
-    public List<String> getPermissions() {
-        return Arrays.asList(SpPermission.READ_TARGET);
+    public List<SpPermission> getPermissions() {
+        return Collections.singletonList(SpPermission.READ_TARGET);
     }
 
 }

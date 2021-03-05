@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.tenantconfiguration;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
@@ -57,8 +57,8 @@ public class TenantConfigurationDashboardViewMenuItem extends AbstractDashboardM
     }
 
     @Override
-    public List<String> getPermissions() {
-        return Arrays.asList(SpPermission.TENANT_CONFIGURATION);
+    public List<SpPermission> getPermissions() {
+        return Collections.singletonList(SpPermission.TENANT_CONFIGURATION);
     }
 
 }

@@ -8,7 +8,7 @@
  */
 package org.eclipse.hawkbit.ui.artifacts;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
@@ -59,7 +59,7 @@ public class UploadArtifactViewMenuItem extends AbstractDashboardMenuItemNotific
     }
 
     @Override
-    public List<String> getPermissions() {
-        return Arrays.asList(SpPermission.READ_REPOSITORY);
+    public List<SpPermission> getPermissions() {
+        return Collections.singletonList(SpPermission.READ_REPOSITORY);
     }
 }

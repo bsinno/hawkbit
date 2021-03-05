@@ -12,6 +12,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.hawkbit.im.authentication.SpPermission;
+
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Label;
 
@@ -49,12 +51,12 @@ public interface DashboardMenuItem extends Serializable {
     String getDashboardCaptionLong();
 
     /**
-     * Return the view permission to see the menu item. One permission must
-     * match to see the menu item.
+     * Return the view permission to see the menu item. One permission must match to
+     * see the menu item.
      * 
      * @return the list of permissions.
      */
-    List<String> getPermissions();
+    List<SpPermission> getPermissions();
 
     /**
      * Set the value of the

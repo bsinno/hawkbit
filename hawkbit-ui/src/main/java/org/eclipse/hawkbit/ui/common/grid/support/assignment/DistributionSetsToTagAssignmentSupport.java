@@ -56,7 +56,7 @@ public class DistributionSetsToTagAssignmentSupport
     }
 
     @Override
-    public List<String> getMissingPermissionsForDrop() {
+    public List<SpPermission> getMissingPermissionsForDrop() {
         return permChecker.hasUpdateRepositoryPermission() ? Collections.emptyList()
                 : Collections.singletonList(SpPermission.UPDATE_REPOSITORY);
     }

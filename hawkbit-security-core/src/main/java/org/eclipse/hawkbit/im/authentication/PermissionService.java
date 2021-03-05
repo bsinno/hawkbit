@@ -32,7 +32,7 @@ public class PermissionService {
      *         {@code permission}, otherwise {@code false}.
      * @see SpPermission
      */
-    public boolean hasPermission(final String permission) {
+    public boolean hasPermission(final SpPermission permission) {
         final SecurityContext context = SecurityContextHolder.getContext();
         if (context == null) {
             return false;
@@ -43,7 +43,7 @@ public class PermissionService {
         }
 
         for (final GrantedAuthority authority : authentication.getAuthorities()) {
-            if (authority.getAuthority().equals(permission)) {
+            if (authority.getAuthority().equals(permission.getAuthority())) {
                 return true;
             }
         }
@@ -68,17 +68,17 @@ public class PermissionService {
     }
 
     /**
-     * Checks if at least on permission of the given {@code permissions}
-     * contains in the . In case no {@code context} is available {@code false}
-     * will be returned.
+     * Checks if at least on permission of the given {@code permissions} is
+     * contained in the {@Authentication}. In case no {@code context} is available
+     * {@code false} will be returned.
      *
      * @param permissions
      *            the permissions to check against the
-     * @return {@code true} if a is available and contains the given
-     *         {@code permission}, otherwise {@code false}.
+     * @return {@code true} if a {@link Authentication} is available and contains
+     *         the given {@code permission}, otherwise {@code false}.
      * @see SpPermission
      */
-    public boolean hasAtLeastOnePermission(final List<String> permissions) {
+    public boolean hasAtLeastOnePermission(final List<SpPermission> permissions) {
         final SecurityContext context = SecurityContextHolder.getContext();
         if (context == null) {
             return false;
@@ -90,8 +90,8 @@ public class PermissionService {
         }
 
         for (final GrantedAuthority authority : authentication.getAuthorities()) {
-            for (final String permission : permissions) {
-                if (authority.getAuthority().equals(permission)) {
+            for (final SpPermission permission : permissions) {
+                if (authority.getAuthority().equals(permission.getAuthority())) {
                     return true;
                 }
             }

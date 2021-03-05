@@ -47,7 +47,7 @@ public class DsTagsToDistributionSetAssignmentSupport
     }
 
     @Override
-    public List<String> getMissingPermissionsForDrop() {
+    public List<SpPermission> getMissingPermissionsForDrop() {
         return uiDependencies.getPermChecker().hasUpdateRepositoryPermission() ? Collections.emptyList()
                 : Collections.singletonList(SpPermission.UPDATE_REPOSITORY);
     }

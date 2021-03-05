@@ -44,7 +44,8 @@ public class TargetsToTagAssignmentSupport extends ToTagAssignmentSupport<ProxyT
      * @param targetManagement
      *            TargetManagement
      */
-    public TargetsToTagAssignmentSupport(final CommonUiDependencies uiDependencies, final TargetManagement targetManagement) {
+    public TargetsToTagAssignmentSupport(final CommonUiDependencies uiDependencies,
+            final TargetManagement targetManagement) {
         super(uiDependencies.getUiNotification(), uiDependencies.getI18n());
 
         this.eventBus = uiDependencies.getEventBus();
@@ -53,7 +54,7 @@ public class TargetsToTagAssignmentSupport extends ToTagAssignmentSupport<ProxyT
     }
 
     @Override
-    public List<String> getMissingPermissionsForDrop() {
+    public List<SpPermission> getMissingPermissionsForDrop() {
         return permChecker.hasUpdateTargetPermission() ? Collections.emptyList()
                 : Collections.singletonList(SpPermission.UPDATE_TARGET);
     }

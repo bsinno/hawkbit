@@ -45,8 +45,6 @@ public class DistributionSetsToTargetAssignmentSupport
      *            SystemSecurityContext
      * @param configManagement
      *            TenantConfigurationManagement
-     * @param permChecker
-     *            SpPermissionChecker
      * @param assignmentController
      *            DeploymentAssignmentWindowController
      */
@@ -73,7 +71,7 @@ public class DistributionSetsToTargetAssignmentSupport
     }
 
     @Override
-    public List<String> getMissingPermissionsForDrop() {
+    public List<SpPermission> getMissingPermissionsForDrop() {
         return permChecker.hasUpdateTargetPermission() ? Collections.emptyList()
                 : Collections.singletonList(SpPermission.UPDATE_TARGET);
     }

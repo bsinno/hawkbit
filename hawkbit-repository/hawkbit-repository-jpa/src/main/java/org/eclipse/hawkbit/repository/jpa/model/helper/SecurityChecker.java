@@ -8,6 +8,7 @@
  */
 package org.eclipse.hawkbit.repository.jpa.model.helper;
 
+import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -34,13 +35,13 @@ public final class SecurityChecker {
      * @return {@code true} if the given permission is present in the security
      *         context otherwise {@code false}
      */
-    public static boolean hasPermission(final String permission) {
+    public static boolean hasPermission(final SpPermission permission) {
         final SecurityContext context = SecurityContextHolder.getContext();
         if (context != null) {
             final Authentication authentication = context.getAuthentication();
             if (authentication != null) {
                 for (final GrantedAuthority authority : authentication.getAuthorities()) {
-                    if (authority.getAuthority().equals(permission)) {
+                    if (authority.getAuthority().equals(permission.getAuthority())) {
                         return true;
                     }
                 }
