@@ -14,6 +14,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.eclipse.hawkbit.im.authentication.SpPermission;
+
 /**
  * Annotation to run test classes or test methods with a specific user with
  * specific permissions.
@@ -32,45 +34,52 @@ public @interface WithUser {
 
     /**
      * Gets the test credentials.
-     * 
+     *
      * @return test credentials
      */
     String credentials() default "TestCredentials";
 
     /**
      * Gets the test tenant id.
-     * 
+     *
      * @return test tenant id
      */
     String tenantId() default "default";
 
     /**
      * Should tenant auto created.
-     * 
+     *
      * @return <code>true</code> = auto create <code>false</code> not create
      */
     boolean autoCreateTenant() default true;
 
     /**
      * Gets the test authorities.
-     * 
+     *
      * @return authorities
      */
-    String[] authorities() default {};
+    SpPermission[] permissions() default {};
 
     /**
      * Gets the test all permissions.
-     * 
+     *
      * @return permissions
      */
     boolean allSpPermissions() default false;
 
     /**
      * Gets the test removeFromAllPermission.
-     * 
+     *
      * @return removeFromAllPermission
      */
-    String[] removeFromAllPermission() default {};
+    SpPermission[] removeFromAllPermission() default {};
+
+    /**
+     * Gets the additional authorities
+     *
+     * @return additionalAuthorities
+     */
+    String[] additionalAuthorities() default {};
 
     boolean controller() default false;
 }

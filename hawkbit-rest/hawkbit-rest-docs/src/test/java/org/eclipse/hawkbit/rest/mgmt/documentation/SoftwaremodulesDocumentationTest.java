@@ -67,7 +67,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving all softwaremodules within SP. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getSoftwareModules() throws Exception {
 
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
@@ -100,7 +100,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving all softwaremodules within SP with given page size and offset including sorting by version descending and filter down to all sets which name starts with 'SM'. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getSoftwareModulesWithParameters() throws Exception {
 
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
@@ -120,7 +120,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the POST request of creating new software modules within SP. The request body must always be a list of modules. Required Permission: "
-            + SpPermission.CREATE_REPOSITORY)
+            + SpPermission.Authority.CREATE_REPOSITORY)
     public void postSoftwareModules() throws Exception {
         final SoftwareModule os = entityFactory.softwareModule().create().type(osType).name("name1").version("version1")
                 .description("description1").vendor("vendor1").build();
@@ -158,7 +158,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the DELETE request for a single softwaremodule within SP. Required Permission: "
-            + SpPermission.DELETE_REPOSITORY)
+            + SpPermission.Authority.DELETE_REPOSITORY)
     public void deleteSoftwareModule() throws Exception {
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
 
@@ -172,7 +172,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving a single softwaremodule within SP. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getSoftwareModule() throws Exception {
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
         softwareModuleManagement.update(entityFactory.softwareModule().update(sm.getId()).description("a description"));
@@ -202,7 +202,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the PUT request for a single softwaremodule within SP. Required Permission: "
-            + SpPermission.UPDATE_REPOSITORY)
+            + SpPermission.Authority.UPDATE_REPOSITORY)
     public void putSoftwareModule() throws Exception {
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
         softwareModuleManagement.update(entityFactory.softwareModule().update(sm.getId()).description("a description"));
@@ -240,7 +240,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving all meta data of artifacts assigned to a software module. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getArtifacts() throws Exception {
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
 
@@ -274,7 +274,8 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @Test
-    @Description("Handles POST request for artifact upload. Required Permission: " + SpPermission.CREATE_REPOSITORY)
+    @Description("Handles POST request for artifact upload. Required Permission: "
+            + SpPermission.Authority.CREATE_REPOSITORY)
     public void postArtifact() throws Exception {
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
 
@@ -282,7 +283,9 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
         final byte random[] = RandomStringUtils.random(5).getBytes();
         final MockMultipartFile file = new MockMultipartFile("file", "origFilename", null, random);
 
-        mockMvc.perform(fileUpload(MgmtRestConstants.SOFTWAREMODULE_V1_REQUEST_MAPPING + "/{softwareModuleId}/artifacts", sm.getId()).file(file))
+        mockMvc.perform(
+                fileUpload(MgmtRestConstants.SOFTWAREMODULE_V1_REQUEST_MAPPING + "/{softwareModuleId}/artifacts",
+                        sm.getId()).file(file))
                 .andDo(MockMvcResultPrinter.print()).andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaTypes.HAL_JSON))
                 .andDo(this.document.document(
@@ -308,7 +311,8 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @Test
-    @Description("Handles POST request for artifact upload. Required Permission: " + SpPermission.CREATE_REPOSITORY)
+    @Description("Handles POST request for artifact upload. Required Permission: "
+            + SpPermission.Authority.CREATE_REPOSITORY)
     public void postArtifactWithParameters() throws Exception {
 
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
@@ -316,7 +320,8 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
         final byte random[] = RandomStringUtils.random(5).getBytes();
         final MockMultipartFile file = new MockMultipartFile("file", "origFilename", null, random);
 
-        mockMvc.perform(fileUpload(MgmtRestConstants.SOFTWAREMODULE_V1_REQUEST_MAPPING + "/{softwareModuleId}/artifacts",
+        mockMvc.perform(fileUpload(
+                MgmtRestConstants.SOFTWAREMODULE_V1_REQUEST_MAPPING + "/{softwareModuleId}/artifacts",
                         sm.getId()).file(file).param("filename", "filename").param("file", "s")
                                 .param("md5sum", "md5sum").param("sha1sum", "sha1sum"))
                 .andDo(MockMvcResultPrinter.print()).andExpect(status().isBadRequest())
@@ -330,7 +335,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the DELETE request for a single SoftwareModule within SP. Required Permission: "
-            + SpPermission.DELETE_REPOSITORY)
+            + SpPermission.Authority.DELETE_REPOSITORY)
     public void deleteArtifact() throws Exception {
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
 
@@ -349,7 +354,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving a single Artifact meta data request. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getArtifact() throws Exception {
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
 
@@ -385,7 +390,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request for downloading an artifact. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getDownloadArtifact() throws Exception {
 
         final SoftwareModule sm = testdataFactory.createSoftwareModuleOs();
@@ -407,7 +412,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description(" Get a paged list of meta data for a software module." + " Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getMetadata() throws Exception {
         final int totalMetadata = 4;
         final String knownKeyPrefix = "knownKey";
@@ -437,7 +442,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description(" Get a paged list of meta data for a software module with defined page size and sorting by name descending and key starting with 'known'."
-            + " Required Permission: " + SpPermission.READ_REPOSITORY)
+            + " Required Permission: " + SpPermission.Authority.READ_REPOSITORY)
     public void getMetadataWithParameters() throws Exception {
         final int totalMetadata = 4;
         final String knownKeyPrefix = "knownKey";
@@ -466,7 +471,8 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @Test
-    @Description("Create a list of meta data entries" + " Required Permission: " + SpPermission.UPDATE_REPOSITORY)
+    @Description("Create a list of meta data entries" + " Required Permission: "
+            + SpPermission.Authority.UPDATE_REPOSITORY)
     public void postMetadata() throws Exception {
 
         final SoftwareModule module = testdataFactory.createDistributionSet("one").findFirstModuleByType(osType).get();
@@ -504,7 +510,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @Test
-    @Description(" Delete a single meta data." + " Required Permission: " + SpPermission.UPDATE_REPOSITORY)
+    @Description(" Delete a single meta data." + " Required Permission: " + SpPermission.Authority.UPDATE_REPOSITORY)
     public void deleteMetadata() throws Exception {
         // prepare and create metadata for deletion
         final String knownKey = "knownKey";
@@ -524,7 +530,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description(" Get a single meta data value for a meta data key." + " Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getMetadataValue() throws Exception {
 
         // prepare and create metadata
@@ -550,7 +556,7 @@ public class SoftwaremodulesDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description(" Update a single meta data value for speficic key." + " Required Permission: "
-            + SpPermission.UPDATE_REPOSITORY)
+            + SpPermission.Authority.UPDATE_REPOSITORY)
     public void putMetadata() throws Exception {
         // prepare and create metadata for update
         final String knownKey = "knownKey";

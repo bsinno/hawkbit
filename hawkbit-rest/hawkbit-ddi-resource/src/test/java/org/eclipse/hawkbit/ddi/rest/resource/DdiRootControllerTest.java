@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2015 Bosch Software Innovations GmbH and others.
- *
+ * <p>
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@ package org.eclipse.hawkbit.ddi.rest.resource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.CONTROLLER_ROLE;
 import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.CONTROLLER_ROLE_ANONYMOUS;
-import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.HAS_AUTH_TENANT_CONFIGURATION;
 import static org.eclipse.hawkbit.im.authentication.SpPermission.SpringEvalExpressions.SYSTEM_ROLE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
@@ -105,7 +104,7 @@ public class DdiRootControllerTest extends AbstractDDiApiIntegrationTest {
 
     @Test
     @Description("Ensures that targets cannot be created e.g. in plug'n play scenarios when tenant does not exists but can be created if the tenant exists.")
-    @WithUser(tenantId = "tenantDoesNotExists", allSpPermissions = true, authorities = { CONTROLLER_ROLE,
+    @WithUser(tenantId = "tenantDoesNotExists", allSpPermissions = true, additionalAuthorities = { CONTROLLER_ROLE,
             SYSTEM_ROLE }, autoCreateTenant = false)
     @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 1),
             @Expect(type = TargetPollEvent.class, count = 1),
@@ -131,7 +130,7 @@ public class DdiRootControllerTest extends AbstractDDiApiIntegrationTest {
 
     @Test
     @Description("Ensures that target poll request does not change audit data on the entity.")
-    @WithUser(principal = "knownPrincipal", authorities = { SpPermission.READ_TARGET, SpPermission.UPDATE_TARGET,
+    @WithUser(principal = "knownPrincipal", permissions = { SpPermission.READ_TARGET, SpPermission.UPDATE_TARGET,
             SpPermission.CREATE_TARGET }, allSpPermissions = false)
     @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 1),
             @Expect(type = TargetUpdatedEvent.class, count = 1), @Expect(type = TargetPollEvent.class, count = 1) })
@@ -201,13 +200,13 @@ public class DdiRootControllerTest extends AbstractDDiApiIntegrationTest {
     @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 1),
             @Expect(type = TargetPollEvent.class, count = 1) })
     public void pollWithModifiedGloablPollingTime() throws Exception {
-        securityRule.runAs(WithSpringAuthorityRule.withUser("tenantadmin", HAS_AUTH_TENANT_CONFIGURATION), () -> {
+        securityRule.runAs(WithSpringAuthorityRule.withUser("tenantadmin", SpPermission.TENANT_CONFIGURATION), () -> {
             tenantConfigurationManagement.addOrUpdateConfiguration(TenantConfigurationKey.POLLING_TIME_INTERVAL,
                     "00:02:00");
             return null;
         });
 
-        securityRule.runAs(WithSpringAuthorityRule.withUser("controller", CONTROLLER_ROLE_ANONYMOUS), () -> {
+        securityRule.runAs(WithSpringAuthorityRule.withController("controller", CONTROLLER_ROLE_ANONYMOUS), () -> {
             mvc.perform(get("/{tenant}/controller/v1/4711", tenantAware.getCurrentTenant()))
                     .andDo(MockMvcResultPrinter.print()).andExpect(status().isOk())
                     .andExpect(content().contentType(MediaTypes.HAL_JSON))
@@ -568,7 +567,7 @@ public class DdiRootControllerTest extends AbstractDDiApiIntegrationTest {
     public void sleepTimeResponseForDifferentMaintenanceWindowParameters() throws Exception {
         final DistributionSet ds = testdataFactory.createDistributionSet("");
 
-        securityRule.runAs(WithSpringAuthorityRule.withUser("tenantadmin", HAS_AUTH_TENANT_CONFIGURATION), () -> {
+        securityRule.runAs(WithSpringAuthorityRule.withUser("tenantadmin", SpPermission.TENANT_CONFIGURATION), () -> {
             tenantConfigurationManagement.addOrUpdateConfiguration(TenantConfigurationKey.POLLING_TIME_INTERVAL,
                     "00:05:00");
             tenantConfigurationManagement.addOrUpdateConfiguration(TenantConfigurationKey.MIN_POLLING_TIME_INTERVAL,

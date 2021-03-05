@@ -62,7 +62,8 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     }
 
     @Test
-    @Description("Handles the GET request of retrieving all distribution set types within SP. Required Permission: READ_REPOSITORY.")
+    @Description("Handles the GET request of retrieving all distribution set types within SP. Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getDistributionSetTypes() throws Exception {
 
         distributionSetTypeManagement.update(entityFactory.distributionSetType()
@@ -71,8 +72,7 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
         mockMvc.perform(
                 get(MgmtRestConstants.DISTRIBUTIONSETTYPE_V1_REQUEST_MAPPING).accept(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultPrinter.print()).andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.total", equalTo(4)))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.total", equalTo(4)))
                 .andDo(this.document.document(responseFields(
                         fieldWithPath("size").type(JsonFieldType.NUMBER).description(ApiModelPropertiesGeneric.SIZE),
                         fieldWithPath("total").description(ApiModelPropertiesGeneric.TOTAL_ELEMENTS),
@@ -91,7 +91,8 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     }
 
     @Test
-    @Description("Handles the GET request of retrieving all distribution set types within SP with a defined page size and offset, sortet by name in descending order and filtered down to all targets which name starts with 'a'. Required Permission: READ_REPOSITORY.")
+    @Description("Handles the GET request of retrieving all distribution set types within SP with a defined page size and offset, sorted by name in descending order and filtered down to all targets which name starts with 'a'. Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getDistributionSetTypesWithParameters() throws Exception {
 
         distributionSetTypeManagement.update(entityFactory.distributionSetType()
@@ -106,7 +107,7 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     @Test
     @WithUser(principal = "uploadTester", allSpPermissions = true)
     @Description("Handles the POST request for creating new distribution set types within SP. The request body "
-            + "must always be a list of types. Required Permission: CREATE_REPOSITORY.")
+            + "must always be a list of types. Required Permission: " + SpPermission.Authority.CREATE_REPOSITORY)
     public void postDistributionSetTypes() throws Exception {
 
         assertThat(distributionSetTypeManagement.count()).isEqualTo(4);
@@ -147,7 +148,8 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     }
 
     @Test
-    @Description("Handles the GET request of retrieving a single distribution set type within SP. Required Permission: READ_REPOSITORY")
+    @Description("Handles the GET request of retrieving a single distribution set type within SP. Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY)
     public void deleteDistributionSetType() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.update(entityFactory.distributionSetType()
                 .update(testdataFactory.createDistributionSet().getType().getId()).description("Desc1234"));
@@ -159,7 +161,8 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     }
 
     @Test
-    @Description("Handles the DELETE request for a single distribution set type within SP. Required Permission: DELETE_REPOSITORY.")
+    @Description("Handles the DELETE request for a single distribution set type within SP. Required Permission: "
+            + SpPermission.Authority.DELETE_REPOSITORY)
     public void getDistributionSetType() throws Exception {
 
         final DistributionSetType testType = distributionSetTypeManagement.update(entityFactory.distributionSetType()
@@ -190,7 +193,8 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     }
 
     @Test
-    @Description("Handles the GET request of retrieving all distribution set types within SP based on parameter. Required Permission: READ_REPOSITORY.")
+    @Description("Handles the GET request of retrieving all distribution set types within SP based on parameter. Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getDistributionSetTypesWithParameter() throws Exception {
 
         mockMvc.perform(get(MgmtRestConstants.DISTRIBUTIONSETTYPE_V1_REQUEST_MAPPING
@@ -205,7 +209,8 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     }
 
     @Test
-    @Description("Handles the PUT request for a single distribution set type within SP. Required Permission: UPDATE_REPOSITORY.")
+    @Description("Handles the PUT request for a single distribution set type within SP. Required Permission: "
+            + SpPermission.Authority.UPDATE_REPOSITORY)
     public void putDistributionSetType() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.update(entityFactory.distributionSetType()
                 .update(testdataFactory.createDistributionSet().getType().getId()).description("Desc1234"));
@@ -241,7 +246,8 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
 
     @Test
     @WithUser(principal = "uploadTester", allSpPermissions = true)
-    @Description("Handles the GET request of retrieving the list of mandatory software module types in that distribution set type. Required Permission: READ_REPOSITORY.")
+    @Description("Handles the GET request of retrieving the list of mandatory software module types in that distribution set type. Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getMandatoryModules() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.create(entityFactory.distributionSetType()
                 .create().key("test1").name("TestName1").description("Desc1").mandatory(osType).optional(runtimeType));
@@ -274,7 +280,7 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     @Test
     @Description("Handles the POST request for adding a mandatory software module type to a distribution set type."
             + "Note that a DS type cannot be changed after it has been used by a DS. Required Permission: "
-            + SpPermission.UPDATE_REPOSITORY + " and " + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.UPDATE_REPOSITORY + " and " + SpPermission.Authority.READ_REPOSITORY)
     public void postMandatoryModule() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.create(
                 entityFactory.distributionSetType().create().key("test1").name("TestName1").description("Desc1"));
@@ -292,7 +298,7 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     @Test
     @Description("Handles the GET request of retrieving the list of software module types in that distribution set. "
             + "Note that a DS type cannot be changed after it has been used by a DS. Required permissions: "
-            + SpPermission.UPDATE_REPOSITORY + " and " + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.UPDATE_REPOSITORY + " and " + SpPermission.Authority.READ_REPOSITORY)
     public void deleteMandatoryModule() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.create(entityFactory.distributionSetType()
                 .create().key("test1").name("TestName1").description("Desc1").mandatory(osType).optional(runtimeType));
@@ -309,7 +315,7 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
 
     @Test
     @Description("Handles the GET request of retrieving the single mandatory software module type in that distribution set type. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getMandatoryModule() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.create(entityFactory.distributionSetType()
                 .create().key("test1").name("TestName1").description("Desc1").mandatory(osType).optional(runtimeType));
@@ -339,7 +345,7 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
 
     @Test
     @Description("Handles the GET request of retrieving the list of optional software module types in that distribution set type. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getOptionalModules() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.create(entityFactory.distributionSetType()
                 .create().key("test1").name("TestName1").description("Desc1").mandatory(osType).optional(runtimeType));
@@ -369,7 +375,7 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     @Test
     @Description("Handles the POST request for adding  an optional software module type to a distribution set type."
             + "Note that a DS type cannot be changed after it has been used by a DS. Required Permission: "
-            + SpPermission.UPDATE_REPOSITORY + " and " + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.UPDATE_REPOSITORY + " and " + SpPermission.Authority.READ_REPOSITORY)
     public void postOptionalModule() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.create(
                 entityFactory.distributionSetType().create().key("test1").name("TestName1").description("Desc1"));
@@ -387,7 +393,7 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
     @Test
     @Description("Handles DELETE request for removing an optional module from the distribution set type."
             + "Note that a DS type cannot be changed after it has been used by a DS. Required Permission: "
-            + SpPermission.UPDATE_REPOSITORY + " and " + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.UPDATE_REPOSITORY + " and " + SpPermission.Authority.READ_REPOSITORY)
     public void deleteOptionalModule() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.create(entityFactory.distributionSetType()
                 .create().key("test1").name("TestName1").description("Desc1").mandatory(osType).optional(runtimeType));
@@ -403,7 +409,7 @@ public class DistributionSetTypesDocumentationTest extends AbstractApiRestDocume
 
     @Test
     @Description("Handles the GET request of retrieving the single optional software module type in that distribution set type. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getOptionalModule() throws Exception {
         final DistributionSetType testType = distributionSetTypeManagement.create(entityFactory.distributionSetType()
                 .create().key("test1").name("TestName1").description("Desc1").mandatory(osType).optional(appType));

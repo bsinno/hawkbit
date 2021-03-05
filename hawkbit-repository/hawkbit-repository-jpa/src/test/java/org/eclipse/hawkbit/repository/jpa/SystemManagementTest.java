@@ -102,7 +102,7 @@ public class SystemManagementTest extends AbstractJpaIntegrationTest {
 
         for (int i = 0; i < tenants; i++) {
             final String tenantname = "tenant" + i;
-            securityRule.runAs(WithSpringAuthorityRule.withUserAndTenant("bumlux", tenantname, true, true, false,
+            securityRule.runAs(WithSpringAuthorityRule.withUserAndTenant("bumlux", tenantname, true, true, false, null,
                     SpringEvalExpressions.SYSTEM_ROLE), () -> {
                         systemManagement.getTenantMetadata(tenantname);
                         if (artifactSize > 0) {

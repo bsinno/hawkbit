@@ -72,7 +72,7 @@ public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
     }
 
     @Test
-    @Description("Tests non allowed requests on the artifact ressource, e.g. invalid URI, wrong if-match, wrong command.")
+    @Description("Tests non allowed requests on the artifact resource, e.g. invalid URI, wrong if-match, wrong command.")
     public void invalidRequestsOnArtifactResource() throws Exception {
         // create target
         final Target target = testdataFactory.createTarget();
@@ -155,7 +155,7 @@ public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
     }
 
     @Test
-    @WithUser(principal = "4712", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(principal = "4712", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     @Description("Tests valid downloads through the artifact resource by identifying the artifact not by ID but file name.")
     public void downloadArtifactThroughFileName() throws Exception {
         downLoadProgress = 1;
@@ -228,7 +228,7 @@ public class DdiArtifactDownloadTest extends AbstractDDiApiIntegrationTest {
     }
 
     @Test
-    @WithUser(principal = TestdataFactory.DEFAULT_CONTROLLER_ID, authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(principal = TestdataFactory.DEFAULT_CONTROLLER_ID, additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     @Description("Test various HTTP range requests for artifact download, e.g. chunk download or download resume.")
     public void rangeDownloadArtifact() throws Exception {
         // create target

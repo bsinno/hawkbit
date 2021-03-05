@@ -67,7 +67,7 @@ public class RootControllerDocumentationTest extends AbstractApiRestDocumentatio
     @Description("This base resource can be regularly polled by the controller on the provisioning target or device "
             + "in order to retrieve actions that need to be executed. In this case including a config pull request and a deployment. The resource supports Etag based modification "
             + "checks in order to save traffic.")
-    @WithUser(tenantId = "TENANT_ID", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(tenantId = "TENANT_ID", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     public void getControllerBaseWithOpenDeplyoment() throws Exception {
         final DistributionSet set = testdataFactory.createDistributionSet("one");
 
@@ -94,7 +94,7 @@ public class RootControllerDocumentationTest extends AbstractApiRestDocumentatio
     @Description("This base resource can be regularly polled by the controller on the provisioning target or device "
             + "in order to retrieve actions that need to be executed. In this case including a config pull request and a cancellation. "
             + "Note: as with deployments the cancel action has to be confirmed or rejected in order to move on to the next action.")
-    @WithUser(tenantId = "TENANT_ID", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(tenantId = "TENANT_ID", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     public void getControllerBaseWithOpenDeploymentCancellation() throws Exception {
         final DistributionSet set = testdataFactory.createDistributionSet("one");
         final DistributionSet setTwo = testdataFactory.createDistributionSet("two");
@@ -122,7 +122,7 @@ public class RootControllerDocumentationTest extends AbstractApiRestDocumentatio
     @Test
     @Description("The SP server might cancel an operation, e.g. an unfinished update has a successor. "
             + "It is up to the provisioning target to decide either to accept the cancellation or reject it.")
-    @WithUser(tenantId = "TENANT_ID", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(tenantId = "TENANT_ID", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     public void getControllerCancelAction() throws Exception {
         final DistributionSet set = testdataFactory.createDistributionSet("one");
 
@@ -162,7 +162,7 @@ public class RootControllerDocumentationTest extends AbstractApiRestDocumentatio
     @Description("It is up to the device to decided how much intermediate feedback is "
             + "provided. However, the action will be kept open until the controller on the device reports a "
             + "finished (either successfull or error) or rejects the oprtioan, e.g. the canceled actions have been started already.")
-    @WithUser(tenantId = "TENANT_ID", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(tenantId = "TENANT_ID", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     public void postCancelActionFeedback() throws Exception {
         final DistributionSet set = testdataFactory.createDistributionSet("one");
 
@@ -200,7 +200,7 @@ public class RootControllerDocumentationTest extends AbstractApiRestDocumentatio
     @Description("The usual behaviour is that when a new device resgisters at the server it is "
             + "requested to provide the meta information that will allow the server to identify the device on a "
             + "hardware level (e.g. hardware revision, mac address, serial number etc.).")
-    @WithUser(tenantId = "TENANT_ID", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(tenantId = "TENANT_ID", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     public void putConfigData() throws Exception {
         final Target target = targetManagement.create(entityFactory.target().create().controllerId(CONTROLLER_ID));
 
@@ -227,7 +227,7 @@ public class RootControllerDocumentationTest extends AbstractApiRestDocumentatio
 
     @Test
     @Description("Core resource for deployment operations. Contains all information necessary in order to execute the operation.")
-    @WithUser(tenantId = "TENANT_ID", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(tenantId = "TENANT_ID", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     public void getControllerBasedeploymentAction() throws Exception {
         final DistributionSet set = testdataFactory.createDistributionSet("one");
 
@@ -324,7 +324,7 @@ public class RootControllerDocumentationTest extends AbstractApiRestDocumentatio
 
     @Test
     @Description("Core resource for deployment operations. Contains all information necessary in order to execute the operation. Example with maintenance window where the device is requested to download only as it is not in the maintenance window yet.")
-    @WithUser(tenantId = "TENANT_ID", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(tenantId = "TENANT_ID", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     public void getControllerBasedeploymentActionWithMaintenanceWindow() throws Exception {
         final DistributionSet set = testdataFactory.createDistributionSet("one");
 
@@ -365,7 +365,7 @@ public class RootControllerDocumentationTest extends AbstractApiRestDocumentatio
     @Description("Feedback channel. It is up to the device to decided how much intermediate feedback is "
             + "provided. However, the action will be kept open until the controller on the device reports a "
             + "finished (either successfull or error).")
-    @WithUser(tenantId = "TENANT_ID", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(tenantId = "TENANT_ID", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     public void postBasedeploymentActionFeedback() throws Exception {
         final DistributionSet set = testdataFactory.createDistributionSet("one");
 
@@ -404,7 +404,7 @@ public class RootControllerDocumentationTest extends AbstractApiRestDocumentatio
     @Test
     @Description("Returns all artifacts whichs is assigned to the software module."
             + "Can be usesfull for the target to double check that its current state matches with the targeted state.")
-    @WithUser(tenantId = "TENANT_ID", authorities = "ROLE_CONTROLLER", allSpPermissions = true)
+    @WithUser(tenantId = "TENANT_ID", additionalAuthorities = "ROLE_CONTROLLER", allSpPermissions = true)
     public void getSoftwareModulesArtifacts() throws Exception {
         final DistributionSet set = testdataFactory.createDistributionSet("");
 

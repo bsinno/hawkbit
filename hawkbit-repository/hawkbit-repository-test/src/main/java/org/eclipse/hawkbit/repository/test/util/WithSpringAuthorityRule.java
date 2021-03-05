@@ -9,11 +9,10 @@
 package org.eclipse.hawkbit.repository.test.util;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.im.authentication.TenantAwareAuthenticationDetails;
@@ -29,11 +28,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class WithSpringAuthorityRule implements TestRule {
 
+    private static final SpPermission[] EMPTY_PERMISSIONS = new SpPermission[0];
+    private static final String DEFAULT_TENANT = "default";
+
     @Override
     public Statement apply(final Statement base, final Description description) {
         return new Statement() {
             @Override
-            // throwable comes from jnuit evaluate signature
+            // throwable comes from JUnit evaluate signature
             @SuppressWarnings("squid:S00112")
             public void evaluate() throws Throwable {
                 final SecurityContext oldContext = before(description);
@@ -72,51 +74,31 @@ public class WithSpringAuthorityRule implements TestRule {
 
             @Override
             public Authentication getAuthentication() {
-                final String[] authorities;
+                final List<String> authorities;
                 if (annotation.allSpPermissions()) {
-                    authorities = getAllAuthorities(annotation.authorities(), annotation.removeFromAllPermission());
+                    authorities = getAllAuthorities(annotation.removeFromAllPermission());
                 } else {
-                    authorities = annotation.authorities();
+                    authorities = permissionsAsStringList(annotation.permissions());
                 }
+                authorities.addAll(Arrays.asList(annotation.additionalAuthorities()));
+
                 final TestingAuthenticationToken testingAuthenticationToken = new TestingAuthenticationToken(
                         new UserPrincipal(annotation.principal(), annotation.principal(), annotation.principal(),
                                 annotation.principal(), null, annotation.tenantId()),
-                        annotation.credentials(), authorities);
+                        annotation.credentials(), authorities.toArray(new String[0]));
                 testingAuthenticationToken.setDetails(
                         new TenantAwareAuthenticationDetails(annotation.tenantId(), annotation.controller()));
                 return testingAuthenticationToken;
             }
 
-            private String[] getAllAuthorities(final String[] additionalAuthorities, final String[] notInclude) {
-                final List<String> allPermissions = new ArrayList<>();
-                final Field[] declaredFields = SpPermission.class.getDeclaredFields();
-                for (final Field field : declaredFields) {
-                    if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
-                        field.setAccessible(true);
-                        try {
-                            boolean addPermission = true;
-                            final String permissionName = (String) field.get(null);
-                            if (notInclude != null) {
-                                for (final String notInlcudePerm : notInclude) {
-                                    if (permissionName.equals(notInlcudePerm)) {
-                                        addPermission = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (addPermission) {
-                                allPermissions.add(permissionName);
-                            }
-                            // don't want to log this exceptions.
-                        } catch (@SuppressWarnings("squid:S1166") IllegalArgumentException | IllegalAccessException e) {
-                            // nope
-                        }
-                    }
-                }
-                for (final String authority : additionalAuthorities) {
-                    allPermissions.add(authority);
-                }
-                return allPermissions.toArray(new String[allPermissions.size()]);
+            private List<String> getAllAuthorities(final SpPermission[] notInclude) {
+                final List<String> allAuthorities = SpPermission.getAllAuthorities();
+                allAuthorities.removeAll(permissionsAsStringList(notInclude));
+                return allAuthorities;
+            }
+
+            private List<String> permissionsAsStringList(final SpPermission[] permissions) {
+                return Arrays.stream(permissions).map(Enum::name).collect(Collectors.toList());
             }
         });
     }
@@ -142,7 +124,6 @@ public class WithSpringAuthorityRule implements TestRule {
     }
 
     /**
-     *
      * @param withUser
      * @param callable
      * @return callable result
@@ -172,38 +153,37 @@ public class WithSpringAuthorityRule implements TestRule {
     }
 
     public static WithUser withController(final String principal, final String... authorities) {
-        return withUserAndTenant(principal, "default", true, true, true, authorities);
+        return createWithUser(principal, DEFAULT_TENANT, true, true, true, EMPTY_PERMISSIONS, authorities);
     }
 
-    public static WithUser withUser(final String principal, final String... authorities) {
-        return withUserAndTenant(principal, "default", true, true, false, authorities);
+    public static WithUser withUser(final String principal, final SpPermission... permissions) {
+        return createWithUser(principal, DEFAULT_TENANT, true, true, false, permissions);
     }
 
-    public static WithUser withUser(final String principal, final boolean allSpPermision, final String... authorities) {
-        return withUserAndTenant(principal, "default", true, allSpPermision, false, authorities);
+    public static WithUser withUser(final String principal, final boolean allSpPermision,
+            final SpPermission... permissions) {
+        return createWithUser(principal, DEFAULT_TENANT, true, allSpPermision, false, permissions);
     }
 
-    public static WithUser withUser(final boolean autoCreateTenant) {
-        return withUserAndTenant("bumlux", "default", autoCreateTenant, true, false, new String[] {});
-    }
-
-    public static WithUser withUserAndTenant(final String principal, final String tenant, final String... authorities) {
-        return withUserAndTenant(principal, tenant, true, true, false, new String[] {});
+    public static WithUser withUserAndTenant(final String principal, final String tenant) {
+        return createWithUser(principal, tenant, true, true, false, EMPTY_PERMISSIONS);
     }
 
     public static WithUser withUserAndTenant(final String principal, final String tenant,
             final boolean autoCreateTenant, final boolean allSpPermission, final boolean controller,
-            final String... authorities) {
-        return createWithUser(principal, tenant, autoCreateTenant, allSpPermission, controller, authorities);
+            final SpPermission[] permissions, final String... additionalAuthorities) {
+        return createWithUser(principal, tenant, autoCreateTenant, allSpPermission, controller, permissions,
+                additionalAuthorities);
     }
 
     private static WithUser privilegedUser() {
-        return createWithUser("bumlux", "default", true, true, false,
-                new String[] { "ROLE_CONTROLLER", "ROLE_SYSTEM_CODE" });
+        return createWithUser("bumlux", DEFAULT_TENANT, true, true, false, EMPTY_PERMISSIONS, "ROLE_CONTROLLER",
+                "ROLE_SYSTEM_CODE");
     }
 
     private static WithUser createWithUser(final String principal, final String tenant, final boolean autoCreateTenant,
-            final boolean allSpPermission, final boolean controller, final String... authorities) {
+            final boolean allSpPermission, final boolean controller, final SpPermission[] permissions,
+            final String... additionalAuthorities) {
         return new WithUser() {
 
             @Override
@@ -222,8 +202,8 @@ public class WithSpringAuthorityRule implements TestRule {
             }
 
             @Override
-            public String[] authorities() {
-                return authorities;
+            public SpPermission[] permissions() {
+                return permissions;
             }
 
             @Override
@@ -232,8 +212,13 @@ public class WithSpringAuthorityRule implements TestRule {
             }
 
             @Override
-            public String[] removeFromAllPermission() {
-                return new String[0];
+            public SpPermission[] removeFromAllPermission() {
+                return new SpPermission[0];
+            }
+
+            @Override
+            public String[] additionalAuthorities() {
+                return additionalAuthorities;
             }
 
             @Override

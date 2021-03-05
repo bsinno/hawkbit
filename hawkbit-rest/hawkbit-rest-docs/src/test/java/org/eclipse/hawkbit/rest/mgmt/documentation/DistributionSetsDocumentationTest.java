@@ -68,7 +68,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Get Distribution Set. Handles the GET request of retrieving a single distribution set within SP. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getDistributionSet() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -82,7 +82,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
     }
 
     @Test
-    @Description("Get paged list of Distribution Sets. Required Permission: " + SpPermission.READ_REPOSITORY)
+    @Description("Get paged list of Distribution Sets. Required Permission: " + SpPermission.Authority.READ_REPOSITORY)
     public void getDistributionSets() throws Exception {
         testdataFactory.createUpdatedDistributionSet();
 
@@ -113,7 +113,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Get paged list of Distribution Sets with given page size and offset including sorting by name descending and filter down to all sets which name starts with 'testDs'.  Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getDistributionSetsWithParameters() throws Exception {
 
         final List<DistributionSet> sets = testdataFactory.createDistributionSets("testDS", 3);
@@ -132,7 +132,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the DELETE request for a single Distribution Set within SP. Required Permission: "
-            + SpPermission.DELETE_REPOSITORY)
+            + SpPermission.Authority.DELETE_REPOSITORY)
     public void deleteDistributionSet() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -146,7 +146,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Create Distribution Sets. Handles the POST request of creating new distribution sets within SP. The request body must always be a list of sets. Required Permission: "
-            + SpPermission.CREATE_REPOSITORY)
+            + SpPermission.Authority.CREATE_REPOSITORY)
     public void createDistributionSets() throws Exception {
 
         final SoftwareModule ah = testdataFactory.createSoftwareModuleApp();
@@ -179,7 +179,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the UPDATE request for a single Distribution Set within SP. Required Permission: "
-            + SpPermission.UPDATE_REPOSITORY)
+            + SpPermission.Authority.UPDATE_REPOSITORY)
     public void updateDistributionSet() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -205,7 +205,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the GET request for retrieving assigned targets of a single distribution set. Required Permission: "
-            + SpPermission.READ_REPOSITORY + " and " + SpPermission.READ_TARGET)
+            + SpPermission.Authority.READ_REPOSITORY + " and " + SpPermission.Authority.READ_TARGET)
     public void getAssignedTargets() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -231,7 +231,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the GET request for retrieving assigned target filter queries of a single distribution set. Required Permission: "
-            + SpPermission.READ_REPOSITORY + " and " + SpPermission.READ_TARGET)
+            + SpPermission.Authority.READ_REPOSITORY + " and " + SpPermission.Authority.READ_TARGET)
     public void getAutoAssignTargetFilterQueries() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
         targetFilterQueryManagement.create(entityFactory.targetFilterQuery().create().name("filter1").query("name==a")
@@ -256,7 +256,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the GET request for retrieving assigned target filter queries of a single distribution set with a defined page size and offset, sorted by name in descending order and filtered down to all targets with a name that ends with '1'. Required Permission: "
-            + SpPermission.READ_REPOSITORY + " and " + SpPermission.READ_TARGET)
+            + SpPermission.Authority.READ_REPOSITORY + " and " + SpPermission.Authority.READ_TARGET)
     public void getAutoAssignTargetFilterQueriesWithParameters() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
         targetFilterQueryManagement.create(entityFactory.targetFilterQuery().create().name("filter1").query("name==a")
@@ -279,7 +279,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the GET request for retrieving assigned targets of a single distribution set with a defined page size and offset, sorted by name in descending order and filtered down to all targets which controllerID starts with 'target'. Required Permission: "
-            + SpPermission.READ_REPOSITORY + " and " + SpPermission.READ_TARGET)
+            + SpPermission.Authority.READ_REPOSITORY + " and " + SpPermission.Authority.READ_TARGET)
     public void getAssignedTargetsWithParameters() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -303,7 +303,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the GET request for retrieving installed targets of a single distribution set with a defined page size and offset, sortet by name in descending order and filtered down to all targets which controllerID starts with 'target'. Required Permission: "
-            + SpPermission.READ_REPOSITORY + " and " + SpPermission.READ_TARGET)
+            + SpPermission.Authority.READ_REPOSITORY + " and " + SpPermission.Authority.READ_TARGET)
     public void getInstalledTargetsWithParameters() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -328,7 +328,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the GET request for retrieving installed targets of a single distribution set. Required Permission: "
-            + SpPermission.READ_REPOSITORY + " and " + SpPermission.READ_TARGET)
+            + SpPermission.Authority.READ_REPOSITORY + " and " + SpPermission.Authority.READ_TARGET)
     public void getInstalledTargets() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -355,7 +355,8 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the POST request for assigning multiple targets to a distribution set.The request body must always be a list of target IDs."
-            + " Required Permission: " + SpPermission.READ_REPOSITORY + " and " + SpPermission.UPDATE_TARGET)
+            + " Required Permission: " + SpPermission.Authority.READ_REPOSITORY + " and "
+            + SpPermission.Authority.UPDATE_TARGET)
     public void createAssignedTarget() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -383,8 +384,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
                                 parameterWithName("distributionSetId").description(ApiModelPropertiesGeneric.ITEM_ID)),
                         requestParameters(parameterWithName("offline")
                                 .description(MgmtApiModelProperties.OFFLINE_UPDATE).optional()),
-                        requestFields(
-                                requestFieldWithPath("[].id").description(ApiModelPropertiesGeneric.ITEM_ID),
+                        requestFields(requestFieldWithPath("[].id").description(ApiModelPropertiesGeneric.ITEM_ID),
                                 requestFieldWithPathMandatoryInMultiAssignMode("[].weight")
                                         .description(MgmtApiModelProperties.ASSIGNMENT_WEIGHT)
                                         .type(JsonFieldType.NUMBER).attributes(key("value").value("0 - 1000")),
@@ -399,8 +399,8 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
                                 optionalRequestFieldWithPath("[].maintenanceWindow.timezone")
                                         .description(MgmtApiModelProperties.MAINTENANCE_WINDOW_TIMEZONE),
                                 optionalRequestFieldWithPath("[].type")
-                                        .description(MgmtApiModelProperties.ASSIGNMENT_TYPE)
-                                        .attributes(key("value").value("['soft', 'forced','timeforced', 'downloadonly']"))),
+                                        .description(MgmtApiModelProperties.ASSIGNMENT_TYPE).attributes(
+                                                key("value").value("['soft', 'forced','timeforced', 'downloadonly']"))),
                         responseFields(
                                 fieldWithPath("assigned").description(MgmtApiModelProperties.DS_NEW_ASSIGNED_TARGETS),
                                 fieldWithPath("alreadyAssigned").type(JsonFieldType.NUMBER)
@@ -417,7 +417,8 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the POST request for assigning multiple software modules to a distribution set. The request body must always be a list of software module IDs."
-            + " Required Permission: " + SpPermission.READ_REPOSITORY + " and " + SpPermission.UPDATE_REPOSITORY)
+            + " Required Permission: " + SpPermission.Authority.READ_REPOSITORY + " and "
+            + SpPermission.Authority.UPDATE_REPOSITORY)
     public void assignSoftwareModules() throws Exception {
         // create DisSet
         final DistributionSet disSet = testdataFactory.createDistributionSetWithNoSoftwareModules("Jupiter", "398,88");
@@ -442,15 +443,15 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
     }
 
     @Test
-    @Description("Delete a software module assignment." + " Required Permission: " + SpPermission.UPDATE_REPOSITORY)
+    @Description("Delete a software module assignment." + " Required Permission: "
+            + SpPermission.Authority.UPDATE_REPOSITORY)
     public void deleteAssignSoftwareModules() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
         mockMvc.perform(delete(
                 MgmtRestConstants.DISTRIBUTIONSET_V1_REQUEST_MAPPING
                         + "/{distributionSetId}/assignedSM/{softwareModuleId}",
-                set.getId(), set.findFirstModuleByType(osType).get().getId())
-                        .contentType(MediaType.APPLICATION_JSON))
+                set.getId(), set.findFirstModuleByType(osType).get().getId()).contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultPrinter.print()).andExpect(status().isOk())
                 .andDo(this.document.document(pathParameters(
                         parameterWithName("distributionSetId").description(ApiModelPropertiesGeneric.ITEM_ID),
@@ -460,7 +461,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the GET request of retrieving assigned software modules of a single distribution set within SP. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getAssignedSoftwareModules() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -493,7 +494,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Handles the GET request of retrieving assigned software modules of a single distribution set within SP with given page size and offset including sorting by version descending and filter down to all sets which name starts with 'one'. Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getAssignedSoftwareModulesWithParameters() throws Exception {
         final DistributionSet set = testdataFactory.createUpdatedDistributionSet();
 
@@ -512,7 +513,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Get a paged list of meta data for a distribution set with standard page size."
-            + " Required Permission: " + SpPermission.READ_REPOSITORY)
+            + " Required Permission: " + SpPermission.Authority.READ_REPOSITORY)
     public void getMetadata() throws Exception {
         final int totalMetadata = 4;
         final String knownKeyPrefix = "knownKey";
@@ -539,7 +540,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Get a paged list of meta data for a distribution set with defined page size and sorting by name descending and key starting with 'known'."
-            + " Required Permission: " + SpPermission.READ_REPOSITORY)
+            + " Required Permission: " + SpPermission.Authority.READ_REPOSITORY)
     public void getMetadataWithParameters() throws Exception {
         final int totalMetadata = 4;
 
@@ -572,7 +573,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Get a single meta data value for a meta data key." + " Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getMetadataValue() throws Exception {
 
         // prepare and create metadata
@@ -595,7 +596,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
 
     @Test
     @Description("Update a single meta data value for speficic key." + " Required Permission: "
-            + SpPermission.UPDATE_REPOSITORY)
+            + SpPermission.Authority.UPDATE_REPOSITORY)
     public void updateMetadata() throws Exception {
         // prepare and create metadata for update
         final String knownKey = "knownKey";
@@ -624,7 +625,7 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
     }
 
     @Test
-    @Description("Delete a single meta data." + " Required Permission: " + SpPermission.UPDATE_REPOSITORY)
+    @Description("Delete a single meta data." + " Required Permission: " + SpPermission.Authority.UPDATE_REPOSITORY)
     public void deleteMetadata() throws Exception {
         // prepare and create metadata for deletion
         final String knownKey = "knownKey";
@@ -645,8 +646,8 @@ public class DistributionSetsDocumentationTest extends AbstractApiRestDocumentat
     }
 
     @Test
-    @Description("Create a list of meta data entries" + " Required Permission: " + SpPermission.READ_REPOSITORY
-            + " and " + SpPermission.UPDATE_TARGET)
+    @Description("Create a list of meta data entries" + " Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY + " and " + SpPermission.Authority.UPDATE_TARGET)
     public void createMetadata() throws Exception {
 
         final DistributionSet testDS = testdataFactory.createDistributionSet("one");

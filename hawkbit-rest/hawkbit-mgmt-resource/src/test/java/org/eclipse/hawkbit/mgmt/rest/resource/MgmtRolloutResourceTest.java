@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.eclipse.hawkbit.exception.SpServerError;
+import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.mgmt.rest.api.MgmtRestConstants;
 import org.eclipse.hawkbit.repository.RolloutGroupManagement;
 import org.eclipse.hawkbit.repository.RolloutManagement;
@@ -81,7 +82,7 @@ public class MgmtRolloutResourceTest extends AbstractManagementApiIntegrationTes
 
     @Test
     @Description("Testing that creating rollout with insufficient permission returns forbidden")
-    @WithUser(allSpPermissions = true, removeFromAllPermission = "CREATE_ROLLOUT")
+    @WithUser(allSpPermissions = true, removeFromAllPermission = SpPermission.CREATE_ROLLOUT)
     public void createRolloutWithInsufficientPermissionReturnsForbidden() throws Exception {
         final DistributionSet dsA = testdataFactory.createDistributionSet("");
         mvc.perform(post("/rest/v1/rollouts")
@@ -91,7 +92,7 @@ public class MgmtRolloutResourceTest extends AbstractManagementApiIntegrationTes
     }
 
     @Test
-    @Description("Testing that creating rollout with not exisiting distribution set returns not found")
+    @Description("Testing that creating rollout with not existing distribution set returns not found")
     public void createRolloutWithNotExistingDistributionSetReturnsNotFound() throws Exception {
         mvc.perform(post("/rest/v1/rollouts").content(JsonBuilder.rollout("name", "desc", 10, 1234, "name==test", null))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))

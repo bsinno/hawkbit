@@ -151,7 +151,7 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
 
     @Test
     @Description("Ensures that security token is not returned if user does not have READ_TARGET_SEC_TOKEN permission.")
-    @WithUser(allSpPermissions = false, authorities = { SpPermission.READ_TARGET, SpPermission.CREATE_TARGET })
+    @WithUser(allSpPermissions = false, permissions = { SpPermission.READ_TARGET, SpPermission.CREATE_TARGET })
     public void securityTokenIsNotInResponseIfMissingPermission() throws Exception {
 
         final String knownControllerId = "knownControllerId";
@@ -163,7 +163,7 @@ public class MgmtTargetResourceTest extends AbstractManagementApiIntegrationTest
 
     @Test
     @Description("Ensures that security token is returned if user does have READ_TARGET_SEC_TOKEN permission.")
-    @WithUser(allSpPermissions = false, authorities = { SpPermission.READ_TARGET, SpPermission.CREATE_TARGET,
+    @WithUser(allSpPermissions = false, permissions = { SpPermission.READ_TARGET, SpPermission.CREATE_TARGET,
             SpPermission.READ_TARGET_SEC_TOKEN })
     public void securityTokenIsInResponseWithCorrectPermission() throws Exception {
 

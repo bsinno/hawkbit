@@ -473,8 +473,8 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
                 .isEqualTo(0);
         assertThat(targetManagement.countByInstalledDistributionSet(set2.getId())).as("Target count is wrong")
                 .isEqualTo(0);
-        assertThat(targetManagement.existsByInstalledOrAssignedDistributionSet(set2.getId())).as("Target count is wrong")
-                .isFalse();
+        assertThat(targetManagement.existsByInstalledOrAssignedDistributionSet(set2.getId()))
+                .as("Target count is wrong").isFalse();
 
         Target target = createTargetWithAttributes("4711");
 
@@ -500,8 +500,8 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
                 .isEqualTo(1);
         assertThat(targetManagement.countByInstalledDistributionSet(set2.getId())).as("Target count is wrong")
                 .isEqualTo(0);
-        assertThat(targetManagement.existsByInstalledOrAssignedDistributionSet(set2.getId())).as("Target count is wrong")
-                .isTrue();
+        assertThat(targetManagement.existsByInstalledOrAssignedDistributionSet(set2.getId()))
+                .as("Target count is wrong").isTrue();
         assertThat(target.getLastTargetQuery()).as("Target query is not work").isGreaterThanOrEqualTo(current);
         assertThat(deploymentManagement.getAssignedDistributionSet("4711").get()).as("Assigned ds size is wrong")
                 .isEqualTo(set2);
@@ -535,14 +535,14 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
     }
 
     /**
-     * verifies, that all {@link TargetTag} of parameter. NOTE: it's accepted
-     * that the target have additional tags assigned to them which are not
-     * contained within parameter tags.
+     * verifies, that all {@link TargetTag} of parameter. NOTE: it's accepted that
+     * the target have additional tags assigned to them which are not contained
+     * within parameter tags.
      *
      * @param strict
-     *            if true, the given targets MUST contain EXACTLY ALL given
-     *            tags, AND NO OTHERS. If false, the given targets MUST contain
-     *            ALL given tags, BUT MAY CONTAIN FURTHER ONE
+     *            if true, the given targets MUST contain EXACTLY ALL given tags,
+     *            AND NO OTHERS. If false, the given targets MUST contain ALL given
+     *            tags, BUT MAY CONTAIN FURTHER ONE
      * @param targets
      *            targets to be verified
      * @param tags
@@ -871,7 +871,7 @@ public class TargetManagementTest extends AbstractJpaIntegrationTest {
         final String knownTargetControllerId = "readTarget";
         controllerManagement.findOrRegisterTargetIfItDoesNotExist(knownTargetControllerId, new URI("http://127.0.0.1"));
 
-        securityRule.runAs(WithSpringAuthorityRule.withUser("bumlux", "READ_TARGET"), () -> {
+        securityRule.runAs(WithSpringAuthorityRule.withUser("bumlux", SpPermission.READ_TARGET), () -> {
             final Target findTargetByControllerID = targetManagement.getByControllerID(knownTargetControllerId).get();
             assertThat(findTargetByControllerID).isNotNull();
             assertThat(findTargetByControllerID.getPollStatus()).isNotNull();

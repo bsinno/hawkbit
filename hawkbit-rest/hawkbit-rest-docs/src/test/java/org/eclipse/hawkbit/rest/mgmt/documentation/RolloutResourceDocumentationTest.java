@@ -79,7 +79,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving all rollouts. Required Permission: "
-            + SpPermission.READ_ROLLOUT)
+            + SpPermission.Authority.READ_ROLLOUT)
     public void getRollouts() throws Exception {
         enableMultiAssignments();
         createRolloutEntity();
@@ -95,7 +95,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving all rollouts. Required Permission: "
-            + SpPermission.READ_ROLLOUT)
+            + SpPermission.Authority.READ_ROLLOUT)
     public void getRolloutsWithParameters() throws Exception {
         createRolloutEntity();
 
@@ -160,7 +160,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving a single rollout. Required Permission: "
-            + SpPermission.READ_ROLLOUT)
+            + SpPermission.Authority.READ_ROLLOUT)
     public void getRollout() throws Exception {
         enableMultiAssignments();
         final Rollout rollout = createRolloutEntity();
@@ -173,7 +173,8 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @Test
-    @Description("Handles the POST request of creating a rollout. Required Permission: " + SpPermission.CREATE_ROLLOUT)
+    @Description("Handles the POST request of creating a rollout. Required Permission: "
+            + SpPermission.Authority.CREATE_ROLLOUT)
     public void createRollout() throws Exception {
 
         testdataFactory.createTargets(20, "targets-");
@@ -246,7 +247,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the POST request of creating a rollout with a groups definition. Required Permission: "
-            + SpPermission.CREATE_ROLLOUT)
+            + SpPermission.Authority.CREATE_ROLLOUT)
     public void createRolloutWithGroupsDefinition() throws Exception {
 
         final int amountTargets = 10;
@@ -368,7 +369,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the DELETE request of deleting a rollout within SP. Required Permission: "
-            + SpPermission.DELETE_ROLLOUT)
+            + SpPermission.Authority.DELETE_ROLLOUT)
     public void deleteRollout() throws Exception {
         final Rollout rollout = createRolloutEntity();
         this.mockMvc.perform(delete(MgmtRestConstants.ROLLOUT_V1_REQUEST_MAPPING + "/{rolloutId}", rollout.getId()))
@@ -377,7 +378,8 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @Test
-    @Description("Handles the POST request of starting a rollout. Required Permission: " + SpPermission.HANDLE_ROLLOUT)
+    @Description("Handles the POST request of starting a rollout. Required Permission: "
+            + SpPermission.Authority.HANDLE_ROLLOUT)
     public void startRollout() throws Exception {
         final Rollout rollout = createRolloutEntity();
         mockMvc.perform(post(MgmtRestConstants.ROLLOUT_V1_REQUEST_MAPPING + "/{rolloutId}/start", rollout.getId())
@@ -387,7 +389,8 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @Test
-    @Description("Handles the POST request of pausing a rollout. Required Permission: " + SpPermission.HANDLE_ROLLOUT)
+    @Description("Handles the POST request of pausing a rollout. Required Permission: "
+            + SpPermission.Authority.HANDLE_ROLLOUT)
     public void pauseRollout() throws Exception {
         final Rollout rollout = createRolloutEntity();
         rolloutManagement.start(rollout.getId());
@@ -402,7 +405,8 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @Test
-    @Description("Handles the POST request of resuming a rollout. Required Permission: " + SpPermission.HANDLE_ROLLOUT)
+    @Description("Handles the POST request of resuming a rollout. Required Permission: "
+            + SpPermission.Authority.HANDLE_ROLLOUT)
     public void resumeRollout() throws Exception {
         final Rollout rollout = createRolloutEntity();
         rolloutManagement.start(rollout.getId());
@@ -419,7 +423,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the POST request of approving a rollout. Required Permission: "
-            + SpPermission.APPROVE_ROLLOUT)
+            + SpPermission.Authority.APPROVE_ROLLOUT)
     public void approveRollout() throws Exception {
         approvalStrategy.setApprovalNeeded(true);
         final Rollout rollout = createRolloutEntity();
@@ -430,7 +434,8 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @Test
-    @Description("Handles the POST request of denying a rollout. Required Permission: " + SpPermission.APPROVE_ROLLOUT)
+    @Description("Handles the POST request of denying a rollout. Required Permission: "
+            + SpPermission.Authority.APPROVE_ROLLOUT)
     public void denyRollout() throws Exception {
         approvalStrategy.setApprovalNeeded(true);
         final Rollout rollout = createRolloutEntity();
@@ -442,7 +447,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving the deploy groups of a rollout. Required Permission: "
-            + SpPermission.READ_ROLLOUT)
+            + SpPermission.Authority.READ_ROLLOUT)
     public void getRolloutDeployGroups() throws Exception {
         final Rollout rollout = createRolloutEntity();
 
@@ -460,7 +465,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving a deploy group of a rollout. Required Permission: "
-            + SpPermission.READ_ROLLOUT)
+            + SpPermission.Authority.READ_ROLLOUT)
     public void getRolloutDeployGroup() throws Exception {
         final Rollout rollout = createRolloutEntity();
         final RolloutGroup firstRolloutGroup = rolloutGroupManagement.findByRollout(PAGE, rollout.getId()).getContent()
@@ -546,7 +551,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving a deploy group of a rollout. Required Permission: "
-            + SpPermission.READ_ROLLOUT)
+            + SpPermission.Authority.READ_ROLLOUT)
     public void getRolloutDeployGroupWithParameters() throws Exception {
         final Rollout rollout = createRolloutEntity();
         final RolloutGroup firstRolloutGroup = rolloutGroupManagement
@@ -566,7 +571,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving a all targets of a specific deploy group of a rollout. Required Permissions: "
-            + SpPermission.READ_ROLLOUT + ", " + SpPermission.READ_TARGET)
+            + SpPermission.Authority.READ_ROLLOUT + ", " + SpPermission.Authority.READ_TARGET)
     public void getRolloutDeployGroupTargets() throws Exception {
         final Rollout rollout = createRolloutEntity();
         final RolloutGroup firstRolloutGroup = rolloutGroupManagement
@@ -614,7 +619,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
 
     @Test
     @Description("Handles the GET request of retrieving a all targets of a specific deploy group of a rollout. Required Permission: "
-            + SpPermission.READ_ROLLOUT + ", " + SpPermission.READ_TARGET)
+            + SpPermission.Authority.READ_ROLLOUT + ", " + SpPermission.Authority.READ_TARGET)
     public void getRolloutDeployGroupTargetsWithParameters() throws Exception {
         final Rollout rollout = createRolloutEntity();
         final RolloutGroup firstRolloutGroup = rolloutGroupManagement

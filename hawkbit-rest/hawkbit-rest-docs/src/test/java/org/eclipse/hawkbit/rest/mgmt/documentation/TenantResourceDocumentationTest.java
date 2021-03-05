@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hawkbit.im.authentication.SpPermission;
 import org.eclipse.hawkbit.mgmt.json.model.system.MgmtSystemTenantConfigurationValueRequest;
 import org.eclipse.hawkbit.mgmt.rest.api.MgmtRestConstants;
 import org.eclipse.hawkbit.repository.model.TenantConfiguration;
@@ -103,8 +102,7 @@ public class TenantResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles GET request for receiving all tenant specific configurations. Required Permission: "
-            + SpPermission.TENANT_CONFIGURATION)
+    @Description("Handles GET request for receiving all tenant specific configurations. Required Permission: TENANT_CONFIGURATION")
     public void getTenantConfigrations() throws Exception {
 
         mockMvc.perform(get(MgmtRestConstants.SYSTEM_V1_REQUEST_MAPPING + "/configs/")).andExpect(status().isOk())
@@ -113,8 +111,7 @@ public class TenantResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles GET request for receiving a tenant specific configuration. Required Permission: "
-            + SpPermission.TENANT_CONFIGURATION)
+    @Description("Handles GET request for receiving a tenant specific configuration. Required Permission: TENANT_CONFIGURATION")
     public void getTenantConfigration() throws Exception {
         mockMvc.perform(get(MgmtRestConstants.SYSTEM_V1_REQUEST_MAPPING + "/configs/{keyName}/",
                 TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY)).andExpect(status().isOk())
@@ -125,8 +122,7 @@ public class TenantResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles PUT request for settings values in tenant specific configuration. Required Permission: "
-            + SpPermission.TENANT_CONFIGURATION)
+    @Description("Handles PUT request for settings values in tenant specific configuration. Required Permission: TENANT_CONFIGURATION")
     public void putTenantConfigration() throws Exception {
 
         final MgmtSystemTenantConfigurationValueRequest bodyPut = new MgmtSystemTenantConfigurationValueRequest();
@@ -145,8 +141,7 @@ public class TenantResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles DELETE request deleting a tenant specific configuration. Required Permission: "
-            + SpPermission.TENANT_CONFIGURATION)
+    @Description("Handles DELETE request deleting a tenant specific configuration. Required Permission: TENANT_CONFIGURATION")
     public void deleteTenantConfigration() throws Exception {
         mockMvc.perform(delete(MgmtRestConstants.SYSTEM_V1_REQUEST_MAPPING + "/configs/{keyName}/",
                 TenantConfigurationKey.AUTHENTICATION_MODE_GATEWAY_SECURITY_TOKEN_KEY)).andExpect(status().isOk())

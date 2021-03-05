@@ -76,7 +76,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving all targets within SP. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving all targets within SP. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getTargets() throws Exception {
         createTargetByGivenNameWithAttributes(targetId, createDistributionSet());
 
@@ -111,7 +112,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving all targets within SP based by parameter. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving all targets within SP based by parameter. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getTargetsWithParameters() throws Exception {
         mockMvc.perform(get(MgmtRestConstants.TARGET_V1_REQUEST_MAPPING + "?limit=10&sort=name:ASC&offset=0&q=name==a"))
                 .andExpect(status().isOk()).andDo(MockMvcResultPrinter.print())
@@ -119,7 +121,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the POST request of creating new targets within SP. The request body must always be a list of targets. Required Permission: CREATE_TARGET.")
+    @Description("Handles the POST request of creating new targets within SP. The request body must always be a list of targets. Required Permission: "
+            + SpPermission.Authority.CREATE_TARGET)
     public void postTargets() throws Exception {
         final String target = createTargetJsonForPostRequest("123456", "controllerId", "test");
 
@@ -155,7 +158,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the DELETE request of deleting a single target within SP. Required Permission: DELETE_TARGET.")
+    @Description("Handles the DELETE request of deleting a single target within SP. Required Permission: "
+            + SpPermission.Authority.DELETE_TARGET)
     public void deleteTarget() throws Exception {
         final Target target = testdataFactory.createTarget(targetId);
 
@@ -165,7 +169,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving a single target within SP. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving a single target within SP. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getTarget() throws Exception {
         final Target target = createTargetByGivenNameWithAttributes(targetId, createDistributionSet());
 
@@ -177,7 +182,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the PUT request of updating a target within SP. Required Permission: UPDATE_TARGET.")
+    @Description("Handles the PUT request of updating a target within SP. Required Permission: "
+            + SpPermission.Authority.UPDATE_TARGET)
     public void putTarget() throws Exception {
         final Target target = createTargetByGivenNameWithAttributes(targetId, createDistributionSet());
         final String targetAsJson = createJsonTarget(targetId, "newTargetName", "I've been updated");
@@ -201,7 +207,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving the full action history of a specific target. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving the full action history of a specific target. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getActionsFromTarget() throws Exception {
         enableMultiAssignments();
         generateActionForTarget(targetId);
@@ -235,7 +242,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving the full action history of a specific target with maintenance window. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving the full action history of a specific target with maintenance window. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getActionsFromTargetWithMaintenanceWindow() throws Exception {
         enableMultiAssignments();
         generateActionForTarget(targetId, true, false, getTestSchedule(2), getTestDuration(1), getTestTimeZone());
@@ -279,7 +287,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving all targets within SP based by parameter. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving all targets within SP based by parameter. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getActionsFromTargetWithParameters() throws Exception {
         generateActionForTarget(targetId);
 
@@ -295,7 +304,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Cancels an active action, only active actions can be deleted. Required Permission: UPDATE_TARGET.")
+    @Description("Cancels an active action, only active actions can be deleted. Required Permission: "
+            + SpPermission.Authority.UPDATE_TARGET)
     public void deleteActionFromTarget() throws Exception {
         final Action actions = generateActionForTarget(targetId, false);
 
@@ -308,11 +318,12 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Optionally force quits an active action, only active actions can be deleted. Required Permission: UPDATE_TARGET.")
+    @Description("Optionally force quits an active action, only active actions can be deleted. Required Permission: "
+            + SpPermission.Authority.UPDATE_TARGET)
     public void deleteActionFromTargetWithParameters() throws Exception {
         final Action action = generateActionForTarget(targetId, false);
         deploymentManagement.cancelAction(action.getId());
-        
+
         mockMvc.perform(delete(MgmtRestConstants.TARGET_V1_REQUEST_MAPPING + "/{targetId}/"
                 + MgmtRestConstants.TARGET_V1_ACTIONS + "/{actionId}?force=true", targetId, action.getId()))
                 .andExpect(status().isNoContent()).andDo(MockMvcResultPrinter.print())
@@ -323,7 +334,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving a specific action on a specific target. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving a specific action on a specific target. Required Permission: "
+            + SpPermission.Authority.UPDATE_TARGET)
     public void getActionFromTarget() throws Exception {
         enableMultiAssignments();
         final Action action = generateActionForTarget(targetId, true, true);
@@ -359,7 +371,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving a specific action on a specific target. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving a specific action on a specific target. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getActionFromTargetWithMaintenanceWindow() throws Exception {
         enableMultiAssignments();
         final Action action = generateActionForTarget(targetId, true, true, getTestSchedule(2), getTestDuration(1),
@@ -404,7 +417,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the PUT request to switch an action from soft to forced. Required Permission: UPDATE_TARGET.")
+    @Description("Handles the PUT request to switch an action from soft to forced. Required Permission: "
+            + SpPermission.Authority.UPDATE_TARGET)
     public void switchActionToForced() throws Exception {
         final Target target = testdataFactory.createTarget(targetId);
         final DistributionSet set = testdataFactory.createDistributionSet();
@@ -415,10 +429,9 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
         final Map<String, Object> body = new HashMap<>();
         body.put("forceType", "forced");
 
-        mockMvc.perform(
-                put(MgmtRestConstants.TARGET_V1_REQUEST_MAPPING + "/{targetId}/" + MgmtRestConstants.TARGET_V1_ACTIONS
-                        + "/{actionId}", targetId, actionId).content(this.objectMapper.writeValueAsString(body))
-                                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(put(MgmtRestConstants.TARGET_V1_REQUEST_MAPPING + "/{targetId}/"
+                + MgmtRestConstants.TARGET_V1_ACTIONS + "/{actionId}", targetId, actionId)
+                        .content(this.objectMapper.writeValueAsString(body)).contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultPrinter.print()).andExpect(status().isOk())
                 .andDo(this.document.document(
                         pathParameters(parameterWithName("targetId").description(ApiModelPropertiesGeneric.ITEM_ID),
@@ -445,7 +458,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving a specific action on a specific target. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving a specific action on a specific target. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getStatusFromAction() throws Exception {
         final Action action = generateActionForTarget(targetId);
 
@@ -472,7 +486,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving all targets within SP based by parameter. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving all targets within SP based by parameter. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getStatusFromActionWithParameters() throws Exception {
         final Action action = generateActionForTarget(targetId);
 
@@ -487,7 +502,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving the assigned distribution set of an specific target. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving the assigned distribution set of an specific target. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getAssignedDistributionSetFromAction() throws Exception {
         generateActionForTarget(targetId);
 
@@ -498,9 +514,10 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
                         pathParameters(parameterWithName("targetId").description(ApiModelPropertiesGeneric.ITEM_ID)),
                         getResponseFieldsDistributionSet(false)));
     }
-    
+
     @Test
-    @Description("Handles the POST request for assigning a distribution set to a specific target. Required Permission: READ_REPOSITORY and UPDATE_TARGET.")
+    @Description("Handles the POST request for assigning a distribution set to a specific target. Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY + " and " + SpPermission.Authority.UPDATE_TARGET)
     public void postAssignDistributionSetToTarget() throws Exception {
         // create target and ds, and assign ds
         testdataFactory.createTarget(targetId + "-old");
@@ -518,14 +535,13 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
 
         mockMvc.perform(post(MgmtRestConstants.TARGET_V1_REQUEST_MAPPING + "/{targetId}/"
                 + MgmtRestConstants.TARGET_V1_ASSIGNED_DISTRIBUTION_SET, targetId).content(body)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultPrinter.print()).andExpect(status().isOk())
                 .andDo(this.document.document(
                         pathParameters(parameterWithName("targetId").description(ApiModelPropertiesGeneric.ITEM_ID)),
                         requestParameters(parameterWithName("offline")
                                 .description(MgmtApiModelProperties.OFFLINE_UPDATE).optional()),
-                        requestFields(
-                                requestFieldWithPath("id").description(ApiModelPropertiesGeneric.ITEM_ID),
+                        requestFields(requestFieldWithPath("id").description(ApiModelPropertiesGeneric.ITEM_ID),
                                 requestFieldWithPathMandatoryInMultiAssignMode("weight")
                                         .description(MgmtApiModelProperties.ASSIGNMENT_WEIGHT)
                                         .type(JsonFieldType.NUMBER).attributes(key("value").value("0 - 1000")),
@@ -539,12 +555,14 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
                                 optionalRequestFieldWithPath("maintenanceWindow.timezone")
                                         .description(MgmtApiModelProperties.MAINTENANCE_WINDOW_TIMEZONE),
                                 optionalRequestFieldWithPath("type").description(MgmtApiModelProperties.ASSIGNMENT_TYPE)
-                                        .attributes(key("value").value("['soft', 'forced','timeforced', 'downloadonly']"))),
+                                        .attributes(
+                                                key("value").value("['soft', 'forced','timeforced', 'downloadonly']"))),
                         responseFields(getDsAssignmentResponseFieldDescriptors())));
     }
 
     @Test
-    @Description("Handles the POST request for assigning distribution sets to a specific target. Required Permission: READ_REPOSITORY and UPDATE_TARGET.")
+    @Description("Handles the POST request for assigning distribution sets to a specific target. Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY + " and " + SpPermission.Authority.UPDATE_TARGET)
     public void postAssignDistributionSetsToTarget() throws Exception {
         // create target and ds, and assign ds
         final List<DistributionSet> sets = testdataFactory.createDistributionSets(2);
@@ -552,24 +570,24 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
 
         final long forceTime = System.currentTimeMillis();
         final JSONArray body = new JSONArray();
-        body.put(new JSONObject().put("id", sets.get(1).getId()).put("weight", 500).put("type", "timeforced")
-                .put("forcetime", forceTime)
-                .put("maintenanceWindow", new JSONObject().put("schedule", getTestSchedule(100))
-                        .put("duration", getTestDuration(10)).put("timezone", getTestTimeZone())))
+        body.put(
+                new JSONObject().put("id", sets.get(1).getId()).put("weight", 500).put("type", "timeforced")
+                        .put("forcetime", forceTime).put("maintenanceWindow",
+                                new JSONObject().put("schedule", getTestSchedule(100))
+                                        .put("duration", getTestDuration(10)).put("timezone", getTestTimeZone())))
                 .toString();
         body.put(new JSONObject().put("id", sets.get(0).getId()).put("type", "forced").put("weight", 800));
 
         enableMultiAssignments();
         mockMvc.perform(post(MgmtRestConstants.TARGET_V1_REQUEST_MAPPING + "/{targetId}/"
                 + MgmtRestConstants.TARGET_V1_ASSIGNED_DISTRIBUTION_SET, targetId).content(body.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultPrinter.print()).andExpect(status().isOk())
                 .andDo(this.document.document(
                         pathParameters(parameterWithName("targetId").description(ApiModelPropertiesGeneric.ITEM_ID)),
                         requestParameters(parameterWithName("offline")
                                 .description(MgmtApiModelProperties.OFFLINE_UPDATE).optional()),
-                        requestFields(
-                                requestFieldWithPath("[].id").description(ApiModelPropertiesGeneric.ITEM_ID),
+                        requestFields(requestFieldWithPath("[].id").description(ApiModelPropertiesGeneric.ITEM_ID),
                                 requestFieldWithPathMandatoryInMultiAssignMode("[].weight")
                                         .description(MgmtApiModelProperties.ASSIGNMENT_WEIGHT)
                                         .attributes(key("value").value("0 - 1000")),
@@ -593,21 +611,22 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     private static FieldDescriptor[] getDsAssignmentResponseFieldDescriptors() {
         final FieldDescriptor[] descriptors = {
                 fieldWithPath("assigned").description(MgmtApiModelProperties.DS_NEW_ASSIGNED_TARGETS),
-            fieldWithPath("alreadyAssigned").type(JsonFieldType.NUMBER)
-            .description(MgmtApiModelProperties.DS_ALREADY_ASSIGNED_TARGETS),
-    fieldWithPath("assignedActions").type(JsonFieldType.ARRAY)
-            .description(MgmtApiModelProperties.DS_NEW_ASSIGNED_ACTIONS),
-    fieldWithPath("assignedActions.[].id").type(JsonFieldType.NUMBER)
-            .description(MgmtApiModelProperties.ACTION_ID),
-    fieldWithPath("assignedActions.[]._links.self").type(JsonFieldType.OBJECT)
-            .description(MgmtApiModelProperties.LINK_TO_ACTION),
-    fieldWithPath("total").type(JsonFieldType.NUMBER)
+                fieldWithPath("alreadyAssigned").type(JsonFieldType.NUMBER)
+                        .description(MgmtApiModelProperties.DS_ALREADY_ASSIGNED_TARGETS),
+                fieldWithPath("assignedActions").type(JsonFieldType.ARRAY)
+                        .description(MgmtApiModelProperties.DS_NEW_ASSIGNED_ACTIONS),
+                fieldWithPath("assignedActions.[].id").type(JsonFieldType.NUMBER)
+                        .description(MgmtApiModelProperties.ACTION_ID),
+                fieldWithPath("assignedActions.[]._links.self").type(JsonFieldType.OBJECT)
+                        .description(MgmtApiModelProperties.LINK_TO_ACTION),
+                fieldWithPath("total").type(JsonFieldType.NUMBER)
                         .description(MgmtApiModelProperties.DS_TOTAL_ASSIGNED_TARGETS) };
         return descriptors;
     }
 
     @Test
-    @Description("Handles the GET request of retrieving the attributes of a specific target. Reponse is a key/value list. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving the attributes of a specific target. Response is a key/value list. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getControllerAttributes() throws Exception {
         // create target with attributes
         final Map<String, String> knownControllerAttrs = new HashMap<>();
@@ -625,7 +644,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Handles the GET request of retrieving the installed distribution set of an specific target. Required Permission: READ_TARGET.")
+    @Description("Handles the GET request of retrieving the installed distribution set of an specific target. Required Permission: "
+            + SpPermission.Authority.READ_TARGET)
     public void getInstalledDistributionSetFromTarget() throws Exception {
         final Target target = createTargetByGivenNameWithAttributes(targetId, createDistributionSet());
 
@@ -638,8 +658,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Get a paged list of meta data for a target with standard page size." + " Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+    @Description("Get a paged list of meta data for a target with standard page size. Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getMetadata() throws Exception {
         final int totalMetadata = 4;
         final String knownKeyPrefix = "knownKey";
@@ -666,7 +686,7 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
 
     @Test
     @Description("Get a paged list of meta data for a target with defined page size and sorting by name descending and key starting with 'known'."
-            + " Required Permission: " + SpPermission.READ_REPOSITORY)
+            + " Required Permission: " + SpPermission.Authority.READ_REPOSITORY)
     public void getMetadataWithParameters() throws Exception {
         final int totalMetadata = 4;
 
@@ -699,8 +719,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Get a single meta data value for a meta data key." + " Required Permission: "
-            + SpPermission.READ_REPOSITORY)
+    @Description("Get a single meta data value for a meta data key. Required Permission: "
+            + SpPermission.Authority.READ_REPOSITORY)
     public void getMetadataValue() throws Exception {
 
         // prepare and create metadata
@@ -720,8 +740,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Update a single meta data value for specific key." + " Required Permission: "
-            + SpPermission.UPDATE_REPOSITORY)
+    @Description("Update a single meta data value for specific key. Required Permission: "
+            + SpPermission.Authority.UPDATE_REPOSITORY)
     public void updateMetadata() throws Exception {
         // prepare and create metadata for update
         final String knownKey = "knownKey";
@@ -749,7 +769,7 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Delete a single meta data." + " Required Permission: " + SpPermission.UPDATE_REPOSITORY)
+    @Description("Delete a single meta data. Required Permission: " + SpPermission.Authority.UPDATE_REPOSITORY)
     public void deleteMetadata() throws Exception {
         // prepare and create metadata for deletion
         final String knownKey = "knownKey";
@@ -768,8 +788,8 @@ public class TargetResourceDocumentationTest extends AbstractApiRestDocumentatio
     }
 
     @Test
-    @Description("Create a list of meta data entries" + " Required Permission: " + SpPermission.READ_REPOSITORY
-            + " and " + SpPermission.UPDATE_TARGET)
+    @Description("Create a list of meta data entries. Required Permission: " + SpPermission.Authority.READ_REPOSITORY
+            + " and " + SpPermission.Authority.UPDATE_TARGET)
     public void createMetadata() throws Exception {
 
         final Target testTarget = testdataFactory.createTarget(targetId);
