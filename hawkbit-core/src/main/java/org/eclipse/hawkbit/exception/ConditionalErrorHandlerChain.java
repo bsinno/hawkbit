@@ -1,6 +1,3 @@
-package org.eclipse.hawkbit.exception;
-
-import org.springframework.util.ErrorHandler;
 /**
  * Copyright (c) 2021 Bosch.IO GmbH and others.
  *
@@ -9,6 +6,9 @@ import org.springframework.util.ErrorHandler;
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+package org.eclipse.hawkbit.exception;
+
+import org.springframework.util.ErrorHandler;
 import java.util.Iterator;
 import java.util.List;
 

@@ -10,7 +10,7 @@ package org.eclipse.hawkbit.exception;
 
 import org.springframework.util.ErrorHandler;
 
-import java.util.Iterator;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -28,7 +28,7 @@ public class DelegatingConditionalErrorHandler implements ErrorHandler {
      * @param defaultHandler
      *                  the default error handler
      */
-    public DelegatingConditionalErrorHandler(final List<ConditionalErrorHandler> handlers, final ErrorHandler defaultHandler) {
+    public DelegatingConditionalErrorHandler(final List<ConditionalErrorHandler> handlers, @NotNull final ErrorHandler defaultHandler) {
         this.handlers = handlers;
         this.defaultHandler = defaultHandler;
     }
