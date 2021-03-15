@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.exception;
+package org.eclipse.hawkbit.amqp;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
@@ -23,36 +23,49 @@ import java.util.List;
 @Feature("Unit Tests - Delegating Conditional Error Handler")
 @Story("Delegating Conditional Error Handler")
 @RunWith(MockitoJUnitRunner.class)
-public class DelegatingConditionalErrorHandlerTest {
+public class DelegatingAmqpErrorHandlerTest {
 
     @Test
     @Description("Verifies that with a list of conditional error handlers, the error is delegated to specific handler.")
     public void verifyDelegationHandling(){
-        List<ConditionalErrorHandler> handlers = new ArrayList<>();
-        handlers.add(new ConditionalErrorHandler1());
-        handlers.add(new ConditionalErrorHandler2());
+        List<AmqpErrorHandler> handlers = new ArrayList<>();
+        handlers.add(new AmqpErrorHandler1());
+        handlers.add(new AmqpErrorHandler2());
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler())
-                        .handleError(new Throwable(new IllegalArgumentException())),
+                        .handleError(new Throwable(new Exception().initCause(new IllegalArgumentException()))),
                 "Expected handled exception to be of type IllegalArgumentException");
     }
 
     @Test
     @Description("Verifies that with a list of conditional error handlers, undefined error is handled in default way.")
     public void verifyDefaultDelegationHandling(){
-        List<ConditionalErrorHandler> handlers = new ArrayList<>();
-        handlers.add(new ConditionalErrorHandler1());
-        handlers.add(new ConditionalErrorHandler2());
+        List<AmqpErrorHandler> handlers = new ArrayList<>();
+        handlers.add(new AmqpErrorHandler1());
+        handlers.add(new AmqpErrorHandler2());
         Assertions.assertThrows(RuntimeException.class,
-                () -> new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler()).handleError(new Throwable(new RuntimeException())),
+                () -> new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler())
+                        .handleError(new Throwable(new Exception().initCause(new NullPointerException()))),
+                "Expected handled exception to be of type RuntimeException");
+    }
+
+    @Test
+    @Description("Verifies that when the error does not contain a cause then it ends up in Illegal state")
+    public void verifyIllegalStateExceptionWhenErrorContainsNoCause(){
+        List<AmqpErrorHandler> handlers = new ArrayList<>();
+        handlers.add(new AmqpErrorHandler1());
+        handlers.add(new AmqpErrorHandler2());
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler())
+                        .handleError(new Throwable(new Exception())),
                 "Expected handled exception to be of type RuntimeException");
     }
 
     // Test class
-    public class ConditionalErrorHandler1 implements ConditionalErrorHandler<Throwable> {
+    public class AmqpErrorHandler1 implements AmqpErrorHandler {
 
         @Override
-        public void doHandle(final Throwable t, final ErrorHandlerChain<Throwable> chain) {
+        public void doHandle(final Throwable t, final AmqpErrorHandlerChain chain) {
             if (t.getCause() instanceof IllegalArgumentException) {
                 throw new IllegalArgumentException(t.getCause().getMessage());
             } else {
@@ -62,10 +75,10 @@ public class DelegatingConditionalErrorHandlerTest {
     }
 
     // Test class
-    public class ConditionalErrorHandler2 implements ConditionalErrorHandler<Throwable> {
+    public class AmqpErrorHandler2 implements AmqpErrorHandler {
 
         @Override
-        public void doHandle(final Throwable t, final ErrorHandlerChain<Throwable> chain) {
+        public void doHandle(final Throwable t, final AmqpErrorHandlerChain chain) {
             if (t.getCause() instanceof IndexOutOfBoundsException) {
                 throw new IndexOutOfBoundsException(t.getCause().getMessage());
             } else {

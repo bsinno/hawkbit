@@ -8,8 +8,6 @@
  */
 package org.eclipse.hawkbit.amqp;
 
-import org.eclipse.hawkbit.exception.ConditionalErrorHandler;
-import org.eclipse.hawkbit.exception.ErrorHandlerChain;
 import org.eclipse.hawkbit.repository.exception.EntityNotFoundException;
 import org.eclipse.hawkbit.repository.exception.InvalidTargetAttributeException;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -17,13 +15,12 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 /**
  * An error handler for all invalid target operations resulting from AMQP.
  */
-public class InvalidTargetOperationsExceptionHandler implements ConditionalErrorHandler<Throwable> {
+public class InvalidTargetOperationsExceptionHandler implements AmqpErrorHandler {
 
     @Override
-    public void doHandle(final Throwable t, final ErrorHandlerChain<Throwable> chain) {
-        Throwable cause = t.getCause();
-        if (cause instanceof InvalidTargetAttributeException || cause instanceof EntityNotFoundException) {
-            throw new AmqpRejectAndDontRequeueException(t.getCause().getMessage());
+    public void doHandle(final Throwable t, final AmqpErrorHandlerChain chain) {
+        if (t instanceof InvalidTargetAttributeException || t instanceof EntityNotFoundException) {
+            throw new AmqpRejectAndDontRequeueException(t.getMessage());
         } else {
             chain.handle(t);
         }

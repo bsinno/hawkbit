@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.hawkbit.exception;
+package org.eclipse.hawkbit.amqp;
 
 import org.springframework.util.ErrorHandler;
 
@@ -14,10 +14,10 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * An error handler which performs delegation based on the type of {@link ConditionalErrorHandler}
+ * An error handler which performs delegation based on the type of {@link AmqpErrorHandler}
  */
 public class DelegatingConditionalErrorHandler implements ErrorHandler {
-    private final List<ConditionalErrorHandler> handlers;
+    private final List<AmqpErrorHandler> handlers;
     private final ErrorHandler defaultHandler;
 
     /**
@@ -28,13 +28,13 @@ public class DelegatingConditionalErrorHandler implements ErrorHandler {
      * @param defaultHandler
      *                  the default error handler
      */
-    public DelegatingConditionalErrorHandler(final List<ConditionalErrorHandler> handlers, @NotNull final ErrorHandler defaultHandler) {
+    public DelegatingConditionalErrorHandler(final List<AmqpErrorHandler> handlers, @NotNull final ErrorHandler defaultHandler) {
         this.handlers = handlers;
         this.defaultHandler = defaultHandler;
     }
 
     @Override
     public void handleError(final Throwable t) {
-        ConditionalErrorHandlerChain.getHandler(handlers, defaultHandler).handle(t);
+        AmqpErrorHandlerChain.getHandler(handlers, defaultHandler).handle(t);
     }
 }
