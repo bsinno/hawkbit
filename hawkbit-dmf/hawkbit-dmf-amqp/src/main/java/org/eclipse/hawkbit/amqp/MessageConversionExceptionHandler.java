@@ -20,8 +20,9 @@ public class MessageConversionExceptionHandler implements AmqpErrorHandler {
     public void doHandle(final Throwable t, final AmqpErrorHandlerChain chain) {
         // retrieving the cause of throwable as it contains the details of invalid message
         // structure which caused MessageConversionException
-        if (t instanceof MessageConversionException) {
-            throw new AmqpRejectAndDontRequeueException(t.getCause().getMessage());
+        final Throwable cause = t.getCause();
+        if (cause instanceof MessageConversionException) {
+            throw new AmqpRejectAndDontRequeueException(cause.getCause().getMessage());
         } else {
             chain.handle(t);
         }

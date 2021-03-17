@@ -33,7 +33,7 @@ public class DelegatingAmqpErrorHandlerTest {
         handlers.add(new AmqpErrorHandler2());
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler())
-                        .handleError(new Throwable(new Exception().initCause(new IllegalArgumentException()))),
+                        .handleError(new Throwable(new IllegalArgumentException())),
                 "Expected handled exception to be of type IllegalArgumentException");
     }
 
@@ -45,19 +45,7 @@ public class DelegatingAmqpErrorHandlerTest {
         handlers.add(new AmqpErrorHandler2());
         Assertions.assertThrows(RuntimeException.class,
                 () -> new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler())
-                        .handleError(new Throwable(new Exception().initCause(new NullPointerException()))),
-                "Expected handled exception to be of type RuntimeException");
-    }
-
-    @Test
-    @Description("Verifies that when the error does not contain a cause then it ends up in Illegal state")
-    public void verifyIllegalStateExceptionWhenErrorContainsNoCause(){
-        List<AmqpErrorHandler> handlers = new ArrayList<>();
-        handlers.add(new AmqpErrorHandler1());
-        handlers.add(new AmqpErrorHandler2());
-        Assertions.assertThrows(IllegalStateException.class,
-                () -> new DelegatingConditionalErrorHandler(handlers, new DefaultErrorHandler())
-                        .handleError(new Throwable(new Exception())),
+                        .handleError(new Throwable(new NullPointerException())),
                 "Expected handled exception to be of type RuntimeException");
     }
 
@@ -67,7 +55,7 @@ public class DelegatingAmqpErrorHandlerTest {
         @Override
         public void doHandle(final Throwable t, final AmqpErrorHandlerChain chain) {
             if (t.getCause() instanceof IllegalArgumentException) {
-                throw new IllegalArgumentException(t.getCause().getMessage());
+                throw new IllegalArgumentException(t.getMessage());
             } else {
                 chain.handle(t);
             }
@@ -80,7 +68,7 @@ public class DelegatingAmqpErrorHandlerTest {
         @Override
         public void doHandle(final Throwable t, final AmqpErrorHandlerChain chain) {
             if (t.getCause() instanceof IndexOutOfBoundsException) {
-                throw new IndexOutOfBoundsException(t.getCause().getMessage());
+                throw new IndexOutOfBoundsException(t.getMessage());
             } else {
                 chain.handle(t);
             }

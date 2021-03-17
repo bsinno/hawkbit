@@ -19,8 +19,9 @@ public class InvalidTargetOperationsExceptionHandler implements AmqpErrorHandler
 
     @Override
     public void doHandle(final Throwable t, final AmqpErrorHandlerChain chain) {
-        if (t instanceof InvalidTargetAttributeException || t instanceof EntityNotFoundException) {
-            throw new AmqpRejectAndDontRequeueException(t.getMessage());
+        final Throwable cause = t.getCause();
+        if (cause instanceof InvalidTargetAttributeException || cause instanceof EntityNotFoundException) {
+            throw new AmqpRejectAndDontRequeueException(cause.getMessage());
         } else {
             chain.handle(t);
         }

@@ -39,17 +39,9 @@ public class AmqpErrorHandlerChain {
     }
 
     public void handle(final Throwable error) {
-        // ListenerExecutionFailedException is always the parent exception
-        // which contains the required details of the error
-        final Throwable rootError = error.getCause();
-
-        if (rootError == null) {
-            throw new IllegalStateException("Throwable must contain a cause");
-        }
-
         if (iterator.hasNext()) {
             final AmqpErrorHandler handler = iterator.next();
-            handler.doHandle(rootError, this);
+            handler.doHandle(error, this);
         } else {
             defaultHandler.handleError(error);
         }
