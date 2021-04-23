@@ -18,6 +18,7 @@ import org.eclipse.hawkbit.repository.event.remote.entity.TargetCreatedEvent;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.test.matcher.Expect;
 import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
@@ -28,6 +29,7 @@ import io.qameta.allure.Story;
 
 @Feature("Component Tests - Repository")
 @Story("Controller Management")
+@Disabled
 @TestPropertySource(locations = "classpath:/jpa-test.properties", properties = {
         "hawkbit.server.repository.eagerPollPersistence=false",
         "hawkbit.server.repository.pollPersistenceFlushTime=1000" })

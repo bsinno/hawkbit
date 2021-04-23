@@ -71,10 +71,12 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.repository.test.matcher.Expect;
 import org.eclipse.hawkbit.repository.test.matcher.ExpectEvents;
 import org.eclipse.hawkbit.repository.test.util.WithSpringAuthorityRule;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.test.annotation.DirtiesContext;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -679,6 +681,8 @@ public class ControllerManagementTest extends AbstractJpaIntegrationTest {
         result.forEach((key, value) -> assertThat(value).hasSize(1));
     }
 
+    @Disabled
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     @Description("Verify that controller registration does not result in a TargetPollEvent if feature is disabled")
     @ExpectEvents({ @Expect(type = TargetCreatedEvent.class, count = 1),

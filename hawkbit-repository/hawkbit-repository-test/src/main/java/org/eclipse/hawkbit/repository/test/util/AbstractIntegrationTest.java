@@ -100,11 +100,6 @@ import com.google.common.io.Files;
 @WithUser(principal = "bumlux", allSpPermissions = true, authorities = { CONTROLLER_ROLE, SYSTEM_ROLE })
 @SpringBootTest
 @ContextConfiguration(classes = { TestConfiguration.class, TestSupportBinderAutoConfiguration.class })
-// destroy the context after each test class because otherwise we get problem
-// when context is
-// refreshed we e.g. get two instances of CacheManager which leads to very
-// strange test failures.
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @TestExecutionListeners(listeners = EventVerifier.class, mergeMode = MERGE_WITH_DEFAULTS)
 @TestPropertySource(properties = "spring.main.allow-bean-definition-overriding=true")
 public abstract class AbstractIntegrationTest {

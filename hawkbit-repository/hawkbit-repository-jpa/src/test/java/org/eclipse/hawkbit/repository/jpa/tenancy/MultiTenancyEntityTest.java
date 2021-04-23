@@ -26,6 +26,7 @@ import org.eclipse.hawkbit.repository.test.util.CleanupTestExecutionListener;
 import org.eclipse.hawkbit.repository.test.util.DisposableSqlTestDatabase;
 import org.eclipse.hawkbit.repository.test.util.WithSpringAuthorityRule;
 import org.eclipse.hawkbit.repository.test.util.WithUser;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,7 @@ import io.qameta.allure.Story;
  * belonging to the current tenant.
  *
  */
+@Disabled
 @Feature("Component Tests - Repository")
 @Story("Multi Tenancy")
 @ExtendWith(DisposableSqlTestDatabase.class)

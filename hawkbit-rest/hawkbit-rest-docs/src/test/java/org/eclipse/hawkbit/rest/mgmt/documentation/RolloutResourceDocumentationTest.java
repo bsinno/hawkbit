@@ -41,6 +41,8 @@ import org.eclipse.hawkbit.rest.documentation.DocumenationResponseFieldsSnippet;
 import org.eclipse.hawkbit.rest.documentation.MgmtApiModelProperties;
 import org.eclipse.hawkbit.rest.util.JsonBuilder;
 import org.eclipse.hawkbit.rest.util.MockMvcResultPrinter;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +76,7 @@ public class RolloutResourceDocumentationTest extends AbstractApiRestDocumentati
     }
 
     @BeforeEach
+    @AfterEach
     public void setUp() {
         arrayPrefix = "content[].";
         approvalStrategy.setApprovalNeeded(false);

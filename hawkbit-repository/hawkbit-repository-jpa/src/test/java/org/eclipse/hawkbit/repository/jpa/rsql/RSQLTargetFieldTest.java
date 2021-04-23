@@ -9,6 +9,8 @@
 package org.eclipse.hawkbit.repository.jpa.rsql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL;
+import static org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey.POLLING_TIME_INTERVAL;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
@@ -22,9 +24,12 @@ import org.eclipse.hawkbit.repository.model.DistributionSet;
 import org.eclipse.hawkbit.repository.model.Target;
 import org.eclipse.hawkbit.repository.model.TargetTag;
 import org.eclipse.hawkbit.repository.test.util.TestdataFactory;
+import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.util.StringUtils;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
@@ -39,6 +44,9 @@ public class RSQLTargetFieldTest extends AbstractJpaIntegrationTest {
 
     private static final String OR = ",";
     private static final String AND = ";";
+
+    @Autowired
+    private TenantConfigurationProperties tenantConfigurationProperties;
 
     @BeforeEach
     public void setupBeforeTest() throws InterruptedException {
@@ -57,7 +65,7 @@ public class RSQLTargetFieldTest extends AbstractJpaIntegrationTest {
         target2 = targetManagement
                 .create(entityFactory.target().create().controllerId("targetId1234").description("targetId1234"));
         attributes.put("revision", "1.2");
-        Thread.sleep(1);
+
         target2 = controllerManagement.updateControllerAttributes(target2.getControllerId(), attributes, null);
         target2 = controllerManagement.findOrRegisterTargetIfItDoesNotExist(target2.getControllerId(), LOCALHOST);
         createTargetMetadata(target2.getControllerId(), entityFactory.generateTargetMetadata("metaKey", "value"));
@@ -200,6 +208,19 @@ public class RSQLTargetFieldTest extends AbstractJpaIntegrationTest {
     @Test
     @Description("Test filter target by lastTargetQuery")
     public void testFilterByLastTargetQuery() throws InterruptedException {
+        if (StringUtils.isEmpty(tenantConfigurationProperties.fromKeyName(POLLING_TIME_INTERVAL).getDefaultValue())) {
+            final TenantConfigurationProperties.TenantConfigurationKey tenantConfigurationKey = tenantConfigurationProperties
+                    .fromKeyName(POLLING_TIME_INTERVAL);
+            tenantConfigurationKey.setDefaultValue("00:00:01");
+            tenantConfigurationProperties.getConfiguration().put(POLLING_TIME_INTERVAL, tenantConfigurationKey);
+        }
+
+        if (StringUtils.isEmpty(tenantConfigurationProperties.fromKeyName(POLLING_OVERDUE_TIME_INTERVAL).getDefaultValue())) {
+            final TenantConfigurationProperties.TenantConfigurationKey tenantConfigurationKey = tenantConfigurationProperties
+                    .fromKeyName(POLLING_OVERDUE_TIME_INTERVAL);
+            tenantConfigurationKey.setDefaultValue("00:00:05");
+            tenantConfigurationProperties.getConfiguration().put(POLLING_OVERDUE_TIME_INTERVAL, tenantConfigurationKey);        }
+
         assertRSQLQuery(TargetFields.LASTCONTROLLERREQUESTAT.name() + "==" + target.getLastTargetQuery(), 1);
         assertRSQLQuery(TargetFields.LASTCONTROLLERREQUESTAT.name() + "!=" + target.getLastTargetQuery(), 4);
         assertRSQLQuery(TargetFields.LASTCONTROLLERREQUESTAT.name() + "=lt=" + target.getLastTargetQuery(), 0);

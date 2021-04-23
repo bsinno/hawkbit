@@ -20,10 +20,14 @@ import org.eclipse.hawkbit.repository.model.TenantConfigurationValue;
 import org.eclipse.hawkbit.repository.model.helper.TenantConfigurationManagementHolder;
 import org.eclipse.hawkbit.repository.rsql.VirtualPropertyResolver;
 import org.eclipse.hawkbit.tenancy.configuration.TenantConfigurationProperties.TenantConfigurationKey;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,15 +37,17 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 @Feature("Unit Tests - Repository")
 @Story("Placeholder resolution for virtual properties")
 public class VirtualPropertyResolverTest {
 
+    private static TenantConfigurationManagement ORIGINAL_TENANT_CONFIGURATION_MANAGEMENT;
+
     @Spy
     private final VirtualPropertyResolver resolverUnderTest = new VirtualPropertyResolver();
 
-    @MockBean
+    @Mock
     private TenantConfigurationManagement confMgmt;
 
     private StrSubstitutor substitutor;
@@ -51,20 +57,27 @@ public class VirtualPropertyResolverTest {
     private static final TenantConfigurationValue<String> TEST_POLLING_OVERDUE_TIME_INTERVAL = TenantConfigurationValue
             .<String> builder().value("00:07:37").build();
 
-    @Configuration
-    static class Config {
-        @Bean
-        TenantConfigurationManagementHolder tenantConfigurationManagementHolder() {
-            return TenantConfigurationManagementHolder.getInstance();
-        }
+    /**
+     * Preserving the previous value of {@link TenantConfigurationManagement} because it is used in other tests
+     */
+    @BeforeAll
+    public static void preserveOriginalTenantConfiguration () {
+        ORIGINAL_TENANT_CONFIGURATION_MANAGEMENT = TenantConfigurationManagementHolder.getInstance()
+                .getTenantConfigurationManagement();
+    }
+
+    /**
+     * Restoring the previous value of {@link TenantConfigurationManagement} because it is used in other tests
+     */
+    @AfterAll
+    public static void restoreOriginalTenantConfiguration () {
+        TenantConfigurationManagementHolder.getInstance().
+                setTenantConfiguration(ORIGINAL_TENANT_CONFIGURATION_MANAGEMENT);
     }
 
     @BeforeEach
     public void before() {
-        when(confMgmt.getConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class))
-                .thenReturn(TEST_POLLING_TIME_INTERVAL);
-        when(confMgmt.getConfigurationValue(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class))
-                .thenReturn(TEST_POLLING_OVERDUE_TIME_INTERVAL);
+        TenantConfigurationManagementHolder.getInstance().setTenantConfiguration(confMgmt);
 
         substitutor = new StrSubstitutor(resolverUnderTest, StrSubstitutor.DEFAULT_PREFIX,
                 StrSubstitutor.DEFAULT_SUFFIX, StrSubstitutor.DEFAULT_ESCAPE);
@@ -83,6 +96,11 @@ public class VirtualPropertyResolverTest {
     @Test
     @Description("Tests resolution of OVERDUE_TS by using a StrSubstitutor configured with the VirtualPropertyResolver.")
     public void resolveOverdueTimestampPlaceholder() {
+        when(confMgmt.getConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class))
+                .thenReturn(TEST_POLLING_TIME_INTERVAL);
+        when(confMgmt.getConfigurationValue(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class))
+                .thenReturn(TEST_POLLING_OVERDUE_TIME_INTERVAL);
+
         final String placeholder = "${OVERDUE_TS}";
         final String testString = "lhs=lt=" + placeholder;
 
@@ -93,6 +111,11 @@ public class VirtualPropertyResolverTest {
     @Test
     @Description("Tests case insensititity of VirtualPropertyResolver.")
     public void resolveOverdueTimestampPlaceholderLowerCase() {
+        when(confMgmt.getConfigurationValue(TenantConfigurationKey.POLLING_TIME_INTERVAL, String.class))
+                .thenReturn(TEST_POLLING_TIME_INTERVAL);
+        when(confMgmt.getConfigurationValue(TenantConfigurationKey.POLLING_OVERDUE_TIME_INTERVAL, String.class))
+                .thenReturn(TEST_POLLING_OVERDUE_TIME_INTERVAL);
+
         final String placeholder = "${overdue_ts}";
         final String testString = "lhs=lt=" + placeholder;
 
