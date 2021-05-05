@@ -21,6 +21,7 @@ public final class EventTopics {
     public static final String FILE_UPLOAD_CHANGED = "fileUploadChanged";
     public static final String BULK_UPLOAD_CHANGED = "bulkUploadChanged";
     public static final String ENTITY_DRAGGING_CHANGED = "entityDraggingChanged";
+    public static final String GRID_SIZE_EXCEEDANCE_CHANGED = "gridSizeExceedanceChanged";
 
     private EventTopics() {
     }

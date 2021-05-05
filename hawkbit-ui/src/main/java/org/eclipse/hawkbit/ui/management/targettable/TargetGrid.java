@@ -64,6 +64,8 @@ import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.components.grid.FooterCell;
+import com.vaadin.ui.components.grid.FooterRow;
 
 /**
  * Concrete implementation of Target grid which is displayed on the Deployment
@@ -92,6 +94,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
     private final transient PinSupport<ProxyTarget, Long> pinSupport;
     private final transient DeleteSupport<ProxyTarget> targetDeleteSupport;
+    private final transient TargetManagementStateDataProvider dataProvider;
+
+    private final transient FooterRow footerRow;
 
     /**
      * Constructor for TargetGrid
@@ -114,13 +119,15 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
      *            DistributionGridLayoutUiState
      * @param targetTagFilterLayoutUiState
      *            TargetTagFilterLayoutUiState
+     * @param gridSizeLimit
+     *            max size of grid
      */
     public TargetGrid(final CommonUiDependencies uiDependencies, final TargetManagement targetManagement,
             final DeploymentManagement deploymentManagement, final TenantConfigurationManagement configManagement,
             final SystemSecurityContext systemSecurityContext, final UiProperties uiProperties,
             final TargetGridLayoutUiState targetGridLayoutUiState,
             final DistributionGridLayoutUiState distributionGridLayoutUiState,
-            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState) {
+            final TargetTagFilterLayoutUiState targetTagFilterLayoutUiState, final long gridSizeLimit) {
         super(uiDependencies.getI18n(), uiDependencies.getEventBus(), uiDependencies.getPermChecker());
 
         this.targetManagement = targetManagement;
@@ -164,9 +171,9 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
             getDragAndDropSupportSupport().addDragAndDrop();
         }
 
-        setFilterSupport(
-                new FilterSupport<>(new TargetManagementStateDataProvider(targetManagement, targetToProxyTargetMapper),
-                        getSelectionSupport()::deselectAll));
+        dataProvider = new TargetManagementStateDataProvider(targetManagement, targetToProxyTargetMapper, gridSizeLimit,
+                uiDependencies.getEventBus(), EventView.DEPLOYMENT);
+        setFilterSupport(new FilterSupport<>(dataProvider, getSelectionSupport()::deselectAll));
         initFilterMappings();
         getFilterSupport().setFilter(new TargetManagementFilterParams());
 
@@ -175,7 +182,12 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
                 UIComponentIdProvider.TARGET_TABLE_STATUS_LABEL_ID);
         targetPollingStatusIconSupplier = new TargetPollingStatusIconSupplier(i18n,
                 UIComponentIdProvider.TARGET_TABLE_POLLING_STATUS_LABEL_ID);
+        footerRow = appendFooterRow();
         init();
+    }
+
+    public void updateFooter(final boolean isSizeLimitExceeded) {
+        this.getFooter().setVisible(isSizeLimitExceeded);
     }
 
     @Override
@@ -309,6 +321,13 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
 
         GridComponentBuilder.joinToActionColumn(i18n, getDefaultHeaderRow(),
                 Arrays.asList(addPinColumn(), addDeleteColumn()));
+        setUpFooter();
+    }
+
+    private void setUpFooter() {
+        final String[] colIds = getColumns().stream().map(Column::getId).toArray(size -> new String[size]);
+        final FooterCell footer = footerRow.join(colIds);
+        footer.setText("...");
     }
 
     private Column<ProxyTarget, String> addControllerIdColumn() {
@@ -353,6 +372,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
         addDeleteColumn();
 
         getColumns().forEach(column -> column.setHidable(true));
+        setUpFooter();
     }
 
     @Override

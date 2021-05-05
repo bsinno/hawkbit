@@ -17,10 +17,15 @@ import org.eclipse.hawkbit.repository.model.TargetUpdateStatus;
 import org.eclipse.hawkbit.ui.common.data.filters.TargetManagementFilterParams;
 import org.eclipse.hawkbit.ui.common.data.mappers.TargetToProxyTargetMapper;
 import org.eclipse.hawkbit.ui.common.data.proxies.ProxyTarget;
+import org.eclipse.hawkbit.ui.common.event.EventLayout;
+import org.eclipse.hawkbit.ui.common.event.EventTopics;
+import org.eclipse.hawkbit.ui.common.event.EventView;
+import org.eclipse.hawkbit.ui.common.event.GridSizeExceedanceEventPayload;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.vaadin.spring.events.EventBus.UIEventBus;
 
 /**
  * Data provider for {@link Target}, which dynamically loads a batch of
@@ -33,20 +38,34 @@ public class TargetManagementStateDataProvider
     private static final long serialVersionUID = 1L;
 
     private final transient TargetManagement targetManagement;
+    private final transient UIEventBus eventBus;
+
+    private final long maxEntityCount;
+    private final EventView eventView;
 
     /**
      * Constructor for TargetManagementStateDataProvider
-     *
+     * 
      * @param targetManagement
-     *          TargetManagement
+     *            TargetManagement
      * @param entityMapper
-     *          TargetToProxyTargetMapper
+     *            TargetToProxyTargetMapper
+     * @param maxEntityCount
+     *            Max number of targets that can be fetched by this Provider
+     * @param eventBus
+     *            to send grid size exceedance event
+     * @param eventView
+     *            {@link EventView} the provider is used for
      */
     public TargetManagementStateDataProvider(final TargetManagement targetManagement,
-            final TargetToProxyTargetMapper entityMapper) {
+            final TargetToProxyTargetMapper entityMapper, final long maxEntityCount, final UIEventBus eventBus,
+            final EventView eventView) {
         super(entityMapper, Sort.by(Direction.DESC, "lastModifiedAt"));
 
         this.targetManagement = targetManagement;
+        this.maxEntityCount = maxEntityCount;
+        this.eventBus = eventBus;
+        this.eventView = eventView;
     }
 
     @Override
@@ -85,27 +104,36 @@ public class TargetManagementStateDataProvider
 
     @Override
     protected long sizeInBackEnd(final PageRequest pageRequest, final TargetManagementFilterParams filter) {
+        long size;
         if (filter == null) {
-            return targetManagement.count();
-        }
+            size = targetManagement.count();
+        } else {
+            final String searchText = filter.getSearchText();
+            final Collection<TargetUpdateStatus> targetUpdateStatusList = filter.getTargetUpdateStatusList();
+            final boolean overdueState = filter.isOverdueState();
+            final Long distributionId = filter.getDistributionId();
+            final boolean noTagClicked = filter.isNoTagClicked();
+            final String[] targetTags = filter.getTargetTags().toArray(new String[0]);
+            final Long targetFilterQueryId = filter.getTargetFilterQueryId();
 
-        final String searchText = filter.getSearchText();
-        final Collection<TargetUpdateStatus> targetUpdateStatusList = filter.getTargetUpdateStatusList();
-        final boolean overdueState = filter.isOverdueState();
-        final Long distributionId = filter.getDistributionId();
-        final boolean noTagClicked = filter.isNoTagClicked();
-        final String[] targetTags = filter.getTargetTags().toArray(new String[0]);
-        final Long targetFilterQueryId = filter.getTargetFilterQueryId();
-
-        if (filter.isAnyFilterSelected()) {
-            if (targetFilterQueryId != null) {
-                return targetManagement.countByTargetFilterQuery(targetFilterQueryId);
+            if (filter.isAnyFilterSelected()) {
+                if (targetFilterQueryId != null) {
+                    size = targetManagement.countByTargetFilterQuery(targetFilterQueryId);
+                } else {
+                    size = targetManagement.countByFilters(targetUpdateStatusList, overdueState, searchText,
+                            distributionId, noTagClicked, targetTags);
+                }
+            } else {
+                size = targetManagement.count();
             }
-
-            return targetManagement.countByFilters(targetUpdateStatusList, overdueState, searchText, distributionId,
-                    noTagClicked, targetTags);
         }
 
-        return targetManagement.count();
+        publishGridSizeExceedanceEvent(size > maxEntityCount);
+        return Math.min(size, maxEntityCount);
+    }
+
+    private void publishGridSizeExceedanceEvent(final boolean isSizeLimitExceeded) {
+        eventBus.publish(EventTopics.GRID_SIZE_EXCEEDANCE_CHANGED, this,
+                new GridSizeExceedanceEventPayload(EventLayout.TARGET_LIST, eventView, isSizeLimitExceeded));
     }
 }
