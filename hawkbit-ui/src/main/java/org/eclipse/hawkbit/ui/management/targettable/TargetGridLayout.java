@@ -253,6 +253,7 @@ public class TargetGridLayout extends AbstractGridComponentLayout {
         targetModifiedListener.unsubscribe();
         tagModifiedListener.unsubscribe();
         bulkUploadListener.unsubscribe();
+        gridSizeExceedanceListener.unsubscribe();
     }
 
     /**

@@ -187,6 +187,7 @@ public class TargetGrid extends AbstractGrid<ProxyTarget, TargetManagementFilter
     }
 
     public void updateFooter(final boolean isSizeLimitExceeded) {
+        System.out.println("updateFooter");
         this.getFooter().setVisible(isSizeLimitExceeded);
     }
 
